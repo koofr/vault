@@ -85,4 +85,4 @@ We would like to extend a huge thank you to [rclone](https://rclone.org/) for th
 
 ## License
 
-Koofr Vault is licensed under the terms of the [MIT license](./LIENSE).
+Koofr Vault is licensed under the terms of the [MIT license](./LICENSE).
