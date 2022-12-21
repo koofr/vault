@@ -75,7 +75,7 @@ fi
 
 ## Contributing
 
-If you have a bug report, please send the report to [support@koofr.net](mailto:support@koofr.net). If you are considering contributing to the Koofr Vault code, please contact as to discuss your intended contribution first, as we can not afford the effort to review arbitrary contributions at the moment.
+If you have a bug report, please send the report to [support@koofr.net](mailto:support@koofr.net). If you are considering contributing to the Koofr Vault code, please contact us in order to discuss your intended contribution first, as we can not afford the effort to review arbitrary contributions at the moment.
 
 ## Authors and acknowledgement
 
