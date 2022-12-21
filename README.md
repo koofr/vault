@@ -49,7 +49,7 @@ Example:
 mkdir koofr-vault-check
 cd koofr-vault-check
 
-wget https://repo.koofr.eu/vault/vault-web-052a457.tar.gz
+wget https://github.com/koofr/vault/releases/download/v0.1.0/vault-web.tar.gz
 
 tar xf vault-web.tar.gz
 
