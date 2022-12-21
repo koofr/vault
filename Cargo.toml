@@ -1,0 +1,12 @@
+[workspace]
+members = [
+  "vault-core",
+  "vault-core/user-error-derive",
+  "vault-wasm",
+]
+
+[profile.release]
+# lto = true
+
+[profile.release.package.vault-wasm]
+opt-level = "s"

@@ -1,0 +1,45 @@
+use std::{collections::HashMap, sync::Arc};
+
+use crate::{
+    common::state::Status,
+    eventstream::service::MountSubscription,
+    repo_files::{errors::LoadFilesError, state::RepoFile},
+    selection::state::{Selection, SelectionSummary},
+};
+
+pub struct RepoFilesBrowserItem<'a> {
+    pub file: &'a RepoFile,
+    pub is_selected: bool,
+}
+
+pub struct RepoFilesBrowserInfo<'a> {
+    pub repo_id: &'a str,
+    pub path: &'a str,
+    pub selection_summary: SelectionSummary,
+    pub status: &'a Status<LoadFilesError>,
+    pub title: Option<String>,
+    pub total_count: usize,
+    pub total_size: i64,
+    pub selected_count: usize,
+    pub selected_size: i64,
+    pub selected_file: Option<&'a RepoFile>,
+    pub can_copy_selected: bool,
+    pub can_move_selected: bool,
+    pub can_delete_selected: bool,
+}
+
+#[derive(Clone)]
+pub struct RepoFilesBrowser {
+    pub repo_id: String,
+    pub path: String,
+    pub status: Status<LoadFilesError>,
+    pub selection: Selection,
+    pub eventstream_mount_subscription: Option<Arc<MountSubscription>>,
+    pub repo_files_subscription_id: u32,
+}
+
+#[derive(Clone, Default)]
+pub struct RepoFilesBrowsersState {
+    pub browsers: HashMap<u32, RepoFilesBrowser>,
+    pub next_id: u32,
+}

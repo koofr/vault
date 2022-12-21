@@ -1,0 +1,4 @@
+target
+vault-web/dist
+vault-web/node_modules
+.DS_Store

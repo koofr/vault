@@ -1,0 +1,45 @@
+[package]
+name = "vault-wasm"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[features]
+default = ["console_error_panic_hook"]
+
+[dependencies]
+async-trait = "0.1.57"
+console_error_panic_hook = { version = "0.1.6", optional = true }
+console_log = "0.2.0"
+futures = "0.3.24"
+getrandom = { version = "0.2.7", features = ["js"] }
+http = "0.2.8"
+instant = { version = "0.1.12", features = ["wasm-bindgen", "inaccurate"] }
+js-sys = "0.3.60"
+log = "0.4.17"
+serde = { version = "1.0.144", features = ["derive"] }
+serde-wasm-bindgen = "0.4.3"
+size = "0.4.0"
+thiserror = "1.0.35"
+tsify = { version = "0.4.2", features = ["js"] }
+vault-core = { path = "../vault-core" }
+wasm-bindgen = { version = "0.2.83" }
+wasm-bindgen-futures = "0.4.33"
+wasm-streams = "0.2.3"
+web-sys = { version = "0.3.60", features = [
+  'AbortController',
+  'AbortSignal',
+  'Blob',
+  'console',
+  'File',
+  'Headers',
+  'Storage',
+  'ReadableStream',
+  'Request',
+  'RequestInit',
+  'RequestMode',
+  'Response',
+  'Window',
+] }

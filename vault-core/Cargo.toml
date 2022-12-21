@@ -1,0 +1,36 @@
+[package]
+name = "vault-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# eme-mode 0.2.1 does not compile with aes 0.8.1
+aes = { version = "0.7.5", features = ["ctr"] }
+async-trait = "0.1.57"
+bytes = "1.2.1"
+data-encoding = "2.3.2"
+# eme-mode 0.3 is not correct for inputs longer than 16 bytes
+eme-mode = "0.2.1"
+futures = { version = "0.3.24", features = ["executor"] }
+http = "0.2.8"
+instant = "0.1.12"
+log = "0.4.17"
+phf = { version = "0.11.1", features = ["macros"] }
+pin-project-lite = "0.2.9"
+rand_core = "0.6.4"
+rust-ini = "0.18.0"
+scrypt = { version = "0.2", default-features = false }
+serde = { version = "1.0.144", features = ["derive"] }
+serde_derive = "1.0.144"
+serde_json = "1.0.85"
+serde_urlencoded = "0.7.1"
+slug = "0.1.4"
+thiserror = "1.0.35"
+url = "2.3.1"
+urlencoding = "2.1.2"
+user-error-derive = { path = "./user-error-derive" }
+uuid = { version = "1.2.1", features = ["v4", "fast-rng"] }
+xsalsa20poly1305 = "0.9.0"
+
+[dev-dependencies]
+futures-test = "0.3.24"

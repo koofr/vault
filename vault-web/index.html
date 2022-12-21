@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<!--[if IE]><html class="unsupported-browser"><![endif]-->
+<!--[if !IE]><!-->
+<html lang="en">
+  <!--<![endif]-->
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+
+    <title>Koofr Vault</title>
+
+    <link rel="icon" type="image/png" href="/favicon.png" />
+
+    <meta
+      name="description"
+      content="Koofr Vault is an open-source, client-side encrypted folder for your Koofr cloud storage offering an extra layer of security for your most sensitive files. Unlock your Vault today!"
+    />
+
+    <meta property="og:url" content="https://vault.koofr.net/" />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="Koofr Vault - One vault for all your private files."
+    />
+    <meta
+      property="og:image"
+      content="https://vault.koofr.net/koofr-vault-preview.png"
+    />
+    <meta
+      property="og:description"
+      content="Koofr Vault is an open-source, client-side encrypted folder for your Koofr cloud storage offering an extra layer of security for your most sensitive files. Unlock your Vault today!"
+    />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@koofrnet" />
+    <meta name="twitter:creator" content="@koofrnet" />
+    <meta
+      name="twitter:title"
+      content="Koofr Vault - One vault for all your private files."
+    />
+    <meta
+      name="twitter:description"
+      content="Koofr Vault is an open-source, client-side encrypted folder for your Koofr cloud storage offering an extra layer of security for your most sensitive files. Unlock your Vault today!"
+    />
+    <meta
+      name="twitter:image"
+      content="https://vault.koofr.net/koofr-vault-preview.png"
+    />
+
+    <style>
+      body {
+        overflow-y: scroll;
+        margin: 0;
+      }
+
+      .app-loading {
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 70px;
+        bottom: 0;
+        display: -ms-flexbox;
+        display: flex;
+        background-color: #ffffff;
+        z-index: 10000;
+        opacity: 1;
+        transition: opacity 0.3s ease-out;
+      }
+
+      .app-loading.is-hidden {
+        opacity: 0;
+      }
+
+      .app-loading__circle {
+        width: 70px;
+        height: 70px;
+        margin: auto;
+        background-color: #71ba05;
+        border-radius: 100%;
+        -webkit-animation: app-loading-circle 2s infinite ease-out both;
+        animation: app-loading-circle 2s infinite ease-out both;
+      }
+
+      @-webkit-keyframes app-loading-circle {
+        0%,
+        100% {
+          -webkit-transform: scale(0.1);
+        }
+        50% {
+          -webkit-transform: scale(1);
+        }
+      }
+
+      @keyframes app-loading-circle {
+        0%,
+        100% {
+          -webkit-transform: scale(0.1);
+          transform: scale(0.1);
+        }
+        50% {
+          -webkit-transform: scale(1);
+          transform: scale(1);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .app-loading__circle {
+          width: 60px;
+          height: 60px;
+        }
+      }
+
+      .unsupported-browser {
+        font-family: Arial, Helvetica, sans-serif;
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        background-color: #ffffff;
+        z-index: 11000;
+        text-align: center;
+        padding: 100px;
+        display: none;
+      }
+
+      html.unsupported-browser .unsupported-browser {
+        display: block;
+      }
+
+      .unsupported-browser h1 {
+        margin: 0 0 30px;
+        font-size: 28px;
+      }
+
+      .unsupported-browser p {
+        margin: 0 0 30px;
+      }
+
+      .unsupported-browser__button {
+        font-size: 13px;
+        color: #fff;
+        text-decoration: none;
+        background-color: #71ba05;
+        padding: 10px 13px;
+      }
+
+      .unsupported-browser__button:hover {
+        color: #fff;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <div class="app-loading" id="app-loading">
+      <div class="app-loading__circle"></div>
+    </div>
+    <div class="unsupported-browser">
+      <h1>You seem to be using an unsupported browser.</h1>
+
+      <p>
+        Old browsers can put your security at risk, are slow and don't work with
+        Koofr Vault application. To access Koofr Vault, you'll need to update to
+        a modern browser.
+      </p>
+
+      <p>
+        <a
+          href="https://www.whatsmybrowser.org/"
+          class="unsupported-browser__button"
+          >Upgrade</a
+        >
+      </p>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

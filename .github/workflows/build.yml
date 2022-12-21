@@ -1,0 +1,28 @@
+name: build
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Expose GitHub Runtime
+        uses: crazy-max/ghaction-github-runtime@v2
+      - name: Build static files
+        run: |
+          GIT_REVISION=$(git rev-parse --short HEAD)
+          docker buildx build --build-arg GIT_REVISION="$GIT_REVISION" --target static-stage -t vault-static --cache-from=type=gha --cache-to=type=gha,mode=max --load .
+          docker run --rm vault-static cat vault-web.tar.gz > vault-web.tar.gz
+          sha256sum vault-web.tar.gz | awk '{print $1}' > vault-web.tar.gz.sha256
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            vault-web.tar.gz
+            vault-web.tar.gz.sha256
