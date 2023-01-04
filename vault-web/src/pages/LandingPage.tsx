@@ -1295,6 +1295,20 @@ export const LandingPage = memo(() => {
             Get started
           </BaseLinkButton>
         </div>
+        <p
+          className={css`
+            font-size: 18px;
+            color: #011722;
+            margin: 43px 0 0;
+            text-align: center;
+          `}
+        >
+          Have questions about Koofr Vault? {' '}
+          <a href="https://koofr.eu/help/koofr-vault" target="_blank" rel="noopener">
+            Find answers here
+          </a>
+          .
+        </p>
       </div>
 
       <div
@@ -1323,7 +1337,7 @@ export const LandingPage = memo(() => {
             margin: 0 0 15px;
           `}
         >
-          © 2022.{' '}
+          © 2023.{' '}
           <a
             href="https://koofr.eu"
             target="_blank"
