@@ -12,7 +12,9 @@ use crate::{
     store,
 };
 
-use super::state::{RepoFilesBrowser, RepoFilesBrowserInfo, RepoFilesBrowserItem};
+use super::state::{
+    RepoFilesBrowser, RepoFilesBrowserInfo, RepoFilesBrowserItem, RepoFilesBrowserLocation,
+};
 
 pub fn select_file_ids<'a>(
     state: &'a store::State,
@@ -29,22 +31,28 @@ pub fn select_browser<'a>(
     state.repo_files_browsers.browsers.get(&browser_id)
 }
 
+pub fn select_browser_location<'a>(
+    state: &'a store::State,
+    browser_id: u32,
+) -> Option<&'a RepoFilesBrowserLocation> {
+    select_browser(state, browser_id).and_then(|browser| browser.location.as_ref())
+}
+
 pub fn select_repo_id<'a>(state: &'a store::State, browser_id: u32) -> Option<&'a str> {
-    select_browser(state, browser_id).map(|browser| browser.repo_id.as_str())
+    select_browser_location(state, browser_id).map(|loc| loc.repo_id.as_str())
 }
 
 pub fn select_repo_id_path_owned(
     state: &store::State,
     browser_id: u32,
 ) -> Option<(String, String)> {
-    select_browser(state, browser_id)
-        .as_ref()
-        .map(|browser| (browser.repo_id.clone(), browser.path.clone()))
+    select_browser_location(state, browser_id).map(|loc| (loc.repo_id.clone(), loc.path.clone()))
 }
 
 pub fn select_repo<'a>(state: &'a store::State, browser_id: u32) -> Option<&'a Repo> {
     select_browser(state, browser_id)
-        .and_then(|browser| repo_selectors::select_repo(state, &browser.repo_id).ok())
+        .and_then(|browser| browser.location.as_ref())
+        .and_then(|loc| repo_selectors::select_repo(state, &loc.repo_id).ok())
 }
 
 pub fn select_repo_state<'a>(state: &'a store::State, browser_id: u32) -> Option<&'a RepoState> {
@@ -64,8 +72,8 @@ pub fn select_is_selected(state: &store::State, browser_id: u32, id: &str) -> bo
 }
 
 pub fn select_items<'a>(state: &'a store::State, browser_id: u32) -> Vec<RepoFilesBrowserItem<'a>> {
-    match select_browser(state, browser_id) {
-        Some(browser) => repo_files_selectors::select_files(state, &browser.repo_id, &browser.path)
+    match select_browser_location(state, browser_id) {
+        Some(x) => repo_files_selectors::select_files(state, &x.repo_id, &x.path)
             .map(|file| RepoFilesBrowserItem {
                 file,
                 is_selected: select_is_selected(state, browser_id, &file.id),
@@ -77,11 +85,13 @@ pub fn select_items<'a>(state: &'a store::State, browser_id: u32) -> Vec<RepoFil
 
 pub fn select_selection_summary(state: &store::State, browser_id: u32) -> SelectionSummary {
     select_browser(state, browser_id)
-        .map(|browser| {
-            selection_selectors::select_selection_summary(
-                &browser.selection,
-                repo_files_selectors::select_files(state, &browser.repo_id, &browser.path).count(),
-            )
+        .and_then(|browser| {
+            browser.location.as_ref().map(|loc| {
+                selection_selectors::select_selection_summary(
+                    &browser.selection,
+                    repo_files_selectors::select_files(state, &loc.repo_id, &loc.path).count(),
+                )
+            })
         })
         .unwrap_or(SelectionSummary::None)
 }
@@ -109,10 +119,11 @@ pub fn select_selected_files<'a>(state: &'a store::State, browser_id: u32) -> Ve
 pub fn select_info<'a>(state: &'a store::State, browser_id: u32) -> Option<RepoFilesBrowserInfo> {
     select_browser(state, browser_id).map(|browser| {
         let items = select_items(state, browser_id);
-        let title =
-            repo_files_selectors::select_breadcrumbs(state, &browser.repo_id, &browser.path)
+        let title = browser.location.as_ref().and_then(|loc| {
+            repo_files_selectors::select_breadcrumbs(state, &loc.repo_id, &loc.path)
                 .last()
-                .map(|x| x.name.clone());
+                .map(|x| x.name.clone())
+        });
         let total_count = items.len();
         let total_size = items
             .iter()
@@ -140,8 +151,8 @@ pub fn select_info<'a>(state: &'a store::State, browser_id: u32) -> Option<RepoF
         let can_delete_selected = selected_count > 0;
 
         RepoFilesBrowserInfo {
-            repo_id: &browser.repo_id,
-            path: &browser.path,
+            repo_id: browser.location.as_ref().map(|loc| loc.repo_id.as_str()),
+            path: browser.location.as_ref().map(|loc| loc.path.as_str()),
             selection_summary: select_selection_summary(state, browser_id),
             status: &browser.status,
             title,
@@ -158,16 +169,14 @@ pub fn select_info<'a>(state: &'a store::State, browser_id: u32) -> Option<RepoF
 }
 
 pub fn select_breadcrumbs(state: &store::State, browser_id: u32) -> Vec<RepoFilesBreadcrumb> {
-    select_browser(state, browser_id)
-        .map(|browser| {
-            repo_files_selectors::select_breadcrumbs(state, &browser.repo_id, &browser.path)
-        })
+    select_browser_location(state, browser_id)
+        .map(|loc| repo_files_selectors::select_breadcrumbs(state, &loc.repo_id, &loc.path))
         .unwrap_or_else(|| vec![])
 }
 
 pub fn select_root_file_id(state: &store::State, browser_id: u32) -> Option<String> {
-    select_browser(state, browser_id)
-        .map(|browser| repo_files_selectors::get_file_id(&browser.repo_id, &browser.path))
+    select_browser_location(state, browser_id)
+        .map(|loc| repo_files_selectors::get_file_id(&loc.repo_id, &loc.path))
 }
 
 pub fn select_root_file<'a>(state: &'a store::State, browser_id: u32) -> Option<&'a RepoFile> {

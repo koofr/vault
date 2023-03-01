@@ -13,8 +13,8 @@ pub struct RepoFilesBrowserItem<'a> {
 }
 
 pub struct RepoFilesBrowserInfo<'a> {
-    pub repo_id: &'a str,
-    pub path: &'a str,
+    pub repo_id: Option<&'a str>,
+    pub path: Option<&'a str>,
     pub selection_summary: SelectionSummary,
     pub status: &'a Status<LoadFilesError>,
     pub title: Option<String>,
@@ -29,12 +29,17 @@ pub struct RepoFilesBrowserInfo<'a> {
 }
 
 #[derive(Clone)]
-pub struct RepoFilesBrowser {
+pub struct RepoFilesBrowserLocation {
     pub repo_id: String,
     pub path: String,
+    pub eventstream_mount_subscription: Option<Arc<MountSubscription>>,
+}
+
+#[derive(Clone)]
+pub struct RepoFilesBrowser {
+    pub location: Option<RepoFilesBrowserLocation>,
     pub status: Status<LoadFilesError>,
     pub selection: Selection,
-    pub eventstream_mount_subscription: Option<Arc<MountSubscription>>,
     pub repo_files_subscription_id: u32,
 }
 

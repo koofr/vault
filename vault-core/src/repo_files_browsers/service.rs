@@ -4,6 +4,7 @@ use futures::future::{self, BoxFuture};
 
 use crate::{
     eventstream::{self, service::MountSubscription},
+    remote_files::errors::RemoteFilesErrors,
     repo_files::{
         errors::{self as repo_files_errors, CreateDirError, DeleteFileError, RepoFilesErrors},
         state::RepoFilePath,
@@ -11,9 +12,10 @@ use crate::{
     },
     repos::selectors as repos_selectors,
     store,
+    utils::path_utils::normalize_path,
 };
 
-use super::{mutations, selectors};
+use super::{mutations, selectors, state::RepoFilesBrowserLocation};
 
 pub struct RepoFilesBrowsersService {
     repo_files_service: Arc<RepoFilesService>,
@@ -42,19 +44,12 @@ impl RepoFilesBrowsersService {
         u32,
         BoxFuture<'static, Result<(), repo_files_errors::LoadFilesError>>,
     ) {
-        let eventstream_mount_subscription =
-            self.clone().get_eventstream_mount_subscription(repo_id);
+        let location = self.clone().get_location(repo_id, path);
 
         let repo_files_subscription_id = self.store.get_next_id();
 
         let browser_id = self.store.mutate(store::Event::RepoFilesBrowsers, |state| {
-            mutations::create(
-                state,
-                repo_id,
-                path,
-                eventstream_mount_subscription,
-                repo_files_subscription_id,
-            )
+            mutations::create(state, location, repo_files_subscription_id)
         });
 
         let load_self = self.clone();
@@ -79,6 +74,27 @@ impl RepoFilesBrowsersService {
         );
 
         (browser_id, load_future)
+    }
+
+    fn get_location(
+        &self,
+        repo_id: &str,
+        path: &str,
+    ) -> Result<RepoFilesBrowserLocation, repo_files_errors::LoadFilesError> {
+        normalize_path(path)
+            .map(|path| {
+                let eventstream_mount_subscription =
+                    self.clone().get_eventstream_mount_subscription(repo_id);
+
+                RepoFilesBrowserLocation {
+                    repo_id: repo_id.to_owned(),
+                    path,
+                    eventstream_mount_subscription,
+                }
+            })
+            .map_err(|_| {
+                repo_files_errors::LoadFilesError::RemoteError(RemoteFilesErrors::invalid_path())
+            })
     }
 
     fn get_eventstream_mount_subscription(&self, repo_id: &str) -> Option<Arc<MountSubscription>> {
@@ -121,17 +137,10 @@ impl RepoFilesBrowsersService {
         repo_id: &str,
         path: &str,
     ) -> Result<(), repo_files_errors::LoadFilesError> {
-        let eventstream_mount_subscription =
-            self.clone().get_eventstream_mount_subscription(repo_id);
+        let location = self.clone().get_location(repo_id, path);
 
         self.store.mutate(store::Event::RepoFilesBrowsers, |state| {
-            mutations::set_location(
-                state,
-                browser_id,
-                repo_id,
-                path,
-                eventstream_mount_subscription,
-            );
+            mutations::set_location(state, browser_id, location);
         });
 
         if self

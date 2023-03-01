@@ -17,7 +17,11 @@ export function useUploadFiles(): (
       // we need to get current repoId and path before calling UploadsHelper
       // because user could change the current directory while UploadsHelper is
       // processing files and files could be uploaded to incorrect location
-      let { repoId, path } = webVault.repoFilesBrowsersInfo(browserId)!;
+      const { repoId, path } = webVault.repoFilesBrowsersInfo(browserId)!;
+
+      if (repoId === undefined || path === undefined) {
+        return [];
+      }
 
       const helper = new UploadsHelper({
         upload(entries) {

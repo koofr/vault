@@ -504,8 +504,8 @@ impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserItem<'a>> for RepoFile
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub struct RepoFilesBrowserInfo {
     #[serde(rename = "repoId")]
-    pub repo_id: String,
-    pub path: String,
+    pub repo_id: Option<String>,
+    pub path: Option<String>,
     #[serde(rename = "selectionSummary")]
     pub selection_summary: SelectionSummary,
     pub status: Status,
@@ -530,8 +530,8 @@ pub struct RepoFilesBrowserInfo {
 impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFilesBrowserInfo {
     fn from(info: &repo_files_browsers_state::RepoFilesBrowserInfo<'a>) -> Self {
         Self {
-            repo_id: info.repo_id.to_owned(),
-            path: info.path.to_owned(),
+            repo_id: info.repo_id.map(str::to_string),
+            path: info.path.map(str::to_string),
             selection_summary: (&info.selection_summary).into(),
             status: info.status.into(),
             total_count: info.total_count,
