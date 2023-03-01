@@ -1,3 +1,5 @@
+use crate::common::errors::InvalidPathError;
+
 pub fn path_to_name<'a>(path: &'a str) -> Option<&'a str> {
     match path {
         "/" => None,
@@ -78,9 +80,71 @@ pub fn paths_chain(path: &str) -> Vec<String> {
     chain
 }
 
+pub fn validate_path(path: &str) -> Result<(), InvalidPathError> {
+    // backslash
+    if path.contains("\\") {
+        return Err(InvalidPathError);
+    }
+
+    // two slashes
+    if path.contains("//") {
+        return Err(InvalidPathError);
+    }
+
+    // dot
+    if path == "." || path.starts_with("./") || path.contains("/./") || path.ends_with("/.") {
+        return Err(InvalidPathError);
+    }
+
+    // two dots
+    if path == ".." || path.starts_with("../") || path.contains("/../") || path.ends_with("/..") {
+        return Err(InvalidPathError);
+    }
+
+    Ok(())
+}
+
+pub fn normalize_path(path: &str) -> Result<String, InvalidPathError> {
+    let mut is_last_slash = false;
+
+    let mut path = path
+        .chars()
+        .filter(|c| {
+            let is_slash = *c == '/';
+            let ok = !is_slash || is_slash && !is_last_slash;
+            is_last_slash = is_slash;
+            ok
+        })
+        .collect::<String>();
+
+    if let Err(err) = validate_path(&path) {
+        return Err(err);
+    }
+
+    if path == "" {
+        return Ok(String::from("/"));
+    }
+    if path == "/" {
+        return Ok(path);
+    }
+
+    if !path.starts_with("/") {
+        path = format!("/{}", path);
+    }
+
+    if path.ends_with("/") {
+        path.pop();
+    }
+
+    Ok(path)
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{join_paths, parent_path, path_to_name, paths_chain, split_parent_name};
+    use super::{
+        join_paths, normalize_path, parent_path, path_to_name, paths_chain, split_parent_name,
+        validate_path,
+    };
 
     #[test]
     fn test_path_to_name() {
@@ -127,5 +191,39 @@ mod tests {
                 String::from("/foo/bar")
             ]
         );
+    }
+
+    #[test]
+    fn test_validate_path() {
+        assert!(validate_path("file.txt").is_ok());
+        assert!(validate_path("/file.txt").is_ok());
+        assert!(validate_path("/path\\tofile.txt").is_err());
+        assert!(validate_path("/path/.").is_err());
+        assert!(validate_path("/path/..").is_err());
+        assert!(validate_path("/path/../../../etc/passwd").is_err());
+        assert!(validate_path("..").is_err());
+        assert!(validate_path(".").is_err());
+    }
+
+    #[test]
+    fn test_normalize_path() {
+        assert_eq!(normalize_path(""), Ok(String::from("/")));
+		assert_eq!(normalize_path("/"), Ok(String::from("/")));
+		assert_eq!(normalize_path("/foo"), Ok(String::from("/foo")));
+		assert_eq!(normalize_path("/foo/"), Ok(String::from("/foo")));
+		assert_eq!(normalize_path("~/a/b/c.txt"), Ok(String::from("/~/a/b/c.txt")));
+		assert_eq!(normalize_path("a.txt"), Ok(String::from("/a.txt")));
+		assert_eq!(normalize_path("a/b/c"), Ok(String::from("/a/b/c")));
+		assert_eq!(normalize_path("a/b/c/"), Ok(String::from("/a/b/c")));
+		assert_eq!(normalize_path("C:"), Ok(String::from("/C:")));
+		assert_eq!(normalize_path("~"), Ok(String::from("/~")));
+		assert_eq!(normalize_path("~/"), Ok(String::from("/~")));
+		assert_eq!(normalize_path("~user"), Ok(String::from("/~user")));
+		assert_eq!(normalize_path("~user/"), Ok(String::from("/~user")));
+		assert_eq!(normalize_path("//server/foo/bar"), Ok(String::from("/server/foo/bar")));
+		assert_eq!(normalize_path("//server/bar//"), Ok(String::from("/server/bar")));
+		assert_eq!(normalize_path("/////"), Ok(String::from("/")));
+		assert_eq!(normalize_path("/////foo"), Ok(String::from("/foo")));
+		assert_eq!(normalize_path("foo/////"), Ok(String::from("/foo")));
     }
 }
