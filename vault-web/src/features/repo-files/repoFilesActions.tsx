@@ -13,5 +13,23 @@ export const downloadFile = async (
     return;
   }
 
-  downloadStream(stream, file.name);
+  downloadStream(stream);
+};
+
+export const downloadSelected = async (
+  webVault: WebVault,
+  browserId: number,
+  isMobile: boolean
+) => {
+  const forceBlob = isMobile;
+  const stream = await webVault.repoFilesBrowsersGetSelectedStream(
+    browserId,
+    forceBlob
+  );
+
+  if (stream === undefined) {
+    return;
+  }
+
+  downloadStream(stream);
 };

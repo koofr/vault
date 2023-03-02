@@ -4,7 +4,6 @@ use std::sync::{Arc, Mutex};
 use serde::Serialize;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::spawn_local;
-use wasm_streams::ReadableStream;
 
 use vault_core::store::Event;
 
@@ -21,9 +20,10 @@ use crate::uploadable::Uploadable;
 #[wasm_bindgen(typescript_custom_section)]
 const FILE_STREAM: &'static str = r#"
 export interface FileStream {
+  name: string;
   stream?: ReadableStream;
   blob?: Blob;
-  size: bigint;
+  size?: bigint;
 }
 "#;
 
@@ -783,41 +783,22 @@ impl WebVault {
             }
         };
 
-        let file_stream = js_sys::Object::new();
-
-        js_sys::Reflect::set(
-            &file_stream,
-            &JsValue::from("size"),
-            &JsValue::from(file_reader.size),
+        let file_stream = match helpers::reader_to_file_stream(
+            &file_reader.name,
+            file_reader.reader,
+            Some(file_reader.size),
+            force_blob,
         )
-        .unwrap();
+        .await
+        {
+            Ok(file_stream) => file_stream,
+            Err(err) => {
+                self.handle_error(err);
+                return JsValue::UNDEFINED.into();
+            }
+        };
 
-        if helpers::supports_readable_byte_stream() && !force_blob {
-            let stream = ReadableStream::from_async_read(
-                file_reader.reader,
-                vault_core::cipher::constants::BLOCK_SIZE,
-            );
-
-            js_sys::Reflect::set(
-                &file_stream,
-                &JsValue::from("stream"),
-                &JsValue::from(stream.into_raw()),
-            )
-            .unwrap();
-        } else {
-            let blob = match helpers::reader_to_blob(file_reader.reader).await {
-                Ok(blob) => blob,
-                Err(err) => {
-                    self.handle_error(err);
-                    return JsValue::UNDEFINED.into();
-                }
-            };
-
-            js_sys::Reflect::set(&file_stream, &JsValue::from("blob"), &JsValue::from(blob))
-                .unwrap();
-        }
-
-        FileStreamOption::from(JsValue::from(file_stream))
+        FileStreamOption::from(file_stream)
     }
 
     #[wasm_bindgen(js_name = repoFilesDeleteFile)]
@@ -1148,6 +1129,42 @@ impl WebVault {
     #[wasm_bindgen(js_name = repoFilesBrowsersClearSelection)]
     pub fn repo_files_browsers_clear_selection(&self, browser_id: u32) {
         self.vault.repo_files_browsers_clear_selection(browser_id)
+    }
+
+    #[wasm_bindgen(js_name = repoFilesBrowsersGetSelectedStream)]
+    pub async fn repo_files_browsers_get_selected_stream(
+        &self,
+        browser_id: u32,
+        force_blob: bool,
+    ) -> FileStreamOption {
+        let file_reader = match self
+            .vault
+            .repo_files_browsers_get_selected_stream(browser_id)
+            .await
+        {
+            Ok(file_reader) => file_reader,
+            Err(err) => {
+                self.handle_error(err);
+                return JsValue::UNDEFINED.into();
+            }
+        };
+
+        let file_stream = match helpers::reader_to_file_stream(
+            &file_reader.name,
+            file_reader.reader,
+            Some(file_reader.size),
+            force_blob,
+        )
+        .await
+        {
+            Ok(file_stream) => file_stream,
+            Err(err) => {
+                self.handle_error(err);
+                return JsValue::UNDEFINED.into();
+            }
+        };
+
+        FileStreamOption::from(file_stream)
     }
 
     #[wasm_bindgen(js_name = repoFilesBrowsersCanCreateDir)]

@@ -26,7 +26,7 @@ import { useWebVault } from '../../webVault/useWebVault';
 
 import { useRepoFilesBrowserId } from './RepoFilesBrowserId';
 import { useRepoFilesRename } from './RepoFilesRename';
-import { downloadFile } from './repoFilesActions';
+import { downloadSelected } from './repoFilesActions';
 
 export const RepoFilesToolbar = memo<{ info: RepoFilesBrowserInfo }>(
   ({ info }) => {
@@ -75,12 +75,12 @@ export const RepoFilesToolbar = memo<{ info: RepoFilesBrowserInfo }>(
             Move
           </ToolbarItem>
         ) : null}
-        {selectedFile !== undefined && selectedFile.type === 'File' ? (
+        {info.canDownloadSelected ? (
           <ToolbarItem
             icon={<FilesToolbarDownloadIcon />}
             iconHover={<FilesToolbarDownloadHoverIcon />}
             onClick={() => {
-              downloadFile(webVault, selectedFile, isMobile);
+              downloadSelected(webVault, browserId, isMobile);
             }}
           >
             Download

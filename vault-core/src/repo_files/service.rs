@@ -134,6 +134,8 @@ impl RepoFilesService {
             .with_state(|state| selectors::select_file(state, file_id).map(|file| file.clone()))
             .ok_or(GetFileReaderError::FileNotFound)?;
 
+        let name = file.decrypted_name()?;
+
         let cipher = self.repos_service.get_cipher(&file.repo_id)?;
 
         let encrypted_reader = self
@@ -147,6 +149,7 @@ impl RepoFilesService {
         let decrypt_reader = Box::pin(cipher.decrypt_reader(encrypted_reader.reader));
 
         Ok(RepoFileReader {
+            name: name.to_owned(),
             size,
             reader: decrypt_reader,
         })

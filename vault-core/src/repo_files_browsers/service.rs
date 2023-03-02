@@ -6,8 +6,11 @@ use crate::{
     eventstream::{self, service::MountSubscription},
     remote_files::errors::RemoteFilesErrors,
     repo_files::{
-        errors::{self as repo_files_errors, CreateDirError, DeleteFileError, RepoFilesErrors},
-        state::RepoFilePath,
+        errors::{
+            self as repo_files_errors, CreateDirError, DeleteFileError, GetFileReaderError,
+            RepoFilesErrors,
+        },
+        state::{RepoFilePath, RepoFileReader},
         RepoFilesService,
     },
     repos::selectors as repos_selectors,
@@ -196,6 +199,26 @@ impl RepoFilesBrowsersService {
         self.store.mutate(store::Event::RepoFilesBrowsers, |state| {
             mutations::clear_selection(state, browser_id);
         });
+    }
+
+    pub async fn get_selected_stream(
+        &self,
+        browser_id: u32,
+    ) -> Result<RepoFileReader, GetFileReaderError> {
+        let file_id = match self.store.with_state(|state| {
+            selectors::select_info(state, browser_id).and_then(|info| {
+                info.selected_file
+                    .filter(|_| info.can_download_selected)
+                    .map(|file| file.id.clone())
+            })
+        }) {
+            Some(file_id) => file_id,
+            None => {
+                return Err(GetFileReaderError::FileNotFound);
+            }
+        };
+
+        self.repo_files_service.get_file_reader(&file_id).await
     }
 
     pub fn check_create_dir(&self, browser_id: u32, name: &str) -> Result<(), CreateDirError> {

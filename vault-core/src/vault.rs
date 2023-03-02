@@ -528,6 +528,15 @@ impl Vault {
         self.repo_files_browsers_service.clear_selection(browser_id)
     }
 
+    pub async fn repo_files_browsers_get_selected_stream(
+        &self,
+        browser_id: u32,
+    ) -> Result<repo_files::state::RepoFileReader, repo_files::errors::GetFileReaderError> {
+        self.repo_files_browsers_service
+            .get_selected_stream(browser_id)
+            .await
+    }
+
     pub fn repo_files_browsers_check_create_dir(
         &self,
         browser_id: u32,

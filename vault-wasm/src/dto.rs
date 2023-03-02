@@ -519,6 +519,8 @@ pub struct RepoFilesBrowserInfo {
     pub selected_size_display: String,
     #[serde(rename = "selectedFile")]
     pub selected_file: Option<RepoFile>,
+    #[serde(rename = "canDownloadSelected")]
+    pub can_download_selected: bool,
     #[serde(rename = "canCopySelected")]
     pub can_copy_selected: bool,
     #[serde(rename = "canMoveSelected")]
@@ -539,6 +541,7 @@ impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFile
             selected_count: info.selected_count,
             selected_size_display: format_size(info.selected_size),
             selected_file: info.selected_file.map(Into::into),
+            can_download_selected: info.can_download_selected,
             can_copy_selected: info.can_copy_selected,
             can_move_selected: info.can_move_selected,
             can_delete_selected: info.can_delete_selected,

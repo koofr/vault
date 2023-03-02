@@ -77,6 +77,22 @@ pub enum RepoFileType {
     File,
 }
 
+impl RepoFileType {
+    pub fn is_file(&self) -> bool {
+        match self {
+            Self::Dir => false,
+            Self::File => true,
+        }
+    }
+
+    pub fn is_dir(&self) -> bool {
+        match self {
+            Self::Dir => true,
+            Self::File => false,
+        }
+    }
+}
+
 impl Ord for RepoFileType {
     fn cmp(&self, other: &Self) -> Ordering {
         match (self, other) {
@@ -145,6 +161,7 @@ pub struct RepoFilesState {
 }
 
 pub struct RepoFileReader {
+    pub name: String,
     pub size: i64,
     pub reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
 }

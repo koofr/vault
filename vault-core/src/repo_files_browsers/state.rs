@@ -23,6 +23,7 @@ pub struct RepoFilesBrowserInfo<'a> {
     pub selected_count: usize,
     pub selected_size: i64,
     pub selected_file: Option<&'a RepoFile>,
+    pub can_download_selected: bool,
     pub can_copy_selected: bool,
     pub can_move_selected: bool,
     pub can_delete_selected: bool,

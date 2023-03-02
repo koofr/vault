@@ -80,6 +80,8 @@ pub enum GetFileReaderError {
     #[error("file not found")]
     FileNotFound,
     #[error("{0}")]
+    DecryptFilenameError(#[from] DecryptFilenameError),
+    #[error("{0}")]
     DecryptSizeError(#[from] DecryptSizeError),
     #[error("{0}")]
     RemoteError(#[from] RemoteError),

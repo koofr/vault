@@ -100,3 +100,42 @@ pub fn stream_to_reader(
         )
     })
 }
+
+#[derive(Error, Debug, UserError)]
+pub enum ReaderToFileStreamError {
+    #[error("{0}")]
+    ReaderToBlobError(#[from] ReaderToBlobError),
+}
+
+pub async fn reader_to_file_stream(
+    name: &str,
+    reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
+    size: Option<i64>,
+    force_blob: bool,
+) -> Result<JsValue, ReaderToFileStreamError> {
+    let file_stream = js_sys::Object::new();
+
+    js_sys::Reflect::set(&file_stream, &JsValue::from("name"), &JsValue::from(name)).unwrap();
+
+    if let Some(size) = size {
+        js_sys::Reflect::set(&file_stream, &JsValue::from("size"), &JsValue::from(size)).unwrap();
+    }
+
+    if supports_readable_byte_stream() && !force_blob {
+        let stream =
+            ReadableStream::from_async_read(reader, vault_core::cipher::constants::BLOCK_SIZE);
+
+        js_sys::Reflect::set(
+            &file_stream,
+            &JsValue::from("stream"),
+            &JsValue::from(stream.into_raw()),
+        )
+        .unwrap();
+    } else {
+        let blob = reader_to_blob(reader).await?;
+
+        js_sys::Reflect::set(&file_stream, &JsValue::from("blob"), &JsValue::from(blob)).unwrap();
+    }
+
+    Ok(JsValue::from(file_stream))
+}
