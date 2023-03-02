@@ -621,3 +621,60 @@ where
         )))
     })
 }
+
+#[cfg(test)]
+pub mod tests {
+    use std::sync::Arc;
+
+    use futures::executor::block_on;
+    use http::HeaderMap;
+
+    use crate::{
+        auth::{mock_auth_provider::MockAuthProvider, AuthProvider},
+        http::{
+            mock_http_client::{MockHttpClient, MockHttpResponse},
+            HttpClient, HttpError, HttpRequest,
+        },
+        remote::models,
+    };
+
+    use super::Remote;
+
+    fn get_remote(
+        on_request: Box<dyn Fn(HttpRequest) -> Result<MockHttpResponse, HttpError> + Send + Sync>,
+    ) -> Remote {
+        let base_url = String::from("https://app.koofr.net");
+        let http_client: Arc<Box<dyn HttpClient + Send + Sync>> =
+            Arc::new(Box::new(MockHttpClient::new(on_request)));
+        let auth_provider: Arc<Box<dyn AuthProvider + Send + Sync>> =
+            Arc::new(Box::new(MockAuthProvider::default()));
+
+        Remote::new(base_url, http_client, auth_provider)
+    }
+
+    #[test]
+    fn test_get_user() {
+        let remote = get_remote(Box::new(|_| {
+            Ok(MockHttpResponse::new(
+                200,
+                HeaderMap::new(),
+                String::from(r#"{"id":"30bce243-bae7-40d3-9f6f-782fb060c3e7","firstName":"Test","lastName":"User","email":"test@example.com","level":1000,"hasPassword":true}"#).into_bytes(),
+            ))
+        }));
+
+        let user = block_on(async { remote.get_user().await }).unwrap();
+
+        assert_eq!(
+            user,
+            models::User {
+                id: String::from("30bce243-bae7-40d3-9f6f-782fb060c3e7"),
+                first_name: String::from("Test"),
+                last_name: String::from("User"),
+                email: String::from("test@example.com"),
+                level: 1000,
+                has_password: true,
+                ..Default::default()
+            }
+        )
+    }
+}
