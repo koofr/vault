@@ -20,17 +20,28 @@ import { BrowserEventstreamWebSocketDelegateImpl } from './webVault/BrowserEvent
 import { BrowserHttpClientDelegateImpl } from './webVault/BrowserHttpClientDelegateImpl';
 import { WebVaultContext } from './webVault/webVaultContext';
 
+interface Config {
+  baseUrl: string;
+  oauth2ClientId: string;
+  oauth2ClientSecret: string;
+}
+
 const main = async () => {
+  const configPromise = fetch('/config.json').then(
+    (res) => res.json() as Promise<Config>
+  );
+
   await init();
   initConsole();
 
   streamSaver.mitm =
     window.location.origin + '/streamsaver-2.0.6/mitm.html?version=2.0.0';
 
-  const baseUrl = 'https://app.koofr.net';
-  const oauth2ClientId = '7ZEK2BNCEVYEJIZC5OR3TR6PQDUJ4NP3';
-  const oauth2ClientSecret =
-    'VWTMENEWUYWH6G523CEV5CWOCHH7FMECW36PPQENOASYYZOQJOSGQXSR2Y62N3HB';
+  const config = await configPromise;
+
+  const baseUrl = config.baseUrl;
+  const oauth2ClientId = config.oauth2ClientId;
+  const oauth2ClientSecret = config.oauth2ClientSecret;
   const oauth2RedirectUri = window.location.origin + '/oauth2callback';
 
   const webVault = new WebVault(
