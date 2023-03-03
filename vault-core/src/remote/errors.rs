@@ -5,7 +5,7 @@ use thiserror::Error;
 use crate::http;
 use crate::user_error::UserError;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum ApiErrorCode {
     NotFound,
     AlreadyExists,
@@ -34,7 +34,7 @@ impl From<&str> for ApiErrorCode {
     }
 }
 
-#[derive(Error, Debug, Clone, UserError)]
+#[derive(Error, Debug, Clone, UserError, PartialEq, Eq)]
 pub enum RemoteError {
     #[error("{message}")]
     ApiError {

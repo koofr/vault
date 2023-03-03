@@ -31,6 +31,7 @@ pub struct MockHttpResponse {
     pub status_code: u16,
     pub headers: HeaderMap,
     pub bytes: Vec<u8>,
+    pub bytes_stream: Option<HttpResponseBytesStream>,
 }
 
 impl MockHttpResponse {
@@ -39,6 +40,7 @@ impl MockHttpResponse {
             status_code,
             headers,
             bytes,
+            bytes_stream: None,
         }
     }
 }
@@ -58,8 +60,10 @@ impl HttpResponse for MockHttpResponse {
     }
 
     fn bytes_stream(self: Box<Self>) -> HttpResponseBytesStream {
-        let bytes = self.bytes.clone();
+        self.bytes_stream.unwrap_or_else(|| {
+            let bytes = self.bytes.clone();
 
-        Box::pin(stream::once(async { Ok(bytes) }))
+            Box::pin(stream::once(async { Ok(bytes) }))
+        })
     }
 }

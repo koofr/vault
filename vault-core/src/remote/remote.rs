@@ -2,7 +2,7 @@ use std::pin::Pin;
 use std::sync::{Arc, RwLock};
 
 use futures::stream::TryStreamExt;
-use futures::AsyncRead;
+use futures::{AsyncBufReadExt, AsyncRead, Stream, StreamExt};
 use http::header::{AUTHORIZATION, CONTENT_TYPE};
 use http::{HeaderMap, HeaderValue};
 use serde::Serialize;
@@ -286,6 +286,52 @@ impl Remote {
         }
 
         res_json(res).await
+    }
+
+    pub async fn get_list_recursive(
+        &self,
+        mount_id: &str,
+        path: &str,
+    ) -> Result<
+        Pin<Box<dyn Stream<Item = Result<models::FilesListRecursiveItem, RemoteError>>>>,
+        RemoteError,
+    > {
+        let res = self
+            .request(HttpRequest {
+                method: String::from("GET"),
+                url: format!(
+                    "/content/api/v2.1/mounts/{}/files/listrecursive?path={}",
+                    mount_id,
+                    encode(path)
+                ),
+                ..Default::default()
+            })
+            .await?;
+
+        if res.status_code() != 200 {
+            return res_error(res).await;
+        }
+
+        let reader = res
+            .bytes_stream()
+            .map_err(|err| std::io::Error::new(std::io::ErrorKind::Other, err))
+            .into_async_read();
+
+        let lines_stream = reader.lines();
+
+        let items_stream = lines_stream.map(|item| match item {
+            Ok(line) => serde_json::from_str(&line).map_err(|e| {
+                RemoteError::HttpError(HttpError::ResponseError(format!(
+                    "json deserialize error: {}",
+                    e.to_string()
+                )))
+            }),
+            Err(err) => Err(RemoteError::HttpError(
+                err.into_inner().unwrap().downcast_ref().cloned().unwrap(),
+            )),
+        });
+
+        Ok(Box::pin(items_stream))
     }
 
     pub async fn get_file(
@@ -624,9 +670,9 @@ where
 
 #[cfg(test)]
 pub mod tests {
-    use std::sync::Arc;
+    use std::{collections::HashMap, sync::Arc};
 
-    use futures::executor::block_on;
+    use futures::{executor::block_on, stream, StreamExt};
     use http::HeaderMap;
 
     use crate::{
@@ -635,7 +681,7 @@ pub mod tests {
             mock_http_client::{MockHttpClient, MockHttpResponse},
             HttpClient, HttpError, HttpRequest,
         },
-        remote::models,
+        remote::{models, RemoteError},
     };
 
     use super::Remote;
@@ -676,5 +722,126 @@ pub mod tests {
                 ..Default::default()
             }
         )
+    }
+
+    #[test]
+    fn test_get_list_recursive() {
+        let remote = get_remote(Box::new(|_| {
+            Ok(MockHttpResponse::new(
+                200,
+                HeaderMap::new(),
+                String::from(
+r#"{"type":"file","path":"/","file":{"name":"Vault","type":"dir","modified":1677861215152,"size":0,"contentType":"","tags":{}}}
+{"type":"file","path":"/test.txt","file":{"name":"test.txt","type":"file","modified":1677861599216,"size":5,"contentType":"text/plain","hash":"2eedb741f199ecc19f1ba815d3d9914d","tags":{}}}
+{"type":"error","path":"/error","error":{"code":"Other","message":"Internal error"}}
+{"type":"error","error":{"code":"DeviceOffline","message":"Device is offline"}}
+"#).into_bytes(),
+            ))
+        }));
+
+        block_on(async {
+            let mut items_stream = remote
+                .get_list_recursive("86f2d1a7-226e-433e-a9fa-7779392b20fd", "/Vault")
+                .await
+                .unwrap();
+
+            assert_eq!(
+                items_stream.next().await,
+                Some(Ok(models::FilesListRecursiveItem::File {
+                    path: String::from("/"),
+                    file: models::FilesFile {
+                        name: String::from("Vault"),
+                        typ: String::from("dir"),
+                        modified: 1677861215152,
+                        size: 0,
+                        content_type: String::from(""),
+                        hash: None,
+                        tags: HashMap::new(),
+                    }
+                }))
+            );
+            assert_eq!(
+                items_stream.next().await,
+                Some(Ok(models::FilesListRecursiveItem::File {
+                    path: String::from("/test.txt"),
+                    file: models::FilesFile {
+                        name: String::from("test.txt"),
+                        typ: String::from("file"),
+                        modified: 1677861599216,
+                        size: 5,
+                        content_type: String::from("text/plain"),
+                        hash: Some(String::from("2eedb741f199ecc19f1ba815d3d9914d")),
+                        tags: HashMap::new(),
+                    }
+                }))
+            );
+            assert_eq!(
+                items_stream.next().await,
+                Some(Ok(models::FilesListRecursiveItem::Error {
+                    path: Some(String::from("/error")),
+                    error: models::ApiErrorDetails {
+                        code: String::from("Other"),
+                        message: String::from("Internal error"),
+                        extra: None
+                    }
+                }))
+            );
+            assert_eq!(
+                items_stream.next().await,
+                Some(Ok(models::FilesListRecursiveItem::Error {
+                    path: None,
+                    error: models::ApiErrorDetails {
+                        code: String::from("DeviceOffline"),
+                        message: String::from("Device is offline"),
+                        extra: None
+                    }
+                }))
+            );
+            assert_eq!(items_stream.next().await, None);
+        });
+    }
+
+    #[test]
+    fn test_get_list_recursive_network_error() {
+        let remote = get_remote(Box::new(|_| {
+            let mut res = MockHttpResponse::new(200, HeaderMap::new(), Vec::new());
+            res.bytes_stream = Some(Box::pin(stream::once(async {
+                Ok(String::from(r#"{"type":"file","path":"/","file":{"name":"Vault","type":"dir","modified":1677861215152,"size":0,"contentType":"","tags":{}}}
+"#).into_bytes())
+            }).chain(stream::once(async {
+                Err(HttpError::ResponseError(String::from("some network error")))
+            }))));
+            Ok(res)
+        }));
+
+        block_on(async {
+            let mut items_stream = remote
+                .get_list_recursive("86f2d1a7-226e-433e-a9fa-7779392b20fd", "/Vault")
+                .await
+                .unwrap();
+
+            assert_eq!(
+                items_stream.next().await,
+                Some(Ok(models::FilesListRecursiveItem::File {
+                    path: String::from("/"),
+                    file: models::FilesFile {
+                        name: String::from("Vault"),
+                        typ: String::from("dir"),
+                        modified: 1677861215152,
+                        size: 0,
+                        content_type: String::from(""),
+                        hash: None,
+                        tags: HashMap::new(),
+                    }
+                }))
+            );
+            assert_eq!(
+                items_stream.next().await,
+                Some(Err(RemoteError::HttpError(HttpError::ResponseError(
+                    String::from("some network error")
+                ))))
+            );
+            assert_eq!(items_stream.next().await, None);
+        });
     }
 }
