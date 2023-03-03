@@ -671,12 +671,9 @@ impl WebVault {
             self.subscription_data.repo_remove_info.clone(),
             move |vault| {
                 vault.with_state(|state| {
-                    vault_core::repo_remove::selectors::select_info(state).map(|info| {
-                        dto::RepoRemoveInfo {
-                            status: info.status.into(),
-                            repo_name: info.repo_name.map(str::to_string),
-                        }
-                    })
+                    vault_core::repo_remove::selectors::select_info(state)
+                        .as_ref()
+                        .map(Into::into)
                 })
             },
         )
@@ -712,12 +709,9 @@ impl WebVault {
             self.subscription_data.repo_config_backup_info.clone(),
             move |vault| {
                 vault.with_state(|state| {
-                    vault_core::repo_config_backup::selectors::select_info(state).map(|info| {
-                        dto::RepoConfigBackupInfo {
-                            status: info.status.into(),
-                            config: info.config.map(Into::into),
-                        }
-                    })
+                    vault_core::repo_config_backup::selectors::select_info(state)
+                        .as_ref()
+                        .map(Into::into)
                 })
             },
         )

@@ -8,10 +8,12 @@ use vault_core::dir_pickers::state as dir_pickers_state;
 use vault_core::file_types::file_icon_type;
 use vault_core::notifications::state as notifications_state;
 use vault_core::remote_files::state as remote_files_state;
+use vault_core::repo_config_backup::state as repo_config_backup_state;
 use vault_core::repo_create::state as repo_create_state;
 use vault_core::repo_files::state as repo_files_state;
 use vault_core::repo_files_browsers::state as repo_files_browsers_state;
 use vault_core::repo_files_move::state as repo_files_move_state;
+use vault_core::repo_remove::state as repo_remove_state;
 use vault_core::repos::selectors as repos_selectors;
 use vault_core::repos::state as repos_state;
 use vault_core::selection;
@@ -323,10 +325,28 @@ pub struct RepoRemoveInfo {
     pub repo_name: Option<String>,
 }
 
+impl<'a> From<&repo_remove_state::RepoRemoveInfo<'a>> for RepoRemoveInfo {
+    fn from(info: &repo_remove_state::RepoRemoveInfo<'a>) -> Self {
+        Self {
+            status: info.status.into(),
+            repo_name: info.repo_name.map(str::to_string),
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub struct RepoConfigBackupInfo {
     pub status: Status,
     pub config: Option<RepoConfig>,
+}
+
+impl<'a> From<&repo_config_backup_state::RepoConfigBackupInfo<'a>> for RepoConfigBackupInfo {
+    fn from(info: &repo_config_backup_state::RepoConfigBackupInfo<'a>) -> Self {
+        Self {
+            status: info.status.into(),
+            config: info.config.map(Into::into),
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
