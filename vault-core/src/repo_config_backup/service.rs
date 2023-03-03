@@ -43,7 +43,7 @@ impl RepoConfigBackupService {
             state
                 .repo_config_backup
                 .as_ref()
-                .map(|repo_remove| repo_remove.repo_id.clone())
+                .map(|repo_config_backup| repo_config_backup.repo_id.clone())
         }) {
             Some(repo_id) => repo_id,
             None => {
