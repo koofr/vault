@@ -627,14 +627,7 @@ async fn res_error<T>(res: Box<dyn HttpResponse + Send + Sync>) -> Result<T, Rem
 
     if is_content_type_json {
         match serde_json::from_slice::<ApiError>(&bytes) {
-            Ok(api_error) => {
-                return Err(RemoteError::ApiError {
-                    code: api_error.error.code.as_str().into(),
-                    message: api_error.error.message,
-                    request_id: Some(api_error.request_id),
-                    extra: api_error.error.extra,
-                })
-            }
+            Ok(api_error) => return Err(api_error.into()),
             _ => (),
         }
     }

@@ -5,6 +5,8 @@ use thiserror::Error;
 use crate::http;
 use crate::user_error::UserError;
 
+use super::models;
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum ApiErrorCode {
     NotFound,
@@ -55,5 +57,23 @@ impl RemoteError {
             request_id: None,
             extra: None,
         }
+    }
+
+    pub fn from_api_error_details(
+        api_error_details: models::ApiErrorDetails,
+        request_id: Option<String>,
+    ) -> Self {
+        Self::ApiError {
+            code: api_error_details.code.as_str().into(),
+            message: api_error_details.message,
+            request_id,
+            extra: api_error_details.extra,
+        }
+    }
+}
+
+impl From<models::ApiError> for RemoteError {
+    fn from(api_error: models::ApiError) -> Self {
+        Self::from_api_error_details(api_error.error, Some(api_error.request_id))
     }
 }
