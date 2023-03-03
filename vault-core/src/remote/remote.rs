@@ -19,6 +19,9 @@ use super::errors::RemoteError;
 use super::models::{self, ApiError};
 use super::ApiErrorCode;
 
+pub type ListRecursiveItemStream =
+    Pin<Box<dyn Stream<Item = Result<models::FilesListRecursiveItem, RemoteError>>>>;
+
 pub struct RemoteFileReader {
     pub size: i64,
     pub reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
@@ -292,10 +295,7 @@ impl Remote {
         &self,
         mount_id: &str,
         path: &str,
-    ) -> Result<
-        Pin<Box<dyn Stream<Item = Result<models::FilesListRecursiveItem, RemoteError>>>>,
-        RemoteError,
-    > {
+    ) -> Result<ListRecursiveItemStream, RemoteError> {
         let res = self
             .request(HttpRequest {
                 method: String::from("GET"),

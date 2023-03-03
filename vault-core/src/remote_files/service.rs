@@ -5,7 +5,10 @@ use futures::AsyncRead;
 
 use crate::{
     http,
-    remote::{models, Remote, RemoteError, RemoteFileReader, RemoteFileUploadConflictResolution},
+    remote::{
+        models, remote::ListRecursiveItemStream, Remote, RemoteError, RemoteFileReader,
+        RemoteFileUploadConflictResolution,
+    },
     store,
     utils::path_utils,
 };
@@ -92,6 +95,14 @@ impl RemoteFilesService {
             Some((mount_id, path)) => self.remote.get_file_reader(&mount_id, &path).await,
             None => Err(RemoteFilesErrors::not_found()),
         }
+    }
+
+    pub async fn get_list_recursive(
+        &self,
+        mount_id: &str,
+        path: &str,
+    ) -> Result<ListRecursiveItemStream, RemoteError> {
+        self.remote.get_list_recursive(mount_id, path).await
     }
 
     pub async fn upload_file_reader(
