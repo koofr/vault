@@ -14,6 +14,7 @@ use vault_core::repo_files::state as repo_files_state;
 use vault_core::repo_files_browsers::state as repo_files_browsers_state;
 use vault_core::repo_files_move::state as repo_files_move_state;
 use vault_core::repo_remove::state as repo_remove_state;
+use vault_core::repo_space_usage::state as repo_space_usage_state;
 use vault_core::repos::selectors as repos_selectors;
 use vault_core::repos::state as repos_state;
 use vault_core::selection;
@@ -345,6 +346,22 @@ impl<'a> From<&repo_config_backup_state::RepoConfigBackupInfo<'a>> for RepoConfi
         Self {
             status: info.status.into(),
             config: info.config.map(Into::into),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+pub struct RepoSpaceUsageInfo {
+    pub status: Status,
+    #[serde(rename = "spaceUsedDisplay")]
+    pub space_used_display: Option<String>,
+}
+
+impl<'a> From<&repo_space_usage_state::RepoSpaceUsageInfo<'a>> for RepoSpaceUsageInfo {
+    fn from(info: &repo_space_usage_state::RepoSpaceUsageInfo<'a>) -> Self {
+        Self {
+            status: info.status.into(),
+            space_used_display: info.space_used.map(format_size),
         }
     }
 }

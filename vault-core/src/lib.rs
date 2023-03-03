@@ -20,6 +20,7 @@ pub mod repo_files_browsers;
 pub mod repo_files_dir_pickers;
 pub mod repo_files_move;
 pub mod repo_remove;
+pub mod repo_space_usage;
 pub mod repo_unlock;
 pub mod repos;
 pub mod runtime;

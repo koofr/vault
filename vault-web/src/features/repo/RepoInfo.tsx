@@ -13,6 +13,7 @@ import { useSubscribe } from '../../webVault/useSubscribe';
 
 import { RepoConfigBackup } from './RepoConfigBackup';
 import { RepoDestroyModal } from './RepoDestroyModal';
+import { RepoSpaceUsage } from './RepoSpaceUsage';
 
 export const RepoInfoRepo = memo<{ repo: Repo }>(({ repo }) => {
   const isMobile = useIsMobile();
@@ -101,6 +102,14 @@ export const RepoInfoRepo = memo<{ repo: Repo }>(({ repo }) => {
           >
             Destroy Safe Box...
           </Button>
+        </div>
+
+        <div
+          className={css`
+            margin-bottom: 50px;
+          `}
+        >
+          <RepoSpaceUsage repoId={repo.id} />
         </div>
 
         <RepoConfigBackup repoId={repo.id} />

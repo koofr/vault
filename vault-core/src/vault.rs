@@ -19,6 +19,7 @@ use crate::repo_files_browsers;
 use crate::repo_files_dir_pickers;
 use crate::repo_files_move;
 use crate::repo_remove;
+use crate::repo_space_usage;
 use crate::repo_unlock;
 use crate::repos;
 use crate::runtime;
@@ -42,6 +43,7 @@ pub struct Vault {
     repo_unlock_service: Arc<repo_unlock::RepoUnlockService>,
     repo_remove_service: Arc<repo_remove::RepoRemoveService>,
     repo_config_backup_service: Arc<repo_config_backup::RepoConfigBackupService>,
+    repo_space_usage_service: Arc<repo_space_usage::RepoSpaceUsageService>,
     repo_files_service: Arc<repo_files::RepoFilesService>,
     eventstream_service: Arc<eventstream::EventStreamService>,
     repo_files_dir_pickers_service: Arc<repo_files_dir_pickers::RepoFilesDirPickersService>,
@@ -110,6 +112,10 @@ impl Vault {
         let repo_config_backup_service = Arc::new(
             repo_config_backup::RepoConfigBackupService::new(repos_service.clone(), store.clone()),
         );
+        let repo_space_usage_service = Arc::new(repo_space_usage::RepoSpaceUsageService::new(
+            remote_files_service.clone(),
+            store.clone(),
+        ));
         let repo_files_service = Arc::new(repo_files::RepoFilesService::new(
             repos_service.clone(),
             remote_files_service.clone(),
@@ -183,6 +189,7 @@ impl Vault {
             repo_unlock_service,
             repo_remove_service,
             repo_config_backup_service,
+            repo_space_usage_service,
             repo_files_service,
             eventstream_service,
             repo_files_dir_pickers_service,
@@ -389,6 +396,22 @@ impl Vault {
 
     pub fn repo_config_backup_destroy(&self, repo_id: &str) {
         self.repo_config_backup_service.destroy(repo_id)
+    }
+
+    // repo_space_usage
+
+    pub fn repo_space_usage_init(&self, repo_id: &str) {
+        self.repo_space_usage_service.init(repo_id)
+    }
+
+    pub async fn repo_space_usage_calculate(
+        &self,
+    ) -> Result<(), repo_space_usage::errors::RepoSpaceUsageError> {
+        self.repo_space_usage_service.calculate().await
+    }
+
+    pub fn repo_space_usage_destroy(&self, repo_id: &str) {
+        self.repo_space_usage_service.destroy(repo_id)
     }
 
     // repo_files

@@ -62,6 +62,9 @@ extern "C" {
     #[wasm_bindgen(typescript_type = "RepoConfigBackupInfo | undefined")]
     pub type RepoConfigBackupInfoOption;
 
+    #[wasm_bindgen(typescript_type = "RepoSpaceUsageInfo | undefined")]
+    pub type RepoSpaceUsageInfoOption;
+
     #[wasm_bindgen(typescript_type = "RepoFile | undefined")]
     pub type RepoFileOption;
 
@@ -116,6 +119,7 @@ struct SubscriptionData {
     repo_unlock_info: Data<Option<dto::RepoUnlockInfo>>,
     repo_remove_info: Data<Option<dto::RepoRemoveInfo>>,
     repo_config_backup_info: Data<Option<dto::RepoConfigBackupInfo>>,
+    repo_space_usage_info: Data<Option<dto::RepoSpaceUsageInfo>>,
     repo_files_file: Data<Option<dto::RepoFile>>,
     uploads_is_active: Data<bool>,
     uploads_summary: Data<dto::UploadsSummary>,
@@ -735,6 +739,44 @@ impl WebVault {
     #[wasm_bindgen(js_name = repoConfigBackupDestroy)]
     pub fn repo_config_backup_destroy(&self, repo_id: &str) {
         self.vault.repo_config_backup_destroy(repo_id)
+    }
+
+    // repo_space_usage
+
+    #[wasm_bindgen(js_name = repoSpaceUsageInfoSubscribe)]
+    pub fn repo_space_usage_info_subscribe(&self, cb: js_sys::Function) -> u32 {
+        self.subscribe(
+            &[Event::RepoSpaceUsage],
+            cb,
+            self.subscription_data.repo_space_usage_info.clone(),
+            move |vault| {
+                vault.with_state(|state| {
+                    vault_core::repo_space_usage::selectors::select_info(state)
+                        .as_ref()
+                        .map(Into::into)
+                })
+            },
+        )
+    }
+
+    #[wasm_bindgen(js_name = repoSpaceUsageInfoData)]
+    pub fn repo_space_usage_info_data(&self, id: u32) -> RepoSpaceUsageInfoOption {
+        self.get_data_js(id, self.subscription_data.repo_space_usage_info.clone())
+    }
+
+    #[wasm_bindgen(js_name = repoSpaceUsageInit)]
+    pub fn repo_space_usage_init(&self, repo_id: &str) {
+        self.vault.repo_space_usage_init(repo_id)
+    }
+
+    #[wasm_bindgen(js_name = repoSpaceUsageCalculate)]
+    pub async fn repo_space_usage_calculate(&self) {
+        let _ = self.vault.repo_space_usage_calculate().await;
+    }
+
+    #[wasm_bindgen(js_name = repoSpaceUsageDestroy)]
+    pub fn repo_space_usage_destroy(&self, repo_id: &str) {
+        self.vault.repo_space_usage_destroy(repo_id)
     }
 
     // repo_files
