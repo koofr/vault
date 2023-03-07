@@ -8,10 +8,9 @@ pub mod errors;
 pub mod name_cipher;
 pub mod nonce;
 pub mod random_password;
-
 #[cfg(test)]
 #[macro_use]
-mod test_helpers;
+pub mod test_helpers;
 
 pub use self::cipher::Cipher;
 pub use self::errors::CipherError;

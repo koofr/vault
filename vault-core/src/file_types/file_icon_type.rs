@@ -1,6 +1,6 @@
 use phf::phf_map;
 
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum FileIconType {
     Generic,
     Folder,

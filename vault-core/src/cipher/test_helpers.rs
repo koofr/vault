@@ -1,3 +1,5 @@
+use super::Cipher;
+
 #[macro_export]
 macro_rules! assert_reader_pending {
     ($reader:expr) => {{
@@ -38,3 +40,17 @@ macro_rules! assert_reader_ready {
 }
 
 pub use assert_reader_ready;
+
+pub fn create_cipher() -> Cipher {
+    Cipher::with_keys(
+        [
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1,
+        ],
+        [
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+            2, 2, 2,
+        ],
+        [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+    )
+}

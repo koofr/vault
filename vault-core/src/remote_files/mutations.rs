@@ -5,7 +5,7 @@ use crate::utils::path_utils;
 use super::selectors;
 use super::state::{Mount, MountType, RemoteFile, RemoteFileType};
 
-fn mount_to_remote_file(id: String, mount_id: String) -> RemoteFile {
+pub fn mount_to_remote_file(id: String, mount_id: String) -> RemoteFile {
     RemoteFile {
         id,
         mount_id,
@@ -18,7 +18,7 @@ fn mount_to_remote_file(id: String, mount_id: String) -> RemoteFile {
     }
 }
 
-fn files_file_to_remote_file(
+pub fn files_file_to_remote_file(
     id: String,
     mount_id: String,
     path: String,
@@ -38,7 +38,7 @@ fn files_file_to_remote_file(
     }
 }
 
-fn bundle_file_to_remote_file(
+pub fn bundle_file_to_remote_file(
     id: String,
     mount_id: String,
     path: String,

@@ -229,3 +229,171 @@ pub fn cleanup_file(state: &mut store::State, file_id: &str) {
         .children
         .retain(|file_id, _| !file_id.starts_with(&file_id_prefix));
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::{
+        cipher::{
+            errors::{DecryptFilenameError, DecryptSizeError},
+            test_helpers::create_cipher,
+        },
+        file_types::file_icon_type::FileIconType,
+        remote_files::test_helpers as remote_files_test_helpers,
+        repo_files::state::{RepoFile, RepoFileName, RepoFilePath, RepoFileSize, RepoFileType},
+    };
+
+    use super::{decrypt_file, get_root_file};
+
+    #[test]
+    fn test_get_root_file() {
+        let remote_file = remote_files_test_helpers::create_dir("m1", "/Vault");
+
+        assert_eq!(
+            get_root_file("r1", &remote_file),
+            RepoFile {
+                id: String::from("r1:/"),
+                remote_file_id: remote_file.id,
+                repo_id: String::from("r1",),
+                path: RepoFilePath::Decrypted {
+                    path: String::from("/")
+                },
+                name: RepoFileName::Decrypted {
+                    name: String::from(""),
+                    name_lower: String::from("")
+                },
+                typ: RepoFileType::Dir,
+                size: RepoFileSize::Decrypted { size: 0 },
+                modified: 0,
+                icon_type: FileIconType::Folder,
+            }
+        )
+    }
+
+    #[test]
+    fn test_decrypt_file_dir() {
+        let cipher = create_cipher();
+        let remote_file = remote_files_test_helpers::create_dir(
+            "m1",
+            &format!("/Vault/{}", cipher.encrypt_filename("D1")),
+        );
+
+        assert_eq!(
+            decrypt_file("r1", "/", &remote_file, &cipher),
+            RepoFile {
+                id: String::from("r1:/D1"),
+                remote_file_id: remote_file.id,
+                repo_id: String::from("r1",),
+                path: RepoFilePath::Decrypted {
+                    path: String::from("/D1")
+                },
+                name: RepoFileName::Decrypted {
+                    name: String::from("D1"),
+                    name_lower: String::from("d1")
+                },
+                typ: RepoFileType::Dir,
+                size: RepoFileSize::Decrypted { size: 0 },
+                modified: 1,
+                icon_type: FileIconType::Folder,
+            }
+        )
+    }
+
+    #[test]
+    fn test_decrypt_file_dir_decrypt_error() {
+        let cipher = create_cipher();
+        let remote_file = remote_files_test_helpers::create_dir("m1", "/Vault/D1");
+
+        assert_eq!(
+            decrypt_file("r1", "/", &remote_file, &cipher),
+            RepoFile {
+                id: String::from("r1:/D1"),
+                remote_file_id: remote_file.id,
+                repo_id: String::from("r1",),
+                path: RepoFilePath::DecryptError {
+                    parent_path: String::from("/"),
+                    encrypted_name: String::from("D1"),
+                    error: DecryptFilenameError::DecodeError(String::from(
+                        "non-zero trailing bits at 1"
+                    )),
+                },
+                name: RepoFileName::DecryptError {
+                    encrypted_name: String::from("D1"),
+                    encrypted_name_lower: String::from("d1"),
+                    error: DecryptFilenameError::DecodeError(String::from(
+                        "non-zero trailing bits at 1"
+                    )),
+                },
+                typ: RepoFileType::Dir,
+                size: RepoFileSize::Decrypted { size: 0 },
+                modified: 1,
+                icon_type: FileIconType::Folder,
+            }
+        )
+    }
+
+    #[test]
+    fn test_decrypt_file_file() {
+        let cipher = create_cipher();
+        let remote_file = remote_files_test_helpers::create_file(
+            "m1",
+            &format!("/Vault/{}", cipher.encrypt_filename("F1")),
+        );
+
+        assert_eq!(
+            decrypt_file("r1", "/", &remote_file, &cipher),
+            RepoFile {
+                id: String::from("r1:/F1"),
+                remote_file_id: remote_file.id,
+                repo_id: String::from("r1",),
+                path: RepoFilePath::Decrypted {
+                    path: String::from("/F1")
+                },
+                name: RepoFileName::Decrypted {
+                    name: String::from("F1"),
+                    name_lower: String::from("f1")
+                },
+                typ: RepoFileType::File,
+                size: RepoFileSize::Decrypted { size: 52 },
+                modified: 1,
+                icon_type: FileIconType::Generic,
+            }
+        )
+    }
+
+    #[test]
+    fn test_decrypt_file_file_decrypt_error() {
+        let cipher = create_cipher();
+        let mut remote_file = remote_files_test_helpers::create_file("m1", "/Vault/F1");
+        remote_file.size = 10;
+
+        assert_eq!(
+            decrypt_file("r1", "/", &remote_file, &cipher),
+            RepoFile {
+                id: String::from("r1:/F1"),
+                remote_file_id: remote_file.id,
+                repo_id: String::from("r1",),
+                path: RepoFilePath::DecryptError {
+                    parent_path: String::from("/"),
+                    encrypted_name: String::from("F1"),
+                    error: DecryptFilenameError::DecodeError(String::from(
+                        "non-zero trailing bits at 1"
+                    )),
+                },
+                name: RepoFileName::DecryptError {
+                    encrypted_name: String::from("F1"),
+                    encrypted_name_lower: String::from("f1"),
+                    error: DecryptFilenameError::DecodeError(String::from(
+                        "non-zero trailing bits at 1"
+                    )),
+                },
+                typ: RepoFileType::File,
+                size: RepoFileSize::DecryptError {
+                    encrypted_size: 10,
+                    error: DecryptSizeError::EncryptedFileTooShort
+                },
+                modified: 1,
+                icon_type: FileIconType::Generic,
+            }
+        )
+    }
+}

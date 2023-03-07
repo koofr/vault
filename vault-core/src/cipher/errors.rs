@@ -29,7 +29,7 @@ impl Into<std::io::Error> for CipherError {
     }
 }
 
-#[derive(Debug, Error, Clone)]
+#[derive(Debug, Error, Clone, PartialEq, Eq)]
 pub enum DecryptSizeError {
     #[error("file is too short to be decrypted")]
     EncryptedFileTooShort,
@@ -37,7 +37,7 @@ pub enum DecryptSizeError {
     EncryptedFileBadHeader,
 }
 
-#[derive(Error, Debug, Clone, PartialEq)]
+#[derive(Error, Debug, Clone, PartialEq, Eq)]
 pub enum DecryptFilenameError {
     #[error("decode error: {0}")]
     DecodeError(String),

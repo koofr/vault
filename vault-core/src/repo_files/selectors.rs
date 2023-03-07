@@ -238,37 +238,20 @@ pub fn select_breadcrumbs(
 
 #[cfg(test)]
 mod tests {
+    use crate::cipher::test_helpers as cipher_test_helpers;
     use crate::remote::models;
+    use crate::remote::test_helpers as remote_test_helpers;
     use crate::repos::mutations::repos_loaded;
-    use crate::{cipher, store};
+    use crate::store;
 
     use super::super::selectors::{encrypt_path, select_mount_path_to_repo_id};
     use super::select_repo_mount_path_to_path;
 
     fn dummy_repo(path: &str) -> models::VaultRepo {
-        models::VaultRepo {
-            id: String::from("23815776-c9e3-40ef-9d9f-da719e554af4"),
-            name: String::from("Repo"),
-            mount_id: String::from("66fec02f-e2e9-470a-99cf-1aeb9374a6b4"),
-            path: String::from(path),
-            salt: None,
-            password_validator: String::from("pv"),
-            password_validator_encrypted: String::from("pve"),
-            added: 1,
-        }
-    }
-
-    fn dummy_cipher() -> cipher::Cipher {
-        cipher::Cipher::with_keys(
-            [
-                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                1, 1, 1, 1,
-            ],
-            [
-                2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-                2, 2, 2, 2,
-            ],
-            [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+        remote_test_helpers::create_repo(
+            "23815776-c9e3-40ef-9d9f-da719e554af4",
+            "66fec02f-e2e9-470a-99cf-1aeb9374a6b4",
+            path,
         )
     }
 
@@ -277,7 +260,7 @@ mod tests {
         let mut state = store::State::default();
         let repo = dummy_repo("/");
         repos_loaded(&mut state, vec![repo.clone()]);
-        let cipher = dummy_cipher();
+        let cipher = cipher_test_helpers::create_cipher();
         let select = |mount_path: &str| {
             let repo_id = select_mount_path_to_repo_id(&state, &repo.mount_id, mount_path).unwrap();
 
@@ -301,7 +284,7 @@ mod tests {
         let mut state = store::State::default();
         let repo = dummy_repo("/Vault");
         repos_loaded(&mut state, vec![repo.clone()]);
-        let cipher = dummy_cipher();
+        let cipher = cipher_test_helpers::create_cipher();
         let select = |mount_path: &str| {
             let repo_id = select_mount_path_to_repo_id(&state, &repo.mount_id, mount_path).unwrap();
 
