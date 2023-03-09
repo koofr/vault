@@ -69,22 +69,6 @@ pub fn select_file_name<'a>(state: &'a store::State, file: &'a RepoFile) -> Opti
     }
 }
 
-pub fn encrypt_path(plaintext_path: &str, cipher: &cipher::Cipher) -> String {
-    match plaintext_path {
-        "/" => plaintext_path.to_owned(),
-        _ => {
-            let parts: Vec<&str> = plaintext_path.split("/").skip(1).collect();
-            let mut encrypted_parts: Vec<String> = Vec::with_capacity(parts.len() + 1);
-            encrypted_parts.push(String::from(""));
-            for part in parts {
-                let encrypted_part = cipher.encrypt_filename(&part);
-                encrypted_parts.push(encrypted_part);
-            }
-            encrypted_parts.join("/")
-        }
-    }
-}
-
 pub fn select_repo_path_to_mount_path<'a>(
     state: &'a store::State,
     repo_id: &str,
@@ -93,7 +77,7 @@ pub fn select_repo_path_to_mount_path<'a>(
 ) -> Result<(String, String), RepoNotFoundError> {
     let repo = repos_selectors::select_repo(state, repo_id)?;
 
-    let full_path = path_utils::join_paths(&repo.path, &encrypt_path(path, cipher));
+    let full_path = path_utils::join_paths(&repo.path, &cipher.encrypt_path(path));
 
     Ok((repo.mount_id.clone(), full_path))
 }
@@ -244,7 +228,7 @@ mod tests {
     use crate::repos::mutations::repos_loaded;
     use crate::store;
 
-    use super::super::selectors::{encrypt_path, select_mount_path_to_repo_id};
+    use super::super::selectors::select_mount_path_to_repo_id;
     use super::select_repo_mount_path_to_path;
 
     fn dummy_repo(path: &str) -> models::VaultRepo {
@@ -270,11 +254,11 @@ mod tests {
 
         assert_eq!(select("/"), Ok(format!("/")));
         assert_eq!(
-            select(&encrypt_path("/foo", &cipher)),
+            select(&cipher.encrypt_path("/foo")),
             Ok(String::from("/foo"))
         );
         assert_eq!(
-            select(&encrypt_path("/foo/bar", &cipher)),
+            select(&cipher.encrypt_path("/foo/bar")),
             Ok(String::from("/foo/bar"))
         );
     }
@@ -294,11 +278,11 @@ mod tests {
 
         assert_eq!(select("/Vault"), Ok(format!("/")));
         assert_eq!(
-            select(&format!("/Vault{}", encrypt_path("/foo", &cipher))),
+            select(&format!("/Vault{}", cipher.encrypt_path("/foo"))),
             Ok(String::from("/foo"))
         );
         assert_eq!(
-            select(&format!("/Vault{}", encrypt_path("/foo/bar", &cipher))),
+            select(&format!("/Vault{}", cipher.encrypt_path("/foo/bar"))),
             Ok(String::from("/foo/bar"))
         );
     }

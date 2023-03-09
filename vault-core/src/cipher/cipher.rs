@@ -10,7 +10,9 @@ use super::data_cipher::get_data_cipher;
 use super::decrypt_reader::DecryptReader;
 use super::encrypt_reader::EncryptReader;
 use super::errors::DecryptFilenameError;
-use super::name_cipher::{decrypt_filename, decrypt_path, encrypt_filename, get_name_cipher};
+use super::name_cipher::{
+    decrypt_filename, decrypt_path, encrypt_filename, encrypt_path, get_name_cipher,
+};
 use super::nonce::Nonce;
 
 pub struct Cipher {
@@ -46,6 +48,10 @@ impl Cipher {
 
     pub fn encrypt_filename(&self, plaintext: &str) -> String {
         encrypt_filename(get_name_cipher(&self.name_key, &self.name_tweak), plaintext)
+    }
+
+    pub fn encrypt_path(&self, plaintext: &str) -> String {
+        encrypt_path(get_name_cipher(&self.name_key, &self.name_tweak), plaintext)
     }
 
     pub fn decrypt_filename(&self, ciphertext: &str) -> Result<String, DecryptFilenameError> {
@@ -155,6 +161,21 @@ mod tests {
     }
 
     #[test]
+    fn test_encrypt_path() {
+        let cipher = Cipher::new("testpassword", None);
+
+        assert_eq!(cipher.encrypt_path("/"), "/");
+        assert_eq!(
+            cipher.encrypt_path("/testfilename"),
+            "/mvedi866srqc97sl5948oaej2g"
+        );
+        assert_eq!(
+            cipher.encrypt_path("/testfilename/testfilename"),
+            "/mvedi866srqc97sl5948oaej2g/mvedi866srqc97sl5948oaej2g"
+        );
+    }
+
+    #[test]
     fn test_decrypt_filename() {
         // tested with rclone 1.60
         let cipher = Cipher::new("testpassword", None);
@@ -214,6 +235,23 @@ mod tests {
         assert_eq!(
           cipher.decrypt_filename("aih8hkkjcirtgsg067bg7g9ait5ets26p1vkctjfvmit3h6kun49cjabq01s2vrq9ia2k1q453f1uimjunf98qaja570as68irjdlhtir2vjlvfl6lmj5b18mmb3la3g8f5hhg5bf3kascg93mta0hd32blmur08deg59safibo75hvk51rtgf45r9o6v29qc4gi3kkv89k9rtlf1r4qm5ughavlqigr4ri640nhhf8b12ntidod6tv2jajaomb1").unwrap(),
           "testfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilename"
+        );
+    }
+
+    #[test]
+    fn test_decrypt_path() {
+        let cipher = Cipher::new("testpassword", None);
+
+        assert_eq!(cipher.decrypt_path("/").unwrap(), "/");
+        assert_eq!(
+            cipher.decrypt_path("/mvedi866srqc97sl5948oaej2g").unwrap(),
+            "/testfilename"
+        );
+        assert_eq!(
+            cipher
+                .decrypt_path("/mvedi866srqc97sl5948oaej2g/mvedi866srqc97sl5948oaej2g")
+                .unwrap(),
+            "/testfilename/testfilename"
         );
     }
 

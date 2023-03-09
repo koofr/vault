@@ -24,6 +24,22 @@ pub fn encrypt_filename(name_cipher: Aes256Eme, plaintext: &str) -> String {
     BASE32HEX_NOPAD.encode(&encrypted).to_lowercase()
 }
 
+pub fn encrypt_path(name_cipher: Aes256Eme, plaintext: &str) -> String {
+    match plaintext {
+        "/" => plaintext.to_owned(),
+        _ => {
+            let parts: Vec<&str> = plaintext.split("/").skip(1).collect();
+            let mut encrypted_parts: Vec<String> = Vec::with_capacity(parts.len() + 1);
+            encrypted_parts.push(String::from(""));
+            for part in parts {
+                let encrypted_part = encrypt_filename(name_cipher.clone(), &part);
+                encrypted_parts.push(encrypted_part);
+            }
+            encrypted_parts.join("/")
+        }
+    }
+}
+
 pub fn decrypt_filename(
     name_cipher: Aes256Eme,
     ciphertext: &str,
