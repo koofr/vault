@@ -12,7 +12,7 @@ export function downloadStream(stream: FileStream) {
           : undefined,
     });
 
-    stream.stream.pipeTo(fileStream);
+    stream.stream.pipeTo(fileStream).catch(() => {});
   } else if (stream.blob !== undefined) {
     saveAs(stream.blob, stream.name);
   }

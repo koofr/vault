@@ -27,7 +27,7 @@ tsify = { version = "0.4.2", features = ["js"] }
 vault-core = { path = "../vault-core" }
 wasm-bindgen = { version = "0.2.83" }
 wasm-bindgen-futures = "0.4.33"
-wasm-streams = "0.2.3"
+wasm-streams = { git = "https://github.com/MattiasBuelens/wasm-streams", rev = "c0b3ee7677a7aa75c9500fd4f24a52219e808762" }
 web-sys = { version = "0.3.60", features = [
   'AbortController',
   'AbortSignal',
