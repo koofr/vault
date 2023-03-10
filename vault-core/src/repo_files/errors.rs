@@ -1,7 +1,7 @@
 use thiserror::Error;
 
 use crate::{
-    cipher::errors::{DecryptFilenameError, DecryptSizeError},
+    cipher::errors::DecryptFilenameError,
     remote::{ApiErrorCode, RemoteError},
     repos::errors::{RepoLockedError, RepoNotFoundError},
     user_error::UserError,
@@ -69,22 +69,6 @@ pub enum DecryptFilesError {
     RepoNotFound(#[from] RepoNotFoundError),
     #[error("{0}")]
     RepoLocked(#[from] RepoLockedError),
-}
-
-#[derive(Error, Debug, Clone, UserError)]
-pub enum GetFileReaderError {
-    #[error("{0}")]
-    RepoNotFound(#[from] RepoNotFoundError),
-    #[error("{0}")]
-    RepoLocked(#[from] RepoLockedError),
-    #[error("file not found")]
-    FileNotFound,
-    #[error("{0}")]
-    DecryptFilenameError(#[from] DecryptFilenameError),
-    #[error("{0}")]
-    DecryptSizeError(#[from] DecryptSizeError),
-    #[error("{0}")]
-    RemoteError(#[from] RemoteError),
 }
 
 #[derive(Error, Debug, Clone)]

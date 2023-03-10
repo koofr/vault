@@ -19,6 +19,7 @@ use crate::repo_files_browsers;
 use crate::repo_files_dir_pickers;
 use crate::repo_files_list;
 use crate::repo_files_move;
+use crate::repo_files_read;
 use crate::repo_remove;
 use crate::repo_space_usage;
 use crate::repo_unlock;
@@ -121,9 +122,17 @@ impl Vault {
             repos_service.clone(),
             remote_files_service.clone(),
         ));
+        let repo_files_read_service = Arc::new(repo_files_read::RepoFilesReadService::new(
+            repos_service.clone(),
+            remote_files_service.clone(),
+            repo_files_list_service.clone(),
+            store.clone(),
+            runtime.clone(),
+        ));
         let repo_files_service = Arc::new(repo_files::RepoFilesService::new(
             repos_service.clone(),
             remote_files_service.clone(),
+            repo_files_read_service.clone(),
             store.clone(),
         ));
         let repo_create_service = Arc::new(repo_create::RepoCreateService::new(
@@ -153,6 +162,7 @@ impl Vault {
         let repo_files_browsers_service =
             Arc::new(repo_files_browsers::RepoFilesBrowsersService::new(
                 repo_files_service.clone(),
+                repo_files_read_service.clone(),
                 eventstream_service.clone(),
                 store.clone(),
             ));
@@ -430,10 +440,14 @@ impl Vault {
     }
 
     pub async fn repo_files_get_file_reader(
-        &self,
+        self: Arc<Self>,
         file_id: &str,
-    ) -> Result<repo_files::state::RepoFileReader, repo_files::errors::GetFileReaderError> {
-        self.repo_files_service.get_file_reader(file_id).await
+    ) -> Result<repo_files_read::state::RepoFileReader, repo_files_read::errors::GetFilesReaderError>
+    {
+        self.repo_files_service
+            .clone()
+            .get_file_reader(file_id)
+            .await
     }
 
     pub async fn repo_files_delete_file(
@@ -557,11 +571,13 @@ impl Vault {
     }
 
     pub async fn repo_files_browsers_get_selected_stream(
-        &self,
+        self: Arc<Self>,
         browser_id: u32,
-    ) -> Result<repo_files::state::RepoFileReader, repo_files::errors::GetFileReaderError> {
+    ) -> Result<repo_files_read::state::RepoFileReader, repo_files_read::errors::GetFilesReaderError>
+    {
         self.repo_files_browsers_service
-            .get_selected_stream(browser_id)
+            .clone()
+            .get_selected_reader(browser_id)
             .await
     }
 

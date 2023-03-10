@@ -1,15 +1,21 @@
 use std::collections::HashSet;
 
-use crate::cipher::data_cipher::decrypt_size;
-use crate::cipher::Cipher;
-use crate::file_types::file_icon_type::{ext_to_file_icon_type, FileIconType};
-use crate::remote_files::selectors as remote_files_selectors;
-use crate::remote_files::state::{RemoteFile, RemoteFileType};
-use crate::store;
-use crate::utils::{name_utils, path_utils};
+use crate::{
+    cipher::{data_cipher::decrypt_size, Cipher},
+    file_types::file_icon_type::{ext_to_file_icon_type, FileIconType},
+    remote_files::{
+        selectors as remote_files_selectors,
+        state::{RemoteFile, RemoteFileType},
+    },
+    store,
+    utils::{name_utils, path_utils},
+};
 
-use super::state::{RepoFile, RepoFileName, RepoFilePath, RepoFileSize};
-use super::{errors::DecryptFilesError, selectors};
+use super::{
+    errors::DecryptFilesError,
+    selectors,
+    state::{RepoFile, RepoFileName, RepoFilePath, RepoFileSize},
+};
 
 pub fn sort_children(state: &mut store::State, file_id: &str) {
     if let Some(children_ids) = state.repo_files.children.get(file_id) {

@@ -1,32 +1,42 @@
-use std::collections::HashMap;
-use std::pin::Pin;
-use std::sync::{Arc, Mutex};
-
-use futures::future::{BoxFuture, Shared};
-use futures::{AsyncRead, FutureExt};
-
-use crate::cipher::data_cipher::{decrypt_on_progress, decrypt_size, encrypted_size};
-use crate::remote::models::FilesFile;
-use crate::remote_files::selectors as remote_files_selectors;
-use crate::remote_files::state::RemoteFilesLocation;
-use crate::remote_files::RemoteFilesService;
-use crate::repo_files::state::RepoFilesUploadResult;
-use crate::repos::errors::RepoLockedError;
-use crate::repos::ReposService;
-use crate::utils::path_utils;
-use crate::{http, remote, store};
-
-use super::errors::{
-    CopyFileError, CreateDirError, DecryptFilesError, DeleteFileError, EnsureDirError,
-    GetFileReaderError, GetRepoMountPathError, LoadFileError, LoadFilesError, MoveFileError,
-    RenameFileError, RepoFilesErrors, RepoMountPathToPathError, UploadFileReaderError,
+use std::{
+    collections::HashMap,
+    pin::Pin,
+    sync::{Arc, Mutex},
 };
-use super::state::{RepoFileReader, RepoFileType, RepoFilesUploadConflictResolution};
-use super::{mutations, selectors};
+
+use futures::{
+    future::{BoxFuture, Shared},
+    AsyncRead, FutureExt,
+};
+
+use crate::{
+    cipher::{
+        data_cipher::{decrypt_on_progress, encrypted_size},
+        Cipher,
+    },
+    http,
+    remote::{self, models},
+    remote_files::{state::RemoteFilesLocation, RemoteFilesService},
+    repo_files_read::{errors::GetFilesReaderError, state::RepoFileReader, RepoFilesReadService},
+    repos::{errors::RepoLockedError, ReposService},
+    store,
+    utils::path_utils,
+};
+
+use super::{
+    errors::{
+        CopyFileError, CreateDirError, DecryptFilesError, DeleteFileError, EnsureDirError,
+        GetRepoMountPathError, LoadFileError, LoadFilesError, MoveFileError, RenameFileError,
+        RepoFilesErrors, RepoMountPathToPathError, UploadFileReaderError,
+    },
+    mutations, selectors,
+    state::{RepoFileType, RepoFilesUploadConflictResolution, RepoFilesUploadResult},
+};
 
 pub struct RepoFilesService {
     repos_service: Arc<ReposService>,
     remote_files_service: Arc<RemoteFilesService>,
+    repo_files_read_service: Arc<RepoFilesReadService>,
     store: Arc<store::Store>,
     ensure_dirs_futures:
         Arc<Mutex<HashMap<String, Shared<BoxFuture<'static, Result<(), EnsureDirError>>>>>>,
@@ -36,14 +46,28 @@ impl RepoFilesService {
     pub fn new(
         repos_service: Arc<ReposService>,
         remote_files_service: Arc<RemoteFilesService>,
+        repo_files_read_service: Arc<RepoFilesReadService>,
         store: Arc<store::Store>,
     ) -> Self {
         Self {
             repos_service,
             remote_files_service,
+            repo_files_read_service,
             store,
             ensure_dirs_futures: Arc::new(Mutex::new(HashMap::new())),
         }
+    }
+
+    pub fn get_repo_mount_path_cipher(
+        &self,
+        repo_id: &str,
+        path: &str,
+        cipher: &Cipher,
+    ) -> Result<(String, String), GetRepoMountPathError> {
+        self.store.with_state(|state| {
+            selectors::select_repo_path_to_mount_path(state, repo_id, path, cipher)
+                .map_err(GetRepoMountPathError::RepoNotFound)
+        })
     }
 
     pub fn get_repo_mount_path(
@@ -56,10 +80,7 @@ impl RepoFilesService {
             .get_cipher(repo_id)
             .map_err(GetRepoMountPathError::RepoLocked)?;
 
-        self.store.with_state(|state| {
-            selectors::select_repo_path_to_mount_path(state, repo_id, path, &cipher)
-                .map_err(GetRepoMountPathError::RepoNotFound)
-        })
+        self.get_repo_mount_path_cipher(repo_id, path, &cipher)
     }
 
     pub fn get_repo_remote_location(
@@ -127,36 +148,18 @@ impl RepoFilesService {
     }
 
     pub async fn get_file_reader(
-        &self,
+        self: Arc<Self>,
         file_id: &str,
-    ) -> Result<RepoFileReader, GetFileReaderError> {
+    ) -> Result<RepoFileReader, GetFilesReaderError> {
         let file = self
             .store
             .with_state(|state| selectors::select_file(state, file_id).map(|file| file.clone()))
-            .ok_or(GetFileReaderError::FileNotFound)?;
+            .ok_or(GetFilesReaderError::FileNotFound)?;
 
-        let name = file.decrypted_name()?;
-
-        let cipher = self.repos_service.get_cipher(&file.repo_id)?;
-
-        let encrypted_reader = self
-            .remote_files_service
-            .get_file_reader(&remote_files_selectors::get_file_id(
-                &file.mount_id,
-                &file.remote_path,
-            ))
-            .await?;
-
-        let size = decrypt_size(encrypted_reader.size.try_into().unwrap())
-            .map_err(GetFileReaderError::DecryptSizeError)?;
-
-        let decrypt_reader = Box::pin(cipher.decrypt_reader(encrypted_reader.reader));
-
-        Ok(RepoFileReader {
-            name: name.to_owned(),
-            size,
-            reader: decrypt_reader,
-        })
+        self.repo_files_read_service
+            .clone()
+            .get_files_reader(&[file])
+            .await
     }
 
     pub async fn upload_file_reader(
@@ -483,7 +486,7 @@ impl RepoFilesService {
         Ok(())
     }
 
-    pub fn remote_file_created(&self, mount_id: &str, path: &str, file: FilesFile) {
+    pub fn remote_file_created(&self, mount_id: &str, path: &str, file: models::FilesFile) {
         self.remote_files_service.file_created(mount_id, path, file);
 
         if let Some(parent_path) = path_utils::parent_path(path) {
@@ -499,7 +502,7 @@ impl RepoFilesService {
         }
     }
 
-    pub fn remote_file_copied(&self, mount_id: &str, new_path: &str, file: FilesFile) {
+    pub fn remote_file_copied(&self, mount_id: &str, new_path: &str, file: models::FilesFile) {
         self.remote_files_service
             .file_copied(mount_id, new_path, file);
 
@@ -510,7 +513,13 @@ impl RepoFilesService {
         }
     }
 
-    pub fn remote_file_moved(&self, mount_id: &str, path: &str, new_path: &str, file: FilesFile) {
+    pub fn remote_file_moved(
+        &self,
+        mount_id: &str,
+        path: &str,
+        new_path: &str,
+        file: models::FilesFile,
+    ) {
         self.remote_files_service
             .file_moved(mount_id, path, new_path, file);
 

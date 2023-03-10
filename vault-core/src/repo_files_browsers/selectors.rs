@@ -146,7 +146,7 @@ pub fn select_info<'a>(state: &'a store::State, browser_id: u32) -> Option<RepoF
             .find(|item| item.is_selected)
             .map(|item| item.file)
             .filter(|_| selected_count == 1);
-        let can_download_selected = selected_file.filter(|file| file.typ.is_file()).is_some();
+        let can_download_selected = selected_count > 0;
         let can_copy_selected = selected_count > 0;
         let can_move_selected = selected_count > 0;
         let can_delete_selected = selected_count > 0;

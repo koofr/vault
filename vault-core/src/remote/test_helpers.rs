@@ -28,6 +28,25 @@ pub fn create_dir(name: &str) -> models::FilesFile {
     }
 }
 
+pub fn files_file_to_bundle_file(file: models::FilesFile) -> models::BundleFile {
+    models::BundleFile {
+        name: file.name,
+        typ: file.typ,
+        modified: file.modified,
+        size: file.size,
+        content_type: file.content_type,
+        hash: file.hash,
+        tags: file.tags,
+    }
+}
+
+pub fn create_bundle(root_name: &str, files: Option<Vec<models::FilesFile>>) -> models::Bundle {
+    models::Bundle {
+        file: files_file_to_bundle_file(create_dir(root_name)),
+        files: files.map(|files| files.into_iter().map(files_file_to_bundle_file).collect()),
+    }
+}
+
 pub fn create_repo(repo_id: &str, mount_id: &str, path: &str) -> models::VaultRepo {
     models::VaultRepo {
         id: repo_id.to_owned(),

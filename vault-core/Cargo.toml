@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 # eme-mode 0.2.1 does not compile with aes 0.8.1
 aes = { version = "0.7.5", features = ["ctr"] }
+async_zip_futures = { version = "0.0.12", features = ["chrono"] }
 async-trait = "0.1.57"
 bytes = "1.2.1"
 data-encoding = "2.3.2"
@@ -31,6 +32,7 @@ urlencoding = "2.1.2"
 user-error-derive = { path = "./user-error-derive" }
 uuid = { version = "1.2.1", features = ["v4", "fast-rng"] }
 xsalsa20poly1305 = "0.9.0"
+chrono = { version = "0.4.23", default-features = false, features = ["clock"] }
 
 [dev-dependencies]
 futures-test = "0.3.24"

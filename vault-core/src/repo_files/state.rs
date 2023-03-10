@@ -161,12 +161,6 @@ pub struct RepoFilesState {
     pub loaded_roots: HashSet<String>,
 }
 
-pub struct RepoFileReader {
-    pub name: String,
-    pub size: i64,
-    pub reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
-}
-
 pub enum RepoFilesUploadConflictResolution {
     Overwrite,
     Error,

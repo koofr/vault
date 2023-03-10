@@ -6,13 +6,11 @@ use crate::{
     eventstream::{self, service::MountSubscription},
     remote_files::errors::RemoteFilesErrors,
     repo_files::{
-        errors::{
-            self as repo_files_errors, CreateDirError, DeleteFileError, GetFileReaderError,
-            RepoFilesErrors,
-        },
-        state::{RepoFilePath, RepoFileReader},
+        errors::{self as repo_files_errors, CreateDirError, DeleteFileError, RepoFilesErrors},
+        state::{RepoFile, RepoFilePath},
         RepoFilesService,
     },
+    repo_files_read::{errors::GetFilesReaderError, state::RepoFileReader, RepoFilesReadService},
     repos::selectors as repos_selectors,
     store,
     utils::path_utils::normalize_path,
@@ -22,6 +20,7 @@ use super::{mutations, selectors, state::RepoFilesBrowserLocation};
 
 pub struct RepoFilesBrowsersService {
     repo_files_service: Arc<RepoFilesService>,
+    repo_files_read_service: Arc<RepoFilesReadService>,
     eventstream_service: Arc<eventstream::EventStreamService>,
     store: Arc<store::Store>,
 }
@@ -29,11 +28,13 @@ pub struct RepoFilesBrowsersService {
 impl RepoFilesBrowsersService {
     pub fn new(
         repo_files_service: Arc<RepoFilesService>,
+        repo_files_read_service: Arc<RepoFilesReadService>,
         eventstream_service: Arc<eventstream::EventStreamService>,
         store: Arc<store::Store>,
     ) -> Self {
         Self {
             repo_files_service,
+            repo_files_read_service,
             eventstream_service,
             store,
         }
@@ -201,24 +202,25 @@ impl RepoFilesBrowsersService {
         });
     }
 
-    pub async fn get_selected_stream(
-        &self,
+    pub async fn get_selected_reader(
+        self: Arc<Self>,
         browser_id: u32,
-    ) -> Result<RepoFileReader, GetFileReaderError> {
-        let file_id = match self.store.with_state(|state| {
-            selectors::select_info(state, browser_id).and_then(|info| {
-                info.selected_file
-                    .filter(|_| info.can_download_selected)
-                    .map(|file| file.id.clone())
-            })
-        }) {
-            Some(file_id) => file_id,
-            None => {
-                return Err(GetFileReaderError::FileNotFound);
-            }
-        };
+    ) -> Result<RepoFileReader, GetFilesReaderError> {
+        let files: Vec<RepoFile> = self.store.with_state(|state| {
+            selectors::select_selected_files(state, browser_id)
+                .into_iter()
+                .map(|file| file.clone())
+                .collect()
+        });
 
-        self.repo_files_service.get_file_reader(&file_id).await
+        if files.is_empty() {
+            return Err(GetFilesReaderError::FilesEmpty);
+        }
+
+        self.repo_files_read_service
+            .clone()
+            .get_files_reader(&files)
+            .await
     }
 
     pub fn check_create_dir(&self, browser_id: u32, name: &str) -> Result<(), CreateDirError> {

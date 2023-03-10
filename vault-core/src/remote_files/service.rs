@@ -13,7 +13,7 @@ use crate::{
     utils::path_utils,
 };
 
-use super::{errors::RemoteFilesErrors, mutations, selectors};
+use super::{mutations, selectors};
 
 pub struct RemoteFilesService {
     remote: Arc<Remote>,
@@ -87,14 +87,12 @@ impl RemoteFilesService {
         Ok(())
     }
 
-    pub async fn get_file_reader(&self, file_id: &str) -> Result<RemoteFileReader, RemoteError> {
-        match self.store.with_state(|state| {
-            selectors::select_file(state, file_id)
-                .map(|file| (file.mount_id.clone(), file.path.clone()))
-        }) {
-            Some((mount_id, path)) => self.remote.get_file_reader(&mount_id, &path).await,
-            None => Err(RemoteFilesErrors::not_found()),
-        }
+    pub async fn get_file_reader(
+        &self,
+        mount_id: &str,
+        path: &str,
+    ) -> Result<RemoteFileReader, RemoteError> {
+        self.remote.get_file_reader(&mount_id, &path).await
     }
 
     pub async fn get_list_recursive(
