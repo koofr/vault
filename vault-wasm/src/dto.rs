@@ -426,8 +426,6 @@ impl From<&repo_files_state::RepoFileType> for RepoFileType {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub struct RepoFile {
     pub id: String,
-    #[serde(rename = "remoteFileId")]
-    pub remote_file_id: String,
     #[serde(rename = "repoId")]
     pub repo_id: String,
     pub path: Option<String>,
@@ -447,7 +445,6 @@ impl From<&repo_files_state::RepoFile> for RepoFile {
     fn from(file: &repo_files_state::RepoFile) -> Self {
         Self {
             id: file.id.clone(),
-            remote_file_id: file.remote_file_id.clone(),
             repo_id: file.repo_id.clone(),
             path: match &file.path {
                 repo_files_state::RepoFilePath::Decrypted { path } => Some(path.clone()),

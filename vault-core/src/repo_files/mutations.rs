@@ -178,7 +178,8 @@ pub fn decrypt_file(
 
     RepoFile {
         id,
-        remote_file_id: remote_file.id.clone(),
+        mount_id: remote_file.mount_id.clone(),
+        remote_path: remote_file.path.clone(),
         repo_id: repo_id.to_owned(),
         path,
         name,
@@ -192,7 +193,8 @@ pub fn decrypt_file(
 pub fn get_root_file(repo_id: &str, remote_file: &RemoteFile) -> RepoFile {
     RepoFile {
         id: selectors::get_file_id(repo_id, "/"),
-        remote_file_id: remote_file.id.clone(),
+        mount_id: remote_file.mount_id.clone(),
+        remote_path: remote_file.path.clone(),
         repo_id: repo_id.to_owned(),
         path: RepoFilePath::Decrypted {
             path: String::from("/"),
@@ -252,7 +254,8 @@ mod tests {
             get_root_file("r1", &remote_file),
             RepoFile {
                 id: String::from("r1:/"),
-                remote_file_id: remote_file.id,
+                mount_id: remote_file.mount_id.clone(),
+                remote_path: remote_file.path.clone(),
                 repo_id: String::from("r1",),
                 path: RepoFilePath::Decrypted {
                     path: String::from("/")
@@ -281,7 +284,8 @@ mod tests {
             decrypt_file("r1", "/", &remote_file, &cipher),
             RepoFile {
                 id: String::from("r1:/D1"),
-                remote_file_id: remote_file.id,
+                mount_id: remote_file.mount_id.clone(),
+                remote_path: remote_file.path.clone(),
                 repo_id: String::from("r1",),
                 path: RepoFilePath::Decrypted {
                     path: String::from("/D1")
@@ -307,7 +311,8 @@ mod tests {
             decrypt_file("r1", "/", &remote_file, &cipher),
             RepoFile {
                 id: String::from("r1:/D1"),
-                remote_file_id: remote_file.id,
+                mount_id: remote_file.mount_id.clone(),
+                remote_path: remote_file.path.clone(),
                 repo_id: String::from("r1",),
                 path: RepoFilePath::DecryptError {
                     parent_path: String::from("/"),
@@ -343,7 +348,8 @@ mod tests {
             decrypt_file("r1", "/", &remote_file, &cipher),
             RepoFile {
                 id: String::from("r1:/F1"),
-                remote_file_id: remote_file.id,
+                mount_id: remote_file.mount_id.clone(),
+                remote_path: remote_file.path.clone(),
                 repo_id: String::from("r1",),
                 path: RepoFilePath::Decrypted {
                     path: String::from("/F1")
@@ -370,7 +376,8 @@ mod tests {
             decrypt_file("r1", "/", &remote_file, &cipher),
             RepoFile {
                 id: String::from("r1:/F1"),
-                remote_file_id: remote_file.id,
+                mount_id: remote_file.mount_id.clone(),
+                remote_path: remote_file.path.clone(),
                 repo_id: String::from("r1",),
                 path: RepoFilePath::DecryptError {
                     parent_path: String::from("/"),

@@ -133,7 +133,8 @@ pub enum RepoFileSize {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct RepoFile {
     pub id: String,
-    pub remote_file_id: String,
+    pub mount_id: String,
+    pub remote_path: String,
     pub repo_id: String,
     pub path: RepoFilePath,
     pub name: RepoFileName,

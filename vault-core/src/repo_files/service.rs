@@ -7,6 +7,7 @@ use futures::{AsyncRead, FutureExt};
 
 use crate::cipher::data_cipher::{decrypt_on_progress, decrypt_size, encrypted_size};
 use crate::remote::models::FilesFile;
+use crate::remote_files::selectors as remote_files_selectors;
 use crate::remote_files::state::RemoteFilesLocation;
 use crate::remote_files::RemoteFilesService;
 use crate::repo_files::state::RepoFilesUploadResult;
@@ -140,7 +141,10 @@ impl RepoFilesService {
 
         let encrypted_reader = self
             .remote_files_service
-            .get_file_reader(&file.remote_file_id)
+            .get_file_reader(&remote_files_selectors::get_file_id(
+                &file.mount_id,
+                &file.remote_path,
+            ))
             .await?;
 
         let size = decrypt_size(encrypted_reader.size.try_into().unwrap())
