@@ -18,6 +18,7 @@ pub mod repo_create;
 pub mod repo_files;
 pub mod repo_files_browsers;
 pub mod repo_files_dir_pickers;
+pub mod repo_files_list;
 pub mod repo_files_move;
 pub mod repo_remove;
 pub mod repo_space_usage;

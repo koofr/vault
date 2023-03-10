@@ -40,3 +40,33 @@ pub fn create_repo(repo_id: &str, mount_id: &str, path: &str) -> models::VaultRe
         added: 1,
     }
 }
+
+pub fn create_files_list_recursive_item_file(
+    path: &str,
+    name: &str,
+) -> models::FilesListRecursiveItem {
+    models::FilesListRecursiveItem::File {
+        path: path.to_owned(),
+        file: create_file(name),
+    }
+}
+
+pub fn create_files_list_recursive_item_dir(
+    path: &str,
+    name: &str,
+) -> models::FilesListRecursiveItem {
+    models::FilesListRecursiveItem::File {
+        path: path.to_owned(),
+        file: create_dir(name),
+    }
+}
+
+pub fn create_files_list_recursive_item_error(
+    path: Option<&str>,
+    error: models::ApiErrorDetails,
+) -> models::FilesListRecursiveItem {
+    models::FilesListRecursiveItem::Error {
+        path: path.map(|path| path.to_owned()),
+        error,
+    }
+}

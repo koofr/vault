@@ -17,6 +17,7 @@ use crate::repo_create;
 use crate::repo_files;
 use crate::repo_files_browsers;
 use crate::repo_files_dir_pickers;
+use crate::repo_files_list;
 use crate::repo_files_move;
 use crate::repo_remove;
 use crate::repo_space_usage;
@@ -115,6 +116,10 @@ impl Vault {
         let repo_space_usage_service = Arc::new(repo_space_usage::RepoSpaceUsageService::new(
             remote_files_service.clone(),
             store.clone(),
+        ));
+        let repo_files_list_service = Arc::new(repo_files_list::RepoFilesListService::new(
+            repos_service.clone(),
+            remote_files_service.clone(),
         ));
         let repo_files_service = Arc::new(repo_files::RepoFilesService::new(
             repos_service.clone(),
