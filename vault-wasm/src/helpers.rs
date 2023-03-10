@@ -123,7 +123,7 @@ pub async fn reader_to_file_stream(
 
     if supports_readable_byte_stream() && !force_blob {
         let stream =
-            ReadableStream::from_async_read(reader, vault_core::cipher::constants::BLOCK_SIZE);
+            ReadableStream::from_async_read(reader, 1024 * 1024);
 
         js_sys::Reflect::set(
             &file_stream,
