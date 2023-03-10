@@ -1,13 +1,13 @@
-use crate::remote::RemoteError;
-use crate::remote_files::selectors as remote_files_selectors;
-use crate::repos::errors::RepoNotFoundError;
-use crate::repos::selectors as repos_selectors;
-use crate::repos::state::Repo;
-use crate::utils::path_utils;
-use crate::{cipher, store};
+use crate::{
+    cipher, remote::RemoteError, remote_files::selectors as remote_files_selectors,
+    repos::errors::RepoNotFoundError, repos::selectors as repos_selectors, repos::state::Repo,
+    store, utils::path_utils,
+};
 
-use super::errors::{RenameFileError, RepoFilesErrors, RepoMountPathToPathError};
-use super::state::{RepoFile, RepoFileName, RepoFileType, RepoFilesBreadcrumb};
+use super::{
+    errors::{RenameFileError, RepoFilesErrors, RepoMountPathToPathError},
+    state::{RepoFile, RepoFileName, RepoFileType, RepoFilesBreadcrumb},
+};
 
 pub fn get_file_id(repo_id: &str, path: &str) -> String {
     format!("{}:{}", repo_id, path)
@@ -222,28 +222,19 @@ pub fn select_breadcrumbs(
 
 #[cfg(test)]
 mod tests {
-    use crate::cipher::test_helpers as cipher_test_helpers;
-    use crate::remote::models;
-    use crate::remote::test_helpers as remote_test_helpers;
-    use crate::repos::mutations::repos_loaded;
-    use crate::store;
-
-    use super::super::selectors::select_mount_path_to_repo_id;
-    use super::select_repo_mount_path_to_path;
-
-    fn dummy_repo(path: &str) -> models::VaultRepo {
-        remote_test_helpers::create_repo(
-            "23815776-c9e3-40ef-9d9f-da719e554af4",
-            "66fec02f-e2e9-470a-99cf-1aeb9374a6b4",
-            path,
-        )
-    }
+    use crate::{
+        cipher::test_helpers as cipher_test_helpers,
+        remote::test_helpers as remote_test_helpers,
+        repo_files::selectors::{select_mount_path_to_repo_id, select_repo_mount_path_to_path},
+        repos::mutations as repos_mutations,
+        store,
+    };
 
     #[test]
     fn test_select_repo_mount_path_to_path_root() {
         let mut state = store::State::default();
-        let repo = dummy_repo("/");
-        repos_loaded(&mut state, vec![repo.clone()]);
+        let repo = remote_test_helpers::create_repo("r1", "m1", "/");
+        repos_mutations::repos_loaded(&mut state, vec![repo.clone()]);
         let cipher = cipher_test_helpers::create_cipher();
         let select = |mount_path: &str| {
             let repo_id = select_mount_path_to_repo_id(&state, &repo.mount_id, mount_path).unwrap();
@@ -266,8 +257,8 @@ mod tests {
     #[test]
     fn test_select_repo_mount_path_to_path_child() {
         let mut state = store::State::default();
-        let repo = dummy_repo("/Vault");
-        repos_loaded(&mut state, vec![repo.clone()]);
+        let repo = remote_test_helpers::create_repo("r1", "m1", "/Vault");
+        repos_mutations::repos_loaded(&mut state, vec![repo.clone()]);
         let cipher = cipher_test_helpers::create_cipher();
         let select = |mount_path: &str| {
             let repo_id = select_mount_path_to_repo_id(&state, &repo.mount_id, mount_path).unwrap();
