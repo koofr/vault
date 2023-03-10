@@ -1,8 +1,8 @@
 use std::pin::Pin;
 use std::sync::{Arc, RwLock};
 
-use futures::stream::TryStreamExt;
-use futures::{AsyncBufReadExt, AsyncRead, Stream, StreamExt};
+use futures::stream::{BoxStream, TryStreamExt};
+use futures::{AsyncBufReadExt, AsyncRead, StreamExt};
 use http::header::{AUTHORIZATION, CONTENT_TYPE};
 use http::{HeaderMap, HeaderValue};
 use serde::Serialize;
@@ -20,7 +20,7 @@ use super::models::{self, ApiError};
 use super::ApiErrorCode;
 
 pub type ListRecursiveItemStream =
-    Pin<Box<dyn Stream<Item = Result<models::FilesListRecursiveItem, RemoteError>>>>;
+    BoxStream<'static, Result<models::FilesListRecursiveItem, RemoteError>>;
 
 pub struct RemoteFileReader {
     pub size: i64,
