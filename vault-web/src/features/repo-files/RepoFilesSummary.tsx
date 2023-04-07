@@ -34,11 +34,13 @@ export const RepoFilesSummary = memo<{ info: RepoFilesBrowserInfo }>(
       >
         {selectedCount > 0 ? (
           <span>
-            {selectedCount} items - {selectedSizeDisplay} selected
+            {selectedCount} {selectedCount === 1 ? 'item' : 'items'} -{' '}
+            {selectedSizeDisplay} selected
           </span>
         ) : (
           <span>
-            {totalCount} items - {totalSizeDisplay}
+            {totalCount} {totalCount === 1 ? 'item' : 'items'} -{' '}
+            {totalSizeDisplay}
           </span>
         )}
       </div>
