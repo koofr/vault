@@ -3,6 +3,7 @@ use std::collections::HashSet;
 use crate::common::state::Status;
 use crate::repo_files::errors::LoadFilesError;
 use crate::repo_files::selectors as repo_files_selectors;
+use crate::repo_files::state::{RepoFilesSortDirection, RepoFilesSortField};
 use crate::selection::mutations as selection_mutations;
 use crate::selection::state::{Selection, SelectionSummary};
 use crate::store;
@@ -41,7 +42,9 @@ pub fn create(
     let browser = RepoFilesBrowser {
         location: location.ok(),
         status,
+        file_ids: Vec::new(),
         selection: Selection::default(),
+        sort: Default::default(),
         repo_files_subscription_id,
     };
 
@@ -119,22 +122,37 @@ pub fn update_files(state: &mut store::State, browser_id: u32) -> bool {
         _ => return false,
     };
 
-    let file_ids_set: HashSet<String> = browser
+    let file_ids: Vec<String> = browser
         .location
         .as_ref()
         .map(|loc| {
-            selectors::select_file_ids(state, &loc.repo_id, &loc.path)
+            let file_ids: Vec<String> = selectors::select_file_ids(state, &loc.repo_id, &loc.path)
                 .map(str::to_string)
-                .collect()
+                .collect();
+
+            repo_files_selectors::select_sorted_files(state, &file_ids, &browser.sort)
         })
-        .unwrap_or(HashSet::new());
+        .unwrap_or(Default::default());
+
+    let file_ids_set: HashSet<String> = file_ids.iter().cloned().collect();
 
     let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
         _ => return false,
     };
 
-    selection_mutations::update_selection(&mut browser.selection, file_ids_set)
+    let mut dirty = false;
+
+    if browser.file_ids != file_ids {
+        browser.file_ids = file_ids;
+        dirty = true;
+    }
+
+    if selection_mutations::update_selection(&mut browser.selection, file_ids_set) {
+        dirty = true;
+    }
+
+    dirty
 }
 
 pub fn select_file(
@@ -213,4 +231,25 @@ pub fn clear_selection(state: &mut store::State, browser_id: u32) {
     };
 
     selection_mutations::clear_selection(&mut browser.selection);
+}
+
+pub fn sort_by(state: &mut store::State, browser_id: u32, field: RepoFilesSortField) {
+    let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
+        Some(browser) => browser,
+        _ => return,
+    };
+
+    let direction = if browser.sort.field == field {
+        browser.sort.direction.clone().reverse()
+    } else {
+        match field {
+            RepoFilesSortField::Size | RepoFilesSortField::Modified => RepoFilesSortDirection::Desc,
+            _ => RepoFilesSortDirection::Asc,
+        }
+    };
+
+    browser.sort.field = field;
+    browser.sort.direction = direction;
+
+    update_files(state, browser_id);
 }

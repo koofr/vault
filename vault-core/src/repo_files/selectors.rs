@@ -6,28 +6,11 @@ use crate::{
 
 use super::{
     errors::{RenameFileError, RepoFilesErrors, RepoMountPathToPathError},
-    state::{RepoFile, RepoFileName, RepoFileType, RepoFilesBreadcrumb},
+    state::{RepoFile, RepoFileType, RepoFilesBreadcrumb, RepoFilesSort, RepoFilesSortField},
 };
 
 pub fn get_file_id(repo_id: &str, path: &str) -> String {
     format!("{}:{}", repo_id, path)
-}
-
-pub fn repo_file_sort_key<'a>(file: &'a RepoFile) -> (&'a RepoFileType, &'a str) {
-    (
-        &file.typ,
-        match &file.name {
-            RepoFileName::Decrypted {
-                name: _,
-                name_lower,
-            } => name_lower,
-            RepoFileName::DecryptError {
-                encrypted_name: _,
-                encrypted_name_lower,
-                error: _,
-            } => encrypted_name_lower,
-        },
-    )
 }
 
 pub fn select_children<'a>(state: &'a store::State, file_id: &str) -> Option<&'a Vec<String>> {
@@ -217,6 +200,40 @@ pub fn select_breadcrumbs(
                 last: i == paths_len - 1,
             }
         })
+        .collect()
+}
+
+pub fn select_sorted_files(
+    state: &store::State,
+    file_ids: &[String],
+    sort: &RepoFilesSort,
+) -> Vec<String> {
+    let RepoFilesSort { field, direction } = sort;
+
+    let (mut dirs, mut files): (Vec<_>, Vec<_>) = file_ids
+        .iter()
+        .filter_map(|id| state.repo_files.files.get(id))
+        .partition(|f| f.typ == RepoFileType::Dir);
+
+    match field {
+        RepoFilesSortField::Name => {
+            dirs.sort_by(|a, b| direction.ordering(a.name_lower_force().cmp(b.name_lower_force())));
+            files
+                .sort_by(|a, b| direction.ordering(a.name_lower_force().cmp(b.name_lower_force())));
+        }
+        RepoFilesSortField::Size => {
+            dirs.sort_by(|a, b| a.name_lower_force().cmp(b.name_lower_force()));
+            files.sort_by(|a, b| direction.ordering(a.size_force().cmp(&b.size_force())));
+        }
+        RepoFilesSortField::Modified => {
+            dirs.sort_by(|a, b| a.name_lower_force().cmp(b.name_lower_force()));
+            files.sort_by(|a, b| direction.ordering(a.modified.cmp(&b.modified)));
+        }
+    }
+
+    dirs.iter()
+        .map(|file| file.id.clone())
+        .chain(files.iter().map(|file| file.id.clone()))
         .collect()
 }
 

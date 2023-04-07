@@ -13,11 +13,14 @@ import {
   useMemo,
 } from 'react';
 
+import { withReactCss } from '../../styles';
 import { useElementSize } from '../../utils/useElementSize';
 
 import { Checkbox } from '../Checkbox';
 
 import { calculateColumnWidths } from './columnWidths';
+
+export type SortBy = 'Hidden' | 'Asc' | 'Desc';
 
 export const TableCell = styled.div`
   overflow: hidden;
@@ -41,6 +44,37 @@ export const TableHeadCellCheckbox = styled(TableHeadCell)`
   align-items: center;
   justify-content: center;
   display: flex;
+`;
+
+export const TableSortLabel = styled.span<{ sortBy?: SortBy }>`
+  color: ${({ theme }) => theme.colors.textLight};
+  cursor: pointer;
+  padding-right: 15px;
+
+  ${({ sortBy, theme }) =>
+    sortBy === 'Asc' || sortBy === 'Desc'
+      ? withReactCss(
+          (css) => css`
+            &:after {
+              content: '';
+              display: inline-block;
+              width: 0;
+              height: 0;
+              border-top: ${sortBy === 'Asc'
+                ? 'none'
+                : `4px solid ${theme.colors.textLight}`};
+              border-bottom: ${sortBy === 'Asc'
+                ? `4px solid ${theme.colors.textLight}`
+                : 'none'};
+              border-right: 4px solid transparent;
+              border-left: 4px solid transparent;
+              position: relative;
+              left: 7px;
+              bottom: 2px;
+            }
+          `
+        )
+      : undefined}
 `;
 
 export const TableHead = styled.div`
@@ -168,12 +202,14 @@ export interface Column {
   label: string;
   width?: number | string;
   minWidth?: number;
+  sortBy?: SortBy;
 }
 
 export interface ComputedColumn {
   name: string;
   label: string;
   width: number;
+  sortBy?: SortBy;
 }
 
 export interface RowProps<T = any | undefined> {
@@ -205,6 +241,7 @@ export interface TableProps<T = any> {
   data?: T;
   Row: ComponentType<RowProps<T>>;
   onHeadCheckboxClick: (event: MouseEvent) => void;
+  onSortByClick?: (event: MouseEvent, columnName: string) => void;
   onRowCheckboxClick: (
     event: React.MouseEvent<HTMLElement>,
     index: number
@@ -224,13 +261,14 @@ export const Table = memo<TableProps>(
     data,
     Row,
     onHeadCheckboxClick,
+    onSortByClick,
     onRowCheckboxClick,
     onRowClick,
     onRowContextMenu,
   }) => {
     const [tableRef, { width: containerWidth }] = useElementSize();
 
-    const computedColumns: ComputedColumn[] = useMemo(() => {
+    const computedColumns = useMemo(() => {
       if (containerWidth === 0) {
         return [];
       }
@@ -254,11 +292,14 @@ export const Table = memo<TableProps>(
         }))
       );
 
-      return allColumns.map((column, i) => ({
-        name: column.name,
-        label: column.label,
-        width: columnWidths[i],
-      }));
+      return allColumns.map(
+        (column, i): ComputedColumn => ({
+          name: column.name,
+          label: column.label,
+          width: columnWidths[i],
+          sortBy: column.sortBy,
+        })
+      );
     }, [columns, containerWidth]);
 
     const tableContext = useMemo(
@@ -300,7 +341,20 @@ export const Table = memo<TableProps>(
                     key={column.name}
                     style={{ minWidth: `${column.width}px` }}
                   >
-                    {column.label}
+                    {column.sortBy !== undefined ? (
+                      <TableSortLabel
+                        sortBy={column.sortBy}
+                        onClick={(event) => {
+                          if (onSortByClick !== undefined) {
+                            onSortByClick(event, column.name);
+                          }
+                        }}
+                      >
+                        {column.label}
+                      </TableSortLabel>
+                    ) : (
+                      column.label
+                    )}
                   </TableHeadCell>
                 )
               )}

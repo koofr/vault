@@ -482,6 +482,71 @@ impl From<&repo_files_state::RepoFile> for RepoFile {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+pub struct RepoFilesSort {
+    field: RepoFilesSortField,
+    direction: RepoFilesSortDirection,
+}
+
+impl From<&repo_files_state::RepoFilesSort> for RepoFilesSort {
+    fn from(sort: &repo_files_state::RepoFilesSort) -> Self {
+        Self {
+            field: sort.field.clone().into(),
+            direction: sort.direction.clone().into(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+pub enum RepoFilesSortField {
+    Name,
+    Size,
+    Modified,
+}
+
+impl From<repo_files_state::RepoFilesSortField> for RepoFilesSortField {
+    fn from(field: repo_files_state::RepoFilesSortField) -> Self {
+        match field {
+            repo_files_state::RepoFilesSortField::Name => Self::Name,
+            repo_files_state::RepoFilesSortField::Size => Self::Size,
+            repo_files_state::RepoFilesSortField::Modified => Self::Modified,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+pub enum RepoFilesSortDirection {
+    Asc,
+    Desc,
+}
+
+impl From<repo_files_state::RepoFilesSortDirection> for RepoFilesSortDirection {
+    fn from(direction: repo_files_state::RepoFilesSortDirection) -> Self {
+        match direction {
+            repo_files_state::RepoFilesSortDirection::Asc => Self::Asc,
+            repo_files_state::RepoFilesSortDirection::Desc => Self::Desc,
+        }
+    }
+}
+
+#[wasm_bindgen]
+#[derive(PartialEq, Eq, Hash)]
+pub enum RepoFilesSortFieldArg {
+    Name,
+    Size,
+    Modified,
+}
+
+impl Into<repo_files_state::RepoFilesSortField> for RepoFilesSortFieldArg {
+    fn into(self) -> repo_files_state::RepoFilesSortField {
+        match self {
+            Self::Name => repo_files_state::RepoFilesSortField::Name,
+            Self::Size => repo_files_state::RepoFilesSortField::Size,
+            Self::Modified => repo_files_state::RepoFilesSortField::Modified,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub struct RepoFilesBreadcrumb {
     pub id: String,
     #[serde(rename = "repoId")]
@@ -542,6 +607,7 @@ pub struct RepoFilesBrowserInfo {
     pub path: Option<String>,
     #[serde(rename = "selectionSummary")]
     pub selection_summary: SelectionSummary,
+    pub sort: RepoFilesSort,
     pub status: Status,
     #[serde(rename = "totalCount")]
     pub total_count: usize,
@@ -569,6 +635,7 @@ impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFile
             repo_id: info.repo_id.map(str::to_string),
             path: info.path.map(str::to_string),
             selection_summary: (&info.selection_summary).into(),
+            sort: (&info.sort).into(),
             status: info.status.into(),
             total_count: info.total_count,
             total_size_display: format_size(info.total_size),

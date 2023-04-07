@@ -3,7 +3,10 @@ use std::{collections::HashMap, sync::Arc};
 use crate::{
     common::state::Status,
     eventstream::service::MountSubscription,
-    repo_files::{errors::LoadFilesError, state::RepoFile},
+    repo_files::{
+        errors::LoadFilesError,
+        state::{RepoFile, RepoFilesSort},
+    },
     selection::state::{Selection, SelectionSummary},
 };
 
@@ -16,6 +19,7 @@ pub struct RepoFilesBrowserInfo<'a> {
     pub repo_id: Option<&'a str>,
     pub path: Option<&'a str>,
     pub selection_summary: SelectionSummary,
+    pub sort: RepoFilesSort,
     pub status: &'a Status<LoadFilesError>,
     pub title: Option<String>,
     pub total_count: usize,
@@ -40,7 +44,9 @@ pub struct RepoFilesBrowserLocation {
 pub struct RepoFilesBrowser {
     pub location: Option<RepoFilesBrowserLocation>,
     pub status: Status<LoadFilesError>,
+    pub file_ids: Vec<String>,
     pub selection: Selection,
+    pub sort: RepoFilesSort,
     pub repo_files_subscription_id: u32,
 }
 

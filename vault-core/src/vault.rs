@@ -570,6 +570,14 @@ impl Vault {
         self.repo_files_browsers_service.clear_selection(browser_id)
     }
 
+    pub fn repo_files_browsers_sort_by(
+        &self,
+        browser_id: u32,
+        field: repo_files::state::RepoFilesSortField,
+    ) {
+        self.repo_files_browsers_service.sort_by(browser_id, field)
+    }
+
     pub async fn repo_files_browsers_get_selected_stream(
         self: Arc<Self>,
         browser_id: u32,

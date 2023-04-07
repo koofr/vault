@@ -21,6 +21,7 @@ import {
   RepoFile,
   RepoFilesBrowserInfo,
   RepoFilesBrowserItem,
+  RepoFilesSortFieldArg,
 } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
@@ -239,30 +240,59 @@ export const RepoFilesTable = memo<{
     }),
     [items]
   );
+  const sort = info.sort;
   const columns = useMemo(
     (): Column[] => [
       {
         name: 'name',
         label: 'Name',
+        sortBy: sort.field === 'Name' ? sort.direction : 'Hidden',
       },
       {
         name: 'size',
         label: 'Size',
         width: isMobile ? 0 : '15%',
         minWidth: isMobile ? undefined : 70,
+        sortBy: sort.field === 'Size' ? sort.direction : 'Hidden',
       },
       {
         name: 'modified',
         label: 'Modified',
         width: isMobile ? 0 : '20%',
         minWidth: isMobile ? undefined : 150,
+        sortBy: sort.field === 'Modified' ? sort.direction : 'Hidden',
       },
     ],
-    [isMobile]
+    [isMobile, sort]
   );
   const onHeadCheckboxClick = useCallback(
     (event: MouseEvent) => {
       webVault.repoFilesBrowsersToggleSelectAll(browserId);
+    },
+    [webVault, browserId]
+  );
+  const onSortByClick = useCallback(
+    (event: MouseEvent, columnName: string) => {
+      switch (columnName) {
+        case 'name':
+          webVault.repoFilesBrowsersSortBy(
+            browserId,
+            RepoFilesSortFieldArg.Name
+          );
+          break;
+        case 'size':
+          webVault.repoFilesBrowsersSortBy(
+            browserId,
+            RepoFilesSortFieldArg.Size
+          );
+          break;
+        case 'modified':
+          webVault.repoFilesBrowsersSortBy(
+            browserId,
+            RepoFilesSortFieldArg.Modified
+          );
+          break;
+      }
     },
     [webVault, browserId]
   );
@@ -304,6 +334,7 @@ export const RepoFilesTable = memo<{
       data={data}
       Row={RepoFilesTableRow}
       onHeadCheckboxClick={onHeadCheckboxClick}
+      onSortByClick={onSortByClick}
       onRowCheckboxClick={onRowCheckboxClick}
       onRowClick={onRowClick}
       onRowContextMenu={onRowContextMenu}

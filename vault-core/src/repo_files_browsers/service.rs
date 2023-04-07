@@ -7,7 +7,7 @@ use crate::{
     remote_files::errors::RemoteFilesErrors,
     repo_files::{
         errors::{self as repo_files_errors, CreateDirError, DeleteFileError, RepoFilesErrors},
-        state::{RepoFile, RepoFilePath},
+        state::{RepoFile, RepoFilePath, RepoFilesSortField},
         RepoFilesService,
     },
     repo_files_read::{errors::GetFilesReaderError, state::RepoFileReader, RepoFilesReadService},
@@ -199,6 +199,12 @@ impl RepoFilesBrowsersService {
     pub fn clear_selection(&self, browser_id: u32) {
         self.store.mutate(store::Event::RepoFilesBrowsers, |state| {
             mutations::clear_selection(state, browser_id);
+        });
+    }
+
+    pub fn sort_by(&self, browser_id: u32, field: RepoFilesSortField) {
+        self.store.mutate(store::Event::RepoFilesBrowsers, |state| {
+            mutations::sort_by(state, browser_id, field);
         });
     }
 

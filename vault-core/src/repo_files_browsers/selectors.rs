@@ -72,26 +72,25 @@ pub fn select_is_selected(state: &store::State, browser_id: u32, id: &str) -> bo
 }
 
 pub fn select_items<'a>(state: &'a store::State, browser_id: u32) -> Vec<RepoFilesBrowserItem<'a>> {
-    match select_browser_location(state, browser_id) {
-        Some(x) => repo_files_selectors::select_files(state, &x.repo_id, &x.path)
-            .map(|file| RepoFilesBrowserItem {
-                file,
-                is_selected: select_is_selected(state, browser_id, &file.id),
-            })
-            .collect(),
-        None => vec![],
-    }
+    select_browser(state, browser_id)
+        .map(|browser| {
+            repo_files_selectors::select_files_from_ids(state, &browser.file_ids)
+                .map(|file| RepoFilesBrowserItem {
+                    file,
+                    is_selected: select_is_selected(state, browser_id, &file.id),
+                })
+                .collect()
+        })
+        .unwrap_or(vec![])
 }
 
 pub fn select_selection_summary(state: &store::State, browser_id: u32) -> SelectionSummary {
     select_browser(state, browser_id)
-        .and_then(|browser| {
-            browser.location.as_ref().map(|loc| {
-                selection_selectors::select_selection_summary(
-                    &browser.selection,
-                    repo_files_selectors::select_files(state, &loc.repo_id, &loc.path).count(),
-                )
-            })
+        .map(|browser| {
+            selection_selectors::select_selection_summary(
+                &browser.selection,
+                repo_files_selectors::select_files_from_ids(state, &browser.file_ids).count(),
+            )
         })
         .unwrap_or(SelectionSummary::None)
 }
@@ -155,6 +154,7 @@ pub fn select_info<'a>(state: &'a store::State, browser_id: u32) -> Option<RepoF
             repo_id: browser.location.as_ref().map(|loc| loc.repo_id.as_str()),
             path: browser.location.as_ref().map(|loc| loc.path.as_str()),
             selection_summary: select_selection_summary(state, browser_id),
+            sort: browser.sort.clone(),
             status: &browser.status,
             title,
             total_count,

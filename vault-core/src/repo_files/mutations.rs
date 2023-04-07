@@ -19,21 +19,10 @@ use super::{
 
 pub fn sort_children(state: &mut store::State, file_id: &str) {
     if let Some(children_ids) = state.repo_files.children.get(file_id) {
-        let mut children: Vec<&RepoFile> = children_ids
-            .iter()
-            .filter_map(|id| state.repo_files.files.get(id))
-            .collect();
-
-        children.sort_by(|x, y| {
-            selectors::repo_file_sort_key(x).cmp(&selectors::repo_file_sort_key(y))
-        });
-
-        let children_ids: Vec<String> = children.iter().map(|file| file.id.clone()).collect();
-
-        state
-            .repo_files
-            .children
-            .insert(file_id.to_owned(), children_ids);
+        state.repo_files.children.insert(
+            file_id.to_owned(),
+            selectors::select_sorted_files(state, &children_ids, &Default::default()),
+        );
     }
 }
 

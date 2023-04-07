@@ -152,6 +152,23 @@ impl RepoFile {
     pub fn decrypted_name<'a>(&'a self) -> Result<&'a str, DecryptFilenameError> {
         self.name.decrypted_name()
     }
+
+    pub fn name_lower_force<'a>(&'a self) -> &'a str {
+        match &self.name {
+            RepoFileName::Decrypted { name_lower, .. } => name_lower,
+            RepoFileName::DecryptError {
+                encrypted_name_lower,
+                ..
+            } => encrypted_name_lower,
+        }
+    }
+
+    pub fn size_force(&self) -> i64 {
+        match self.size {
+            RepoFileSize::Decrypted { size } => size,
+            RepoFileSize::DecryptError { encrypted_size, .. } => encrypted_size,
+        }
+    }
 }
 
 #[derive(Clone, Default)]
@@ -183,4 +200,51 @@ pub trait RepoFileUploadable {
 pub struct RepoFilesUploadResult {
     pub file_id: String,
     pub name: String,
+}
+
+#[derive(Clone, PartialEq, Eq)]
+pub enum RepoFilesSortField {
+    Name,
+    Size,
+    Modified,
+}
+
+impl Default for RepoFilesSortField {
+    fn default() -> Self {
+        Self::Name
+    }
+}
+
+#[derive(Clone, PartialEq, Eq)]
+pub enum RepoFilesSortDirection {
+    Asc,
+    Desc,
+}
+
+impl Default for RepoFilesSortDirection {
+    fn default() -> Self {
+        Self::Asc
+    }
+}
+
+impl RepoFilesSortDirection {
+    pub fn reverse(self) -> Self {
+        match self {
+            Self::Asc => Self::Desc,
+            Self::Desc => Self::Asc,
+        }
+    }
+
+    pub fn ordering(&self, ordering: Ordering) -> Ordering {
+        match self {
+            Self::Asc => ordering,
+            Self::Desc => ordering.reverse(),
+        }
+    }
+}
+
+#[derive(Clone, Default)]
+pub struct RepoFilesSort {
+    pub field: RepoFilesSortField,
+    pub direction: RepoFilesSortDirection,
 }
