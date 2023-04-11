@@ -8,14 +8,15 @@ export const DashboardNavbar = memo<{
   left?: ReactNode;
   header?: ReactNode;
   nav?: ReactNode;
+  right?: ReactNode;
   extra?: ReactNode;
-}>(({ left, header, nav, extra }) => {
+}>(({ left, header, nav, right, extra }) => {
   return (
     <Navbar
       left={left}
       header={header ?? <span>Koofr Vault</span>}
       nav={nav}
-      right={<DashboardUserIconDropdown />}
+      right={right ?? <DashboardUserIconDropdown />}
       extra={extra}
     />
   );
