@@ -254,6 +254,14 @@ pub fn bundle_loaded(state: &mut store::State, mount_id: &str, path: &str, bundl
     state.remote_files.loaded_roots.insert(root_file_id.clone());
 }
 
+pub fn file_loaded(state: &mut store::State, mount_id: &str, path: &str, file: models::FilesFile) {
+    let root_file_id = selectors::get_file_id(mount_id, path);
+
+    file_created(state, mount_id, path, file);
+
+    state.remote_files.loaded_roots.insert(root_file_id.clone());
+}
+
 pub fn add_child(state: &mut store::State, parent_id: &str, child_id: String) {
     if let Some(children) = state.remote_files.children.get_mut(parent_id) {
         if !children.contains(&child_id) {

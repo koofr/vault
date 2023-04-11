@@ -81,7 +81,7 @@ impl RemoteFilesService {
         let file = self.remote.get_file(mount_id, path).await?;
 
         self.store.mutate(store::Event::RemoteFiles, |state| {
-            mutations::file_created(state, mount_id, path, file);
+            mutations::file_loaded(state, mount_id, path, file);
         });
 
         Ok(())
