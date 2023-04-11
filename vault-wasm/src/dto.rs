@@ -4,6 +4,7 @@ use size;
 use tsify::Tsify;
 use wasm_bindgen::prelude::*;
 
+use vault_core::common::state as common_state;
 use vault_core::dir_pickers::state as dir_pickers_state;
 use vault_core::file_types::file_icon_type;
 use vault_core::notifications::state as notifications_state;
@@ -19,10 +20,10 @@ use vault_core::repos::selectors as repos_selectors;
 use vault_core::repos::state as repos_state;
 use vault_core::selection;
 use vault_core::space_usage::state as space_usage_state;
+use vault_core::store;
 use vault_core::uploads::state as uploads_state;
 use vault_core::user::state as user_state;
 use vault_core::user_error::UserError;
-use vault_core::{common, store};
 
 pub fn format_size(bytes: i64) -> String {
     size::Size::from_bytes(bytes)
@@ -42,16 +43,35 @@ pub enum Status {
     Error { error: String },
 }
 
-impl<E: UserError + Clone> From<&common::state::Status<E>> for Status {
-    fn from(status: &common::state::Status<E>) -> Self {
+impl<E: UserError + Clone> From<&common_state::Status<E>> for Status {
+    fn from(status: &common_state::Status<E>) -> Self {
         match status {
-            common::state::Status::Initial => Self::Initial,
-            common::state::Status::Loading => Self::Loading,
-            common::state::Status::Loaded => Self::Loaded,
-            common::state::Status::Reloading => Self::Reloading,
-            common::state::Status::Error { error } => Self::Error {
+            common_state::Status::Initial => Self::Initial,
+            common_state::Status::Loading => Self::Loading,
+            common_state::Status::Loaded => Self::Loaded,
+            common_state::Status::Reloading => Self::Reloading,
+            common_state::Status::Error { error } => Self::Error {
                 error: error.user_error(),
             },
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+pub struct RemainingTime {
+    pub days: u32,
+    pub hours: u32,
+    pub minutes: u32,
+    pub seconds: u32,
+}
+
+impl From<&common_state::RemainingTime> for RemainingTime {
+    fn from(remaining_time: &common_state::RemainingTime) -> Self {
+        Self {
+            days: remaining_time.days,
+            hours: remaining_time.hours,
+            minutes: remaining_time.minutes,
+            seconds: remaining_time.seconds,
         }
     }
 }
@@ -769,25 +789,6 @@ impl From<&uploads_state::FileUpload> for FileUpload {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub struct UploadsFiles {
     pub files: Vec<FileUpload>,
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
-pub struct RemainingTime {
-    pub days: u32,
-    pub hours: u32,
-    pub minutes: u32,
-    pub seconds: u32,
-}
-
-impl From<&uploads_state::RemainingTime> for RemainingTime {
-    fn from(remaining_time: &uploads_state::RemainingTime) -> Self {
-        Self {
-            days: remaining_time.days,
-            hours: remaining_time.hours,
-            minutes: remaining_time.minutes,
-            seconds: remaining_time.seconds,
-        }
-    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]

@@ -1,8 +1,11 @@
 use std::{cmp::min, collections::HashSet};
 
-use crate::{repo_files::selectors as repo_files_selectors, store, utils::name_utils};
+use crate::{
+    common::state::RemainingTime, repo_files::selectors as repo_files_selectors, store,
+    utils::name_utils,
+};
 
-use super::state::{FileUpload, FileUploadState, RemainingTime};
+use super::state::{FileUpload, FileUploadState};
 
 const MAX_CONCURRENCY: u32 = 3;
 const MAX_AUTO_ATTEMPTS: u32 = 5;

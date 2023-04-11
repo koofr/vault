@@ -10,28 +10,9 @@ import { sizeDisplay, sizeOfDisplay } from '../../utils/sizeDisplay';
 import { RemainingTime } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
+import { remainingTimeDisplay } from '../../utils/remainingTime';
 
 export const UPLOADS_SUMMARY_HEIGHT = 48;
-
-function remainingTimeDisplay(remainingTime: RemainingTime): string {
-  let remaining = '';
-
-  if (remainingTime.days > 0) {
-    remaining += `${remainingTime.days}d `;
-  }
-
-  if (remainingTime.hours > 0) {
-    remaining += `${remainingTime.hours}h `;
-  }
-
-  if (remainingTime.minutes > 0) {
-    remaining += `${remainingTime.minutes}m `;
-  }
-
-  remaining += `${remainingTime.seconds | 0}s`;
-
-  return remaining;
-}
 
 export const UploadsSummary = memo<{
   areDetailsVisible: boolean;
