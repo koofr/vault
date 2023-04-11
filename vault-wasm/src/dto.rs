@@ -228,6 +228,21 @@ impl From<&store::State> for Repos {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+pub struct RepoInfo {
+    pub status: Status,
+    pub repo: Option<Repo>,
+}
+
+impl<'a> From<&repos_state::RepoInfo<'a>> for RepoInfo {
+    fn from(info: &repos_state::RepoInfo<'a>) -> Self {
+        Self {
+            status: (&info.status).into(),
+            repo: info.repo.map(Into::into),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub struct RemoteFilesLocation {
     #[serde(rename = "mountId")]
     pub mount_id: String,

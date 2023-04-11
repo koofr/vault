@@ -30,6 +30,23 @@ pub enum BuildCipherError {
 }
 
 #[derive(Error, Debug, Clone)]
+pub enum RepoInfoError {
+    #[error("{0}")]
+    RepoNotFound(#[from] RepoNotFoundError),
+    #[error("{0}")]
+    RemoteError(#[from] remote::RemoteError),
+}
+
+impl UserError for RepoInfoError {
+    fn user_error(&self) -> String {
+        match self {
+            Self::RepoNotFound(_) => String::from("Safe Box not found."),
+            _ => self.to_string(),
+        }
+    }
+}
+
+#[derive(Error, Debug, Clone)]
 pub enum UnlockRepoError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),

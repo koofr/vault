@@ -13,6 +13,7 @@ import { useSubscribe } from '../../webVault/useSubscribe';
 
 import { RepoConfigBackup } from './RepoConfigBackup';
 import { RepoDestroyModal } from './RepoDestroyModal';
+import { RepoError } from './RepoError';
 import { RepoSpaceUsage } from './RepoSpaceUsage';
 
 export const RepoInfoRepo = memo<{ repo: Repo }>(({ repo }) => {
@@ -124,15 +125,17 @@ export const RepoInfoRepo = memo<{ repo: Repo }>(({ repo }) => {
 });
 
 export const RepoInfo = memo<{ repoId: string }>(({ repoId }) => {
-  const repo = useSubscribe(
+  const info = useSubscribe(
     (v, cb) => v.reposRepoSubscribe(repoId, cb),
     (v) => v.reposRepoData,
     [repoId]
   );
 
-  return repo !== undefined ? (
-    <RepoInfoRepo repo={repo} />
-  ) : (
-    <DashboardLoading />
-  );
+  if (info.status.type === 'Error') {
+    return <RepoError error={info.status.error} />;
+  } else if (info.repo !== undefined) {
+    return <RepoInfoRepo repo={info.repo} />;
+  } else {
+    return <DashboardLoading />;
+  }
 });

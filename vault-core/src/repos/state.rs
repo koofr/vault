@@ -2,6 +2,8 @@ use std::collections::HashMap;
 
 use crate::{common::state::Status, remote::RemoteError, remote_files::state::RemoteFilesLocation};
 
+use super::errors::RepoInfoError;
+
 #[derive(Clone, Copy, Debug)]
 pub enum RepoState {
     Locked,
@@ -42,6 +44,12 @@ impl Repo {
             path: self.path.clone(),
         }
     }
+}
+
+#[derive(Clone)]
+pub struct RepoInfo<'a> {
+    pub status: Status<RepoInfoError>,
+    pub repo: Option<&'a Repo>,
 }
 
 #[derive(Clone)]

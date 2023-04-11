@@ -44,8 +44,8 @@ extern "C" {
     #[wasm_bindgen(typescript_type = "Uint8Array | undefined")]
     pub type UserProfilePicture;
 
-    #[wasm_bindgen(typescript_type = "Repo | undefined")]
-    pub type RepoOption;
+    #[wasm_bindgen(typescript_type = "RepoInfo")]
+    pub type RepoInfo;
 
     #[wasm_bindgen(typescript_type = "Repos")]
     pub type Repos;
@@ -114,7 +114,7 @@ struct SubscriptionData {
     user: Data<Option<dto::User>>,
     user_profile_picture_loaded: Data<bool>,
     repos: Data<dto::Repos>,
-    repos_repo: Data<Option<dto::Repo>>,
+    repos_repo: Data<dto::RepoInfo>,
     repo_create_info: Data<Option<dto::RepoCreateInfo>>,
     repo_unlock_info: Data<Option<dto::RepoUnlockInfo>>,
     repo_remove_info: Data<Option<dto::RepoRemoveInfo>>,
@@ -462,13 +462,15 @@ impl WebVault {
             cb,
             self.subscription_data.repos_repo.clone(),
             move |vault| {
-                vault.with_state(|state| state.repos.repos_by_id.get(&repo_id).map(dto::Repo::from))
+                vault.with_state(|state| {
+                    (&vault_core::repos::selectors::select_repo_info(state, &repo_id)).into()
+                })
             },
         )
     }
 
     #[wasm_bindgen(js_name = reposRepoData)]
-    pub fn repos_repo_data(&self, id: u32) -> RepoOption {
+    pub fn repos_repo_data(&self, id: u32) -> RepoInfo {
         self.get_data_js(id, self.subscription_data.repos_repo.clone())
     }
 
