@@ -2,7 +2,7 @@ import { css } from '@emotion/css';
 import { memo } from 'react';
 import { Link, To } from 'react-router-dom';
 
-import { ReactComponent as NavbarBackkIcon } from '../../assets/images/navbar-back.svg';
+import { ReactComponent as NavbarBackIcon } from '../../assets/images/navbar-back.svg';
 
 export const NavbarBack = memo<{ to: To }>(({ to }) => {
   return (
@@ -13,7 +13,7 @@ export const NavbarBack = memo<{ to: To }>(({ to }) => {
         align-items: center;
       `}
     >
-      <NavbarBackkIcon />
+      <NavbarBackIcon />
     </Link>
   );
 });
