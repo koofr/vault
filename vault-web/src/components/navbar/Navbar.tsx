@@ -18,7 +18,8 @@ export const NavbarMain = memo<{
   nav?: ReactNode;
   right?: ReactNode;
   isSticky: boolean;
-}>(({ left, header, nav, right, isSticky }) => {
+  noShadow?: boolean;
+}>(({ left, header, nav, right, isSticky, noShadow }) => {
   const theme = useTheme();
 
   return (
@@ -32,7 +33,9 @@ export const NavbarMain = memo<{
           top: 0;
           z-index: ${theme.zindex.navbarMain};
           background-color: ${theme.colors.navbarBg};
-          box-shadow: 0 1px 3px 0 ${theme.colors.border};
+          box-shadow: ${noShadow
+            ? `none`
+            : `0 1px 3px 0 ${theme.colors.border}`};
           border-bottom: 1px solid transparent;
           height: ${theme.isMobile
             ? `${NAVBAR_HEIGHT_MOBILE}px`
@@ -163,6 +166,7 @@ export const Navbar = memo<{
   nav?: ReactNode;
   right?: ReactNode;
   extra?: ReactNode;
+  noShadow?: boolean;
 }>(({ extra, ...props }) => {
   const isMobile = useIsMobile();
   const scrollInfo = useDocumentScroll();

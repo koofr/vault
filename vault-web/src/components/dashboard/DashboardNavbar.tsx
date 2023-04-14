@@ -10,7 +10,8 @@ export const DashboardNavbar = memo<{
   nav?: ReactNode;
   right?: ReactNode;
   extra?: ReactNode;
-}>(({ left, header, nav, right, extra }) => {
+  noShadow?: boolean;
+}>(({ left, header, nav, right, extra, noShadow }) => {
   return (
     <Navbar
       left={left}
@@ -18,6 +19,7 @@ export const DashboardNavbar = memo<{
       nav={nav}
       right={right ?? <DashboardUserIconDropdown />}
       extra={extra}
+      noShadow={noShadow}
     />
   );
 });
