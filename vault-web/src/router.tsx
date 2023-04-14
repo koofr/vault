@@ -9,6 +9,7 @@ import { NotSupportedPageLazy } from './pages/NotSupportedPageLazy';
 import { OAuth2CallbackPageLazy } from './pages/OAuth2CallbackPageLazy';
 import { RepoCreatePageLazy } from './pages/RepoCreatePageLazy';
 import { RepoFilesPageLazy } from './pages/RepoFilesPageLazy';
+import { RepoFilesDetailsPageLazy } from './pages/RepoFilesDetailsPageLazy';
 import { RepoInfoPageLazy } from './pages/RepoInfoPageLazy';
 
 export const createRouter = () => {
@@ -28,6 +29,10 @@ export const createRouter = () => {
         {
           path: '/repos/:repoId',
           element: <RepoFilesPageLazy />,
+        },
+        {
+          path: '/repos/:repoId/details',
+          element: <RepoFilesDetailsPageLazy />,
         },
         {
           path: '/repos/:repoId/info',

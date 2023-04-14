@@ -80,6 +80,9 @@ extern "C" {
     #[wasm_bindgen(typescript_type = "RepoFilesBrowserItem[]")]
     pub type RepoFilesBrowserItemVec;
 
+    #[wasm_bindgen(typescript_type = "RepoFilesDetailsInfo | undefined")]
+    pub type RepoFilesDetailsInfoOption;
+
     #[wasm_bindgen(typescript_type = "RepoFilesMoveInfo | undefined")]
     pub type RepoFilesMoveInfoOption;
 
@@ -128,6 +131,7 @@ struct SubscriptionData {
     repo_files_browsers_info: Data<Option<dto::RepoFilesBrowserInfo>>,
     repo_files_browsers_items: Data<Vec<dto::RepoFilesBrowserItem>>,
     repo_files_browsers_breadcrumbs: Data<Vec<dto::RepoFilesBreadcrumb>>,
+    repo_files_details_info: Data<Option<dto::RepoFilesDetailsInfo>>,
     repo_files_move_info: Data<Option<dto::RepoFilesMoveInfo>>,
     space_usage: Data<Option<dto::SpaceUsage>>,
 }
@@ -1184,7 +1188,7 @@ impl WebVault {
         let file_reader = match self
             .vault
             .clone()
-            .repo_files_browsers_get_selected_stream(browser_id)
+            .repo_files_browsers_get_selected_reader(browser_id)
             .await
         {
             Ok(file_reader) => file_reader,
@@ -1235,6 +1239,83 @@ impl WebVault {
                 .repo_files_browsers_delete_selected(browser_id)
                 .await,
         )
+    }
+
+    // repo_files_details
+
+    #[wasm_bindgen(js_name = repoFilesDetailsCreate)]
+    pub fn repo_files_details_create(&self, repo_id: &str, path: &str) -> u32 {
+        let (details_id, load_future) = self.vault.repo_files_details_create(repo_id, path);
+
+        spawn_local(async move {
+            // error is displayed in the details component
+            let _ = load_future.await;
+        });
+
+        details_id
+    }
+
+    #[wasm_bindgen(js_name = repoFilesDetailsDestroy)]
+    pub fn repo_files_details_destroy(&self, details_id: u32) {
+        self.vault.repo_files_details_destroy(details_id)
+    }
+
+    #[wasm_bindgen(js_name = repoFilesDetailsInfoSubscribe)]
+    pub fn repo_files_details_info_subscribe(&self, details_id: u32, cb: js_sys::Function) -> u32 {
+        self.subscribe(
+            &[Event::RepoFilesDetails, Event::RepoFiles],
+            cb,
+            self.subscription_data.repo_files_details_info.clone(),
+            move |vault| {
+                vault.with_state(|state| {
+                    vault_core::repo_files_details::selectors::select_info(state, details_id)
+                        .as_ref()
+                        .map(Into::into)
+                })
+            },
+        )
+    }
+
+    #[wasm_bindgen(js_name = repoFilesDetailsInfoData)]
+    pub fn repo_files_details_info_data(&self, id: u32) -> RepoFilesDetailsInfoOption {
+        self.get_data_js(id, self.subscription_data.repo_files_details_info.clone())
+    }
+
+    #[wasm_bindgen(js_name = repoFilesDetailsGetFileStream)]
+    pub async fn repo_files_details_get_file_stream(
+        &self,
+        details_id: u32,
+        force_blob: bool,
+    ) -> FileStreamOption {
+        let file_reader = match self
+            .vault
+            .clone()
+            .repo_files_details_get_file_reader(details_id)
+            .await
+        {
+            Ok(file_reader) => file_reader,
+            Err(err) => {
+                self.handle_error(err);
+                return JsValue::UNDEFINED.into();
+            }
+        };
+
+        let file_stream = match helpers::reader_to_file_stream(
+            &file_reader.name,
+            file_reader.reader,
+            file_reader.size,
+            force_blob,
+        )
+        .await
+        {
+            Ok(file_stream) => file_stream,
+            Err(err) => {
+                self.handle_error(err);
+                return JsValue::UNDEFINED.into();
+            }
+        };
+
+        FileStreamOption::from(file_stream)
     }
 
     // repo_files_move

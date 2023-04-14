@@ -16,6 +16,7 @@ use crate::repo_config_backup;
 use crate::repo_create;
 use crate::repo_files;
 use crate::repo_files_browsers;
+use crate::repo_files_details;
 use crate::repo_files_dir_pickers;
 use crate::repo_files_list;
 use crate::repo_files_move;
@@ -50,6 +51,7 @@ pub struct Vault {
     eventstream_service: Arc<eventstream::EventStreamService>,
     repo_files_dir_pickers_service: Arc<repo_files_dir_pickers::RepoFilesDirPickersService>,
     repo_files_browsers_service: Arc<repo_files_browsers::RepoFilesBrowsersService>,
+    repo_files_details_service: Arc<repo_files_details::RepoFilesDetailsService>,
     repo_files_move_service: Arc<repo_files_move::RepoFilesMoveService>,
     space_usage_service: Arc<space_usage::SpaceUsageService>,
     lifecycle_service: Arc<lifecycle::LifecycleService>,
@@ -166,6 +168,13 @@ impl Vault {
                 eventstream_service.clone(),
                 store.clone(),
             ));
+        let repo_files_details_service =
+            Arc::new(repo_files_details::RepoFilesDetailsService::new(
+                repo_files_service.clone(),
+                repo_files_read_service.clone(),
+                eventstream_service.clone(),
+                store.clone(),
+            ));
         let repo_files_move_service = Arc::new(repo_files_move::RepoFilesMoveService::new(
             repo_files_service.clone(),
             repo_files_dir_pickers_service.clone(),
@@ -209,6 +218,7 @@ impl Vault {
             eventstream_service,
             repo_files_dir_pickers_service,
             repo_files_browsers_service,
+            repo_files_details_service,
             repo_files_move_service,
             space_usage_service,
             lifecycle_service,
@@ -578,7 +588,7 @@ impl Vault {
         self.repo_files_browsers_service.sort_by(browser_id, field)
     }
 
-    pub async fn repo_files_browsers_get_selected_stream(
+    pub async fn repo_files_browsers_get_selected_reader(
         self: Arc<Self>,
         browser_id: u32,
     ) -> Result<repo_files_read::state::RepoFileReader, repo_files_read::errors::GetFilesReaderError>
@@ -614,6 +624,36 @@ impl Vault {
     ) -> Result<(), repo_files::errors::DeleteFileError> {
         self.repo_files_browsers_service
             .delete_selected(browser_id)
+            .await
+    }
+
+    // repo_files_details
+
+    pub fn repo_files_details_create(
+        &self,
+        repo_id: &str,
+        path: &str,
+    ) -> (
+        u32,
+        BoxFuture<'static, Result<(), repo_files::errors::LoadFilesError>>,
+    ) {
+        self.repo_files_details_service
+            .clone()
+            .create(repo_id, path)
+    }
+
+    pub fn repo_files_details_destroy(&self, details_id: u32) {
+        self.repo_files_details_service.destroy(details_id)
+    }
+
+    pub async fn repo_files_details_get_file_reader(
+        self: Arc<Self>,
+        details_id: u32,
+    ) -> Result<repo_files_read::state::RepoFileReader, repo_files_read::errors::GetFilesReaderError>
+    {
+        self.repo_files_details_service
+            .clone()
+            .get_file_reader(details_id)
             .await
     }
 

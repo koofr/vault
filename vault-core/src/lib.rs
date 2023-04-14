@@ -17,6 +17,7 @@ pub mod repo_config_backup;
 pub mod repo_create;
 pub mod repo_files;
 pub mod repo_files_browsers;
+pub mod repo_files_details;
 pub mod repo_files_dir_pickers;
 pub mod repo_files_list;
 pub mod repo_files_move;

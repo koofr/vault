@@ -29,7 +29,7 @@ import { useWebVault } from '../../webVault/useWebVault';
 import { useRepoFilesBrowserId } from './RepoFilesBrowserId';
 import { useRepoFilesRename } from './RepoFilesRename';
 import { downloadFile } from './repoFilesActions';
-import { repoFilesLink } from './selectors';
+import { fileHasDetails, repoFilesDetailsLink, repoFilesLink } from './selectors';
 
 interface TableData {
   items: RepoFilesBrowserItem[];
@@ -80,6 +80,17 @@ const FileName = memo<{ file: RepoFile }>(({ file }) => {
               className={css`
                 font-weight: 600;
 
+                ${allStates} {
+                  color: ${theme.colors.text};
+                }
+              `}
+            >
+              {file.name}
+            </Link>
+          ) : fileHasDetails(file) ? (
+            <Link
+              to={repoFilesDetailsLink(file.repoId, file.path)}
+              className={css`
                 ${allStates} {
                   color: ${theme.colors.text};
                 }
