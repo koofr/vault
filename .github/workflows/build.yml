@@ -26,3 +26,5 @@ jobs:
           files: |
             vault-web.tar.gz
             vault-web.tar.gz.sha256
+          draft: true
+          generate_release_notes: true
