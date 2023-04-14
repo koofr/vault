@@ -12,4 +12,11 @@ export const repoFilesDetailsLink = (repoId: string, path: string): To => ({
   search: `path=${encodeURIComponent(path)}`,
 });
 
-export const fileHasDetails = (file: RepoFile): boolean => false;
+export const fileHasPdfViewer = (file: RepoFile): boolean =>
+  file.iconType === 'Pdf' && !file.nameError;
+
+export const fileHasDetails = (file: RepoFile): boolean =>
+  fileHasPdfViewer(file);
+
+export const pdfViewerUrl = (fileUrl: string): string =>
+  '/pdfjs-3.5.141/web/viewer.html?file=' + encodeURIComponent(fileUrl);

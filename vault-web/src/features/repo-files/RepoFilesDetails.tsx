@@ -1,19 +1,24 @@
+import { css } from '@emotion/css';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
+import { useDocumentSize } from '../../components/DocumentSize';
 import { ErrorComponent } from '../../components/ErrorComponent';
 import { LoadingCircle } from '../../components/LoadingCircle';
 import { DashboardNavbar } from '../../components/dashboard/DashboardNavbar';
+import { getNavbarHeight } from '../../components/navbar/Navbar';
 import { NavbarClose } from '../../components/navbar/NavbarClose';
 import { useSingleNavbarBreadcrumb } from '../../components/navbar/useSingleNavbarBreadcrumb';
+import { useIsMobile } from '../../components/useIsMobile';
 import { Repo } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
 
-import { repoFilesLink } from './selectors';
+import { fileHasPdfViewer, pdfViewerUrl, repoFilesLink } from './selectors';
 
 const RepoFilesDetailsInner = memo<{ repo: Repo; path: string }>(
   ({ repo, path }) => {
+    const isMobile = useIsMobile();
     const repoId = repo.id;
     const webVault = useWebVault();
     const detailsId = useMemo(() => {
@@ -31,7 +36,7 @@ const RepoFilesDetailsInner = memo<{ repo: Repo; path: string }>(
     );
     const file = info?.file;
     const fileId = file?.id;
-    const [, setBlobUrl] = useState<string>();
+    const [blobUrl, setBlobUrl] = useState<string>();
     const lastBlobUrl = useRef<string>();
     useEffect(() => {
       const getFile = async () => {
@@ -63,6 +68,14 @@ const RepoFilesDetailsInner = memo<{ repo: Repo; path: string }>(
       };
     }, [webVault]);
     const navbarHeader = useSingleNavbarBreadcrumb(file?.name ?? '');
+    const documentSize = useDocumentSize();
+
+    const viewerWidth = documentSize.width;
+    const viewerHeight = documentSize.height - getNavbarHeight(isMobile);
+    const viewerUrl =
+      file !== undefined && fileHasPdfViewer(file) && blobUrl !== undefined
+        ? pdfViewerUrl(blobUrl)
+        : undefined;
 
     return (
       <>
@@ -77,10 +90,24 @@ const RepoFilesDetailsInner = memo<{ repo: Repo; path: string }>(
               }
             />
           }
+          noShadow={viewerUrl !== undefined}
         />
 
         {info?.status.type === 'Error' ? (
           <ErrorComponent error={info.status.error} />
+        ) : viewerUrl !== undefined ? (
+          <div>
+            <iframe
+              title="Viewer"
+              src={viewerUrl}
+              width={viewerWidth}
+              height={viewerHeight}
+              className={css`
+                border: none;
+                display: block;
+              `}
+            />
+          </div>
         ) : info?.status.type === 'Loading' ||
           info?.status.type === 'Reloading' ? (
           <LoadingCircle />
