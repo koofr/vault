@@ -12,6 +12,9 @@ export const NAVBAR_HEIGHT_MOBILE = 60;
 export const NAVBAR_STICKY_SCROLL = 25;
 export const NAVBAR_STICKY_SCROLL_MOBILE = 1;
 
+export const getNavbarHeight = (isMobile: boolean) =>
+  isMobile ? NAVBAR_HEIGHT_MOBILE : NAVBAR_HEIGHT;
+
 export const NavbarMain = memo<{
   left?: ReactNode;
   header?: ReactNode;
@@ -37,9 +40,7 @@ export const NavbarMain = memo<{
             ? `none`
             : `0 1px 3px 0 ${theme.colors.border}`};
           border-bottom: 1px solid transparent;
-          height: ${theme.isMobile
-            ? `${NAVBAR_HEIGHT_MOBILE}px`
-            : `${NAVBAR_HEIGHT}px`};
+          height: ${getNavbarHeight(theme.isMobile)}px;
           padding: 0 ${theme.isMobile ? theme.gutterMobile : theme.gutter};
         `,
         isSticky
@@ -131,9 +132,7 @@ export const NavbarExtra = memo<PropsWithChildren<{ isSticky: boolean }>>(
           className={cx(
             css`
               position: sticky;
-              top: ${theme.isMobile
-                ? `${NAVBAR_HEIGHT_MOBILE}px`
-                : `${NAVBAR_HEIGHT}px`};
+              top: ${getNavbarHeight(theme.isMobile)}px;
               padding: 0 ${theme.isMobile ? theme.gutterMobile : theme.gutter};
               height: 45px;
               display: flex;
