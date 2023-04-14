@@ -29,6 +29,7 @@ import { useWebVault } from '../../webVault/useWebVault';
 import { useRepoFilesBrowserId } from './RepoFilesBrowserId';
 import { useRepoFilesRename } from './RepoFilesRename';
 import { downloadFile } from './repoFilesActions';
+import { repoFilesLink } from './selectors';
 
 interface TableData {
   items: RepoFilesBrowserItem[];
@@ -75,10 +76,7 @@ const FileName = memo<{ file: RepoFile }>(({ file }) => {
         {file.path != null ? (
           file.type === 'Dir' ? (
             <Link
-              to={{
-                pathname: `/repos/${file.repoId}`,
-                search: `path=${encodeURIComponent(file.path)}`,
-              }}
+              to={repoFilesLink(file.repoId, file.path)}
               className={css`
                 font-weight: 600;
 

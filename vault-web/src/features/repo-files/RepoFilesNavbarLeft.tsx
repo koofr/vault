@@ -6,7 +6,7 @@ import { useIsMobile } from '../../components/useIsMobile';
 import { useSubscribe } from '../../webVault/useSubscribe';
 
 import { useRepoFilesBrowserId } from './RepoFilesBrowserId';
-import { repoFilesLink } from './repoFilesLink';
+import { repoFilesLink } from './selectors';
 
 export const RepoFilesNavbarLeft = memo(() => {
   const isMobile = useIsMobile();

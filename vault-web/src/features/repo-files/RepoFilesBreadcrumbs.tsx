@@ -7,7 +7,7 @@ import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
 
 import { useRepoFilesBrowserId } from './RepoFilesBrowserId';
-import { repoFilesLink } from './repoFilesLink';
+import { repoFilesLink } from './selectors';
 
 export const RepoFilesBreadcrumbs = memo(() => {
   const isMobile = useIsMobile();
