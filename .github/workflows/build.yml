@@ -57,6 +57,9 @@ jobs:
         working-directory: vault-web-tests
         env:
           VAULT_OAUTH2_TOKEN: ${{ secrets.VAULT_OAUTH2_TOKEN }}
+      - name: Run eslint
+        run: npm run eslint
+        working-directory: vault-web-tests
       - name: Run Playwright tests
         run: npx playwright test
         working-directory: vault-web-tests

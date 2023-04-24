@@ -3,7 +3,8 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "test": "npx playwright test"
+    "test": "npx playwright test",
+    "eslint": "eslint ."
   },
   "devDependencies": {
     "@playwright/test": "^1.32.3",
