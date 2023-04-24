@@ -36,12 +36,10 @@ export const test = base.extend<{
 
       await koofrApiClient.refreshToken();
 
+      await koofrApiClient.removeAllVaultRepos();
+
       await use(koofrApiClient);
     },
     { auto: true },
   ],
-});
-
-test.beforeEach(async ({ koofrApiClient }) => {
-  await koofrApiClient.removeAllVaultRepos();
 });

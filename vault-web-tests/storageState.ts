@@ -6,6 +6,7 @@ export const storageStatePath = path.join(
   'playwright/.auth/user.json'
 );
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let storageState: any;
 
 try {
