@@ -1,0 +1,16 @@
+{
+  "name": "vault-web-tests",
+  "private": true,
+  "version": "0.0.0",
+  "devDependencies": {
+    "@playwright/test": "^1.32.3",
+    "prettier": "^2.8.7",
+    "typescript": "^5.0.4"
+  },
+  "prettier": {
+    "singleQuote": true
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  }
+}
