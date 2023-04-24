@@ -102,7 +102,11 @@ export const RepoUnlock = memo<{ repoId: string }>(({ repoId }) => {
               margin-bottom: 20px;
             `}
           >
-            <AutoFocusPasswordInput value={password} onChange={setPassword} />
+            <AutoFocusPasswordInput
+              value={password}
+              onChange={setPassword}
+              inputAriaLabel="Safe Key"
+            />
           </div>
           <Button
             type="submit"

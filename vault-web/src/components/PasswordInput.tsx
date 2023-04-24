@@ -14,6 +14,7 @@ export interface PasswordInputProps {
   inputRef?: MutableRefObject<HTMLInputElement | null>;
   inputClassName?: string;
   inputId?: string;
+  inputAriaLabel?: string;
 }
 
 export const PasswordInput = memo<PasswordInputProps>(
@@ -25,6 +26,7 @@ export const PasswordInput = memo<PasswordInputProps>(
     inputRef,
     inputClassName,
     inputId,
+    inputAriaLabel,
   }) => {
     const [isPasswordVisible, setPasswordVisible] = useState(false);
     const togglePasswordVisible = useCallback(
@@ -60,6 +62,7 @@ export const PasswordInput = memo<PasswordInputProps>(
             `,
             inputClassName
           )}
+          aria-label={inputAriaLabel}
         />
         <ShowPassword
           value={isPasswordVisible}
