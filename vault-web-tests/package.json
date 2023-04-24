@@ -2,15 +2,18 @@
   "name": "vault-web-tests",
   "private": true,
   "version": "0.0.0",
+  "scripts": {
+    "test": "npx playwright test"
+  },
   "devDependencies": {
     "@playwright/test": "^1.32.3",
+    "@typescript-eslint/eslint-plugin": "^5.59.0",
+    "@typescript-eslint/parser": "^5.59.0",
+    "eslint": "^8.23.1",
     "prettier": "^2.8.7",
     "typescript": "^5.0.4"
   },
   "prettier": {
     "singleQuote": true
-  },
-  "eslintConfig": {
-    "extends": "react-app"
   }
 }
