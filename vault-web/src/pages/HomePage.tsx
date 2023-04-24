@@ -15,9 +15,9 @@ export const HomePage = memo(() => {
   useEffect(() => {
     if (repos.status.type === 'Loaded') {
       if (repos.repos.length === 0) {
-        navigate('/repos/create');
+        navigate('/repos/create', { replace: true });
       } else {
-        navigate(`/repos/${repos.repos[0].id}`);
+        navigate(`/repos/${repos.repos[0].id}`, { replace: true });
       }
     }
   }, [repos, navigate]);
