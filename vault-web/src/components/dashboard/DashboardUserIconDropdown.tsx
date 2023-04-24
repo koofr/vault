@@ -16,6 +16,7 @@ export const DashboardUserIcon = memo(() => {
       className={css`
         cursor: pointer;
       `}
+      aria-label="User menu"
       {...props}
     >
       <UserIcon />

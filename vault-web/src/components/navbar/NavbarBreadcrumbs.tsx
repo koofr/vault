@@ -31,6 +31,7 @@ export const NavbarBreadcrumbs = memo<NavbarBreadcrumbsProps>(
           padding: 0;
           display: flex;
         `}
+        aria-label="Breadcrumb"
       >
         {hasTail ? (
           <div

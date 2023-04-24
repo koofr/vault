@@ -93,25 +93,28 @@ const RepoFilesDetailsInner = memo<{ repo: Repo; path: string }>(
           noShadow={viewerUrl !== undefined}
         />
 
-        {info?.status.type === 'Error' ? (
-          <ErrorComponent error={info.status.error} />
-        ) : viewerUrl !== undefined ? (
-          <div>
-            <iframe
-              title="Viewer"
-              src={viewerUrl}
-              width={viewerWidth}
-              height={viewerHeight}
-              className={css`
-                border: none;
-                display: block;
-              `}
-            />
-          </div>
-        ) : info?.status.type === 'Loading' ||
-          info?.status.type === 'Reloading' ? (
-          <LoadingCircle />
-        ) : null}
+        <main>
+          {info?.status.type === 'Error' ? (
+            <ErrorComponent error={info.status.error} />
+          ) : viewerUrl !== undefined ? (
+            <div>
+              <iframe
+                title="Viewer"
+                id="viewerIframe"
+                src={viewerUrl}
+                width={viewerWidth}
+                height={viewerHeight}
+                className={css`
+                  border: none;
+                  display: block;
+                `}
+              />
+            </div>
+          ) : info?.status.type === 'Loading' ||
+            info?.status.type === 'Reloading' ? (
+            <LoadingCircle />
+          ) : null}
+        </main>
       </>
     );
   }

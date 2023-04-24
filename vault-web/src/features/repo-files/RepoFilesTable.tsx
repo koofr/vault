@@ -29,7 +29,11 @@ import { useWebVault } from '../../webVault/useWebVault';
 import { useRepoFilesBrowserId } from './RepoFilesBrowserId';
 import { useRepoFilesRename } from './RepoFilesRename';
 import { downloadFile } from './repoFilesActions';
-import { fileHasDetails, repoFilesDetailsLink, repoFilesLink } from './selectors';
+import {
+  fileHasDetails,
+  repoFilesDetailsLink,
+  repoFilesLink,
+} from './selectors';
 
 interface TableData {
   items: RepoFilesBrowserItem[];
@@ -144,6 +148,7 @@ const FileName = memo<{ file: RepoFile }>(({ file }) => {
               renameFile(file);
             }
           }}
+          aria-label="Rename"
         >
           <FilesRenameIcon
             className={css`
@@ -151,6 +156,7 @@ const FileName = memo<{ file: RepoFile }>(({ file }) => {
                 display: none;
               }
             `}
+            role="img"
           />
           <FilesRenameHoverIcon
             className={css`
@@ -160,6 +166,7 @@ const FileName = memo<{ file: RepoFile }>(({ file }) => {
                 display: inline;
               }
             `}
+            role="img"
           />
         </button>
       ) : null}
@@ -228,6 +235,7 @@ const RepoFilesTableRow = memo<RowProps<TableData>>(({ index, data }) => {
       row={row}
       isSelected={isSelected}
       isFirstSelected={isFirstSelected}
+      ariaLabel={file !== undefined ? file.type === 'Dir' ? `Folder ${file.name}` : `File ${file.name}` : undefined}
     />
   );
 });
@@ -342,6 +350,7 @@ export const RepoFilesTable = memo<{
       length={items.length}
       data={data}
       Row={RepoFilesTableRow}
+      ariaLabel="Files list"
       onHeadCheckboxClick={onHeadCheckboxClick}
       onSortByClick={onSortByClick}
       onRowCheckboxClick={onRowCheckboxClick}

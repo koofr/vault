@@ -106,8 +106,8 @@ export const DashboardMenu = memo(() => {
       <DashboardMenuUserInfoItem />
       <MenuDivider />
       <MenuItem
-        icon={<DirPickerItemHostedIcon />}
-        iconHover={<DirPickerItemHostedHoverIcon />}
+        icon={<DirPickerItemHostedIcon role="img" />}
+        iconHover={<DirPickerItemHostedHoverIcon role="img" />}
         textClassName={css`
           font-weight: normal;
         `}
@@ -119,8 +119,8 @@ export const DashboardMenu = memo(() => {
       </MenuItem>
       <MenuDivider />
       <MenuItem
-        icon={<LogoutIcon />}
-        iconHover={<LogoutHoverIcon />}
+        icon={<LogoutIcon role="img" />}
+        iconHover={<LogoutHoverIcon role="img" />}
         textClassName={css`
           font-weight: normal;
         `}

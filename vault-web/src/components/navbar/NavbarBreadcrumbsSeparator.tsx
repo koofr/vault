@@ -14,6 +14,6 @@ export const NavbarBreadcrumbsSeparator = memo(() => (
       margin: 5px 4px 0;
     `}
   >
-    <BreadcrumbsSeparatorIcon />
+    <BreadcrumbsSeparatorIcon role="img" />
   </div>
 ));

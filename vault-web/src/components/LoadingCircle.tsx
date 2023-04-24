@@ -26,6 +26,7 @@ export const LoadingCircle = memo(() => {
         flex-grow: 1;
         margin-bottom: 70px + 35px; // navbar height + half circle height
       `}
+      aria-label="Loading..."
     >
       <div
         className={css`

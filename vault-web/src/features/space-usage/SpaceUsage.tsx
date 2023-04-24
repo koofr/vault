@@ -70,7 +70,7 @@ export const SpaceUsage = memo(() => {
             margin-right: 7px;
           `}
         >
-          <SpaceUsageIcon />
+          <SpaceUsageIcon role="img" />
         </div>
         <div
           className={css`

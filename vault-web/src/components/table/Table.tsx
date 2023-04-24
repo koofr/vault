@@ -14,6 +14,7 @@ import {
 } from 'react';
 
 import { withReactCss } from '../../styles';
+import { buttonReset } from '../../styles/mixins/buttons';
 import { useElementSize } from '../../utils/useElementSize';
 
 import { Checkbox } from '../Checkbox';
@@ -21,6 +22,21 @@ import { Checkbox } from '../Checkbox';
 import { calculateColumnWidths } from './columnWidths';
 
 export type SortBy = 'Hidden' | 'Asc' | 'Desc';
+
+export const sortByToAriaSort = (
+  sortBy: SortBy | undefined
+): 'ascending' | 'descending' | 'none' | undefined => {
+  switch (sortBy) {
+    case undefined:
+      return undefined;
+    case 'Asc':
+      return 'ascending';
+    case 'Desc':
+      return 'descending';
+    case 'Hidden':
+      return 'none';
+  }
+};
 
 export const TableCell = styled.div`
   overflow: hidden;
@@ -46,7 +62,8 @@ export const TableHeadCellCheckbox = styled(TableHeadCell)`
   display: flex;
 `;
 
-export const TableSortLabel = styled.span<{ sortBy?: SortBy }>`
+export const TableSortLabel = styled.button<{ sortBy?: SortBy }>`
+  ${buttonReset}
   color: ${({ theme }) => theme.colors.textLight};
   cursor: pointer;
   padding-right: 15px;
@@ -94,6 +111,7 @@ export interface BaseTableRowProps {
   hasHover: boolean;
   isDropOver: boolean;
   height: number;
+  ariaLabel?: string;
   onClick: (event: MouseEvent<HTMLDivElement>) => void;
   onContextMenu: (event: MouseEvent<HTMLDivElement>) => void;
 }
@@ -106,6 +124,7 @@ export const BaseTableRow = memo<PropsWithChildren<BaseTableRowProps>>(
     hasHover,
     isDropOver,
     height,
+    ariaLabel,
     onClick,
     onContextMenu,
     children,
@@ -177,6 +196,9 @@ export const BaseTableRow = memo<PropsWithChildren<BaseTableRowProps>>(
         style={{ height: `${height + 1}px` }}
         onClick={onClick}
         onContextMenu={onContextMenu}
+        role="row"
+        aria-rowindex={index}
+        aria-label={ariaLabel}
       >
         {children}
       </div>
@@ -240,6 +262,7 @@ export interface TableProps<T = any> {
   length: number;
   data?: T;
   Row: ComponentType<RowProps<T>>;
+  ariaLabel?: string;
   onHeadCheckboxClick: (event: MouseEvent) => void;
   onSortByClick?: (event: MouseEvent, columnName: string) => void;
   onRowCheckboxClick: (
@@ -260,6 +283,7 @@ export const Table = memo<TableProps>(
     length,
     data,
     Row,
+    ariaLabel,
     onHeadCheckboxClick,
     onSortByClick,
     onRowCheckboxClick,
@@ -315,51 +339,61 @@ export const Table = memo<TableProps>(
     const indexes = useMemo(() => range(0, length), [length]);
 
     return (
-      <StyledTable ref={tableRef}>
+      <StyledTable
+        ref={tableRef}
+        role="grid"
+        aria-label={ariaLabel}
+        aria-rowcount={length}
+      >
         {computedColumns.length > 0 ? (
           <TableContext.Provider value={tableContext}>
-            <TableHead>
-              {computedColumns.map((column) =>
-                column.name === 'checkbox' ? (
-                  <TableHeadCellCheckbox
-                    key={column.name}
-                    style={{ minWidth: `${column.width}px` }}
-                  >
-                    <Checkbox
-                      value={
-                        selectionSummary === 'None'
-                          ? 'unchecked'
-                          : selectionSummary === 'Partial'
-                          ? 'indeterminate'
-                          : 'checked'
-                      }
-                      onClick={onHeadCheckboxClick}
-                    />
-                  </TableHeadCellCheckbox>
-                ) : (
-                  <TableHeadCell
-                    key={column.name}
-                    style={{ minWidth: `${column.width}px` }}
-                  >
-                    {column.sortBy !== undefined ? (
-                      <TableSortLabel
-                        sortBy={column.sortBy}
-                        onClick={(event) => {
-                          if (onSortByClick !== undefined) {
-                            onSortByClick(event, column.name);
-                          }
-                        }}
-                      >
-                        {column.label}
-                      </TableSortLabel>
-                    ) : (
-                      column.label
-                    )}
-                  </TableHeadCell>
-                )
-              )}
-            </TableHead>
-            <TableBody>
+            <div role="rowgroup">
+              <TableHead role="row">
+                {computedColumns.map((column) =>
+                  column.name === 'checkbox' ? (
+                    <TableHeadCellCheckbox
+                      key={column.name}
+                      style={{ minWidth: `${column.width}px` }}
+                      role="columnheader"
+                    >
+                      <Checkbox
+                        value={
+                          selectionSummary === 'None'
+                            ? 'unchecked'
+                            : selectionSummary === 'Partial'
+                            ? 'indeterminate'
+                            : 'checked'
+                        }
+                        onClick={onHeadCheckboxClick}
+                      />
+                    </TableHeadCellCheckbox>
+                  ) : (
+                    <TableHeadCell
+                      key={column.name}
+                      style={{ minWidth: `${column.width}px` }}
+                      role="columnheader"
+                      aria-sort={sortByToAriaSort(column.sortBy)}
+                    >
+                      {column.sortBy !== undefined ? (
+                        <TableSortLabel
+                          sortBy={column.sortBy}
+                          onClick={(event) => {
+                            if (onSortByClick !== undefined) {
+                              onSortByClick(event, column.name);
+                            }
+                          }}
+                        >
+                          {column.label}
+                        </TableSortLabel>
+                      ) : (
+                        column.label
+                      )}
+                    </TableHeadCell>
+                  )
+                )}
+              </TableHead>
+            </div>
+            <TableBody role="rowgroup">
               {indexes.map((index) => (
                 <Row key={index} index={index} data={data} />
               ))}
@@ -376,10 +410,11 @@ export interface TableRowProps {
   row: any;
   isSelected: boolean;
   isFirstSelected: boolean;
+  ariaLabel?: string;
 }
 
 export const TableRow = memo<TableRowProps>(
-  ({ index, row, isSelected, isFirstSelected }) => {
+  ({ index, row, isSelected, isFirstSelected, ariaLabel }) => {
     const {
       columns,
       onRowCheckboxClick: onRowCheckboxClickOrig,
@@ -414,6 +449,7 @@ export const TableRow = memo<TableRowProps>(
         hasHover={true}
         isDropOver={false}
         height={48}
+        ariaLabel={ariaLabel}
         onClick={onRowClick}
         onContextMenu={onRowContextMenu}
       >
@@ -423,6 +459,7 @@ export const TableRow = memo<TableRowProps>(
               <TableCell
                 key={column.name}
                 style={{ width: `${column.width}px` }}
+                role="cell"
               >
                 <Checkbox
                   value={isSelected ? 'checked' : 'unchecked'}
@@ -433,6 +470,7 @@ export const TableRow = memo<TableRowProps>(
               <TableCell
                 key={column.name}
                 style={{ width: `${column.width}px` }}
+                role="cell"
               >
                 {row[column.name]}
               </TableCell>

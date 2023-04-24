@@ -26,7 +26,7 @@ export const NavbarMain = memo<{
   const theme = useTheme();
 
   return (
-    <div
+    <header
       className={cx(
         css`
           display: flex;
@@ -113,7 +113,7 @@ export const NavbarMain = memo<{
       >
         {right}
       </div>
-    </div>
+    </header>
   );
 });
 

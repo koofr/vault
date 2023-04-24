@@ -87,11 +87,21 @@ export const NavbarBreadcrumb = memo<{
           )}
         >
           {link !== undefined ? (
-            <Link to={link} className={linkClassName} onClick={onClick}>
+            <Link
+              to={link}
+              className={linkClassName}
+              onClick={onClick}
+              aria-current={isLast ? 'page' : undefined}
+            >
               {name}
             </Link>
           ) : isClickable ? (
-            <span className={linkClassName} role="button" onClick={onClick}>
+            <span
+              className={linkClassName}
+              role="button"
+              onClick={onClick}
+              aria-current={isLast ? 'page' : undefined}
+            >
               {name}
             </span>
           ) : (

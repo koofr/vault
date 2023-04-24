@@ -60,6 +60,7 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
                 flex-shrink: 0;
                 margin-right: 7px;
               `}
+              aria-label="Safe Box locked"
             >
               <LockedIcon
                 className={css`
@@ -67,6 +68,7 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
                     display: none;
                   }
                 `}
+                role="img"
               />
               <LockedHoverIcon
                 className={css`
@@ -76,6 +78,7 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
                     display: inline;
                   }
                 `}
+                role="img"
               />
             </Link>
           ) : (
@@ -88,6 +91,7 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
                 margin-right: 7px;
               `}
               onClick={() => lockRepo(repo)}
+              aria-label="Safe Box unlocked"
             >
               <div
                 className={css`
@@ -102,6 +106,7 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
                       display: none;
                     }
                   `}
+                  role="img"
                 />
                 <UnlockedHoverIcon
                   className={css`
@@ -111,6 +116,7 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
                       display: inline;
                     }
                   `}
+                  role="img"
                 />
               </div>
             </button>
@@ -160,6 +166,7 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
               align-items: center;
               flex-shrink: 0;
             `}
+            aria-label="Safe Box info"
           >
             <InfoIcon
               className={css`
@@ -167,6 +174,7 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
                   display: none;
                 }
               `}
+              role="img"
             />
             <InfoHoverIcon
               className={css`
@@ -176,6 +184,7 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
                   display: inline;
                 }
               `}
+              role="img"
             />
           </Link>
         </div>
@@ -230,6 +239,7 @@ export const RepoCreateItem = memo<{ isActive: boolean }>(({ isActive }) => {
                 display: none;
               }
             `}
+            role="img"
           />
           <CreateHoverIcon
             className={css`
@@ -239,6 +249,7 @@ export const RepoCreateItem = memo<{ isActive: boolean }>(({ isActive }) => {
                 display: inline;
               }
             `}
+            role="img"
           />
         </div>
         <div
@@ -276,7 +287,7 @@ export const Repos = memo(() => {
   );
 
   return (
-    <div>
+    <aside aria-label="Safe Boxes navigation">
       <ul
         className={css`
           list-style: none;
@@ -293,6 +304,6 @@ export const Repos = memo(() => {
         ))}
         <RepoCreateItem isActive={location.pathname === '/repos/create'} />
       </ul>
-    </div>
+    </aside>
   );
 });

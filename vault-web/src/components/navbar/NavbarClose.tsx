@@ -12,6 +12,7 @@ export const NavbarClose = memo<{ to: To }>(({ to }) => {
         display: flex;
         align-items: center;
       `}
+      aria-label="Close"
     >
       <NavbarCloseIcon />
     </Link>

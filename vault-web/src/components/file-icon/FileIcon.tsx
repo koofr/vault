@@ -639,6 +639,7 @@ export const FileIcon = memo<FileIconProps>(
         style={{ display: 'block' }}
         {...def.attrs}
         xmlns="http://www.w3.org/2000/svg"
+        role="img"
       >
         {isFolder ? def.folder.bg : def.file.bg}
         {isFolder ? def.folder.border : def.file.border}

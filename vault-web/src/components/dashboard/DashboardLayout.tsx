@@ -57,7 +57,7 @@ export const DashboardLayout = memo<
           )}
         >
           <DashboardSidenav className={sidenavClassName} />
-          <div
+          <main
             className={cx(
               css`
                 display: flex;
@@ -75,7 +75,7 @@ export const DashboardLayout = memo<
             )}
           >
             {children}
-          </div>
+          </main>
         </div>
 
         <Uploads />

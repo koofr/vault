@@ -185,11 +185,13 @@ export const DirPicker = memo<{
                 align-items: center;
                 margin-left: 4px;
               `}
+              aria-label="Loading..."
             >
               <LoadingIcon
                 className={css`
                   animation: ${spinner} 2s infinite linear;
                 `}
+                role="img"
               />
             </div>
           ) : null}

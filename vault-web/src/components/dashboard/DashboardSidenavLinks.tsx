@@ -18,7 +18,7 @@ export const DashboardSidenavLinks = memo(() => {
 
   return (
     <>
-      <div
+      <footer
         className={css`
           margin: 0 0 0 25px;
         `}
@@ -43,7 +43,7 @@ export const DashboardSidenavLinks = memo(() => {
           >
             Help and support
           </a>
-          {' · '}
+          <span aria-hidden>{' · '}</span>
           <button
             type="button"
             className={css`
@@ -56,7 +56,7 @@ export const DashboardSidenavLinks = memo(() => {
           >
             Intro
           </button>
-          {' · '}
+          <span aria-hidden>{' · '}</span>
           <a
             href={`${baseUrl}/legal`}
             target="_blank"
@@ -77,7 +77,7 @@ export const DashboardSidenavLinks = memo(() => {
             text-align: center;
           `}
         />
-      </div>
+      </footer>
 
       <IntroModalLazy isVisible={intro.isVisible} hide={intro.hide} />
     </>

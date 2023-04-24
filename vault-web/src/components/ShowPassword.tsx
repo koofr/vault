@@ -28,6 +28,7 @@ export const ShowPassword = memo<{
       `}
       tabIndex={-1}
       onClick={onClick}
+      aria-label={value ? 'Hide password' : 'Show password'}
     >
       <div
         className={css`
@@ -50,6 +51,7 @@ export const ShowPassword = memo<{
                   }
                 `
           )}
+          role="img"
         />
         <ShowPasswordHoverIcon
           className={cx(
@@ -65,6 +67,7 @@ export const ShowPassword = memo<{
                   }
                 `
           )}
+          role="img"
         />
         <HidePasswordIcon
           className={cx(
@@ -80,6 +83,7 @@ export const ShowPassword = memo<{
                   }
                 `
           )}
+          role="img"
         />
         <HidePasswordHoverIcon
           className={cx(
@@ -95,6 +99,7 @@ export const ShowPassword = memo<{
                   }
                 `
           )}
+          role="img"
         />
       </div>
     </button>

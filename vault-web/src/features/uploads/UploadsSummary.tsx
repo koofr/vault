@@ -135,7 +135,11 @@ export const UploadsSummary = memo<{
               margin-right: 8px;
             `}
           >
-            {failedCount > 0 ? <UploadsFailedIcon /> : <UploadsIcon />}
+            {failedCount > 0 ? (
+              <UploadsFailedIcon role="img" />
+            ) : (
+              <UploadsIcon role="img" />
+            )}
           </div>
           <div
             className={css`

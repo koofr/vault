@@ -12,8 +12,9 @@ export const NavbarBack = memo<{ to: To }>(({ to }) => {
         display: flex;
         align-items: center;
       `}
+      aria-label="Back"
     >
-      <NavbarBackIcon />
+      <NavbarBackIcon role="img" />
     </Link>
   );
 });

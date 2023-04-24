@@ -197,6 +197,7 @@ export const ModalClose = memo(() => {
               display: none;
             }
           `}
+          role="img"
         />
         <ModalCloseHoverIcon
           className={css`
@@ -206,6 +207,7 @@ export const ModalClose = memo(() => {
               display: inline;
             }
           `}
+          role="img"
         />
       </div>
     </button>

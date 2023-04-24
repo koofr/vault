@@ -11,7 +11,9 @@ export const DashboardLoading = memo<{
     <>
       <DashboardNavbar header={navbarHeader ?? ''} />
 
-      <LoadingCircle />
+      <main>
+        <LoadingCircle />
+      </main>
     </>
   );
 });

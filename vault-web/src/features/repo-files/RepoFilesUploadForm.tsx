@@ -64,11 +64,13 @@ export const RepoFilesUploadForm = memo(() => {
         type="file"
         ref={uploadFileInputRef}
         onChange={onUploadFileChange}
+        aria-label="Upload file"
       />
       <input
         type="file"
         ref={uploadDirInputRef}
         onChange={onUploadFileChange}
+        aria-label="Upload folder"
         {...{ webkitdirectory: '', mozdirectory: '', directory: '' }}
       />
     </form>

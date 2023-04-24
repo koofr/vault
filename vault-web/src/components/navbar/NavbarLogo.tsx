@@ -13,7 +13,7 @@ export const NavbarLogo = memo(() => {
         align-items: center;
       `}
     >
-      <VaultLogoIcon />
+      <VaultLogoIcon role="img" aria-label="Koofr Vault logo" />
     </Link>
   );
 });

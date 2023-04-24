@@ -23,7 +23,7 @@ export const AddButton = memo(() => {
           background-color: ${theme.colors.primaryHover};
         }
       `}
-      icon={<AddInverseIcon />}
+      icon={<AddInverseIcon role="img" />}
       {...props}
     >
       Add

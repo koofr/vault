@@ -272,8 +272,7 @@ export const LandingPage = memo(() => {
                 font-weight: 800;
               `}
             >
-              your{' '}
-              <TypingText />
+              your <TypingText />
             </span>
           </h1>
 
@@ -1303,8 +1302,12 @@ export const LandingPage = memo(() => {
             text-align: center;
           `}
         >
-          Have questions about Koofr Vault? {' '}
-          <a href="https://koofr.eu/help/koofr-vault" target="_blank" rel="noopener">
+          Have questions about Koofr Vault?{' '}
+          <a
+            href="https://koofr.eu/help/koofr-vault"
+            target="_blank"
+            rel="noopener"
+          >
             Find answers here
           </a>
           .

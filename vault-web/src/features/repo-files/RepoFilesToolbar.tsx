@@ -44,8 +44,8 @@ export const RepoFilesToolbar = memo<{ info: RepoFilesBrowserInfo }>(
       <Toolbar>
         {isMobile && selectedFile !== undefined ? (
           <ToolbarItem
-            icon={<FilesRenameIcon />}
-            iconHover={<FilesRenameHoverIcon />}
+            icon={<FilesRenameIcon role="img" />}
+            iconHover={<FilesRenameHoverIcon role="img" />}
             onClick={() => {
               renameFile(selectedFile);
             }}
@@ -55,8 +55,8 @@ export const RepoFilesToolbar = memo<{ info: RepoFilesBrowserInfo }>(
         ) : null}
         {info.canCopySelected ? (
           <ToolbarItem
-            icon={<FilesToolbarCopyIcon />}
-            iconHover={<FilesToolbarCopyHoverIcon />}
+            icon={<FilesToolbarCopyIcon role="img" />}
+            iconHover={<FilesToolbarCopyHoverIcon role="img" />}
             onClick={() => {
               webVault.repoFilesMoveShow(browserId, RepoFilesMoveMode.Copy);
             }}
@@ -66,8 +66,8 @@ export const RepoFilesToolbar = memo<{ info: RepoFilesBrowserInfo }>(
         ) : null}
         {info.canMoveSelected ? (
           <ToolbarItem
-            icon={<FilesToolbarMoveIcon />}
-            iconHover={<FilesToolbarMoveHoverIcon />}
+            icon={<FilesToolbarMoveIcon role="img" />}
+            iconHover={<FilesToolbarMoveHoverIcon role="img" />}
             onClick={() => {
               webVault.repoFilesMoveShow(browserId, RepoFilesMoveMode.Move);
             }}
@@ -77,8 +77,8 @@ export const RepoFilesToolbar = memo<{ info: RepoFilesBrowserInfo }>(
         ) : null}
         {info.canDownloadSelected ? (
           <ToolbarItem
-            icon={<FilesToolbarDownloadIcon />}
-            iconHover={<FilesToolbarDownloadHoverIcon />}
+            icon={<FilesToolbarDownloadIcon role="img" />}
+            iconHover={<FilesToolbarDownloadHoverIcon role="img" />}
             onClick={() => {
               downloadSelected(webVault, browserId, isMobile);
             }}
@@ -88,8 +88,8 @@ export const RepoFilesToolbar = memo<{ info: RepoFilesBrowserInfo }>(
         ) : null}
         {info.canDeleteSelected ? (
           <ToolbarItem
-            icon={<FilesToolbarDeleteIcon />}
-            iconHover={<FilesToolbarDeleteHoverIcon />}
+            icon={<FilesToolbarDeleteIcon role="img" />}
+            iconHover={<FilesToolbarDeleteHoverIcon role="img" />}
             onClick={() => {
               deleteFileModal.show({
                 title: 'Delete files',
