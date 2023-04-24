@@ -47,6 +47,7 @@ RUN cd vault-web && npm ci
 COPY vault-web vault-web
 COPY --from=wasm-stage /app/vault-wasm/pkg vault-web/src/vault-wasm
 RUN cd vault-web && node_modules/.bin/tsc
+RUN cd vault-web && node_modules/.bin/eslint src
 RUN cd vault-web && VITE_GIT_REVISION=${GIT_REVISION} node_modules/.bin/vite build
 RUN echo -n ${GIT_REVISION} > vault-web/dist/gitrevision.txt
 
