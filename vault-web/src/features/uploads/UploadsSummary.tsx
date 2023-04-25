@@ -7,7 +7,6 @@ import { ReactComponent as UploadsIcon } from '../../assets/images/uploads.svg';
 import { Button } from '../../components/Button';
 import { Progress } from '../../components/Progress';
 import { sizeDisplay, sizeOfDisplay } from '../../utils/sizeDisplay';
-import { RemainingTime } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
 import { remainingTimeDisplay } from '../../utils/remainingTime';

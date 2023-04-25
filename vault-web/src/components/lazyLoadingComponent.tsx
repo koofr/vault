@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { LoadingCircle } from './LoadingCircle';
 
@@ -38,9 +38,9 @@ export function lazyLoadingComponent<P>(
   };
 
   const WrapperComponent: React.FC<any> = (props) => {
-    const isMountedRef = React.useRef(true);
-    const [, setDummy] = React.useState(false);
-    React.useEffect(() => {
+    const isMountedRef = useRef(true);
+    const [, setDummy] = useState(false);
+    useEffect(() => {
       const promiseO = cachedLoad();
       if (promiseO !== undefined) {
         promiseO.then(() => {
