@@ -1,6 +1,6 @@
 import { css } from '@emotion/css';
 import { useTheme } from '@emotion/react';
-import { useDropdownMenu } from '@restart/ui/esm/DropdownMenu';
+import { useDropdownMenu } from '@restart/ui/DropdownMenu';
 import { memo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 

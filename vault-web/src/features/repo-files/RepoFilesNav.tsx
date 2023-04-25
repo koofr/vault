@@ -1,7 +1,7 @@
 import { css } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import Dropdown from '@restart/ui/Dropdown';
-import { useDropdownToggle } from '@restart/ui/esm/DropdownToggle';
+import { useDropdownToggle } from '@restart/ui/DropdownToggle';
 import { memo, useState } from 'react';
 
 import { ReactComponent as AddInverseIcon } from '../../assets/images/add-inverse.svg';
