@@ -1,7 +1,11 @@
-import { useDocumentSize } from './DocumentSize';
+import { DocumentSizeInfo, useDocumentSize } from './DocumentSize';
+
+export function isDocumentSizeMobile(documentSize: DocumentSizeInfo): boolean {
+  return documentSize.width < 768;
+}
 
 export function useIsMobile(): boolean {
   const documentSize = useDocumentSize();
 
-  return documentSize.width < 768;
+  return isDocumentSizeMobile(documentSize);
 }

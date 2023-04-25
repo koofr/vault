@@ -15,8 +15,8 @@ export const repoFilesDetailsLink = (repoId: string, path: string): To => ({
 export const fileHasPdfViewer = (file: RepoFile): boolean =>
   file.iconType === 'Pdf' && !file.nameError;
 
-export const fileHasDetails = (file: RepoFile): boolean =>
-  fileHasPdfViewer(file);
+export const fileHasTextEditor = (file: RepoFile): boolean =>
+  (file.iconType === 'Text' || file.iconType === 'Code') && !file.nameError;
 
-export const pdfViewerUrl = (fileUrl: string): string =>
-  '/pdfjs-3.5.141/web/viewer.html?file=' + encodeURIComponent(fileUrl);
+export const fileHasDetails = (file: RepoFile): boolean =>
+  fileHasPdfViewer(file) || fileHasTextEditor(file);

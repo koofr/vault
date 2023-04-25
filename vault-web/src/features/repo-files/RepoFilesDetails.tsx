@@ -1,24 +1,60 @@
-import { css } from '@emotion/css';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import { useDocumentSize } from '../../components/DocumentSize';
+import {
+  DocumentSizeInfo,
+  useDocumentSize,
+} from '../../components/DocumentSize';
 import { ErrorComponent } from '../../components/ErrorComponent';
 import { LoadingCircle } from '../../components/LoadingCircle';
+import { PdfViewer } from '../../components/PdfViewer';
+import { TextEditor } from '../../components/TextEditor';
 import { DashboardNavbar } from '../../components/dashboard/DashboardNavbar';
 import { getNavbarHeight } from '../../components/navbar/Navbar';
 import { NavbarClose } from '../../components/navbar/NavbarClose';
 import { useSingleNavbarBreadcrumb } from '../../components/navbar/useSingleNavbarBreadcrumb';
-import { useIsMobile } from '../../components/useIsMobile';
-import { Repo } from '../../vault-wasm/vault-wasm';
+import { isDocumentSizeMobile } from '../../components/useIsMobile';
+import { Repo, RepoFile } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
 
-import { fileHasPdfViewer, pdfViewerUrl, repoFilesLink } from './selectors';
+import {
+  fileHasPdfViewer,
+  fileHasTextEditor,
+  repoFilesLink,
+} from './selectors';
+
+const getContentEl = (
+  file: RepoFile | undefined,
+  blobUrl: string | undefined,
+  documentSize: DocumentSizeInfo
+): React.ReactElement | undefined => {
+  if (file === undefined || blobUrl === undefined) {
+    return undefined;
+  }
+
+  const isMobile = isDocumentSizeMobile(documentSize);
+  const width = documentSize.width;
+  const height = documentSize.height - getNavbarHeight(isMobile);
+
+  if (fileHasPdfViewer(file)) {
+    return <PdfViewer blobUrl={blobUrl} width={width} height={height} />;
+  } else if (fileHasTextEditor(file)) {
+    return (
+      <TextEditor
+        fileName={file.name}
+        blobUrl={blobUrl}
+        width={width}
+        height={height}
+      />
+    );
+  }
+
+  return undefined;
+};
 
 const RepoFilesDetailsInner = memo<{ repo: Repo; path: string }>(
   ({ repo, path }) => {
-    const isMobile = useIsMobile();
     const repoId = repo.id;
     const webVault = useWebVault();
     const detailsId = useMemo(() => {
@@ -70,12 +106,7 @@ const RepoFilesDetailsInner = memo<{ repo: Repo; path: string }>(
     const navbarHeader = useSingleNavbarBreadcrumb(file?.name ?? '');
     const documentSize = useDocumentSize();
 
-    const viewerWidth = documentSize.width;
-    const viewerHeight = documentSize.height - getNavbarHeight(isMobile);
-    const viewerUrl =
-      file !== undefined && fileHasPdfViewer(file) && blobUrl !== undefined
-        ? pdfViewerUrl(blobUrl)
-        : undefined;
+    const contentEl = getContentEl(file, blobUrl, documentSize);
 
     return (
       <>
@@ -90,7 +121,7 @@ const RepoFilesDetailsInner = memo<{ repo: Repo; path: string }>(
               }
             />
           }
-          noShadow={viewerUrl !== undefined}
+          noShadow={contentEl !== undefined}
         />
 
         <main
@@ -102,20 +133,8 @@ const RepoFilesDetailsInner = memo<{ repo: Repo; path: string }>(
         >
           {info?.status.type === 'Error' ? (
             <ErrorComponent error={info.status.error} />
-          ) : viewerUrl !== undefined ? (
-            <div>
-              <iframe
-                title="Viewer"
-                id="viewerIframe"
-                src={viewerUrl}
-                width={viewerWidth}
-                height={viewerHeight}
-                className={css`
-                  border: none;
-                  display: block;
-                `}
-              />
-            </div>
+          ) : contentEl !== undefined ? (
+            contentEl
           ) : info?.status.type === 'Loading' ||
             info?.status.type === 'Reloading' ? (
             <LoadingCircle />
