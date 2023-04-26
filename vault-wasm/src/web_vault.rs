@@ -16,6 +16,7 @@ use crate::browser_secure_storage::BrowserSecureStorage;
 use crate::dto;
 use crate::helpers;
 use crate::uploadable::Uploadable;
+use crate::web_subscription::WebSubscription;
 
 #[wasm_bindgen(typescript_custom_section)]
 const FILE_STREAM: &'static str = r#"
@@ -141,8 +142,7 @@ pub struct WebVault {
     vault: Arc<vault_core::Vault>,
     errors: Arc<WebVaultErrors>,
     subscription_data: SubscriptionData,
-    subscription_data_cleanups: Arc<Mutex<HashMap<u32, Box<dyn Fn() + Send + Sync + 'static>>>>,
-    window: web_sys::Window,
+    subscription: WebSubscription,
 }
 
 #[wasm_bindgen]
@@ -177,11 +177,10 @@ impl WebVault {
         let errors = Arc::new(WebVaultErrors::new(vault.clone()));
 
         Self {
-            vault,
+            vault: vault.clone(),
             errors,
             subscription_data: SubscriptionData::default(),
-            subscription_data_cleanups: Arc::new(Mutex::new(HashMap::new())),
-            window: web_sys::window().unwrap(),
+            subscription: WebSubscription::new(vault.clone()),
         }
     }
 
@@ -204,59 +203,8 @@ impl WebVault {
         subscription_data: Arc<Mutex<HashMap<u32, T>>>,
         generate_data: impl Fn(Arc<vault_core::Vault>) -> T + 'static,
     ) -> u32 {
-        let window = self.window.clone();
-
-        let id = self.vault.get_next_id();
-
-        let generate_data = Arc::new(generate_data);
-
-        let callback_vault = self.vault.clone();
-        let callback_subscription_data = subscription_data.clone();
-        let callback_generate_data = generate_data.clone();
-
-        let store_callback: Box<dyn Fn() + 'static> = Box::new(move || {
-            let new_value = callback_generate_data(callback_vault.clone());
-
-            let callback_subscription_data = callback_subscription_data.clone();
-            let mut subscription_data = callback_subscription_data.lock().unwrap();
-            let current_data = subscription_data.get(&id);
-
-            if current_data.is_none() || new_value != *current_data.unwrap() {
-                subscription_data.insert(id, new_value.clone());
-
-                // unlock subscription_data before calling the callback
-                drop(subscription_data);
-
-                window.set_timeout_with_callback(&js_callback).unwrap();
-            }
-        });
-        let store_callback: Box<dyn Fn() + Send + Sync + 'static> = unsafe {
-            Box::from_raw(Box::into_raw(store_callback) as *mut (dyn Fn() + Send + Sync + 'static))
-        };
-
-        self.vault.on(id, events, store_callback);
-
-        subscription_data
-            .lock()
-            .unwrap()
-            .insert(id, generate_data(self.vault.clone()));
-
-        let cleanup_subscription_data = subscription_data.clone();
-
-        let cleanup = Box::new(move || {
-            cleanup_subscription_data
-                .clone()
-                .lock()
-                .unwrap()
-                .remove(&id);
-        });
-
-        self.subscription_data_cleanups
-            .lock()
-            .unwrap()
-            .insert(id, cleanup);
-
-        id
+        self.subscription
+            .subscribe(events, js_callback, subscription_data, generate_data)
     }
 
     fn get_data<T: Clone + PartialEq + Send>(
@@ -264,7 +212,7 @@ impl WebVault {
         id: u32,
         subscription_data: Arc<Mutex<HashMap<u32, T>>>,
     ) -> Option<T> {
-        subscription_data.lock().unwrap().get(&id).cloned()
+        self.subscription.get_data(id, subscription_data)
     }
 
     fn get_data_js<T: Clone + PartialEq + Send + Serialize, Out: From<JsValue> + Into<JsValue>>(
@@ -272,18 +220,12 @@ impl WebVault {
         id: u32,
         subscription_data: Arc<Mutex<HashMap<u32, T>>>,
     ) -> Out {
-        to_js(&self.get_data(id, subscription_data))
+        to_js(&self.subscription.get_data(id, subscription_data))
     }
 
     #[wasm_bindgen(js_name = unsubscribe)]
     pub fn unsubscribe(&self, id: u32) {
-        self.vault.remove_listener(id);
-
-        let cleanup = self.subscription_data_cleanups.lock().unwrap().remove(&id);
-
-        if let Some(cleanup) = cleanup {
-            cleanup();
-        }
+        self.subscription.unsubscribe(id)
     }
 
     // lifecycle

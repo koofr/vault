@@ -6,4 +6,5 @@ pub mod console;
 pub mod dto;
 pub mod helpers;
 pub mod uploadable;
+pub mod web_subscription;
 pub mod web_vault;
