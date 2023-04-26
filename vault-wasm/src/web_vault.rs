@@ -207,7 +207,18 @@ impl WebVault {
             .subscribe(events, js_callback, subscription_data, generate_data)
     }
 
-    fn get_data<T: Clone + PartialEq + Send>(
+    fn subscribe_changed<T: Clone + Send + 'static>(
+        &self,
+        events: &[vault_core::store::Event],
+        js_callback: js_sys::Function,
+        subscription_data: Arc<Mutex<HashMap<u32, T>>>,
+        generate_data: impl Fn(Arc<vault_core::Vault>, hash_map::Entry<'_, u32, T>) -> bool + 'static,
+    ) -> u32 {
+        self.subscription
+            .subscribe_changed(events, js_callback, subscription_data, generate_data)
+    }
+
+    fn get_data<T: Clone + Send>(
         &self,
         id: u32,
         subscription_data: Arc<Mutex<HashMap<u32, T>>>,
@@ -215,7 +226,7 @@ impl WebVault {
         self.subscription.get_data(id, subscription_data)
     }
 
-    fn get_data_js<T: Clone + PartialEq + Send + Serialize, Out: From<JsValue> + Into<JsValue>>(
+    fn get_data_js<T: Clone + Send + Serialize, Out: From<JsValue> + Into<JsValue>>(
         &self,
         id: u32,
         subscription_data: Arc<Mutex<HashMap<u32, T>>>,

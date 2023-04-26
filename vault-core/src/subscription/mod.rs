@@ -1,4 +1,5 @@
 use std::{
+    collections::hash_map,
     collections::HashMap,
     sync::{Arc, Mutex},
 };
@@ -25,6 +26,35 @@ impl Subscription {
         subscription_data: Arc<Mutex<HashMap<u32, T>>>,
         generate_data: impl Fn(Arc<Vault>) -> T + 'static,
     ) -> u32 {
+        self.subscribe_changed(events, callback, subscription_data, move |vault, entry| {
+            let new_data = generate_data(vault);
+
+            match entry {
+                hash_map::Entry::Occupied(mut o) => {
+                    if &new_data == o.get() {
+                        false
+                    } else {
+                        o.insert(new_data);
+
+                        true
+                    }
+                }
+                hash_map::Entry::Vacant(v) => {
+                    v.insert(new_data);
+
+                    true
+                }
+            }
+        })
+    }
+
+    pub fn subscribe_changed<T: Clone + Send + 'static>(
+        &self,
+        events: &[store::Event],
+        callback: Box<dyn Fn() + 'static>,
+        subscription_data: Arc<Mutex<HashMap<u32, T>>>,
+        generate_data: impl Fn(Arc<Vault>, hash_map::Entry<'_, u32, T>) -> bool + 'static,
+    ) -> u32 {
         let id = self.vault.get_next_id();
 
         let generate_data = Arc::new(generate_data);
@@ -34,18 +64,14 @@ impl Subscription {
         let callback_generate_data = generate_data.clone();
 
         let store_callback: Box<dyn Fn() + 'static> = Box::new(move || {
-            let new_value = callback_generate_data(callback_vault.clone());
-
             let callback_subscription_data = callback_subscription_data.clone();
             let mut subscription_data = callback_subscription_data.lock().unwrap();
-            let current_data = subscription_data.get(&id);
+            let changed =
+                callback_generate_data(callback_vault.clone(), subscription_data.entry(id));
 
-            if current_data.is_none() || new_value != *current_data.unwrap() {
-                subscription_data.insert(id, new_value.clone());
+            drop(subscription_data);
 
-                // unlock subscription_data before calling the callback
-                drop(subscription_data);
-
+            if changed {
                 callback();
             }
         });
@@ -54,11 +80,6 @@ impl Subscription {
         };
 
         self.vault.on(id, events, store_callback);
-
-        subscription_data
-            .lock()
-            .unwrap()
-            .insert(id, generate_data(self.vault.clone()));
 
         let cleanup_subscription_data = subscription_data.clone();
 
@@ -72,10 +93,13 @@ impl Subscription {
 
         self.cleanups.lock().unwrap().insert(id, cleanup);
 
+        let mut subscription_data = subscription_data.lock().unwrap();
+        let _ = generate_data(self.vault.clone(), subscription_data.entry(id));
+
         id
     }
 
-    pub fn get_data<T: Clone + PartialEq + Send>(
+    pub fn get_data<T: Clone + Send>(
         &self,
         id: u32,
         subscription_data: Arc<Mutex<HashMap<u32, T>>>,
