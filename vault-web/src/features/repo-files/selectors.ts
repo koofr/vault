@@ -13,10 +13,18 @@ export const repoFilesDetailsLink = (repoId: string, path: string): To => ({
 });
 
 export const fileHasPdfViewer = (file: RepoFile): boolean =>
-  file.iconType === 'Pdf' && !file.nameError;
+  file.ext === 'pdf' && !file.nameError;
 
 export const fileHasTextEditor = (file: RepoFile): boolean =>
   (file.iconType === 'Text' || file.iconType === 'Code') && !file.nameError;
 
+export const fileHasImageViewer = (file: RepoFile): boolean =>
+  (file.ext === 'jpg' ||
+    file.ext === 'jpeg' ||
+    file.ext === 'gif' ||
+    file.ext === 'png' ||
+    file.ext === 'svg') &&
+  !file.nameError;
+
 export const fileHasDetails = (file: RepoFile): boolean =>
-  fileHasPdfViewer(file) || fileHasTextEditor(file);
+  fileHasPdfViewer(file) || fileHasTextEditor(file) || fileHasImageViewer(file);

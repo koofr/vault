@@ -7,6 +7,7 @@ import {
   useDocumentSize,
 } from '../../components/DocumentSize';
 import { ErrorComponent } from '../../components/ErrorComponent';
+import { ImageViewer } from '../../components/ImageViewer';
 import { LoadingCircle } from '../../components/LoadingCircle';
 import { PdfViewer } from '../../components/PdfViewer';
 import { TextEditor } from '../../components/TextEditor';
@@ -20,6 +21,7 @@ import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
 
 import {
+  fileHasImageViewer,
   fileHasPdfViewer,
   fileHasTextEditor,
   repoFilesLink,
@@ -65,6 +67,29 @@ export const RepoFilesDetailsTextEditor = memo<{
   );
 });
 
+export const RepoFilesDetailsImageViewer = memo<{
+  detailsId: number;
+  file: RepoFile;
+  contentStatus: Status | undefined;
+  width: number;
+  height: number;
+}>(({ detailsId, file, contentStatus, width, height }) => {
+  const blobUrl = useRepoFilesDetailsBlobUrl(detailsId, file);
+
+  return contentStatus === undefined ||
+    contentStatus.type === 'Loading' ||
+    blobUrl === undefined ? (
+    <LoadingCircle />
+  ) : (
+    <ImageViewer
+      fileName={file.name}
+      blobUrl={blobUrl}
+      width={width}
+      height={height}
+    />
+  );
+});
+
 const getContentEl = (
   detailsId: number,
   file: RepoFile | undefined,
@@ -91,6 +116,16 @@ const getContentEl = (
   } else if (fileHasTextEditor(file)) {
     return (
       <RepoFilesDetailsTextEditor
+        detailsId={detailsId}
+        file={file}
+        contentStatus={contentStatus}
+        width={width}
+        height={height}
+      />
+    );
+  } else if (fileHasImageViewer(file)) {
+    return (
+      <RepoFilesDetailsImageViewer
         detailsId={detailsId}
         file={file}
         contentStatus={contentStatus}
