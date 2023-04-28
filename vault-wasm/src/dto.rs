@@ -468,6 +468,7 @@ pub struct RepoFile {
     pub name: String,
     #[serde(rename = "nameError")]
     pub name_error: bool,
+    pub ext: Option<String>,
     #[serde(rename = "type")]
     pub typ: RepoFileType,
     #[serde(rename = "sizeDisplay")]
@@ -500,6 +501,7 @@ impl From<&repo_files_state::RepoFile> for RepoFile {
                 repo_files_state::RepoFileName::Decrypted { .. } => false,
                 repo_files_state::RepoFileName::DecryptError { .. } => true,
             },
+            ext: file.ext.clone(),
             typ: (&file.typ).into(),
             size_display: match &file.typ {
                 repo_files_state::RepoFileType::File => match file.size {

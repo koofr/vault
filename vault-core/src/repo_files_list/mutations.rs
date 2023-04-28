@@ -113,6 +113,7 @@ mod tests {
                         name: String::from(""),
                         name_lower: String::from("")
                     },
+                    ext: None,
                     typ: RepoFileType::Dir,
                     size: RepoFileSize::Decrypted { size: 0 },
                     modified: 0,
@@ -146,6 +147,7 @@ mod tests {
                         name: String::from("D1"),
                         name_lower: String::from("d1")
                     },
+                    ext: None,
                     typ: RepoFileType::Dir,
                     size: RepoFileSize::Decrypted { size: 0 },
                     modified: 1,
@@ -185,6 +187,7 @@ mod tests {
                             "non-zero trailing bits at 1"
                         )),
                     },
+                    ext: None,
                     typ: RepoFileType::Dir,
                     size: RepoFileSize::Decrypted { size: 0 },
                     modified: 1,
@@ -218,6 +221,7 @@ mod tests {
                         name: String::from("F1"),
                         name_lower: String::from("f1")
                     },
+                    ext: None,
                     typ: RepoFileType::File,
                     size: RepoFileSize::Decrypted { size: 52 },
                     modified: 1,
@@ -262,6 +266,7 @@ mod tests {
                         name: String::from("F1"),
                         name_lower: String::from("f1")
                     },
+                    ext: None,
                     typ: RepoFileType::File,
                     size: RepoFileSize::Decrypted { size: 52 },
                     modified: 1,
@@ -301,6 +306,7 @@ mod tests {
                             "non-zero trailing bits at 1"
                         )),
                     },
+                    ext: None,
                     typ: RepoFileType::File,
                     size: RepoFileSize::Decrypted { size: 52 },
                     modified: 1,

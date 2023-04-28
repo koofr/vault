@@ -161,14 +161,20 @@ pub fn decrypt_file(
         },
         RemoteFileType::Dir => RepoFileSize::Decrypted { size: 0 },
     };
-    let icon_type = match &remote_file.typ {
+    let (ext, icon_type) = match &remote_file.typ {
         RemoteFileType::File => match &name {
-            RepoFileName::Decrypted { name_lower, .. } => name_utils::name_to_ext(name_lower)
-                .and_then(ext_to_file_icon_type)
-                .unwrap_or(FileIconType::Generic),
-            RepoFileName::DecryptError { .. } => FileIconType::Generic,
+            RepoFileName::Decrypted { name_lower, .. } => {
+                let ext = name_utils::name_to_ext(name_lower);
+
+                (
+                    ext.map(str::to_string),
+                    ext.and_then(ext_to_file_icon_type)
+                        .unwrap_or(FileIconType::Generic),
+                )
+            }
+            RepoFileName::DecryptError { .. } => (None, FileIconType::Generic),
         },
-        RemoteFileType::Dir => FileIconType::Folder,
+        RemoteFileType::Dir => (None, FileIconType::Folder),
     };
 
     RepoFile {
@@ -178,6 +184,7 @@ pub fn decrypt_file(
         repo_id: repo_id.to_owned(),
         path,
         name,
+        ext,
         typ: (&remote_file.typ).into(),
         size,
         modified: remote_file.modified,
@@ -198,6 +205,7 @@ pub fn get_root_file(repo_id: &str, remote_file: &RemoteFile) -> RepoFile {
             name: String::from(""),
             name_lower: String::from(""),
         },
+        ext: None,
         typ: super::state::RepoFileType::Dir,
         size: RepoFileSize::Decrypted { size: 0 },
         modified: 0,
@@ -259,6 +267,7 @@ mod tests {
                     name: String::from(""),
                     name_lower: String::from("")
                 },
+                ext: None,
                 typ: RepoFileType::Dir,
                 size: RepoFileSize::Decrypted { size: 0 },
                 modified: 0,
@@ -289,6 +298,7 @@ mod tests {
                     name: String::from("D1"),
                     name_lower: String::from("d1")
                 },
+                ext: None,
                 typ: RepoFileType::Dir,
                 size: RepoFileSize::Decrypted { size: 0 },
                 modified: 1,
@@ -323,6 +333,7 @@ mod tests {
                         "non-zero trailing bits at 1"
                     )),
                 },
+                ext: None,
                 typ: RepoFileType::Dir,
                 size: RepoFileSize::Decrypted { size: 0 },
                 modified: 1,
@@ -336,27 +347,28 @@ mod tests {
         let cipher = create_cipher();
         let remote_file = remote_files_test_helpers::create_file(
             "m1",
-            &format!("/Vault/{}", cipher.encrypt_filename("F1")),
+            &format!("/Vault/{}", cipher.encrypt_filename("Image.JPG")),
         );
 
         assert_eq!(
             decrypt_file("r1", "/", &remote_file, &cipher),
             RepoFile {
-                id: String::from("r1:/F1"),
+                id: String::from("r1:/Image.JPG"),
                 mount_id: remote_file.mount_id.clone(),
                 remote_path: remote_file.path.clone(),
                 repo_id: String::from("r1",),
                 path: RepoFilePath::Decrypted {
-                    path: String::from("/F1")
+                    path: String::from("/Image.JPG")
                 },
                 name: RepoFileName::Decrypted {
-                    name: String::from("F1"),
-                    name_lower: String::from("f1")
+                    name: String::from("Image.JPG"),
+                    name_lower: String::from("image.jpg")
                 },
+                ext: Some(String::from("jpg")),
                 typ: RepoFileType::File,
                 size: RepoFileSize::Decrypted { size: 52 },
                 modified: 1,
-                icon_type: FileIconType::Generic,
+                icon_type: FileIconType::Image,
             }
         )
     }
@@ -388,6 +400,7 @@ mod tests {
                         "non-zero trailing bits at 1"
                     )),
                 },
+                ext: None,
                 typ: RepoFileType::File,
                 size: RepoFileSize::DecryptError {
                     encrypted_size: 10,
