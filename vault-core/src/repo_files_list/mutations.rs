@@ -114,6 +114,7 @@ mod tests {
                         name_lower: String::from("")
                     },
                     ext: None,
+                    content_type: None,
                     typ: RepoFileType::Dir,
                     size: RepoFileSize::Decrypted { size: 0 },
                     modified: 0,
@@ -148,6 +149,7 @@ mod tests {
                         name_lower: String::from("d1")
                     },
                     ext: None,
+                    content_type: None,
                     typ: RepoFileType::Dir,
                     size: RepoFileSize::Decrypted { size: 0 },
                     modified: 1,
@@ -188,6 +190,7 @@ mod tests {
                         )),
                     },
                     ext: None,
+                    content_type: None,
                     typ: RepoFileType::Dir,
                     size: RepoFileSize::Decrypted { size: 0 },
                     modified: 1,
@@ -222,6 +225,7 @@ mod tests {
                         name_lower: String::from("f1")
                     },
                     ext: None,
+                    content_type: None,
                     typ: RepoFileType::File,
                     size: RepoFileSize::Decrypted { size: 52 },
                     modified: 1,
@@ -267,6 +271,7 @@ mod tests {
                         name_lower: String::from("f1")
                     },
                     ext: None,
+                    content_type: None,
                     typ: RepoFileType::File,
                     size: RepoFileSize::Decrypted { size: 52 },
                     modified: 1,
@@ -307,6 +312,7 @@ mod tests {
                         )),
                     },
                     ext: None,
+                    content_type: None,
                     typ: RepoFileType::File,
                     size: RepoFileSize::Decrypted { size: 52 },
                     modified: 1,

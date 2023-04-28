@@ -17,8 +17,15 @@ export function supportsRequestStreams() {
   return duplexAccessed && !hasContentType;
 }
 
-export function streamToBlob(stream) {
-  const r = new Response(stream);
+export function streamToBlob(stream, contentTypeOpt) {
+  const headers = {};
+  if (contentTypeOpt !== undefined) {
+    headers["Content-Type"] = contentTypeOpt;
+  }
+
+  const r = new Response(stream, {
+    headers,
+  });
 
   return r.blob();
 }

@@ -95,7 +95,7 @@ impl BrowserHttpClient {
 
         match http_request.body {
             Some(HttpRequestBody::Bytes(bytes)) => {
-                let blob = helpers::bytes_to_blob(&bytes);
+                let blob = helpers::bytes_to_blob(&bytes, None);
 
                 opts.body(Some(&blob));
             }
@@ -167,8 +167,8 @@ impl BrowserHttpClient {
         let body = http_request.body.take();
 
         let blob = match body {
-            Some(HttpRequestBody::Bytes(bytes)) => helpers::bytes_to_blob(&bytes),
-            Some(HttpRequestBody::Reader(reader)) => helpers::reader_to_blob(reader)
+            Some(HttpRequestBody::Bytes(bytes)) => helpers::bytes_to_blob(&bytes, None),
+            Some(HttpRequestBody::Reader(reader)) => helpers::reader_to_blob(reader, None)
                 .await
                 .map_err(|_| HttpError::ResponseError(String::from("unknown network error")))?,
             None => JsValue::UNDEFINED,

@@ -784,6 +784,7 @@ impl WebVault {
             &file_reader.name,
             file_reader.reader,
             file_reader.size,
+            file_reader.content_type.as_deref(),
             force_blob,
         )
         .await

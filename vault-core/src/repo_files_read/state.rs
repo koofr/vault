@@ -7,6 +7,7 @@ use crate::repo_files::state::RepoFileType;
 pub struct RepoFileReader {
     pub name: String,
     pub size: Option<i64>,
+    pub content_type: Option<String>,
     pub reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
 }
 

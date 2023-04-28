@@ -2,7 +2,10 @@ use std::collections::HashSet;
 
 use crate::{
     cipher::{data_cipher::decrypt_size, Cipher},
-    file_types::file_icon_type::{ext_to_file_icon_type, FileIconType},
+    file_types::{
+        content_type::ext_to_content_type,
+        file_icon_type::{ext_to_file_icon_type, FileIconType},
+    },
     remote_files::{
         selectors as remote_files_selectors,
         state::{RemoteFile, RemoteFileType},
@@ -161,20 +164,21 @@ pub fn decrypt_file(
         },
         RemoteFileType::Dir => RepoFileSize::Decrypted { size: 0 },
     };
-    let (ext, icon_type) = match &remote_file.typ {
+    let (ext, content_type, icon_type) = match &remote_file.typ {
         RemoteFileType::File => match &name {
             RepoFileName::Decrypted { name_lower, .. } => {
                 let ext = name_utils::name_to_ext(name_lower);
 
                 (
                     ext.map(str::to_string),
+                    ext.and_then(ext_to_content_type).map(str::to_string),
                     ext.and_then(ext_to_file_icon_type)
                         .unwrap_or(FileIconType::Generic),
                 )
             }
-            RepoFileName::DecryptError { .. } => (None, FileIconType::Generic),
+            RepoFileName::DecryptError { .. } => (None, None, FileIconType::Generic),
         },
-        RemoteFileType::Dir => (None, FileIconType::Folder),
+        RemoteFileType::Dir => (None, None, FileIconType::Folder),
     };
 
     RepoFile {
@@ -185,6 +189,7 @@ pub fn decrypt_file(
         path,
         name,
         ext,
+        content_type,
         typ: (&remote_file.typ).into(),
         size,
         modified: remote_file.modified,
@@ -206,6 +211,7 @@ pub fn get_root_file(repo_id: &str, remote_file: &RemoteFile) -> RepoFile {
             name_lower: String::from(""),
         },
         ext: None,
+        content_type: None,
         typ: super::state::RepoFileType::Dir,
         size: RepoFileSize::Decrypted { size: 0 },
         modified: 0,
@@ -268,6 +274,7 @@ mod tests {
                     name_lower: String::from("")
                 },
                 ext: None,
+                content_type: None,
                 typ: RepoFileType::Dir,
                 size: RepoFileSize::Decrypted { size: 0 },
                 modified: 0,
@@ -299,6 +306,7 @@ mod tests {
                     name_lower: String::from("d1")
                 },
                 ext: None,
+                content_type: None,
                 typ: RepoFileType::Dir,
                 size: RepoFileSize::Decrypted { size: 0 },
                 modified: 1,
@@ -334,6 +342,7 @@ mod tests {
                     )),
                 },
                 ext: None,
+                content_type: None,
                 typ: RepoFileType::Dir,
                 size: RepoFileSize::Decrypted { size: 0 },
                 modified: 1,
@@ -365,6 +374,7 @@ mod tests {
                     name_lower: String::from("image.jpg")
                 },
                 ext: Some(String::from("jpg")),
+                content_type: Some(String::from("image/jpeg")),
                 typ: RepoFileType::File,
                 size: RepoFileSize::Decrypted { size: 52 },
                 modified: 1,
@@ -401,6 +411,7 @@ mod tests {
                     )),
                 },
                 ext: None,
+                content_type: None,
                 typ: RepoFileType::File,
                 size: RepoFileSize::DecryptError {
                     encrypted_size: 10,

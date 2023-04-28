@@ -139,6 +139,7 @@ pub struct RepoFile {
     pub path: RepoFilePath,
     pub name: RepoFileName,
     pub ext: Option<String>,
+    pub content_type: Option<String>,
     pub typ: RepoFileType,
     pub size: RepoFileSize,
     pub modified: i64,

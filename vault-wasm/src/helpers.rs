@@ -16,7 +16,7 @@ extern "C" {
     pub fn supports_request_streams() -> bool;
 
     #[wasm_bindgen(js_name = "streamToBlob")]
-    pub fn stream_to_blob(stream: JsValue) -> js_sys::Promise;
+    pub fn stream_to_blob(stream: JsValue, content_type: Option<&str>) -> js_sys::Promise;
 
     #[wasm_bindgen(js_name = "supportsReadableByteStream")]
     pub fn supports_readable_byte_stream() -> bool;
@@ -34,14 +34,23 @@ pub fn bytes_to_array(bytes: &[u8]) -> JsValue {
     array.into()
 }
 
-pub fn bytes_to_blob(bytes: &[u8]) -> JsValue {
+pub fn bytes_to_blob(bytes: &[u8], content_type: Option<&str>) -> JsValue {
     let array = bytes_to_array(bytes);
 
     let blob_parts_array = js_sys::Array::new();
 
     blob_parts_array.push(&array);
 
-    web_sys::Blob::new_with_u8_array_sequence(&blob_parts_array)
+    let mut options = web_sys::BlobPropertyBag::new();
+
+    match content_type {
+        Some(content_type) => {
+            options.type_(content_type);
+        }
+        None => {}
+    };
+
+    web_sys::Blob::new_with_u8_array_sequence_and_options(&blob_parts_array, &options)
         .unwrap()
         .into()
 }
@@ -52,6 +61,7 @@ pub struct ReaderToBlobError(String);
 
 pub async fn reader_to_blob(
     mut reader: Pin<Box<dyn AsyncRead + Send + 'static>>,
+    content_type: Option<&str>,
 ) -> Result<JsValue, ReaderToBlobError> {
     if supports_readable_byte_stream() {
         // it's better to convert readable stream to blob in javascript so that
@@ -60,7 +70,7 @@ pub async fn reader_to_blob(
         let stream_value = JsValue::from(stream);
 
         // TODO handle error
-        JsFuture::from(stream_to_blob(stream_value))
+        JsFuture::from(stream_to_blob(stream_value, content_type))
             .await
             .map_err(|_| ReaderToBlobError(String::from("unknown network error")))
     } else {
@@ -71,7 +81,7 @@ pub async fn reader_to_blob(
             .await
             .map_err(|e| ReaderToBlobError(e.to_string()))?;
 
-        Ok(bytes_to_blob(&buf))
+        Ok(bytes_to_blob(&buf, content_type))
     }
 }
 
@@ -111,6 +121,7 @@ pub async fn reader_to_file_stream(
     name: &str,
     reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
     size: Option<i64>,
+    content_type: Option<&str>,
     force_blob: bool,
 ) -> Result<JsValue, ReaderToFileStreamError> {
     let file_stream = js_sys::Object::new();
@@ -122,8 +133,7 @@ pub async fn reader_to_file_stream(
     }
 
     if supports_readable_byte_stream() && !force_blob {
-        let stream =
-            ReadableStream::from_async_read(reader, 1024 * 1024);
+        let stream = ReadableStream::from_async_read(reader, 1024 * 1024);
 
         js_sys::Reflect::set(
             &file_stream,
@@ -132,7 +142,7 @@ pub async fn reader_to_file_stream(
         )
         .unwrap();
     } else {
-        let blob = reader_to_blob(reader).await?;
+        let blob = reader_to_blob(reader, content_type).await?;
 
         js_sys::Reflect::set(&file_stream, &JsValue::from("blob"), &JsValue::from(blob)).unwrap();
     }

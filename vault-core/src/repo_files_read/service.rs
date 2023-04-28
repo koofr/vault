@@ -57,6 +57,7 @@ impl RepoFilesReadService {
         mount_id: &str,
         remote_path: &str,
         name: &str,
+        content_type: Option<&str>,
         cipher: &Cipher,
     ) -> Result<RepoFileReader, GetFilesReaderError> {
         let encrypted_reader = self
@@ -72,6 +73,7 @@ impl RepoFilesReadService {
         Ok(RepoFileReader {
             name: name.to_owned(),
             size: Some(size),
+            content_type: content_type.map(str::to_string),
             reader: decrypt_reader,
         })
     }
@@ -84,8 +86,14 @@ impl RepoFilesReadService {
 
         let cipher = self.repos_service.get_cipher(&file.repo_id)?;
 
-        self.get_remote_file_reader(&file.mount_id, &file.remote_path, name, &cipher)
-            .await
+        self.get_remote_file_reader(
+            &file.mount_id,
+            &file.remote_path,
+            name,
+            file.content_type.as_deref(),
+            &cipher,
+        )
+        .await
     }
 
     async fn create_zip<W: AsyncWrite + Unpin>(
@@ -124,7 +132,13 @@ impl RepoFilesReadService {
                         .map_err(|err| std::io::Error::new(std::io::ErrorKind::Other, err))?;
 
                     let reader = self
-                        .get_remote_file_reader(&entry.mount_id, &entry.remote_path, "", &cipher)
+                        .get_remote_file_reader(
+                            &entry.mount_id,
+                            &entry.remote_path,
+                            "",
+                            None,
+                            &cipher,
+                        )
                         .await
                         .map_err(|err| std::io::Error::new(std::io::ErrorKind::Other, err))?;
 
@@ -314,6 +328,7 @@ impl RepoFilesReadService {
         Ok(RepoFileReader {
             name,
             size: None,
+            content_type: Some(String::from("application/zip")),
             reader,
         })
     }
