@@ -90,6 +90,8 @@ pub fn file_to_remote_zip_entry(file: &RepoFile) -> Result<RemoteZipEntry, Decry
 
 #[cfg(test)]
 mod tests {
+    use chrono::{Datelike, Timelike};
+
     use crate::{
         cipher::{errors::DecryptFilenameError, test_helpers as cipher_test_helpers},
         http::HttpError,
