@@ -764,13 +764,15 @@ impl WebVault {
         self.handle_result(self.vault.repo_files_load_files(repo_id, path).await)
     }
 
-    #[wasm_bindgen(js_name = repoFilesGetFileStream)]
-    pub async fn repo_files_get_file_stream(
+    async fn repo_file_reader_to_file_stream(
         &self,
-        file_id: &str,
+        file_reader: Result<
+            vault_core::repo_files_read::state::RepoFileReader,
+            vault_core::repo_files_read::errors::GetFilesReaderError,
+        >,
         force_blob: bool,
     ) -> FileStreamOption {
-        let file_reader = match self.vault.clone().repo_files_get_file_reader(file_id).await {
+        let file_reader = match file_reader {
             Ok(file_reader) => file_reader,
             Err(err) => {
                 self.handle_error(err);
@@ -794,6 +796,19 @@ impl WebVault {
         };
 
         FileStreamOption::from(file_stream)
+    }
+
+    #[wasm_bindgen(js_name = repoFilesGetFileStream)]
+    pub async fn repo_files_get_file_stream(
+        &self,
+        file_id: &str,
+        force_blob: bool,
+    ) -> FileStreamOption {
+        self.repo_file_reader_to_file_stream(
+            self.vault.clone().repo_files_get_file_reader(file_id).await,
+            force_blob,
+        )
+        .await
     }
 
     #[wasm_bindgen(js_name = repoFilesDeleteFile)]
@@ -1138,35 +1153,14 @@ impl WebVault {
         browser_id: u32,
         force_blob: bool,
     ) -> FileStreamOption {
-        let file_reader = match self
-            .vault
-            .clone()
-            .repo_files_browsers_get_selected_reader(browser_id)
-            .await
-        {
-            Ok(file_reader) => file_reader,
-            Err(err) => {
-                self.handle_error(err);
-                return JsValue::UNDEFINED.into();
-            }
-        };
-
-        let file_stream = match helpers::reader_to_file_stream(
-            &file_reader.name,
-            file_reader.reader,
-            file_reader.size,
+        self.repo_file_reader_to_file_stream(
+            self.vault
+                .clone()
+                .repo_files_browsers_get_selected_reader(browser_id)
+                .await,
             force_blob,
         )
         .await
-        {
-            Ok(file_stream) => file_stream,
-            Err(err) => {
-                self.handle_error(err);
-                return JsValue::UNDEFINED.into();
-            }
-        };
-
-        FileStreamOption::from(file_stream)
     }
 
     #[wasm_bindgen(js_name = repoFilesBrowsersCanCreateDir)]
@@ -1240,35 +1234,14 @@ impl WebVault {
         details_id: u32,
         force_blob: bool,
     ) -> FileStreamOption {
-        let file_reader = match self
-            .vault
-            .clone()
-            .repo_files_details_get_file_reader(details_id)
-            .await
-        {
-            Ok(file_reader) => file_reader,
-            Err(err) => {
-                self.handle_error(err);
-                return JsValue::UNDEFINED.into();
-            }
-        };
-
-        let file_stream = match helpers::reader_to_file_stream(
-            &file_reader.name,
-            file_reader.reader,
-            file_reader.size,
+        self.repo_file_reader_to_file_stream(
+            self.vault
+                .clone()
+                .repo_files_details_get_file_reader(details_id)
+                .await,
             force_blob,
         )
         .await
-        {
-            Ok(file_stream) => file_stream,
-            Err(err) => {
-                self.handle_error(err);
-                return JsValue::UNDEFINED.into();
-            }
-        };
-
-        FileStreamOption::from(file_stream)
     }
 
     // repo_files_move
