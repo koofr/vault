@@ -39,7 +39,8 @@ export const NavbarMain = memo<{
           box-shadow: ${noShadow
             ? `none`
             : `0 1px 3px 0 ${theme.colors.border}`};
-          border-bottom: 1px solid transparent;
+          border-bottom: 1px solid
+            ${noShadow ? theme.colors.border : 'transparent'};
           height: ${getNavbarHeight(theme.isMobile)}px;
           padding: 0 ${theme.isMobile ? theme.gutterMobile : theme.gutter};
         `,
