@@ -24,6 +24,36 @@ jobs:
           path: vault-web.tar.gz*
           retention-days: 30
 
+  cargo-test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cargo/registry
+          key: "cargo-registry-${{ hashFiles('**/Cargo.lock') }}"
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cargo/git
+          key: "cargo-index-${{ hashFiles('**/Cargo.lock') }}"
+      - uses: actions/cache@v3
+        with:
+          path: target
+          key: cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: "1.69.0"
+          override: true
+          profile: default
+          components: rustfmt
+      - name: Run cargo test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+
   playwright:
     timeout-minutes: 60
     runs-on: ubuntu-latest
@@ -73,7 +103,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
-    needs: [build, playwright]
+    needs: [build, cargo-test, playwright]
     steps:
       - uses: actions/download-artifact@v3
         with:
