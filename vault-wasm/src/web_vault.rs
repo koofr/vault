@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{hash_map, HashMap};
 use std::sync::{Arc, Mutex};
 
 use serde::Serialize;
@@ -38,6 +38,9 @@ extern "C" {
 
     #[wasm_bindgen(typescript_type = "File | Blob")]
     pub type FileOrBlob;
+
+    #[wasm_bindgen(typescript_type = "Uint8Array | undefined")]
+    pub type FileBytes;
 
     #[wasm_bindgen(typescript_type = "User | undefined")]
     pub type UserOption;
@@ -111,6 +114,14 @@ pub fn to_js<In: serde::ser::Serialize + ?Sized, Out: From<JsValue> + Into<JsVal
 
 type Data<T> = Arc<Mutex<HashMap<u32, T>>>;
 
+#[derive(Clone)]
+struct VersionedFileBytes {
+    value: JsValue,
+    version: u32,
+}
+
+unsafe impl Send for VersionedFileBytes {}
+
 #[derive(Default)]
 struct SubscriptionData {
     notifications: Data<Vec<dto::Notification>>,
@@ -133,6 +144,7 @@ struct SubscriptionData {
     repo_files_browsers_items: Data<Vec<dto::RepoFilesBrowserItem>>,
     repo_files_browsers_breadcrumbs: Data<Vec<dto::RepoFilesBreadcrumb>>,
     repo_files_details_info: Data<Option<dto::RepoFilesDetailsInfo>>,
+    repo_files_details_content_bytes: Data<VersionedFileBytes>,
     repo_files_move_info: Data<Option<dto::RepoFilesMoveInfo>>,
     space_usage: Data<Option<dto::SpaceUsage>>,
 }
@@ -1227,6 +1239,78 @@ impl WebVault {
     #[wasm_bindgen(js_name = repoFilesDetailsInfoData)]
     pub fn repo_files_details_info_data(&self, id: u32) -> RepoFilesDetailsInfoOption {
         self.get_data_js(id, self.subscription_data.repo_files_details_info.clone())
+    }
+
+    #[wasm_bindgen(js_name = repoFilesDetailsLoadContent)]
+    pub async fn repo_files_details_load_content(&self, details_id: u32) {
+        self.handle_result(
+            self.vault
+                .clone()
+                .repo_files_details_load_content(details_id)
+                .await,
+        );
+    }
+
+    #[wasm_bindgen(js_name = repoFilesDetailsContentBytesSubscribe)]
+    pub fn repo_files_details_content_bytes_subscribe(
+        &self,
+        details_id: u32,
+        cb: js_sys::Function,
+    ) -> u32 {
+        self.subscribe_changed(
+            &[Event::RepoFilesDetails],
+            cb,
+            self.subscription_data
+                .repo_files_details_content_bytes
+                .clone(),
+            move |vault, entry| {
+                vault.with_state(|state| {
+                    let (bytes, version) =
+                        vault_core::repo_files_details::selectors::select_content_bytes(
+                            state, details_id,
+                        );
+
+                    let get_value = || VersionedFileBytes {
+                        value: (match bytes {
+                            Some(bytes) => helpers::bytes_to_array(&bytes),
+                            None => JsValue::UNDEFINED,
+                        })
+                        .into(),
+                        version,
+                    };
+
+                    match entry {
+                        hash_map::Entry::Occupied(mut o) => {
+                            if version == o.get().version {
+                                return false;
+                            } else {
+                                o.insert(get_value());
+
+                                true
+                            }
+                        }
+                        hash_map::Entry::Vacant(v) => {
+                            v.insert(get_value());
+
+                            true
+                        }
+                    }
+                })
+            },
+        )
+    }
+
+    #[wasm_bindgen(js_name = repoFilesDetailsContentBytesData)]
+    pub fn repo_files_details_content_bytes_data(&self, id: u32) -> FileBytes {
+        self.get_data(
+            id,
+            self.subscription_data
+                .repo_files_details_content_bytes
+                .clone(),
+        )
+        .map(|data| data.value)
+        .unwrap_or(JsValue::UNDEFINED)
+        .into()
     }
 
     #[wasm_bindgen(js_name = repoFilesDetailsGetFileStream)]

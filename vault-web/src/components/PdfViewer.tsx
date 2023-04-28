@@ -5,11 +5,11 @@ export const pdfViewerUrl = (fileUrl: string): string =>
   '/pdfjs-3.5.141/web/viewer.html?file=' + encodeURIComponent(fileUrl);
 
 export const PdfViewer = memo<{
-  blobUrl: string;
+  url: string;
   width: number;
   height: number;
-}>(({ blobUrl, width, height }) => {
-  const viewerUrl = pdfViewerUrl(blobUrl);
+}>(({ url, width, height }) => {
+  const viewerUrl = pdfViewerUrl(url);
 
   return (
     <iframe

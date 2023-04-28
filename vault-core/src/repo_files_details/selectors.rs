@@ -88,6 +88,11 @@ pub fn select_info<'a>(state: &'a store::State, details_id: u32) -> Option<RepoF
                 _ => details.status.clone(),
             },
             file,
+            content_status: details
+                .location
+                .as_ref()
+                .map(|location| location.content.status.clone())
+                .unwrap_or(Status::Initial),
             can_download,
             can_copy,
             can_move,
@@ -104,4 +109,11 @@ pub fn select_file_id(state: &store::State, details_id: u32) -> Option<String> {
 pub fn select_file<'a>(state: &'a store::State, details_id: u32) -> Option<&'a RepoFile> {
     select_file_id(state, details_id)
         .and_then(|file_id| repo_files_selectors::select_file(state, &file_id))
+}
+
+pub fn select_content_bytes<'a>(state: &'a store::State, details_id: u32) -> (Option<&[u8]>, u32) {
+    select_details(state, details_id)
+        .and_then(|details| details.location.as_ref())
+        .map(|location| (location.content.bytes.as_deref(), location.content.version))
+        .unwrap_or((None, 0))
 }

@@ -1,4 +1,5 @@
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { css } from '@emotion/css';
+import { memo, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import {
@@ -14,7 +15,7 @@ import { getNavbarHeight } from '../../components/navbar/Navbar';
 import { NavbarClose } from '../../components/navbar/NavbarClose';
 import { useSingleNavbarBreadcrumb } from '../../components/navbar/useSingleNavbarBreadcrumb';
 import { isDocumentSizeMobile } from '../../components/useIsMobile';
-import { Repo, RepoFile } from '../../vault-wasm/vault-wasm';
+import { Repo, RepoFile, Status } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
 
@@ -23,13 +24,54 @@ import {
   fileHasTextEditor,
   repoFilesLink,
 } from './selectors';
+import { useRepoFilesDetailsBlobUrl } from './useRepoFilesDetailsBlobUrl';
+import { useRepoFilesDetailsString } from './useRepoFilesDetailsBytes';
+
+export const RepoFilesDetailsPdfViewer = memo<{
+  detailsId: number;
+  file: RepoFile;
+  width: number;
+  height: number;
+}>(({ detailsId, file, width, height }) => {
+  const blobUrl = useRepoFilesDetailsBlobUrl(detailsId, file);
+
+  return blobUrl !== undefined ? (
+    <PdfViewer url={blobUrl} width={width} height={height} />
+  ) : (
+    <LoadingCircle />
+  );
+});
+
+export const RepoFilesDetailsTextEditor = memo<{
+  detailsId: number;
+  file: RepoFile;
+  contentStatus: Status | undefined;
+  width: number;
+  height: number;
+}>(({ detailsId, file, contentStatus, width, height }) => {
+  const text = useRepoFilesDetailsString(detailsId, file);
+
+  return contentStatus === undefined ||
+    contentStatus.type === 'Loading' ||
+    text === undefined ? (
+    <LoadingCircle />
+  ) : (
+    <TextEditor
+      fileName={file.name}
+      text={text}
+      width={width}
+      height={height}
+    />
+  );
+});
 
 const getContentEl = (
+  detailsId: number,
   file: RepoFile | undefined,
-  blobUrl: string | undefined,
+  contentStatus: Status | undefined,
   documentSize: DocumentSizeInfo
 ): React.ReactElement | undefined => {
-  if (file === undefined || blobUrl === undefined) {
+  if (file === undefined) {
     return undefined;
   }
 
@@ -38,12 +80,20 @@ const getContentEl = (
   const height = documentSize.height - getNavbarHeight(isMobile);
 
   if (fileHasPdfViewer(file)) {
-    return <PdfViewer blobUrl={blobUrl} width={width} height={height} />;
+    return (
+      <RepoFilesDetailsPdfViewer
+        detailsId={detailsId}
+        file={file}
+        width={width}
+        height={height}
+      />
+    );
   } else if (fileHasTextEditor(file)) {
     return (
-      <TextEditor
-        fileName={file.name}
-        blobUrl={blobUrl}
+      <RepoFilesDetailsTextEditor
+        detailsId={detailsId}
+        file={file}
+        contentStatus={contentStatus}
         width={width}
         height={height}
       />
@@ -71,42 +121,15 @@ const RepoFilesDetailsInner = memo<{ repo: Repo; path: string }>(
       [detailsId]
     );
     const file = info?.file;
-    const fileId = file?.id;
-    const [blobUrl, setBlobUrl] = useState<string>();
-    const lastBlobUrl = useRef<string>();
-    useEffect(() => {
-      const getFile = async () => {
-        const stream = await webVault.repoFilesDetailsGetFileStream(
-          detailsId,
-          true
-        );
-
-        if (stream === undefined || stream.blob === undefined) {
-          return;
-        }
-
-        var blobUrl = URL.createObjectURL(stream.blob);
-
-        lastBlobUrl.current = blobUrl;
-        setBlobUrl(blobUrl);
-      };
-
-      if (fileId !== undefined) {
-        getFile();
-      }
-    }, [webVault, detailsId, fileId]);
-    useEffect(() => {
-      return () => {
-        if (lastBlobUrl.current !== undefined) {
-          URL.revokeObjectURL(lastBlobUrl.current);
-          lastBlobUrl.current = undefined;
-        }
-      };
-    }, [webVault]);
     const navbarHeader = useSingleNavbarBreadcrumb(file?.name ?? '');
     const documentSize = useDocumentSize();
 
-    const contentEl = getContentEl(file, blobUrl, documentSize);
+    const contentEl = getContentEl(
+      detailsId,
+      file,
+      info?.contentStatus,
+      documentSize
+    );
 
     return (
       <>

@@ -700,6 +700,8 @@ pub struct RepoFilesDetailsInfo {
     pub path: Option<String>,
     pub status: Status,
     pub file: Option<RepoFile>,
+    #[serde(rename = "contentStatus")]
+    pub content_status: Status,
     #[serde(rename = "canDownload")]
     pub can_download: bool,
     #[serde(rename = "canCopy")]
@@ -718,6 +720,7 @@ impl<'a> From<&repo_files_details_state::RepoFilesDetailsInfo<'a>> for RepoFiles
             path: info.path.map(str::to_string),
             status: (&info.status).into(),
             file: info.file.map(Into::into),
+            content_status: (&info.content_status).into(),
             can_download: info.can_download,
             can_copy: info.can_copy,
             can_move: info.can_move,

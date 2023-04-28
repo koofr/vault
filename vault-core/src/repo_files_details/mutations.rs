@@ -1,9 +1,29 @@
-use crate::common::state::Status;
+use std::sync::Arc;
+
 use crate::repo_files::errors::LoadFilesError;
 use crate::repo_files::selectors as repo_files_selectors;
+use crate::repo_files_read::errors::GetFilesReaderError;
 use crate::store;
+use crate::{common::state::Status, eventstream::service::MountSubscription};
 
-use super::state::{RepoFilesDetails, RepoFilesDetailsLocation};
+use super::state::{RepoFilesDetails, RepoFilesDetailsContent, RepoFilesDetailsLocation};
+
+pub fn create_location(
+    repo_id: String,
+    path: String,
+    eventstream_mount_subscription: Option<Arc<MountSubscription>>,
+) -> RepoFilesDetailsLocation {
+    RepoFilesDetailsLocation {
+        repo_id,
+        path,
+        eventstream_mount_subscription,
+        content: RepoFilesDetailsContent {
+            status: Status::Initial,
+            bytes: None,
+            version: 0,
+        },
+    }
+}
 
 pub fn create(
     state: &mut store::State,
@@ -67,5 +87,52 @@ pub fn loaded(
             },
             None => Status::Loaded,
         };
+    }
+}
+
+pub fn content_loading(state: &mut store::State, details_id: u32) {
+    let mut location = match state
+        .repo_files_details
+        .details
+        .get_mut(&details_id)
+        .and_then(|details| details.location.as_mut())
+    {
+        Some(location) => location,
+        _ => return,
+    };
+
+    location.content.status = Status::Loading;
+}
+
+pub fn content_loaded(
+    state: &mut store::State,
+    details_id: u32,
+    repo_id: String,
+    path: String,
+    res: Result<Vec<u8>, GetFilesReaderError>,
+) {
+    let mut location = match state
+        .repo_files_details
+        .details
+        .get_mut(&details_id)
+        .and_then(|details| details.location.as_mut())
+    {
+        Some(location) => location,
+        _ => return,
+    };
+
+    if location.repo_id != repo_id || location.path != path {
+        return;
+    }
+
+    match res {
+        Ok(bytes) => {
+            location.content.status = Status::Loaded;
+            location.content.bytes = Some(bytes);
+            location.content.version += 1;
+        }
+        Err(err) => {
+            location.content.status = Status::Error { error: err };
+        }
     }
 }

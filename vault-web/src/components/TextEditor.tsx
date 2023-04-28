@@ -1,6 +1,6 @@
 import { css, cx } from '@emotion/css';
 import * as monacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback } from 'react';
 
 import { monacoLanguageForFileName } from '../utils/monacoLanguages';
 
@@ -9,31 +9,13 @@ import { MonacoEditor } from './MonacoEditor';
 
 export interface TextEditorProps {
   fileName: string;
-  blobUrl: string;
+  text: string;
   width: number;
   height: number;
 }
 
 export const TextEditor = memo<TextEditorProps>(
-  ({ fileName, blobUrl, width, height }) => {
-    const isMountedRef = useRef(true);
-    useEffect(() => {
-      return () => {
-        isMountedRef.current = false;
-      };
-    }, []);
-
-    const [text, setText] = useState<string>();
-    useEffect(() => {
-      fetch(blobUrl)
-        .then((res) => res.text())
-        .then((text) => {
-          if (isMountedRef.current) {
-            setText(text);
-          }
-        });
-    }, [blobUrl]);
-
+  ({ fileName, text, width, height }) => {
     const language = monacoLanguageForFileName(fileName);
     const editorDidMount = useCallback(
       (

@@ -646,6 +646,16 @@ impl Vault {
         self.repo_files_details_service.destroy(details_id)
     }
 
+    pub async fn repo_files_details_load_content(
+        self: Arc<Self>,
+        details_id: u32,
+    ) -> Result<(), repo_files_read::errors::GetFilesReaderError> {
+        self.repo_files_details_service
+            .clone()
+            .load_content(details_id)
+            .await
+    }
+
     pub async fn repo_files_details_get_file_reader(
         self: Arc<Self>,
         details_id: u32,
