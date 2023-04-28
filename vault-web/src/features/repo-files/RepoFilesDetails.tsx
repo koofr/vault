@@ -93,7 +93,13 @@ const RepoFilesDetailsInner = memo<{ repo: Repo; path: string }>(
           noShadow={viewerUrl !== undefined}
         />
 
-        <main>
+        <main
+          className={css`
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+          `}
+        >
           {info?.status.type === 'Error' ? (
             <ErrorComponent error={info.status.error} />
           ) : viewerUrl !== undefined ? (

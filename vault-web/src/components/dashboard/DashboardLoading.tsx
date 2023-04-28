@@ -1,3 +1,4 @@
+import { css } from '@emotion/css';
 import { memo, ReactNode } from 'react';
 
 import { LoadingCircle } from '../LoadingCircle';
@@ -11,7 +12,13 @@ export const DashboardLoading = memo<{
     <>
       <DashboardNavbar header={navbarHeader ?? ''} />
 
-      <main>
+      <main
+        className={css`
+          display: flex;
+          flex-direction: column;
+          flex-grow: 1;
+        `}
+      >
         <LoadingCircle />
       </main>
     </>
