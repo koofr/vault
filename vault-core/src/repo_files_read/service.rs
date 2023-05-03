@@ -74,6 +74,7 @@ impl RepoFilesReadService {
             name: name.to_owned(),
             size: Some(size),
             content_type: content_type.map(str::to_string),
+            remote_file: Some(encrypted_reader.file),
             reader: decrypt_reader,
         })
     }
@@ -329,6 +330,7 @@ impl RepoFilesReadService {
             name,
             size: None,
             content_type: Some(String::from("application/zip")),
+            remote_file: None,
             reader,
         })
     }
