@@ -124,7 +124,7 @@ impl RemoteFilesService {
         conflict_resolution: RemoteFileUploadConflictResolution,
         on_progress: Option<Box<dyn Fn(usize) + Send + Sync>>,
         abort: http::HttpRequestAbort,
-    ) -> Result<(String, String), RemoteError> {
+    ) -> Result<(String, models::FilesFile), RemoteError> {
         let file = self
             .remote
             .upload_file_reader(
@@ -142,9 +142,9 @@ impl RemoteFilesService {
         let name = file.name.clone();
         let path = path_utils::join_path_name(parent_path, &name);
 
-        self.file_created(mount_id, &path, file);
+        self.file_created(mount_id, &path, file.clone());
 
-        Ok((selectors::get_file_id(mount_id, &path), name))
+        Ok((selectors::get_file_id(mount_id, &path), file))
     }
 
     pub async fn delete_file(&self, mount_id: &str, path: &str) -> Result<(), RemoteError> {

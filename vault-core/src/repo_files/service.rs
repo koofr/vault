@@ -200,7 +200,7 @@ impl RepoFilesService {
         let encrypted_name = cipher.encrypt_filename(name);
         let encrypted_reader = cipher.encrypt_reader(reader);
 
-        let (_, remote_name) = self
+        let (_, remote_file) = self
             .remote_files_service
             .upload_file_reader(
                 &mount_id,
@@ -217,11 +217,15 @@ impl RepoFilesService {
 
         let _ = self.decrypt_files(&repo_id, &parent_path);
 
-        let name = cipher.decrypt_filename(&remote_name)?;
+        let name = cipher.decrypt_filename(&remote_file.name)?;
         let path = path_utils::join_path_name(parent_path, &name);
         let file_id = selectors::get_file_id(repo_id, &path);
 
-        Ok(RepoFilesUploadResult { file_id, name })
+        Ok(RepoFilesUploadResult {
+            file_id,
+            name,
+            remote_file,
+        })
     }
 
     pub async fn delete_file(&self, repo_id: &str, path: &str) -> Result<(), DeleteFileError> {

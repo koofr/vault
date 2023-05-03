@@ -79,7 +79,7 @@ extern "C" {
     #[wasm_bindgen(typescript_type = "RepoFilesBreadcrumb[]")]
     pub type RepoFilesBreadcrumbVec;
 
-    #[wasm_bindgen(typescript_type = "RepoFilesUploadResult | Option")]
+    #[wasm_bindgen(typescript_type = "RepoFilesUploadResult | undefined")]
     pub type RepoFilesUploadResultOption;
 
     #[wasm_bindgen(typescript_type = "RepoFilesBrowserInfo | undefined")]

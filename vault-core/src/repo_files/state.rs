@@ -9,7 +9,7 @@ use futures::AsyncRead;
 use crate::{
     cipher::errors::{DecryptFilenameError, DecryptSizeError},
     file_types::file_icon_type::FileIconType,
-    remote::RemoteFileUploadConflictResolution,
+    remote::{models, RemoteFileUploadConflictResolution},
     remote_files::state::RemoteFileType,
 };
 
@@ -202,6 +202,7 @@ pub trait RepoFileUploadable {
 pub struct RepoFilesUploadResult {
     pub file_id: String,
     pub name: String,
+    pub remote_file: models::FilesFile,
 }
 
 #[derive(Clone, PartialEq, Eq)]
