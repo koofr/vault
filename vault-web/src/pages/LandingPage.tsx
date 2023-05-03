@@ -104,17 +104,17 @@ const TypingText = memo(() => {
 export const LandingPage = memo(() => {
   const navigate = useNavigate();
   const location = useLocation();
-  const locationPathname = location.pathname;
+  const locationRelUrl = location.pathname + location.search;
 
   useEffect(() => {
-    if (locationPathname !== '/') {
-      setLoginRedirect(locationPathname);
+    if (locationRelUrl !== '/') {
+      setLoginRedirect(locationRelUrl);
 
       navigate('/login', {
         replace: true,
       });
     }
-  }, [navigate, locationPathname]);
+  }, [navigate, locationRelUrl]);
 
   return (
     <div
