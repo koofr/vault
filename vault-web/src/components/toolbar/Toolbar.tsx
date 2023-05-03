@@ -1,23 +1,16 @@
 import { css, cx } from '@emotion/css';
 import { useTheme } from '@emotion/react';
+import styled from '@emotion/styled';
 import Button, { ButtonProps } from '@restart/ui/Button';
-import { memo, PropsWithChildren, ReactNode } from 'react';
+import { memo, ReactNode } from 'react';
 
 import { buttonReset } from '../../styles/mixins/buttons';
 
-export const Toolbar = memo<PropsWithChildren>(({ children }) => {
-  return (
-    <div
-      className={css`
-        display: flex;
-        align-items: center;
-        margin: 0 -12px 0 auto;
-      `}
-    >
-      {children}
-    </div>
-  );
-});
+export const Toolbar = styled.nav`
+  display: flex;
+  align-items: center;
+  margin: 0 -12px 0 auto;
+`;
 
 export type ToolbarItemProps = {
   icon?: ReactNode;
