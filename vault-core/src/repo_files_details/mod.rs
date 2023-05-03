@@ -1,3 +1,4 @@
+pub mod errors;
 pub mod mutations;
 pub mod selectors;
 pub mod service;

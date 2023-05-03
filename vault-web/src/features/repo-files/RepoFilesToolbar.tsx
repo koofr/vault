@@ -1,5 +1,8 @@
 import { memo, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 
+import { ReactComponent as FilesEditHoverIcon } from '../../assets/images/files-edit-hover.svg';
+import { ReactComponent as FilesEditIcon } from '../../assets/images/files-edit.svg';
 import { ReactComponent as FilesRenameHoverIcon } from '../../assets/images/files-rename-hover.svg';
 import { ReactComponent as FilesRenameIcon } from '../../assets/images/files-rename.svg';
 import { ReactComponent as FilesToolbarCopyHoverIcon } from '../../assets/images/files-toolbar-copy-hover.svg';
@@ -24,6 +27,7 @@ import { useWebVault } from '../../webVault/useWebVault';
 
 import { useRepoFilesBrowserId } from './RepoFilesBrowserId';
 import { downloadSelected } from './repoFilesActions';
+import { fileHasDetailsEdit, repoFilesDetailsLink } from './selectors';
 
 export const RepoFilesToolbar = memo<{ info: RepoFilesBrowserInfo }>(
   ({ info }) => {
@@ -93,6 +97,21 @@ export const RepoFilesToolbar = memo<{ info: RepoFilesBrowserInfo }>(
             }}
           >
             Delete
+          </ToolbarItem>
+        ) : null}
+        {info.selectedFile !== undefined &&
+        fileHasDetailsEdit(info.selectedFile) ? (
+          <ToolbarItem
+            as={Link}
+            to={repoFilesDetailsLink(
+              info.selectedFile.repoId,
+              info.selectedFile.path!,
+              true
+            )}
+            icon={<FilesEditIcon role="img" />}
+            iconHover={<FilesEditHoverIcon role="img" />}
+          >
+            Edit text
           </ToolbarItem>
         ) : null}
         {info.selectedCount > 0 ? (

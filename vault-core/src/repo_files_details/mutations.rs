@@ -1,19 +1,33 @@
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use crate::{
     common::state::Status,
     eventstream::service::MountSubscription,
-    repo_files::{errors::LoadFilesError, selectors as repo_files_selectors},
+    remote::models,
+    repo_files::{
+        errors::{DeleteFileError, LoadFilesError},
+        selectors as repo_files_selectors,
+        state::{RepoFile, RepoFilesUploadResult},
+    },
     repo_files_read::errors::GetFilesReaderError,
     store,
 };
 
-use super::state::{RepoFilesDetails, RepoFilesDetailsContent, RepoFilesDetailsLocation};
+use super::{
+    errors::{LoadContentError, SaveError},
+    selectors,
+    state::{
+        RepoFilesDetails, RepoFilesDetailsContent, RepoFilesDetailsContentData,
+        RepoFilesDetailsContentLoading, RepoFilesDetailsLocation, RepoFilesDetailsOptions,
+        SaveInitiator,
+    },
+};
 
 pub fn create_location(
     repo_id: String,
     path: String,
     eventstream_mount_subscription: Option<Arc<MountSubscription>>,
+    is_editing: bool,
 ) -> RepoFilesDetailsLocation {
     RepoFilesDetailsLocation {
         repo_id,
@@ -21,15 +35,23 @@ pub fn create_location(
         eventstream_mount_subscription,
         content: RepoFilesDetailsContent {
             status: Status::Initial,
-            bytes: None,
+            data: None,
+            loading: None,
             version: 0,
         },
+        is_editing,
+        is_dirty: false,
+        save_status: Status::Initial,
+        delete_status: Status::Initial,
+        should_destroy: false,
     }
 }
 
 pub fn create(
     state: &mut store::State,
+    options: RepoFilesDetailsOptions,
     location: Result<RepoFilesDetailsLocation, LoadFilesError>,
+    repo_files_subscription_id: u32,
 ) -> u32 {
     let details_id = state.repo_files_details.next_id;
 
@@ -52,8 +74,10 @@ pub fn create(
     };
 
     let details = RepoFilesDetails {
+        options,
         location: location.ok(),
         status,
+        repo_files_subscription_id,
     };
 
     state.repo_files_details.details.insert(details_id, details);
@@ -61,8 +85,16 @@ pub fn create(
     details_id
 }
 
-pub fn destroy(state: &mut store::State, details_id: u32) {
+pub fn destroy(state: &mut store::State, details_id: u32) -> Option<u32> {
+    let repo_files_subscription_id = state
+        .repo_files_details
+        .details
+        .get(&details_id)
+        .map(|details| details.repo_files_subscription_id);
+
     state.repo_files_details.details.remove(&details_id);
+
+    repo_files_subscription_id
 }
 
 pub fn loaded(
@@ -92,33 +124,58 @@ pub fn loaded(
     }
 }
 
-pub fn content_loading(state: &mut store::State, details_id: u32) {
-    let mut location = match state
-        .repo_files_details
-        .details
-        .get_mut(&details_id)
-        .and_then(|details| details.location.as_mut())
-    {
-        Some(location) => location,
-        _ => return,
+pub fn content_loading(
+    state: &mut store::State,
+    notify: &store::Notify,
+    details_id: u32,
+) -> Result<RepoFile, LoadContentError> {
+    let file = selectors::select_file(state, details_id)
+        .map(|file| file.clone())
+        .ok_or(LoadContentError::FileNotFound)?;
+
+    match selectors::select_details(state, details_id) {
+        Some(details)
+            if details
+                .options
+                .load_content
+                .matches(file.ext.as_deref(), &file.category) => {}
+        _ => return Err(LoadContentError::LoadFilterMismatch),
     };
 
-    location.content.status = Status::Loading;
+    let loading = selectors::select_remote_file(state, details_id).map(|remote_file| {
+        RepoFilesDetailsContentLoading {
+            remote_size: remote_file.size,
+            remote_modified: remote_file.modified,
+            remote_hash: remote_file.hash.clone(),
+        }
+    });
+
+    let mut location = match selectors::select_details_location_mut(state, details_id) {
+        Some(location) => location,
+        _ => return Err(LoadContentError::FileNotFound),
+    };
+
+    location.content.status = match location.content.status {
+        Status::Initial => Status::Loading,
+        Status::Loaded | Status::Error { .. } => Status::Reloading,
+        Status::Loading | Status::Reloading => return Err(LoadContentError::AlreadyLoading),
+    };
+    location.content.loading = loading;
+
+    notify(store::Event::RepoFilesDetails);
+
+    Ok(file)
 }
 
 pub fn content_loaded(
     state: &mut store::State,
+    notify: &store::Notify,
     details_id: u32,
     repo_id: String,
     path: String,
-    res: Result<Vec<u8>, GetFilesReaderError>,
+    res: Result<(Vec<u8>, models::FilesFile), GetFilesReaderError>,
 ) {
-    let mut location = match state
-        .repo_files_details
-        .details
-        .get_mut(&details_id)
-        .and_then(|details| details.location.as_mut())
-    {
+    let mut location = match selectors::select_details_location_mut(state, details_id) {
         Some(location) => location,
         _ => return,
     };
@@ -127,14 +184,266 @@ pub fn content_loaded(
         return;
     }
 
-    match res {
-        Ok(bytes) => {
-            location.content.status = Status::Loaded;
-            location.content.bytes = Some(bytes);
+    notify(store::Event::RepoFilesDetails);
+
+    if location.is_dirty || matches!(location.save_status, Status::Loading) {
+        location.content.status = Status::Loaded;
+        location.content.loading = None;
+    } else {
+        match res {
+            Ok((bytes, remote_file)) => {
+                location.content.status = Status::Loaded;
+                location.content.data = Some(RepoFilesDetailsContentData {
+                    bytes,
+                    remote_size: remote_file.size,
+                    remote_modified: remote_file.modified,
+                    remote_hash: remote_file.hash,
+                });
+                location.content.loading = None;
+                location.content.version += 1;
+
+                notify(store::Event::RepoFilesDetailsContentData);
+            }
+            Err(err) => {
+                location.content.status = Status::Error { error: err };
+            }
+        }
+    }
+}
+
+pub fn edit(state: &mut store::State, details_id: u32) {
+    let mut location = match selectors::select_details_location_mut(state, details_id) {
+        Some(location) => location,
+        _ => return,
+    };
+
+    location.is_editing = true;
+}
+
+pub fn edit_cancel(
+    state: &mut store::State,
+    notify: &store::Notify,
+    details_id: u32,
+    is_discarded: bool,
+) {
+    let mut location = match selectors::select_details_location_mut(state, details_id) {
+        Some(location) => location,
+        _ => return,
+    };
+
+    if location.is_editing {
+        location.is_editing = false;
+        location.is_dirty = false;
+        location.save_status = Status::Initial;
+
+        if is_discarded {
+            // this will reload the content
+            location.content.status = Status::Initial;
+            location.content.data = None;
+            location.content.loading = None;
+        }
+
+        notify(store::Event::RepoFilesDetails);
+    }
+}
+
+pub fn set_content(
+    state: &mut store::State,
+    notify: &store::Notify,
+    details_id: u32,
+    content: Vec<u8>,
+) {
+    let mut location = match selectors::select_details_location_mut(state, details_id) {
+        Some(location) => location,
+        _ => return,
+    };
+
+    if let Some(data) = &mut location.content.data {
+        if data.bytes != content {
+            data.bytes = content;
+
             location.content.version += 1;
+
+            notify(store::Event::RepoFilesDetailsContentData);
+
+            if !location.is_dirty {
+                location.is_dirty = true;
+
+                notify(store::Event::RepoFilesDetails);
+            }
+        }
+    }
+}
+
+pub fn saving(
+    state: &mut store::State,
+    notify: &store::Notify,
+    details_id: u32,
+    initiator: SaveInitiator,
+) -> Result<(String, String, RepoFilesDetailsContentData, u32, bool), SaveError> {
+    if !selectors::select_is_dirty(state, details_id) {
+        return Err(SaveError::NotDirty);
+    }
+
+    let file = selectors::select_file(state, details_id);
+
+    let remote_file = file.and_then(|file| repo_files_selectors::select_remote_file(state, file));
+
+    let content = selectors::select_content(state, details_id).ok_or(SaveError::InvalidState)?;
+
+    let data = content.data.clone().ok_or(SaveError::InvalidState)?;
+
+    let location = match selectors::select_details_location(state, details_id) {
+        Some(location) => location,
+        _ => return Err(SaveError::InvalidState),
+    };
+
+    let is_deleted = file.is_none();
+
+    if matches!(initiator, SaveInitiator::Autosave)
+        && (selectors::get_is_conflict(true, Some(&data), remote_file, &location.save_status)
+            || is_deleted)
+    {
+        return Err(SaveError::AutosaveNotPossible);
+    }
+
+    let version = content.version;
+
+    let mut location = match selectors::select_details_location_mut(state, details_id) {
+        Some(location) => location,
+        _ => return Err(SaveError::InvalidState),
+    };
+
+    location.save_status = Status::Loading;
+
+    notify(store::Event::RepoFilesDetails);
+
+    Ok((
+        location.repo_id.clone(),
+        location.path.clone(),
+        data,
+        version,
+        is_deleted,
+    ))
+}
+
+pub fn saved(
+    state: &mut store::State,
+    notify: &store::Notify,
+    details_id: u32,
+    saved_version: u32,
+    res: Result<(String, RepoFilesUploadResult, bool), SaveError>,
+) {
+    let mut location = match selectors::select_details_location_mut(state, details_id) {
+        Some(location) => location,
+        _ => return,
+    };
+
+    notify(store::Event::RepoFilesDetails);
+
+    match res {
+        Ok((saved_path, result, should_destroy)) => {
+            if location.path != saved_path {
+                location.path = saved_path;
+            }
+            if let Some(data) = &mut location.content.data {
+                data.remote_size = result.remote_file.size;
+                data.remote_modified = result.remote_file.modified;
+                data.remote_hash = result.remote_file.hash;
+            }
+            if location.content.version == saved_version {
+                location.is_dirty = false;
+            }
+            location.save_status = Status::Initial;
+            if should_destroy {
+                location.should_destroy = true;
+            }
         }
         Err(err) => {
-            location.content.status = Status::Error { error: err };
+            match err {
+                SaveError::Canceled => {
+                    location.save_status = Status::Initial;
+                }
+                SaveError::DiscardChanges { should_destroy } => {
+                    location.save_status = Status::Initial;
+                    if should_destroy {
+                        location.should_destroy = true;
+                    }
+                }
+                err => {
+                    location.save_status = Status::Error { error: err };
+                }
+            };
+        }
+    }
+}
+
+pub fn deleting(state: &mut store::State, notify: &store::Notify, details_id: u32) {
+    let mut location = match selectors::select_details_location_mut(state, details_id) {
+        Some(location) => location,
+        _ => return,
+    };
+
+    notify(store::Event::RepoFilesDetails);
+
+    location.delete_status = Status::Loading;
+}
+
+pub fn deleted(
+    state: &mut store::State,
+    notify: &store::Notify,
+    details_id: u32,
+    res: Result<(), DeleteFileError>,
+) {
+    let mut location = match selectors::select_details_location_mut(state, details_id) {
+        Some(location) => location,
+        _ => return,
+    };
+
+    notify(store::Event::RepoFilesDetails);
+
+    match res {
+        Ok(()) => {
+            location.delete_status = Status::Loaded;
+            location.should_destroy = true;
+        }
+        Err(DeleteFileError::Canceled) => {
+            location.delete_status = Status::Initial;
+        }
+        Err(err) => {
+            location.delete_status = Status::Error { error: err };
+        }
+    }
+}
+
+pub fn handle_repo_files_mutation(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
+) {
+    if !mutation_state.repo_files.moved_files.is_empty() {
+        let moved_files = mutation_state
+            .repo_files
+            .moved_files
+            .iter()
+            .map(|(repo_id, old_path, new_path)| {
+                (
+                    (repo_id.to_owned(), old_path.to_owned()),
+                    new_path.to_owned(),
+                )
+            })
+            .collect::<HashMap<_, _>>();
+
+        for (_, details) in state.repo_files_details.details.iter_mut() {
+            if let Some(location) = &mut details.location {
+                if let Some(new_path) =
+                    moved_files.get(&(location.repo_id.clone(), location.path.clone()))
+                {
+                    location.path = new_path.to_owned();
+
+                    notify(store::Event::RepoFilesDetails);
+                }
+            }
         }
     }
 }

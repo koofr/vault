@@ -65,7 +65,7 @@ pub enum DecryptFilesError {
     DecryptFilenameError(#[from] DecryptFilenameError),
 }
 
-#[derive(Error, Debug, Clone)]
+#[derive(Error, Debug, Clone, UserError)]
 pub enum UploadFileReaderError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),

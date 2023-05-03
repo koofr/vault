@@ -1,6 +1,6 @@
 import { To } from 'react-router-dom';
 
-import { RepoFile } from '../../vault-wasm/vault-wasm';
+import { FileCategory, RepoFile } from '../../vault-wasm/vault-wasm';
 
 export const repoFilesLink = (
   repoId: string,
@@ -23,24 +23,53 @@ export const repoFilesLink = (
   };
 };
 
-export const repoFilesDetailsLink = (repoId: string, path: string): To => ({
-  pathname: `/repos/${repoId}/details`,
-  search: `path=${encodeURIComponent(path)}`,
-});
+export const repoFilesDetailsLink = (
+  repoId: string,
+  path: string,
+  isEditing?: boolean,
+  autosaveIntervalMs?: number
+): To => {
+  const search = new URLSearchParams({
+    path,
+  });
 
-export const fileHasPdfViewer = (file: RepoFile): boolean =>
-  file.ext === 'pdf' && !file.nameError;
+  if (isEditing) {
+    search.set('editing', 'true');
+  }
 
-export const fileHasTextEditor = (file: RepoFile): boolean =>
-  (file.category === 'Text' || file.category === 'Code') && !file.nameError;
+  if (autosaveIntervalMs !== undefined) {
+    search.set('autosave', `${autosaveIntervalMs}`);
+  }
 
-export const fileHasImageViewer = (file: RepoFile): boolean =>
-  (file.ext === 'jpg' ||
-    file.ext === 'jpeg' ||
-    file.ext === 'gif' ||
-    file.ext === 'png' ||
-    file.ext === 'svg') &&
-  !file.nameError;
+  return {
+    pathname: `/repos/${repoId}/details`,
+    search: search.toString(),
+  };
+};
+
+export const fileHasPdfViewer = (ext: string | undefined): boolean =>
+  ext === 'pdf';
+
+export const fileHasTextEditor = (
+  category: FileCategory | undefined
+): boolean => category === 'Text' || category === 'Code';
+
+export const fileHasImageViewer = (ext: string | undefined): boolean =>
+  ext === 'jpg' ||
+  ext === 'jpeg' ||
+  ext === 'gif' ||
+  ext === 'png' ||
+  ext === 'svg';
 
 export const fileHasDetails = (file: RepoFile): boolean =>
-  fileHasPdfViewer(file) || fileHasTextEditor(file) || fileHasImageViewer(file);
+  !file.nameError &&
+  (fileHasPdfViewer(file.ext) ||
+    fileHasTextEditor(file.category) ||
+    fileHasImageViewer(file.ext));
+
+export const fileCategoryHasDetailsEdit = (
+  category: FileCategory | undefined
+): boolean => fileHasTextEditor(category);
+
+export const fileHasDetailsEdit = (file: RepoFile): boolean =>
+  !file.nameError && fileCategoryHasDetailsEdit(file.category);

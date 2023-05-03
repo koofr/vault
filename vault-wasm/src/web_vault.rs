@@ -98,6 +98,9 @@ extern "C" {
     #[wasm_bindgen(typescript_type = "RepoFilesBrowserItem[]")]
     pub type RepoFilesBrowserItemVec;
 
+    #[wasm_bindgen(typescript_type = "RepoFilesDetailsOptions")]
+    pub type RepoFilesDetailsOptions;
+
     #[wasm_bindgen(typescript_type = "RepoFilesDetailsInfo | undefined")]
     pub type RepoFilesDetailsInfoOption;
 
@@ -160,6 +163,7 @@ struct SubscriptionData {
     repo_files_browsers_items: Data<Vec<dto::RepoFilesBrowserItem>>,
     repo_files_browsers_breadcrumbs: Data<Vec<dto::RepoFilesBreadcrumb>>,
     repo_files_details_info: Data<Option<dto::RepoFilesDetailsInfo>>,
+    repo_files_details_file: Data<Option<dto::RepoFile>>,
     repo_files_details_content_bytes: Data<VersionedFileBytes>,
     repo_files_move_info: Data<Option<dto::RepoFilesMoveInfo>>,
     space_usage: Data<Option<dto::SpaceUsage>>,
@@ -1281,8 +1285,19 @@ impl WebVault {
     // repo_files_details
 
     #[wasm_bindgen(js_name = repoFilesDetailsCreate)]
-    pub fn repo_files_details_create(&self, repo_id: &str, path: &str) -> u32 {
-        let (details_id, load_future) = self.vault.repo_files_details_create(repo_id, path);
+    pub fn repo_files_details_create(
+        &self,
+        repo_id: &str,
+        path: &str,
+        is_editing: bool,
+        options: RepoFilesDetailsOptions,
+    ) -> u32 {
+        let options: dto::RepoFilesDetailsOptions =
+            serde_wasm_bindgen::from_value(options.into()).unwrap();
+
+        let (details_id, load_future) =
+            self.vault
+                .repo_files_details_create(repo_id, path, is_editing, options.into());
 
         spawn_local(async move {
             // error is displayed in the details component
@@ -1293,8 +1308,13 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = repoFilesDetailsDestroy)]
-    pub fn repo_files_details_destroy(&self, details_id: u32) {
-        self.vault.repo_files_details_destroy(details_id)
+    pub async fn repo_files_details_destroy(&self, details_id: u32) {
+        self.handle_result(
+            self.vault
+                .clone()
+                .repo_files_details_destroy(details_id)
+                .await,
+        );
     }
 
     #[wasm_bindgen(js_name = repoFilesDetailsInfoSubscribe)]
@@ -1318,14 +1338,24 @@ impl WebVault {
         self.get_data_js(id, self.subscription_data.repo_files_details_info.clone())
     }
 
-    #[wasm_bindgen(js_name = repoFilesDetailsLoadContent)]
-    pub async fn repo_files_details_load_content(&self, details_id: u32) {
-        self.handle_result(
-            self.vault
-                .clone()
-                .repo_files_details_load_content(details_id)
-                .await,
-        );
+    #[wasm_bindgen(js_name = repoFilesDetailsFileSubscribe)]
+    pub fn repo_files_details_file_subscribe(&self, details_id: u32, cb: js_sys::Function) -> u32 {
+        self.subscribe(
+            &[Event::RepoFilesDetails, Event::RepoFiles],
+            cb,
+            self.subscription_data.repo_files_details_file.clone(),
+            move |vault| {
+                vault.with_state(|state| {
+                    vault_core::repo_files_details::selectors::select_file(state, details_id)
+                        .map(Into::into)
+                })
+            },
+        )
+    }
+
+    #[wasm_bindgen(js_name = repoFilesDetailsFileData)]
+    pub fn repo_files_details_file_data(&self, id: u32) -> RepoFileOption {
+        self.get_data_js(id, self.subscription_data.repo_files_details_file.clone())
     }
 
     #[wasm_bindgen(js_name = repoFilesDetailsContentBytesSubscribe)]
@@ -1335,7 +1365,7 @@ impl WebVault {
         cb: js_sys::Function,
     ) -> u32 {
         self.subscribe_changed(
-            &[Event::RepoFilesDetails],
+            &[Event::RepoFilesDetailsContentData],
             cb,
             self.subscription_data
                 .repo_files_details_content_bytes
@@ -1343,7 +1373,7 @@ impl WebVault {
             move |vault, entry| {
                 vault.with_state(|state| {
                     let (bytes, version) =
-                        vault_core::repo_files_details::selectors::select_content_bytes(
+                        vault_core::repo_files_details::selectors::select_content_bytes_version(
                             state, details_id,
                         );
 
@@ -1391,6 +1421,42 @@ impl WebVault {
             force_blob,
         )
         .await
+    }
+
+    #[wasm_bindgen(js_name = repoFilesDetailsEdit)]
+    pub fn repo_files_details_edit(&self, details_id: u32) {
+        self.vault.repo_files_details_edit(details_id);
+    }
+
+    #[wasm_bindgen(js_name = repoFilesDetailsEditCancel)]
+    pub async fn repo_files_details_edit_cancel(&self, details_id: u32) {
+        // error is displayed in the details component
+        let _ = self
+            .vault
+            .clone()
+            .repo_files_details_edit_cancel(details_id)
+            .await;
+    }
+
+    #[wasm_bindgen(js_name = repoFilesDetailsSetContent)]
+    pub fn repo_files_details_set_content(&self, details_id: u32, content: Vec<u8>) {
+        self.vault
+            .repo_files_details_set_content(details_id, content);
+    }
+
+    #[wasm_bindgen(js_name = repoFilesDetailsSave)]
+    pub async fn repo_files_details_save(&self, details_id: u32) {
+        // error is displayed in the details component
+        let _ = self.vault.clone().repo_files_details_save(details_id).await;
+    }
+
+    #[wasm_bindgen(js_name = repoFilesDetailsDelete)]
+    pub async fn repo_files_details_delete(&self, details_id: u32) {
+        match self.vault.repo_files_details_delete(details_id).await {
+            Ok(()) => {}
+            Err(vault_core::repo_files::errors::DeleteFileError::Canceled) => {}
+            Err(err) => self.handle_error(err),
+        };
     }
 
     // repo_files_move

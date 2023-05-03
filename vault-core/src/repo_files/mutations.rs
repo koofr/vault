@@ -309,7 +309,7 @@ pub fn decrypt_files(
         if let Ok(path) = cipher.decrypt_path(encrypted_path) {
             let file_id = selectors::get_file_id(repo_id, &path);
 
-            cleanup_file(state, &file_id);
+            state.repo_files.files.remove(&file_id);
         }
     }
 

@@ -821,6 +821,23 @@ impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFile
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+pub struct RepoFilesDetailsOptions {
+    #[serde(rename = "loadContent")]
+    pub load_content: FilesFilter,
+    #[serde(rename = "autosaveIntervalMs")]
+    pub autosave_interval_ms: u32,
+}
+
+impl Into<repo_files_details_state::RepoFilesDetailsOptions> for RepoFilesDetailsOptions {
+    fn into(self) -> repo_files_details_state::RepoFilesDetailsOptions {
+        repo_files_details_state::RepoFilesDetailsOptions {
+            load_content: self.load_content.into(),
+            autosave_interval: Duration::from_millis(self.autosave_interval_ms as u64),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub struct RepoFilesDetailsInfo {
     #[serde(rename = "repoId")]
     pub repo_id: Option<String>,
@@ -828,9 +845,29 @@ pub struct RepoFilesDetailsInfo {
     pub parent_path: Option<String>,
     pub path: Option<String>,
     pub status: Status,
-    pub file: Option<RepoFile>,
+    #[serde(rename = "fileName")]
+    pub file_name: Option<String>,
+    #[serde(rename = "fileExt")]
+    pub file_ext: Option<String>,
+    #[serde(rename = "fileCategory")]
+    pub file_category: Option<FileCategory>,
+    #[serde(rename = "fileModified")]
+    pub file_modified: Option<f64>,
+    #[serde(rename = "fileExists")]
+    pub file_exists: bool,
     #[serde(rename = "contentStatus")]
     pub content_status: Status,
+    #[serde(rename = "saveStatus")]
+    pub save_status: Status,
+    pub error: Option<String>,
+    #[serde(rename = "isEditing")]
+    pub is_editing: bool,
+    #[serde(rename = "isDirty")]
+    pub is_dirty: bool,
+    #[serde(rename = "shouldDestroy")]
+    pub should_destroy: bool,
+    #[serde(rename = "canSave")]
+    pub can_save: bool,
     #[serde(rename = "canDownload")]
     pub can_download: bool,
     #[serde(rename = "canCopy")]
@@ -848,8 +885,18 @@ impl<'a> From<&repo_files_details_state::RepoFilesDetailsInfo<'a>> for RepoFiles
             parent_path: info.parent_path.map(str::to_string),
             path: info.path.map(str::to_string),
             status: (&info.status).into(),
-            file: info.file.map(Into::into),
+            file_name: info.file_name.map(str::to_string),
+            file_ext: info.file_ext.clone(),
+            file_category: info.file_category.as_ref().map(Into::into),
+            file_modified: info.file_modified.map(|x| x as f64),
+            file_exists: info.file_exists,
             content_status: (&info.content_status).into(),
+            save_status: (&info.save_status).into(),
+            error: info.error.clone(),
+            is_editing: info.is_editing,
+            is_dirty: info.is_dirty,
+            should_destroy: info.should_destroy,
+            can_save: info.can_save,
             can_download: info.can_download,
             can_copy: info.can_copy,
             can_move: info.can_move,

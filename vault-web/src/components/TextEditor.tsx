@@ -1,6 +1,6 @@
 import { css, cx } from '@emotion/css';
 import * as monacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useEffect, useRef } from 'react';
 
 import { monacoLanguageForFileName } from '../utils/monacoLanguages';
 
@@ -10,25 +10,32 @@ import { MonacoEditor } from './MonacoEditor';
 export interface TextEditorProps {
   fileName: string;
   text: string;
+  isEditing: boolean;
   width: number;
   height: number;
+  onChange?: (newValue: string) => void;
 }
 
 export const TextEditor = memo<TextEditorProps>(
-  ({ fileName, text, width, height }) => {
+  ({ fileName, text, isEditing, width, height, onChange }) => {
     const language = monacoLanguageForFileName(fileName);
+
+    const editorRef = useRef<monacoEditor.editor.IStandaloneCodeEditor>();
     const editorDidMount = useCallback(
-      (
-        editor: monacoEditor.editor.IStandaloneCodeEditor,
-        monaco: typeof monacoEditor
-      ) => {
-        // TODO save editor to a ref and focus on editing
+      (editor: monacoEditor.editor.IStandaloneCodeEditor) => {
+        editorRef.current = editor;
+
         editor.focus();
       },
       []
     );
-    const onChange = useCallback((newValue: string) => {}, []);
-    const isEditing = false;
+
+    useEffect(() => {
+      if (isEditing) {
+        editorRef.current?.focus();
+      }
+    }, [isEditing]);
+
     const editorWidth = width - (isEditing ? 0 : 50);
     const editorHeight = height - (isEditing ? 0 : 65);
 

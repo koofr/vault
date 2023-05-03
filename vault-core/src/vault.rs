@@ -151,13 +151,14 @@ impl Vault {
                 dialogs_service.clone(),
                 store.clone(),
             ));
-        let repo_files_details_service =
-            Arc::new(repo_files_details::RepoFilesDetailsService::new(
-                repo_files_service.clone(),
-                repo_files_read_service.clone(),
-                eventstream_service.clone(),
-                store.clone(),
-            ));
+        let repo_files_details_service = repo_files_details::RepoFilesDetailsService::new(
+            repo_files_service.clone(),
+            repo_files_read_service.clone(),
+            eventstream_service.clone(),
+            dialogs_service.clone(),
+            store.clone(),
+            runtime.clone(),
+        );
         let repo_files_move_service = Arc::new(repo_files_move::RepoFilesMoveService::new(
             repo_files_service.clone(),
             repo_files_dir_pickers_service.clone(),
@@ -612,31 +613,29 @@ impl Vault {
         &self,
         repo_id: &str,
         path: &str,
+        is_editing: bool,
+        options: repo_files_details::state::RepoFilesDetailsOptions,
     ) -> (
         u32,
-        BoxFuture<'static, Result<(), repo_files::errors::LoadFilesError>>,
+        BoxFuture<'static, Result<(), repo_files_details::errors::LoadDetailsError>>,
     ) {
         self.repo_files_details_service
             .clone()
-            .create(repo_id, path)
+            .create(repo_id, path, is_editing, options)
     }
 
-    pub fn repo_files_details_destroy(&self, details_id: u32) {
-        self.repo_files_details_service.destroy(details_id)
-    }
-
-    pub async fn repo_files_details_load_content(
-        self: Arc<Self>,
+    pub async fn repo_files_details_destroy(
+        &self,
         details_id: u32,
-    ) -> Result<(), repo_files_read::errors::GetFilesReaderError> {
+    ) -> Result<(), repo_files_details::errors::SaveError> {
         self.repo_files_details_service
             .clone()
-            .load_content(details_id)
+            .destroy(details_id)
             .await
     }
 
     pub async fn repo_files_details_get_file_reader(
-        self: Arc<Self>,
+        &self,
         details_id: u32,
     ) -> Result<repo_files_read::state::RepoFileReader, repo_files_read::errors::GetFilesReaderError>
     {
@@ -644,6 +643,43 @@ impl Vault {
             .clone()
             .get_file_reader(details_id)
             .await
+    }
+
+    pub fn repo_files_details_edit(&self, details_id: u32) {
+        self.repo_files_details_service.edit(details_id);
+    }
+
+    pub async fn repo_files_details_edit_cancel(
+        &self,
+        details_id: u32,
+    ) -> Result<(), repo_files_details::errors::SaveError> {
+        self.repo_files_details_service
+            .clone()
+            .edit_cancel(details_id)
+            .await
+    }
+
+    pub fn repo_files_details_set_content(&self, details_id: u32, content: Vec<u8>) {
+        self.repo_files_details_service
+            .clone()
+            .set_content(details_id, content);
+    }
+
+    pub async fn repo_files_details_save(
+        &self,
+        details_id: u32,
+    ) -> Result<(), repo_files_details::errors::SaveError> {
+        self.repo_files_details_service
+            .clone()
+            .save(details_id)
+            .await
+    }
+
+    pub async fn repo_files_details_delete(
+        &self,
+        details_id: u32,
+    ) -> Result<(), repo_files::errors::DeleteFileError> {
+        self.repo_files_details_service.delete(details_id).await
     }
 
     // repo_files_move
