@@ -45,3 +45,9 @@ Run caddy:
 ```sh
 caddy run
 ```
+
+## Optimize SVG icons
+
+```sh
+find src/assets -name '*.svg' | xargs -n1 scripts/optimize-svg.js
+```
