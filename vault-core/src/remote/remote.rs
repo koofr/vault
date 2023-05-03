@@ -31,6 +31,7 @@ pub type ListRecursiveItemStream =
     BoxStream<'static, Result<models::FilesListRecursiveItem, RemoteError>>;
 
 pub struct RemoteFileReader {
+    pub file: models::FilesFile,
     pub size: i64,
     pub reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
 }
@@ -387,6 +388,19 @@ impl Remote {
             return res_error(res).await;
         }
 
+        let file_info_header = res.headers().get("X-File-Info").ok_or_else(|| {
+            RemoteError::HttpError(HttpError::ResponseError(String::from(
+                "Missing response header X-File-Info",
+            )))
+        })?;
+        let file: models::FilesFile =
+            serde_json::from_slice(file_info_header.as_bytes()).map_err(|e| {
+                RemoteError::HttpError(HttpError::ResponseError(format!(
+                    "file info json deserialize error: {}",
+                    e.to_string()
+                )))
+            })?;
+
         let size = res
             .headers()
             .get("Content-Length")
@@ -402,6 +416,7 @@ impl Remote {
             .into_async_read();
 
         Ok(RemoteFileReader {
+            file,
             size,
             reader: Box::pin(reader),
         })
