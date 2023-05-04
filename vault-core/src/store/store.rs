@@ -40,32 +40,35 @@ impl Store {
     where
         F: FnOnce(&mut State) -> R,
     {
-        // TODO mutate mutate function should be passed a "controller" with
-        // event method so that every mutation can decide which events it
-        // triggered
-        let res = self.mutate_state(f);
+        self.mutate_notify(|state, notify| {
+            notify(event);
 
-        self.notify(event);
-
-        res
+            f(state)
+        })
     }
 
-    pub fn notify(&self, event: Event) {
-        self.event_emitter.emit(event);
-    }
-
-    pub fn notify_multi(&self, events: Vec<Event>) {
-        for event in events {
-            self.notify(event);
-        }
-    }
-
-    pub fn mutate_state<F, R>(&self, f: F) -> R
+    pub fn mutate_notify<F, R>(&self, f: F) -> R
     where
-        F: FnOnce(&mut State) -> R,
+        F: FnOnce(&mut State, &mut dyn FnMut(Event)) -> R,
     {
+        let mut events: Vec<Event> = Vec::with_capacity(1);
+
+        let mut notify = |event: Event| {
+            if !events.contains(&event) {
+                events.push(event);
+            }
+        };
+
         let mut state = self.state.lock().unwrap();
 
-        f(&mut state)
+        let res = f(&mut state, &mut notify);
+
+        drop(state);
+
+        for event in events {
+            self.event_emitter.emit(event);
+        }
+
+        res
     }
 }

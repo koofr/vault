@@ -116,12 +116,11 @@ impl RepoFilesBrowsersService {
     }
 
     fn update_files(&self, browser_id: u32) {
-        if self
-            .store
-            .mutate_state(|state| mutations::update_files(state, browser_id))
-        {
-            self.store.notify(store::Event::RepoFilesBrowsers);
-        }
+        self.store.mutate_notify(|state, notify| {
+            if mutations::update_files(state, browser_id) {
+                notify(store::Event::RepoFilesBrowsers)
+            }
+        });
     }
 
     pub fn destroy(&self, browser_id: u32) {
