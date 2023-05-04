@@ -1274,31 +1274,18 @@ impl WebVault {
                             state, details_id,
                         );
 
-                    let get_value = || VersionedFileBytes {
-                        value: (match bytes {
-                            Some(bytes) => helpers::bytes_to_array(&bytes),
-                            None => JsValue::UNDEFINED,
-                        })
-                        .into(),
-                        version,
-                    };
-
-                    match entry {
-                        hash_map::Entry::Occupied(mut o) => {
-                            if version == o.get().version {
-                                return false;
-                            } else {
-                                o.insert(get_value());
-
-                                true
-                            }
-                        }
-                        hash_map::Entry::Vacant(v) => {
-                            v.insert(get_value());
-
-                            true
-                        }
-                    }
+                    vault_core::subscription::update_if(
+                        entry,
+                        || VersionedFileBytes {
+                            value: (match bytes {
+                                Some(bytes) => helpers::bytes_to_array(&bytes),
+                                None => JsValue::UNDEFINED,
+                            })
+                            .into(),
+                            version,
+                        },
+                        |x| x.version != version,
+                    )
                 })
             },
         )

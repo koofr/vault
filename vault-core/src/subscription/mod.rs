@@ -116,3 +116,26 @@ impl Subscription {
         }
     }
 }
+
+pub fn update_if<T: Clone + Send + 'static, F: Fn() -> T, G: Fn(&T) -> bool>(
+    entry: hash_map::Entry<'_, u32, T>,
+    generate: F,
+    should_regenerate: G,
+) -> bool {
+    match entry {
+        hash_map::Entry::Occupied(mut o) => {
+            if !should_regenerate(o.get()) {
+                false
+            } else {
+                o.insert(generate());
+
+                true
+            }
+        }
+        hash_map::Entry::Vacant(v) => {
+            v.insert(generate());
+
+            true
+        }
+    }
+}
