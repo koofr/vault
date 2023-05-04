@@ -16,7 +16,7 @@ export const fileHasPdfViewer = (file: RepoFile): boolean =>
   file.ext === 'pdf' && !file.nameError;
 
 export const fileHasTextEditor = (file: RepoFile): boolean =>
-  (file.iconType === 'Text' || file.iconType === 'Code') && !file.nameError;
+  (file.category === 'Text' || file.category === 'Code') && !file.nameError;
 
 export const fileHasImageViewer = (file: RepoFile): boolean =>
   (file.ext === 'jpg' ||

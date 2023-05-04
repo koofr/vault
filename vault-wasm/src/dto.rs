@@ -7,7 +7,7 @@ use wasm_bindgen::prelude::*;
 use vault_core::{
     common::state as common_state,
     dir_pickers::state as dir_pickers_state,
-    file_types::file_icon_type,
+    file_types::file_category,
     notifications::state as notifications_state,
     remote_files::state as remote_files_state,
     repo_config_backup::state as repo_config_backup_state,
@@ -96,7 +96,7 @@ impl From<&selection::state::SelectionSummary> for SelectionSummary {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
-pub enum FileIconType {
+pub enum FileCategory {
     Generic,
     Folder,
     Archive,
@@ -111,21 +111,21 @@ pub enum FileIconType {
     Video,
 }
 
-impl From<&file_icon_type::FileIconType> for FileIconType {
-    fn from(typ: &file_icon_type::FileIconType) -> Self {
-        match typ {
-            file_icon_type::FileIconType::Generic => Self::Generic,
-            file_icon_type::FileIconType::Folder => Self::Folder,
-            file_icon_type::FileIconType::Archive => Self::Archive,
-            file_icon_type::FileIconType::Audio => Self::Audio,
-            file_icon_type::FileIconType::Code => Self::Code,
-            file_icon_type::FileIconType::Document => Self::Document,
-            file_icon_type::FileIconType::Image => Self::Image,
-            file_icon_type::FileIconType::Pdf => Self::Pdf,
-            file_icon_type::FileIconType::Presentation => Self::Presentation,
-            file_icon_type::FileIconType::Sheet => Self::Sheet,
-            file_icon_type::FileIconType::Text => Self::Text,
-            file_icon_type::FileIconType::Video => Self::Video,
+impl From<&file_category::FileCategory> for FileCategory {
+    fn from(category: &file_category::FileCategory) -> Self {
+        match category {
+            file_category::FileCategory::Generic => Self::Generic,
+            file_category::FileCategory::Folder => Self::Folder,
+            file_category::FileCategory::Archive => Self::Archive,
+            file_category::FileCategory::Audio => Self::Audio,
+            file_category::FileCategory::Code => Self::Code,
+            file_category::FileCategory::Document => Self::Document,
+            file_category::FileCategory::Image => Self::Image,
+            file_category::FileCategory::Pdf => Self::Pdf,
+            file_category::FileCategory::Presentation => Self::Presentation,
+            file_category::FileCategory::Sheet => Self::Sheet,
+            file_category::FileCategory::Text => Self::Text,
+            file_category::FileCategory::Video => Self::Video,
         }
     }
 }
@@ -477,8 +477,7 @@ pub struct RepoFile {
     #[serde(rename = "sizeDisplay")]
     pub size_display: String,
     pub modified: f64,
-    #[serde(rename = "iconType")]
-    pub icon_type: FileIconType,
+    pub category: FileCategory,
 }
 
 impl From<&repo_files_state::RepoFile> for RepoFile {
@@ -518,7 +517,7 @@ impl From<&repo_files_state::RepoFile> for RepoFile {
                 repo_files_state::RepoFileType::Dir => String::from(""),
             },
             modified: file.modified as f64,
-            icon_type: (&file.icon_type).into(),
+            category: (&file.category).into(),
         }
     }
 }
@@ -809,8 +808,7 @@ impl From<&uploads_state::FileUploadState> for FileUploadState {
 pub struct FileUpload {
     pub id: u32,
     pub name: String,
-    #[serde(rename = "iconType")]
-    pub icon_type: FileIconType,
+    pub category: FileCategory,
     pub size: Option<i64>,
     #[serde(rename = "sizeDisplay")]
     pub size_display: Option<String>,
@@ -830,7 +828,7 @@ impl From<&uploads_state::FileUpload> for FileUpload {
         Self {
             id: file.id,
             name: file.name.clone(),
-            icon_type: (&file.icon_type).into(),
+            category: (&file.category).into(),
             size: file.size,
             size_display: file.size.map(format_size),
             uploaded: file.uploaded_bytes,

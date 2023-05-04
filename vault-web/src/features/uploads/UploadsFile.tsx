@@ -8,7 +8,7 @@ import { FileUpload } from '../../vault-wasm/vault-wasm';
 import { useWebVault } from '../../webVault/useWebVault';
 
 export const UploadsFile = memo<{ file: FileUpload }>(({ file }) => {
-  const { id, name, iconType, state, error } = file;
+  const { id, name, category, state, error } = file;
   const theme = useTheme();
   const webVault = useWebVault();
   const retry = useCallback(() => {
@@ -63,7 +63,7 @@ export const UploadsFile = memo<{ file: FileUpload }>(({ file }) => {
             flex-shrink: 0;
           `}
         >
-          <FileIcon size="Sm" type={iconType} />
+          <FileIcon size="Sm" category={category} />
         </div>
         <div
           className={css`

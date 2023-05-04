@@ -1,25 +1,13 @@
 import { useTheme } from '@emotion/react';
 import { memo, useMemo } from 'react';
 
-export type FileIconSize = 'Sm' | 'Lg';
+import { FileCategory } from '../../vault-wasm/vault-wasm';
 
-export type FileIconType =
-  | 'Generic'
-  | 'Folder'
-  | 'Archive'
-  | 'Audio'
-  | 'Code'
-  | 'Document'
-  | 'Image'
-  | 'Pdf'
-  | 'Presentation'
-  | 'Sheet'
-  | 'Text'
-  | 'Video';
+export type FileIconSize = 'Sm' | 'Lg';
 
 export interface FileIconProps {
   size: FileIconSize;
-  type: FileIconType;
+  category: FileCategory;
   isDl?: boolean;
   isUl?: boolean;
   isExport?: boolean;
@@ -46,7 +34,7 @@ const defLgFolderSplit = (color: string) => (
 export const FileIcon = memo<FileIconProps>(
   ({
     size,
-    type,
+    category,
     isDl,
     isUl,
     isExport,
@@ -569,7 +557,7 @@ export const FileIcon = memo<FileIconProps>(
       };
     }, [graphics]);
 
-    const isFolder = type === 'Folder';
+    const isFolder = category === 'Folder';
 
     const def = defs[size];
 
@@ -606,7 +594,7 @@ export const FileIcon = memo<FileIconProps>(
         contentEl = def.folder.import;
       }
     } else {
-      contentEl = def.types[type];
+      contentEl = def.types[category];
     }
 
     const errorOverlayEl = isError

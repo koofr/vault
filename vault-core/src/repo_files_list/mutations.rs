@@ -84,7 +84,7 @@ pub fn decrypt_files_list_recursive_item(
 mod tests {
     use crate::{
         cipher::{errors::DecryptFilenameError, test_helpers::create_cipher},
-        file_types::file_icon_type::FileIconType,
+        file_types::file_category::FileCategory,
         remote::test_helpers as remote_test_helpers,
         repo_files::state::{RepoFile, RepoFileName, RepoFilePath, RepoFileSize, RepoFileType},
         repo_files_list::{errors::FilesListRecursiveItemError, state::RepoFilesListRecursiveItem},
@@ -118,7 +118,7 @@ mod tests {
                     typ: RepoFileType::Dir,
                     size: RepoFileSize::Decrypted { size: 0 },
                     modified: 0,
-                    icon_type: FileIconType::Folder,
+                    category: FileCategory::Folder,
                 },
             }
         )
@@ -153,7 +153,7 @@ mod tests {
                     typ: RepoFileType::Dir,
                     size: RepoFileSize::Decrypted { size: 0 },
                     modified: 1,
-                    icon_type: FileIconType::Folder,
+                    category: FileCategory::Folder,
                 },
             }
         )
@@ -194,7 +194,7 @@ mod tests {
                     typ: RepoFileType::Dir,
                     size: RepoFileSize::Decrypted { size: 0 },
                     modified: 1,
-                    icon_type: FileIconType::Folder,
+                    category: FileCategory::Folder,
                 },
             }
         )
@@ -229,7 +229,7 @@ mod tests {
                     typ: RepoFileType::File,
                     size: RepoFileSize::Decrypted { size: 52 },
                     modified: 1,
-                    icon_type: FileIconType::Generic,
+                    category: FileCategory::Generic,
                 },
             }
         )
@@ -275,7 +275,7 @@ mod tests {
                     typ: RepoFileType::File,
                     size: RepoFileSize::Decrypted { size: 52 },
                     modified: 1,
-                    icon_type: FileIconType::Generic,
+                    category: FileCategory::Generic,
                 },
             }
         )
@@ -316,7 +316,7 @@ mod tests {
                     typ: RepoFileType::File,
                     size: RepoFileSize::Decrypted { size: 52 },
                     modified: 1,
-                    icon_type: FileIconType::Generic,
+                    category: FileCategory::Generic,
                 },
             }
         )

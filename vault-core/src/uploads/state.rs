@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    file_types::file_icon_type::FileIconType, repo_files::selectors as repo_files_selectors,
+    file_types::file_category::FileCategory, repo_files::selectors as repo_files_selectors,
 };
 
 use super::errors::UploadError;
@@ -22,7 +22,7 @@ pub struct FileUpload {
     pub name: String,
     pub autorename_name: Option<String>,
     pub size: Option<i64>,
-    pub icon_type: FileIconType,
+    pub category: FileCategory,
     pub started: i64,
     pub is_persistent: bool,
     pub state: FileUploadState,

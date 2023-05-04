@@ -4,7 +4,7 @@ use crate::{
     cipher::{data_cipher::decrypt_size, Cipher},
     file_types::{
         content_type::ext_to_content_type,
-        file_icon_type::{ext_to_file_icon_type, FileIconType},
+        file_category::{ext_to_file_category, FileCategory},
     },
     remote_files::{
         selectors as remote_files_selectors,
@@ -164,7 +164,7 @@ pub fn decrypt_file(
         },
         RemoteFileType::Dir => RepoFileSize::Decrypted { size: 0 },
     };
-    let (ext, content_type, icon_type) = match &remote_file.typ {
+    let (ext, content_type, category) = match &remote_file.typ {
         RemoteFileType::File => match &name {
             RepoFileName::Decrypted { name_lower, .. } => {
                 let ext = name_utils::name_to_ext(name_lower);
@@ -172,13 +172,13 @@ pub fn decrypt_file(
                 (
                     ext.map(str::to_string),
                     ext.and_then(ext_to_content_type).map(str::to_string),
-                    ext.and_then(ext_to_file_icon_type)
-                        .unwrap_or(FileIconType::Generic),
+                    ext.and_then(ext_to_file_category)
+                        .unwrap_or(FileCategory::Generic),
                 )
             }
-            RepoFileName::DecryptError { .. } => (None, None, FileIconType::Generic),
+            RepoFileName::DecryptError { .. } => (None, None, FileCategory::Generic),
         },
-        RemoteFileType::Dir => (None, None, FileIconType::Folder),
+        RemoteFileType::Dir => (None, None, FileCategory::Folder),
     };
 
     RepoFile {
@@ -193,7 +193,7 @@ pub fn decrypt_file(
         typ: (&remote_file.typ).into(),
         size,
         modified: remote_file.modified,
-        icon_type,
+        category,
     }
 }
 
@@ -215,7 +215,7 @@ pub fn get_root_file(repo_id: &str, remote_file: &RemoteFile) -> RepoFile {
         typ: super::state::RepoFileType::Dir,
         size: RepoFileSize::Decrypted { size: 0 },
         modified: 0,
-        icon_type: FileIconType::Folder,
+        category: FileCategory::Folder,
     }
 }
 
@@ -248,7 +248,7 @@ mod tests {
             errors::{DecryptFilenameError, DecryptSizeError},
             test_helpers::create_cipher,
         },
-        file_types::file_icon_type::FileIconType,
+        file_types::file_category::FileCategory,
         remote_files::test_helpers as remote_files_test_helpers,
         repo_files::state::{RepoFile, RepoFileName, RepoFilePath, RepoFileSize, RepoFileType},
     };
@@ -278,7 +278,7 @@ mod tests {
                 typ: RepoFileType::Dir,
                 size: RepoFileSize::Decrypted { size: 0 },
                 modified: 0,
-                icon_type: FileIconType::Folder,
+                category: FileCategory::Folder,
             }
         )
     }
@@ -310,7 +310,7 @@ mod tests {
                 typ: RepoFileType::Dir,
                 size: RepoFileSize::Decrypted { size: 0 },
                 modified: 1,
-                icon_type: FileIconType::Folder,
+                category: FileCategory::Folder,
             }
         )
     }
@@ -346,7 +346,7 @@ mod tests {
                 typ: RepoFileType::Dir,
                 size: RepoFileSize::Decrypted { size: 0 },
                 modified: 1,
-                icon_type: FileIconType::Folder,
+                category: FileCategory::Folder,
             }
         )
     }
@@ -378,7 +378,7 @@ mod tests {
                 typ: RepoFileType::File,
                 size: RepoFileSize::Decrypted { size: 52 },
                 modified: 1,
-                icon_type: FileIconType::Image,
+                category: FileCategory::Image,
             }
         )
     }
@@ -418,7 +418,7 @@ mod tests {
                     error: DecryptSizeError::EncryptedFileTooShort
                 },
                 modified: 1,
-                icon_type: FileIconType::Generic,
+                category: FileCategory::Generic,
             }
         )
     }

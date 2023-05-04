@@ -8,7 +8,7 @@ use futures::AsyncRead;
 
 use crate::{
     cipher::errors::{DecryptFilenameError, DecryptSizeError},
-    file_types::file_icon_type::FileIconType,
+    file_types::file_category::FileCategory,
     remote::{models, RemoteFileUploadConflictResolution},
     remote_files::state::RemoteFileType,
 };
@@ -143,7 +143,7 @@ pub struct RepoFile {
     pub typ: RepoFileType,
     pub size: RepoFileSize,
     pub modified: i64,
-    pub icon_type: FileIconType,
+    pub category: FileCategory,
 }
 
 impl RepoFile {

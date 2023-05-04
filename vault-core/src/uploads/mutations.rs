@@ -1,7 +1,7 @@
 use std::cmp::min;
 
 use crate::{
-    file_types::file_icon_type::{ext_to_file_icon_type, FileIconType},
+    file_types::file_category::{ext_to_file_category, FileCategory},
     store,
     utils::name_utils,
 };
@@ -30,9 +30,9 @@ pub struct FileUploadAdded {
 }
 
 pub fn file_upload_added(state: &mut store::State, file: FileUploadAdded, now: i64) {
-    let icon_type = name_utils::name_to_ext(&file.name.to_lowercase())
-        .and_then(ext_to_file_icon_type)
-        .unwrap_or(FileIconType::Generic);
+    let category = name_utils::name_to_ext(&file.name.to_lowercase())
+        .and_then(ext_to_file_category)
+        .unwrap_or(FileCategory::Generic);
 
     state.uploads.files.insert(
         file.id.clone(),
@@ -43,7 +43,7 @@ pub fn file_upload_added(state: &mut store::State, file: FileUploadAdded, now: i
             name: file.name,
             autorename_name: None,
             size: file.size,
-            icon_type,
+            category,
             started: now,
             is_persistent: file.is_persistent,
             state: FileUploadState::Waiting,

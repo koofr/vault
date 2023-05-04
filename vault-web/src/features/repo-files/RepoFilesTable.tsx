@@ -62,7 +62,7 @@ const FileName = memo<{ file: RepoFile }>(({ file }) => {
           margin-right: 15px;
         `}
       >
-        <FileIcon size="Sm" type={file.iconType} />
+        <FileIcon size="Sm" category={file.category} />
       </span>
       <span
         className={cx(
@@ -235,7 +235,13 @@ const RepoFilesTableRow = memo<RowProps<TableData>>(({ index, data }) => {
       row={row}
       isSelected={isSelected}
       isFirstSelected={isFirstSelected}
-      ariaLabel={file !== undefined ? file.type === 'Dir' ? `Folder ${file.name}` : `File ${file.name}` : undefined}
+      ariaLabel={
+        file !== undefined
+          ? file.type === 'Dir'
+            ? `Folder ${file.name}`
+            : `File ${file.name}`
+          : undefined
+      }
     />
   );
 });
