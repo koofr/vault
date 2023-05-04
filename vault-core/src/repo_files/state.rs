@@ -181,14 +181,26 @@ pub struct RepoFilesState {
 }
 
 pub enum RepoFilesUploadConflictResolution {
-    Overwrite,
+    Overwrite {
+        if_remote_size: Option<i64>,
+        if_remote_modified: Option<i64>,
+        if_remote_hash: Option<String>,
+    },
     Error,
 }
 
 impl Into<RemoteFileUploadConflictResolution> for RepoFilesUploadConflictResolution {
     fn into(self) -> RemoteFileUploadConflictResolution {
         match self {
-            Self::Overwrite => RemoteFileUploadConflictResolution::Overwrite,
+            Self::Overwrite {
+                if_remote_size,
+                if_remote_modified,
+                if_remote_hash,
+            } => RemoteFileUploadConflictResolution::Overwrite {
+                if_size: if_remote_size,
+                if_modified: if_remote_modified,
+                if_hash: if_remote_hash,
+            },
             Self::Error => RemoteFileUploadConflictResolution::Error,
         }
     }

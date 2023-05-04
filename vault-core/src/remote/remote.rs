@@ -38,7 +38,11 @@ pub struct RemoteFileReader {
 
 pub enum RemoteFileUploadConflictResolution {
     Autorename,
-    Overwrite,
+    Overwrite {
+        if_size: Option<i64>,
+        if_modified: Option<i64>,
+        if_hash: Option<String>,
+    },
     Error,
 }
 
@@ -433,11 +437,16 @@ impl Remote {
         on_progress: Option<Box<dyn Fn(usize) + Send + Sync>>,
         abort: HttpRequestAbort,
     ) -> Result<models::FilesFile, RemoteError> {
-        let (autorename, overwrite) = match conflict_resolution {
-            RemoteFileUploadConflictResolution::Autorename => (true, false),
-            RemoteFileUploadConflictResolution::Overwrite => (false, true),
-            RemoteFileUploadConflictResolution::Error => (false, false),
-        };
+        let (autorename, overwrite, overwrite_if_size, overwrite_if_modified, overwrite_if_hash) =
+            match conflict_resolution {
+                RemoteFileUploadConflictResolution::Autorename => (true, false, None, None, None),
+                RemoteFileUploadConflictResolution::Overwrite {
+                    if_size,
+                    if_modified,
+                    if_hash,
+                } => (false, true, if_size, if_modified, if_hash),
+                RemoteFileUploadConflictResolution::Error => (false, false, None, None, None),
+            };
 
         let mut url = format!(
             "/content/api/v2.1/mounts/{}/files/put?path={}&filename={}&autorename={}&overwrite={}&info=true",
@@ -450,6 +459,15 @@ impl Remote {
 
         if let Some(size) = size {
             url = format!("{}&size={}", url, size);
+        }
+        if let Some(overwrite_if_size) = overwrite_if_size {
+            url = format!("{}&overwriteIfSize={}", url, overwrite_if_size);
+        }
+        if let Some(overwrite_if_modified) = overwrite_if_modified {
+            url = format!("{}&overwriteIfModified={}", url, overwrite_if_modified);
+        }
+        if let Some(overwrite_if_hash) = overwrite_if_hash {
+            url = format!("{}&overwriteIfHash={}", url, overwrite_if_hash);
         }
 
         let res = self
