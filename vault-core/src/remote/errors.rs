@@ -10,6 +10,7 @@ use super::models;
 pub enum ApiErrorCode {
     NotFound,
     AlreadyExists,
+    Conflict,
     NotDir,
     InvalidPath,
     VaultReposLocationNotFound,
@@ -24,6 +25,7 @@ impl From<&str> for ApiErrorCode {
         match code {
             "NotFound" => Self::NotFound,
             "AlreadyExists" => Self::AlreadyExists,
+            "Conflict" => Self::Conflict,
             "NotDir" => Self::NotDir,
             "InvalidPath" => Self::InvalidPath,
             "VaultReposLocationNotFound" => Self::VaultReposLocationNotFound,
@@ -67,6 +69,13 @@ impl RemoteError {
             message: api_error_details.message,
             request_id,
             extra: api_error_details.extra,
+        }
+    }
+
+    pub fn is_api_error_code(&self, expected_code: ApiErrorCode) -> bool {
+        match &self {
+            Self::ApiError { code, .. } => code == &expected_code,
+            _ => false,
         }
     }
 }
