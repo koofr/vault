@@ -148,6 +148,7 @@ pub struct RemoteFile {
     pub typ: RemoteFileType,
     pub size: i64,
     pub modified: i64,
+    pub hash: Option<String>,
 }
 
 impl RemoteFile {

@@ -15,6 +15,7 @@ pub fn mount_to_remote_file(id: String, mount_id: String) -> RemoteFile {
         typ: RemoteFileType::Dir,
         size: 0,
         modified: 0,
+        hash: None,
     }
 }
 
@@ -35,6 +36,7 @@ pub fn files_file_to_remote_file(
         typ: file.typ.as_str().into(),
         size: file.size,
         modified: file.modified,
+        hash: file.hash,
     }
 }
 
@@ -55,6 +57,7 @@ pub fn bundle_file_to_remote_file(
         typ: file.typ.as_str().into(),
         size: file.size,
         modified: file.modified,
+        hash: file.hash,
     }
 }
 
@@ -70,6 +73,7 @@ fn bookmark_to_remote_file(id: String, bookmark: models::Bookmark) -> RemoteFile
         typ: RemoteFileType::Dir,
         size: 0,
         modified: 0,
+        hash: None,
     }
 }
 
@@ -83,6 +87,7 @@ fn shared_file_to_remote_file(id: String, shared_file: models::SharedFile) -> Re
         typ: shared_file.typ.as_str().into(),
         size: shared_file.size,
         modified: shared_file.modified,
+        hash: None,
     }
 }
 
@@ -101,6 +106,7 @@ fn dir_to_remote_file(id: String, mount_id: String, path: String) -> RemoteFile 
         typ: RemoteFileType::Dir,
         size: 0,
         modified: 0,
+        hash: None,
     }
 }
 
