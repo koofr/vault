@@ -1,7 +1,7 @@
 use crate::{
     cipher,
     remote::RemoteError,
-    remote_files::selectors as remote_files_selectors,
+    remote_files::{selectors as remote_files_selectors, state::RemoteFile},
     repos::{errors::RepoNotFoundError, selectors as repos_selectors, state::Repo},
     store,
     utils::path_utils,
@@ -53,6 +53,16 @@ pub fn select_file_name<'a>(state: &'a store::State, file: &'a RepoFile) -> Opti
         },
         _ => None,
     }
+}
+
+pub fn select_remote_file<'a>(
+    state: &'a store::State,
+    file: &'a RepoFile,
+) -> Option<&'a RemoteFile> {
+    remote_files_selectors::select_file(
+        state,
+        &remote_files_selectors::get_file_id(&file.mount_id, &file.remote_path),
+    )
 }
 
 pub fn select_repo_path_to_mount_path<'a>(
