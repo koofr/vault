@@ -7,7 +7,7 @@ use wasm_bindgen::prelude::*;
 use vault_core::{
     common::state as common_state,
     dir_pickers::state as dir_pickers_state,
-    file_types::file_category,
+    file_types::{file_category, files_filter},
     notifications::state as notifications_state,
     remote_files::state as remote_files_state,
     repo_config_backup::state as repo_config_backup_state,
@@ -126,6 +126,40 @@ impl From<&file_category::FileCategory> for FileCategory {
             file_category::FileCategory::Sheet => Self::Sheet,
             file_category::FileCategory::Text => Self::Text,
             file_category::FileCategory::Video => Self::Video,
+        }
+    }
+}
+
+impl Into<file_category::FileCategory> for FileCategory {
+    fn into(self) -> file_category::FileCategory {
+        match self {
+            Self::Generic => file_category::FileCategory::Generic,
+            Self::Folder => file_category::FileCategory::Folder,
+            Self::Archive => file_category::FileCategory::Archive,
+            Self::Audio => file_category::FileCategory::Audio,
+            Self::Code => file_category::FileCategory::Code,
+            Self::Document => file_category::FileCategory::Document,
+            Self::Image => file_category::FileCategory::Image,
+            Self::Pdf => file_category::FileCategory::Pdf,
+            Self::Presentation => file_category::FileCategory::Presentation,
+            Self::Sheet => file_category::FileCategory::Sheet,
+            Self::Text => file_category::FileCategory::Text,
+            Self::Video => file_category::FileCategory::Video,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+pub struct FilesFilter {
+    pub categories: Vec<FileCategory>,
+    pub exts: Vec<String>,
+}
+
+impl Into<files_filter::FilesFilter> for FilesFilter {
+    fn into(self) -> files_filter::FilesFilter {
+        files_filter::FilesFilter {
+            categories: self.categories.into_iter().map(|x| x.into()).collect(),
+            exts: self.exts,
         }
     }
 }
