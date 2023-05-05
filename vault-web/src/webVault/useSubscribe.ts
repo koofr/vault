@@ -8,13 +8,13 @@ export function useSubscribe<T>(
   subscribe: (webVault: WebVault, callback: () => void) => number,
   getDataFunc: (webVault: WebVault) => (subscriptionId: number) => T,
   deps: DependencyList
-): T {
+): [T, { current: T }] {
   const webVault = useWebVault();
 
   const currentSubscriptionId = useRef<number>();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setVersion] = useState(0);
-  const data = useRef<T>();
+  const data = useRef<T>(undefined as T);
 
   useMemo(
     () => {
@@ -50,5 +50,5 @@ export function useSubscribe<T>(
     };
   }, [webVault]);
 
-  return data.current!;
+  return [data.current!, data];
 }

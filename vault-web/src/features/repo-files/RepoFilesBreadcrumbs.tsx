@@ -13,7 +13,7 @@ export const RepoFilesBreadcrumbs = memo(() => {
   const isMobile = useIsMobile();
   const webVault = useWebVault();
   const browserId = useRepoFilesBrowserId();
-  const allBreadcrumbs = useSubscribe(
+  const [allBreadcrumbs] = useSubscribe(
     (v, cb) => v.repoFilesBrowsersBreadcrumbsSubscribe(browserId, cb),
     (v) => v.repoFilesBrowsersBreadcrumbsData,
     [browserId]

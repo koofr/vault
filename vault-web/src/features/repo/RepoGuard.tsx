@@ -11,7 +11,7 @@ export const RepoGuard: React.FC<{
   repoId: string;
   component: React.ComponentType<{ repo: Repo }>;
 }> = ({ repoId, component }) => {
-  const info = useSubscribe(
+  const [info] = useSubscribe(
     (v, cb) => v.reposRepoSubscribe(repoId, cb),
     (v) => v.reposRepoData,
     [repoId]

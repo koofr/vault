@@ -27,7 +27,7 @@ export const RepoDestroyModalContent = memo<{
       webVault.repoRemoveDestroy(repoId);
     };
   }, [webVault, repoId]);
-  const info = useSubscribe(
+  const [info] = useSubscribe(
     (v, cb) => v.repoRemoveInfoSubscribe(cb),
     (v) => v.repoRemoveInfoData,
     []

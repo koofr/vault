@@ -280,7 +280,7 @@ export const Repos = memo(() => {
   const location = useLocation();
   const params = useParams();
   const paramsRepoId: string | undefined = params.repoId;
-  const repos = useSubscribe(
+  const [repos] = useSubscribe(
     (v, cb) => v.reposSubscribe(cb),
     (v) => v.reposData,
     []

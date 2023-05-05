@@ -49,7 +49,7 @@ const UserIconFallback = memo<{ user: User }>(({ user }) => {
 const UserIconUser = memo<{ user: User }>(({ user }) => {
   const webVault = useWebVault();
   useMemo(() => webVault.userEnsureProfilePicture(), [webVault]);
-  const profilePictureLoaded = useSubscribe(
+  const [profilePictureLoaded] = useSubscribe(
     (v, cb) => v.userProfilePictureLoadedSubscribe(cb),
     (v) => v.userProfilePictureLoadedData,
     []
@@ -88,7 +88,7 @@ const UserIconUser = memo<{ user: User }>(({ user }) => {
 });
 
 export const UserIcon = memo(() => {
-  const user = useSubscribe(
+  const [user] = useSubscribe(
     (v, cb) => v.userSubscribe(cb),
     (v) => v.userData,
     []

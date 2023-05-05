@@ -12,7 +12,7 @@ export function useRepoFilesDetailsBytes(
   useEffect(() => {
     webVault.repoFilesDetailsLoadContent(detailsId);
   }, [webVault, detailsId, file.repoId, file.path, file.modified]);
-  const arrayBuffer = useSubscribe(
+  const [arrayBuffer] = useSubscribe(
     (v, cb) => v.repoFilesDetailsContentBytesSubscribe(detailsId, cb),
     (v) => v.repoFilesDetailsContentBytesData,
     [detailsId]

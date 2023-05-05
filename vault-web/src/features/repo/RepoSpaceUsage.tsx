@@ -13,7 +13,7 @@ export const RepoSpaceUsage = memo<{ repoId: string }>(({ repoId }) => {
       webVault.repoSpaceUsageDestroy(repoId);
     };
   }, [webVault, repoId]);
-  const info = useSubscribe(
+  const [info] = useSubscribe(
     (v, cb) => v.repoSpaceUsageInfoSubscribe(cb),
     (v) => v.repoSpaceUsageInfoData,
     []

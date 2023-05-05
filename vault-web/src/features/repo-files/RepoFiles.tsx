@@ -53,7 +53,7 @@ export const RepoFiles = memo<{ repo: Repo }>(({ repo }) => {
     setLocationCount.current += 1;
   }, [webVault, browserId, repoId, path]);
 
-  const info = useSubscribe(
+  const [info] = useSubscribe(
     (v, cb) => v.repoFilesBrowsersInfoSubscribe(browserId, cb),
     (v) => v.repoFilesBrowsersInfoData,
     [browserId]

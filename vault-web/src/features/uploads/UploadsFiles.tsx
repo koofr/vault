@@ -6,7 +6,7 @@ import { useSubscribe } from '../../webVault/useSubscribe';
 import { UploadsFile } from './UploadsFile';
 
 export const UploadsFiles = memo(() => {
-  const uploads = useSubscribe(
+  const [uploads] = useSubscribe(
     (v, cb) => v.uploadsFilesSubscribe(cb),
     (v) => v.uploadsFilesData,
     []

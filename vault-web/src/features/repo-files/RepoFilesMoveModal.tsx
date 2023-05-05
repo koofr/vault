@@ -153,7 +153,7 @@ export const RepoFilesMoveModalContent = memo<{
 
 export const RepoFilesMoveModal = memo(() => {
   const webVault = useWebVault();
-  const info = useSubscribe(
+  const [info] = useSubscribe(
     (v, cb) => v.repoFilesMoveInfoSubscribe(cb),
     (v) => v.repoFilesMoveInfoData,
     []

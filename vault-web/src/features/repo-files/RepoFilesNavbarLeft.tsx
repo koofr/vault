@@ -11,7 +11,7 @@ import { repoFilesLink } from './selectors';
 export const RepoFilesNavbarLeft = memo(() => {
   const isMobile = useIsMobile();
   const browserId = useRepoFilesBrowserId();
-  const breadcrumbs = useSubscribe(
+  const [breadcrumbs] = useSubscribe(
     (v, cb) => v.repoFilesBrowsersBreadcrumbsSubscribe(browserId, cb),
     (v) => v.repoFilesBrowsersBreadcrumbsData,
     [browserId]

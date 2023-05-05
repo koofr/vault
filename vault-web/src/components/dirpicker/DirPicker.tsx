@@ -29,7 +29,7 @@ export const DirPicker = memo<{
 }>(({ pickerId, onClick }) => {
   const isMobile = useIsMobile();
   const theme = useTheme();
-  const items = useSubscribe(
+  const [items] = useSubscribe(
     (v, cb) => v.dirPickersItemsSubscribe(pickerId, cb),
     (v) => v.dirPickersItemsData,
     [pickerId]

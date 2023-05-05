@@ -16,7 +16,7 @@ export const RepoConfigBackup = memo<{ repoId: string }>(({ repoId }) => {
       webVault.repoConfigBackupDestroy(repoId);
     };
   }, [webVault, repoId]);
-  const info = useSubscribe(
+  const [info] = useSubscribe(
     (v, cb) => v.repoConfigBackupInfoSubscribe(cb),
     (v) => v.repoConfigBackupInfoData,
     []

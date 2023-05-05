@@ -204,7 +204,7 @@ export const FileModified = memo<{ file: RepoFile }>(({ file }) => {
 
 const RepoFilesTableRow = memo<RowProps<TableData>>(({ index, data }) => {
   const item = useMemo(() => data.items[index], [data, index]);
-  const file = useSubscribe(
+  const [file] = useSubscribe(
     (v, cb) => v.repoFilesFileSubscribe(item.fileId, cb),
     (v) => v.repoFilesFileData,
     [item.fileId]
@@ -246,7 +246,7 @@ export const RepoFilesTable = memo<{
   const isMobile = useIsMobile();
   const webVault = useWebVault();
   const browserId = useRepoFilesBrowserId();
-  const items = useSubscribe(
+  const [items] = useSubscribe(
     (v, cb) => v.repoFilesBrowsersItemsSubscribe(browserId, cb),
     (v) => v.repoFilesBrowsersItemsData,
     [browserId]

@@ -11,7 +11,7 @@ import { Notification } from './Notification';
 export const Notifications = memo<{}>(() => {
   const theme = useTheme();
   const webVault = useWebVault();
-  const notifications = useSubscribe(
+  const [notifications] = useSubscribe(
     (v, cb) => v.notificationsSubscribe(cb),
     (v) => v.notificationsData,
     []

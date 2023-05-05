@@ -12,12 +12,12 @@ import { UPLOADS_SUMMARY_HEIGHT } from '../uploads/UploadsSummary';
 export const SpaceUsage = memo(() => {
   const isMobile = useIsMobile();
   const theme = useTheme();
-  const spaceUsage = useSubscribe(
+  const [spaceUsage] = useSubscribe(
     (v, cb) => v.spaceUsageSubscribe(cb),
     (v) => v.spaceUsageData,
     []
   );
-  const uploadsIsActive = useSubscribe(
+  const [uploadsIsActive] = useSubscribe(
     (v, cb) => v.uploadsIsActiveSubscribe(cb),
     (v) => v.uploadsIsActiveData,
     []

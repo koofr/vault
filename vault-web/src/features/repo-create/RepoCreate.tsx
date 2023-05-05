@@ -455,7 +455,7 @@ export const RepoCreatedComponent = memo<{ created: RepoCreated }>(
 
 export const RepoCreate = memo(() => {
   const webVault = useWebVault();
-  const info = useSubscribe(
+  const [info] = useSubscribe(
     (v, cb) => v.repoCreateInfoSubscribe(cb),
     (v) => v.repoCreateInfoData,
     []

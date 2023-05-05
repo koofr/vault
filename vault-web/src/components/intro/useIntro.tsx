@@ -12,7 +12,7 @@ export const useIntro = (): {
 } => {
   const introModal = useModal();
   const introModalShow = introModal.show;
-  const repos = useSubscribe(
+  const [repos] = useSubscribe(
     (v, cb) => v.reposSubscribe(cb),
     (v) => v.reposData,
     []

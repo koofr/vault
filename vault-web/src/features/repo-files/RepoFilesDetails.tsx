@@ -150,7 +150,7 @@ const RepoFilesDetailsInner = memo<{ repo: Repo; path: string }>(
         webVault.repoFilesDetailsDestroy(detailsId);
       };
     }, [webVault, detailsId]);
-    const info = useSubscribe(
+    const [info] = useSubscribe(
       (v, cb) => v.repoFilesDetailsInfoSubscribe(detailsId, cb),
       (v) => v.repoFilesDetailsInfoData,
       [detailsId]

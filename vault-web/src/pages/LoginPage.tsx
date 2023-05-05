@@ -8,7 +8,7 @@ import { useWebVault } from '../webVault/useWebVault';
 export const LoginPage: React.FC<{}> = () => {
   const webVault = useWebVault();
   const navigate = useNavigate();
-  const oauth2Status = useSubscribe(
+  const [oauth2Status] = useSubscribe(
     (v, cb) => v.oauth2StatusSubscribe(cb),
     (v) => v.oauth2StatusData,
     []

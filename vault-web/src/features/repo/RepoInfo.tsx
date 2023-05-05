@@ -125,7 +125,7 @@ export const RepoInfoRepo = memo<{ repo: Repo }>(({ repo }) => {
 });
 
 export const RepoInfo = memo<{ repoId: string }>(({ repoId }) => {
-  const info = useSubscribe(
+  const [info] = useSubscribe(
     (v, cb) => v.reposRepoSubscribe(repoId, cb),
     (v) => v.reposRepoData,
     [repoId]

@@ -14,7 +14,7 @@ export const Uploads = memo(() => {
     () => setDetailsVisible((visible) => !visible),
     []
   );
-  const isActive = useSubscribe(
+  const [isActive] = useSubscribe(
     (v, cb) => v.uploadsIsActiveSubscribe(cb),
     (v) => v.uploadsIsActiveData,
     []

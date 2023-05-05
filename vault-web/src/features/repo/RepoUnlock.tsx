@@ -18,7 +18,7 @@ export const RepoUnlock = memo<{ repoId: string }>(({ repoId }) => {
       webVault.repoUnlockDestroy(repoId);
     };
   }, [webVault, repoId]);
-  const info = useSubscribe(
+  const [info] = useSubscribe(
     (v, cb) => v.repoUnlockInfoSubscribe(cb),
     (v) => v.repoUnlockInfoData,
     []

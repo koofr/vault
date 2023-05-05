@@ -19,19 +19,21 @@ export const UploadsSummary = memo<{
 }>(({ areDetailsVisible, toggleDetailsVisible }) => {
   const theme = useTheme();
   const webVault = useWebVault();
-  const {
-    totalCount,
-    doneCount,
-    failedCount,
-    totalBytes,
-    doneBytes,
-    percentage,
-    remainingTime,
-    bytesPerSecond,
-    isUploading,
-    canRetry,
-    canAbort,
-  } = useSubscribe(
+  const [
+    {
+      totalCount,
+      doneCount,
+      failedCount,
+      totalBytes,
+      doneBytes,
+      percentage,
+      remainingTime,
+      bytesPerSecond,
+      isUploading,
+      canRetry,
+      canAbort,
+    },
+  ] = useSubscribe(
     (v, cb) => v.uploadsSummarySubscribe(cb),
     (v) => v.uploadsSummaryData,
     []

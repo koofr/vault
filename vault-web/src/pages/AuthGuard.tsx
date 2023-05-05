@@ -7,7 +7,7 @@ import { useSubscribe } from '../webVault/useSubscribe';
 import { LandingPageLazy } from './LandingPageLazy';
 
 export const AuthGuard = memo(() => {
-  const oauth2Status = useSubscribe(
+  const [oauth2Status] = useSubscribe(
     (v, cb) => v.oauth2StatusSubscribe(cb),
     (v) => v.oauth2StatusData,
     []

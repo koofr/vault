@@ -20,7 +20,7 @@ export const DashboardMenuUserInfoItem = memo(() => {
   const theme = useTheme();
   const webVault = useWebVault();
   const baseUrl = webVault.configGetBaseUrl();
-  const user = useSubscribe(
+  const [user] = useSubscribe(
     (v, cb) => v.userSubscribe(cb),
     (v) => v.userData,
     []

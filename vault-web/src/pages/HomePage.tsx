@@ -6,7 +6,7 @@ import { useSubscribe } from '../webVault/useSubscribe';
 
 export const HomePage = memo(() => {
   const navigate = useNavigate();
-  const repos = useSubscribe(
+  const [repos] = useSubscribe(
     (v, cb) => v.reposSubscribe(cb),
     (v) => v.reposData,
     []
