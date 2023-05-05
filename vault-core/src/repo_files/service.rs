@@ -495,6 +495,8 @@ impl RepoFilesService {
     pub fn remote_file_created(&self, mount_id: &str, path: &str, file: models::FilesFile) {
         self.remote_files_service.file_created(mount_id, path, file);
 
+        let _ = self.mount_path_decrypt_files(mount_id, path);
+
         if let Some(parent_path) = path_utils::parent_path(path) {
             let _ = self.mount_path_decrypt_files(mount_id, parent_path);
         }
@@ -502,6 +504,8 @@ impl RepoFilesService {
 
     pub fn remote_file_removed(&self, mount_id: &str, path: &str) {
         self.remote_files_service.file_removed(mount_id, path);
+
+        let _ = self.mount_path_decrypt_files(mount_id, path);
 
         if let Some(parent_path) = path_utils::parent_path(path) {
             let _ = self.mount_path_decrypt_files(mount_id, parent_path);
@@ -531,6 +535,8 @@ impl RepoFilesService {
 
         let parent_path = path_utils::parent_path(path);
         let new_parent_path = path_utils::parent_path(new_path);
+
+        let _ = self.mount_path_decrypt_files(mount_id, path);
 
         if let Some(parent_path) = parent_path {
             let _ = self.mount_path_decrypt_files(mount_id, parent_path);
