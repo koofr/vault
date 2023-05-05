@@ -30,8 +30,9 @@ export const RepoFilesNavbarExtra = memo<{
               overflow: hidden;
             `
       )}
-    >
-      <div
+      >
+      {/* TODO searchbox */}
+      {/* <div
         className={cx(
           css`
             margin: 0;
@@ -47,8 +48,7 @@ export const RepoFilesNavbarExtra = memo<{
             : css``
         )}
       >
-        {/* TODO searchbox */}
-      </div>
+      </div> */}
       {info !== undefined ? (
         <div
           className={cx(

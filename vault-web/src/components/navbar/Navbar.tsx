@@ -149,8 +149,13 @@ export const NavbarExtra = memo<PropsWithChildren<{ isSticky: boolean }>>(
                   box-shadow: 0 1px 3px 0 ${theme.colors.border};
                   background-color: #fff;
                   z-index: ${theme.zindex.navbarExtra};
+                  // TODO searchbox
+                  padding-left: ${theme.isMobile ? '15px' : '275px'};
                 `
-              : undefined,
+              : css`
+                  // TODO searchbox
+                  margin-left: ${theme.isMobile ? '0' : '250px'};
+                `,
             theme.isMobile
               ? css`
                   overflow-x: auto;

@@ -34,11 +34,15 @@ export const RepoFiles = memo<{ repo: Repo }>(({ repo }) => {
   const [searchParams] = useSearchParams();
   const path = searchParams.get('path') ?? '/';
   const webVault = useWebVault();
-  const browserId = useMemo(() => {
-    return webVault.repoFilesBrowsersCreate(repoId, path);
-    // we create a new browser with repoId and path and then use setLocation to update
+  const browserId = useMemo(
+    () => {
+      // we create a new browser with repoId and path and then use setLocation
+      // to update path
+      return webVault.repoFilesBrowsersCreate(repoId, path);
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [webVault]);
+    [webVault]
+  );
   useEffect(() => {
     return () => {
       webVault.repoFilesBrowsersDestroy(browserId);
@@ -96,7 +100,6 @@ export const RepoFiles = memo<{ repo: Repo }>(({ repo }) => {
                     padding-top: 0;
                   `
                 : css`
-                    z-index: 599;
                     padding-top: 10px;
                   `
             }
@@ -105,7 +108,6 @@ export const RepoFiles = memo<{ repo: Repo }>(({ repo }) => {
                 ? css``
                 : css`
                     margin-top: -50px;
-                    z-index: 599;
                   `
             }
           >
