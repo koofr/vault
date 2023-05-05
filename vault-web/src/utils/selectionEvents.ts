@@ -1,7 +1,4 @@
-const isMacOS =
-  (navigator as any).userAgentData != null
-    ? (navigator as any).userAgentData.platform === 'macOS'
-    : navigator.platform.indexOf('Mac') !== -1;
+import { isMacOS } from './browser';
 
 export const isExtend = (event: { ctrlKey: boolean; metaKey: boolean }) =>
   isMacOS ? event.metaKey : event.ctrlKey;
