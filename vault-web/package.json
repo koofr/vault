@@ -24,6 +24,7 @@
     "date-fns": "^2.29.3",
     "embla-carousel-react": "^7.1.0",
     "file-saver": "^2.0.5",
+    "keycode": "^2.2.1",
     "lodash": "^4.17.21",
     "monaco-editor": "^0.37.1",
     "normalize.css": "^8.0.1",
