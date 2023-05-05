@@ -224,6 +224,12 @@ impl Vault {
         self.store.with_state(f)
     }
 
+    // subscription
+
+    pub fn get_subscription(&self) -> store::Subscription {
+        store::Subscription::new(self.store.clone())
+    }
+
     // lifecycle
 
     pub async fn load(&self) -> Result<(), remote::RemoteError> {

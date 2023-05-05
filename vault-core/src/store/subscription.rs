@@ -3,30 +3,30 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::{store, Vault};
+use super::{Event, Store};
 
 pub struct Subscription {
-    vault: Arc<Vault>,
+    store: Arc<Store>,
     cleanups: Arc<Mutex<HashMap<u32, Box<dyn Fn() + Send + Sync + 'static>>>>,
 }
 
 impl Subscription {
-    pub fn new(vault: Arc<Vault>) -> Self {
+    pub fn new(store: Arc<Store>) -> Self {
         Self {
-            vault,
+            store,
             cleanups: Arc::new(Mutex::new(HashMap::new())),
         }
     }
 
     pub fn subscribe<T: Clone + PartialEq + Send + 'static>(
         &self,
-        events: &[store::Event],
+        events: &[Event],
         callback: Box<dyn Fn() + 'static>,
         subscription_data: Arc<Mutex<HashMap<u32, T>>>,
-        generate_data: impl Fn(Arc<Vault>) -> T + 'static,
+        generate_data: impl Fn() -> T + 'static,
     ) -> u32 {
-        self.subscribe_changed(events, callback, subscription_data, move |vault, entry| {
-            let new_data = generate_data(vault);
+        self.subscribe_changed(events, callback, subscription_data, move |entry| {
+            let new_data = generate_data();
 
             match entry {
                 hash_map::Entry::Occupied(mut o) => {
@@ -49,24 +49,22 @@ impl Subscription {
 
     pub fn subscribe_changed<T: Clone + Send + 'static>(
         &self,
-        events: &[store::Event],
+        events: &[Event],
         callback: Box<dyn Fn() + 'static>,
         subscription_data: Arc<Mutex<HashMap<u32, T>>>,
-        generate_data: impl Fn(Arc<Vault>, hash_map::Entry<'_, u32, T>) -> bool + 'static,
+        generate_data: impl Fn(hash_map::Entry<'_, u32, T>) -> bool + 'static,
     ) -> u32 {
-        let id = self.vault.get_next_id();
+        let id = self.store.get_next_id();
 
         let generate_data = Arc::new(generate_data);
 
-        let callback_vault = self.vault.clone();
         let callback_subscription_data = subscription_data.clone();
         let callback_generate_data = generate_data.clone();
 
         let store_callback: Box<dyn Fn() + 'static> = Box::new(move || {
             let callback_subscription_data = callback_subscription_data.clone();
             let mut subscription_data = callback_subscription_data.lock().unwrap();
-            let changed =
-                callback_generate_data(callback_vault.clone(), subscription_data.entry(id));
+            let changed = callback_generate_data(subscription_data.entry(id));
 
             drop(subscription_data);
 
@@ -78,7 +76,7 @@ impl Subscription {
             Box::from_raw(Box::into_raw(store_callback) as *mut (dyn Fn() + Send + Sync + 'static))
         };
 
-        self.vault.on(id, events, store_callback);
+        self.store.on(id, events, store_callback);
 
         let cleanup_subscription_data = subscription_data.clone();
 
@@ -93,7 +91,7 @@ impl Subscription {
         self.cleanups.lock().unwrap().insert(id, cleanup);
 
         let mut subscription_data = subscription_data.lock().unwrap();
-        let _ = generate_data(self.vault.clone(), subscription_data.entry(id));
+        let _ = generate_data(subscription_data.entry(id));
 
         id
     }
@@ -107,7 +105,7 @@ impl Subscription {
     }
 
     pub fn unsubscribe(&self, id: u32) {
-        self.vault.remove_listener(id);
+        self.store.remove_listener(id);
 
         let cleanup = self.cleanups.lock().unwrap().remove(&id);
 

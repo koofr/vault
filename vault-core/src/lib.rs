@@ -31,7 +31,6 @@ pub mod secure_storage;
 pub mod selection;
 pub mod space_usage;
 pub mod store;
-pub mod subscription;
 pub mod uploads;
 pub mod user;
 pub mod user_error;

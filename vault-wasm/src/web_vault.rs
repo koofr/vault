@@ -1274,7 +1274,7 @@ impl WebVault {
                             state, details_id,
                         );
 
-                    vault_core::subscription::update_if(
+                    vault_core::store::update_if(
                         entry,
                         || VersionedFileBytes {
                             value: (match bytes {

@@ -3,17 +3,21 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use vault_core::subscription::Subscription;
+use vault_core::{store::Subscription, Vault};
 
 pub struct WebSubscription {
+    vault: Arc<Vault>,
     subscription: Subscription,
     window: web_sys::Window,
 }
 
 impl WebSubscription {
     pub fn new(vault: Arc<vault_core::Vault>) -> Self {
+        let subscription = vault.get_subscription();
+
         Self {
-            subscription: Subscription::new(vault),
+            vault,
+            subscription,
             window: web_sys::window().unwrap(),
         }
     }
@@ -34,9 +38,12 @@ impl WebSubscription {
         generate_data: impl Fn(Arc<vault_core::Vault>) -> T + 'static,
     ) -> u32 {
         let callback = self.get_deferred_callback(js_callback);
+        let vault = self.vault.clone();
 
         self.subscription
-            .subscribe(events, callback, subscription_data, generate_data)
+            .subscribe(events, callback, subscription_data, move || {
+                generate_data(vault.clone())
+            })
     }
 
     pub fn subscribe_changed<T: Clone + Send + 'static>(
@@ -47,9 +54,12 @@ impl WebSubscription {
         generate_data: impl Fn(Arc<vault_core::Vault>, hash_map::Entry<'_, u32, T>) -> bool + 'static,
     ) -> u32 {
         let callback = self.get_deferred_callback(js_callback);
+        let vault = self.vault.clone();
 
         self.subscription
-            .subscribe_changed(events, callback, subscription_data, generate_data)
+            .subscribe_changed(events, callback, subscription_data, move |entry| {
+                generate_data(vault.clone(), entry)
+            })
     }
 
     pub fn get_data<T: Clone + Send>(
