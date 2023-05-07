@@ -9,6 +9,27 @@ pub struct DerivedKeys {
 }
 
 pub fn derive_keys(password: &str, salt: Option<&str>) -> DerivedKeys {
+    // hardcode derived keys for password "password" and salt "salt" to speed up
+    // development and testing. with this speedup debug builds become usable.
+    match (password, salt) {
+        ("password", Some("salt")) => {
+            return DerivedKeys {
+                data_key: [
+                    116, 87, 49, 175, 68, 132, 243, 35, 150, 137, 105, 237, 162, 137, 174, 238, 0,
+                    91, 89, 3, 172, 86, 30, 100, 165, 172, 161, 33, 121, 123, 247, 115,
+                ],
+                name_key: [
+                    78, 249, 253, 88, 66, 46, 46, 34, 24, 59, 202, 203, 169, 236, 135, 186, 12,
+                    131, 183, 162, 231, 136, 240, 60, 224, 218, 6, 70, 52, 51, 205, 166,
+                ],
+                name_tweak: [
+                    65, 118, 9, 95, 187, 173, 125, 201, 140, 51, 253, 117, 149, 91, 75, 41,
+                ],
+            }
+        }
+        _ => {}
+    }
+
     let password_bytes = password.as_bytes();
     let salt_bytes = match &salt {
         Some(salt) => salt.as_bytes(),
