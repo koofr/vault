@@ -21,9 +21,9 @@ impl Subscription {
     pub fn subscribe<T: Clone + PartialEq + Send + 'static>(
         &self,
         events: &[Event],
-        callback: Box<dyn Fn() + 'static>,
+        callback: Box<dyn Fn() + Send + Sync + 'static>,
         subscription_data: Arc<Mutex<HashMap<u32, T>>>,
-        generate_data: impl Fn() -> T + 'static,
+        generate_data: impl Fn() -> T + Send + Sync + 'static,
     ) -> u32 {
         self.subscribe_changed(events, callback, subscription_data, move |entry| {
             let new_data = generate_data();
@@ -50,9 +50,9 @@ impl Subscription {
     pub fn subscribe_changed<T: Clone + Send + 'static>(
         &self,
         events: &[Event],
-        callback: Box<dyn Fn() + 'static>,
+        callback: Box<dyn Fn() + Send + Sync + 'static>,
         subscription_data: Arc<Mutex<HashMap<u32, T>>>,
-        generate_data: impl Fn(hash_map::Entry<'_, u32, T>) -> bool + 'static,
+        generate_data: impl Fn(hash_map::Entry<'_, u32, T>) -> bool + Send + Sync + 'static,
     ) -> u32 {
         let id = self.store.get_next_id();
 
@@ -61,22 +61,21 @@ impl Subscription {
         let callback_subscription_data = subscription_data.clone();
         let callback_generate_data = generate_data.clone();
 
-        let store_callback: Box<dyn Fn() + 'static> = Box::new(move || {
-            let callback_subscription_data = callback_subscription_data.clone();
-            let mut subscription_data = callback_subscription_data.lock().unwrap();
-            let changed = callback_generate_data(subscription_data.entry(id));
+        self.store.on(
+            id,
+            events,
+            Box::new(move || {
+                let callback_subscription_data = callback_subscription_data.clone();
+                let mut subscription_data = callback_subscription_data.lock().unwrap();
+                let changed = callback_generate_data(subscription_data.entry(id));
 
-            drop(subscription_data);
+                drop(subscription_data);
 
-            if changed {
-                callback();
-            }
-        });
-        let store_callback: Box<dyn Fn() + Send + Sync + 'static> = unsafe {
-            Box::from_raw(Box::into_raw(store_callback) as *mut (dyn Fn() + Send + Sync + 'static))
-        };
-
-        self.store.on(id, events, store_callback);
+                if changed {
+                    callback();
+                }
+            }),
+        );
 
         let cleanup_subscription_data = subscription_data.clone();
 
