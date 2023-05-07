@@ -27,7 +27,7 @@ pub enum DecryptReaderState {
     },
     ReadingCiphertext {
         nonce: Nonce,
-        buffer: [u8; BLOCK_SIZE],
+        buffer: Vec<u8>,
         pos: usize,
     },
     WritingPlaintext {
@@ -105,7 +105,7 @@ impl<R: AsyncRead> AsyncRead for DecryptReader<R> {
 
                         *this.state = DecryptReaderState::ReadingCiphertext {
                             nonce: Nonce::new(nonce.try_into().unwrap()),
-                            buffer: [0; BLOCK_SIZE],
+                            buffer: vec![0; BLOCK_SIZE],
                             pos: 0,
                         };
                     }
@@ -149,7 +149,7 @@ impl<R: AsyncRead> AsyncRead for DecryptReader<R> {
                     if *pos == buffer.len() {
                         *this.state = DecryptReaderState::ReadingCiphertext {
                             nonce: mem::take(nonce),
-                            buffer: [0; BLOCK_SIZE],
+                            buffer: vec![0; BLOCK_SIZE],
                             pos: 0,
                         };
                     }

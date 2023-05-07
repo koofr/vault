@@ -53,6 +53,10 @@ pub async fn check_password_validator_v2(
     password_validator: &str,
     password_validator_encrypted: &str,
 ) -> bool {
+    if !password_validator_encrypted.starts_with("v2:") {
+        return false;
+    }
+
     let password_validator_encrypted_bytes =
         match BASE64URL_NOPAD.decode(password_validator_encrypted[3..].as_bytes()) {
             Ok(x) => x,
