@@ -1,6 +1,5 @@
 use std::{
     collections::HashMap,
-    future::Future,
     pin::Pin,
     sync::{Arc, RwLock},
 };
@@ -58,26 +57,18 @@ impl UploadsService {
         instant::now() as i64
     }
 
-    pub fn get_next_id(&self) -> u32 {
-        let mut upload_id: u32 = 0;
-
-        self.store.mutate(|state, notify| {
-            notify(store::Event::Uploads);
-
-            upload_id = mutations::get_next_id(state);
-        });
-
-        upload_id
-    }
-
-    pub fn upload(
+    pub async fn upload(
         self: Arc<Self>,
         repo_id: &str,
         parent_path: &str,
         name: &str,
         uploadable: Uploadable,
-    ) -> impl Future<Output = UploadResult> {
-        let id = self.get_next_id();
+    ) -> UploadResult {
+        let id = self.store.mutate(|state, notify| {
+            notify(store::Event::Uploads);
+
+            mutations::get_next_id(state)
+        });
 
         let size = uploadable.size();
 
@@ -114,7 +105,7 @@ impl UploadsService {
 
         self.process_next();
 
-        async move { result_receiver.await.unwrap() }
+        result_receiver.await.unwrap()
     }
 
     pub fn abort_file(&self, id: u32) {
