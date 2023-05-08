@@ -47,6 +47,7 @@ impl State {
         self.repo_space_usage = Default::default();
         self.repo_files = Default::default();
         self.repo_files_browsers = Default::default();
+        self.repo_files_details = Default::default();
         self.repo_files_move = Default::default();
         self.uploads = Default::default();
         self.dir_pickers = Default::default();
