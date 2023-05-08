@@ -18,6 +18,7 @@ use crate::{
     browser_secure_storage::BrowserSecureStorage,
     dto, helpers,
     uploadable::Uploadable,
+    web_errors::WebErrors,
     web_subscription::WebSubscription,
 };
 
@@ -155,7 +156,7 @@ struct SubscriptionData {
 #[wasm_bindgen]
 pub struct WebVault {
     vault: Arc<vault_core::Vault>,
-    errors: Arc<WebVaultErrors>,
+    errors: Arc<WebErrors>,
     subscription_data: SubscriptionData,
     subscription: WebSubscription,
 }
@@ -189,7 +190,7 @@ impl WebVault {
             Box::new(BrowserRuntime::new()),
         ));
 
-        let errors = Arc::new(WebVaultErrors::new(vault.clone()));
+        let errors = Arc::new(WebErrors::new(vault.clone()));
 
         Self {
             vault: vault.clone(),
@@ -1438,30 +1439,5 @@ impl WebVault {
     #[wasm_bindgen(js_name = spaceUsageData)]
     pub fn space_usage_data(&self, id: u32) -> SpaceUsageOption {
         self.get_data_js(id, self.subscription_data.space_usage.clone())
-    }
-}
-
-pub struct WebVaultErrors {
-    vault: Arc<vault_core::Vault>,
-}
-
-impl WebVaultErrors {
-    fn new(vault: Arc<vault_core::Vault>) -> Self {
-        Self { vault }
-    }
-
-    pub fn handle_error_str(&self, error_str: String) {
-        self.vault.notifications_show(error_str);
-    }
-
-    pub fn handle_error(&self, user_error: impl vault_core::user_error::UserError) {
-        self.handle_error_str(user_error.user_error());
-    }
-
-    pub fn handle_result(&self, result: Result<(), impl vault_core::user_error::UserError>) {
-        match result {
-            Ok(()) => (),
-            Err(err) => self.handle_error(err),
-        }
     }
 }
