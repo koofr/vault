@@ -118,6 +118,7 @@ mod tests {
                     typ: RepoFileType::Dir,
                     size: RepoFileSize::Decrypted { size: 0 },
                     modified: 0,
+                    remote_hash: None,
                     category: FileCategory::Folder,
                 },
             }
@@ -153,6 +154,7 @@ mod tests {
                     typ: RepoFileType::Dir,
                     size: RepoFileSize::Decrypted { size: 0 },
                     modified: 1,
+                    remote_hash: None,
                     category: FileCategory::Folder,
                 },
             }
@@ -194,6 +196,7 @@ mod tests {
                     typ: RepoFileType::Dir,
                     size: RepoFileSize::Decrypted { size: 0 },
                     modified: 1,
+                    remote_hash: None,
                     category: FileCategory::Folder,
                 },
             }
@@ -229,6 +232,7 @@ mod tests {
                     typ: RepoFileType::File,
                     size: RepoFileSize::Decrypted { size: 52 },
                     modified: 1,
+                    remote_hash: Some(String::from("hash")),
                     category: FileCategory::Generic,
                 },
             }
@@ -275,6 +279,7 @@ mod tests {
                     typ: RepoFileType::File,
                     size: RepoFileSize::Decrypted { size: 52 },
                     modified: 1,
+                    remote_hash: Some(String::from("hash")),
                     category: FileCategory::Generic,
                 },
             }
@@ -316,6 +321,7 @@ mod tests {
                     typ: RepoFileType::File,
                     size: RepoFileSize::Decrypted { size: 52 },
                     modified: 1,
+                    remote_hash: Some(String::from("hash")),
                     category: FileCategory::Generic,
                 },
             }

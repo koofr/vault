@@ -143,6 +143,7 @@ pub struct RepoFile {
     pub typ: RepoFileType,
     pub size: RepoFileSize,
     pub modified: i64,
+    pub remote_hash: Option<String>,
     pub category: FileCategory,
 }
 

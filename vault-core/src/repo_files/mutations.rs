@@ -186,6 +186,7 @@ pub fn decrypt_file(
         typ: (&remote_file.typ).into(),
         size,
         modified: remote_file.modified,
+        remote_hash: remote_file.hash.clone(),
         category,
     }
 }
@@ -208,6 +209,7 @@ pub fn get_root_file(repo_id: &str, remote_file: &RemoteFile) -> RepoFile {
         typ: super::state::RepoFileType::Dir,
         size: RepoFileSize::Decrypted { size: 0 },
         modified: 0,
+        remote_hash: None,
         category: FileCategory::Folder,
     }
 }
@@ -271,6 +273,7 @@ mod tests {
                 typ: RepoFileType::Dir,
                 size: RepoFileSize::Decrypted { size: 0 },
                 modified: 0,
+                remote_hash: None,
                 category: FileCategory::Folder,
             }
         )
@@ -303,6 +306,7 @@ mod tests {
                 typ: RepoFileType::Dir,
                 size: RepoFileSize::Decrypted { size: 0 },
                 modified: 1,
+                remote_hash: None,
                 category: FileCategory::Folder,
             }
         )
@@ -339,6 +343,7 @@ mod tests {
                 typ: RepoFileType::Dir,
                 size: RepoFileSize::Decrypted { size: 0 },
                 modified: 1,
+                remote_hash: None,
                 category: FileCategory::Folder,
             }
         )
@@ -371,6 +376,7 @@ mod tests {
                 typ: RepoFileType::File,
                 size: RepoFileSize::Decrypted { size: 52 },
                 modified: 1,
+                remote_hash: Some(String::from("hash")),
                 category: FileCategory::Image,
             }
         )
@@ -411,6 +417,7 @@ mod tests {
                     error: DecryptSizeError::EncryptedFileTooShort
                 },
                 modified: 1,
+                remote_hash: Some(String::from("hash")),
                 category: FileCategory::Generic,
             }
         )

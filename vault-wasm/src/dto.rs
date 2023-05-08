@@ -477,6 +477,8 @@ pub struct RepoFile {
     #[serde(rename = "sizeDisplay")]
     pub size_display: String,
     pub modified: f64,
+    #[serde(rename = "remoteHash")]
+    pub remote_hash: Option<String>,
     pub category: FileCategory,
 }
 
@@ -517,6 +519,7 @@ impl From<&repo_files_state::RepoFile> for RepoFile {
                 repo_files_state::RepoFileType::Dir => String::from(""),
             },
             modified: file.modified as f64,
+            remote_hash: file.remote_hash.clone(),
             category: (&file.category).into(),
         }
     }
