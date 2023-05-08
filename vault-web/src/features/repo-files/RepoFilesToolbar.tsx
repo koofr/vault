@@ -10,14 +10,12 @@ import { ReactComponent as FilesToolbarDownloadHoverIcon } from '../../assets/im
 import { ReactComponent as FilesToolbarDownloadIcon } from '../../assets/images/files-toolbar-download.svg';
 import { ReactComponent as FilesToolbarMoveHoverIcon } from '../../assets/images/files-toolbar-move-hover.svg';
 import { ReactComponent as FilesToolbarMoveIcon } from '../../assets/images/files-toolbar-move.svg';
-import { ConfirmModal, ConfirmPayload } from '../../components/ConfirmModal';
 import {
   Toolbar,
   ToolbarCancelItem,
   ToolbarItem,
 } from '../../components/toolbar/Toolbar';
 import { useIsMobile } from '../../components/useIsMobile';
-import { useModal } from '../../utils/useModal';
 import {
   RepoFilesBrowserInfo,
   RepoFilesMoveMode,
@@ -37,7 +35,6 @@ export const RepoFilesToolbar = memo<{ info: RepoFilesBrowserInfo }>(
       info.selectedFile !== undefined && info.path !== undefined
         ? info.selectedFile
         : undefined;
-    const deleteFileModal = useModal<ConfirmPayload>();
     const renameFile = useRepoFilesRename();
 
     return (
@@ -91,14 +88,7 @@ export const RepoFilesToolbar = memo<{ info: RepoFilesBrowserInfo }>(
             icon={<FilesToolbarDeleteIcon role="img" />}
             iconHover={<FilesToolbarDeleteHoverIcon role="img" />}
             onClick={() => {
-              deleteFileModal.show({
-                title: 'Delete files',
-                message: 'Do you really want to delete 1 item?',
-                confirmText: 'Delete',
-                onConfirm: () => {
-                  webVault.repoFilesBrowsersDeleteSelected(browserId);
-                },
-              });
+              webVault.repoFilesBrowsersDeleteSelected(browserId);
             }}
           >
             Delete
@@ -109,12 +99,6 @@ export const RepoFilesToolbar = memo<{ info: RepoFilesBrowserInfo }>(
             onClick={() => webVault.repoFilesBrowsersClearSelection(browserId)}
           />
         ) : null}
-
-        <ConfirmModal
-          isVisible={deleteFileModal.isVisible}
-          payload={deleteFileModal.payload}
-          hide={deleteFileModal.hide}
-        />
       </Toolbar>
     );
   }

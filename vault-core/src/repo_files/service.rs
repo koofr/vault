@@ -14,7 +14,7 @@ use crate::{
         data_cipher::{decrypt_on_progress, encrypted_size},
         Cipher,
     },
-    http,
+    dialogs, http,
     remote::{self, models},
     remote_files::{state::RemoteFilesLocation, RemoteFilesService},
     repo_files_read::{errors::GetFilesReaderError, state::RepoFileReader, RepoFilesReadService},
@@ -37,6 +37,7 @@ pub struct RepoFilesService {
     repos_service: Arc<ReposService>,
     remote_files_service: Arc<RemoteFilesService>,
     repo_files_read_service: Arc<RepoFilesReadService>,
+    dialogs_service: Arc<dialogs::DialogsService>,
     store: Arc<store::Store>,
     ensure_dirs_futures:
         Arc<Mutex<HashMap<String, Shared<BoxFuture<'static, Result<(), EnsureDirError>>>>>>,
@@ -47,12 +48,14 @@ impl RepoFilesService {
         repos_service: Arc<ReposService>,
         remote_files_service: Arc<RemoteFilesService>,
         repo_files_read_service: Arc<RepoFilesReadService>,
+        dialogs_service: Arc<dialogs::DialogsService>,
         store: Arc<store::Store>,
     ) -> Self {
         Self {
             repos_service,
             remote_files_service,
             repo_files_read_service,
+            dialogs_service,
             store,
             ensure_dirs_futures: Arc::new(Mutex::new(HashMap::new())),
         }
@@ -228,21 +231,54 @@ impl RepoFilesService {
         })
     }
 
-    pub async fn delete_file(&self, repo_id: &str, path: &str) -> Result<(), DeleteFileError> {
-        let (mount_id, remote_path) =
-            self.get_repo_mount_path(repo_id, path)
-                .map_err(|e| match e {
-                    GetRepoMountPathError::RepoLocked(err) => DeleteFileError::RepoLocked(err),
-                    GetRepoMountPathError::RepoNotFound(err) => DeleteFileError::RepoNotFound(err),
-                })?;
-
-        self.remote_files_service
-            .delete_file(&mount_id, &remote_path)
+    pub async fn delete_files(
+        &self,
+        files: &[(String, String)],
+        before_delete: Option<Box<dyn Fn()>>,
+    ) -> Result<(), DeleteFileError> {
+        if self
+            .dialogs_service
+            .show(dialogs::state::DialogShowOptions {
+                title: String::from("Delete files"),
+                message: Some(if files.len() == 1 {
+                    String::from("Do you really want to delete 1 item?")
+                } else {
+                    format!("Do you really want to delete {} items?", files.len())
+                }),
+                confirm_button_text: String::from("Delete"),
+                cancel_button_text: Some(String::from("Cancel")),
+                ..self.dialogs_service.build_confirm()
+            })
             .await
-            .map_err(DeleteFileError::RemoteError)?;
+            .is_some()
+        {
+            if let Some(before_delete) = before_delete {
+                before_delete();
+            }
 
-        if let Some(parent_path) = path_utils::parent_path(&path) {
-            let _ = self.decrypt_files(&repo_id, parent_path);
+            for (repo_id, path) in files {
+                let (mount_id, remote_path) =
+                    self.get_repo_mount_path(repo_id, path)
+                        .map_err(|e| match e {
+                            GetRepoMountPathError::RepoLocked(err) => {
+                                DeleteFileError::RepoLocked(err)
+                            }
+                            GetRepoMountPathError::RepoNotFound(err) => {
+                                DeleteFileError::RepoNotFound(err)
+                            }
+                        })?;
+
+                self.remote_files_service
+                    .delete_file(&mount_id, &remote_path)
+                    .await
+                    .map_err(DeleteFileError::RemoteError)?;
+
+                if let Some(parent_path) = path_utils::parent_path(&path) {
+                    let _ = self.decrypt_files(&repo_id, parent_path);
+                }
+            }
+        } else {
+            return Err(DeleteFileError::Canceled);
         }
 
         Ok(())

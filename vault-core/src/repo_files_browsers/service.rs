@@ -7,7 +7,7 @@ use crate::{
     remote_files::errors::RemoteFilesErrors,
     repo_files::{
         errors::{self as repo_files_errors, CreateDirError, DeleteFileError, RepoFilesErrors},
-        state::{RepoFile, RepoFilePath, RepoFilesSortField},
+        state::{RepoFile, RepoFilesSortField},
         RepoFilesService,
     },
     repo_files_read::{errors::GetFilesReaderError, state::RepoFileReader, RepoFilesReadService},
@@ -268,16 +268,19 @@ impl RepoFilesBrowsersService {
     }
 
     pub async fn delete_selected(&self, browser_id: u32) -> Result<(), DeleteFileError> {
-        for (repo_id, path) in self.store.with_state(|state| {
+        let files = self.store.with_state(|state| {
             selectors::select_selected_files(state, browser_id)
                 .into_iter()
-                .map(|file| (file.repo_id.clone(), file.path.clone()))
-                .collect::<Vec<(String, RepoFilePath)>>()
-        }) {
-            if let Ok(path) = path.decrypted_path() {
-                self.repo_files_service.delete_file(&repo_id, path).await?;
-            }
-        }
+                .filter_map(|file| {
+                    file.path
+                        .decrypted_path()
+                        .ok()
+                        .map(|path| (file.repo_id.clone(), path.to_owned()))
+                })
+                .collect::<Vec<_>>()
+        });
+
+        self.repo_files_service.delete_files(&files, None).await?;
 
         Ok(())
     }

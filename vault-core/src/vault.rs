@@ -115,6 +115,7 @@ impl Vault {
             repos_service.clone(),
             remote_files_service.clone(),
             repo_files_read_service.clone(),
+            dialogs_service.clone(),
             store.clone(),
         ));
         let repo_create_service = Arc::new(repo_create::RepoCreateService::new(
@@ -461,12 +462,11 @@ impl Vault {
             .await
     }
 
-    pub async fn repo_files_delete_file(
+    pub async fn repo_files_delete_files(
         &self,
-        repo_id: &str,
-        path: &str,
+        files: &[(String, String)],
     ) -> Result<(), repo_files::errors::DeleteFileError> {
-        self.repo_files_service.delete_file(repo_id, path).await
+        self.repo_files_service.delete_files(files, None).await
     }
 
     pub fn repo_files_check_rename_file(

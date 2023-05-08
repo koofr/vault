@@ -897,7 +897,15 @@ impl WebVault {
 
     #[wasm_bindgen(js_name = repoFilesDeleteFile)]
     pub async fn repo_files_delete_file(&self, repo_id: &str, path: &str) {
-        self.handle_result(self.vault.repo_files_delete_file(repo_id, path).await)
+        match self
+            .vault
+            .repo_files_delete_files(&[(repo_id.to_owned(), path.to_owned())])
+            .await
+        {
+            Ok(()) => {}
+            Err(vault_core::repo_files::errors::DeleteFileError::Canceled) => {}
+            Err(err) => self.handle_error(err),
+        };
     }
 
     #[wasm_bindgen(js_name = repoFilesCanRenameFile)]
@@ -1265,11 +1273,15 @@ impl WebVault {
 
     #[wasm_bindgen(js_name = repoFilesBrowsersDeleteSelected)]
     pub async fn repo_files_browsers_delete_selected(&self, browser_id: u32) {
-        self.handle_result(
-            self.vault
-                .repo_files_browsers_delete_selected(browser_id)
-                .await,
-        )
+        match self
+            .vault
+            .repo_files_browsers_delete_selected(browser_id)
+            .await
+        {
+            Ok(()) => {}
+            Err(vault_core::repo_files::errors::DeleteFileError::Canceled) => {}
+            Err(err) => self.handle_error(err),
+        };
     }
 
     // repo_files_details

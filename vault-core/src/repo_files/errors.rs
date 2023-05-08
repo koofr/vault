@@ -89,6 +89,8 @@ pub enum DeleteFileError {
     RepoNotFound(#[from] RepoNotFoundError),
     #[error("{0}")]
     RepoLocked(#[from] RepoLockedError),
+    #[error("canceled")]
+    Canceled,
     #[error("{0}")]
     RemoteError(#[from] RemoteError),
 }
