@@ -87,6 +87,15 @@ export function buttonVariantStyle(
       );
     case 'disabled-inline':
       return buttonInlineStyle(theme.colors.disabled, theme.colors.disabled);
+    default:
+      return buttonStyle(
+        'transparent',
+        theme.colors.borderDarker,
+        theme.colors.text,
+        'transparent',
+        theme.colors.text,
+        theme.colors.text
+      );
   }
 }
 
