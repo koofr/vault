@@ -6,6 +6,7 @@ use wasm_bindgen::prelude::*;
 
 use vault_core::{
     common::state as common_state,
+    dialogs::state as dialogs_state,
     dir_pickers::state as dir_pickers_state,
     file_types::{file_category, files_filter},
     notifications::state as notifications_state,
@@ -175,6 +176,83 @@ impl From<&notifications_state::Notification> for Notification {
         Self {
             id: notification.id,
             message: notification.message.clone(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+pub enum DialogType {
+    Alert,
+    Confirm,
+    Prompt,
+}
+
+impl From<&dialogs_state::DialogType> for DialogType {
+    fn from(typ: &dialogs_state::DialogType) -> Self {
+        match typ {
+            dialogs_state::DialogType::Alert => Self::Alert,
+            dialogs_state::DialogType::Confirm => Self::Confirm,
+            dialogs_state::DialogType::Prompt => Self::Prompt,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+pub enum DialogButtonStyle {
+    Primary,
+    Destructive,
+}
+
+impl From<&dialogs_state::DialogButtonStyle> for DialogButtonStyle {
+    fn from(typ: &dialogs_state::DialogButtonStyle) -> Self {
+        match typ {
+            dialogs_state::DialogButtonStyle::Primary => Self::Primary,
+            dialogs_state::DialogButtonStyle::Destructive => Self::Destructive,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+pub struct Dialog {
+    pub id: u32,
+    pub status: Status,
+    pub typ: DialogType,
+    pub title: String,
+    pub message: Option<String>,
+    #[serde(rename = "inputValue")]
+    pub input_value: String,
+    #[serde(rename = "isInputValueValid")]
+    pub is_input_value_valid: bool,
+    #[serde(rename = "inputValueSelected")]
+    pub input_value_selected: Option<String>,
+    #[serde(rename = "inputPlaceholder")]
+    pub input_placeholder: Option<String>,
+    #[serde(rename = "confirmButtonText")]
+    pub confirm_button_text: String,
+    #[serde(rename = "confirmButtonEnabled")]
+    pub confirm_button_enabled: bool,
+    #[serde(rename = "confirmButtonStyle")]
+    pub confirm_button_style: DialogButtonStyle,
+    #[serde(rename = "cancelButtonText")]
+    pub cancel_button_text: Option<String>,
+}
+
+impl<'a> From<dialogs_state::DialogInfo<'a>> for Dialog {
+    fn from(dialog: dialogs_state::DialogInfo<'a>) -> Self {
+        Self {
+            id: dialog.id,
+            status: dialog.status.into(),
+            typ: dialog.typ.into(),
+            title: dialog.title.clone(),
+            message: dialog.message.cloned(),
+            input_value: dialog.input_value.clone(),
+            is_input_value_valid: dialog.is_input_value_valid,
+            input_value_selected: dialog.input_value_selected.cloned(),
+            input_placeholder: dialog.input_placeholder.cloned(),
+            confirm_button_text: dialog.confirm_button_text.clone(),
+            confirm_button_enabled: dialog.confirm_button_enabled,
+            confirm_button_style: dialog.confirm_button_style.into(),
+            cancel_button_text: dialog.cancel_button_text.cloned(),
         }
     }
 }

@@ -34,11 +34,17 @@ export interface FileStream {
 
 #[wasm_bindgen]
 extern "C" {
+    #[wasm_bindgen(typescript_type = "number[]")]
+    pub type IdVec;
+
     #[wasm_bindgen(typescript_type = "Status")]
     pub type Status;
 
     #[wasm_bindgen(typescript_type = "Notification[]")]
     pub type NotificationVec;
+
+    #[wasm_bindgen(typescript_type = "Dialog | undefined")]
+    pub type DialogOption;
 
     #[wasm_bindgen(typescript_type = "File | Blob")]
     pub type FileOrBlob;
@@ -129,6 +135,8 @@ unsafe impl Send for VersionedFileBytes {}
 #[derive(Default)]
 struct SubscriptionData {
     notifications: Data<Vec<dto::Notification>>,
+    dialogs: Data<Vec<u32>>,
+    dialog: Data<Option<dto::Dialog>>,
     oauth2_status: Data<dto::Status>,
     user: Data<Option<dto::User>>,
     user_profile_picture_loaded: Data<bool>,
@@ -299,6 +307,65 @@ impl WebVault {
     #[wasm_bindgen(js_name = notificationsRemoveAll)]
     pub fn notifications_remove_all(&self) {
         self.vault.notifications_remove_all()
+    }
+
+    // dialogs
+
+    #[wasm_bindgen(js_name = dialogsSubscribe)]
+    pub fn dialogs_subscribe(&self, cb: js_sys::Function) -> u32 {
+        self.subscribe(
+            &[Event::Dialogs],
+            cb,
+            self.subscription_data.dialogs.clone(),
+            move |vault| {
+                vault.with_state(|state| {
+                    vault_core::dialogs::selectors::select_dialogs(state)
+                        .iter()
+                        .map(|dialog| dialog.id)
+                        .collect()
+                })
+            },
+        )
+    }
+
+    #[wasm_bindgen(js_name = dialogsData)]
+    pub fn dialogs_data(&self, dialog_id: u32) -> IdVec {
+        self.get_data_js(dialog_id, self.subscription_data.dialogs.clone())
+    }
+
+    #[wasm_bindgen(js_name = dialogsDialogSubscribe)]
+    pub fn dialogs_dialog_subscribe(&self, dialog_id: u32, cb: js_sys::Function) -> u32 {
+        self.subscribe(
+            &[Event::Dialogs],
+            cb,
+            self.subscription_data.dialog.clone(),
+            move |vault| {
+                vault.with_state(|state| {
+                    vault_core::dialogs::selectors::select_dialog_info(state, dialog_id)
+                        .map(Into::into)
+                })
+            },
+        )
+    }
+
+    #[wasm_bindgen(js_name = dialogsDialogData)]
+    pub fn dialogs_dialog_data(&self, dialog_id: u32) -> DialogOption {
+        self.get_data_js(dialog_id, self.subscription_data.dialog.clone())
+    }
+
+    #[wasm_bindgen(js_name = dialogsConfirm)]
+    pub fn dialogs_confirm(&self, dialog_id: u32) {
+        self.vault.dialogs_confirm(dialog_id)
+    }
+
+    #[wasm_bindgen(js_name = dialogsCancel)]
+    pub fn dialogs_cancel(&self, dialog_id: u32) {
+        self.vault.dialogs_cancel(dialog_id)
+    }
+
+    #[wasm_bindgen(js_name = dialogsSetInputValue)]
+    pub fn dialogs_set_input_value(&self, dialog_id: u32, value: String) {
+        self.vault.dialogs_set_input_value(dialog_id, value);
     }
 
     // oauth2

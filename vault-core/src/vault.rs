@@ -3,17 +3,18 @@ use std::sync::Arc;
 use futures::future::BoxFuture;
 
 use crate::{
-    auth, config, eventstream, http, lifecycle, notifications, oauth2, remote, remote_files,
-    remote_files_dir_pickers, repo_config_backup, repo_create, repo_files, repo_files_browsers,
-    repo_files_details, repo_files_dir_pickers, repo_files_list, repo_files_move, repo_files_read,
-    repo_remove, repo_space_usage, repo_unlock, repos, runtime, secure_storage, space_usage, store,
-    uploads, user,
+    auth, config, dialogs, eventstream, http, lifecycle, notifications, oauth2, remote,
+    remote_files, remote_files_dir_pickers, repo_config_backup, repo_create, repo_files,
+    repo_files_browsers, repo_files_details, repo_files_dir_pickers, repo_files_list,
+    repo_files_move, repo_files_read, repo_remove, repo_space_usage, repo_unlock, repos, runtime,
+    secure_storage, space_usage, store, uploads, user,
 };
 
 #[allow(dead_code)]
 pub struct Vault {
     store: Arc<store::Store>,
     notifications_service: Arc<notifications::NotificationsService>,
+    dialogs_service: Arc<dialogs::DialogsService>,
     oauth2_service: Arc<oauth2::OAuth2Service>,
     user_service: Arc<user::UserService>,
     uploads_service: Arc<uploads::UploadsService>,
@@ -58,6 +59,7 @@ impl Vault {
             Arc::new(secure_storage::SecureStorageService::new(secure_storage));
         let notifications_service =
             Arc::new(notifications::NotificationsService::new(store.clone()));
+        let dialogs_service = Arc::new(dialogs::DialogsService::new(store.clone()));
         let oauth2_service = Arc::new(oauth2::OAuth2Service::new(
             oauth2_config,
             secure_storage_service.clone(),
@@ -181,6 +183,7 @@ impl Vault {
         Self {
             store,
             notifications_service,
+            dialogs_service,
             oauth2_service,
             user_service,
             uploads_service,
@@ -252,6 +255,20 @@ impl Vault {
 
     pub fn notifications_remove_all(&self) {
         self.notifications_service.remove_all()
+    }
+
+    // dialogs
+
+    pub fn dialogs_confirm(&self, dialog_id: u32) {
+        self.dialogs_service.confirm(dialog_id)
+    }
+
+    pub fn dialogs_cancel(&self, dialog_id: u32) {
+        self.dialogs_service.cancel(dialog_id)
+    }
+
+    pub fn dialogs_set_input_value(&self, dialog_id: u32, value: String) {
+        self.dialogs_service.set_input_value(dialog_id, value);
     }
 
     // oauth2

@@ -1,6 +1,7 @@
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Event {
     Notifications,
+    Dialogs,
     Auth,
     User,
     RemoteFiles,
@@ -23,6 +24,7 @@ impl Event {
     pub fn all() -> Vec<Self> {
         vec![
             Self::Notifications,
+            Self::Dialogs,
             Self::Auth,
             Self::User,
             Self::RemoteFiles,

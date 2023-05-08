@@ -1,5 +1,5 @@
 use crate::{
-    config::state::ConfigState, dir_pickers::state::DirPickersState,
+    config::state::ConfigState, dialogs::state::DialogsState, dir_pickers::state::DirPickersState,
     notifications::state::NotificationsState, oauth2::state::OAuth2State,
     remote_files::state::RemoteFilesState, repo_config_backup::state::RepoConfigBackupState,
     repo_create::state::RepoCreateState, repo_files::state::RepoFilesState,
@@ -14,6 +14,7 @@ use crate::{
 pub struct State {
     pub config: ConfigState,
     pub notifications: NotificationsState,
+    pub dialogs: DialogsState,
     pub oauth2: OAuth2State,
     pub user: UserState,
     pub remote_files: RemoteFilesState,
@@ -36,6 +37,7 @@ impl State {
     pub fn reset(&mut self) {
         // config is not reset
         self.notifications = Default::default();
+        self.dialogs = Default::default();
         self.oauth2 = Default::default();
         self.user = Default::default();
         self.remote_files = Default::default();

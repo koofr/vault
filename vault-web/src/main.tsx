@@ -10,6 +10,7 @@ import { DocumentScrollProvider } from './components/DocumentScroll';
 import { DocumentSizeProvider } from './components/DocumentSize';
 import { FolderAwareHTML5Backend } from './components/dnd/backend';
 import { ModalsProvider } from './components/modal/Modals';
+import { Dialogs } from './features/dialogs/Dialogs';
 import { Notifications } from './features/notifications/Notifications';
 import { createFallbackRouter, createRouter } from './router';
 import { GlobalStyles } from './styles/GlobalStyles';
@@ -75,6 +76,8 @@ const main = async () => {
 
                   <ModalsProvider>
                     <RouterProvider router={router} />
+
+                    <Dialogs />
                   </ModalsProvider>
 
                   <Notifications />

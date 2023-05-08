@@ -2,6 +2,7 @@ pub mod auth;
 pub mod cipher;
 pub mod common;
 pub mod config;
+pub mod dialogs;
 pub mod dir_pickers;
 pub mod eventstream;
 pub mod file_types;
