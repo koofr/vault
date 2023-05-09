@@ -1,6 +1,7 @@
 use std::{
     collections::HashMap,
     sync::{Arc, Mutex, Weak},
+    time::Duration,
 };
 
 use crate::{
@@ -10,8 +11,8 @@ use crate::{
 
 use super::{Event, Message, Request, WebSocketClient};
 
-const RECONNECT_DURATION: i32 = 3000;
-const PING_INTERVAL: i32 = 30000;
+const RECONNECT_DURATION: Duration = Duration::from_secs(3);
+const PING_INTERVAL: Duration = Duration::from_secs(30);
 
 pub struct MountSubscription {
     pub(self) file_id: String,

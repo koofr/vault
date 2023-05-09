@@ -22,9 +22,6 @@ extern "C" {
 
     #[wasm_bindgen(js_name = "supportsReadableByteStream")]
     pub fn supports_readable_byte_stream() -> bool;
-
-    #[wasm_bindgen(js_name = "sleep")]
-    pub fn sleep(duration_ms: i32) -> js_sys::Promise;
 }
 
 pub fn bytes_to_array(bytes: &[u8]) -> JsValue {

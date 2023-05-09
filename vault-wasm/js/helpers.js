@@ -39,7 +39,3 @@ export function supportsReadableByteStream() {
     return false;
   }
 }
-
-export function sleep(durationMs) {
-  return new Promise((resolve) => setTimeout(resolve, durationMs));
-}

@@ -1,9 +1,10 @@
-use futures::{future::BoxFuture, Future, FutureExt};
-use wasm_bindgen_futures::{spawn_local, JsFuture};
+use std::time::Duration;
+
+use futures::{future::BoxFuture, Future};
+use gloo_timers::future::sleep;
+use wasm_bindgen_futures::spawn_local;
 
 use vault_core::runtime;
-
-use crate::helpers;
 
 pub struct BrowserRuntime {}
 
@@ -18,12 +19,12 @@ impl runtime::Runtime for BrowserRuntime {
         spawn_local(future)
     }
 
-    fn sleep(&self, duration_ms: i32) -> BoxFuture<'static, ()> {
+    fn sleep(&self, duration: Duration) -> BoxFuture<'static, ()> {
         Box::into_pin(unsafe {
-            Box::from_raw(Box::into_raw(Box::new(
-                JsFuture::from(helpers::sleep(duration_ms)).map(|_| ()),
-            ) as Box<dyn Future<Output = ()>>)
-                as *mut (dyn Future<Output = ()> + Send + Sync))
+            Box::from_raw(
+                Box::into_raw(Box::new(sleep(duration)) as Box<dyn Future<Output = ()>>)
+                    as *mut (dyn Future<Output = ()> + Send + Sync),
+            )
         })
     }
 }
