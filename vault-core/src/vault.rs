@@ -148,6 +148,7 @@ impl Vault {
                 repo_files_service.clone(),
                 repo_files_read_service.clone(),
                 eventstream_service.clone(),
+                dialogs_service.clone(),
                 store.clone(),
             ));
         let repo_files_details_service =
@@ -593,22 +594,12 @@ impl Vault {
             .await
     }
 
-    pub fn repo_files_browsers_check_create_dir(
-        &self,
-        browser_id: u32,
-        name: &str,
-    ) -> Result<(), repo_files::errors::CreateDirError> {
-        self.repo_files_browsers_service
-            .check_create_dir(browser_id, name)
-    }
-
     pub async fn repo_files_browsers_create_dir(
         &self,
         browser_id: u32,
-        name: &str,
     ) -> Result<(), repo_files::errors::CreateDirError> {
         self.repo_files_browsers_service
-            .create_dir(browser_id, name)
+            .create_dir(browser_id)
             .await
     }
 

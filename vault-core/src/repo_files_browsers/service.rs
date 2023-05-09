@@ -3,6 +3,7 @@ use std::sync::Arc;
 use futures::future::{self, BoxFuture};
 
 use crate::{
+    dialogs,
     eventstream::{self, service::MountSubscription},
     remote_files::errors::RemoteFilesErrors,
     repo_files::{
@@ -22,6 +23,7 @@ pub struct RepoFilesBrowsersService {
     repo_files_service: Arc<RepoFilesService>,
     repo_files_read_service: Arc<RepoFilesReadService>,
     eventstream_service: Arc<eventstream::EventStreamService>,
+    dialogs_service: Arc<dialogs::DialogsService>,
     store: Arc<store::Store>,
 }
 
@@ -30,12 +32,14 @@ impl RepoFilesBrowsersService {
         repo_files_service: Arc<RepoFilesService>,
         repo_files_read_service: Arc<RepoFilesReadService>,
         eventstream_service: Arc<eventstream::EventStreamService>,
+        dialogs_service: Arc<dialogs::DialogsService>,
         store: Arc<store::Store>,
     ) -> Self {
         Self {
             repo_files_service,
             repo_files_read_service,
             eventstream_service,
+            dialogs_service,
             store,
         }
     }
@@ -243,14 +247,7 @@ impl RepoFilesBrowsersService {
             .await
     }
 
-    pub fn check_create_dir(&self, browser_id: u32, name: &str) -> Result<(), CreateDirError> {
-        self.store
-            .with_state(|state| selectors::select_check_create_dir(state, browser_id, name))
-    }
-
-    pub async fn create_dir(&self, browser_id: u32, name: &str) -> Result<(), CreateDirError> {
-        self.check_create_dir(browser_id, name)?;
-
+    pub async fn create_dir(&self, browser_id: u32) -> Result<(), CreateDirError> {
         let (repo_id, parent_path) =
             self.store
                 .with_state::<_, Result<_, CreateDirError>>(|state| {
@@ -262,9 +259,32 @@ impl RepoFilesBrowsersService {
                     Ok((root_file.repo_id.clone(), root_path.to_owned()))
                 })?;
 
-        self.repo_files_service
-            .create_dir(&repo_id, &parent_path, name)
+        let input_value_validator_store = self.store.clone();
+
+        if let Some(name) = self
+            .dialogs_service
+            .show(dialogs::state::DialogShowOptions {
+                input_value_validator: Some(Box::new(move |value| {
+                    input_value_validator_store
+                        .with_state(|state| {
+                            selectors::select_check_create_dir(state, browser_id, value)
+                        })
+                        .is_ok()
+                })),
+                input_placeholder: Some(String::from("Folder name")),
+                confirm_button_text: String::from("Create folder"),
+                ..self
+                    .dialogs_service
+                    .build_prompt(String::from("Enter new folder name"))
+            })
             .await
+        {
+            self.repo_files_service
+                .create_dir(&repo_id, &parent_path, &name)
+                .await?;
+        }
+
+        Ok(())
     }
 
     pub async fn delete_selected(&self, browser_id: u32) -> Result<(), DeleteFileError> {

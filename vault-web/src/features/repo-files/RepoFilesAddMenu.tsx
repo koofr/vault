@@ -3,10 +3,8 @@ import { useTheme } from '@emotion/react';
 import { useDropdownMenu } from '@restart/ui/DropdownMenu';
 import { memo, useCallback } from 'react';
 
-import { CreateDirModal } from '../../components/CreateDirModal';
 import { Menu, MenuItem } from '../../components/menu/Menu';
 import { useMenuUpdate } from '../../components/menu/useMenuUpdate';
-import { useModal } from '../../utils/useModal';
 import { useWebVault } from '../../webVault/useWebVault';
 
 import { useRepoFilesBrowserId } from './RepoFilesBrowserId';
@@ -43,13 +41,8 @@ export const CreateDirItem = memo<{
 }>(({ hide }) => {
   const webVault = useWebVault();
   const browserId = useRepoFilesBrowserId();
-  const createDirModal = useModal();
   const createDir = useCallback(
-    (name: string) => webVault.repoFilesBrowsersCreateDir(browserId, name),
-    [webVault, browserId]
-  );
-  const canCreateDir = useCallback(
-    (name: string) => webVault.repoFilesBrowsersCanCreateDir(browserId, name),
+    () => webVault.repoFilesBrowsersCreateDir(browserId),
     [webVault, browserId]
   );
 
@@ -58,18 +51,11 @@ export const CreateDirItem = memo<{
       <MenuItem
         onClick={() => {
           hide();
-
-          setTimeout(() => createDirModal.show());
+          createDir();
         }}
       >
         Create folder
       </MenuItem>
-      <CreateDirModal
-        isVisible={createDirModal.isVisible}
-        canCreateDir={canCreateDir}
-        createDir={createDir}
-        hide={createDirModal.hide}
-      />
     </>
   );
 });
