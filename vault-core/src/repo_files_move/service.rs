@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
+    dialogs,
     dir_pickers::selectors as dir_pickers_selectors,
     repo_files::{
         errors::{CreateDirError, LoadFilesError, MoveFileError, RepoFilesErrors},
@@ -20,6 +21,7 @@ use super::{
 pub struct RepoFilesMoveService {
     repo_files_service: Arc<RepoFilesService>,
     repo_files_dir_pickers_service: Arc<RepoFilesDirPickersService>,
+    dialogs_service: Arc<dialogs::DialogsService>,
     store: Arc<store::Store>,
 }
 
@@ -27,11 +29,13 @@ impl RepoFilesMoveService {
     pub fn new(
         repo_files_service: Arc<RepoFilesService>,
         repo_files_dir_pickers_service: Arc<RepoFilesDirPickersService>,
+        dialogs_service: Arc<dialogs::DialogsService>,
         store: Arc<store::Store>,
     ) -> Self {
         Self {
             repo_files_service,
             repo_files_dir_pickers_service,
+            dialogs_service,
             store,
         }
     }
@@ -180,19 +184,35 @@ impl RepoFilesMoveService {
         }
     }
 
-    pub fn check_create_dir(&self, name: &str) -> Result<(), CreateDirError> {
-        self.store
-            .with_state(|state| selectors::select_check_create_dir(state, name))
-    }
-
-    pub async fn create_dir(&self, name: &str) -> Result<(), CreateDirError> {
+    pub async fn create_dir(&self) -> Result<(), CreateDirError> {
         let picker_id = self
             .store
             .with_state(|state| selectors::select_dir_picker_id(state))
             .ok_or_else(RepoFilesErrors::not_found)?;
 
-        self.repo_files_dir_pickers_service
-            .create_dir(picker_id, name)
+        let input_value_validator_store = self.store.clone();
+
+        if let Some(name) = self
+            .dialogs_service
+            .show(dialogs::state::DialogShowOptions {
+                input_value_validator: Some(Box::new(move |value| {
+                    input_value_validator_store
+                        .with_state(|state| selectors::select_check_create_dir(state, value))
+                        .is_ok()
+                })),
+                input_placeholder: Some(String::from("Folder name")),
+                confirm_button_text: String::from("Create folder"),
+                ..self
+                    .dialogs_service
+                    .build_prompt(String::from("Enter new folder name"))
+            })
             .await
+        {
+            self.repo_files_dir_pickers_service
+                .create_dir(picker_id, &name)
+                .await?;
+        }
+
+        Ok(())
     }
 }

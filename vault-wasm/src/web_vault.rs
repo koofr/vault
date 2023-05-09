@@ -1417,8 +1417,8 @@ impl WebVault {
                                         )
                                     })
                                     .map(str::to_string),
-                            can_show_create_dir:
-                                vault_core::repo_files_move::selectors::select_can_show_create_dir(
+                            create_dir_enabled:
+                                vault_core::repo_files_move::selectors::select_create_dir_enabled(
                                     state,
                                 ),
                             can_move: vault_core::repo_files_move::selectors::select_check_move(
@@ -1455,14 +1455,9 @@ impl WebVault {
         self.vault.repo_files_move_cancel()
     }
 
-    #[wasm_bindgen(js_name = repoFilesMoveCanCreateDir)]
-    pub fn repo_files_move_can_create_dir(&self, name: &str) -> bool {
-        self.vault.repo_files_move_check_create_dir(name).is_ok()
-    }
-
     #[wasm_bindgen(js_name = repoFilesMoveCreateDir)]
-    pub async fn repo_files_move_create_dir(&self, name: &str) {
-        self.handle_result(self.vault.repo_files_move_create_dir(name).await)
+    pub async fn repo_files_move_create_dir(&self) {
+        self.handle_result(self.vault.repo_files_move_create_dir().await)
     }
 
     // repo_files_dir_pickers

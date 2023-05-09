@@ -160,6 +160,7 @@ impl Vault {
         let repo_files_move_service = Arc::new(repo_files_move::RepoFilesMoveService::new(
             repo_files_service.clone(),
             repo_files_dir_pickers_service.clone(),
+            dialogs_service.clone(),
             store.clone(),
         ));
         let space_usage_service = Arc::new(space_usage::SpaceUsageService::new(
@@ -680,18 +681,10 @@ impl Vault {
         self.repo_files_move_service.cancel()
     }
 
-    pub fn repo_files_move_check_create_dir(
-        &self,
-        name: &str,
-    ) -> Result<(), repo_files::errors::CreateDirError> {
-        self.repo_files_move_service.check_create_dir(name)
-    }
-
     pub async fn repo_files_move_create_dir(
         &self,
-        name: &str,
     ) -> Result<(), repo_files::errors::CreateDirError> {
-        self.repo_files_move_service.create_dir(name).await
+        self.repo_files_move_service.create_dir().await
     }
 
     // remote_files_dir_pickers

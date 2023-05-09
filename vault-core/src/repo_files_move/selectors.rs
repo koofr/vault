@@ -17,10 +17,10 @@ pub fn select_dest_file<'a>(state: &'a store::State) -> Option<&'a RepoFile> {
     })
 }
 
-pub fn select_can_show_create_dir(state: &store::State) -> bool {
+pub fn select_create_dir_enabled(state: &store::State) -> bool {
     select_dir_picker_id(state)
         .map(|picker_id| {
-            repo_files_dir_pickers_selectors::select_can_show_create_dir(state, picker_id)
+            repo_files_dir_pickers_selectors::select_create_dir_enabled(state, picker_id)
         })
         .unwrap_or(false)
 }

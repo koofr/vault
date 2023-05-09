@@ -3,7 +3,6 @@ import { useTheme } from '@emotion/react';
 import { memo, useCallback } from 'react';
 
 import { Button } from '../../components/Button';
-import { CreateDirModal } from '../../components/CreateDirModal';
 import {
   Modal,
   ModalBody,
@@ -15,7 +14,6 @@ import {
   ModalTitle,
 } from '../../components/modal/Modal';
 import { useIsMobile } from '../../components/useIsMobile';
-import { useModal } from '../../utils/useModal';
 import { RepoFile, RepoFilesMoveInfo } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
@@ -36,25 +34,17 @@ export const RepoFilesMoveModalContent = memo<{
       mode,
       dirPickerId,
       destFileName,
+      createDirEnabled,
       canMove,
-      canShowCreateDir,
     },
     cancel,
   }) => {
     const isMobile = useIsMobile();
     const theme = useTheme();
     const webVault = useWebVault();
-    const createDirModal = useModal();
-    const canCreateDir = useCallback(
-      (name: string) => webVault.repoFilesMoveCanCreateDir(name),
-      [webVault]
-    );
-    const createDir = useCallback(
-      (name: string) => {
-        webVault.repoFilesMoveCreateDir(name);
-      },
-      [webVault]
-    );
+    const createDir = useCallback(() => {
+      webVault.repoFilesMoveCreateDir();
+    }, [webVault]);
     const move = useCallback(async () => {
       webVault.repoFilesMoveMoveFiles();
     }, [webVault]);
@@ -119,8 +109,8 @@ export const RepoFilesMoveModalContent = memo<{
           <ModalFooterExtra>
             <Button
               type="button"
-              disabled={!canShowCreateDir}
-              onClick={() => createDirModal.show()}
+              disabled={!createDirEnabled}
+              onClick={createDir}
             >
               Create folder
             </Button>
@@ -139,13 +129,6 @@ export const RepoFilesMoveModalContent = memo<{
             </ModalFooterButton>
           </ModalFooterButtons>
         </ModalFooter>
-
-        <CreateDirModal
-          isVisible={createDirModal.isVisible}
-          canCreateDir={canCreateDir}
-          createDir={createDir}
-          hide={createDirModal.hide}
-        />
       </>
     );
   }

@@ -884,8 +884,8 @@ pub struct RepoFilesMoveInfo {
     pub dir_picker_id: u32,
     #[serde(rename = "destFileName")]
     pub dest_file_name: Option<String>,
-    #[serde(rename = "canShowCreateDir")]
-    pub can_show_create_dir: bool,
+    #[serde(rename = "createDirEnabled")]
+    pub create_dir_enabled: bool,
     #[serde(rename = "canMove")]
     pub can_move: bool,
 }
