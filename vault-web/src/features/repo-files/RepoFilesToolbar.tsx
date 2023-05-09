@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 
 import { ReactComponent as FilesRenameHoverIcon } from '../../assets/images/files-rename-hover.svg';
 import { ReactComponent as FilesRenameIcon } from '../../assets/images/files-rename.svg';
@@ -23,7 +23,6 @@ import {
 import { useWebVault } from '../../webVault/useWebVault';
 
 import { useRepoFilesBrowserId } from './RepoFilesBrowserId';
-import { useRepoFilesRename } from './RepoFilesRename';
 import { downloadSelected } from './repoFilesActions';
 
 export const RepoFilesToolbar = memo<{ info: RepoFilesBrowserInfo }>(
@@ -35,7 +34,11 @@ export const RepoFilesToolbar = memo<{ info: RepoFilesBrowserInfo }>(
       info.selectedFile !== undefined && info.path !== undefined
         ? info.selectedFile
         : undefined;
-    const renameFile = useRepoFilesRename();
+    const renameSelectedFile = useCallback(() => {
+      if (selectedFile !== undefined && selectedFile.path !== undefined) {
+        webVault.repoFilesRenameFile(selectedFile.repoId, selectedFile.path);
+      }
+    }, [webVault, selectedFile]);
 
     return (
       <Toolbar>
@@ -43,9 +46,7 @@ export const RepoFilesToolbar = memo<{ info: RepoFilesBrowserInfo }>(
           <ToolbarItem
             icon={<FilesRenameIcon role="img" />}
             iconHover={<FilesRenameHoverIcon role="img" />}
-            onClick={() => {
-              renameFile(selectedFile);
-            }}
+            onClick={renameSelectedFile}
           >
             Rename
           </ToolbarItem>

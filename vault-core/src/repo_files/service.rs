@@ -20,7 +20,7 @@ use crate::{
     repo_files_read::{errors::GetFilesReaderError, state::RepoFileReader, RepoFilesReadService},
     repos::{errors::RepoLockedError, ReposService},
     store,
-    utils::path_utils,
+    utils::{name_utils, path_utils},
 };
 
 use super::{
@@ -414,37 +414,65 @@ impl RepoFilesService {
         }
     }
 
-    pub fn check_rename_file(
-        &self,
-        repo_id: &str,
-        path: &str,
-        name: &str,
-    ) -> Result<(), RenameFileError> {
-        self.store
-            .with_state(|state| selectors::select_check_rename_file(state, repo_id, path, name))
-    }
+    pub async fn rename_file(&self, repo_id: &str, path: &str) -> Result<(), RenameFileError> {
+        let (mount_id, remote_path, original_name, typ) = match self.store.with_state(|state| {
+            selectors::select_file(state, &selectors::get_file_id(repo_id, path)).map(|file| {
+                (
+                    file.mount_id.clone(),
+                    file.remote_path.clone(),
+                    file.decrypted_name().map(str::to_string),
+                    file.typ.clone(),
+                )
+            })
+        }) {
+            Some(x) => x,
+            None => return Err(RenameFileError::RemoteError(RepoFilesErrors::not_a_dir())),
+        };
+        let original_name = original_name?;
 
-    pub async fn rename_file(
-        &self,
-        repo_id: &str,
-        path: &str,
-        name: &str,
-    ) -> Result<(), RenameFileError> {
-        self.check_rename_file(repo_id, path, name)?;
+        let input_value = original_name.clone();
+        let input_value_selected = Some(match typ {
+            RepoFileType::Dir => input_value.clone(),
+            RepoFileType::File => name_utils::split_name_ext(&input_value).0.to_owned(),
+        });
 
-        let (mount_id, remote_path) =
-            self.get_repo_mount_path(&repo_id, &path)
-                .map_err(|e| match e {
-                    GetRepoMountPathError::RepoLocked(err) => RenameFileError::RepoLocked(err),
-                    GetRepoMountPathError::RepoNotFound(err) => RenameFileError::RepoNotFound(err),
-                })?;
+        let input_value_validator_store = self.store.clone();
+        let input_value_validator_repo_id = repo_id.to_owned();
+        let input_value_validator_path = path.to_owned();
 
-        let encrypted_name = self.encrypt_filename(&repo_id, name)?;
-
-        self.remote_files_service
-            .rename_file(&mount_id, &remote_path, &encrypted_name)
+        if let Some(name) = self
+            .dialogs_service
+            .show(dialogs::state::DialogShowOptions {
+                input_value,
+                input_value_validator: Some(Box::new(move |value| {
+                    input_value_validator_store
+                        .with_state(|state| {
+                            selectors::select_check_rename_file(
+                                state,
+                                &input_value_validator_repo_id,
+                                &input_value_validator_path,
+                                value,
+                            )
+                        })
+                        .is_ok()
+                })),
+                input_value_selected,
+                input_placeholder: Some(String::from("New name")),
+                confirm_button_text: String::from("Rename"),
+                ..self
+                    .dialogs_service
+                    .build_prompt(format!("Enter new name for '{}'", original_name))
+            })
             .await
-            .map_err(RenameFileError::RemoteError)
+        {
+            let encrypted_name = self.encrypt_filename(&repo_id, &name)?;
+
+            self.remote_files_service
+                .rename_file(&mount_id, &remote_path, &encrypted_name)
+                .await
+                .map_err(RenameFileError::RemoteError)?;
+        }
+        Ok(())
     }
 
     pub async fn copy_file(

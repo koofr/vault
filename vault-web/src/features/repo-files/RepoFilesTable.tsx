@@ -27,7 +27,6 @@ import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
 
 import { useRepoFilesBrowserId } from './RepoFilesBrowserId';
-import { useRepoFilesRename } from './RepoFilesRename';
 import { downloadFile } from './repoFilesActions';
 import {
   fileHasDetails,
@@ -47,7 +46,11 @@ const FileName = memo<{ file: RepoFile }>(({ file }) => {
     () => downloadFile(webVault, file, isMobile),
     [webVault, file, isMobile]
   );
-  const renameFile = useRepoFilesRename();
+  const renameFile = useCallback(() => {
+    if (file.path !== undefined) {
+      webVault.repoFilesRenameFile(file.repoId, file.path);
+    }
+  }, [webVault, file]);
 
   return (
     <div
@@ -144,9 +147,7 @@ const FileName = memo<{ file: RepoFile }>(({ file }) => {
           onClick={(e) => {
             e.stopPropagation();
 
-            if (file.path !== undefined) {
-              renameFile(file);
-            }
+            renameFile();
           }}
           aria-label="Rename"
         >

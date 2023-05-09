@@ -463,25 +463,12 @@ impl Vault {
         self.repo_files_service.delete_files(files, None).await
     }
 
-    pub fn repo_files_check_rename_file(
-        &self,
-        repo_id: &str,
-        path: &str,
-        name: &str,
-    ) -> Result<(), repo_files::errors::RenameFileError> {
-        self.repo_files_service
-            .check_rename_file(repo_id, path, name)
-    }
-
     pub async fn repo_files_rename_file(
         &self,
         repo_id: &str,
         path: &str,
-        name: &str,
     ) -> Result<(), repo_files::errors::RenameFileError> {
-        self.repo_files_service
-            .rename_file(repo_id, path, name)
-            .await
+        self.repo_files_service.rename_file(repo_id, path).await
     }
 
     // uploads

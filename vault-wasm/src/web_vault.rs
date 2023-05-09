@@ -901,16 +901,9 @@ impl WebVault {
         };
     }
 
-    #[wasm_bindgen(js_name = repoFilesCanRenameFile)]
-    pub fn repo_files_can_rename_file(&self, repo_id: &str, path: &str, name: &str) -> bool {
-        self.vault
-            .repo_files_check_rename_file(repo_id, path, name)
-            .is_ok()
-    }
-
     #[wasm_bindgen(js_name = repoFilesRenameFile)]
-    pub async fn repo_files_rename_file(&self, repo_id: &str, path: &str, name: &str) {
-        self.handle_result(self.vault.repo_files_rename_file(repo_id, path, name).await)
+    pub async fn repo_files_rename_file(&self, repo_id: &str, path: &str) {
+        self.handle_result(self.vault.repo_files_rename_file(repo_id, path).await)
     }
 
     // uploads
