@@ -446,7 +446,7 @@ impl Vault {
     }
 
     pub async fn repo_files_get_file_reader(
-        self: Arc<Self>,
+        &self,
         file_id: &str,
     ) -> Result<repo_files_read::state::RepoFileReader, repo_files_read::errors::GetFilesReaderError>
     {
@@ -571,7 +571,7 @@ impl Vault {
     }
 
     pub async fn repo_files_browsers_get_selected_reader(
-        self: Arc<Self>,
+        &self,
         browser_id: u32,
     ) -> Result<repo_files_read::state::RepoFileReader, repo_files_read::errors::GetFilesReaderError>
     {
