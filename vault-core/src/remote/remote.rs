@@ -17,7 +17,7 @@ use urlencoding::encode;
 use crate::{
     auth,
     auth::errors::AuthError,
-    http::{HttpClient, HttpError, HttpRequest, HttpRequestAbort, HttpRequestBody, HttpResponse},
+    http::{HttpClient, HttpError, HttpRequest, HttpRequestBody, HttpResponse},
     oauth2::errors::OAuth2Error,
 };
 
@@ -435,7 +435,6 @@ impl Remote {
         size: Option<i64>,
         conflict_resolution: RemoteFileUploadConflictResolution,
         on_progress: Option<Box<dyn Fn(usize) + Send + Sync>>,
-        abort: HttpRequestAbort,
     ) -> Result<models::FilesFile, RemoteError> {
         let (autorename, overwrite, overwrite_if_size, overwrite_if_modified, overwrite_if_hash) =
             match conflict_resolution {
@@ -477,7 +476,6 @@ impl Remote {
                 headers: HeaderMap::new(),
                 body: Some(HttpRequestBody::Reader(reader)),
                 on_body_progress: on_progress,
-                abort,
                 ..Default::default()
             })
             .await?;

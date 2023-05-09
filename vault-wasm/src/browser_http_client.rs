@@ -1,12 +1,12 @@
-use std::sync::Arc;
+use std::{sync::Arc, task::Poll};
 
 use async_trait::async_trait;
-use futures::{Future, Stream, StreamExt};
+use futures::{stream::poll_fn, Future, Stream, StreamExt};
 use http::{header::HeaderName, HeaderMap};
 use wasm_bindgen::{prelude::*, JsCast};
-use wasm_bindgen_futures::{spawn_local, JsFuture};
+use wasm_bindgen_futures::JsFuture;
 use wasm_streams::ReadableStream;
-use web_sys::{AbortController, Request, RequestInit, Response};
+use web_sys::{AbortController, AbortSignal, Request, RequestInit, Response};
 
 use vault_core::{
     cipher::constants::BLOCK_SIZE,
@@ -61,34 +61,21 @@ impl BrowserHttpClient {
         }
     }
 
-    pub fn needs_xhr(&self, http_request: &HttpRequest) -> bool {
+    fn needs_xhr(&self, http_request: &HttpRequest) -> bool {
         match &http_request.body {
             Some(HttpRequestBody::Reader(_)) => !helpers::supports_request_streams(),
             _ => false,
         }
     }
 
-    pub async fn get_request(&self, http_request: HttpRequest) -> Request {
+    async fn get_request(&self, http_request: HttpRequest, abort_signal: AbortSignal) -> Request {
         let mut http_request = http_request;
 
         let mut opts = RequestInit::new();
 
         opts.method(&http_request.method.clone());
 
-        if let Some(abort) = http_request.abort.take() {
-            let abort_controller = AbortController::new().unwrap();
-
-            opts.signal(Some(&abort_controller.signal()));
-
-            spawn_local(async move {
-                match abort.await {
-                    Ok(()) => {
-                        abort_controller.abort();
-                    }
-                    Err(()) => {}
-                };
-            });
-        }
+        opts.signal(Some(&abort_signal));
 
         match http_request.body {
             Some(HttpRequestBody::Bytes(bytes)) => {
@@ -149,14 +136,22 @@ impl BrowserHttpClient {
         Ok(response.into())
     }
 
-    pub async fn request_fetch(&self, http_request: HttpRequest) -> Result<Response, HttpError> {
-        let request = self.get_request(http_request).await;
+    pub async fn request_fetch(
+        &self,
+        http_request: HttpRequest,
+        abort_signal: AbortSignal,
+    ) -> Result<Response, HttpError> {
+        let request = self.get_request(http_request, abort_signal).await;
 
         self.get_response(self.browser_http_client_delegate.fetch(&request))
             .await
     }
 
-    pub async fn request_xhr(&self, http_request: HttpRequest) -> Result<Response, HttpError> {
+    pub async fn request_xhr(
+        &self,
+        http_request: HttpRequest,
+        abort_signal: AbortSignal,
+    ) -> Result<Response, HttpError> {
         let mut http_request = http_request;
 
         let on_body_progress = Arc::new(http_request.on_body_progress.take());
@@ -171,7 +166,7 @@ impl BrowserHttpClient {
             None => JsValue::UNDEFINED,
         };
 
-        let request = self.get_request(http_request).await;
+        let request = self.get_request(http_request, abort_signal).await;
 
         let on_request_progress_closure =
             Closure::new(Box::new(move |n| match on_body_progress.as_deref() {
@@ -191,13 +186,15 @@ impl BrowserHttpClient {
         &self,
         http_request: HttpRequest,
     ) -> Result<Box<dyn HttpResponse>, HttpError> {
+        let abort = AbortGuard::new();
+
         let resp = if self.needs_xhr(&http_request) {
-            self.request_xhr(http_request).await?
+            self.request_xhr(http_request, abort.signal()).await?
         } else {
-            self.request_fetch(http_request).await?
+            self.request_fetch(http_request, abort.signal()).await?
         };
 
-        Ok(Box::new(FetchHttpResponse::new(resp)))
+        Ok(Box::new(FetchHttpResponse::new(resp, abort)))
     }
 }
 
@@ -240,16 +237,21 @@ pub fn get_response_headers(resp: &Response) -> HeaderMap {
 pub struct FetchHttpResponse {
     response: Response,
     headers: HeaderMap,
+    _abort: AbortGuard,
 }
 
 unsafe impl Send for FetchHttpResponse {}
 unsafe impl Sync for FetchHttpResponse {}
 
 impl FetchHttpResponse {
-    fn new(response: Response) -> Self {
+    fn new(response: Response, abort: AbortGuard) -> Self {
         let headers = get_response_headers(&response);
 
-        Self { response, headers }
+        Self {
+            response,
+            headers,
+            _abort: abort,
+        }
     }
 
     async fn bytes_js(self: Box<Self>) -> Result<Vec<u8>, HttpError> {
@@ -264,16 +266,31 @@ impl FetchHttpResponse {
     }
 
     fn bytes_stream_js(self: Box<Self>) -> Box<dyn Stream<Item = Result<Vec<u8>, HttpError>>> {
+        let abort = self._abort;
+
         let raw_body = self.response.body().unwrap();
         let body = ReadableStream::from_raw(raw_body.dyn_into().unwrap());
 
         let stream = body.into_stream();
 
-        Box::new(stream.map(|chunk| {
-            chunk
-                .map(|value| value.dyn_into::<js_sys::Uint8Array>().unwrap().to_vec())
-                .map_err(|_| HttpError::ResponseError(String::from("unknown network error")))
-        }))
+        Box::new(
+            stream
+                .map(|chunk| {
+                    chunk
+                        .map(|value| value.dyn_into::<js_sys::Uint8Array>().unwrap().to_vec())
+                        .map_err(|_| {
+                            HttpError::ResponseError(String::from("unknown network error"))
+                        })
+                })
+                .chain(poll_fn(move |_| {
+                    // Keep the abort guard alive as long as this stream is,
+                    // otherwise the request/response might get aborted before
+                    // we read the whole response body.
+                    let _ = &abort;
+
+                    Poll::Ready(None)
+                })),
+        )
     }
 }
 
@@ -303,5 +320,28 @@ impl HttpResponse for FetchHttpResponse {
             Box::from_raw(Box::into_raw(self.bytes_stream_js())
                 as *mut (dyn Stream<Item = Result<Vec<u8>, HttpError>> + Send + Sync))
         })
+    }
+}
+
+// from https://github.com/seanmonstar/reqwest/blob/eeca649a3d70c353043b2e42684c6d74f4ba5cae/src/wasm/mod.rs
+struct AbortGuard {
+    ctrl: AbortController,
+}
+
+impl AbortGuard {
+    fn new() -> Self {
+        Self {
+            ctrl: AbortController::new().unwrap(),
+        }
+    }
+
+    fn signal(&self) -> AbortSignal {
+        self.ctrl.signal()
+    }
+}
+
+impl Drop for AbortGuard {
+    fn drop(&mut self) {
+        self.ctrl.abort();
     }
 }

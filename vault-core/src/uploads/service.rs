@@ -5,9 +5,8 @@ use std::{
 };
 
 use futures::{
-    channel::oneshot::{self, Receiver, Sender},
-    future::Shared,
-    FutureExt,
+    channel::oneshot::{self, Sender},
+    stream::{AbortHandle, Abortable, Aborted},
 };
 
 use crate::{
@@ -32,8 +31,7 @@ pub struct UploadsService {
     runtime: Arc<Box<dyn runtime::Runtime + Send + Sync>>,
     uploadables: Arc<RwLock<HashMap<u32, Uploadable>>>,
     results: Arc<RwLock<HashMap<u32, Sender<UploadResult>>>>,
-    abort_senders: Arc<RwLock<HashMap<u32, Sender<()>>>>,
-    abort_receivers: Arc<RwLock<HashMap<u32, Shared<Receiver<()>>>>>,
+    abort_handles: Arc<RwLock<HashMap<u32, AbortHandle>>>,
 }
 
 impl UploadsService {
@@ -48,8 +46,7 @@ impl UploadsService {
             runtime,
             uploadables: Arc::new(RwLock::new(HashMap::new())),
             results: Arc::new(RwLock::new(HashMap::new())),
-            abort_senders: Arc::new(RwLock::new(HashMap::new())),
-            abort_receivers: Arc::new(RwLock::new(HashMap::new())),
+            abort_handles: Arc::new(RwLock::new(HashMap::new())),
         }
     }
 
@@ -77,14 +74,6 @@ impl UploadsService {
         let (result_sender, result_receiver) = oneshot::channel();
 
         self.results.write().unwrap().insert(id, result_sender);
-
-        let (abort_sender, abort_receiver) = oneshot::channel();
-
-        self.abort_senders.write().unwrap().insert(id, abort_sender);
-        self.abort_receivers
-            .write()
-            .unwrap()
-            .insert(id, abort_receiver.shared());
 
         self.store.mutate(|state, notify| {
             notify(store::Event::Uploads);
@@ -118,18 +107,16 @@ impl UploadsService {
         self.abort_file_cleanup(id);
     }
 
-    pub fn abort_file_cleanup(&self, id: u32) {
+    fn abort_file_cleanup(&self, id: u32) {
         self.uploadables.write().unwrap().remove(&id);
 
         if let Some(sender) = self.results.write().unwrap().remove(&id) {
             let _ = sender.send(Err(UploadError::Aborted));
         }
 
-        if let Some(sender) = self.abort_senders.write().unwrap().remove(&id) {
-            let _ = sender.send(());
+        if let Some(handle) = self.abort_handles.write().unwrap().remove(&id) {
+            handle.abort();
         }
-
-        self.abort_receivers.write().unwrap().remove(&id);
     }
 
     pub fn abort_all(&self) {
@@ -207,16 +194,8 @@ impl UploadsService {
             }
         };
 
-        let abort = match self.abort_receivers.read().unwrap().get(&id) {
-            Some(receiver) => Some(
-                receiver
-                    .clone()
-                    .map(|res| res.map_err(|_| ()))
-                    .boxed()
-                    .shared(),
-            ),
-            None => None,
-        };
+        let (abort_handle, abort_registration) = AbortHandle::new_pair();
+        self.abort_handles.write().unwrap().insert(id, abort_handle);
 
         let size = uploadable.size();
         let reader = uploadable.reader();
@@ -226,7 +205,7 @@ impl UploadsService {
         let upload_future = async move {
             let progress_self = upload_future_self.clone();
 
-            match upload_future_self
+            let file_upload_future = upload_future_self
                 .repo_files_service
                 .clone()
                 .upload_file_reader(
@@ -243,11 +222,18 @@ impl UploadsService {
                             mutations::file_upload_progress(state, id, n as i64);
                         });
                     })),
-                    abort,
-                )
-                .await
-            {
-                Ok(res) => {
+                );
+
+            let file_upload_res = Abortable::new(file_upload_future, abort_registration).await;
+
+            upload_future_self
+                .abort_handles
+                .write()
+                .unwrap()
+                .remove(&id);
+
+            match file_upload_res {
+                Ok(Ok(res)) => {
                     upload_future_self.store.mutate(|state, notify| {
                         notify(store::Event::Uploads);
 
@@ -260,7 +246,7 @@ impl UploadsService {
 
                     upload_future_self.process_next();
                 }
-                Err(err) => {
+                Ok(Err(err)) => {
                     let err = match err {
                         UploadFileReaderError::RepoNotFound(err) => UploadError::RepoNotFound(err),
                         UploadFileReaderError::RepoLocked(err) => UploadError::RepoLocked(err),
@@ -291,6 +277,7 @@ impl UploadsService {
                         upload_future_self.process_next();
                     }
                 }
+                Err(Aborted) => {}
             };
         };
 

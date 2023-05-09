@@ -14,7 +14,7 @@ use crate::{
         data_cipher::{decrypt_on_progress, encrypted_size},
         Cipher,
     },
-    dialogs, http,
+    dialogs,
     remote::{self, models},
     remote_files::{state::RemoteFilesLocation, RemoteFilesService},
     repo_files_read::{errors::GetFilesReaderError, state::RepoFileReader, RepoFilesReadService},
@@ -180,7 +180,6 @@ impl RepoFilesService {
         size: Option<i64>,
         conflict_resolution: RepoFilesUploadConflictResolution,
         on_progress: Option<Box<dyn Fn(usize) + Send + Sync>>,
-        abort: http::HttpRequestAbort,
     ) -> Result<RepoFilesUploadResult, UploadFileReaderError> {
         self.clone()
             .ensure_dirs(repo_id, parent_path)
@@ -217,7 +216,6 @@ impl RepoFilesService {
                 encrypted_size,
                 conflict_resolution.into(),
                 on_progress.map(decrypt_on_progress),
-                abort,
             )
             .await
             .map_err(UploadFileReaderError::RemoteError)?;

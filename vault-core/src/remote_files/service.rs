@@ -3,7 +3,6 @@ use std::{pin::Pin, sync::Arc};
 use futures::AsyncRead;
 
 use crate::{
-    http,
     remote::{
         models, remote::ListRecursiveItemStream, Remote, RemoteError, RemoteFileReader,
         RemoteFileUploadConflictResolution,
@@ -123,7 +122,6 @@ impl RemoteFilesService {
         size: Option<i64>,
         conflict_resolution: RemoteFileUploadConflictResolution,
         on_progress: Option<Box<dyn Fn(usize) + Send + Sync>>,
-        abort: http::HttpRequestAbort,
     ) -> Result<(String, models::FilesFile), RemoteError> {
         let file = self
             .remote
@@ -135,7 +133,6 @@ impl RemoteFilesService {
                 size,
                 conflict_resolution,
                 on_progress,
-                abort,
             )
             .await?;
 
