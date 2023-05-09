@@ -561,7 +561,7 @@ impl WebVault {
                                         location_dir_picker_can_select: vault_core::repo_create::selectors::select_location_dir_picker_can_select(
                                             state,
                                         ),
-                                        location_dir_picker_can_show_create_dir: vault_core::repo_create::selectors::select_location_dir_picker_can_show_create_dir(
+                                        location_dir_picker_create_dir_enabled: vault_core::repo_create::selectors::select_location_dir_picker_create_dir_enabled(
                                             state,
                                         ),
                                         password: form.password.clone(),
@@ -645,18 +645,11 @@ impl WebVault {
         self.vault.repo_create_location_dir_picker_cancel()
     }
 
-    #[wasm_bindgen(js_name = repoCreateLocationDirPickerCanCreateDir)]
-    pub fn repo_create_location_dir_picker_can_create_dir(&self, name: &str) -> bool {
-        self.vault
-            .repo_create_location_dir_picker_check_create_dir(name)
-            .is_ok()
-    }
-
     #[wasm_bindgen(js_name = repoCreateLocationDirPickerCreateDir)]
-    pub async fn repo_create_location_dir_picker_create_dir(&self, name: &str) {
+    pub async fn repo_create_location_dir_picker_create_dir(&self) {
         self.handle_result(
             self.vault
-                .repo_create_location_dir_picker_create_dir(name)
+                .repo_create_location_dir_picker_create_dir()
                 .await,
         )
     }

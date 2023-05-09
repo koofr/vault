@@ -287,7 +287,7 @@ pub fn select_selected_file<'a>(state: &'a store::State, picker_id: u32) -> Opti
         .and_then(|file_id| remote_files_selectors::select_file(state, file_id))
 }
 
-pub fn select_can_show_create_dir(state: &store::State, picker_id: u32) -> bool {
+pub fn select_create_dir_enabled(state: &store::State, picker_id: u32) -> bool {
     select_selected_file(state, picker_id).is_some()
 }
 

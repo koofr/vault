@@ -4,6 +4,7 @@ use crate::{
     cipher,
     cipher::random_password::random_password,
     common::state::Status,
+    dialogs,
     dir_pickers::selectors as dir_pickers_selectors,
     rclone,
     remote::{self, models, RemoteError},
@@ -35,6 +36,7 @@ pub struct RepoCreateService {
     repos_service: Arc<ReposService>,
     remote_files_service: Arc<RemoteFilesService>,
     remote_files_dir_pickers_service: Arc<RemoteFilesDirPickersService>,
+    dialogs_service: Arc<dialogs::DialogsService>,
     store: Arc<store::Store>,
 }
 
@@ -44,6 +46,7 @@ impl RepoCreateService {
         repos_service: Arc<ReposService>,
         remote_files_service: Arc<RemoteFilesService>,
         remote_files_dir_pickers_service: Arc<RemoteFilesDirPickersService>,
+        dialogs_service: Arc<dialogs::DialogsService>,
         store: Arc<store::Store>,
     ) -> Self {
         Self {
@@ -51,6 +54,7 @@ impl RepoCreateService {
             repos_service,
             remote_files_service,
             remote_files_dir_pickers_service,
+            dialogs_service,
             store,
         }
     }
@@ -208,15 +212,7 @@ impl RepoCreateService {
         }
     }
 
-    pub fn location_dir_picker_check_create_dir(&self, name: &str) -> Result<(), RemoteError> {
-        self.store
-            .with_state(|state| selectors::select_location_dir_picker_check_create_dir(state, name))
-    }
-
-    pub async fn location_dir_picker_create_dir(
-        &self,
-        name: &str,
-    ) -> Result<(), remote::RemoteError> {
+    pub async fn location_dir_picker_create_dir(&self) -> Result<(), remote::RemoteError> {
         let picker_id = match self
             .store
             .with_state(|state| selectors::select_location_dir_picker_id(state))
@@ -225,9 +221,32 @@ impl RepoCreateService {
             None => return Ok(()),
         };
 
-        self.remote_files_dir_pickers_service
-            .create_dir(picker_id, name)
+        let input_value_validator_store = self.store.clone();
+
+        if let Some(name) = self
+            .dialogs_service
+            .show(dialogs::state::DialogShowOptions {
+                input_value_validator: Some(Box::new(move |value| {
+                    input_value_validator_store
+                        .with_state(|state| {
+                            selectors::select_location_dir_picker_check_create_dir(state, value)
+                        })
+                        .is_ok()
+                })),
+                input_placeholder: Some(String::from("Folder name")),
+                confirm_button_text: String::from("Create folder"),
+                ..self
+                    .dialogs_service
+                    .build_prompt(String::from("Enter new folder name"))
+            })
             .await
+        {
+            self.remote_files_dir_pickers_service
+                .create_dir(picker_id, &name)
+                .await?;
+        }
+
+        Ok(())
     }
 
     pub async fn create(&self) {

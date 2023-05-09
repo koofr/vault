@@ -123,6 +123,7 @@ impl Vault {
             repos_service.clone(),
             remote_files_service.clone(),
             remote_files_dir_pickers_service.clone(),
+            dialogs_service.clone(),
             store.clone(),
         ));
         let uploads_service = Arc::new(uploads::UploadsService::new(
@@ -353,20 +354,11 @@ impl Vault {
         self.repo_create_service.location_dir_picker_cancel()
     }
 
-    pub fn repo_create_location_dir_picker_check_create_dir(
-        &self,
-        name: &str,
-    ) -> Result<(), remote::RemoteError> {
-        self.repo_create_service
-            .location_dir_picker_check_create_dir(name)
-    }
-
     pub async fn repo_create_location_dir_picker_create_dir(
         &self,
-        name: &str,
     ) -> Result<(), remote::RemoteError> {
         self.repo_create_service
-            .location_dir_picker_create_dir(name)
+            .location_dir_picker_create_dir()
             .await
     }
 

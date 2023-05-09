@@ -53,16 +53,9 @@ export const RepoCreateFormComponent = memo<{ form: RepoCreateForm }>(
     const locationDirPickerCancel = useCallback(() => {
       webVault.repoCreateLocationDirPickerCancel();
     }, [webVault]);
-    const locationDirPickerCanCreateDir = useCallback(
-      (name: string) => webVault.repoCreateLocationDirPickerCanCreateDir(name),
-      [webVault]
-    );
-    const locationDirPickerCreateDir = useCallback(
-      (name: string) => {
-        webVault.repoCreateLocationDirPickerCreateDir(name);
-      },
-      [webVault]
-    );
+    const locationDirPickerCreateDir = useCallback(() => {
+      webVault.repoCreateLocationDirPickerCreateDir();
+    }, [webVault]);
     const onSubmit = useCallback(
       (event: React.FormEvent) => {
         event.preventDefault();
@@ -381,8 +374,7 @@ export const RepoCreateFormComponent = memo<{ form: RepoCreateForm }>(
           canSelect={form.locationDirPickerCanSelect}
           select={locationDirPickerSelect}
           cancel={locationDirPickerCancel}
-          canShowCreateDir={form.locationDirPickerCanShowCreateDir}
-          canCreateDir={locationDirPickerCanCreateDir}
+          createDirEnabled={form.locationDirPickerCreateDirEnabled}
           createDir={locationDirPickerCreateDir}
         />
       </div>

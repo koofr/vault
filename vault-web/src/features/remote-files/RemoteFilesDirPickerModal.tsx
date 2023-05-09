@@ -3,7 +3,6 @@ import { useTheme } from '@emotion/react';
 import { memo } from 'react';
 
 import { Button } from '../../components/Button';
-import { CreateDirModal } from '../../components/CreateDirModal';
 import {
   Modal,
   ModalBody,
@@ -15,7 +14,6 @@ import {
   ModalTitle,
 } from '../../components/modal/Modal';
 import { useIsMobile } from '../../components/useIsMobile';
-import { useModal } from '../../utils/useModal';
 
 import { RemoteFilesDirPicker } from './RemoteFilesDirPicker';
 
@@ -28,22 +26,12 @@ export const RemoteFilesDirPickerModalContent = memo<{
   canSelect: boolean;
   select: () => void;
   cancel: () => void;
-  canShowCreateDir: boolean;
-  canCreateDir: (name: string) => boolean;
-  createDir: (name: string) => void;
+  createDirEnabled: boolean;
+  createDir: () => void;
 }>(
-  ({
-    dirPickerId,
-    canSelect,
-    select,
-    cancel,
-    canShowCreateDir,
-    canCreateDir,
-    createDir,
-  }) => {
+  ({ dirPickerId, canSelect, select, cancel, createDirEnabled, createDir }) => {
     const isMobile = useIsMobile();
     const theme = useTheme();
-    const createDirModal = useModal();
 
     return (
       <>
@@ -80,8 +68,8 @@ export const RemoteFilesDirPickerModalContent = memo<{
           <ModalFooterExtra>
             <Button
               type="button"
-              disabled={!canShowCreateDir}
-              onClick={() => createDirModal.show()}
+              disabled={!createDirEnabled}
+              onClick={createDir}
             >
               Create folder
             </Button>
@@ -100,13 +88,6 @@ export const RemoteFilesDirPickerModalContent = memo<{
             </ModalFooterButton>
           </ModalFooterButtons>
         </ModalFooter>
-
-        <CreateDirModal
-          isVisible={createDirModal.isVisible}
-          canCreateDir={canCreateDir}
-          createDir={createDir}
-          hide={createDirModal.hide}
-        />
       </>
     );
   }
@@ -117,19 +98,10 @@ export const RemoteFilesDirPickerModal = memo<{
   canSelect: boolean;
   select: () => void;
   cancel: () => void;
-  canShowCreateDir: boolean;
-  canCreateDir: (name: string) => boolean;
-  createDir: (name: string) => void;
+  createDirEnabled: boolean;
+  createDir: () => void;
 }>(
-  ({
-    dirPickerId,
-    canSelect,
-    select,
-    cancel,
-    canShowCreateDir,
-    canCreateDir,
-    createDir,
-  }) => {
+  ({ dirPickerId, canSelect, select, cancel, createDirEnabled, createDir }) => {
     return (
       <Modal show={dirPickerId !== undefined} onHide={cancel}>
         {dirPickerId !== undefined ? (
@@ -138,8 +110,7 @@ export const RemoteFilesDirPickerModal = memo<{
             canSelect={canSelect}
             select={select}
             cancel={cancel}
-            canShowCreateDir={canShowCreateDir}
-            canCreateDir={canCreateDir}
+            createDirEnabled={createDirEnabled}
             createDir={createDir}
           />
         ) : (

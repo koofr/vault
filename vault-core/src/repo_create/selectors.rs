@@ -50,10 +50,10 @@ pub fn select_location_dir_picker_can_select(state: &store::State) -> bool {
         .is_some()
 }
 
-pub fn select_location_dir_picker_can_show_create_dir(state: &store::State) -> bool {
+pub fn select_location_dir_picker_create_dir_enabled(state: &store::State) -> bool {
     select_location_dir_picker_id(state)
         .map(|picker_id| {
-            remote_files_dir_pickers_selectors::select_can_show_create_dir(state, picker_id)
+            remote_files_dir_pickers_selectors::select_create_dir_enabled(state, picker_id)
         })
         .unwrap_or(false)
 }

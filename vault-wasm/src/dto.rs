@@ -427,8 +427,8 @@ pub struct RepoCreateForm {
     pub location_dir_picker_id: Option<u32>,
     #[serde(rename = "locationDirPickerCanSelect")]
     pub location_dir_picker_can_select: bool,
-    #[serde(rename = "locationDirPickerCanShowCreateDir")]
-    pub location_dir_picker_can_show_create_dir: bool,
+    #[serde(rename = "locationDirPickerCreateDirEnabled")]
+    pub location_dir_picker_create_dir_enabled: bool,
     pub password: String,
     pub salt: Option<String>,
     #[serde(rename = "fillFromRcloneConfigError")]
