@@ -1,16 +1,16 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, RwLock};
 
 use super::{event::Event, event_emitter::EventEmitter, state::State};
 
 pub struct Store {
-    state: Arc<Mutex<State>>,
+    state: Arc<RwLock<State>>,
     event_emitter: EventEmitter<Event>,
 }
 
 impl Store {
     pub fn new(initial_state: State) -> Store {
         Store {
-            state: Arc::new(Mutex::new(initial_state)),
+            state: Arc::new(RwLock::new(initial_state)),
             event_emitter: EventEmitter::new(),
         }
     }
@@ -31,7 +31,7 @@ impl Store {
     where
         F: FnOnce(&State) -> R,
     {
-        let state = self.state.lock().unwrap();
+        let state = self.state.read().unwrap();
 
         f(&state)
     }
@@ -48,7 +48,7 @@ impl Store {
             }
         };
 
-        let mut state = self.state.lock().unwrap();
+        let mut state = self.state.write().unwrap();
 
         let res = f(&mut state, &mut notify);
 
