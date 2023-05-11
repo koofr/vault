@@ -16,7 +16,7 @@ pub struct EventEmitter<E> {
 
 impl<E> EventEmitter<E>
 where
-    E: Eq + Hash + Clone,
+    E: Eq + Hash + Clone + std::fmt::Debug,
 {
     pub fn new() -> EventEmitter<E> {
         EventEmitter {
@@ -69,12 +69,10 @@ where
         let mut listeners = self.listeners.lock().unwrap();
 
         for (_, event_listeners) in listeners.iter_mut() {
-            if let Some(index) = event_listeners
-                .iter()
-                .position(|listener| listener.id == id)
-            {
-                event_listeners.remove(index);
-            }
+            // if `on` was called with multiple same events, `event_listeners`
+            // will have multiple listeners with the same id, so we have to
+            // remove all of them
+            event_listeners.retain(|listener| listener.id != id);
         }
     }
 }
