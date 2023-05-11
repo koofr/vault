@@ -51,7 +51,8 @@ const main = async () => {
     oauth2ClientSecret,
     oauth2RedirectUri,
     new BrowserHttpClientDelegateImpl(),
-    new BrowserEventstreamWebSocketDelegateImpl()
+    new BrowserEventstreamWebSocketDelegateImpl(),
+    localStorage
   );
 
   (window as any).webVault = webVault;

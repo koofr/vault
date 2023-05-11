@@ -8,6 +8,7 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::spawn_local;
 
 use vault_core::store::Event;
+use web_sys::Storage;
 
 use crate::{
     browser_eventstream_websocket_client::{
@@ -179,6 +180,7 @@ impl WebVault {
         oauth2_redirect_uri: String,
         browser_http_client_delegate: BrowserHttpClientDelegate,
         browser_eventstream_websocket_delegate: BrowserEventstreamWebSocketDelegate,
+        storage: Storage,
     ) -> Self {
         let oauth2_config = vault_core::oauth2::OAuth2Config {
             base_url: base_url.clone(),
@@ -194,7 +196,7 @@ impl WebVault {
             Box::new(BrowserEventstreamWebSocketClient::new(
                 browser_eventstream_websocket_delegate,
             )),
-            Box::new(BrowserSecureStorage::new()),
+            Box::new(BrowserSecureStorage::new(storage)),
             Box::new(BrowserRuntime::new()),
         ));
 
