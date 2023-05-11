@@ -5,7 +5,7 @@ export function supportsRequestStreams() {
 
   let duplexAccessed = false;
 
-  const hasContentType = new Request("", {
+  const hasContentType = new Request("http://dummy", {
     body: new ReadableStream(),
     method: "POST",
     get duplex() {
