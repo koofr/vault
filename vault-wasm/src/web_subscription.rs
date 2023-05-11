@@ -3,12 +3,19 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+use wasm_bindgen::prelude::*;
+
 use vault_core::{store::Subscription, Vault};
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_name = "setTimeout", catch)]
+    fn set_timeout(handler: &js_sys::Function, timeout: i32) -> Result<JsValue, JsValue>;
+}
 
 pub struct WebSubscription {
     vault: Arc<Vault>,
     subscription: Subscription,
-    window: web_sys::Window,
 }
 
 impl WebSubscription {
@@ -18,7 +25,6 @@ impl WebSubscription {
         Self {
             vault,
             subscription,
-            window: web_sys::window().unwrap(),
         }
     }
 
@@ -26,10 +32,8 @@ impl WebSubscription {
         &self,
         js_callback: js_sys::Function,
     ) -> Box<dyn Fn() + Send + Sync + 'static> {
-        let window = self.window.clone();
-
         let callback: Box<dyn Fn() + 'static> = Box::new(move || {
-            window.set_timeout_with_callback(&js_callback).unwrap();
+            set_timeout(&js_callback, 0).unwrap();
         });
 
         let callback: Box<dyn Fn() + Send + Sync + 'static> = unsafe {
