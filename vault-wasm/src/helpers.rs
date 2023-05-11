@@ -22,6 +22,9 @@ extern "C" {
 
     #[wasm_bindgen(js_name = "supportsReadableByteStream")]
     pub fn supports_readable_byte_stream() -> bool;
+
+    #[wasm_bindgen(js_name = "errorString")]
+    pub fn error_string(err: &JsValue) -> String;
 }
 
 pub fn bytes_to_array(bytes: &[u8]) -> JsValue {
@@ -71,7 +74,7 @@ pub async fn reader_to_blob(
         // TODO handle error
         JsFuture::from(stream_to_blob(stream_value, content_type))
             .await
-            .map_err(|_| ReaderToBlobError(String::from("unknown network error")))
+            .map_err(|err| ReaderToBlobError(error_string(&err)))
     } else {
         let mut buf = Vec::new();
 
@@ -93,12 +96,7 @@ pub fn stream_to_reader(
         .map(|chunk| {
             chunk
                 .map(|value| value.dyn_into::<js_sys::Uint8Array>().unwrap().to_vec())
-                .map_err(|_| {
-                    std::io::Error::new(
-                        std::io::ErrorKind::Other,
-                        String::from("unknown network error"),
-                    )
-                })
+                .map_err(|err| std::io::Error::new(std::io::ErrorKind::Other, error_string(&err)))
         })
         .into_async_read();
 

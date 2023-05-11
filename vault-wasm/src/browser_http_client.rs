@@ -129,7 +129,7 @@ impl BrowserHttpClient {
     ) -> Result<Response, HttpError> {
         let resp_value = JsFuture::from(response_promise)
             .await
-            .map_err(|_| HttpError::ResponseError(String::from("unknown network error")))?;
+            .map_err(|err| HttpError::ResponseError(helpers::error_string(&err)))?;
 
         let response: Response = resp_value.dyn_into().unwrap();
 
@@ -162,7 +162,7 @@ impl BrowserHttpClient {
             Some(HttpRequestBody::Bytes(bytes)) => helpers::bytes_to_blob(&bytes, None),
             Some(HttpRequestBody::Reader(reader)) => helpers::reader_to_blob(reader, None)
                 .await
-                .map_err(|_| HttpError::ResponseError(String::from("unknown network error")))?,
+                .map_err(|err| HttpError::ResponseError(err.to_string()))?,
             None => JsValue::UNDEFINED,
         };
 
@@ -278,9 +278,7 @@ impl FetchHttpResponse {
                 .map(|chunk| {
                     chunk
                         .map(|value| value.dyn_into::<js_sys::Uint8Array>().unwrap().to_vec())
-                        .map_err(|_| {
-                            HttpError::ResponseError(String::from("unknown network error"))
-                        })
+                        .map_err(|err| HttpError::ResponseError(helpers::error_string(&err)))
                 })
                 .chain(poll_fn(move |_| {
                     // Keep the abort guard alive as long as this stream is,

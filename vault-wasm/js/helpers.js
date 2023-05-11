@@ -39,3 +39,17 @@ export function supportsReadableByteStream() {
     return false;
   }
 }
+
+export function errorString(err) {
+  try {
+    let s = (err.message != null) ? err.message : `${err}`;
+
+    if (err.cause != null) {
+      s = `${s}: ${errorString(err.cause)}`;
+    }
+
+    return s;
+  } catch {
+    return "unknown error";
+  }
+}
