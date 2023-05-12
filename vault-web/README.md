@@ -14,6 +14,11 @@ npm install
 
 Look at the `README.md` in `../vault-wasm`.
 
+```sh
+cd ../vault-wasm
+wasm-pack build --target web --out-dir ../vault-web/src/vault-wasm --out-name vault-wasm
+```
+
 ### Run Vite CLI
 
 ```sh
