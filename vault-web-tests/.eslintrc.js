@@ -12,5 +12,5 @@ module.exports = {
   rules: {
     '@typescript-eslint/no-floating-promises': 'error',
   },
-  ignorePatterns: ['.eslintrc.js', 'scripts/generate-playwright-auth-user.js'],
+  ignorePatterns: ['.eslintrc.js', 'scripts/generate-playwright-auth-user.js', 'vault-wasm-nodejs/**'],
 };

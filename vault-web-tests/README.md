@@ -32,11 +32,25 @@ console.log(
 
 Copy and paste the printed JSON into `playwright/.auth/user.json`.
 
+## vault-wasm-nodejs
+
+You need to generate `vault-wasm-nodejs` to run the tests. See section `vault-wasm-nodejs` in [`vault-wasm`
+README.md](../vault-wasm/README.md) section.
+
+```sh
+cd ../vault-wasm
+wasm-pack build --target nodejs --out-dir ../vault-web-tests/vault-wasm-nodejs --out-name vault-wasm
+./fix-helpers-nodejs.sh ../vault-web-tests/vault-wasm-nodejs
+```
+
 ## Run tests
 
 ```sh
-# Runs the end-to-end tests.
+# Runs the end-to-end tests (headless).
 npx playwright test
+
+# Runs the end-to-end tests (non-headless).
+npx playwright test --headed
 
 # Starts the interactive UI mode.
 npx playwright test --ui

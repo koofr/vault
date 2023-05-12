@@ -1,9 +1,6 @@
 import { APIRequestContext } from '@playwright/test';
 
-export interface OAuth2Token {
-  access_token: string;
-  refresh_token: string;
-}
+import { OAuth2Token } from './oauth2';
 
 export interface VaultRepo {
   id: string;
@@ -39,34 +36,27 @@ export class KoofrApiClient {
     this.ignoreHTTPSErrors = ignoreHTTPSErrors;
   }
 
-  async refreshToken() {
-    const res = await this.request.fetch(`${this.baseUrl}/oauth2/token`, {
-      ignoreHTTPSErrors: this.ignoreHTTPSErrors,
-      method: 'POST',
-      data: {
-        grant_type: 'refresh_token',
-        client_id: this.oauth2ClientId,
-        client_secret: this.oauth2ClientSecret,
-        redirect_uri: this.oauth2RedirectUri,
-        refresh_token: this.oauth2Token.refresh_token,
-      },
-    });
-
-    if (res.status() != 200) {
-      throw new Error(
-        `Failed to refresh oauth2 token: ${res.status()} ${await res.text()}`
-      );
-    }
-
-    this.oauth2Token = await res.json();
-  }
-
   async removeAllVaultRepos() {
     const repos = await this.getVaultRepos();
 
     for (const repo of repos) {
       await this.deleteFile(repo.mountId, repo.path);
     }
+  }
+
+  async createTestVaultRepo(): Promise<VaultRepo> {
+    try {
+      await this.createDir('primary', '/', 'My safe box');
+    } catch (e) {
+      if (/AlreadyExists/.test(e.message)) {
+        await this.deleteFile('primary', '/My safe box');
+        await this.createDir('primary', '/', 'My safe box');
+      } else {
+        throw e;
+      }
+    }
+
+    return await this.createVaultRepo('primary', '/My safe box');
   }
 
   getRequestOptions(): {
@@ -114,5 +104,52 @@ export class KoofrApiClient {
         `Failed to delete path: ${res.status()} ${await res.text()}`
       );
     }
+  }
+
+  async createDir(mountId: string, parentPath: string, name: string) {
+    const res = await this.request.post(
+      `${
+        this.baseUrl
+      }/api/v2.1/mounts/${mountId}/files/folder?path=${encodeURIComponent(
+        parentPath
+      )}`,
+      {
+        ...this.getRequestOptions(),
+        data: {
+          name,
+        },
+      }
+    );
+
+    if (res.status() != 200) {
+      throw new Error(
+        `Failed to create dir: ${res.status()} ${await res.text()}`
+      );
+    }
+  }
+
+  async createVaultRepo(mountId: string, path: string): Promise<VaultRepo> {
+    const res = await this.request.post(
+      `${this.baseUrl}/api/v2.1/vault/repos`,
+      {
+        ...this.getRequestOptions(),
+        data: {
+          mountId,
+          path,
+          passwordValidator: '4febe12d-33f5-4a8e-b1d1-dee8a1ec0af3',
+          passwordValidatorEncrypted:
+            'v2:UkNMT05FAADskNtA1B4NLVspahPySD83io24-Aqq1g-O9dNR2MeE2_Sp9aL4rrURY_JuwH-ffpbAx5snpR2mwFFfAue3a25qAduOj_Uspu1kNLmX',
+          salt: 'salt',
+        },
+      }
+    );
+
+    if (res.status() != 201) {
+      throw new Error(
+        `Failed to create vault repo: ${res.status()} ${await res.text()}`
+      );
+    }
+
+    return await res.json();
   }
 }

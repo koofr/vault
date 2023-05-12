@@ -1,0 +1,123 @@
+import { getOAuth2Token } from './storageState';
+import { config, ignoreHTTPSErrors } from './vaultConfig';
+import { WebVaultClient } from './webVaultClient';
+
+async function main() {
+  const baseUrl = config.baseUrl;
+  const oauth2Token = getOAuth2Token();
+  const oauth2ClientId = config.oauth2ClientId;
+  const oauth2ClientSecret = config.oauth2ClientSecret;
+  const oauth2RedirectUri = 'http://localhost:5173/oauth2callback';
+
+  const client = new WebVaultClient(
+    baseUrl,
+    oauth2Token,
+    oauth2ClientId,
+    oauth2ClientSecret,
+    oauth2RedirectUri,
+    ignoreHTTPSErrors
+  );
+
+  await client.webVault.load();
+
+  console.log('Loaded');
+
+  const user = await client.waitFor(
+    (v, cb) => v.userSubscribe(cb),
+    (v) => v.userData,
+    (user) => user !== undefined
+  );
+
+  console.log('User', user);
+
+  const repos = await client.waitFor(
+    (v, cb) => v.reposSubscribe(cb),
+    (v) => v.reposData,
+    (repos) => repos.status.type === 'Loaded'
+  );
+
+  console.log('Repos', repos);
+
+  if (repos.repos.length === 0) {
+    console.log('No repos');
+
+    return;
+  }
+
+  const repo = repos.repos[0];
+
+  client.webVault.repoUnlockInit(repo.id);
+  await client.webVault.repoUnlockUnlock('password');
+  client.webVault.repoUnlockDestroy(repo.id);
+
+  const browserId = client.webVault.repoFilesBrowsersCreate(repo.id, '/');
+
+  await client.waitFor(
+    (v, cb) => v.repoFilesBrowsersInfoSubscribe(browserId, cb),
+    (v) => v.repoFilesBrowsersInfoData,
+    (info) => {
+      return info.status.type === 'Loaded';
+    }
+  );
+
+  let items = await client.waitFor(
+    (v, cb) => v.repoFilesBrowsersItemsSubscribe(browserId, cb),
+    (v) => v.repoFilesBrowsersItemsData,
+    () => true
+  );
+
+  console.log('Files', items);
+
+  const uploadsUnsubscribe = client.subscribe(
+    (v, cb) => v.uploadsSummarySubscribe(cb),
+    (v) => v.uploadsSummaryData,
+    (data) => {
+      console.log('Uploads summary', data);
+    }
+  );
+
+  const fileName = `${(Math.random() * 1000000000) >> 0}.txt`;
+  const fileContent = new Blob(['test file']);
+
+  console.log('Upload file');
+
+  await client.webVault.uploadsUpload(repo.id, '/', fileName, fileContent);
+
+  console.log('Upload done');
+
+  uploadsUnsubscribe();
+
+  items = await client.waitFor(
+    (v, cb) => v.repoFilesBrowsersItemsSubscribe(browserId, cb),
+    (v) => v.repoFilesBrowsersItemsData,
+    (items) =>
+      items.find((item) => item.fileId.endsWith(`/${fileName}`)) !== undefined
+  );
+
+  const fileId = items.find((item) =>
+    item.fileId.endsWith(`/${fileName}`)
+  ).fileId;
+  const file = await client.waitFor(
+    (v, cb) => v.repoFilesFileSubscribe(fileId, cb),
+    (v) => v.repoFilesFileData,
+    () => true
+  );
+
+  console.log('Uploaded file', file);
+
+  console.log('Download file');
+
+  const downloadStream = await client.webVault.repoFilesGetFileStream(
+    fileId,
+    false
+  );
+
+  console.log('Download done');
+
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const downloadStreamText = await new Response(downloadStream.stream!).text();
+
+  console.log('Downloaded content', downloadStream.name, downloadStreamText);
+}
+
+main().catch((e) => console.warn(e));

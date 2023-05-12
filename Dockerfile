@@ -2,7 +2,7 @@
 FROM rust@sha256:3dd0bb6f134635fe40dd9c18bd9603f9d90ce3538ac25ae3e69b9b127137acf2 AS wasm-stage
 WORKDIR /app
 
-RUN apk add --no-cache musl-dev
+RUN apk add --no-cache musl-dev zip
 
 # dummy cargo install to update the index to speed up future builds
 RUN cargo install empty-library || true
@@ -35,7 +35,11 @@ COPY vault-wasm vault-wasm
 # cargo does not build files if mtime is older
 RUN find vault-core vault-wasm -type f | xargs touch
 RUN cd vault-wasm \
-  && wasm-pack build --target web --out-name vault-wasm
+  && wasm-pack build --target web --out-name vault-wasm --out-dir vault-wasm-web \
+  && wasm-pack build --target nodejs --out-name vault-wasm --out-dir vault-wasm-nodejs \
+  && ./fix-helpers-nodejs.sh vault-wasm-nodejs \
+  && cd vault-wasm-nodejs \
+  && tar cvzpf ../vault-wasm-nodejs.tar.gz .
 
 # FROM node:17-alpine3.14 AS frontend-stage
 FROM node@sha256:0eb54d5716d8cf0dd313a8658dae30bf553edcac2d73f85ceee1a78abf7fdaa5 AS frontend-stage
@@ -45,7 +49,7 @@ COPY vault-web/package.json vault-web/package.json
 COPY vault-web/package-lock.json vault-web/package-lock.json
 RUN cd vault-web && npm ci
 COPY vault-web vault-web
-COPY --from=wasm-stage /app/vault-wasm/pkg vault-web/src/vault-wasm
+COPY --from=wasm-stage /app/vault-wasm/vault-wasm-web vault-web/src/vault-wasm
 RUN cd vault-web && node_modules/.bin/tsc
 RUN cd vault-web && node_modules/.bin/eslint src
 RUN cd vault-web && VITE_GIT_REVISION=${GIT_REVISION} node_modules/.bin/vite build
@@ -55,6 +59,7 @@ RUN echo -n ${GIT_REVISION} > vault-web/dist/gitrevision.txt
 FROM busybox@sha256:d345780059f4b200c1ebfbcfb141c67212e1ad4ea7538dcff759895bfcf99e6e AS static-stage
 COPY --from=frontend-stage /app/vault-web/dist/ /vault-web
 RUN cd vault-web && tar cvzpf ../vault-web.tar.gz .
+COPY --from=wasm-stage /app/vault-wasm/vault-wasm-nodejs.tar.gz /vault-wasm-nodejs.tar.gz
 
 # FROM caddy:2.6.2-alpine AS caddy-stage
 FROM caddy@sha256:7992b931b7da3cf0840dd69ea74b2c67d423faf03408da8abdc31b7590a239a7 AS caddy-stage

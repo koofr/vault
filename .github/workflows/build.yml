@@ -18,10 +18,16 @@ jobs:
           docker buildx build --build-arg GIT_REVISION="$GIT_REVISION" --target static-stage -t vault-static --cache-from=type=gha --cache-to=type=gha,mode=max --load .
           docker run --rm vault-static cat vault-web.tar.gz > vault-web.tar.gz
           sha256sum vault-web.tar.gz | awk '{print $1}' > vault-web.tar.gz.sha256
+          docker run --rm vault-static cat vault-wasm-nodejs.tar.gz > vault-wasm-nodejs.tar.gz
       - uses: actions/upload-artifact@v3
         with:
           name: vault-web
           path: vault-web.tar.gz*
+          retention-days: 30
+      - uses: actions/upload-artifact@v3
+        with:
+          name: vault-wasm-nodejs
+          path: vault-wasm-nodejs.tar.gz*
           retention-days: 30
 
   cargo-test:
@@ -76,12 +82,21 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: vault-web
+      - uses: actions/download-artifact@v3
+        with:
+          name: vault-wasm-nodejs
       - name: Unpack vault-web into dist
         run: |
           mkdir dist
           cd dist
           tar xf ../../vault-web.tar.gz
         working-directory: vault-web
+      - name: Unpack vault-wasm-nodejs into vault-web-tests
+        run: |
+          mkdir vault-wasm-nodejs
+          cd vault-wasm-nodejs
+          tar xf ../../vault-wasm-nodejs.tar.gz
+        working-directory: vault-web-tests
       - name: Prepare credentials
         run: node scripts/generate-playwright-auth-user.js
         working-directory: vault-web-tests
