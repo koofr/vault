@@ -230,7 +230,7 @@ export const ModalHeader = memo<ComponentProps<typeof StyledModalHeader>>(
   )
 );
 
-export const ModalTitle = styled.div`
+export const ModalTitle = styled.h5`
   margin: 0;
   padding: 7px 17px;
   font-size: 14px;
