@@ -51,6 +51,7 @@ export const NavbarMain = memo<{
             `
           : undefined
       )}
+      aria-label="Navbar"
     >
       <div
         className={css`
@@ -60,6 +61,7 @@ export const NavbarMain = memo<{
           width: 32px;
           height: 32px;
         `}
+        aria-label="Navbar left"
       >
         {left ?? <NavbarLogo />}
       </div>
@@ -81,6 +83,7 @@ export const NavbarMain = memo<{
           overflow: hidden;
           flex-grow: 1;
         `}
+        aria-label="Navbar header"
       >
         {header}
       </div>
@@ -91,6 +94,7 @@ export const NavbarMain = memo<{
             display: flex;
             align-items: center;
           `}
+          aria-label="Navbar nav"
         >
           {nav}
         </div>
@@ -111,6 +115,7 @@ export const NavbarMain = memo<{
           width: 32px;
           height: 32px;
         `}
+        aria-label="Navbar right"
       >
         {right}
       </div>
