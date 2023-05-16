@@ -25,7 +25,7 @@ impl RepoUnlockService {
     }
 
     pub fn init(&self, repo_id: &str) {
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoUnlock);
 
             state.repo_unlock = Some(RepoUnlockState {
@@ -36,7 +36,7 @@ impl RepoUnlockService {
     }
 
     pub async fn unlock(&self, password: &str) -> Result<(), UnlockRepoError> {
-        let repo_id = match self.store.mutate(|state, notify| {
+        let repo_id = match self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoUnlock);
 
             if let Some(ref mut repo_unlock) = state.repo_unlock {
@@ -56,7 +56,7 @@ impl RepoUnlockService {
 
         let res = self.repos_service.unlock_repo(&repo_id, password).await;
 
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoUnlock);
 
             if let Some(ref mut repo_unlock) = state.repo_unlock {
@@ -71,7 +71,7 @@ impl RepoUnlockService {
     }
 
     pub fn destroy(&self, repo_id: &str) {
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoUnlock);
 
             if state.repo_unlock.is_some() && state.repo_unlock.as_ref().unwrap().repo_id == repo_id

@@ -62,7 +62,7 @@ impl LifecycleService {
     fn on_logout(&self) {
         self.eventstream_service.disconnect();
 
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             state.reset();
 
             for event in store::Event::all() {

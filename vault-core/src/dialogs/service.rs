@@ -78,7 +78,7 @@ impl DialogsService {
 
         let input_value_validator = options.input_value_validator.take();
 
-        let dialog_id = self.store.mutate(|state, notify| {
+        let dialog_id = self.store.mutate(|state, notify, _, _| {
             notify(store::Event::Dialogs);
 
             mutations::get_next_id(state)
@@ -105,7 +105,7 @@ impl DialogsService {
             .unwrap()
             .insert(dialog_id, result_sender);
 
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::Dialogs);
 
             mutations::show(state, dialog_id, options, is_input_value_valid)
@@ -115,7 +115,7 @@ impl DialogsService {
     }
 
     pub fn remove(&self, dialog_id: u32) {
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::Dialogs);
 
             mutations::remove(state, dialog_id);
@@ -159,7 +159,7 @@ impl DialogsService {
             .unwrap_or(true);
         drop(input_value_validators);
 
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::Dialogs);
 
             mutations::set_input_value(state, dialog_id, value, is_valid);

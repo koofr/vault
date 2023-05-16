@@ -25,7 +25,7 @@ impl RepoRemoveService {
     }
 
     pub fn init(&self, repo_id: &str) {
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoRemove);
 
             state.repo_remove = Some(RepoRemoveState {
@@ -36,7 +36,7 @@ impl RepoRemoveService {
     }
 
     pub async fn remove(&self, password: &str) -> Result<(), RemoveRepoError> {
-        let repo_id = match self.store.mutate(|state, notify| {
+        let repo_id = match self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoRemove);
 
             if let Some(ref mut repo_remove) = state.repo_remove {
@@ -56,7 +56,7 @@ impl RepoRemoveService {
 
         let res = self.repos_service.remove_repo(&repo_id, password).await;
 
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoRemove);
 
             if let Some(ref mut repo_remove) = state.repo_remove {
@@ -71,7 +71,7 @@ impl RepoRemoveService {
     }
 
     pub fn destroy(&self, repo_id: &str) {
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoRemove);
 
             if state.repo_remove.is_some() && state.repo_remove.as_ref().unwrap().repo_id == repo_id

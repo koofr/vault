@@ -216,7 +216,12 @@ impl Vault {
         self.store.get_next_id()
     }
 
-    pub fn on(&self, id: u32, events: &[store::Event], callback: Box<dyn Fn() + Send + Sync>) {
+    pub fn on(
+        &self,
+        id: u32,
+        events: &[store::Event],
+        callback: Box<dyn Fn(&store::MutationState) + Send + Sync>,
+    ) {
         self.store.on(id, events, callback)
     }
 

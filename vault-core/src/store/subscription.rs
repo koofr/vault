@@ -64,7 +64,7 @@ impl Subscription {
         self.store.on(
             id,
             events,
-            Box::new(move || {
+            Box::new(move |_| {
                 let callback_subscription_data = callback_subscription_data.clone();
                 let mut subscription_data = callback_subscription_data.lock().unwrap();
                 let changed = callback_generate_data(subscription_data.entry(id));

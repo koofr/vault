@@ -15,7 +15,7 @@ impl UserService {
     }
 
     pub async fn load_user(&self) -> Result<(), remote::RemoteError> {
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::User);
 
             state.user.status = Status::Loading;
@@ -24,7 +24,7 @@ impl UserService {
         let user = match self.remote.get_user().await {
             Ok(user) => user,
             Err(err) => {
-                self.store.mutate(|state, notify| {
+                self.store.mutate(|state, notify, _, _| {
                     notify(store::Event::User);
 
                     state.user.status = Status::Error { error: err.clone() };
@@ -34,7 +34,7 @@ impl UserService {
             }
         };
 
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::User);
 
             let full_name = match (user.first_name.as_str(), user.last_name.as_str()) {
@@ -71,7 +71,7 @@ impl UserService {
             }
         };
 
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::User);
 
             if let Some(ref mut user) = state.user.user {
@@ -86,7 +86,7 @@ impl UserService {
                 ..
             }) => None,
             Err(err) => {
-                self.store.mutate(|state, notify| {
+                self.store.mutate(|state, notify, _, _| {
                     notify(store::Event::User);
 
                     if let Some(ref mut user) = state.user.user {
@@ -98,7 +98,7 @@ impl UserService {
             }
         };
 
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::User);
 
             if let Some(ref mut user) = state.user.user {

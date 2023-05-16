@@ -145,7 +145,7 @@ impl RepoFilesService {
     pub fn decrypt_files(&self, repo_id: &str, path: &str) -> Result<(), DecryptFilesError> {
         let cipher = self.repos_service.get_cipher(repo_id)?;
 
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoFiles);
 
             mutations::decrypt_files(state, repo_id, path, &cipher)

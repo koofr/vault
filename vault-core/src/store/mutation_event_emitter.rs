@@ -1,20 +1,21 @@
 use std::{
     collections::HashMap,
+    rc::Rc,
     sync::{Arc, Mutex},
 };
 
-use super::{Event, MutationState};
+use super::{MutationEvent, MutationState, Notify, State};
 
 struct Listener {
     id: u32,
-    callback: Box<dyn Fn(&MutationState) + Send + Sync>,
+    callback: Box<dyn Fn(&mut State, Rc<Notify>, &mut MutationState) + Send + Sync>,
 }
 
-pub struct EventEmitter {
-    listeners: Arc<Mutex<HashMap<Event, Vec<Arc<Listener>>>>>,
+pub struct MutationEventEmitter {
+    listeners: Arc<Mutex<HashMap<MutationEvent, Vec<Arc<Listener>>>>>,
 }
 
-impl EventEmitter {
+impl MutationEventEmitter {
     pub fn new() -> Self {
         Self {
             listeners: Arc::new(Mutex::new(HashMap::new())),
@@ -24,8 +25,8 @@ impl EventEmitter {
     pub fn on(
         &self,
         id: u32,
-        events: &[Event],
-        callback: Box<dyn Fn(&MutationState) + Send + Sync>,
+        events: &[MutationEvent],
+        callback: Box<dyn Fn(&mut State, Rc<Notify>, &mut MutationState) + Send + Sync>,
     ) {
         let listener = Arc::new(Listener { id, callback });
 
@@ -43,7 +44,13 @@ impl EventEmitter {
         }
     }
 
-    pub fn emit(&self, event: &Event, mutation_state: &MutationState) {
+    pub fn emit(
+        &self,
+        event: &MutationEvent,
+        state: &mut State,
+        notify: Rc<Notify>,
+        mutation_state: &mut MutationState,
+    ) {
         // We need to clone the listeners because they can change while
         // emitting. event_listeners also needs to be a separate variable
         // otherwise self.listeners is not unlocked before calling callbacks
@@ -51,7 +58,7 @@ impl EventEmitter {
 
         if let Some(event_listeners) = event_listeners {
             for listener in event_listeners {
-                (listener.callback)(mutation_state);
+                (listener.callback)(state, notify.clone(), mutation_state);
             }
         }
     }

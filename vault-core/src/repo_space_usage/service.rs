@@ -26,7 +26,7 @@ impl RepoSpaceUsageService {
     }
 
     pub fn init(&self, repo_id: &str) {
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoSpaceUsage);
 
             state.repo_space_usage = Some(RepoSpaceUsageState {
@@ -38,7 +38,7 @@ impl RepoSpaceUsageService {
     }
 
     pub async fn calculate(&self) -> Result<(), RepoSpaceUsageError> {
-        let repo_location = match self.store.mutate(|state, notify| {
+        let repo_location = match self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoSpaceUsage);
 
             if let Some(ref mut repo_space_usage) = state.repo_space_usage {
@@ -66,7 +66,7 @@ impl RepoSpaceUsageService {
         {
             Ok(items_stream) => items_stream,
             Err(err) => {
-                self.store.mutate(|state, notify| {
+                self.store.mutate(|state, notify, _, _| {
                     notify(store::Event::RepoSpaceUsage);
 
                     if let Some(ref mut repo_space_usage) = state.repo_space_usage {
@@ -103,7 +103,7 @@ impl RepoSpaceUsageService {
             })
             .await;
 
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoSpaceUsage);
 
             if let Some(ref mut repo_space_usage) = state.repo_space_usage {
@@ -122,7 +122,7 @@ impl RepoSpaceUsageService {
     }
 
     pub fn destroy(&self, repo_id: &str) {
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoSpaceUsage);
 
             if state.repo_space_usage.is_some()

@@ -4,14 +4,13 @@ use futures::channel::oneshot;
 
 use super::{Event, Store};
 
-/// Waits until `f` returns Some. If you need to call `store.mutate` inside `f`,
-/// you need to use `store.mutate_notify()` and only call `notify` when `f`
-/// returns `Some` otherwise `mutate` will emit an event which will call the `f`
+/// Waits until `f` returns Some. If you call `store.mutate` in `f`, `notify`
+/// must not be called if `mutate` returns `None` otherwise `f` will be called
 /// again and cause an infinite recursion.
 ///
 /// ```ignore
 /// wait_for(store, &[Event::MyEvent], move |unsubscribe| {
-///     store.mutate_notify(|state, notify| {
+///     store.mutate(|state, notify, _, _| {
 ///         if is_already_saving(state) {
 ///             return None;
 ///         }
@@ -48,7 +47,7 @@ pub async fn wait_for<F: Fn() -> Option<R> + Send + Sync + 'static, R: Send + 's
     store.on(
         subscription_id,
         events,
-        Box::new(move || {
+        Box::new(move |_| {
             let subscription_f = subscription_f.clone();
 
             if let Some(res) = subscription_f() {

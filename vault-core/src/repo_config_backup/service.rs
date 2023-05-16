@@ -25,7 +25,7 @@ impl RepoConfigBackupService {
     }
 
     pub fn init(&self, repo_id: &str) {
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoConfigBackup);
 
             state.repo_config_backup = Some(RepoConfigBackupState {
@@ -37,7 +37,7 @@ impl RepoConfigBackupService {
     }
 
     pub async fn generate(&self, password: &str) -> Result<(), RepoConfigError> {
-        let repo_id = match self.store.mutate(|state, notify| {
+        let repo_id = match self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoConfigBackup);
 
             if let Some(ref mut repo_config_backup) = state.repo_config_backup {
@@ -57,7 +57,7 @@ impl RepoConfigBackupService {
 
         let res = self.repos_service.get_repo_config(&repo_id, password).await;
 
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoConfigBackup);
 
             if let Some(ref mut repo_config_backup) = state.repo_config_backup {
@@ -75,7 +75,7 @@ impl RepoConfigBackupService {
     }
 
     pub fn destroy(&self, repo_id: &str) {
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoConfigBackup);
 
             if state.repo_config_backup.is_some()

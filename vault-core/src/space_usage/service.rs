@@ -15,7 +15,7 @@ impl SpaceUsageService {
     }
 
     pub async fn load(&self) -> Result<(), remote::RemoteError> {
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::SpaceUsage);
 
             state.user.status = Status::Loading;
@@ -24,7 +24,7 @@ impl SpaceUsageService {
         let mount = match self.remote.get_mount("primary").await {
             Ok(mount) => mount,
             Err(err) => {
-                self.store.mutate(|state, notify| {
+                self.store.mutate(|state, notify, _, _| {
                     notify(store::Event::SpaceUsage);
 
                     state.user.status = Status::Error { error: err.clone() };
@@ -34,7 +34,7 @@ impl SpaceUsageService {
             }
         };
 
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::SpaceUsage);
 
             state.space_usage.space_usage = match (mount.space_used, mount.space_total) {

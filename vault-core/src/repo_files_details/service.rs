@@ -48,7 +48,7 @@ impl RepoFilesDetailsService {
     ) -> (u32, BoxFuture<'static, Result<(), LoadFilesError>>) {
         let location = self.clone().get_location(repo_id, path);
 
-        let details_id = self.store.mutate(|state, notify| {
+        let details_id = self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoFilesDetails);
 
             mutations::create(state, location)
@@ -98,7 +98,7 @@ impl RepoFilesDetailsService {
     }
 
     pub fn destroy(&self, details_id: u32) {
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoFilesDetails);
 
             mutations::destroy(state, details_id);
@@ -112,7 +112,7 @@ impl RepoFilesDetailsService {
         {
             let res = self.repo_files_service.load_files(&repo_id, &path).await;
 
-            self.store.mutate(|state, notify| {
+            self.store.mutate(|state, notify, _, _| {
                 notify(store::Event::RepoFilesDetails);
 
                 mutations::loaded(state, details_id, &repo_id, &path, res.as_ref().err());
@@ -125,9 +125,8 @@ impl RepoFilesDetailsService {
     }
 
     pub async fn load_content(self: Arc<Self>, details_id: u32) -> Result<(), GetFilesReaderError> {
-        let file = self
-            .store
-            .mutate(|state, notify| -> Result<RepoFile, GetFilesReaderError> {
+        let file = self.store.mutate(
+            |state, notify, _, _| -> Result<RepoFile, GetFilesReaderError> {
                 notify(store::Event::RepoFilesDetails);
 
                 let file = selectors::select_file(state, details_id)
@@ -137,7 +136,8 @@ impl RepoFilesDetailsService {
                 mutations::content_loading(state, details_id);
 
                 Ok(file)
-            })?;
+            },
+        )?;
 
         let repo_id = file.repo_id.clone();
         let path = file.path.decrypted_path()?.to_owned();
@@ -163,7 +163,7 @@ impl RepoFilesDetailsService {
 
         let res_err = res.as_ref().map(|_| ()).map_err(|err| err.clone());
 
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoFilesDetails);
 
             mutations::content_loaded(state, details_id, repo_id, path, res);

@@ -61,7 +61,7 @@ impl UploadsService {
         name: &str,
         uploadable: Uploadable,
     ) -> UploadResult {
-        let id = self.store.mutate(|state, notify| {
+        let id = self.store.mutate(|state, notify, _, _| {
             notify(store::Event::Uploads);
 
             mutations::get_next_id(state)
@@ -75,7 +75,7 @@ impl UploadsService {
 
         self.results.write().unwrap().insert(id, result_sender);
 
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::Uploads);
 
             mutations::file_upload_added(
@@ -98,7 +98,7 @@ impl UploadsService {
     }
 
     pub fn abort_file(&self, id: u32) {
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::Uploads);
 
             mutations::file_upload_abort(state, id);
@@ -120,7 +120,7 @@ impl UploadsService {
     }
 
     pub fn abort_all(&self) {
-        let ids = self.store.mutate(|state, notify| {
+        let ids = self.store.mutate(|state, notify, _, _| {
             notify(store::Event::Uploads);
 
             mutations::file_upload_abort_all(state)
@@ -132,7 +132,7 @@ impl UploadsService {
     }
 
     pub fn retry_file(self: Arc<Self>, id: u32) {
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::Uploads);
 
             mutations::file_upload_retry(state, id, self.now());
@@ -142,7 +142,7 @@ impl UploadsService {
     }
 
     pub fn retry_all(self: Arc<Self>) {
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::Uploads);
 
             mutations::file_upload_retry_all(state, self.now());
@@ -163,7 +163,7 @@ impl UploadsService {
     }
 
     fn upload_file(self: Arc<Self>, id: u32) {
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::Uploads);
 
             mutations::file_upload_uploading(state, id, self.now());
@@ -216,7 +216,7 @@ impl UploadsService {
                     size,
                     RepoFilesUploadConflictResolution::Error,
                     Some(Box::new(move |n| {
-                        progress_self.store.mutate(|state, notify| {
+                        progress_self.store.mutate(|state, notify, _, _| {
                             notify(store::Event::Uploads);
 
                             mutations::file_upload_progress(state, id, n as i64);
@@ -234,7 +234,7 @@ impl UploadsService {
 
             match file_upload_res {
                 Ok(Ok(res)) => {
-                    upload_future_self.store.mutate(|state, notify| {
+                    upload_future_self.store.mutate(|state, notify, _, _| {
                         notify(store::Event::Uploads);
 
                         mutations::file_upload_done(state, id);
@@ -262,7 +262,7 @@ impl UploadsService {
                         .unwrap()
                         .insert(id, uploadable);
 
-                    upload_future_self.store.mutate(|state, notify| {
+                    upload_future_self.store.mutate(|state, notify, _, _| {
                         notify(store::Event::Uploads);
 
                         mutations::file_upload_failed(state, id, err);

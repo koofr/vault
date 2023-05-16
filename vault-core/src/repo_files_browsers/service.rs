@@ -56,7 +56,7 @@ impl RepoFilesBrowsersService {
 
         let repo_files_subscription_id = self.store.get_next_id();
 
-        let browser_id = self.store.mutate(|state, notify| {
+        let browser_id = self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoFilesBrowsers);
 
             mutations::create(state, location, repo_files_subscription_id)
@@ -78,7 +78,7 @@ impl RepoFilesBrowsersService {
         self.store.on(
             repo_files_subscription_id,
             &[store::Event::RepoFiles],
-            Box::new(move || {
+            Box::new(move |_| {
                 update_files_self.update_files(browser_id);
             }),
         );
@@ -122,7 +122,7 @@ impl RepoFilesBrowsersService {
     }
 
     fn update_files(&self, browser_id: u32) {
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             if mutations::update_files(state, browser_id) {
                 notify(store::Event::RepoFilesBrowsers)
             }
@@ -130,7 +130,7 @@ impl RepoFilesBrowsersService {
     }
 
     pub fn destroy(&self, browser_id: u32) {
-        let repo_files_subscription_id = self.store.mutate(|state, notify| {
+        let repo_files_subscription_id = self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoFilesBrowsers);
 
             mutations::destroy(state, browser_id)
@@ -149,7 +149,7 @@ impl RepoFilesBrowsersService {
     ) -> Result<(), repo_files_errors::LoadFilesError> {
         let location = self.clone().get_location(repo_id, path);
 
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoFilesBrowsers);
 
             mutations::set_location(state, browser_id, location);
@@ -175,7 +175,7 @@ impl RepoFilesBrowsersService {
         {
             let res = self.repo_files_service.load_files(&repo_id, &path).await;
 
-            self.store.mutate(|state, notify| {
+            self.store.mutate(|state, notify, _, _| {
                 notify(store::Event::RepoFilesBrowsers);
 
                 mutations::loaded(state, browser_id, &repo_id, &path, res.as_ref().err());
@@ -195,7 +195,7 @@ impl RepoFilesBrowsersService {
         range: bool,
         force: bool,
     ) {
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoFilesBrowsers);
 
             mutations::select_file(state, browser_id, file_id, extend, range, force);
@@ -203,7 +203,7 @@ impl RepoFilesBrowsersService {
     }
 
     pub fn toggle_select_all(&self, browser_id: u32) {
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoFilesBrowsers);
 
             mutations::toggle_select_all(state, browser_id);
@@ -211,7 +211,7 @@ impl RepoFilesBrowsersService {
     }
 
     pub fn clear_selection(&self, browser_id: u32) {
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoFilesBrowsers);
 
             mutations::clear_selection(state, browser_id);
@@ -219,7 +219,7 @@ impl RepoFilesBrowsersService {
     }
 
     pub fn sort_by(&self, browser_id: u32, field: RepoFilesSortField) {
-        self.store.mutate(|state, notify| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoFilesBrowsers);
 
             mutations::sort_by(state, browser_id, field);
