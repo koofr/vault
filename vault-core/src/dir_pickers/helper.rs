@@ -39,7 +39,9 @@ impl<E: Send + Sync + 'static> DirPickersHelper<E> {
     {
         let options = serde_json::to_value(options).unwrap();
 
-        let picker_id = self.store.mutate(store::Event::DirPickers, |state| {
+        let picker_id = self.store.mutate(|state, notify| {
+            notify(store::Event::DirPickers);
+
             let picker_id = state.dir_pickers.next_id;
 
             state.dir_pickers.next_id += 1;
@@ -82,7 +84,9 @@ impl<E: Send + Sync + 'static> DirPickersHelper<E> {
             self.store.remove_listener(listener_id);
         }
 
-        self.store.mutate(store::Event::DirPickers, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::DirPickers);
+
             state.dir_pickers.pickers.remove(&picker_id);
         });
     }
@@ -91,7 +95,9 @@ impl<E: Send + Sync + 'static> DirPickersHelper<E> {
     where
         F: FnOnce(&mut DirPicker),
     {
-        self.store.mutate(store::Event::DirPickers, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::DirPickers);
+
             if let Some(picker) = selectors::select_picker_mut(state, picker_id) {
                 f(picker)
             }
@@ -194,7 +200,9 @@ impl<E: Send + Sync + 'static> DirPickersHelper<E> {
     }
 
     fn generate_items(&self, picker_id: u32) {
-        self.store.mutate(store::Event::DirPickers, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::DirPickers);
+
             if let Some(items) = selectors::select_picker(state, picker_id)
                 .map(|picker| (self.select_items)(state, picker))
             {

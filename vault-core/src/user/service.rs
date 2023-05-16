@@ -15,14 +15,18 @@ impl UserService {
     }
 
     pub async fn load_user(&self) -> Result<(), remote::RemoteError> {
-        self.store.mutate(store::Event::User, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::User);
+
             state.user.status = Status::Loading;
         });
 
         let user = match self.remote.get_user().await {
             Ok(user) => user,
             Err(err) => {
-                self.store.mutate(store::Event::User, |state| {
+                self.store.mutate(|state, notify| {
+                    notify(store::Event::User);
+
                     state.user.status = Status::Error { error: err.clone() };
                 });
 
@@ -30,7 +34,9 @@ impl UserService {
             }
         };
 
-        self.store.mutate(store::Event::User, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::User);
+
             let full_name = match (user.first_name.as_str(), user.last_name.as_str()) {
                 ("", "") => user.email.clone(),
                 (first_name, "") => first_name.to_owned(),
@@ -65,7 +71,9 @@ impl UserService {
             }
         };
 
-        self.store.mutate(store::Event::User, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::User);
+
             if let Some(ref mut user) = state.user.user {
                 user.profile_picture_status = Status::Loading;
             }
@@ -78,7 +86,9 @@ impl UserService {
                 ..
             }) => None,
             Err(err) => {
-                self.store.mutate(store::Event::User, |state| {
+                self.store.mutate(|state, notify| {
+                    notify(store::Event::User);
+
                     if let Some(ref mut user) = state.user.user {
                         user.profile_picture_status = Status::Error { error: err.clone() };
                     }
@@ -88,7 +98,9 @@ impl UserService {
             }
         };
 
-        self.store.mutate(store::Event::User, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::User);
+
             if let Some(ref mut user) = state.user.user {
                 user.profile_picture_status = Status::Loaded;
                 user.profile_picture_bytes = profile_picture_bytes;

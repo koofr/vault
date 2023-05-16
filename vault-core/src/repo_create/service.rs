@@ -58,7 +58,9 @@ impl RepoCreateService {
     pub async fn init(&self) -> () {
         let salt = random_password(1024).unwrap();
 
-        self.store.mutate(store::Event::RepoCreate, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::RepoCreate);
+
             mutations::init_loading(state, salt);
         });
 
@@ -75,7 +77,9 @@ impl RepoCreateService {
         // ignore the error
         let _ = self.repos_service.load_repos().await;
 
-        self.store.mutate(store::Event::RepoCreate, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::RepoCreate);
+
             mutations::init_loaded(state, init_status, primary_mount_id);
         });
     }
@@ -83,25 +87,33 @@ impl RepoCreateService {
     pub fn reset(&self) {
         self.location_dir_picker_cancel();
 
-        self.store.mutate(store::Event::RepoCreate, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::RepoCreate);
+
             mutations::reset(state);
         });
     }
 
     pub fn set_location(&self, location: RemoteFilesLocation) {
-        self.store.mutate(store::Event::RepoCreate, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::RepoCreate);
+
             mutations::set_location(state, location);
         });
     }
 
     pub fn set_password(&self, password: String) {
-        self.store.mutate(store::Event::RepoCreate, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::RepoCreate);
+
             mutations::set_password(state, password);
         });
     }
 
     pub fn set_salt(&self, salt: Option<String>) {
-        self.store.mutate(store::Event::RepoCreate, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::RepoCreate);
+
             mutations::set_salt(state, salt);
         });
     }
@@ -109,7 +121,9 @@ impl RepoCreateService {
     pub fn fill_from_rclone_config(&self, config: String) {
         let config = rclone::config::parse_config(&config);
 
-        self.store.mutate(store::Event::RepoCreate, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::RepoCreate);
+
             mutations::fill_from_rclone_config(state, config);
         })
     }
@@ -134,7 +148,9 @@ impl RepoCreateService {
             },
         );
 
-        self.store.mutate(store::Event::RepoCreate, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::RepoCreate);
+
             mutations::location_dir_picker_show(state, location_dir_picker_id);
         });
 
@@ -182,7 +198,9 @@ impl RepoCreateService {
     }
 
     pub fn location_dir_picker_cancel(&self) {
-        if let Some(location_dir_picker_id) = self.store.mutate(store::Event::RepoCreate, |state| {
+        if let Some(location_dir_picker_id) = self.store.mutate(|state, notify| {
+            notify(store::Event::RepoCreate);
+
             mutations::location_dir_picker_cancel(state)
         }) {
             self.remote_files_dir_pickers_service
@@ -226,13 +244,17 @@ impl RepoCreateService {
             }
         }) {
             Some(form) => {
-                self.store.mutate(store::Event::RepoCreate, |state| {
+                self.store.mutate(|state, notify| {
+                    notify(store::Event::RepoCreate);
+
                     mutations::repo_creating(state);
                 });
 
                 let res = self.create_form(form).await;
 
-                self.store.mutate(store::Event::RepoCreate, |state| {
+                self.store.mutate(|state, notify| {
+                    notify(store::Event::RepoCreate);
+
                     mutations::repo_create(state, res);
                 });
             }
@@ -298,7 +320,9 @@ impl RepoCreateService {
             }
         }
 
-        self.store.mutate(store::Event::Repos, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::Repos);
+
             repos_mutations::repo_loaded(state, repo);
         });
 

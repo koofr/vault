@@ -36,18 +36,7 @@ impl Store {
         f(&state)
     }
 
-    pub fn mutate<F, R>(&self, event: Event, f: F) -> R
-    where
-        F: FnOnce(&mut State) -> R,
-    {
-        self.mutate_notify(|state, notify| {
-            notify(event);
-
-            f(state)
-        })
-    }
-
-    pub fn mutate_notify<F, R>(&self, f: F) -> R
+    pub fn mutate<F, R>(&self, f: F) -> R
     where
         F: FnOnce(&mut State, &mut dyn FnMut(Event)) -> R,
     {

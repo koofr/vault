@@ -25,7 +25,9 @@ impl RepoRemoveService {
     }
 
     pub fn init(&self, repo_id: &str) {
-        self.store.mutate(store::Event::RepoRemove, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::RepoRemove);
+
             state.repo_remove = Some(RepoRemoveState {
                 repo_id: repo_id.to_owned(),
                 status: Status::Initial,
@@ -34,7 +36,9 @@ impl RepoRemoveService {
     }
 
     pub async fn remove(&self, password: &str) -> Result<(), RemoveRepoError> {
-        let repo_id = match self.store.mutate(store::Event::RepoRemove, |state| {
+        let repo_id = match self.store.mutate(|state, notify| {
+            notify(store::Event::RepoRemove);
+
             if let Some(ref mut repo_remove) = state.repo_remove {
                 repo_remove.status = Status::Loading;
             }
@@ -52,7 +56,9 @@ impl RepoRemoveService {
 
         let res = self.repos_service.remove_repo(&repo_id, password).await;
 
-        self.store.mutate(store::Event::RepoRemove, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::RepoRemove);
+
             if let Some(ref mut repo_remove) = state.repo_remove {
                 repo_remove.status = match &res {
                     Ok(()) => Status::Loaded,
@@ -65,7 +71,9 @@ impl RepoRemoveService {
     }
 
     pub fn destroy(&self, repo_id: &str) {
-        self.store.mutate(store::Event::RepoRemove, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::RepoRemove);
+
             if state.repo_remove.is_some() && state.repo_remove.as_ref().unwrap().repo_id == repo_id
             {
                 state.repo_remove = None;

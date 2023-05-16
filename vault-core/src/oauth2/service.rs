@@ -70,7 +70,9 @@ impl OAuth2Service {
 
         // TODO validate the token from storage
 
-        self.store.mutate(store::Event::Auth, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::Auth);
+
             state.oauth2.status = match token {
                 Some(_) => Status::Loaded,
                 None => Status::Initial,
@@ -85,7 +87,9 @@ impl OAuth2Service {
     pub fn reset(&self) {
         let _ = self.secure_storage_service.remove(TOKEN_STORAGE_KEY);
 
-        self.store.mutate(store::Event::Auth, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::Auth);
+
             state.oauth2.status = Status::Initial;
             state.oauth2.token = None;
         });
@@ -123,7 +127,9 @@ impl OAuth2Service {
                 .set(TOKEN_STORAGE_KEY, &token)
                 .unwrap();
 
-            self.store.mutate(store::Event::Auth, |state| {
+            self.store.mutate(|state, notify| {
+                notify(store::Event::Auth);
+
                 state.oauth2.token = Some(token.clone());
             });
         }
@@ -147,7 +153,9 @@ impl OAuth2Service {
         let (code, state) = match self.parse_url(url) {
             Ok(x) => x,
             Err(err) => {
-                self.store.mutate(store::Event::Auth, |state| {
+                self.store.mutate(|state, notify| {
+                    notify(store::Event::Auth);
+
                     state.oauth2.status = Status::Error { error: err.clone() };
                 });
 
@@ -185,12 +193,16 @@ impl OAuth2Service {
     }
 
     pub async fn finish_flow(&self, code: &str, state: &str) -> Result<(), OAuth2Error> {
-        self.store.mutate(store::Event::Auth, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::Auth);
+
             state.oauth2.status = Status::Loading;
         });
 
         if !self.is_state_ok(state) {
-            self.store.mutate(store::Event::Auth, |state| {
+            self.store.mutate(|state, notify| {
+                notify(store::Event::Auth);
+
                 state.oauth2.status = Status::Error {
                     error: OAuth2Error::InvalidOAuth2State,
                 };
@@ -205,7 +217,9 @@ impl OAuth2Service {
         {
             Ok(token) => token,
             Err(err) => {
-                self.store.mutate(store::Event::Auth, |state| {
+                self.store.mutate(|state, notify| {
+                    notify(store::Event::Auth);
+
                     state.oauth2.status = Status::Error { error: err.clone() };
                 });
 
@@ -217,7 +231,9 @@ impl OAuth2Service {
             .set(TOKEN_STORAGE_KEY, &token)
             .unwrap();
 
-        self.store.mutate(store::Event::Auth, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::Auth);
+
             state.oauth2.status = Status::Loaded;
             state.oauth2.token = Some(token);
         });

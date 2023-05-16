@@ -36,13 +36,17 @@ impl ReposService {
     }
 
     pub async fn load_repos(&self) -> Result<(), remote::RemoteError> {
-        self.store.mutate(store::Event::Repos, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::Repos);
+
             state.repos.status = Status::Loading;
         });
 
         let repos = self.remote.get_vault_repos().await?.repos;
 
-        self.store.mutate(store::Event::Repos, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::Repos);
+
             state.repos.status = Status::Loaded;
             mutations::repos_loaded(state, repos);
         });
@@ -53,7 +57,9 @@ impl ReposService {
     pub fn lock_repo(&self, repo_id: &str) -> Result<(), RepoNotFoundError> {
         self.ciphers.write().unwrap().remove(repo_id);
 
-        self.store.mutate(store::Event::Repos, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::Repos);
+
             mutations::lock_repo(state, repo_id)
         })
     }
@@ -93,7 +99,9 @@ impl ReposService {
             .unwrap()
             .insert(repo_id.to_owned(), Arc::new(cipher));
 
-        self.store.mutate(store::Event::Repos, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::Repos);
+
             mutations::unlock_repo(state, repo_id)
         })?;
 
@@ -116,7 +124,9 @@ impl ReposService {
 
         self.ciphers.write().unwrap().remove(repo_id);
 
-        self.store.mutate(store::Event::Repos, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::Repos);
+
             mutations::remove_repo(state, repo_id)
         });
 

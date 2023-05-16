@@ -66,7 +66,9 @@ impl RepoFilesMoveService {
 
         let dir_picker_id = self.repo_files_dir_pickers_service.create(&repo_id);
 
-        self.store.mutate(store::Event::RepoFilesMove, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::RepoFilesMove);
+
             state.repo_files_move = Some(RepoFilesMoveState {
                 repo_id: repo_id.to_owned(),
                 src_file_ids,
@@ -165,7 +167,9 @@ impl RepoFilesMoveService {
     }
 
     pub fn cancel(&self) {
-        if let Some(dir_picker_id) = self.store.mutate(store::Event::RepoFilesMove, |state| {
+        if let Some(dir_picker_id) = self.store.mutate(|state, notify| {
+            notify(store::Event::RepoFilesMove);
+
             let dir_picker_id = state.repo_files_move.as_ref().map(|x| x.dir_picker_id);
 
             state.repo_files_move = None;

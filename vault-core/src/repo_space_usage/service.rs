@@ -26,7 +26,9 @@ impl RepoSpaceUsageService {
     }
 
     pub fn init(&self, repo_id: &str) {
-        self.store.mutate(store::Event::RepoSpaceUsage, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::RepoSpaceUsage);
+
             state.repo_space_usage = Some(RepoSpaceUsageState {
                 repo_id: repo_id.to_owned(),
                 status: Status::Initial,
@@ -36,7 +38,9 @@ impl RepoSpaceUsageService {
     }
 
     pub async fn calculate(&self) -> Result<(), RepoSpaceUsageError> {
-        let repo_location = match self.store.mutate(store::Event::RepoSpaceUsage, |state| {
+        let repo_location = match self.store.mutate(|state, notify| {
+            notify(store::Event::RepoSpaceUsage);
+
             if let Some(ref mut repo_space_usage) = state.repo_space_usage {
                 repo_space_usage.status = Status::Loading;
             }
@@ -62,7 +66,9 @@ impl RepoSpaceUsageService {
         {
             Ok(items_stream) => items_stream,
             Err(err) => {
-                self.store.mutate(store::Event::RepoSpaceUsage, |state| {
+                self.store.mutate(|state, notify| {
+                    notify(store::Event::RepoSpaceUsage);
+
                     if let Some(ref mut repo_space_usage) = state.repo_space_usage {
                         repo_space_usage.status = Status::Error { error: err.clone() };
                     }
@@ -97,7 +103,9 @@ impl RepoSpaceUsageService {
             })
             .await;
 
-        self.store.mutate(store::Event::RepoSpaceUsage, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::RepoSpaceUsage);
+
             if let Some(ref mut repo_space_usage) = state.repo_space_usage {
                 repo_space_usage.status = match &last_error {
                     Some(err) => Status::Error { error: err.clone() },
@@ -114,7 +122,9 @@ impl RepoSpaceUsageService {
     }
 
     pub fn destroy(&self, repo_id: &str) {
-        self.store.mutate(store::Event::RepoSpaceUsage, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::RepoSpaceUsage);
+
             if state.repo_space_usage.is_some()
                 && state.repo_space_usage.as_ref().unwrap().repo_id == repo_id
             {

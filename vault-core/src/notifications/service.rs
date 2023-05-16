@@ -14,7 +14,9 @@ impl NotificationsService {
     }
 
     pub fn show(&self, message: String) {
-        self.store.mutate(store::Event::Notifications, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::Notifications);
+
             let id = state.notifications.next_id;
 
             state.notifications.next_id += 1;
@@ -26,13 +28,17 @@ impl NotificationsService {
     }
 
     pub fn remove(&self, id: u32) {
-        self.store.mutate(store::Event::Notifications, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::Notifications);
+
             state.notifications.notifications.remove(&id);
         });
     }
 
     pub fn remove_all(&self) {
-        self.store.mutate(store::Event::Notifications, |state| {
+        self.store.mutate(|state, notify| {
+            notify(store::Event::Notifications);
+
             state.notifications.notifications.clear();
         });
     }
