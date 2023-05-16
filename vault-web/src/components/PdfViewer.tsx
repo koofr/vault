@@ -13,7 +13,7 @@ export const PdfViewer = memo<{
 
   return (
     <iframe
-      title="Viewer"
+      title="PDF viewer"
       id="viewerIframe"
       src={viewerUrl}
       width={width}
