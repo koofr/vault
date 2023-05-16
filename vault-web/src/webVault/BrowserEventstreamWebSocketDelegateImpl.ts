@@ -18,6 +18,11 @@ export class BrowserEventstreamWebSocketDelegateImpl
     this.onMessage = onMessage;
     this.onClose = onClose;
 
+    // open /#noeventstream to test the app without event stream
+    if (/noeventstream/.test(document.location.hash)) {
+      return;
+    }
+
     this.ws = new WebSocket(url);
 
     this.ws.addEventListener('open', () => {
