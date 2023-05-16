@@ -1,8 +1,6 @@
 use std::sync::Arc;
 
-use crate::common::state::Status;
-use crate::remote;
-use crate::store;
+use crate::{common::state::Status, remote, store};
 
 use super::state::User;
 

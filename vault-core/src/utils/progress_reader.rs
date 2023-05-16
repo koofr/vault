@@ -1,8 +1,10 @@
-use futures::task::{Context, Poll};
-use futures::{ready, AsyncRead};
+use futures::{
+    ready,
+    task::{Context, Poll},
+    AsyncRead,
+};
 use pin_project_lite::pin_project;
-use std::io::Result;
-use std::pin::Pin;
+use std::{io::Result, pin::Pin};
 
 pin_project! {
     pub struct ProgressReader<R> {

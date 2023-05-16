@@ -1,6 +1,5 @@
 use std::{
-    collections::hash_map,
-    collections::HashMap,
+    collections::{hash_map, HashMap},
     sync::{Arc, Mutex},
 };
 

@@ -2,8 +2,7 @@ use std::collections::HashMap;
 
 use thiserror::Error;
 
-use crate::http;
-use crate::user_error::UserError;
+use crate::{http, user_error::UserError};
 
 use super::models;
 

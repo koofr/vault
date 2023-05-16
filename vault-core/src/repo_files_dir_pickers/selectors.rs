@@ -1,9 +1,15 @@
-use crate::dir_pickers::selectors as dir_pickers_selectors;
-use crate::dir_pickers::state::{DirPicker, DirPickerItem, DirPickerItemType};
-use crate::repo_files::errors::{CreateDirError, RepoFilesErrors};
-use crate::repo_files::selectors as repo_files_selectors;
-use crate::repo_files::state::{RepoFile, RepoFileType};
-use crate::store;
+use crate::{
+    dir_pickers::{
+        selectors as dir_pickers_selectors,
+        state::{DirPicker, DirPickerItem, DirPickerItemType},
+    },
+    repo_files::{
+        errors::{CreateDirError, RepoFilesErrors},
+        selectors as repo_files_selectors,
+        state::{RepoFile, RepoFileType},
+    },
+    store,
+};
 
 use super::state::Options;
 

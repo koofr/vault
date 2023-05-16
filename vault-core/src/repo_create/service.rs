@@ -1,23 +1,28 @@
 use std::sync::Arc;
 
-use crate::cipher::random_password::random_password;
-use crate::common::state::Status;
-use crate::dir_pickers::selectors as dir_pickers_selectors;
-use crate::remote::models;
-use crate::remote::{self, RemoteError};
-use crate::remote_files::selectors as remote_files_selectors;
-use crate::remote_files::state::RemoteFilesLocation;
-use crate::remote_files::RemoteFilesService;
-use crate::remote_files_dir_pickers::{self, RemoteFilesDirPickersService};
-use crate::repos::password_validator::generate_password_validator;
-use crate::repos::{mutations as repos_mutations, ReposService};
-use crate::utils::path_utils;
-use crate::{cipher, rclone, store};
+use crate::{
+    cipher,
+    cipher::random_password::random_password,
+    common::state::Status,
+    dir_pickers::selectors as dir_pickers_selectors,
+    rclone,
+    remote::{self, models, RemoteError},
+    remote_files::{
+        selectors as remote_files_selectors, state::RemoteFilesLocation, RemoteFilesService,
+    },
+    remote_files_dir_pickers::{self, RemoteFilesDirPickersService},
+    repos::{
+        mutations as repos_mutations, password_validator::generate_password_validator, ReposService,
+    },
+    store,
+    utils::path_utils,
+};
 
-use super::errors::RepoCreateError;
-use super::mutations;
-use super::selectors;
-use super::state::{RepoCreateForm, RepoCreateState, RepoCreated};
+use super::{
+    errors::RepoCreateError,
+    mutations, selectors,
+    state::{RepoCreateForm, RepoCreateState, RepoCreated},
+};
 
 const DEFAULT_DIR_NAMES: &'static [&'static str] = &[
     "My private documents",

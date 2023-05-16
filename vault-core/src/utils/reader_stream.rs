@@ -1,9 +1,10 @@
 use bytes::Bytes;
-use futures::stream::Stream;
-use futures::AsyncRead;
+use futures::{stream::Stream, AsyncRead};
 use pin_project_lite::pin_project;
-use std::pin::Pin;
-use std::task::{Context, Poll};
+use std::{
+    pin::Pin,
+    task::{Context, Poll},
+};
 
 pin_project! {
     #[derive(Debug)]

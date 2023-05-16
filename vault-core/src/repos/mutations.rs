@@ -1,13 +1,15 @@
 use urlencoding::encode;
 
-use crate::remote::models;
-use crate::remote_files::selectors as remote_files_selectors;
-use crate::repo_files::selectors as repo_files_selectors;
-use crate::store;
+use crate::{
+    remote::models, remote_files::selectors as remote_files_selectors,
+    repo_files::selectors as repo_files_selectors, store,
+};
 
-use super::errors::RepoNotFoundError;
-use super::selectors::select_repo;
-use super::state::{Repo, RepoState};
+use super::{
+    errors::RepoNotFoundError,
+    selectors::select_repo,
+    state::{Repo, RepoState},
+};
 
 fn vault_repo_to_repo(repo: models::VaultRepo, base_url: &str) -> Repo {
     let models::VaultRepo {

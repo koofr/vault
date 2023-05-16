@@ -4,8 +4,7 @@ pub mod request;
 pub mod service;
 pub mod websocket_client;
 
-pub use self::event::Event;
-pub use self::message::Message;
-pub use self::request::Request;
-pub use self::service::EventStreamService;
-pub use self::websocket_client::WebSocketClient;
+pub use self::{
+    event::Event, message::Message, request::Request, service::EventStreamService,
+    websocket_client::WebSocketClient,
+};

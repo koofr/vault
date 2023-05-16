@@ -1,6 +1,8 @@
-use std::collections::HashMap;
-use std::hash::Hash;
-use std::sync::{Arc, Mutex};
+use std::{
+    collections::HashMap,
+    hash::Hash,
+    sync::{Arc, Mutex},
+};
 
 pub struct Listener {
     id: u32,

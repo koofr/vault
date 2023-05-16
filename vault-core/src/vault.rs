@@ -2,35 +2,13 @@ use std::sync::Arc;
 
 use futures::future::BoxFuture;
 
-use crate::auth;
-use crate::config;
-use crate::eventstream;
-use crate::http;
-use crate::lifecycle;
-use crate::notifications;
-use crate::oauth2;
-use crate::remote;
-use crate::remote_files;
-use crate::remote_files_dir_pickers;
-use crate::repo_config_backup;
-use crate::repo_create;
-use crate::repo_files;
-use crate::repo_files_browsers;
-use crate::repo_files_details;
-use crate::repo_files_dir_pickers;
-use crate::repo_files_list;
-use crate::repo_files_move;
-use crate::repo_files_read;
-use crate::repo_remove;
-use crate::repo_space_usage;
-use crate::repo_unlock;
-use crate::repos;
-use crate::runtime;
-use crate::secure_storage;
-use crate::space_usage;
-use crate::store;
-use crate::uploads;
-use crate::user;
+use crate::{
+    auth, config, eventstream, http, lifecycle, notifications, oauth2, remote, remote_files,
+    remote_files_dir_pickers, repo_config_backup, repo_create, repo_files, repo_files_browsers,
+    repo_files_details, repo_files_dir_pickers, repo_files_list, repo_files_move, repo_files_read,
+    repo_remove, repo_space_usage, repo_unlock, repos, runtime, secure_storage, space_usage, store,
+    uploads, user,
+};
 
 #[allow(dead_code)]
 pub struct Vault {

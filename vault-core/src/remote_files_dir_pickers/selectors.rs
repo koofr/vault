@@ -1,12 +1,16 @@
-use crate::dir_pickers::selectors as dir_pickers_selectors;
-use crate::dir_pickers::state::{DirPicker, DirPickerItem, DirPickerItemType};
-use crate::remote::RemoteError;
-use crate::remote_files::errors::RemoteFilesErrors;
-use crate::remote_files::selectors as remote_files_selectors;
-use crate::remote_files::state::{
-    MountOrigin, MountType, RemoteFile, RemoteFileExtType, RemoteFileType,
+use crate::{
+    dir_pickers::{
+        selectors as dir_pickers_selectors,
+        state::{DirPicker, DirPickerItem, DirPickerItemType},
+    },
+    remote::RemoteError,
+    remote_files::{
+        errors::RemoteFilesErrors,
+        selectors as remote_files_selectors,
+        state::{MountOrigin, MountType, RemoteFile, RemoteFileExtType, RemoteFileType},
+    },
+    store,
 };
-use crate::store;
 
 use super::state::Options;
 

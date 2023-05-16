@@ -1,8 +1,6 @@
 use thiserror::Error;
 
-use crate::remote;
-use crate::repos::errors::RepoNotFoundError;
-use crate::user_error::UserError;
+use crate::{remote, repos::errors::RepoNotFoundError, user_error::UserError};
 
 #[derive(Error, Debug, Clone, UserError)]
 pub enum RepoSpaceUsageError {

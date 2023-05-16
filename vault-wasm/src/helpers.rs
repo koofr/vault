@@ -1,7 +1,9 @@
 use std::pin::Pin;
 
-use futures::stream::{StreamExt, TryStreamExt};
-use futures::{AsyncRead, AsyncReadExt};
+use futures::{
+    stream::{StreamExt, TryStreamExt},
+    AsyncRead, AsyncReadExt,
+};
 use thiserror::Error;
 use vault_core::user_error::UserError;
 use wasm_bindgen::{prelude::*, JsCast};

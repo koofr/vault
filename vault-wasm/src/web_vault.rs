@@ -1,5 +1,7 @@
-use std::collections::{hash_map, HashMap};
-use std::sync::{Arc, Mutex};
+use std::{
+    collections::{hash_map, HashMap},
+    sync::{Arc, Mutex},
+};
 
 use serde::Serialize;
 use wasm_bindgen::prelude::*;
@@ -7,16 +9,17 @@ use wasm_bindgen_futures::spawn_local;
 
 use vault_core::store::Event;
 
-use crate::browser_eventstream_websocket_client::{
-    BrowserEventstreamWebSocketClient, BrowserEventstreamWebSocketDelegate,
+use crate::{
+    browser_eventstream_websocket_client::{
+        BrowserEventstreamWebSocketClient, BrowserEventstreamWebSocketDelegate,
+    },
+    browser_http_client::{BrowserHttpClient, BrowserHttpClientDelegate},
+    browser_runtime::BrowserRuntime,
+    browser_secure_storage::BrowserSecureStorage,
+    dto, helpers,
+    uploadable::Uploadable,
+    web_subscription::WebSubscription,
 };
-use crate::browser_http_client::{BrowserHttpClient, BrowserHttpClientDelegate};
-use crate::browser_runtime::BrowserRuntime;
-use crate::browser_secure_storage::BrowserSecureStorage;
-use crate::dto;
-use crate::helpers;
-use crate::uploadable::Uploadable;
-use crate::web_subscription::WebSubscription;
 
 #[wasm_bindgen(typescript_custom_section)]
 const FILE_STREAM: &'static str = r#"

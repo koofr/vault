@@ -4,27 +4,28 @@ use size;
 use tsify::Tsify;
 use wasm_bindgen::prelude::*;
 
-use vault_core::common::state as common_state;
-use vault_core::dir_pickers::state as dir_pickers_state;
-use vault_core::file_types::file_icon_type;
-use vault_core::notifications::state as notifications_state;
-use vault_core::remote_files::state as remote_files_state;
-use vault_core::repo_config_backup::state as repo_config_backup_state;
-use vault_core::repo_create::state as repo_create_state;
-use vault_core::repo_files::state as repo_files_state;
-use vault_core::repo_files_browsers::state as repo_files_browsers_state;
-use vault_core::repo_files_details::state as repo_files_details_state;
-use vault_core::repo_files_move::state as repo_files_move_state;
-use vault_core::repo_remove::state as repo_remove_state;
-use vault_core::repo_space_usage::state as repo_space_usage_state;
-use vault_core::repos::selectors as repos_selectors;
-use vault_core::repos::state as repos_state;
-use vault_core::selection;
-use vault_core::space_usage::state as space_usage_state;
-use vault_core::store;
-use vault_core::uploads::state as uploads_state;
-use vault_core::user::state as user_state;
-use vault_core::user_error::UserError;
+use vault_core::{
+    common::state as common_state,
+    dir_pickers::state as dir_pickers_state,
+    file_types::file_icon_type,
+    notifications::state as notifications_state,
+    remote_files::state as remote_files_state,
+    repo_config_backup::state as repo_config_backup_state,
+    repo_create::state as repo_create_state,
+    repo_files::state as repo_files_state,
+    repo_files_browsers::state as repo_files_browsers_state,
+    repo_files_details::state as repo_files_details_state,
+    repo_files_move::state as repo_files_move_state,
+    repo_remove::state as repo_remove_state,
+    repo_space_usage::state as repo_space_usage_state,
+    repos::{selectors as repos_selectors, state as repos_state},
+    selection,
+    space_usage::state as space_usage_state,
+    store,
+    uploads::state as uploads_state,
+    user::state as user_state,
+    user_error::UserError,
+};
 
 pub fn format_size(bytes: i64) -> String {
     size::Size::from_bytes(bytes)

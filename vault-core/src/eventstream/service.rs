@@ -1,10 +1,12 @@
-use std::collections::HashMap;
-use std::sync::{Arc, Mutex, Weak};
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex, Weak},
+};
 
-use crate::remote_files::selectors::get_file_id;
-use crate::repo_files::RepoFilesService;
-use crate::runtime;
-use crate::{auth, utils::path_utils::join_paths};
+use crate::{
+    auth, remote_files::selectors::get_file_id, repo_files::RepoFilesService, runtime,
+    utils::path_utils::join_paths,
+};
 
 use super::{Event, Message, Request, WebSocketClient};
 

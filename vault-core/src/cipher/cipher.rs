@@ -1,19 +1,19 @@
-use futures::io::Cursor;
-use futures::AsyncReadExt;
-use std::str;
-use std::sync::Arc;
+use futures::{io::Cursor, AsyncReadExt};
+use std::{str, sync::Arc};
 use xsalsa20poly1305::XSalsa20Poly1305;
 
-use super::cipher_keys::{derive_keys, DerivedKeys};
-use super::constants::{DATA_KEY_LEN, NAME_CIPHER_BLOCK_SIZE, NAME_KEY_LEN};
-use super::data_cipher::get_data_cipher;
-use super::decrypt_reader::DecryptReader;
-use super::encrypt_reader::EncryptReader;
-use super::errors::DecryptFilenameError;
-use super::name_cipher::{
-    decrypt_filename, decrypt_path, encrypt_filename, encrypt_path, get_name_cipher,
+use super::{
+    cipher_keys::{derive_keys, DerivedKeys},
+    constants::{DATA_KEY_LEN, NAME_CIPHER_BLOCK_SIZE, NAME_KEY_LEN},
+    data_cipher::get_data_cipher,
+    decrypt_reader::DecryptReader,
+    encrypt_reader::EncryptReader,
+    errors::DecryptFilenameError,
+    name_cipher::{
+        decrypt_filename, decrypt_path, encrypt_filename, encrypt_path, get_name_cipher,
+    },
+    nonce::Nonce,
 };
-use super::nonce::Nonce;
 
 pub struct Cipher {
     name_key: [u8; NAME_KEY_LEN],

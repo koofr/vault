@@ -1,22 +1,27 @@
-use std::collections::HashMap;
-use std::future::Future;
-use std::pin::Pin;
-use std::sync::{Arc, RwLock};
-
-use futures::channel::oneshot::{self, Receiver, Sender};
-use futures::future::Shared;
-use futures::FutureExt;
-
-use crate::repo_files::errors::UploadFileReaderError;
-use crate::repo_files::state::{RepoFilesUploadConflictResolution, RepoFilesUploadResult};
-use crate::runtime;
-use crate::{
-    repo_files::{self, RepoFilesService},
-    store,
+use std::{
+    collections::HashMap,
+    future::Future,
+    pin::Pin,
+    sync::{Arc, RwLock},
 };
 
-use super::selectors;
-use super::{errors::UploadError, mutations};
+use futures::{
+    channel::oneshot::{self, Receiver, Sender},
+    future::Shared,
+    FutureExt,
+};
+
+use crate::{
+    repo_files::{
+        self,
+        errors::UploadFileReaderError,
+        state::{RepoFilesUploadConflictResolution, RepoFilesUploadResult},
+        RepoFilesService,
+    },
+    runtime, store,
+};
+
+use super::{errors::UploadError, mutations, selectors};
 
 pub type Uploadable = Pin<Box<dyn repo_files::state::RepoFileUploadable + Send + Sync>>;
 

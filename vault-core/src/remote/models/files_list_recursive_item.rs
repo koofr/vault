@@ -4,8 +4,14 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "type")]
 pub enum FilesListRecursiveItem {
     #[serde(rename = "file")]
-    File { path: String, file: super::FilesFile },
+    File {
+        path: String,
+        file: super::FilesFile,
+    },
 
     #[serde(rename = "error")]
-    Error { path: Option<String>, error: super::ApiErrorDetails },
+    Error {
+        path: Option<String>,
+        error: super::ApiErrorDetails,
+    },
 }

@@ -1,15 +1,23 @@
 use std::collections::HashSet;
 
-use crate::common::state::Status;
-use crate::repo_files::errors::LoadFilesError;
-use crate::repo_files::selectors as repo_files_selectors;
-use crate::repo_files::state::{RepoFilesSortDirection, RepoFilesSortField};
-use crate::selection::mutations as selection_mutations;
-use crate::selection::state::{Selection, SelectionSummary};
-use crate::store;
+use crate::{
+    common::state::Status,
+    repo_files::{
+        errors::LoadFilesError,
+        selectors as repo_files_selectors,
+        state::{RepoFilesSortDirection, RepoFilesSortField},
+    },
+    selection::{
+        mutations as selection_mutations,
+        state::{Selection, SelectionSummary},
+    },
+    store,
+};
 
-use super::selectors;
-use super::state::{RepoFilesBrowser, RepoFilesBrowserLocation};
+use super::{
+    selectors,
+    state::{RepoFilesBrowser, RepoFilesBrowserLocation},
+};
 
 fn get_initial_status(
     state: &store::State,

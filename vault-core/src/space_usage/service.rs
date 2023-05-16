@@ -1,9 +1,6 @@
-use std::cmp;
-use std::sync::Arc;
+use std::{cmp, sync::Arc};
 
-use crate::common::state::Status;
-use crate::remote;
-use crate::store;
+use crate::{common::state::Status, remote, store};
 
 use super::state::{SpaceUsage, SpaceUsageSeverity};
 

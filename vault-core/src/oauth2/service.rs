@@ -7,16 +7,15 @@ use rand_core::{OsRng, RngCore};
 use serde::Deserialize;
 use url::Url;
 
-use crate::auth::errors::AuthError;
-use crate::common::state::Status;
 use crate::{
+    auth::errors::AuthError,
+    common::state::Status,
     http::{HttpClient, HttpError, HttpRequest, HttpRequestBody},
     secure_storage::SecureStorageService,
     store,
 };
 
-use super::selectors;
-use super::{errors::OAuth2Error, state::OAuth2Token};
+use super::{errors::OAuth2Error, selectors, state::OAuth2Token};
 
 const TOKEN_STORAGE_KEY: &str = "vaultOAuth2Token";
 const STATE_STORAGE_KEY: &str = "vaultOAuth2State";

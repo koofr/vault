@@ -1,17 +1,19 @@
 use core::mem;
-use std::cmp;
-use std::io::Result;
-use std::pin::Pin;
-use std::sync::Arc;
+use std::{cmp, io::Result, pin::Pin, sync::Arc};
 
-use futures::task::{Context, Poll};
-use futures::{ready, AsyncRead};
+use futures::{
+    ready,
+    task::{Context, Poll},
+    AsyncRead,
+};
 use pin_project_lite::pin_project;
 use xsalsa20poly1305::XSalsa20Poly1305;
 
-use super::constants::{BLOCK_DATA_SIZE, FILE_MAGIC, FILE_MAGIC_SIZE, FILE_NONCE_SIZE};
-use super::data_cipher::encrypt_block;
-use super::nonce::Nonce;
+use super::{
+    constants::{BLOCK_DATA_SIZE, FILE_MAGIC, FILE_MAGIC_SIZE, FILE_NONCE_SIZE},
+    data_cipher::encrypt_block,
+    nonce::Nonce,
+};
 
 #[derive(Debug)]
 pub enum EncryptReaderState {
@@ -146,18 +148,17 @@ impl<R: AsyncRead> AsyncRead for EncryptReader<R> {
 
 #[cfg(test)]
 mod tests {
-    use std::io::Result;
-    use std::sync::Arc;
-    use std::task::Poll;
+    use std::{io::Result, sync::Arc, task::Poll};
 
-    use futures::stream::TryStreamExt;
-    use futures::{channel::mpsc, AsyncRead};
+    use futures::{channel::mpsc, stream::TryStreamExt, AsyncRead};
     use xsalsa20poly1305::XSalsa20Poly1305;
 
-    use crate::cipher::constants::FILE_MAGIC;
-    use crate::cipher::data_cipher::{decrypt_block, get_data_cipher};
-    use crate::cipher::nonce::Nonce;
-    use crate::cipher::test_helpers::{assert_reader_pending, assert_reader_ready};
+    use crate::cipher::{
+        constants::FILE_MAGIC,
+        data_cipher::{decrypt_block, get_data_cipher},
+        nonce::Nonce,
+        test_helpers::{assert_reader_pending, assert_reader_ready},
+    };
 
     use super::EncryptReader;
 

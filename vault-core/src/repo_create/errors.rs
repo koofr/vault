@@ -1,7 +1,6 @@
 use thiserror::Error;
 
-use crate::remote;
-use crate::user_error::UserError;
+use crate::{remote, user_error::UserError};
 
 #[derive(Error, Debug, Clone)]
 pub enum RepoCreateError {

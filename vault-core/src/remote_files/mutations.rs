@@ -1,9 +1,9 @@
-use crate::remote::models;
-use crate::store;
-use crate::utils::path_utils;
+use crate::{remote::models, store, utils::path_utils};
 
-use super::selectors;
-use super::state::{Mount, MountType, RemoteFile, RemoteFileType};
+use super::{
+    selectors,
+    state::{Mount, MountType, RemoteFile, RemoteFileType},
+};
 
 pub fn mount_to_remote_file(id: String, mount_id: String) -> RemoteFile {
     RemoteFile {

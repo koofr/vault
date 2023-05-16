@@ -208,22 +208,31 @@ mod tests {
     #[test]
     fn test_normalize_path() {
         assert_eq!(normalize_path(""), Ok(String::from("/")));
-		assert_eq!(normalize_path("/"), Ok(String::from("/")));
-		assert_eq!(normalize_path("/foo"), Ok(String::from("/foo")));
-		assert_eq!(normalize_path("/foo/"), Ok(String::from("/foo")));
-		assert_eq!(normalize_path("~/a/b/c.txt"), Ok(String::from("/~/a/b/c.txt")));
-		assert_eq!(normalize_path("a.txt"), Ok(String::from("/a.txt")));
-		assert_eq!(normalize_path("a/b/c"), Ok(String::from("/a/b/c")));
-		assert_eq!(normalize_path("a/b/c/"), Ok(String::from("/a/b/c")));
-		assert_eq!(normalize_path("C:"), Ok(String::from("/C:")));
-		assert_eq!(normalize_path("~"), Ok(String::from("/~")));
-		assert_eq!(normalize_path("~/"), Ok(String::from("/~")));
-		assert_eq!(normalize_path("~user"), Ok(String::from("/~user")));
-		assert_eq!(normalize_path("~user/"), Ok(String::from("/~user")));
-		assert_eq!(normalize_path("//server/foo/bar"), Ok(String::from("/server/foo/bar")));
-		assert_eq!(normalize_path("//server/bar//"), Ok(String::from("/server/bar")));
-		assert_eq!(normalize_path("/////"), Ok(String::from("/")));
-		assert_eq!(normalize_path("/////foo"), Ok(String::from("/foo")));
-		assert_eq!(normalize_path("foo/////"), Ok(String::from("/foo")));
+        assert_eq!(normalize_path("/"), Ok(String::from("/")));
+        assert_eq!(normalize_path("/foo"), Ok(String::from("/foo")));
+        assert_eq!(normalize_path("/foo/"), Ok(String::from("/foo")));
+        assert_eq!(
+            normalize_path("~/a/b/c.txt"),
+            Ok(String::from("/~/a/b/c.txt"))
+        );
+        assert_eq!(normalize_path("a.txt"), Ok(String::from("/a.txt")));
+        assert_eq!(normalize_path("a/b/c"), Ok(String::from("/a/b/c")));
+        assert_eq!(normalize_path("a/b/c/"), Ok(String::from("/a/b/c")));
+        assert_eq!(normalize_path("C:"), Ok(String::from("/C:")));
+        assert_eq!(normalize_path("~"), Ok(String::from("/~")));
+        assert_eq!(normalize_path("~/"), Ok(String::from("/~")));
+        assert_eq!(normalize_path("~user"), Ok(String::from("/~user")));
+        assert_eq!(normalize_path("~user/"), Ok(String::from("/~user")));
+        assert_eq!(
+            normalize_path("//server/foo/bar"),
+            Ok(String::from("/server/foo/bar"))
+        );
+        assert_eq!(
+            normalize_path("//server/bar//"),
+            Ok(String::from("/server/bar"))
+        );
+        assert_eq!(normalize_path("/////"), Ok(String::from("/")));
+        assert_eq!(normalize_path("/////foo"), Ok(String::from("/foo")));
+        assert_eq!(normalize_path("foo/////"), Ok(String::from("/foo")));
     }
 }

@@ -12,5 +12,4 @@ pub mod random_password;
 #[macro_use]
 pub mod test_helpers;
 
-pub use self::cipher::Cipher;
-pub use self::errors::CipherError;
+pub use self::{cipher::Cipher, errors::CipherError};

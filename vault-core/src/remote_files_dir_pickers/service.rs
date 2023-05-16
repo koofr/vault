@@ -1,21 +1,21 @@
 use std::sync::Arc;
 
-use futures::future;
-use futures::future::BoxFuture;
-use futures::FutureExt;
+use futures::{future, future::BoxFuture, FutureExt};
 
-use crate::dir_pickers::{
-    selectors as dir_pickers_selectors, state::DirPickerItem, DirPickersHelper,
+use crate::{
+    dir_pickers::{selectors as dir_pickers_selectors, state::DirPickerItem, DirPickersHelper},
+    remote::RemoteError,
+    remote_files::{
+        errors::RemoteFilesErrors,
+        selectors as remote_files_selectors,
+        state::{MountType, RemoteFilesLocation},
+        RemoteFilesService,
+    },
+    store,
+    utils::path_utils,
 };
-use crate::remote::RemoteError;
-use crate::remote_files::errors::RemoteFilesErrors;
-use crate::remote_files::state::{MountType, RemoteFilesLocation};
-use crate::remote_files::{selectors as remote_files_selectors, RemoteFilesService};
-use crate::store;
-use crate::utils::path_utils;
 
-use super::selectors;
-use super::state::Options;
+use super::{selectors, state::Options};
 
 pub struct RemoteFilesDirPickersService {
     remote_files_service: Arc<RemoteFilesService>,

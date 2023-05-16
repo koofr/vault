@@ -1,23 +1,31 @@
-use std::pin::Pin;
-use std::sync::{Arc, RwLock};
+use std::{
+    pin::Pin,
+    sync::{Arc, RwLock},
+};
 
-use futures::stream::{BoxStream, TryStreamExt};
-use futures::{AsyncBufReadExt, AsyncRead, StreamExt};
-use http::header::{AUTHORIZATION, CONTENT_TYPE};
-use http::{HeaderMap, HeaderValue};
+use futures::{
+    stream::{BoxStream, TryStreamExt},
+    AsyncBufReadExt, AsyncRead, StreamExt,
+};
+use http::{
+    header::{AUTHORIZATION, CONTENT_TYPE},
+    HeaderMap, HeaderValue,
+};
 use serde::Serialize;
 use urlencoding::encode;
 
-use crate::auth;
-use crate::auth::errors::AuthError;
-use crate::http::{
-    HttpClient, HttpError, HttpRequest, HttpRequestAbort, HttpRequestBody, HttpResponse,
+use crate::{
+    auth,
+    auth::errors::AuthError,
+    http::{HttpClient, HttpError, HttpRequest, HttpRequestAbort, HttpRequestBody, HttpResponse},
+    oauth2::errors::OAuth2Error,
 };
-use crate::oauth2::errors::OAuth2Error;
 
-use super::errors::RemoteError;
-use super::models::{self, ApiError};
-use super::ApiErrorCode;
+use super::{
+    errors::RemoteError,
+    models::{self, ApiError},
+    ApiErrorCode,
+};
 
 pub type ListRecursiveItemStream =
     BoxStream<'static, Result<models::FilesListRecursiveItem, RemoteError>>;

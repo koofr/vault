@@ -1,23 +1,20 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use futures::Future;
-use futures::Stream;
-use futures::StreamExt;
-use http::header::HeaderName;
-use http::HeaderMap;
-use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsCast;
-use wasm_bindgen_futures::spawn_local;
-use wasm_bindgen_futures::JsFuture;
+use futures::{Future, Stream, StreamExt};
+use http::{header::HeaderName, HeaderMap};
+use wasm_bindgen::{prelude::*, JsCast};
+use wasm_bindgen_futures::{spawn_local, JsFuture};
 use wasm_streams::ReadableStream;
-use web_sys::AbortController;
-use web_sys::{Request, RequestInit, Response};
+use web_sys::{AbortController, Request, RequestInit, Response};
 
-use vault_core::cipher::constants::BLOCK_SIZE;
-use vault_core::http::HttpResponseBytesStream;
-use vault_core::http::{HttpClient, HttpError, HttpRequest, HttpRequestBody, HttpResponse};
-use vault_core::utils::progress_reader::ProgressReader;
+use vault_core::{
+    cipher::constants::BLOCK_SIZE,
+    http::{
+        HttpClient, HttpError, HttpRequest, HttpRequestBody, HttpResponse, HttpResponseBytesStream,
+    },
+    utils::progress_reader::ProgressReader,
+};
 
 use crate::helpers;
 

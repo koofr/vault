@@ -1,10 +1,12 @@
 use std::sync::Arc;
 
-use crate::repo_files::errors::LoadFilesError;
-use crate::repo_files::selectors as repo_files_selectors;
-use crate::repo_files_read::errors::GetFilesReaderError;
-use crate::store;
-use crate::{common::state::Status, eventstream::service::MountSubscription};
+use crate::{
+    common::state::Status,
+    eventstream::service::MountSubscription,
+    repo_files::{errors::LoadFilesError, selectors as repo_files_selectors},
+    repo_files_read::errors::GetFilesReaderError,
+    store,
+};
 
 use super::state::{RepoFilesDetails, RepoFilesDetailsContent, RepoFilesDetailsLocation};
 

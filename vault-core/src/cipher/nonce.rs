@@ -1,7 +1,6 @@
 use rand_core::{OsRng, RngCore};
 
-use super::constants::FILE_NONCE_SIZE;
-use super::CipherError;
+use super::{constants::FILE_NONCE_SIZE, CipherError};
 
 #[derive(Clone, PartialEq, Eq, Debug, Default)]
 pub struct Nonce {

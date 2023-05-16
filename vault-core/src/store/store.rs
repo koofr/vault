@@ -1,8 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-use super::event::Event;
-use super::event_emitter::EventEmitter;
-use super::state::State;
+use super::{event::Event, event_emitter::EventEmitter, state::State};
 
 pub struct Store {
     state: Arc<Mutex<State>>,

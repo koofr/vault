@@ -1,7 +1,6 @@
 use thiserror::Error;
 
-use crate::http;
-use crate::user_error::UserError;
+use crate::{http, user_error::UserError};
 
 #[derive(Error, Debug, Clone, UserError)]
 pub enum OAuth2Error {

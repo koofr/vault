@@ -1,21 +1,20 @@
-use std::collections::HashMap;
-use std::sync::Arc;
-use std::sync::RwLock;
+use std::{
+    collections::HashMap,
+    sync::{Arc, RwLock},
+};
 
-use crate::cipher::Cipher;
-use crate::common::state::Status;
-use crate::rclone;
-use crate::remote;
-use crate::store;
+use crate::{cipher::Cipher, common::state::Status, rclone, remote, store};
 
-use super::errors::BuildCipherError;
-use super::errors::InvalidPasswordError;
-use super::errors::RepoConfigError;
-use super::errors::UnlockRepoError;
-use super::errors::{RemoveRepoError, RepoLockedError, RepoNotFoundError};
-use super::password_validator::check_password_validator;
-use super::state::RepoConfig;
-use super::{mutations, selectors};
+use super::{
+    errors::{
+        BuildCipherError, InvalidPasswordError, RemoveRepoError, RepoConfigError, RepoLockedError,
+        RepoNotFoundError, UnlockRepoError,
+    },
+    mutations,
+    password_validator::check_password_validator,
+    selectors,
+    state::RepoConfig,
+};
 
 pub struct ReposService {
     remote: Arc<remote::Remote>,

@@ -2,13 +2,17 @@
 /// https://github.com/rclone/rclone/blob/7be9855a706d1e09504f17949a90c54cd56fb2a5/backend/crypt/cipher.go
 use std::sync::{Arc, Mutex};
 
-use xsalsa20poly1305::aead::{AeadInPlace, KeyInit};
-use xsalsa20poly1305::XSalsa20Poly1305;
+use xsalsa20poly1305::{
+    aead::{AeadInPlace, KeyInit},
+    XSalsa20Poly1305,
+};
 
-use super::constants::{BLOCK_DATA_SIZE, BLOCK_HEADER_SIZE, BLOCK_SIZE, FILE_HEADER_SIZE};
-use super::errors::DecryptSizeError;
-use super::nonce::Nonce;
-use super::CipherError;
+use super::{
+    constants::{BLOCK_DATA_SIZE, BLOCK_HEADER_SIZE, BLOCK_SIZE, FILE_HEADER_SIZE},
+    errors::DecryptSizeError,
+    nonce::Nonce,
+    CipherError,
+};
 
 pub fn get_data_cipher(data_key: &[u8]) -> XSalsa20Poly1305 {
     XSalsa20Poly1305::new(data_key.into())

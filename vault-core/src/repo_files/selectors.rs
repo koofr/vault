@@ -1,7 +1,10 @@
 use crate::{
-    cipher, remote::RemoteError, remote_files::selectors as remote_files_selectors,
-    repos::errors::RepoNotFoundError, repos::selectors as repos_selectors, repos::state::Repo,
-    store, utils::path_utils,
+    cipher,
+    remote::RemoteError,
+    remote_files::selectors as remote_files_selectors,
+    repos::{errors::RepoNotFoundError, selectors as repos_selectors, state::Repo},
+    store,
+    utils::path_utils,
 };
 
 use super::{

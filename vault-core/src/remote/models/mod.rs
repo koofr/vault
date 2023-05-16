@@ -19,23 +19,12 @@ pub mod vault_repo;
 pub mod vault_repo_create;
 pub mod vault_repos_bundle;
 
-pub use self::api_error::ApiError;
-pub use self::api_error_details::ApiErrorDetails;
-pub use self::bookmark::Bookmark;
-pub use self::bookmarks::Bookmarks;
-pub use self::bundle::Bundle;
-pub use self::bundle_file::BundleFile;
-pub use self::files_copy::FilesCopy;
-pub use self::files_file::FilesFile;
-pub use self::files_folder_create::FilesFolderCreate;
-pub use self::files_list_recursive_item::FilesListRecursiveItem;
-pub use self::files_move::FilesMove;
-pub use self::files_rename::FilesRename;
-pub use self::mount::Mount;
-pub use self::places::Places;
-pub use self::shared::Shared;
-pub use self::shared_file::SharedFile;
-pub use self::user::User;
-pub use self::vault_repo::VaultRepo;
-pub use self::vault_repo_create::VaultRepoCreate;
-pub use self::vault_repos_bundle::VaultReposBundle;
+pub use self::{
+    api_error::ApiError, api_error_details::ApiErrorDetails, bookmark::Bookmark,
+    bookmarks::Bookmarks, bundle::Bundle, bundle_file::BundleFile, files_copy::FilesCopy,
+    files_file::FilesFile, files_folder_create::FilesFolderCreate,
+    files_list_recursive_item::FilesListRecursiveItem, files_move::FilesMove,
+    files_rename::FilesRename, mount::Mount, places::Places, shared::Shared,
+    shared_file::SharedFile, user::User, vault_repo::VaultRepo, vault_repo_create::VaultRepoCreate,
+    vault_repos_bundle::VaultReposBundle,
+};

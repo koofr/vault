@@ -1,5 +1,4 @@
-use std::pin::Pin;
-use std::sync::Arc;
+use std::{pin::Pin, sync::Arc};
 
 use futures::AsyncRead;
 

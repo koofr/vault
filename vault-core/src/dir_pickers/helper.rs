@@ -1,15 +1,14 @@
-use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
 
-use futures::future::BoxFuture;
-use futures::FutureExt;
+use futures::{future::BoxFuture, FutureExt};
 use serde::Serialize;
 
-use crate::dir_pickers::state::DirPicker;
-use crate::store;
+use crate::{dir_pickers::state::DirPicker, store};
 
-use super::selectors;
-use super::state::DirPickerItem;
+use super::{selectors, state::DirPickerItem};
 
 pub struct DirPickersHelper<E> {
     store: Arc<store::Store>,

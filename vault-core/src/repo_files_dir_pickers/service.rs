@@ -2,16 +2,20 @@ use std::sync::Arc;
 
 use futures::future::BoxFuture;
 
-use crate::dir_pickers;
-use crate::dir_pickers::state::DirPickerItem;
-use crate::repo_files::errors::{CreateDirError, LoadFilesError, RepoFilesErrors};
-use crate::repo_files::state::RepoFilePath;
-use crate::repo_files::{selectors as repo_files_selectors, RepoFilesService};
-use crate::store;
-use crate::utils::path_utils;
+use crate::{
+    dir_pickers,
+    dir_pickers::state::DirPickerItem,
+    repo_files::{
+        errors::{CreateDirError, LoadFilesError, RepoFilesErrors},
+        selectors as repo_files_selectors,
+        state::RepoFilePath,
+        RepoFilesService,
+    },
+    store,
+    utils::path_utils,
+};
 
-use super::selectors;
-use super::state::Options;
+use super::{selectors, state::Options};
 
 pub struct RepoFilesDirPickersService {
     repo_files_service: Arc<RepoFilesService>,
