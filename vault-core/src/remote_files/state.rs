@@ -171,3 +171,11 @@ pub struct RemoteFilesState {
     pub bookmark_file_ids: Vec<String>,
     pub shared_file_ids: Vec<String>,
 }
+
+#[derive(Clone, Default)]
+pub struct RemoteFilesMutationState {
+    pub loaded_roots: Vec<(String, String)>,
+    pub created_files: Vec<(String, String)>,
+    pub removed_files: Vec<(String, String)>,
+    pub moved_files: Vec<(String, String, String)>,
+}

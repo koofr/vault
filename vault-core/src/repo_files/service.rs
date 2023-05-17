@@ -14,8 +14,7 @@ use crate::{
         data_cipher::{decrypt_on_progress, encrypted_size},
         Cipher,
     },
-    dialogs,
-    remote::{self, models},
+    dialogs, remote,
     remote_files::{state::RemoteFilesLocation, RemoteFilesService},
     repo_files_read::{errors::GetFilesReaderError, state::RepoFileReader, RepoFilesReadService},
     repos::{errors::RepoLockedError, ReposService},
@@ -25,9 +24,9 @@ use crate::{
 
 use super::{
     errors::{
-        CopyFileError, CreateDirError, DecryptFilesError, DeleteFileError, EnsureDirError,
-        GetRepoMountPathError, LoadFileError, LoadFilesError, MoveFileError, RenameFileError,
-        RepoFilesErrors, RepoMountPathToPathError, UploadFileReaderError,
+        CopyFileError, CreateDirError, DeleteFileError, EnsureDirError, GetRepoMountPathError,
+        LoadFileError, LoadFilesError, MoveFileError, RenameFileError, RepoFilesErrors,
+        UploadFileReaderError,
     },
     mutations, selectors,
     state::{RepoFileType, RepoFilesUploadConflictResolution, RepoFilesUploadResult},
@@ -41,6 +40,7 @@ pub struct RepoFilesService {
     store: Arc<store::Store>,
     ensure_dirs_futures:
         Arc<Mutex<HashMap<String, Shared<BoxFuture<'static, Result<(), EnsureDirError>>>>>>,
+    remote_files_mutation_subscription_id: u32,
 }
 
 impl RepoFilesService {
@@ -50,15 +50,35 @@ impl RepoFilesService {
         repo_files_read_service: Arc<RepoFilesReadService>,
         dialogs_service: Arc<dialogs::DialogsService>,
         store: Arc<store::Store>,
-    ) -> Self {
-        Self {
+    ) -> Arc<Self> {
+        let remote_files_mutation_subscription_id = store.get_next_id();
+
+        let repo_files_service = Arc::new(Self {
             repos_service,
             remote_files_service,
             repo_files_read_service,
             dialogs_service,
-            store,
+            store: store.clone(),
             ensure_dirs_futures: Arc::new(Mutex::new(HashMap::new())),
-        }
+            remote_files_mutation_subscription_id,
+        });
+
+        let remote_files_mutation_self = repo_files_service.clone();
+
+        store.mutation_on(
+            remote_files_mutation_subscription_id,
+            &[store::MutationEvent::RemoteFiles],
+            Box::new(move |state, notify, mutation_state, _| {
+                mutations::handle_remote_files_mutation(
+                    state,
+                    notify,
+                    mutation_state,
+                    &remote_files_mutation_self.repos_service.get_ciphers(),
+                );
+            }),
+        );
+
+        repo_files_service
     }
 
     pub fn get_repo_mount_path_cipher(
@@ -108,11 +128,6 @@ impl RepoFilesService {
             .await
             .map_err(LoadFilesError::RemoteError)?;
 
-        self.decrypt_files(repo_id, path).map_err(|e| match e {
-            DecryptFilesError::RepoNotFound(err) => LoadFilesError::RepoNotFound(err),
-            DecryptFilesError::RepoLocked(err) => LoadFilesError::RepoLocked(err),
-        })?;
-
         Ok(())
     }
 
@@ -129,10 +144,6 @@ impl RepoFilesService {
             .await
             .map_err(LoadFileError::RemoteError)?;
 
-        if let Some(parent_path) = path_utils::parent_path(&path) {
-            let _ = self.decrypt_files(&repo_id, parent_path);
-        }
-
         Ok(())
     }
 
@@ -140,16 +151,6 @@ impl RepoFilesService {
         let cipher = self.repos_service.get_cipher(&repo_id)?;
 
         Ok(cipher.encrypt_filename(name))
-    }
-
-    pub fn decrypt_files(&self, repo_id: &str, path: &str) -> Result<(), DecryptFilesError> {
-        let cipher = self.repos_service.get_cipher(repo_id)?;
-
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoFiles);
-
-            mutations::decrypt_files(state, repo_id, path, &cipher)
-        })
     }
 
     pub async fn get_file_reader(
@@ -220,8 +221,6 @@ impl RepoFilesService {
             .await
             .map_err(UploadFileReaderError::RemoteError)?;
 
-        let _ = self.decrypt_files(&repo_id, &parent_path);
-
         let name = cipher.decrypt_filename(&remote_file.name)?;
         let path = path_utils::join_path_name(parent_path, &name);
         let file_id = selectors::get_file_id(repo_id, &path);
@@ -274,10 +273,6 @@ impl RepoFilesService {
                     .delete_file(&mount_id, &remote_path)
                     .await
                     .map_err(DeleteFileError::RemoteError)?;
-
-                if let Some(parent_path) = path_utils::parent_path(&path) {
-                    let _ = self.decrypt_files(&repo_id, parent_path);
-                }
             }
         } else {
             return Err(DeleteFileError::Canceled);
@@ -305,8 +300,6 @@ impl RepoFilesService {
             .create_dir(&mount_id, &remote_parent_path, &encrypted_name)
             .await
             .map_err(CreateDirError::RemoteError)?;
-
-        let _ = self.decrypt_files(&repo_id, &parent_path);
 
         Ok(())
     }
@@ -533,87 +526,6 @@ impl RepoFilesService {
             .map_err(MoveFileError::RemoteError)
     }
 
-    pub fn mount_path_decrypt_files(
-        &self,
-        mount_id: &str,
-        path: &str,
-    ) -> Result<(), DecryptFilesError> {
-        if let Some((repo_id, path)) = self.store.with_state(|state| {
-            let repo_id = selectors::select_mount_path_to_repo_id(&state, &mount_id, path)?;
-            let cipher = match self.repos_service.get_cipher(&repo_id) {
-                Ok(cipher) => cipher,
-                Err(RepoLockedError) => return None,
-            };
-            let (_, path) =
-                match selectors::select_repo_mount_path_to_path(state, &repo_id, &path, &cipher) {
-                    Ok(r) => r,
-                    Err(RepoMountPathToPathError::RepoNotFound(_)) => return None,
-                    Err(RepoMountPathToPathError::DecryptFilenameError(_)) => return None,
-                };
-            Some((repo_id.to_owned(), path.to_owned()))
-        }) {
-            self.decrypt_files(&repo_id, &path)?;
-        }
-
-        Ok(())
-    }
-
-    pub fn remote_file_created(&self, mount_id: &str, path: &str, file: models::FilesFile) {
-        self.remote_files_service.file_created(mount_id, path, file);
-
-        let _ = self.mount_path_decrypt_files(mount_id, path);
-
-        if let Some(parent_path) = path_utils::parent_path(path) {
-            let _ = self.mount_path_decrypt_files(mount_id, parent_path);
-        }
-    }
-
-    pub fn remote_file_removed(&self, mount_id: &str, path: &str) {
-        self.remote_files_service.file_removed(mount_id, path);
-
-        let _ = self.mount_path_decrypt_files(mount_id, path);
-
-        if let Some(parent_path) = path_utils::parent_path(path) {
-            let _ = self.mount_path_decrypt_files(mount_id, parent_path);
-        }
-    }
-
-    pub fn remote_file_copied(&self, mount_id: &str, new_path: &str, file: models::FilesFile) {
-        self.remote_files_service
-            .file_copied(mount_id, new_path, file);
-
-        let new_parent_path = path_utils::parent_path(new_path);
-
-        if let Some(new_parent_path) = new_parent_path {
-            let _ = self.mount_path_decrypt_files(mount_id, new_parent_path);
-        }
-    }
-
-    pub fn remote_file_moved(
-        &self,
-        mount_id: &str,
-        path: &str,
-        new_path: &str,
-        file: models::FilesFile,
-    ) {
-        self.remote_files_service
-            .file_moved(mount_id, path, new_path, file);
-
-        let parent_path = path_utils::parent_path(path);
-        let new_parent_path = path_utils::parent_path(new_path);
-
-        let _ = self.mount_path_decrypt_files(mount_id, path);
-
-        if let Some(parent_path) = parent_path {
-            let _ = self.mount_path_decrypt_files(mount_id, parent_path);
-        }
-        if parent_path != new_parent_path {
-            if let Some(new_parent_path) = new_parent_path {
-                let _ = self.mount_path_decrypt_files(mount_id, new_parent_path);
-            }
-        }
-    }
-
     pub async fn get_unused_name(
         &self,
         repo_id: &str,
@@ -637,5 +549,12 @@ impl RepoFilesService {
         Ok(name_utils::unused_name(name, |name| {
             used_names.contains(&name.to_lowercase())
         }))
+    }
+}
+
+impl Drop for RepoFilesService {
+    fn drop(&mut self) {
+        self.store
+            .remove_listener(self.remote_files_mutation_subscription_id)
     }
 }

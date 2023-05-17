@@ -5,7 +5,9 @@ use std::{
 };
 
 use crate::{
-    auth, remote_files::selectors::get_file_id, repo_files::RepoFilesService, runtime,
+    auth,
+    remote_files::{selectors::get_file_id, RemoteFilesService},
+    runtime,
     utils::path_utils::join_paths,
 };
 
@@ -56,7 +58,7 @@ pub struct EventStreamService {
     base_url: String,
     websocket_client: Box<dyn WebSocketClient + Send + Sync>,
     auth_provider: Arc<Box<dyn auth::AuthProvider + Send + Sync>>,
-    repo_files_service: Arc<RepoFilesService>,
+    remote_files_service: Arc<RemoteFilesService>,
     runtime: Arc<Box<dyn runtime::Runtime + Send + Sync>>,
 
     connection_state: Arc<Mutex<ConnectionState>>,
@@ -72,14 +74,14 @@ impl EventStreamService {
         base_url: String,
         websocket_client: Box<dyn WebSocketClient + Send + Sync>,
         auth_provider: Arc<Box<dyn auth::AuthProvider + Send + Sync>>,
-        repo_files_service: Arc<RepoFilesService>,
+        remote_files_service: Arc<RemoteFilesService>,
         runtime: Arc<Box<dyn runtime::Runtime + Send + Sync>>,
     ) -> EventStreamService {
         EventStreamService {
             base_url,
             websocket_client,
             auth_provider,
-            repo_files_service,
+            remote_files_service,
             runtime,
 
             connection_state: Arc::new(Mutex::new(ConnectionState::Disconnected)),
@@ -387,17 +389,15 @@ impl EventStreamService {
                             file,
                             ..
                         } => {
-                            self.repo_files_service.remote_file_created(
+                            self.remote_files_service.file_created(
                                 &mount_id,
                                 &join_paths(&mount_listener.path, &path),
                                 file,
                             );
                         }
                         Event::FileRemovedEvent { mount_id, path, .. } => {
-                            self.repo_files_service.remote_file_removed(
-                                &mount_id,
-                                &join_paths(&mount_listener.path, &path),
-                            );
+                            self.remote_files_service
+                                .file_removed(&mount_id, &join_paths(&mount_listener.path, &path));
                         }
                         Event::FileCopiedEvent {
                             mount_id,
@@ -405,7 +405,7 @@ impl EventStreamService {
                             file,
                             ..
                         } => {
-                            self.repo_files_service.remote_file_copied(
+                            self.remote_files_service.file_copied(
                                 &mount_id,
                                 &join_paths(&mount_listener.path, &new_path),
                                 file,
@@ -418,7 +418,7 @@ impl EventStreamService {
                             file,
                             ..
                         } => {
-                            self.repo_files_service.remote_file_moved(
+                            self.remote_files_service.file_moved(
                                 &mount_id,
                                 &join_paths(&mount_listener.path, &path),
                                 &join_paths(&mount_listener.path, &new_path),

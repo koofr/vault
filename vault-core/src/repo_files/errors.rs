@@ -27,14 +27,6 @@ impl RepoFilesErrors {
     }
 }
 
-#[derive(Error, Debug, Clone, PartialEq)]
-pub enum RepoMountPathToPathError {
-    #[error("{0}")]
-    RepoNotFound(#[from] RepoNotFoundError),
-    #[error("{0}")]
-    DecryptFilenameError(#[from] DecryptFilenameError),
-}
-
 #[derive(Error, Debug, Clone)]
 pub enum GetRepoMountPathError {
     #[error("{0}")]
@@ -69,6 +61,8 @@ pub enum DecryptFilesError {
     RepoNotFound(#[from] RepoNotFoundError),
     #[error("{0}")]
     RepoLocked(#[from] RepoLockedError),
+    #[error("{0}")]
+    DecryptFilenameError(#[from] DecryptFilenameError),
 }
 
 #[derive(Error, Debug, Clone)]

@@ -1,9 +1,9 @@
 use std::{
     collections::HashMap,
-    sync::{Arc, RwLock},
+    sync::{Arc, RwLock, RwLockReadGuard},
 };
 
-use crate::{cipher::Cipher, common::state::Status, rclone, remote, store};
+use crate::{cipher::Cipher, rclone, remote, store};
 
 use super::{
     errors::{
@@ -39,7 +39,7 @@ impl ReposService {
         self.store.mutate(|state, notify, _, _| {
             notify(store::Event::Repos);
 
-            state.repos.status = Status::Loading;
+            mutations::repos_loading(state);
         });
 
         let repos = self.remote.get_vault_repos().await?.repos;
@@ -47,7 +47,6 @@ impl ReposService {
         self.store.mutate(|state, notify, _, _| {
             notify(store::Event::Repos);
 
-            state.repos.status = Status::Loaded;
             mutations::repos_loaded(state, repos);
         });
 
@@ -160,8 +159,12 @@ impl ReposService {
         })
     }
 
+    pub fn get_ciphers(&self) -> RwLockReadGuard<'_, HashMap<String, Arc<Cipher>>> {
+        self.ciphers.read().unwrap()
+    }
+
     pub fn get_cipher(&self, repo_id: &str) -> Result<Arc<Cipher>, RepoLockedError> {
-        let ciphers = self.ciphers.read().unwrap();
+        let ciphers = self.get_ciphers();
         let cipher = ciphers.get(repo_id).ok_or(RepoLockedError)?;
 
         Ok(cipher.clone())

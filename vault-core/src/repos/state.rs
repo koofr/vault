@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{common::state::Status, remote::RemoteError, remote_files::state::RemoteFilesLocation};
 
-use super::errors::RepoInfoError;
+use super::{errors::RepoInfoError, repo_tree::RepoTree};
 
 #[derive(Clone, Copy, Debug)]
 pub enum RepoState {
@@ -66,4 +66,5 @@ pub struct ReposState {
     pub status: Status<RemoteError>,
     pub repos_by_id: HashMap<String, Repo>,
     pub repo_ids_by_remote_file_id: HashMap<String, String>,
+    pub mount_repo_trees: HashMap<String, RepoTree>,
 }

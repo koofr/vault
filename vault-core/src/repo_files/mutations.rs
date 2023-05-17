@@ -1,17 +1,17 @@
-use std::collections::HashSet;
+use std::{
+    collections::{HashMap, HashSet},
+    sync::Arc,
+};
 
 use crate::{
     cipher::{data_cipher::decrypt_size, Cipher},
-    file_types::{
-        content_type::ext_to_content_type,
-        file_category::{ext_to_file_category, FileCategory},
-    },
+    file_types::file_category::FileCategory,
     remote_files::{
         selectors as remote_files_selectors,
         state::{RemoteFile, RemoteFileType},
     },
     store,
-    utils::{name_utils, path_utils},
+    utils::path_utils,
 };
 
 use super::{
@@ -29,23 +29,147 @@ pub fn sort_children(state: &mut store::State, file_id: &str) {
     }
 }
 
+fn remote_files_to_repo_files<'a>(
+    state: &'a store::State,
+    remote_files: impl Iterator<Item = (&'a str, &'a str)> + 'a,
+) -> impl Iterator<Item = (String, String, String, String)> + 'a {
+    remote_files.flat_map(|(mount_id, remote_path)| {
+        if let Some(repo_tree) = state.repos.mount_repo_trees.get(mount_id) {
+            repo_tree
+                .get(&remote_path)
+                .into_iter()
+                .map(|(repo_id, path)| {
+                    (
+                        mount_id.to_owned(),
+                        remote_path.to_owned(),
+                        repo_id.to_owned(),
+                        path.to_owned(),
+                    )
+                })
+                .collect()
+        } else {
+            vec![]
+        }
+    })
+}
+
+pub fn handle_remote_files_mutation(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
+    ciphers: &HashMap<String, Arc<Cipher>>,
+) {
+    let mut is_dirty = false;
+
+    let remote_loaded_roots = mutation_state
+        .remote_files
+        .loaded_roots
+        .iter()
+        .map(|(mount_id, path)| (mount_id.as_str(), path.as_str()));
+    let remote_created_files = mutation_state
+        .remote_files
+        .created_files
+        .iter()
+        .map(|(mount_id, path)| (mount_id.as_str(), path.as_str()));
+    let remote_created_files_parents =
+        mutation_state
+            .remote_files
+            .created_files
+            .iter()
+            .filter_map(|(mount_id, path)| {
+                path_utils::parent_path(path).map(|parent_path| (mount_id.as_str(), parent_path))
+            });
+    let remote_removed_files = mutation_state
+        .remote_files
+        .removed_files
+        .iter()
+        .map(|(mount_id, path)| (mount_id.as_str(), path.as_str()));
+    let remote_removed_files_parents =
+        mutation_state
+            .remote_files
+            .removed_files
+            .iter()
+            .filter_map(|(mount_id, path)| {
+                path_utils::parent_path(path).map(|parent_path| (mount_id.as_str(), parent_path))
+            });
+    let remote_moved_from_files = mutation_state
+        .remote_files
+        .moved_files
+        .iter()
+        .map(|(mount_id, old_path, _)| (mount_id.as_str(), old_path.as_str()));
+    let remote_moved_from_files_parents = mutation_state
+        .remote_files
+        .moved_files
+        .iter()
+        .filter_map(|(mount_id, old_path, _)| {
+            path_utils::parent_path(old_path)
+                .map(|old_parent_path| (mount_id.as_str(), old_parent_path))
+        });
+    let remote_moved_to_files = mutation_state
+        .remote_files
+        .moved_files
+        .iter()
+        .map(|(mount_id, _, new_path)| (mount_id.as_str(), new_path.as_str()));
+    let remote_moved_to_files_parents =
+        mutation_state
+            .remote_files
+            .moved_files
+            .iter()
+            .filter_map(|(mount_id, _, new_path)| {
+                path_utils::parent_path(new_path)
+                    .map(|new_parent_path| (mount_id.as_str(), new_parent_path))
+            });
+
+    let files_to_decrypt: HashSet<(String, String, String, String)> = remote_files_to_repo_files(
+        state,
+        remote_loaded_roots
+            .chain(remote_created_files)
+            .chain(remote_created_files_parents)
+            .chain(remote_removed_files)
+            .chain(remote_removed_files_parents)
+            .chain(remote_moved_from_files)
+            .chain(remote_moved_from_files_parents)
+            .chain(remote_moved_to_files)
+            .chain(remote_moved_to_files_parents),
+    )
+    .collect();
+
+    for (mount_id, remote_path, repo_id, path) in files_to_decrypt {
+        if let Some(cipher) = ciphers.get(&repo_id) {
+            let _ = decrypt_files(
+                state,
+                &mount_id,
+                &remote_path,
+                &repo_id,
+                &path,
+                cipher.as_ref(),
+            );
+
+            is_dirty = true;
+        }
+    }
+
+    if is_dirty {
+        notify(store::Event::RepoFiles);
+    }
+}
+
 pub fn decrypt_files(
     state: &mut store::State,
+    mount_id: &str,
+    remote_path: &str,
     repo_id: &str,
-    path: &str,
+    encrypted_path: &str,
     cipher: &Cipher,
 ) -> Result<(), DecryptFilesError> {
-    let (mount_id, full_path) =
-        selectors::select_repo_path_to_mount_path(state, repo_id, path, &cipher)?;
-
-    let root_remote_file_id = remote_files_selectors::get_file_id(&mount_id, &full_path);
+    let root_remote_file_id = remote_files_selectors::get_file_id(mount_id, remote_path);
 
     if let Some(root_remote_file) = state.remote_files.files.get(&root_remote_file_id) {
-        let root_repo_file = match path {
+        let root_repo_file = match encrypted_path {
             "/" => get_root_file(repo_id, root_remote_file),
             _ => decrypt_file(
                 repo_id,
-                path_utils::parent_path(path).unwrap(),
+                &cipher.decrypt_path(path_utils::parent_path(&encrypted_path).unwrap())?,
                 root_remote_file,
                 &cipher,
             ),
@@ -58,13 +182,15 @@ pub fn decrypt_files(
             .insert(root_repo_file_id.clone(), root_repo_file);
 
         if let Some(remote_children_ids) = state.remote_files.children.get(&root_remote_file_id) {
+            let path = cipher.decrypt_path(encrypted_path)?;
+
             let mut children = Vec::with_capacity(remote_children_ids.len());
 
             for remote_child in remote_children_ids
                 .iter()
                 .filter_map(|id| state.remote_files.files.get(id))
             {
-                let repo_child = decrypt_file(repo_id, path, remote_child, &cipher);
+                let repo_child = decrypt_file(repo_id, &path, remote_child, &cipher);
 
                 children.push(repo_child.id.clone());
 
@@ -103,6 +229,12 @@ pub fn decrypt_files(
                 .repo_files
                 .loaded_roots
                 .insert(root_repo_file_id.clone());
+        }
+    } else {
+        if let Ok(path) = cipher.decrypt_path(encrypted_path) {
+            let file_id = selectors::get_file_id(repo_id, &path);
+
+            cleanup_file(state, &file_id);
         }
     }
 

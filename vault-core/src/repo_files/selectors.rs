@@ -6,13 +6,13 @@ use crate::{
     },
     remote::RemoteError,
     remote_files::{selectors as remote_files_selectors, state::RemoteFile},
-    repos::{errors::RepoNotFoundError, selectors as repos_selectors, state::Repo},
+    repos::{errors::RepoNotFoundError, selectors as repos_selectors},
     store,
     utils::{name_utils, path_utils},
 };
 
 use super::{
-    errors::{RenameFileError, RepoFilesErrors, RepoMountPathToPathError},
+    errors::{RenameFileError, RepoFilesErrors},
     state::{RepoFile, RepoFileType, RepoFilesBreadcrumb, RepoFilesSort, RepoFilesSortField},
 };
 
@@ -111,30 +111,6 @@ pub fn select_mount_path_to_repo_id<'a>(
     }
 
     None
-}
-
-pub fn select_repo_mount_path_to_path<'a>(
-    state: &'a store::State,
-    repo_id: &str,
-    mount_path: &str,
-    cipher: &cipher::Cipher,
-) -> Result<(&'a Repo, String), RepoMountPathToPathError> {
-    let repo = repos_selectors::select_repo(state, repo_id)
-        .map_err(RepoMountPathToPathError::RepoNotFound)?;
-
-    let path = if repo.path == mount_path {
-        String::from("/")
-    } else {
-        cipher
-            .decrypt_path(if repo.path == "/" {
-                &mount_path
-            } else {
-                &mount_path[repo.path.len()..]
-            })
-            .map_err(RepoMountPathToPathError::DecryptFilenameError)?
-    };
-
-    Ok((repo, path))
 }
 
 pub fn select_is_root_loaded(state: &store::State, repo_id: &str, path: &str) -> bool {
@@ -265,63 +241,4 @@ pub fn select_sorted_files(
         .map(|file| file.id.clone())
         .chain(files.iter().map(|file| file.id.clone()))
         .collect()
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::{
-        cipher::test_helpers as cipher_test_helpers,
-        remote::test_helpers as remote_test_helpers,
-        repo_files::selectors::{select_mount_path_to_repo_id, select_repo_mount_path_to_path},
-        repos::mutations as repos_mutations,
-        store,
-    };
-
-    #[test]
-    fn test_select_repo_mount_path_to_path_root() {
-        let mut state = store::State::default();
-        let repo = remote_test_helpers::create_repo("r1", "m1", "/");
-        repos_mutations::repos_loaded(&mut state, vec![repo.clone()]);
-        let cipher = cipher_test_helpers::create_cipher();
-        let select = |mount_path: &str| {
-            let repo_id = select_mount_path_to_repo_id(&state, &repo.mount_id, mount_path).unwrap();
-
-            select_repo_mount_path_to_path(&state, &repo_id, mount_path, &cipher)
-                .map(|(_, path)| path)
-        };
-
-        assert_eq!(select("/"), Ok(format!("/")));
-        assert_eq!(
-            select(&cipher.encrypt_path("/foo")),
-            Ok(String::from("/foo"))
-        );
-        assert_eq!(
-            select(&cipher.encrypt_path("/foo/bar")),
-            Ok(String::from("/foo/bar"))
-        );
-    }
-
-    #[test]
-    fn test_select_repo_mount_path_to_path_child() {
-        let mut state = store::State::default();
-        let repo = remote_test_helpers::create_repo("r1", "m1", "/Vault");
-        repos_mutations::repos_loaded(&mut state, vec![repo.clone()]);
-        let cipher = cipher_test_helpers::create_cipher();
-        let select = |mount_path: &str| {
-            let repo_id = select_mount_path_to_repo_id(&state, &repo.mount_id, mount_path).unwrap();
-
-            select_repo_mount_path_to_path(&state, &repo_id, mount_path, &cipher)
-                .map(|(_, path)| path)
-        };
-
-        assert_eq!(select("/Vault"), Ok(format!("/")));
-        assert_eq!(
-            select(&format!("/Vault{}", cipher.encrypt_path("/foo"))),
-            Ok(String::from("/foo"))
-        );
-        assert_eq!(
-            select(&format!("/Vault{}", cipher.encrypt_path("/foo/bar"))),
-            Ok(String::from("/foo/bar"))
-        );
-    }
 }

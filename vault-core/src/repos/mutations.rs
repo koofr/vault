@@ -1,13 +1,15 @@
+use std::collections::HashSet;
+
 use urlencoding::encode;
 
 use crate::{
-    remote::models, remote_files::selectors as remote_files_selectors,
+    common::state::Status, remote::models, remote_files::selectors as remote_files_selectors,
     repo_files::selectors as repo_files_selectors, store,
 };
 
 use super::{
     errors::RepoNotFoundError,
-    selectors::select_repo,
+    repo_tree::RepoTree,
     state::{Repo, RepoState},
 };
 
@@ -52,14 +54,47 @@ pub fn repo_loaded(state: &mut store::State, repo: models::VaultRepo) {
         repo.id.clone(),
     );
 
+    let repo_tree = state
+        .repos
+        .mount_repo_trees
+        .entry(repo.mount_id.clone())
+        .or_insert_with(|| RepoTree::new());
+
+    repo_tree.set(&repo.path, repo.id.clone());
+
     state.repos.repos_by_id.insert(repo.id.clone(), repo);
 }
 
+pub fn repos_loading(state: &mut store::State) {
+    state.repos.status = Status::Loading;
+}
+
 pub fn repos_loaded(state: &mut store::State, repos: Vec<models::VaultRepo>) {
-    state.repos.repos_by_id.clear();
+    state.repos.status = Status::Loaded;
+
+    let remove_repo_ids = {
+        let new_repo_ids = repos.iter().map(|repo| &repo.id).collect::<HashSet<_>>();
+
+        state
+            .repos
+            .repos_by_id
+            .iter()
+            .filter_map(|(repo_id, _)| {
+                if new_repo_ids.contains(repo_id) {
+                    None
+                } else {
+                    Some(repo_id.to_owned())
+                }
+            })
+            .collect::<Vec<_>>()
+    };
 
     for repo in repos {
         repo_loaded(state, repo);
+    }
+
+    for repo_id in remove_repo_ids {
+        remove_repo(state, &repo_id);
     }
 }
 
@@ -98,15 +133,17 @@ pub fn unlock_repo(state: &mut store::State, repo_id: &str) -> Result<(), RepoNo
 }
 
 pub fn remove_repo(state: &mut store::State, repo_id: &str) {
-    if let Some((mount_id, path)) = select_repo(state, repo_id)
-        .map(|repo| (repo.mount_id.clone(), repo.path.clone()))
-        .ok()
-    {
+    if let Some(repo) = state.repos.repos_by_id.remove(repo_id) {
         state
             .repos
             .repo_ids_by_remote_file_id
-            .remove(&remote_files_selectors::get_file_id(&mount_id, &path));
-    }
+            .remove(&remote_files_selectors::get_file_id(
+                &repo.mount_id,
+                &repo.path,
+            ));
 
-    state.repos.repos_by_id.remove(repo_id);
+        if let Some(repo_tree) = state.repos.mount_repo_trees.get_mut(&repo.mount_id) {
+            repo_tree.remove(&repo.path);
+        }
+    }
 }

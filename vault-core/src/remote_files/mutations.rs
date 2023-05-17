@@ -213,7 +213,14 @@ pub fn sort_children(state: &mut store::State, file_id: &str) {
     }
 }
 
-pub fn bundle_loaded(state: &mut store::State, mount_id: &str, path: &str, bundle: models::Bundle) {
+pub fn bundle_loaded(
+    state: &mut store::State,
+    mutation_state: &mut store::MutationState,
+    mutation_notify: &store::MutationNotify,
+    mount_id: &str,
+    path: &str,
+    bundle: models::Bundle,
+) {
     let root_file_id = selectors::get_file_id(mount_id, path);
 
     let models::Bundle {
@@ -258,42 +265,25 @@ pub fn bundle_loaded(state: &mut store::State, mount_id: &str, path: &str, bundl
     }
 
     state.remote_files.loaded_roots.insert(root_file_id.clone());
+
+    mutation_state
+        .remote_files
+        .loaded_roots
+        .push((mount_id.to_owned(), path.to_owned()));
+
+    mutation_notify(store::MutationEvent::RemoteFiles, state, mutation_state);
 }
 
-pub fn file_loaded(state: &mut store::State, mount_id: &str, path: &str, file: models::FilesFile) {
+pub fn file_loaded(
+    state: &mut store::State,
+    mutation_state: &mut store::MutationState,
+    mutation_notify: &store::MutationNotify,
+    mount_id: &str,
+    path: &str,
+    file: models::FilesFile,
+) {
     let root_file_id = selectors::get_file_id(mount_id, path);
 
-    file_created(state, mount_id, path, file);
-
-    state.remote_files.loaded_roots.insert(root_file_id.clone());
-}
-
-pub fn add_child(state: &mut store::State, parent_id: &str, child_id: String) {
-    if let Some(children) = state.remote_files.children.get_mut(parent_id) {
-        if !children.contains(&child_id) {
-            children.push(child_id);
-
-            sort_children(state, &parent_id);
-        }
-    }
-}
-
-pub fn dir_created(state: &mut store::State, mount_id: &str, path: &str) {
-    let file_id = selectors::get_file_id(mount_id, path);
-
-    state.remote_files.files.insert(
-        file_id.clone(),
-        dir_to_remote_file(file_id.clone(), mount_id.to_owned(), path.to_owned()),
-    );
-
-    if let Some(parent_path) = path_utils::parent_path(path) {
-        let parent_id = selectors::get_file_id(mount_id, &parent_path);
-
-        add_child(state, &parent_id, file_id);
-    }
-}
-
-pub fn file_created(state: &mut store::State, mount_id: &str, path: &str, file: models::FilesFile) {
     let file_id = selectors::get_file_id(mount_id, path);
 
     state.remote_files.files.insert(
@@ -306,6 +296,82 @@ pub fn file_created(state: &mut store::State, mount_id: &str, path: &str, file: 
 
         add_child(state, &parent_id, file_id);
     }
+
+    state.remote_files.loaded_roots.insert(root_file_id.clone());
+
+    mutation_state
+        .remote_files
+        .loaded_roots
+        .push((mount_id.to_owned(), path.to_owned()));
+
+    mutation_notify(store::MutationEvent::RemoteFiles, state, mutation_state);
+}
+
+pub fn add_child(state: &mut store::State, parent_id: &str, child_id: String) {
+    if let Some(children) = state.remote_files.children.get_mut(parent_id) {
+        if !children.contains(&child_id) {
+            children.push(child_id);
+
+            sort_children(state, &parent_id);
+        }
+    }
+}
+
+pub fn dir_created(
+    state: &mut store::State,
+    mutation_state: &mut store::MutationState,
+    mutation_notify: &store::MutationNotify,
+    mount_id: &str,
+    path: &str,
+) {
+    let file_id = selectors::get_file_id(mount_id, path);
+
+    state.remote_files.files.insert(
+        file_id.clone(),
+        dir_to_remote_file(file_id.clone(), mount_id.to_owned(), path.to_owned()),
+    );
+
+    if let Some(parent_path) = path_utils::parent_path(path) {
+        let parent_id = selectors::get_file_id(mount_id, &parent_path);
+
+        add_child(state, &parent_id, file_id);
+    }
+
+    mutation_state
+        .remote_files
+        .created_files
+        .push((mount_id.to_owned(), path.to_owned()));
+
+    mutation_notify(store::MutationEvent::RemoteFiles, state, mutation_state);
+}
+
+pub fn file_created(
+    state: &mut store::State,
+    mutation_state: &mut store::MutationState,
+    mutation_notify: &store::MutationNotify,
+    mount_id: &str,
+    path: &str,
+    file: models::FilesFile,
+) {
+    let file_id = selectors::get_file_id(mount_id, path);
+
+    state.remote_files.files.insert(
+        file_id.clone(),
+        files_file_to_remote_file(file_id.clone(), mount_id.to_owned(), path.to_owned(), file),
+    );
+
+    if let Some(parent_path) = path_utils::parent_path(path) {
+        let parent_id = selectors::get_file_id(mount_id, &parent_path);
+
+        add_child(state, &parent_id, file_id);
+    }
+
+    mutation_state
+        .remote_files
+        .created_files
+        .push((mount_id.to_owned(), path.to_owned()));
+
+    mutation_notify(store::MutationEvent::RemoteFiles, state, mutation_state);
 }
 
 pub fn remove_child(state: &mut store::State, parent_id: &str, child_id: &str) {
@@ -314,7 +380,13 @@ pub fn remove_child(state: &mut store::State, parent_id: &str, child_id: &str) {
     }
 }
 
-pub fn file_removed(state: &mut store::State, mount_id: &str, path: &str) {
+pub fn file_removed(
+    state: &mut store::State,
+    mutation_state: &mut store::MutationState,
+    mutation_notify: &store::MutationNotify,
+    mount_id: &str,
+    path: &str,
+) {
     let file_id = selectors::get_file_id(mount_id, path);
 
     if let Some(parent_path) = path_utils::parent_path(path) {
@@ -324,6 +396,13 @@ pub fn file_removed(state: &mut store::State, mount_id: &str, path: &str) {
     }
 
     cleanup_file(state, &file_id);
+
+    mutation_state
+        .remote_files
+        .removed_files
+        .push((mount_id.to_owned(), path.to_owned()));
+
+    mutation_notify(store::MutationEvent::RemoteFiles, state, mutation_state);
 }
 
 pub fn cleanup_file(state: &mut store::State, file_id: &str) {
@@ -350,6 +429,8 @@ pub fn cleanup_file(state: &mut store::State, file_id: &str) {
 
 pub fn file_copied(
     state: &mut store::State,
+    mutation_state: &mut store::MutationState,
+    mutation_notify: &store::MutationNotify,
     mount_id: &str,
     new_path: &str,
     new_file: models::FilesFile,
@@ -374,10 +455,19 @@ pub fn file_copied(
     );
 
     add_child(state, &new_parent_id, new_file_id.clone());
+
+    mutation_state
+        .remote_files
+        .created_files
+        .push((mount_id.to_owned(), new_path.to_owned()));
+
+    mutation_notify(store::MutationEvent::RemoteFiles, state, mutation_state);
 }
 
 pub fn file_moved(
     state: &mut store::State,
+    mutation_state: &mut store::MutationState,
+    mutation_notify: &store::MutationNotify,
     mount_id: &str,
     old_path: &str,
     new_path: &str,
@@ -420,6 +510,14 @@ pub fn file_moved(
     // TODO ensure new parent path
 
     add_child(state, &new_parent_id, new_file_id.clone());
+
+    mutation_state.remote_files.moved_files.push((
+        mount_id.to_owned(),
+        old_path.to_owned(),
+        new_path.to_owned(),
+    ));
+
+    mutation_notify(store::MutationEvent::RemoteFiles, state, mutation_state);
 }
 
 pub fn file_children_change_parent_path(

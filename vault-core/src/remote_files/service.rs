@@ -76,11 +76,19 @@ impl RemoteFilesService {
     pub async fn load_files(&self, mount_id: &str, path: &str) -> Result<(), RemoteError> {
         let bundle = self.remote.get_bundle(mount_id, path).await?;
 
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RemoteFiles);
+        self.store
+            .mutate(|state, notify, mutation_state, mutation_notify| {
+                notify(store::Event::RemoteFiles);
 
-            mutations::bundle_loaded(state, mount_id, path, bundle);
-        });
+                mutations::bundle_loaded(
+                    state,
+                    mutation_state,
+                    mutation_notify,
+                    mount_id,
+                    path,
+                    bundle,
+                );
+            });
 
         Ok(())
     }
@@ -88,11 +96,19 @@ impl RemoteFilesService {
     pub async fn load_file(&self, mount_id: &str, path: &str) -> Result<(), RemoteError> {
         let file = self.remote.get_file(mount_id, path).await?;
 
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RemoteFiles);
+        self.store
+            .mutate(|state, notify, mutation_state, mutation_notify| {
+                notify(store::Event::RemoteFiles);
 
-            mutations::file_loaded(state, mount_id, path, file);
-        });
+                mutations::file_loaded(
+                    state,
+                    mutation_state,
+                    mutation_notify,
+                    mount_id,
+                    path,
+                    file,
+                );
+            });
 
         Ok(())
     }
@@ -176,7 +192,11 @@ impl RemoteFilesService {
     ) -> Result<(), RemoteError> {
         self.remote
             .copy_file(mount_id, path, to_mount_id, to_path)
-            .await
+            .await?;
+
+        // self.file_copied() called from eventstream service
+
+        Ok(())
     }
 
     pub async fn move_file(
@@ -188,7 +208,11 @@ impl RemoteFilesService {
     ) -> Result<(), RemoteError> {
         self.remote
             .move_file(mount_id, path, to_mount_id, to_path)
-            .await
+            .await?;
+
+        // self.file_moved() called from eventstream service
+
+        Ok(())
     }
 
     pub async fn rename_file(
@@ -197,46 +221,77 @@ impl RemoteFilesService {
         path: &str,
         new_name: &str,
     ) -> Result<(), RemoteError> {
-        self.remote.rename_file(mount_id, path, new_name).await
+        self.remote.rename_file(mount_id, path, new_name).await?;
+
+        // self.file_moved() called from eventstream service
+
+        Ok(())
     }
 
     pub fn file_created(&self, mount_id: &str, path: &str, file: models::FilesFile) {
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RemoteFiles);
+        self.store
+            .mutate(|state, notify, mutation_state, mutation_notify| {
+                notify(store::Event::RemoteFiles);
 
-            mutations::file_created(state, mount_id, path, file);
-        });
+                mutations::file_created(
+                    state,
+                    mutation_state,
+                    mutation_notify,
+                    mount_id,
+                    path,
+                    file,
+                );
+            });
     }
 
     pub fn file_removed(&self, mount_id: &str, path: &str) {
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RemoteFiles);
+        self.store
+            .mutate(|state, notify, mutation_state, mutation_notify| {
+                notify(store::Event::RemoteFiles);
 
-            mutations::file_removed(state, mount_id, path);
-        });
+                mutations::file_removed(state, mutation_state, mutation_notify, mount_id, path);
+            });
     }
 
     pub fn dir_created(&self, mount_id: &str, path: &str) {
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RemoteFiles);
+        self.store
+            .mutate(|state, notify, mutation_state, mutation_notify| {
+                notify(store::Event::RemoteFiles);
 
-            mutations::dir_created(state, mount_id, path);
-        });
+                mutations::dir_created(state, mutation_state, mutation_notify, mount_id, path);
+            });
     }
 
     pub fn file_copied(&self, mount_id: &str, new_path: &str, file: models::FilesFile) {
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RemoteFiles);
+        self.store
+            .mutate(|state, notify, mutation_state, mutation_notify| {
+                notify(store::Event::RemoteFiles);
 
-            mutations::file_copied(state, mount_id, new_path, file);
-        });
+                mutations::file_copied(
+                    state,
+                    mutation_state,
+                    mutation_notify,
+                    mount_id,
+                    new_path,
+                    file,
+                );
+            });
     }
 
     pub fn file_moved(&self, mount_id: &str, path: &str, new_path: &str, file: models::FilesFile) {
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RemoteFiles);
+        self.store
+            .mutate(|state, notify, mutation_state, mutation_notify| {
+                notify(store::Event::RemoteFiles);
 
-            mutations::file_moved(state, mount_id, path, new_path, file);
-        });
+                mutations::file_moved(
+                    state,
+                    mutation_state,
+                    mutation_notify,
+                    mount_id,
+                    path,
+                    new_path,
+                    file,
+                );
+            });
     }
 }
