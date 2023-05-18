@@ -88,10 +88,13 @@ mod tests {
         let mut mutation_state = store::MutationState::default();
         let ciphers1 = ciphers.clone();
         let mutation_notify: store::MutationNotify = Box::new(move |_, state, mutation_state| {
+            let repo_files_mutation_notify: store::MutationNotify = Box::new(move |_, _, _| {});
+
             repo_files_mutations::handle_remote_files_mutation(
                 state,
                 notify.clone().as_ref(),
                 mutation_state,
+                &repo_files_mutation_notify,
                 ciphers1.as_ref(),
             );
         });
@@ -114,10 +117,13 @@ mod tests {
         let mut mutation_state = store::MutationState::default();
         let ciphers2 = ciphers.clone();
         let mutation_notify: store::MutationNotify = Box::new(move |_, state, mutation_state| {
+            let repo_files_mutation_notify: store::MutationNotify = Box::new(move |_, _, _| {});
+
             repo_files_mutations::handle_remote_files_mutation(
                 state,
                 notify.clone().as_ref(),
                 mutation_state,
+                &repo_files_mutation_notify,
                 ciphers2.as_ref(),
             );
         });

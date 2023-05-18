@@ -181,6 +181,12 @@ pub struct RepoFilesState {
     pub loaded_roots: HashSet<String>,
 }
 
+#[derive(Clone, Default)]
+pub struct RepoFilesMutationState {
+    pub removed_files: Vec<(String, String)>,
+    pub moved_files: Vec<(String, String, String)>,
+}
+
 pub enum RepoFilesUploadConflictResolution {
     Overwrite {
         if_remote_size: Option<i64>,

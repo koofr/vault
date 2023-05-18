@@ -57,10 +57,9 @@ pub fn handle_remote_files_mutation(
     state: &mut store::State,
     notify: &store::Notify,
     mutation_state: &mut store::MutationState,
+    mutation_notify: &store::MutationNotify,
     ciphers: &HashMap<String, Arc<Cipher>>,
 ) {
-    let mut is_dirty = false;
-
     let remote_loaded_roots = mutation_state
         .remote_files
         .loaded_roots
@@ -134,6 +133,8 @@ pub fn handle_remote_files_mutation(
     )
     .collect();
 
+    let mut repo_files_dirty = false;
+
     for (mount_id, remote_path, repo_id, path) in files_to_decrypt {
         if let Some(cipher) = ciphers.get(&repo_id) {
             let _ = decrypt_files(
@@ -145,12 +146,86 @@ pub fn handle_remote_files_mutation(
                 cipher.as_ref(),
             );
 
-            is_dirty = true;
+            repo_files_dirty = true;
         }
     }
 
-    if is_dirty {
+    if repo_files_dirty {
         notify(store::Event::RepoFiles);
+    }
+
+    let removed_repo_files = remote_files_to_repo_files(
+        state,
+        mutation_state
+            .remote_files
+            .removed_files
+            .iter()
+            .map(|(mount_id, path)| (mount_id.as_str(), path.as_str())),
+    )
+    .map(|(_, _, repo_id, path)| (repo_id, path));
+    let moved_repo_files_from = remote_files_to_repo_files(
+        state,
+        mutation_state
+            .remote_files
+            .moved_files
+            .iter()
+            .map(|(mount_id, old_path, _)| (mount_id.as_str(), old_path.as_str())),
+    )
+    .map(|(_, _, repo_id, path)| (repo_id, path));
+    let moved_repo_files_to = remote_files_to_repo_files(
+        state,
+        mutation_state
+            .remote_files
+            .moved_files
+            .iter()
+            .map(|(mount_id, _, new_path)| (mount_id.as_str(), new_path.as_str())),
+    )
+    .map(|(_, _, repo_id, path)| (repo_id, path));
+    let moved_repo_files: Vec<(String, String, String)> = moved_repo_files_from
+        .zip(moved_repo_files_to)
+        .filter_map(
+            |((from_repo_id, from_repo_path), (to_repo_id, to_repo_path))| {
+                if from_repo_id == to_repo_id {
+                    Some((from_repo_id, from_repo_path, to_repo_path))
+                } else {
+                    None
+                }
+            },
+        )
+        .collect();
+
+    let mut mutation_repo_files_dirty = false;
+
+    for (repo_id, path) in removed_repo_files {
+        if let Some(cipher) = ciphers.get(&repo_id) {
+            if let Ok(path) = cipher.decrypt_path(&path) {
+                mutation_state
+                    .repo_files
+                    .removed_files
+                    .push((repo_id, path));
+
+                mutation_repo_files_dirty = true;
+            }
+        }
+    }
+
+    for (repo_id, from_path, to_path) in moved_repo_files {
+        if let Some(cipher) = ciphers.get(&repo_id) {
+            if let Ok(from_path) = cipher.decrypt_path(&from_path) {
+                if let Ok(to_path) = cipher.decrypt_path(&to_path) {
+                    mutation_state
+                        .repo_files
+                        .moved_files
+                        .push((repo_id, from_path, to_path));
+
+                    mutation_repo_files_dirty = true;
+                }
+            }
+        }
+    }
+
+    if mutation_repo_files_dirty {
+        mutation_notify(store::MutationEvent::RepoFiles, state, mutation_state);
     }
 }
 

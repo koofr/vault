@@ -68,11 +68,12 @@ impl RepoFilesService {
         store.mutation_on(
             remote_files_mutation_subscription_id,
             &[store::MutationEvent::RemoteFiles],
-            Box::new(move |state, notify, mutation_state, _| {
+            Box::new(move |state, notify, mutation_state, mutation_notify| {
                 mutations::handle_remote_files_mutation(
                     state,
                     notify,
                     mutation_state,
+                    mutation_notify,
                     &remote_files_mutation_self.repos_service.get_ciphers(),
                 );
             }),
