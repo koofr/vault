@@ -167,14 +167,7 @@ pub fn decrypt_file(
     let (ext, content_type, category) = match &remote_file.typ {
         RemoteFileType::File => match &name {
             RepoFileName::Decrypted { name_lower, .. } => {
-                let ext = name_utils::name_to_ext(name_lower);
-
-                (
-                    ext.map(str::to_string),
-                    ext.and_then(ext_to_content_type).map(str::to_string),
-                    ext.and_then(ext_to_file_category)
-                        .unwrap_or(FileCategory::Generic),
-                )
+                selectors::get_file_ext_content_type_category(name_lower)
             }
             RepoFileName::DecryptError { .. } => (None, None, FileCategory::Generic),
         },

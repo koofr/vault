@@ -1,10 +1,14 @@
 use crate::{
     cipher,
+    file_types::{
+        content_type::ext_to_content_type,
+        file_category::{ext_to_file_category, FileCategory},
+    },
     remote::RemoteError,
     remote_files::{selectors as remote_files_selectors, state::RemoteFile},
     repos::{errors::RepoNotFoundError, selectors as repos_selectors, state::Repo},
     store,
-    utils::path_utils,
+    utils::{name_utils, path_utils},
 };
 
 use super::{
@@ -14,6 +18,19 @@ use super::{
 
 pub fn get_file_id(repo_id: &str, path: &str) -> String {
     format!("{}:{}", repo_id, path)
+}
+
+pub fn get_file_ext_content_type_category<'a>(
+    name_lower: &'a str,
+) -> (Option<String>, Option<String>, FileCategory) {
+    let ext = name_utils::name_to_ext(name_lower);
+
+    (
+        ext.map(str::to_string),
+        ext.and_then(ext_to_content_type).map(str::to_string),
+        ext.and_then(ext_to_file_category)
+            .unwrap_or(FileCategory::Generic),
+    )
 }
 
 pub fn select_children<'a>(state: &'a store::State, file_id: &str) -> Option<&'a Vec<String>> {
