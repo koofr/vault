@@ -37,9 +37,26 @@ export class BrowserHttpClientDelegateImpl
       };
 
       xhr.onload = () => {
+        const headers: Record<string, string> = {};
+
+        for (const name of [
+          'content-type',
+          'content-length',
+          'X-User-Id',
+          'X-Request-Id',
+          'X-File-Info',
+        ]) {
+          const value = xhr.getResponseHeader(name);
+
+          if (value !== null) {
+            headers[name] = value;
+          }
+        }
+
         resolve(
           new Response(xhr.response, {
             status: xhr.status,
+            headers: headers,
           })
         );
       };
