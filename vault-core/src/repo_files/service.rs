@@ -154,11 +154,15 @@ impl RepoFilesService {
 
     pub async fn get_file_reader(
         self: Arc<Self>,
-        file_id: &str,
+        repo_id: &str,
+        path: &str,
     ) -> Result<RepoFileReader, GetFilesReaderError> {
         let file = self
             .store
-            .with_state(|state| selectors::select_file(state, file_id).map(|file| file.clone()))
+            .with_state(|state| {
+                selectors::select_file(state, &selectors::get_file_id(repo_id, path))
+                    .map(|file| file.clone())
+            })
             .ok_or(GetFilesReaderError::FileNotFound)?;
 
         self.repo_files_read_service

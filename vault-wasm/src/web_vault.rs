@@ -880,11 +880,15 @@ impl WebVault {
     #[wasm_bindgen(js_name = repoFilesGetFileStream)]
     pub async fn repo_files_get_file_stream(
         &self,
-        file_id: &str,
+        repo_id: &str,
+        path: &str,
         force_blob: bool,
     ) -> FileStreamOption {
         self.repo_file_reader_to_file_stream(
-            self.vault.clone().repo_files_get_file_reader(file_id).await,
+            self.vault
+                .clone()
+                .repo_files_get_file_reader(repo_id, path)
+                .await,
             force_blob,
         )
         .await

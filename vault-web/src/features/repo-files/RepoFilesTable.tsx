@@ -42,10 +42,11 @@ const FileName = memo<{ file: RepoFile }>(({ file }) => {
   const isMobile = useIsMobile();
   const theme = useTheme();
   const webVault = useWebVault();
-  const onClick = useCallback(
-    () => downloadFile(webVault, file, isMobile),
-    [webVault, file, isMobile]
-  );
+  const onClick = useCallback(() => {
+    if (file.path !== undefined) {
+      downloadFile(webVault, file.repoId, file.path, isMobile);
+    }
+  }, [webVault, file, isMobile]);
   const renameFile = useCallback(() => {
     if (file.path !== undefined) {
       webVault.repoFilesRenameFile(file.repoId, file.path);

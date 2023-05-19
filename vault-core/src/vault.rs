@@ -447,12 +447,13 @@ impl Vault {
 
     pub async fn repo_files_get_file_reader(
         &self,
-        file_id: &str,
+        repo_id: &str,
+        path: &str,
     ) -> Result<repo_files_read::state::RepoFileReader, repo_files_read::errors::GetFilesReaderError>
     {
         self.repo_files_service
             .clone()
-            .get_file_reader(file_id)
+            .get_file_reader(repo_id, path)
             .await
     }
 
