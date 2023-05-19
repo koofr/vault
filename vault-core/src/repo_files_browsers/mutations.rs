@@ -12,11 +12,12 @@ use crate::{
         state::{Selection, SelectionSummary},
     },
     store,
+    utils::path_utils,
 };
 
 use super::{
     selectors,
-    state::{RepoFilesBrowser, RepoFilesBrowserLocation},
+    state::{RepoFilesBrowser, RepoFilesBrowserLocation, RepoFilesBrowserOptions},
 };
 
 fn get_initial_status(
@@ -38,6 +39,7 @@ fn get_initial_status(
 
 pub fn create(
     state: &mut store::State,
+    options: RepoFilesBrowserOptions,
     location: Result<RepoFilesBrowserLocation, LoadFilesError>,
     repo_files_subscription_id: u32,
 ) -> u32 {
@@ -48,6 +50,7 @@ pub fn create(
     let status = get_initial_status(state, location.as_ref());
 
     let browser = RepoFilesBrowser {
+        options,
         location: location.ok(),
         status,
         file_ids: Vec::new(),
@@ -122,6 +125,8 @@ pub fn loaded(
             None => browser.status = Status::Loaded,
         }
     }
+
+    update_files(state, browser_id);
 }
 
 pub fn update_files(state: &mut store::State, browser_id: u32) -> bool {
@@ -156,7 +161,36 @@ pub fn update_files(state: &mut store::State, browser_id: u32) -> bool {
         dirty = true;
     }
 
+    let select_file_id = if let Some(name) = browser.options.select_name.clone() {
+        let file_id = browser
+            .location
+            .as_ref()
+            .map(|loc| {
+                repo_files_selectors::get_file_id(
+                    &loc.repo_id,
+                    &path_utils::join_path_name(&loc.path, &name),
+                )
+            })
+            .filter(|file_id| file_ids_set.contains(file_id));
+
+        if matches!(&browser.status, Status::Loaded) || file_id.is_some() {
+            browser.options.select_name = None;
+        }
+
+        file_id
+    } else {
+        None
+    };
+
     if selection_mutations::update_selection(&mut browser.selection, file_ids_set) {
+        dirty = true;
+    }
+
+    drop(browser);
+
+    if let Some(file_id) = select_file_id {
+        select_file(state, browser_id, &file_id, false, false, true);
+
         dirty = true;
     }
 

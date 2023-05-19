@@ -41,7 +41,13 @@ pub struct RepoFilesBrowserLocation {
 }
 
 #[derive(Clone)]
+pub struct RepoFilesBrowserOptions {
+    pub select_name: Option<String>,
+}
+
+#[derive(Clone)]
 pub struct RepoFilesBrowser {
+    pub options: RepoFilesBrowserOptions,
     pub location: Option<RepoFilesBrowserLocation>,
     pub status: Status<LoadFilesError>,
     pub file_ids: Vec<String>,

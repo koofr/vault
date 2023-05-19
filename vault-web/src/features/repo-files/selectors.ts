@@ -2,10 +2,26 @@ import { To } from 'react-router-dom';
 
 import { RepoFile } from '../../vault-wasm/vault-wasm';
 
-export const repoFilesLink = (repoId: string, path: string): To => ({
-  pathname: `/repos/${repoId}`,
-  search: `path=${encodeURIComponent(path)}`,
-});
+export const repoFilesLink = (
+  repoId: string,
+  path?: string,
+  name?: string
+): To => {
+  const search = new URLSearchParams();
+
+  if (path !== undefined) {
+    search.set('path', path);
+  }
+
+  if (name !== undefined) {
+    search.set('name', name);
+  }
+
+  return {
+    pathname: `/repos/${repoId}`,
+    search: search.toString(),
+  };
+};
 
 export const repoFilesDetailsLink = (repoId: string, path: string): To => ({
   pathname: `/repos/${repoId}/details`,

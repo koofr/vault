@@ -89,6 +89,9 @@ extern "C" {
     #[wasm_bindgen(typescript_type = "RepoFilesUploadResult | undefined")]
     pub type RepoFilesUploadResultOption;
 
+    #[wasm_bindgen(typescript_type = "RepoFilesBrowserOptions")]
+    pub type RepoFilesBrowserOptions;
+
     #[wasm_bindgen(typescript_type = "RepoFilesBrowserInfo | undefined")]
     pub type RepoFilesBrowserInfoOption;
 
@@ -1077,8 +1080,18 @@ impl WebVault {
     // repo_files_browsers
 
     #[wasm_bindgen(js_name = repoFilesBrowsersCreate)]
-    pub fn repo_files_browsers_create(&self, repo_id: &str, path: &str) -> u32 {
-        let (browser_id, load_future) = self.vault.repo_files_browsers_create(repo_id, path);
+    pub fn repo_files_browsers_create(
+        &self,
+        repo_id: &str,
+        path: &str,
+        options: RepoFilesBrowserOptions,
+    ) -> u32 {
+        let options: dto::RepoFilesBrowserOptions =
+            serde_wasm_bindgen::from_value(options.into()).unwrap();
+
+        let (browser_id, load_future) =
+            self.vault
+                .repo_files_browsers_create(repo_id, path, options.into());
 
         let errors = self.errors.clone();
 

@@ -514,13 +514,14 @@ impl Vault {
         &self,
         repo_id: &str,
         path: &str,
+        options: repo_files_browsers::state::RepoFilesBrowserOptions,
     ) -> (
         u32,
         BoxFuture<'static, Result<(), repo_files::errors::LoadFilesError>>,
     ) {
         self.repo_files_browsers_service
             .clone()
-            .create(repo_id, path)
+            .create(repo_id, path, options)
     }
 
     pub fn repo_files_browsers_destroy(&self, browser_id: u32) {

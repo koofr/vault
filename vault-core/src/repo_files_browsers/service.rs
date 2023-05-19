@@ -17,7 +17,10 @@ use crate::{
     utils::path_utils::normalize_path,
 };
 
-use super::{mutations, selectors, state::RepoFilesBrowserLocation};
+use super::{
+    mutations, selectors,
+    state::{RepoFilesBrowserLocation, RepoFilesBrowserOptions},
+};
 
 pub struct RepoFilesBrowsersService {
     repo_files_service: Arc<RepoFilesService>,
@@ -48,6 +51,7 @@ impl RepoFilesBrowsersService {
         self: Arc<Self>,
         repo_id: &str,
         path: &str,
+        options: RepoFilesBrowserOptions,
     ) -> (
         u32,
         BoxFuture<'static, Result<(), repo_files_errors::LoadFilesError>>,
@@ -59,7 +63,7 @@ impl RepoFilesBrowsersService {
         let browser_id = self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoFilesBrowsers);
 
-            mutations::create(state, location, repo_files_subscription_id)
+            mutations::create(state, options, location, repo_files_subscription_id)
         });
 
         let load_self = self.clone();

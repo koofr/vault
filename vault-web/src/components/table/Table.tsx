@@ -199,6 +199,7 @@ export const BaseTableRow = memo<PropsWithChildren<BaseTableRowProps>>(
         role="row"
         aria-rowindex={index}
         aria-label={ariaLabel}
+        aria-selected={isSelected}
       >
         {children}
       </div>

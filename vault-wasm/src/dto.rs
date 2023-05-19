@@ -740,6 +740,20 @@ impl From<repo_files_state::RepoFilesUploadResult> for RepoFilesUploadResult {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+pub struct RepoFilesBrowserOptions {
+    #[serde(rename = "selectName")]
+    pub select_name: Option<String>,
+}
+
+impl Into<repo_files_browsers_state::RepoFilesBrowserOptions> for RepoFilesBrowserOptions {
+    fn into(self) -> repo_files_browsers_state::RepoFilesBrowserOptions {
+        repo_files_browsers_state::RepoFilesBrowserOptions {
+            select_name: self.select_name,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub struct RepoFilesBrowserItem {
     #[serde(rename = "fileId")]
     pub file_id: String,
