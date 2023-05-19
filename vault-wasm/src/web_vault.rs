@@ -1269,6 +1269,27 @@ impl WebVault {
         self.handle_result(self.vault.repo_files_browsers_create_dir(browser_id).await)
     }
 
+    #[wasm_bindgen(js_name = repoFilesBrowsersCreateFile)]
+    pub async fn repo_files_browsers_create_file(
+        &self,
+        browser_id: u32,
+        name: &str,
+    ) -> Option<String> {
+        match self
+            .vault
+            .repo_files_browsers_create_file(browser_id, name)
+            .await
+        {
+            Ok(path) => Some(path),
+            Err(vault_core::repo_files::errors::CreateFileError::Canceled) => None,
+            Err(err) => {
+                self.handle_error(err);
+
+                None
+            }
+        }
+    }
+
     #[wasm_bindgen(js_name = repoFilesBrowsersDeleteSelected)]
     pub async fn repo_files_browsers_delete_selected(&self, browser_id: u32) {
         match self

@@ -1,14 +1,17 @@
 import { css } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { useDropdownMenu } from '@restart/ui/DropdownMenu';
+import format from 'date-fns/format';
 import { memo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { Menu, MenuItem } from '../../components/menu/Menu';
+import { Menu, MenuDivider, MenuItem } from '../../components/menu/Menu';
 import { useMenuUpdate } from '../../components/menu/useMenuUpdate';
 import { useWebVault } from '../../webVault/useWebVault';
 
 import { useRepoFilesBrowserId } from './RepoFilesBrowserId';
 import { useRepoFilesUploadApi } from './RepoFilesUploadForm';
+import { repoFilesDetailsLink } from './selectors';
 
 export const UploadFileItem = memo<{
   hide: () => void;
@@ -60,6 +63,38 @@ export const CreateDirItem = memo<{
   );
 });
 
+export const CreateTextFileItem = memo<{
+  hide: () => void;
+}>(({ hide }) => {
+  const navigate = useNavigate();
+  const webVault = useWebVault();
+  const browserId = useRepoFilesBrowserId();
+  const createFile = useCallback(() => {
+    const { repoId } = webVault.repoFilesBrowsersInfo(browserId)!;
+
+    const name = `new text file ${format(new Date(), 'yyyyMMddHHmmss')}.txt`;
+
+    webVault.repoFilesBrowsersCreateFile(browserId, name).then((path) => {
+      if (path !== undefined) {
+        navigate(repoFilesDetailsLink(repoId!, path, true));
+      }
+    });
+  }, [webVault, browserId, navigate]);
+
+  return (
+    <>
+      <MenuItem
+        onClick={() => {
+          hide();
+          createFile();
+        }}
+      >
+        Create new text file
+      </MenuItem>
+    </>
+  );
+});
+
 export const RepoFilesAddMenuContent = memo<{
   hide: () => void;
 }>(({ hide }) => {
@@ -68,6 +103,8 @@ export const RepoFilesAddMenuContent = memo<{
       <UploadFileItem hide={hide} />
       <UploadDirItem hide={hide} />
       <CreateDirItem hide={hide} />
+      <MenuDivider />
+      <CreateTextFileItem hide={hide} />
     </>
   );
 });

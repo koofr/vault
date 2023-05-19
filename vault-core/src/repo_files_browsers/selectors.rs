@@ -186,7 +186,7 @@ pub fn select_root_file<'a>(state: &'a store::State, browser_id: u32) -> Option<
         .and_then(|file_id| repo_files_selectors::select_file(state, &file_id))
 }
 
-pub fn select_check_create_dir(
+pub fn select_check_create_file(
     state: &store::State,
     browser_id: u32,
     name: &str,

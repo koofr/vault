@@ -598,6 +598,16 @@ impl Vault {
             .await
     }
 
+    pub async fn repo_files_browsers_create_file(
+        &self,
+        browser_id: u32,
+        name: &str,
+    ) -> Result<String, repo_files::errors::CreateFileError> {
+        self.repo_files_browsers_service
+            .create_file(browser_id, name)
+            .await
+    }
+
     pub async fn repo_files_browsers_delete_selected(
         &self,
         browser_id: u32,

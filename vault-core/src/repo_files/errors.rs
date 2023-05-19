@@ -114,6 +114,43 @@ impl UserError for CreateDirError {
 }
 
 #[derive(Error, Debug, Clone)]
+pub enum CreateFileError {
+    #[error("{0}")]
+    RepoNotFound(#[from] RepoNotFoundError),
+    #[error("{0}")]
+    RepoLocked(#[from] RepoLockedError),
+    #[error("{0}")]
+    DecryptFilenameError(#[from] DecryptFilenameError),
+    #[error("canceled")]
+    Canceled,
+    #[error("{0}")]
+    RemoteError(#[from] RemoteError),
+}
+
+impl UserError for CreateFileError {
+    fn user_error(&self) -> String {
+        match self {
+            Self::RemoteError(RemoteError::ApiError {
+                code: ApiErrorCode::AlreadyExists,
+                ..
+            }) => String::from("File with this name already exists."),
+            _ => self.to_string(),
+        }
+    }
+}
+
+impl From<UploadFileReaderError> for CreateFileError {
+    fn from(err: UploadFileReaderError) -> Self {
+        match err {
+            UploadFileReaderError::RepoNotFound(err) => Self::RepoNotFound(err),
+            UploadFileReaderError::RepoLocked(err) => Self::RepoLocked(err),
+            UploadFileReaderError::DecryptFilenameError(err) => Self::DecryptFilenameError(err),
+            UploadFileReaderError::RemoteError(err) => Self::RemoteError(err),
+        }
+    }
+}
+
+#[derive(Error, Debug, Clone)]
 pub enum EnsureDirError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
