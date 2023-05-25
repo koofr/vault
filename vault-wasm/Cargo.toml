@@ -10,26 +10,26 @@ crate-type = ["cdylib"]
 default = ["console_error_panic_hook"]
 
 [dependencies]
-async-trait = "0.1.57"
-console_error_panic_hook = { version = "0.1.6", optional = true }
-console_log = "0.2.0"
-futures = "0.3.24"
-getrandom = { version = "0.2.7", features = ["js"] }
+async-trait = "0.1.68"
+console_error_panic_hook = { version = "0.1.7", optional = true }
+console_log = "1.0.0"
+futures = "0.3.28"
+getrandom = { version = "0.2.9", features = ["js"] }
 gloo-timers = { version = "0.2.6", features = ["futures"] }
-http = "0.2.8"
+http = "0.2.9"
 instant = { version = "0.1.12", features = ["wasm-bindgen", "inaccurate"] }
-js-sys = "0.3.60"
+js-sys = "0.3.63"
 log = "0.4.17"
-serde = { version = "1.0.144", features = ["derive"] }
-serde-wasm-bindgen = "0.4.3"
-size = "0.4.0"
-thiserror = "1.0.35"
-tsify = { version = "0.4.2", features = ["js"] }
+serde = { version = "1.0.163", features = ["derive"] }
+serde-wasm-bindgen = "0.5.0"
+size = "0.4.1"
+thiserror = "1.0.40"
+tsify = { version = "0.4.4", features = ["js"] }
 vault-core = { path = "../vault-core" }
-wasm-bindgen = { version = "0.2.84" }
-wasm-bindgen-futures = "0.4.34"
+wasm-bindgen = "0.2.86"
+wasm-bindgen-futures = "0.4.36"
 wasm-streams = { git = "https://github.com/MattiasBuelens/wasm-streams", rev = "c0b3ee7677a7aa75c9500fd4f24a52219e808762" }
-web-sys = { version = "0.3.61", features = [
+web-sys = { version = "0.3.63", features = [
   'AbortController',
   'AbortSignal',
   'Blob',
