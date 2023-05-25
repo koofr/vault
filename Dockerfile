@@ -8,9 +8,9 @@ RUN apk add --no-cache musl-dev zip
 RUN cargo install empty-library || true
 
 RUN cd /tmp \
-  && wget https://github.com/rustwasm/wasm-pack/releases/download/v0.10.3/wasm-pack-v0.10.3-x86_64-unknown-linux-musl.tar.gz \
-  && tar xf wasm-pack-v0.10.3-x86_64-unknown-linux-musl.tar.gz \
-  && mv wasm-pack-v0.10.3-x86_64-unknown-linux-musl/wasm-pack /usr/local/bin/wasm-pack
+  && wget https://github.com/rustwasm/wasm-pack/releases/download/v0.12.1/wasm-pack-v0.12.1-x86_64-unknown-linux-musl.tar.gz \
+  && tar xf wasm-pack-v0.12.1-x86_64-unknown-linux-musl.tar.gz \
+  && mv wasm-pack-v0.12.1-x86_64-unknown-linux-musl/wasm-pack /usr/local/bin/wasm-pack
 
 COPY Cargo.toml Cargo.toml
 COPY Cargo.lock Cargo.lock

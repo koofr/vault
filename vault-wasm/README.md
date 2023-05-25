@@ -2,6 +2,14 @@
 
 `vault-wasm` contains the WebAssembly bindings for the Vault core engine.
 
+## Dependencies
+
+Install `wasm-pack`:
+
+```sh
+cargo install --version 0.12.1 wasm-pack
+```
+
 ## vault-wasm-web
 
 Build the WebAssembly package using `wasm-pack` (development build):
