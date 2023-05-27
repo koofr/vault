@@ -1,6 +1,8 @@
 import { css } from '@emotion/css';
 import { memo, ReactNode } from 'react';
 
+import { useDocumentTitle } from '../../utils/useDocumentTitle';
+
 import { LoadingCircle } from '../LoadingCircle';
 
 import { DashboardNavbar } from './DashboardNavbar';
@@ -8,6 +10,8 @@ import { DashboardNavbar } from './DashboardNavbar';
 export const DashboardLoading = memo<{
   navbarHeader?: ReactNode;
 }>(({ navbarHeader }) => {
+  useDocumentTitle('Loading');
+
   return (
     <>
       <DashboardNavbar header={navbarHeader ?? ''} />

@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 
 import { DashboardLayout } from '../../components/dashboard/DashboardLayout';
 import { useIsMobile } from '../../components/useIsMobile';
+import { useDocumentTitle } from '../../utils/useDocumentTitle';
 import { Repo } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
 
@@ -38,6 +39,17 @@ export const RepoFiles = memo<{ repo: Repo }>(({ repo }) => {
     (v) => v.repoFilesBrowsersInfoData,
     [browserId]
   );
+
+  const [breadcrumbs] = useSubscribe(
+    (v, cb) => v.repoFilesBrowsersBreadcrumbsSubscribe(browserId, cb),
+    (v) => v.repoFilesBrowsersBreadcrumbsData,
+    [browserId]
+  );
+  const documentTitle = useMemo(
+    () => breadcrumbs.map((bc) => bc.name).join(' › '),
+    [breadcrumbs]
+  );
+  useDocumentTitle(documentTitle);
 
   const uploadApi: RepoFilesUploadApi = useMemo(() => ({}), []);
 

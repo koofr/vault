@@ -6,6 +6,7 @@ import { AutoFocusPasswordInput } from '../../components/PasswordInput';
 import { DashboardLayout } from '../../components/dashboard/DashboardLayout';
 import { useSingleNavbarBreadcrumb } from '../../components/navbar/useSingleNavbarBreadcrumb';
 import { useIsMobile } from '../../components/useIsMobile';
+import { useDocumentTitle } from '../../utils/useDocumentTitle';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
 
@@ -33,6 +34,7 @@ export const RepoUnlock = memo<{ repoId: string }>(({ repoId }) => {
     [webVault, password]
   );
   const navbarHeader = useSingleNavbarBreadcrumb(info?.repoName ?? '');
+  useDocumentTitle(info?.repoName);
 
   if (info === undefined) {
     return null;

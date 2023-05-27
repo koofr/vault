@@ -12,6 +12,7 @@ import { DashboardLayout } from '../../components/dashboard/DashboardLayout';
 import { useSingleNavbarBreadcrumb } from '../../components/navbar/useSingleNavbarBreadcrumb';
 import { useIsMobile } from '../../components/useIsMobile';
 import { buttonReset } from '../../styles/mixins/buttons';
+import { useDocumentTitle } from '../../utils/useDocumentTitle';
 import { RepoCreated, RepoCreateForm } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
@@ -459,6 +460,7 @@ export const RepoCreate = memo(() => {
     };
   }, [webVault]);
   const navbarHeader = useSingleNavbarBreadcrumb('Create a new Safe Box');
+  useDocumentTitle('Create a new Safe Box');
 
   return (
     <DashboardLayout navbarHeader={navbarHeader}>

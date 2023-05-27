@@ -7,6 +7,7 @@ import { DashboardLayout } from '../../components/dashboard/DashboardLayout';
 import { DashboardLoading } from '../../components/dashboard/DashboardLoading';
 import { useSingleNavbarBreadcrumb } from '../../components/navbar/useSingleNavbarBreadcrumb';
 import { useIsMobile } from '../../components/useIsMobile';
+import { useDocumentTitle } from '../../utils/useDocumentTitle';
 import { useModal } from '../../utils/useModal';
 import { Repo } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
@@ -24,6 +25,7 @@ export const RepoInfoRepo = memo<{ repo: Repo }>(({ repo }) => {
     removeModalShow(repo);
   }, [removeModalShow, repo]);
   const navbarHeader = useSingleNavbarBreadcrumb(repo.name);
+  useDocumentTitle(repo.name);
 
   return (
     <DashboardLayout navbarHeader={navbarHeader}>

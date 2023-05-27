@@ -4,8 +4,11 @@ import { memo } from 'react';
 import errorIconImage from '../assets/images/error-icon@2x.png';
 import { LinkButton } from '../components/Button';
 import { Navbar } from '../components/navbar/Navbar';
+import { useDocumentTitle } from '../utils/useDocumentTitle';
 
 export const NotFoundPage = memo(() => {
+  useDocumentTitle('Page not found');
+
   return (
     <>
       <Navbar

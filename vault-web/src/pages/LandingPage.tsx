@@ -36,6 +36,7 @@ import { GitRevision } from '../components/GitRevision';
 import { RetinaImage } from '../components/RetinaImage';
 import { buttonStyle } from '../styles/mixins/buttons';
 import { allStates } from '../styles/mixins/hover';
+import { useDocumentTitle } from '../utils/useDocumentTitle';
 
 import { setLoginRedirect } from './loginRedirect';
 
@@ -105,6 +106,7 @@ export const LandingPage = memo(() => {
   const navigate = useNavigate();
   const location = useLocation();
   const locationRelUrl = location.pathname + location.search;
+  useDocumentTitle();
 
   useEffect(() => {
     if (locationRelUrl !== '/') {

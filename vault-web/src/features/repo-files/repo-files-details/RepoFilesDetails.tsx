@@ -5,6 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useDocumentSize } from '../../../components/DocumentSize';
 import { ErrorComponent } from '../../../components/ErrorComponent';
 import { LoadingCircle } from '../../../components/LoadingCircle';
+import { useDocumentTitle } from '../../../utils/useDocumentTitle';
 import { usePreventUnload } from '../../../utils/usePreventUnload';
 import { Repo } from '../../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../../webVault/useSubscribe';
@@ -31,6 +32,8 @@ const RepoFilesDetailsInner = memo<{
     (v) => v.repoFilesDetailsInfoData,
     [detailsId]
   );
+
+  useDocumentTitle(info?.fileName);
 
   useEffect(() => {
     if (
