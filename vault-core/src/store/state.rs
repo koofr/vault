@@ -35,24 +35,9 @@ pub struct State {
 
 impl State {
     pub fn reset(&mut self) {
-        // config is not reset
-        self.notifications = Default::default();
-        self.dialogs = Default::default();
-        self.oauth2 = Default::default();
-        self.user = Default::default();
-        self.remote_files = Default::default();
-        self.repos = Default::default();
-        self.repo_create = Default::default();
-        self.repo_unlock = Default::default();
-        self.repo_remove = Default::default();
-        self.repo_config_backup = Default::default();
-        self.repo_space_usage = Default::default();
-        self.repo_files = Default::default();
-        self.repo_files_browsers = Default::default();
-        self.repo_files_details = Default::default();
-        self.repo_files_move = Default::default();
-        self.uploads = Default::default();
-        self.dir_pickers = Default::default();
-        self.space_usage = Default::default();
+        *self = State {
+            config: self.config.clone(),
+            ..Default::default()
+        };
     }
 }
