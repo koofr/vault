@@ -2,6 +2,7 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "moduleResolution": "node",
+    "noEmit": true,
   },
   "include": [
     "."

@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "scripts": {
     "test": "npx playwright test",
-    "eslint": "eslint ."
+    "eslint": "eslint .",
+    "tsc": "tsc"
   },
   "engines": {
     "node": ">=18"
