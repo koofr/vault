@@ -376,19 +376,20 @@ impl Vault {
 
     // repo_unlock
 
-    pub fn repo_unlock_init(&self, repo_id: &str) {
-        self.repo_unlock_service.init(repo_id)
+    pub fn repo_unlock_create(&self, repo_id: &str) -> u32 {
+        self.repo_unlock_service.create(repo_id)
     }
 
     pub async fn repo_unlock_unlock(
         &self,
+        unlock_id: u32,
         password: &str,
     ) -> Result<(), repos::errors::UnlockRepoError> {
-        self.repo_unlock_service.unlock(password).await
+        self.repo_unlock_service.unlock(unlock_id, password).await
     }
 
-    pub fn repo_unlock_destroy(&self, repo_id: &str) {
-        self.repo_unlock_service.destroy(repo_id)
+    pub fn repo_unlock_destroy(&self, unlock_id: u32) {
+        self.repo_unlock_service.destroy(unlock_id)
     }
 
     // repo_remove

@@ -13,25 +13,28 @@ import { useWebVault } from '../../webVault/useWebVault';
 export const RepoUnlock = memo<{ repoId: string }>(({ repoId }) => {
   const isMobile = useIsMobile();
   const webVault = useWebVault();
-  useMemo(() => webVault.repoUnlockInit(repoId), [webVault, repoId]);
+  let unlockId = useMemo(
+    () => webVault.repoUnlockInit(repoId),
+    [webVault, repoId]
+  );
   useEffect(() => {
     return () => {
-      webVault.repoUnlockDestroy(repoId);
+      webVault.repoUnlockDestroy(unlockId);
     };
-  }, [webVault, repoId]);
+  }, [webVault, unlockId]);
   const [info] = useSubscribe(
-    (v, cb) => v.repoUnlockInfoSubscribe(cb),
+    (v, cb) => v.repoUnlockInfoSubscribe(unlockId, cb),
     (v) => v.repoUnlockInfoData,
-    []
+    [unlockId]
   );
   const [password, setPassword] = useState('');
   const onSubmit = useCallback(
     (event: React.FormEvent) => {
       event.preventDefault();
 
-      webVault.repoUnlockUnlock(password);
+      webVault.repoUnlockUnlock(unlockId, password);
     },
-    [webVault, password]
+    [webVault, unlockId, password]
   );
   const navbarHeader = useSingleNavbarBreadcrumb(info?.repoName ?? '');
   useDocumentTitle(info?.repoName);

@@ -46,9 +46,9 @@ async function main() {
 
   const repo = repos.repos[0];
 
-  client.webVault.repoUnlockInit(repo.id);
-  await client.webVault.repoUnlockUnlock('password');
-  client.webVault.repoUnlockDestroy(repo.id);
+  const unlockId = client.webVault.repoUnlockInit(repo.id);
+  await client.webVault.repoUnlockUnlock(unlockId, 'password');
+  client.webVault.repoUnlockDestroy(unlockId);
 
   const browserId = client.webVault.repoFilesBrowsersCreate(repo.id, '/', {
     selectName: undefined,

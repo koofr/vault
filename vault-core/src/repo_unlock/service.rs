@@ -1,15 +1,11 @@
 use std::sync::Arc;
 
 use crate::{
-    common::state::Status,
-    repos::{
-        errors::{RepoNotFoundError, UnlockRepoError},
-        ReposService,
-    },
+    repos::{errors::UnlockRepoError, ReposService},
     store,
 };
 
-use super::state::RepoUnlockState;
+use super::mutations;
 
 pub struct RepoUnlockService {
     repos_service: Arc<ReposService>,
@@ -24,60 +20,31 @@ impl RepoUnlockService {
         }
     }
 
-    pub fn init(&self, repo_id: &str) {
+    pub fn create(&self, repo_id: &str) -> u32 {
         self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoUnlock);
 
-            state.repo_unlock = Some(RepoUnlockState {
-                repo_id: repo_id.to_owned(),
-                status: Status::Initial,
-            });
-        });
+            mutations::create(state, notify, repo_id)
+        })
     }
 
-    pub async fn unlock(&self, password: &str) -> Result<(), UnlockRepoError> {
-        let repo_id = match self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoUnlock);
-
-            if let Some(ref mut repo_unlock) = state.repo_unlock {
-                repo_unlock.status = Status::Loading;
-            }
-
-            state
-                .repo_unlock
-                .as_ref()
-                .map(|repo_unlock| repo_unlock.repo_id.clone())
-        }) {
-            Some(repo_id) => repo_id,
-            None => {
-                return Err(UnlockRepoError::RepoNotFound(RepoNotFoundError));
-            }
-        };
+    pub async fn unlock(&self, unlock_id: u32, password: &str) -> Result<(), UnlockRepoError> {
+        let repo_id = self
+            .store
+            .mutate(|state, notify, _, _| mutations::unlocking(state, notify, unlock_id))?;
 
         let res = self.repos_service.unlock_repo(&repo_id, password).await;
 
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoUnlock);
-
-            if let Some(ref mut repo_unlock) = state.repo_unlock {
-                repo_unlock.status = match &res {
-                    Ok(()) => Status::Loaded,
-                    Err(err) => Status::Error { error: err.clone() },
-                };
-            }
+            mutations::unlocked(state, notify, unlock_id, res.clone());
         });
 
         res
     }
 
-    pub fn destroy(&self, repo_id: &str) {
+    pub fn destroy(&self, unlock_id: u32) {
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoUnlock);
-
-            if state.repo_unlock.is_some() && state.repo_unlock.as_ref().unwrap().repo_id == repo_id
-            {
-                state.repo_unlock = None;
-            }
+            mutations::destroy(state, notify, unlock_id);
         })
     }
 }

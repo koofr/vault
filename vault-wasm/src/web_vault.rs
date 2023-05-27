@@ -670,15 +670,20 @@ impl WebVault {
 
     // repo_unlock
 
+    #[wasm_bindgen(js_name = repoUnlockInit)]
+    pub fn repo_unlock_create(&self, repo_id: &str) -> u32 {
+        self.vault.repo_unlock_create(repo_id)
+    }
+
     #[wasm_bindgen(js_name = repoUnlockInfoSubscribe)]
-    pub fn repo_unlock_info_subscribe(&self, cb: js_sys::Function) -> u32 {
+    pub fn repo_unlock_info_subscribe(&self, unlock_id: u32, cb: js_sys::Function) -> u32 {
         self.subscribe(
             &[Event::RepoUnlock],
             cb,
             self.subscription_data.repo_unlock_info.clone(),
             move |vault| {
                 vault.with_state(|state| {
-                    vault_core::repo_unlock::selectors::select_info(state).map(|info| {
+                    vault_core::repo_unlock::selectors::select_info(state, unlock_id).map(|info| {
                         dto::RepoUnlockInfo {
                             status: info.status.into(),
                             repo_name: info.repo_name.map(str::to_string),
@@ -694,19 +699,14 @@ impl WebVault {
         self.get_data_js(id, self.subscription_data.repo_unlock_info.clone())
     }
 
-    #[wasm_bindgen(js_name = repoUnlockInit)]
-    pub fn repo_unlock_init(&self, repo_id: &str) {
-        self.vault.repo_unlock_init(repo_id)
-    }
-
     #[wasm_bindgen(js_name = repoUnlockUnlock)]
-    pub async fn repo_unlock_unlock(&self, password: &str) {
-        let _ = self.vault.repo_unlock_unlock(password).await;
+    pub async fn repo_unlock_unlock(&self, unlock_id: u32, password: &str) {
+        let _ = self.vault.repo_unlock_unlock(unlock_id, password).await;
     }
 
     #[wasm_bindgen(js_name = repoUnlockDestroy)]
-    pub fn repo_unlock_destroy(&self, repo_id: &str) {
-        self.vault.repo_unlock_destroy(repo_id)
+    pub fn repo_unlock_destroy(&self, unlock_id: u32) {
+        self.vault.repo_unlock_destroy(unlock_id)
     }
 
     // repo_remove

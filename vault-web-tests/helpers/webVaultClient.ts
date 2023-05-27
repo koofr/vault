@@ -187,9 +187,13 @@ export class WebVaultClient {
   }
 
   async unlockRepo(repo: Repo, password = 'password'): Promise<void> {
-    this.webVault.repoUnlockInit(repo.id);
-    await this.webVault.repoUnlockUnlock(password);
-    this.webVault.repoUnlockDestroy(repo.id);
+    const unlockId = this.webVault.repoUnlockInit(repo.id);
+
+    try {
+      await this.webVault.repoUnlockUnlock(unlockId, password);
+    } finally {
+      this.webVault.repoUnlockDestroy(unlockId);
+    }
   }
 
   async getFileContent(
