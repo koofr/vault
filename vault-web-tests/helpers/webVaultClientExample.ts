@@ -50,7 +50,9 @@ async function main() {
   await client.webVault.repoUnlockUnlock('password');
   client.webVault.repoUnlockDestroy(repo.id);
 
-  const browserId = client.webVault.repoFilesBrowsersCreate(repo.id, '/');
+  const browserId = client.webVault.repoFilesBrowsersCreate(repo.id, '/', {
+    selectName: undefined,
+  });
 
   await client.waitFor(
     (v, cb) => v.repoFilesBrowsersInfoSubscribe(browserId, cb),
@@ -108,7 +110,8 @@ async function main() {
   console.log('Download file');
 
   const downloadStream = await client.webVault.repoFilesGetFileStream(
-    fileId,
+    file.repoId,
+    file.path,
     false
   );
 
