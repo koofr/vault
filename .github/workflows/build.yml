@@ -15,10 +15,11 @@ jobs:
       - name: Build static files
         run: |
           GIT_REVISION=$(git rev-parse --short HEAD)
-          docker buildx build --build-arg GIT_REVISION="$GIT_REVISION" --target static-stage -t vault-static --cache-from=type=gha --cache-to=type=gha,mode=max --load .
-          docker run --rm vault-static cat vault-web.tar.gz > vault-web.tar.gz
+          docker buildx build --build-arg GIT_REVISION="$GIT_REVISION" --target ci-stage -t vault-ci --cache-from=type=gha --cache-to=type=gha,mode=max --load .
+          docker run --rm vault-ci cat vault-web.tar.gz > vault-web.tar.gz
           sha256sum vault-web.tar.gz | awk '{print $1}' > vault-web.tar.gz.sha256
-          docker run --rm vault-static cat vault-wasm-nodejs.tar.gz > vault-wasm-nodejs.tar.gz
+          docker run --rm vault-ci cat vault-wasm-nodejs.tar.gz > vault-wasm-nodejs.tar.gz
+          docker run --rm vault-ci cat fake_remote > fake_remote
       - uses: actions/upload-artifact@v3
         with:
           name: vault-web
@@ -28,6 +29,11 @@ jobs:
         with:
           name: vault-wasm-nodejs
           path: vault-wasm-nodejs.tar.gz*
+          retention-days: 30
+      - uses: actions/upload-artifact@v3
+        with:
+          name: vault-fake-remote
+          path: fake_remote
           retention-days: 30
 
   cargo-test:
@@ -80,6 +86,9 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: vault-wasm-nodejs
+      - uses: actions/download-artifact@v3
+        with:
+          name: vault-fake-remote
       - name: Unpack vault-web into dist
         run: |
           mkdir dist
@@ -92,11 +101,12 @@ jobs:
           cd vault-wasm-nodejs
           tar xf ../../vault-wasm-nodejs.tar.gz
         working-directory: vault-web-tests
+      - name: Prepare fake remote
+        run: |
+          chmod +x fake_remote
       - name: Prepare credentials
         run: node scripts/generate-playwright-auth-user.js
         working-directory: vault-web-tests
-        env:
-          VAULT_OAUTH2_TOKEN: ${{ secrets.VAULT_OAUTH2_TOKEN }}
       - name: Run eslint
         run: npm run eslint
         working-directory: vault-web-tests
@@ -104,7 +114,15 @@ jobs:
         run: npm run tsc
         working-directory: vault-web-tests
       - name: Run Playwright tests
-        run: npx playwright test
+        run: |
+          ../fake_remote &
+
+          sleep 1
+
+          scripts/use-fake-remote.sh ../vault-web/public/config.json
+          scripts/use-fake-remote.sh ../vault-web/dist/config.json
+
+          npx playwright test
         working-directory: vault-web-tests
       - uses: actions/upload-artifact@v3
         if: always()

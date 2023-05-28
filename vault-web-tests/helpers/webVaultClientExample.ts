@@ -4,7 +4,7 @@ import { WebVaultClient } from './webVaultClient';
 
 async function main() {
   const baseUrl = config.baseUrl;
-  const oauth2Token = getOAuth2Token();
+  const oauth2Token = getOAuth2Token(0);
   const oauth2ClientId = config.oauth2ClientId;
   const oauth2ClientSecret = config.oauth2ClientSecret;
   const oauth2RedirectUri = 'http://localhost:5173/oauth2callback';

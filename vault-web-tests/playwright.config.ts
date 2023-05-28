@@ -1,11 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 
 import { baseUrl } from './helpers/baseUrl';
-import { storageStatePath } from './helpers/storageState';
+import { workersCount } from './helpers/storageState';
 import { ignoreHTTPSErrors } from './helpers/vaultConfig';
 
 const defaultUse = {
-  storageState: storageStatePath,
   contextOptions: {
     ignoreHTTPSErrors,
   },
@@ -23,7 +22,7 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: 1,
+  workers: workersCount,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
