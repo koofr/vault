@@ -2,6 +2,9 @@
 FROM rust@sha256:3dd0bb6f134635fe40dd9c18bd9603f9d90ce3538ac25ae3e69b9b127137acf2 AS wasm-stage
 WORKDIR /app
 
+ENV CI=true
+ENV CARGO_INCREMENTAL=false
+
 RUN apk add --no-cache musl-dev zip
 
 # dummy cargo install to update the index to speed up future builds
