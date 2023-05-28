@@ -59,6 +59,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
+          args: -p vault-core
 
   playwright:
     timeout-minutes: 60
