@@ -40,6 +40,10 @@ export const NavbarNavItem = memo(
                 margin-right: 6px;
                 margin-bottom: 5px;
                 min-width: 45px;
+
+                &:last-of-type {
+                  margin-right: 0;
+                }
               `
         )}
         {...props}

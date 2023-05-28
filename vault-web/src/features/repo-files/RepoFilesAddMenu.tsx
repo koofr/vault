@@ -111,7 +111,11 @@ export const RepoFilesAddMenuContent = memo<{
 
 export const RepoFilesAddMenu = memo(() => {
   const theme = useTheme();
-  const [props, { show, popper, toggle }] = useDropdownMenu();
+  const [props, { show, popper, toggle }] = useDropdownMenu({
+    popperConfig: {
+      strategy: 'fixed',
+    },
+  });
   useMenuUpdate(show, popper);
 
   return (

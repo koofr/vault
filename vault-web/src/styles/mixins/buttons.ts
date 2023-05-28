@@ -13,7 +13,7 @@ ${allStates} {
   text-decoration: none;
 }`;
 
-export const buttonHoverTransition = `all 0.2s ease-in-out`;
+export const buttonHoverTransition = `background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out`;
 
 export const buttonStyle = (
   bgColor: string,

@@ -43,6 +43,7 @@ export const NavbarMain = memo<{
             ${noShadow ? theme.colors.border : 'transparent'};
           height: ${getNavbarHeight(theme.isMobile)}px;
           padding: 0 ${theme.isMobile ? theme.gutterMobile : theme.gutter};
+          overflow: hidden;
         `,
         isSticky
           ? css`
@@ -74,31 +75,43 @@ export const NavbarMain = memo<{
         `}
       ></div>
       <div
-        className={css`
-          font-size: 14px;
-          font-weight: normal;
-          color: ${theme.colors.text};
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          overflow: hidden;
-          flex-grow: 1;
-        `}
-        aria-label="Navbar header"
-      >
-        {header}
-      </div>
-      {nav !== undefined ? (
-        <div
-          className={css`
-            flex-shrink: 0;
+        className={cx(
+          css`
+            flex-grow: 1;
             display: flex;
             align-items: center;
+            overflow-x: auto;
+          `
+        )}
+      >
+        <div
+          className={css`
+            font-size: 14px;
+            font-weight: normal;
+            color: ${theme.colors.text};
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            flex-grow: 1;
+            flex-shrink: 0;
           `}
-          aria-label="Navbar nav"
+          aria-label="Navbar header"
         >
-          {nav}
+          {header}
         </div>
-      ) : null}
+        {nav !== undefined ? (
+          <div
+            className={css`
+              flex-shrink: 0;
+              display: flex;
+              align-items: center;
+            `}
+            aria-label="Navbar nav"
+          >
+            {nav}
+          </div>
+        ) : null}
+      </div>
       <div
         className={css`
           width: 0px;
