@@ -130,6 +130,15 @@ pub enum RepoFileSize {
     },
 }
 
+impl RepoFileSize {
+    pub fn decrypted_size(&self) -> Result<i64, DecryptSizeError> {
+        match self {
+            Self::Decrypted { size } => Ok(*size),
+            Self::DecryptError { error, .. } => Err(error.clone()),
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct RepoFile {
     pub id: String,
@@ -164,6 +173,10 @@ impl RepoFile {
                 ..
             } => encrypted_name_lower,
         }
+    }
+
+    pub fn decrypted_size(&self) -> Result<i64, DecryptSizeError> {
+        self.size.decrypted_size()
     }
 
     pub fn size_force(&self) -> i64 {
