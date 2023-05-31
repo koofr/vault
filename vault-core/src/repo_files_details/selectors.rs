@@ -199,7 +199,7 @@ pub fn select_info<'a>(state: &'a store::State, details_id: u32) -> Option<RepoF
         let (file_name, file_ext, file_category) = {
             file.map(|file| {
                 (
-                    repo_files_selectors::select_file_name(state, file),
+                    repo_files_selectors::select_file_name(state, file).ok(),
                     file.ext.clone(),
                     Some(file.category.clone()),
                 )
@@ -279,7 +279,7 @@ pub fn select_file<'a>(state: &'a store::State, details_id: u32) -> Option<&'a R
 
 pub fn select_file_name<'a>(state: &'a store::State, details_id: u32) -> Option<&'a str> {
     select_file(state, details_id)
-        .and_then(|file| repo_files_selectors::select_file_name(state, file))
+        .and_then(|file| repo_files_selectors::select_file_name(state, file).ok())
         .or_else(|| {
             select_details_location(state, details_id)
                 .map(|loc| loc.path.as_str())

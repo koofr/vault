@@ -1503,6 +1503,7 @@ impl WebVault {
                                         vault_core::repo_files::selectors::select_file_name(
                                             state, file,
                                         )
+                                        .ok()
                                     })
                                     .map(str::to_string),
                             create_dir_enabled:

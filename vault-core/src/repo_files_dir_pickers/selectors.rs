@@ -59,8 +59,8 @@ fn select_items_visit_file(
         _ => false,
     };
     let name = match repo_files_selectors::select_file_name(state, file) {
-        Some(name) => name,
-        None => {
+        Ok(name) => name,
+        Err(_) => {
             return;
         }
     };

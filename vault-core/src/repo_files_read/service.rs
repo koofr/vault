@@ -273,6 +273,7 @@ impl RepoFilesReadService {
                 .filter_map(|file| {
                     repo_files_selectors::select_file_name(state, file)
                         .map(|name| (file.id.clone(), name.to_owned()))
+                        .ok()
                 })
                 .collect::<HashMap<String, String>>();
 

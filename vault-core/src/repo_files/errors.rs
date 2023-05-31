@@ -55,6 +55,14 @@ pub enum LoadFileError {
     RemoteError(#[from] RemoteError),
 }
 
+#[derive(Error, Debug, Clone, UserError)]
+pub enum FileNameError {
+    #[error("{0}")]
+    RepoNotFound(#[from] RepoNotFoundError),
+    #[error("{0}")]
+    DecryptFilenameError(#[from] DecryptFilenameError),
+}
+
 #[derive(Error, Debug, Clone)]
 pub enum DecryptFilesError {
     #[error("{0}")]

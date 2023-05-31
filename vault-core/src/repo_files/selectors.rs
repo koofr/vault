@@ -12,7 +12,7 @@ use crate::{
 };
 
 use super::{
-    errors::{RenameFileError, RepoFilesErrors},
+    errors::{FileNameError, RenameFileError, RepoFilesErrors},
     state::{RepoFile, RepoFileType, RepoFilesBreadcrumb, RepoFilesSort, RepoFilesSortField},
 };
 
@@ -59,16 +59,16 @@ pub fn select_file<'a>(state: &'a store::State, file_id: &str) -> Option<&'a Rep
     state.repo_files.files.get(file_id)
 }
 
-pub fn select_file_name<'a>(state: &'a store::State, file: &'a RepoFile) -> Option<&'a str> {
+pub fn select_file_name<'a>(
+    state: &'a store::State,
+    file: &'a RepoFile,
+) -> Result<&'a str, FileNameError> {
     match file.decrypted_path() {
-        Ok("/") => repos_selectors::select_repo(state, &file.repo_id)
-            .ok()
-            .map(|repo| repo.name.as_str()),
-        Ok(_) => match file.decrypted_name() {
-            Ok(name) => Some(name),
-            _ => None,
-        },
-        _ => None,
+        Ok("/") => Ok(
+            repos_selectors::select_repo(state, &file.repo_id).map(|repo| repo.name.as_str())?
+        ),
+        Ok(_) => Ok(file.decrypted_name()?),
+        Err(err) => Err(err.into()),
     }
 }
 
