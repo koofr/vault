@@ -5,12 +5,14 @@ use futures::{
     AsyncRead, AsyncReadExt,
 };
 use thiserror::Error;
-use vault_core::user_error::UserError;
+use vault_core::{common::state::SizeInfo, user_error::UserError};
 use wasm_bindgen::{prelude::*, JsCast};
 use wasm_bindgen_futures::JsFuture;
 use wasm_streams::ReadableStream;
 
 use vault_core::cipher::constants::BLOCK_SIZE;
+
+use crate::dto;
 
 #[wasm_bindgen(module = "/js/helpers.js")]
 extern "C" {
@@ -117,7 +119,7 @@ pub enum ReaderToFileStreamError {
 pub async fn reader_to_file_stream(
     name: &str,
     reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
-    size: Option<i64>,
+    size: SizeInfo,
     content_type: Option<&str>,
     force_blob: bool,
 ) -> Result<JsValue, ReaderToFileStreamError> {
@@ -125,9 +127,12 @@ pub async fn reader_to_file_stream(
 
     js_sys::Reflect::set(&file_stream, &JsValue::from("name"), &JsValue::from(name)).unwrap();
 
-    if let Some(size) = size {
-        js_sys::Reflect::set(&file_stream, &JsValue::from("size"), &JsValue::from(size)).unwrap();
-    }
+    js_sys::Reflect::set(
+        &file_stream,
+        &JsValue::from("size"),
+        &JsValue::from(serde_wasm_bindgen::to_value(&Into::<dto::SizeInfo>::into(&size)).unwrap()),
+    )
+    .unwrap();
 
     if supports_readable_byte_stream() && !force_blob {
         let stream = ReadableStream::from_async_read(reader, 1024 * 1024);

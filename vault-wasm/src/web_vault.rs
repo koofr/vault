@@ -29,7 +29,7 @@ export interface FileStream {
   name: string;
   stream?: ReadableStream;
   blob?: Blob;
-  size?: bigint;
+  size: SizeInfo;
 }
 "#;
 

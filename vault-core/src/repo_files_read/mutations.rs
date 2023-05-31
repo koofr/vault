@@ -1,11 +1,34 @@
 use crate::{
-    cipher::errors::DecryptFilenameError,
     remote::RemoteError,
     repo_files::state::{RepoFile, RepoFileType},
     repo_files_list::{errors::FilesListRecursiveItemError, state::RepoFilesListRecursiveItem},
 };
 
-use super::state::RemoteZipEntry;
+use super::{errors::GetFilesReaderError, state::RemoteZipEntry};
+
+pub fn zip_size_estimate(entries: &[RemoteZipEntry]) -> i64 {
+    // footer
+    let mut size: i64 = 98;
+
+    for entry in entries {
+        match entry.typ {
+            RepoFileType::Dir => {
+                // file
+                size += 30 + entry.filename.len() as i64;
+                // directory entry
+                size += 46 + entry.filename.len() as i64;
+            }
+            RepoFileType::File => {
+                // file
+                size += 66 + entry.filename.len() as i64 + entry.size;
+                // directory entry
+                size += 66 + entry.filename.len() as i64;
+            }
+        }
+    }
+
+    size
+}
 
 pub fn zip_date_time_from_millis(millis: i64) -> async_zip_futures::ZipDateTime {
     // millis < 1980-01-01 00:00:00 UTC
@@ -50,6 +73,14 @@ pub fn list_recursive_items_to_remote_zip_entries(
                     RepoFileType::File => relative_repo_path[1..].to_owned(),
                 };
 
+                let size = match file.decrypted_size() {
+                    Ok(size) => size,
+                    Err(_) => {
+                        // skip non-decrypted files
+                        continue;
+                    }
+                };
+
                 entries.push(RemoteZipEntry {
                     mount_id: file.mount_id.clone(),
                     remote_path: file.remote_path.clone(),
@@ -57,6 +88,7 @@ pub fn list_recursive_items_to_remote_zip_entries(
                     filename,
                     modified: zip_date_time_from_millis(file.modified),
                     typ: file.typ,
+                    size,
                 });
             }
             RepoFilesListRecursiveItem::Error { error, .. } => {
@@ -77,7 +109,7 @@ pub fn list_recursive_items_to_remote_zip_entries(
     Ok(entries)
 }
 
-pub fn file_to_remote_zip_entry(file: &RepoFile) -> Result<RemoteZipEntry, DecryptFilenameError> {
+pub fn file_to_remote_zip_entry(file: &RepoFile) -> Result<RemoteZipEntry, GetFilesReaderError> {
     Ok(RemoteZipEntry {
         mount_id: file.mount_id.clone(),
         remote_path: file.remote_path.clone(),
@@ -85,6 +117,7 @@ pub fn file_to_remote_zip_entry(file: &RepoFile) -> Result<RemoteZipEntry, Decry
         filename: file.decrypted_name().map(str::to_string)?,
         modified: zip_date_time_from_millis(file.modified),
         typ: file.typ.clone(),
+        size: file.decrypted_size()?,
     })
 }
 
@@ -102,7 +135,7 @@ mod tests {
             errors::FilesListRecursiveItemError, state::RepoFilesListRecursiveItem,
             test_helpers as repo_files_list_test_helpers,
         },
-        repo_files_read::state::RemoteZipEntry,
+        repo_files_read::{errors::GetFilesReaderError, state::RemoteZipEntry},
     };
 
     use super::{
@@ -197,6 +230,7 @@ mod tests {
                     repo_id: String::from("r1"),
                     modified: async_zip_futures::ZipDateTime::default(),
                     typ: RepoFileType::File,
+                    size: 52,
                 },
                 RemoteZipEntry {
                     mount_id: String::from("m1"),
@@ -209,6 +243,7 @@ mod tests {
                     repo_id: String::from("r1"),
                     modified: async_zip_futures::ZipDateTime::default(),
                     typ: RepoFileType::Dir,
+                    size: 0,
                 },
                 RemoteZipEntry {
                     mount_id: String::from("m1"),
@@ -222,6 +257,7 @@ mod tests {
                     repo_id: String::from("r1"),
                     modified: async_zip_futures::ZipDateTime::default(),
                     typ: RepoFileType::File,
+                    size: 52,
                 },
             ]
         );
@@ -268,6 +304,7 @@ mod tests {
                 filename: String::from("F1"),
                 modified: async_zip_futures::ZipDateTime::default(),
                 typ: RepoFileType::File,
+                size: 52,
             }
         )
     }
@@ -277,9 +314,9 @@ mod tests {
         let cipher = cipher_test_helpers::create_cipher();
         let remote_file = remote_files_test_helpers::create_file("m1", "/Vault/F1");
         let file = decrypt_file("r1", "/", &remote_file, &cipher);
-        assert_eq!(
+        assert!(matches!(
             file_to_remote_zip_entry(&file).unwrap_err(),
-            DecryptFilenameError::DecodeError(String::from("non-zero trailing bits at 1",))
-        )
+            GetFilesReaderError::DecryptFilenameError(_)
+        ));
     }
 }

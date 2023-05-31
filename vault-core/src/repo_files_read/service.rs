@@ -8,6 +8,7 @@ use futures::{
 
 use crate::{
     cipher::{data_cipher::decrypt_size, Cipher},
+    common::state::SizeInfo,
     remote_files::RemoteFilesService,
     repo_files::{
         selectors as repo_files_selectors,
@@ -72,7 +73,7 @@ impl RepoFilesReadService {
 
         Ok(RepoFileReader {
             name: name.to_owned(),
-            size: Some(size),
+            size: SizeInfo::Exact(size),
             content_type: content_type.map(str::to_string),
             remote_file: Some(encrypted_reader.file),
             reader: decrypt_reader,
@@ -325,11 +326,13 @@ impl RepoFilesReadService {
             _ => self.get_files_zip_name_entries(files).await?,
         };
 
+        let size_estimate = mutations::zip_size_estimate(&remote_zip_entries);
+
         let reader = self.get_zip_reader(remote_zip_entries);
 
         Ok(RepoFileReader {
             name,
-            size: None,
+            size: SizeInfo::Estimate(size_estimate),
             content_type: Some(String::from("application/zip")),
             remote_file: None,
             reader,

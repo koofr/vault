@@ -45,6 +45,23 @@ impl RemainingTime {
     }
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum SizeInfo {
+    Exact(i64),
+    Estimate(i64),
+    Unknown,
+}
+
+impl SizeInfo {
+    pub fn exact_or_estimate(&self) -> Option<i64> {
+        match self {
+            Self::Exact(size) => Some(*size),
+            Self::Estimate(size) => Some(*size),
+            Self::Unknown => None,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::RemainingTime;

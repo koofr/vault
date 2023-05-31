@@ -61,6 +61,24 @@ impl<E: UserError + Clone> From<&common_state::Status<E>> for Status {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+#[serde(tag = "type")]
+pub enum SizeInfo {
+    Exact { size: i64 },
+    Estimate { size: i64 },
+    Unknown,
+}
+
+impl From<&common_state::SizeInfo> for SizeInfo {
+    fn from(status: &common_state::SizeInfo) -> Self {
+        match status {
+            common_state::SizeInfo::Exact(size) => Self::Exact { size: *size },
+            common_state::SizeInfo::Estimate(size) => Self::Estimate { size: *size },
+            common_state::SizeInfo::Unknown => Self::Unknown,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub struct RemainingTime {
     pub days: u32,
     pub hours: u32,
