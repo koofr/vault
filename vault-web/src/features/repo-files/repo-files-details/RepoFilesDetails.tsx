@@ -10,6 +10,8 @@ import { usePreventUnload } from '../../../utils/usePreventUnload';
 import { Repo } from '../../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../../webVault/useSubscribe';
 
+import { Transfers } from '../../transfers/Transfers';
+
 import { repoFilesDetailsLink, repoFilesLink } from '../selectors';
 
 import { getContentEl } from './RepoFilesDetailsContent';
@@ -104,6 +106,8 @@ const RepoFilesDetailsInner = memo<{
           <LoadingCircle />
         ) : null}
       </main>
+
+      <Transfers />
     </>
   );
 });
