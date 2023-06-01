@@ -49,6 +49,10 @@ pub enum LoadContentError {
     LoadFilterMismatch,
     #[error("{0}")]
     RemoteError(#[from] RemoteError),
+    #[error("{0}")]
+    IOError(String),
+    #[error("aborted")]
+    Aborted,
 }
 
 impl From<GetFilesReaderError> for LoadContentError {
@@ -63,6 +67,8 @@ impl From<GetFilesReaderError> for LoadContentError {
             GetFilesReaderError::DecryptFilenameError(err) => Self::DecryptFilenameError(err),
             GetFilesReaderError::DecryptSizeError(err) => Self::DecryptSizeError(err),
             GetFilesReaderError::RemoteError(err) => Self::RemoteError(err),
+            GetFilesReaderError::IOError(err) => Self::IOError(err),
+            GetFilesReaderError::Aborted => Self::Aborted,
         }
     }
 }

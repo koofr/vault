@@ -23,4 +23,17 @@ pub enum GetFilesReaderError {
     DecryptSizeError(#[from] DecryptSizeError),
     #[error("{0}")]
     RemoteError(#[from] RemoteError),
+    #[error("{0}")]
+    IOError(String),
+    #[error("aborted")]
+    Aborted,
+}
+
+impl From<&std::io::Error> for GetFilesReaderError {
+    fn from(err: &std::io::Error) -> Self {
+        match err.kind() {
+            std::io::ErrorKind::Interrupted => GetFilesReaderError::Aborted,
+            _ => GetFilesReaderError::IOError(err.to_string()),
+        }
+    }
 }
