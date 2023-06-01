@@ -12,6 +12,33 @@ pub struct RepoFileReader {
     pub reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
 }
 
+impl RepoFileReader {
+    pub fn wrap_reader(
+        self,
+        f: impl FnOnce(
+            Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
+        ) -> Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
+    ) -> Self {
+        let Self {
+            name,
+            size,
+            content_type,
+            remote_file,
+            reader,
+        } = self;
+
+        let reader = f(reader);
+
+        Self {
+            name,
+            size,
+            content_type,
+            remote_file,
+            reader,
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct RemoteZipEntry {
     pub mount_id: String,
