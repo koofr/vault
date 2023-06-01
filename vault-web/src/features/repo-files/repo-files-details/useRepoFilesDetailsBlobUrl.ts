@@ -21,10 +21,27 @@ export function useRepoFilesDetailsBlobUrl(
     return revokeLastBlobUrl;
   }, [revokeLastBlobUrl]);
 
+  const lastAbortController = useRef<AbortController>();
+  const abortLastAbortController = useCallback(() => {
+    if (lastAbortController.current !== undefined) {
+      lastAbortController.current.abort();
+      lastAbortController.current = undefined;
+    }
+  }, []);
+  useEffect(() => {
+    return abortLastAbortController;
+  }, [abortLastAbortController]);
+
   const loadFile = useCallback(async () => {
+    abortLastAbortController();
+
+    const abortController = new AbortController();
+    lastAbortController.current = abortController;
+
     const stream = await webVault.repoFilesDetailsGetFileStream(
       detailsId,
-      true
+      true,
+      abortController.signal
     );
 
     const blobUrl =
@@ -36,14 +53,17 @@ export function useRepoFilesDetailsBlobUrl(
 
     lastBlobUrl.current = blobUrl;
     setBlobUrl(blobUrl);
-  }, [webVault, detailsId, revokeLastBlobUrl]);
+  }, [webVault, detailsId, abortLastAbortController, revokeLastBlobUrl]);
 
   useSubscribe(
     (v, cb) => v.repoFilesDetailsFileSubscribe(detailsId, cb),
-    (v) => (subscriptionId: number) => {
-      // if file has changed, just load the file url, no need to call
-      // repoFilesDetailsFileData()
-      loadFile();
+    (v) => (id) => {
+      const file = v.repoFilesDetailsFileData(id);
+
+      if (file !== undefined) {
+        // load file on change if file exists
+        loadFile();
+      }
     },
     [detailsId, loadFile]
   );

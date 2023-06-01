@@ -226,7 +226,8 @@ export class WebVaultClient {
 
       const stream = await this.webVault.repoFilesDetailsGetFileStream(
         detailsId,
-        false
+        false,
+        new AbortController().signal
       );
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

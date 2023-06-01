@@ -1481,6 +1481,7 @@ impl WebVault {
         &self,
         details_id: u32,
         force_blob: bool,
+        abort_signal: AbortSignal,
     ) -> FileStreamOption {
         self.repo_file_reader_to_file_stream(
             match self
@@ -1492,7 +1493,7 @@ impl WebVault {
                 Err(err) => Err(err),
             },
             force_blob,
-            None,
+            Some(abort_signal),
         )
         .await
     }
