@@ -2,6 +2,7 @@ pub mod abort_reader;
 pub mod drop_abort;
 pub mod md5_reader;
 pub mod name_utils;
+pub mod on_end_reader;
 pub mod path_utils;
 pub mod progress_reader;
 pub mod reader_stream;
