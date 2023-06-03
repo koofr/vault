@@ -17,7 +17,9 @@ use crate::{
         state::{RepoFile, RepoFilesSortField, RepoFilesUploadConflictResolution},
         RepoFilesService,
     },
-    repo_files_read::{errors::GetFilesReaderError, state::RepoFileReader, RepoFilesReadService},
+    repo_files_read::{
+        errors::GetFilesReaderError, state::RepoFileReaderProvider, RepoFilesReadService,
+    },
     repos::selectors as repos_selectors,
     store,
     utils::{
@@ -239,10 +241,10 @@ impl RepoFilesBrowsersService {
         });
     }
 
-    pub async fn get_selected_reader(
+    pub fn get_selected_reader(
         self: Arc<Self>,
         browser_id: u32,
-    ) -> Result<RepoFileReader, GetFilesReaderError> {
+    ) -> Result<RepoFileReaderProvider, GetFilesReaderError> {
         let files: Vec<RepoFile> = self.store.with_state(|state| {
             selectors::select_selected_files(state, browser_id)
                 .into_iter()
@@ -254,10 +256,7 @@ impl RepoFilesBrowsersService {
             return Err(GetFilesReaderError::FilesEmpty);
         }
 
-        self.repo_files_read_service
-            .clone()
-            .get_files_reader(&files)
-            .await
+        self.repo_files_read_service.clone().get_files_reader(files)
     }
 
     pub async fn create_dir(&self, browser_id: u32) -> Result<(), CreateDirError> {

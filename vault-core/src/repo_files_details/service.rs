@@ -21,7 +21,9 @@ use crate::{
         state::{RepoFilesUploadConflictResolution, RepoFilesUploadResult},
         RepoFilesService,
     },
-    repo_files_read::{errors::GetFilesReaderError, state::RepoFileReader, RepoFilesReadService},
+    repo_files_read::{
+        errors::GetFilesReaderError, state::RepoFileReaderProvider, RepoFilesReadService,
+    },
     repos::selectors as repos_selectors,
     runtime, store,
     utils::path_utils::{self, normalize_path},
@@ -237,12 +239,14 @@ impl RepoFilesDetailsService {
         let repo_id = file.repo_id.clone();
         let path = file.path.decrypted_path()?.to_owned();
 
-        let res = match self
+        let res = match match self
             .repo_files_read_service
             .clone()
-            .get_files_reader(&[file])
-            .await
+            .get_files_reader(vec![file])
         {
+            Ok(provider) => provider.reader().await,
+            Err(err) => Err(err),
+        } {
             Ok(mut reader) => {
                 let mut buf = Vec::new();
 
@@ -265,10 +269,10 @@ impl RepoFilesDetailsService {
         res_err
     }
 
-    pub async fn get_file_reader(
+    pub fn get_file_reader(
         self: Arc<Self>,
         details_id: u32,
-    ) -> Result<RepoFileReader, GetFilesReaderError> {
+    ) -> Result<RepoFileReaderProvider, GetFilesReaderError> {
         let file = self
             .store
             .with_state(|state| selectors::select_file(state, details_id).map(|file| file.clone()))
@@ -276,8 +280,7 @@ impl RepoFilesDetailsService {
 
         self.repo_files_read_service
             .clone()
-            .get_files_reader(&[file])
-            .await
+            .get_files_reader(vec![file])
     }
 
     pub fn edit(&self, details_id: u32) {

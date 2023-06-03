@@ -909,10 +909,10 @@ impl WebVault {
         force_blob: bool,
     ) -> FileStreamOption {
         self.repo_file_reader_to_file_stream(
-            self.vault
-                .clone()
-                .repo_files_get_file_reader(repo_id, path)
-                .await,
+            match self.vault.clone().repo_files_get_file_reader(repo_id, path) {
+                Ok(provider) => provider.reader().await,
+                Err(err) => Err(err),
+            },
             force_blob,
         )
         .await
@@ -1272,10 +1272,14 @@ impl WebVault {
         force_blob: bool,
     ) -> FileStreamOption {
         self.repo_file_reader_to_file_stream(
-            self.vault
+            match self
+                .vault
                 .clone()
                 .repo_files_browsers_get_selected_reader(browser_id)
-                .await,
+            {
+                Ok(provider) => provider.reader().await,
+                Err(err) => Err(err),
+            },
             force_blob,
         )
         .await
@@ -1452,10 +1456,14 @@ impl WebVault {
         force_blob: bool,
     ) -> FileStreamOption {
         self.repo_file_reader_to_file_stream(
-            self.vault
+            match self
+                .vault
                 .clone()
                 .repo_files_details_get_file_reader(details_id)
-                .await,
+            {
+                Ok(provider) => provider.reader().await,
+                Err(err) => Err(err),
+            },
             force_blob,
         )
         .await

@@ -487,16 +487,17 @@ impl Vault {
         self.repo_files_service.load_files(repo_id, path).await
     }
 
-    pub async fn repo_files_get_file_reader(
+    pub fn repo_files_get_file_reader(
         &self,
         repo_id: &str,
         path: &str,
-    ) -> Result<repo_files_read::state::RepoFileReader, repo_files_read::errors::GetFilesReaderError>
-    {
+    ) -> Result<
+        repo_files_read::state::RepoFileReaderProvider,
+        repo_files_read::errors::GetFilesReaderError,
+    > {
         self.repo_files_service
             .clone()
             .get_file_reader(repo_id, path)
-            .await
     }
 
     pub async fn repo_files_delete_files(
@@ -614,15 +615,16 @@ impl Vault {
         self.repo_files_browsers_service.sort_by(browser_id, field)
     }
 
-    pub async fn repo_files_browsers_get_selected_reader(
+    pub fn repo_files_browsers_get_selected_reader(
         &self,
         browser_id: u32,
-    ) -> Result<repo_files_read::state::RepoFileReader, repo_files_read::errors::GetFilesReaderError>
-    {
+    ) -> Result<
+        repo_files_read::state::RepoFileReaderProvider,
+        repo_files_read::errors::GetFilesReaderError,
+    > {
         self.repo_files_browsers_service
             .clone()
             .get_selected_reader(browser_id)
-            .await
     }
 
     pub async fn repo_files_browsers_create_dir(
@@ -680,15 +682,16 @@ impl Vault {
             .await
     }
 
-    pub async fn repo_files_details_get_file_reader(
+    pub fn repo_files_details_get_file_reader(
         &self,
         details_id: u32,
-    ) -> Result<repo_files_read::state::RepoFileReader, repo_files_read::errors::GetFilesReaderError>
-    {
+    ) -> Result<
+        repo_files_read::state::RepoFileReaderProvider,
+        repo_files_read::errors::GetFilesReaderError,
+    > {
         self.repo_files_details_service
             .clone()
             .get_file_reader(details_id)
-            .await
     }
 
     pub fn repo_files_details_edit(&self, details_id: u32) {

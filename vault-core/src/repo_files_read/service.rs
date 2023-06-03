@@ -1,9 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use futures::{
-    channel::mpsc,
-    io::{self, BufReader},
-    AsyncWrite, SinkExt, StreamExt, TryStreamExt,
+    channel::mpsc, io::BufReader, AsyncWrite, FutureExt, SinkExt, StreamExt, TryStreamExt,
 };
 
 use crate::{
@@ -25,7 +23,7 @@ use crate::{
 use super::{
     errors::GetFilesReaderError,
     mutations, selectors,
-    state::{RemoteZipEntry, RepoFileReader},
+    state::{GetRemoteZipEntries, RemoteZipEntry, RepoFileReader, RepoFileReaderProvider},
 };
 
 pub struct RepoFilesReadService {
@@ -59,6 +57,7 @@ impl RepoFilesReadService {
         remote_path: &str,
         name: &str,
         content_type: Option<&str>,
+        unique_name: Option<&str>,
         cipher: &Cipher,
     ) -> Result<RepoFileReader, GetFilesReaderError> {
         let encrypted_reader = self
@@ -76,6 +75,7 @@ impl RepoFilesReadService {
             size: SizeInfo::Exact(size),
             content_type: content_type.map(str::to_string),
             remote_file: Some(encrypted_reader.file),
+            unique_name: unique_name.map(str::to_string),
             reader: decrypt_reader,
         })
     }
@@ -93,15 +93,39 @@ impl RepoFilesReadService {
             &file.remote_path,
             name,
             file.content_type.as_deref(),
+            Some(&file.unique_name),
             &cipher,
         )
         .await
     }
 
+    fn get_file_reader_file_provider(
+        self: Arc<Self>,
+        file: RepoFile,
+    ) -> Result<RepoFileReaderProvider, GetFilesReaderError> {
+        let name = file.decrypted_name()?.to_owned();
+        let size = file.decrypted_size()?;
+
+        let this = self.clone();
+        let file = Arc::new(file);
+
+        Ok(RepoFileReaderProvider {
+            name: name.to_owned(),
+            size: SizeInfo::Exact(size),
+            unique_name: Some(file.unique_name.clone()),
+            reader_builder: Box::new(move || {
+                let this = this.clone();
+                let file = file.clone();
+
+                async move { this.get_file_reader_file(&file).await }.boxed()
+            }),
+        })
+    }
+
     async fn create_zip<W: AsyncWrite + Unpin>(
         &self,
         writer: W,
-        entries: Vec<RemoteZipEntry>,
+        entries: &[RemoteZipEntry],
     ) -> Result<(), std::io::Error> {
         let mut zip_writer = async_zip_futures::write::ZipFileWriter::new(writer);
 
@@ -109,7 +133,7 @@ impl RepoFilesReadService {
             match &entry.typ {
                 RepoFileType::Dir => {
                     let zip_entry_builder = async_zip_futures::ZipEntryBuilder::new(
-                        entry.filename,
+                        entry.filename.clone(),
                         async_zip_futures::Compression::Stored,
                     )
                     .last_modification_date(entry.modified)
@@ -122,7 +146,7 @@ impl RepoFilesReadService {
                 }
                 RepoFileType::File => {
                     let zip_entry_builder = async_zip_futures::ZipEntryBuilder::new(
-                        entry.filename,
+                        entry.filename.clone(),
                         async_zip_futures::Compression::Stored,
                     )
                     .last_modification_date(entry.modified)
@@ -139,6 +163,7 @@ impl RepoFilesReadService {
                             &entry.remote_path,
                             "",
                             None,
+                            None,
                             &cipher,
                         )
                         .await
@@ -150,7 +175,7 @@ impl RepoFilesReadService {
                             .await
                             .map_err(|err| std::io::Error::new(std::io::ErrorKind::Other, err))?;
 
-                    io::copy_buf(
+                    futures::io::copy_buf(
                         BufReader::with_capacity(1024 * 1024, reader.reader),
                         &mut entry_writer,
                     )
@@ -177,13 +202,10 @@ impl RepoFilesReadService {
 
         let mut error_tx = tx.clone();
 
-        let create_zip_self = self.clone();
+        let this = self.clone();
 
         self.runtime.spawn(Box::pin(async move {
-            match create_zip_self
-                .create_zip(SenderWriter::new(tx), entries)
-                .await
-            {
+            match this.create_zip(SenderWriter::new(tx), &entries).await {
                 Ok(_) => {}
                 Err(err) => {
                     let _ = error_tx.send(Err(err)).await;
@@ -248,23 +270,31 @@ impl RepoFilesReadService {
         }
     }
 
-    async fn get_dir_zip_name_entries(
-        &self,
-        file: &RepoFile,
-    ) -> Result<(String, Vec<RemoteZipEntry>), GetFilesReaderError> {
+    fn get_dir_zip_name_entries(
+        self: Arc<Self>,
+        file: RepoFile,
+    ) -> Result<(String, GetRemoteZipEntries), GetFilesReaderError> {
         let zip_name = format!("{}.zip", file.decrypted_name()?);
 
-        let remote_zip_entries = self.get_file_remote_zip_entries(file, None).await?;
+        let this = self.clone();
+        let file = Arc::new(file);
 
-        Ok((zip_name, remote_zip_entries))
+        let get_remote_zip_entries: GetRemoteZipEntries = Box::new(move || {
+            let this = this.clone();
+            let file = file.clone();
+
+            async move { this.get_file_remote_zip_entries(&file, None).await }.boxed()
+        });
+
+        Ok((zip_name, get_remote_zip_entries))
     }
 
-    async fn get_files_zip_name_entries(
-        &self,
-        files: &[RepoFile],
-    ) -> Result<(String, Vec<RemoteZipEntry>), GetFilesReaderError> {
+    fn get_files_zip_name_entries(
+        self: Arc<Self>,
+        files: Vec<RepoFile>,
+    ) -> Result<(String, GetRemoteZipEntries), GetFilesReaderError> {
         let (zip_name, file_names) = self.store.with_state(|state| {
-            let zip_name = selectors::select_files_zip_name(state, files);
+            let zip_name = selectors::select_files_zip_name(state, &files);
 
             let file_names = files
                 .iter()
@@ -278,6 +308,26 @@ impl RepoFilesReadService {
             (zip_name, file_names)
         });
 
+        let this = self.clone();
+        let files = Arc::new(files);
+        let file_names = Arc::new(file_names);
+
+        let get_remote_zip_entries: GetRemoteZipEntries = Box::new(move || {
+            let this = this.clone();
+            let files = files.clone();
+            let file_names = file_names.clone();
+
+            async move { this.get_files_zip_entries(&files, &file_names).await }.boxed()
+        });
+
+        Ok((zip_name, get_remote_zip_entries))
+    }
+
+    async fn get_files_zip_entries(
+        &self,
+        files: &[RepoFile],
+        file_names: &HashMap<String, String>,
+    ) -> Result<Vec<RemoteZipEntry>, GetFilesReaderError> {
         let mut remote_zip_entries = Vec::new();
 
         for file in files {
@@ -301,38 +351,59 @@ impl RepoFilesReadService {
             );
         }
 
-        Ok((zip_name, remote_zip_entries))
+        Ok(remote_zip_entries)
     }
 
-    pub async fn get_files_reader(
+    pub fn get_files_reader(
         self: Arc<Self>,
-        files: &[RepoFile],
-    ) -> Result<RepoFileReader, GetFilesReaderError> {
-        let (name, remote_zip_entries) = match files.len() {
-            0 => panic!("files cannot be empty"),
+        files: Vec<RepoFile>,
+    ) -> Result<RepoFileReaderProvider, GetFilesReaderError> {
+        let (name, get_remote_zip_entries) = match files.len() {
+            0 => return Err(GetFilesReaderError::FilesEmpty),
             1 => {
-                let file = files.get(0).unwrap();
+                let file = files.into_iter().next().unwrap();
 
                 match file.typ {
-                    RepoFileType::Dir => self.get_dir_zip_name_entries(file).await?,
+                    RepoFileType::Dir => self.clone().get_dir_zip_name_entries(file)?,
                     RepoFileType::File => {
-                        return self.get_file_reader_file(file).await;
+                        return self.clone().get_file_reader_file_provider(file);
                     }
                 }
             }
-            _ => self.get_files_zip_name_entries(files).await?,
+            _ => self.clone().get_files_zip_name_entries(files)?,
         };
 
-        let size_estimate = mutations::zip_size_estimate(&remote_zip_entries);
+        let this = self.clone();
+        let reader_builder_name = Arc::new(name.clone());
+        let get_remote_zip_entries = Arc::new(get_remote_zip_entries);
 
-        let reader = self.get_zip_reader(remote_zip_entries);
-
-        Ok(RepoFileReader {
+        Ok(RepoFileReaderProvider {
             name,
-            size: SizeInfo::Estimate(size_estimate),
-            content_type: Some(String::from("application/zip")),
-            remote_file: None,
-            reader,
+            size: SizeInfo::Unknown,
+            unique_name: None,
+            reader_builder: Box::new(move || {
+                let this = this.clone();
+                let get_remote_zip_entries = get_remote_zip_entries.clone();
+                let name = (*reader_builder_name).clone();
+
+                async move {
+                    let remote_zip_entries = get_remote_zip_entries().await?;
+
+                    let size =
+                        SizeInfo::Estimate(mutations::zip_size_estimate(&remote_zip_entries));
+                    let reader = this.clone().get_zip_reader(remote_zip_entries);
+
+                    Ok(RepoFileReader {
+                        name,
+                        size,
+                        content_type: Some("application/zip".into()),
+                        remote_file: None,
+                        unique_name: None,
+                        reader,
+                    })
+                }
+                .boxed()
+            }),
         })
     }
 }

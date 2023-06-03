@@ -16,7 +16,9 @@ use crate::{
     common::state::BoxAsyncRead,
     dialogs, remote,
     remote_files::{state::RemoteFilesLocation, RemoteFilesService},
-    repo_files_read::{errors::GetFilesReaderError, state::RepoFileReader, RepoFilesReadService},
+    repo_files_read::{
+        errors::GetFilesReaderError, state::RepoFileReaderProvider, RepoFilesReadService,
+    },
     repos::{errors::RepoLockedError, ReposService},
     store,
     utils::{name_utils, path_utils},
@@ -154,11 +156,11 @@ impl RepoFilesService {
         Ok(cipher.encrypt_filename(name))
     }
 
-    pub async fn get_file_reader(
+    pub fn get_file_reader(
         self: Arc<Self>,
         repo_id: &str,
         path: &str,
-    ) -> Result<RepoFileReader, GetFilesReaderError> {
+    ) -> Result<RepoFileReaderProvider, GetFilesReaderError> {
         let file = self
             .store
             .with_state(|state| {
@@ -169,8 +171,7 @@ impl RepoFilesService {
 
         self.repo_files_read_service
             .clone()
-            .get_files_reader(&[file])
-            .await
+            .get_files_reader(vec![file])
     }
 
     pub async fn upload_file_reader(
