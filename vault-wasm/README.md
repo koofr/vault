@@ -43,3 +43,10 @@ Build the WebAssembly package using `wasm-pack` (release build):
 wasm-pack build --target nodejs --out-dir ../vault-web-tests/vault-wasm-nodejs --out-name vault-wasm
 ./fix-helpers-nodejs.sh ../vault-web-tests/vault-wasm-nodejs
 ```
+
+## Use of `unsafe`
+
+The `vault-core` is designed to facilitate multi-threading. In the context of
+`vault-wasm`, `unsafe` is used to make WASM bindings `Send + Sync` for calling
+`vault-core`. This approach is considered safe since WASM execution in browsers
+is inherently single-threaded.
