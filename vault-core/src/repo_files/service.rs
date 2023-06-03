@@ -1,12 +1,11 @@
 use std::{
     collections::{HashMap, HashSet},
-    pin::Pin,
     sync::{Arc, Mutex},
 };
 
 use futures::{
     future::{BoxFuture, Shared},
-    AsyncRead, FutureExt,
+    FutureExt,
 };
 
 use crate::{
@@ -14,6 +13,7 @@ use crate::{
         data_cipher::{decrypt_on_progress, encrypted_size},
         Cipher,
     },
+    common::state::BoxAsyncRead,
     dialogs, remote,
     remote_files::{state::RemoteFilesLocation, RemoteFilesService},
     repo_files_read::{errors::GetFilesReaderError, state::RepoFileReader, RepoFilesReadService},
@@ -178,7 +178,7 @@ impl RepoFilesService {
         repo_id: &str,
         parent_path: &str,
         name: &str,
-        reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
+        reader: BoxAsyncRead,
         size: Option<i64>,
         conflict_resolution: RepoFilesUploadConflictResolution,
         on_progress: Option<Box<dyn Fn(usize) + Send + Sync>>,

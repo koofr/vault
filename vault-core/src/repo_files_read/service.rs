@@ -1,14 +1,14 @@
-use std::{collections::HashMap, pin::Pin, sync::Arc};
+use std::{collections::HashMap, sync::Arc};
 
 use futures::{
     channel::mpsc,
     io::{self, BufReader},
-    AsyncRead, AsyncWrite, SinkExt, StreamExt, TryStreamExt,
+    AsyncWrite, SinkExt, StreamExt, TryStreamExt,
 };
 
 use crate::{
     cipher::{data_cipher::decrypt_size, Cipher},
-    common::state::SizeInfo,
+    common::state::{BoxAsyncRead, SizeInfo},
     remote_files::RemoteFilesService,
     repo_files::{
         selectors as repo_files_selectors,
@@ -172,10 +172,7 @@ impl RepoFilesReadService {
         Ok(())
     }
 
-    fn get_zip_reader(
-        self: Arc<Self>,
-        entries: Vec<RemoteZipEntry>,
-    ) -> Pin<Box<dyn AsyncRead + Send + Sync + 'static>> {
+    fn get_zip_reader(self: Arc<Self>, entries: Vec<RemoteZipEntry>) -> BoxAsyncRead {
         let (tx, rx) = mpsc::channel::<std::io::Result<Vec<u8>>>(10);
 
         let mut error_tx = tx.clone();

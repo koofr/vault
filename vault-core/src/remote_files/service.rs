@@ -1,8 +1,7 @@
-use std::{pin::Pin, sync::Arc};
-
-use futures::AsyncRead;
+use std::sync::Arc;
 
 use crate::{
+    common::state::BoxAsyncRead,
     remote::{
         models, remote::ListRecursiveItemStream, Remote, RemoteError, RemoteFileReader,
         RemoteFileUploadConflictResolution,
@@ -134,7 +133,7 @@ impl RemoteFilesService {
         mount_id: &str,
         parent_path: &str,
         name: &str,
-        reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
+        reader: BoxAsyncRead,
         size: Option<i64>,
         conflict_resolution: RemoteFileUploadConflictResolution,
         on_progress: Option<Box<dyn Fn(usize) + Send + Sync>>,

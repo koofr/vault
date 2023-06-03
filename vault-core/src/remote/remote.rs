@@ -1,11 +1,8 @@
-use std::{
-    pin::Pin,
-    sync::{Arc, RwLock},
-};
+use std::sync::{Arc, RwLock};
 
 use futures::{
     stream::{BoxStream, TryStreamExt},
-    AsyncBufReadExt, AsyncRead, StreamExt,
+    AsyncBufReadExt, StreamExt,
 };
 use http::{
     header::{AUTHORIZATION, CONTENT_TYPE},
@@ -17,6 +14,7 @@ use urlencoding::encode;
 use crate::{
     auth,
     auth::errors::AuthError,
+    common::state::BoxAsyncRead,
     http::{HttpClient, HttpError, HttpRequest, HttpRequestBody, HttpResponse},
     oauth2::errors::OAuth2Error,
 };
@@ -33,7 +31,7 @@ pub type ListRecursiveItemStream =
 pub struct RemoteFileReader {
     pub file: models::FilesFile,
     pub size: i64,
-    pub reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
+    pub reader: BoxAsyncRead,
 }
 
 pub enum RemoteFileUploadConflictResolution {
@@ -431,7 +429,7 @@ impl Remote {
         mount_id: &str,
         parent_path: &str,
         name: &str,
-        reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
+        reader: BoxAsyncRead,
         size: Option<i64>,
         conflict_resolution: RemoteFileUploadConflictResolution,
         on_progress: Option<Box<dyn Fn(usize) + Send + Sync>>,

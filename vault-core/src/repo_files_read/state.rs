@@ -1,24 +1,19 @@
-use std::pin::Pin;
-
-use futures::AsyncRead;
-
-use crate::{common::state::SizeInfo, remote::models, repo_files::state::RepoFileType};
+use crate::{
+    common::state::{BoxAsyncRead, SizeInfo},
+    remote::models,
+    repo_files::state::RepoFileType,
+};
 
 pub struct RepoFileReader {
     pub name: String,
     pub size: SizeInfo,
     pub content_type: Option<String>,
     pub remote_file: Option<models::FilesFile>,
-    pub reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
+    pub reader: BoxAsyncRead,
 }
 
 impl RepoFileReader {
-    pub fn wrap_reader(
-        self,
-        f: impl FnOnce(
-            Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
-        ) -> Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
-    ) -> Self {
+    pub fn wrap_reader(self, f: impl FnOnce(BoxAsyncRead) -> BoxAsyncRead) -> Self {
         let Self {
             name,
             size,

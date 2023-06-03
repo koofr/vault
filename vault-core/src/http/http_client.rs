@@ -1,19 +1,19 @@
 use std::pin::Pin;
 
 use async_trait::async_trait;
-use futures::{AsyncRead, Stream};
+use futures::Stream;
 use http::HeaderMap;
 
-use super::HttpError;
+use crate::common::state::BoxAsyncRead;
 
-pub type HttpRequestBodyReader = Pin<Box<dyn AsyncRead + Send + Sync + 'static>>;
+use super::HttpError;
 
 pub type HttpResponseBytesStream =
     Pin<Box<dyn Stream<Item = Result<Vec<u8>, HttpError>> + Send + Sync + 'static>>;
 
 pub enum HttpRequestBody {
     Bytes(Vec<u8>),
-    Reader(Pin<Box<dyn AsyncRead + Send + Sync + 'static>>),
+    Reader(BoxAsyncRead),
 }
 
 #[derive(Default)]

@@ -1,3 +1,11 @@
+use std::pin::Pin;
+
+use futures::{AsyncRead, AsyncWrite};
+
+pub type BoxAsyncRead = Pin<Box<dyn AsyncRead + Send + Sync + 'static>>;
+
+pub type BoxAsyncWrite = Pin<Box<dyn AsyncWrite + Send + Sync + 'static>>;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Status<E: Clone> {
     Initial,
