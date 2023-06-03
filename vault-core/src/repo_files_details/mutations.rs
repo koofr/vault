@@ -3,7 +3,6 @@ use std::{collections::HashMap, sync::Arc};
 use crate::{
     common::state::Status,
     eventstream::service::MountSubscription,
-    remote::models,
     repo_files::{
         errors::{DeleteFileError, LoadFilesError},
         selectors as repo_files_selectors,
@@ -167,13 +166,43 @@ pub fn content_loading(
     Ok(file)
 }
 
+pub fn file_reader_loading(
+    state: &mut store::State,
+    notify: &store::Notify,
+    details_id: u32,
+    file: RepoFile,
+) -> Result<(), GetFilesReaderError> {
+    let loading = repo_files_selectors::select_remote_file(state, &file).map(|remote_file| {
+        RepoFilesDetailsContentLoading {
+            remote_size: remote_file.size,
+            remote_modified: remote_file.modified,
+            remote_hash: remote_file.hash.clone(),
+        }
+    });
+
+    let location = match selectors::select_details_location_mut(state, details_id) {
+        Some(location) => location,
+        _ => return Err(GetFilesReaderError::FileNotFound),
+    };
+
+    location.content.status = match location.content.status {
+        Status::Initial | Status::Loading | Status::Reloading => Status::Loading,
+        Status::Loaded | Status::Error { .. } => Status::Reloading,
+    };
+    location.content.loading = loading;
+
+    notify(store::Event::RepoFilesDetails);
+
+    Ok(())
+}
+
 pub fn content_loaded(
     state: &mut store::State,
     notify: &store::Notify,
     details_id: u32,
     repo_id: String,
     path: String,
-    res: Result<(Vec<u8>, models::FilesFile), GetFilesReaderError>,
+    res: Result<Option<RepoFilesDetailsContentData>, GetFilesReaderError>,
 ) {
     let location = match selectors::select_details_location_mut(state, details_id) {
         Some(location) => location,
@@ -186,20 +215,15 @@ pub fn content_loaded(
 
     notify(store::Event::RepoFilesDetails);
 
+    location.content.loading = None;
+
     if location.is_dirty || matches!(location.save_status, Status::Loading) {
         location.content.status = Status::Loaded;
-        location.content.loading = None;
     } else {
         match res {
-            Ok((bytes, remote_file)) => {
+            Ok(data) => {
                 location.content.status = Status::Loaded;
-                location.content.data = Some(RepoFilesDetailsContentData {
-                    bytes,
-                    remote_size: remote_file.size,
-                    remote_modified: remote_file.modified,
-                    remote_hash: remote_file.hash,
-                });
-                location.content.loading = None;
+                location.content.data = data;
                 location.content.version += 1;
 
                 notify(store::Event::RepoFilesDetailsContentData);

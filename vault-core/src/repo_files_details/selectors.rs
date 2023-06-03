@@ -413,3 +413,30 @@ pub fn select_was_removed(
             })
             .unwrap_or(false)
 }
+
+pub fn select_should_wait_for_loaded(state: &store::State, details_id: u32) -> Option<()> {
+    match select_details(state, details_id) {
+        Some(details) => match &details.status {
+            Status::Initial | Status::Loading => None,
+            Status::Loaded | Status::Reloading | Status::Error { .. } => Some(()),
+        },
+        None => {
+            // details not found, stop waiting
+            Some(())
+        }
+    }
+}
+
+pub fn select_file_reader_file(
+    state: &store::State,
+    details_id: u32,
+) -> Option<Result<RepoFile, GetFilesReaderError>> {
+    match select_should_wait_for_loaded(state, details_id) {
+        Some(()) => Some(
+            select_file(state, details_id)
+                .map(|file| file.clone())
+                .ok_or(GetFilesReaderError::FileNotFound),
+        ),
+        None => None,
+    }
+}

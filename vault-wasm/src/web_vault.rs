@@ -1488,6 +1488,7 @@ impl WebVault {
                 .vault
                 .clone()
                 .repo_files_details_get_file_reader(details_id)
+                .await
             {
                 Ok(provider) => provider.reader().await,
                 Err(err) => Err(err),

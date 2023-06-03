@@ -18,15 +18,20 @@ use crate::{
     remote_files::errors::RemoteFilesErrors,
     repo_files::{
         errors::{DeleteFileError, LoadFilesError, UploadFileReaderError},
-        state::{RepoFilesUploadConflictResolution, RepoFilesUploadResult},
+        state::{RepoFile, RepoFilesUploadConflictResolution, RepoFilesUploadResult},
         RepoFilesService,
     },
     repo_files_read::{
-        errors::GetFilesReaderError, state::RepoFileReaderProvider, RepoFilesReadService,
+        errors::GetFilesReaderError,
+        state::{RepoFileReader, RepoFileReaderBuilder, RepoFileReaderProvider},
+        RepoFilesReadService,
     },
     repos::selectors as repos_selectors,
     runtime, store,
-    utils::path_utils::{self, normalize_path},
+    utils::{
+        on_end_reader::OnEndReader,
+        path_utils::{self, normalize_path},
+    },
 };
 
 use super::{
@@ -251,7 +256,16 @@ impl RepoFilesDetailsService {
                 let mut buf = Vec::new();
 
                 match reader.reader.read_to_end(&mut buf).await {
-                    Ok(_) => Ok((buf, reader.remote_file.unwrap())),
+                    Ok(_) => {
+                        let remote_file = reader.remote_file.unwrap();
+
+                        Ok(Some(RepoFilesDetailsContentData {
+                            bytes: buf,
+                            remote_size: remote_file.size,
+                            remote_modified: remote_file.modified,
+                            remote_hash: remote_file.hash,
+                        }))
+                    }
                     Err(err) => Err(GetFilesReaderError::RemoteError(RemoteError::HttpError(
                         HttpError::ResponseError(err.to_string()),
                     ))),
@@ -269,18 +283,78 @@ impl RepoFilesDetailsService {
         res_err
     }
 
-    pub fn get_file_reader(
+    pub async fn get_file_reader(
         self: Arc<Self>,
         details_id: u32,
     ) -> Result<RepoFileReaderProvider, GetFilesReaderError> {
-        let file = self
-            .store
-            .with_state(|state| selectors::select_file(state, details_id).map(|file| file.clone()))
-            .ok_or(GetFilesReaderError::FileNotFound)?;
+        let file_store = self.store.clone();
 
-        self.repo_files_read_service
+        let file = store::wait_for(
+            self.store.clone(),
+            &[store::Event::RepoFilesDetails],
+            move || -> Option<Result<RepoFile, GetFilesReaderError>> {
+                file_store.with_state(|state| selectors::select_file_reader_file(state, details_id))
+            },
+        )
+        .await?;
+
+        let reader_builder_file = file.clone();
+        let reader_builder_self = self.clone();
+
+        Ok(self
+            .repo_files_read_service
             .clone()
-            .get_files_reader(vec![file])
+            .get_files_reader(vec![file])?
+            .wrap_reader_builder(move |reader_builder| {
+                let reader_builder_file: RepoFile = reader_builder_file.clone();
+                let reader_builder_self = reader_builder_self.clone();
+
+                Box::pin(async move {
+                    reader_builder_self
+                        .get_file_reader_wrap_reader_builder(
+                            &reader_builder,
+                            details_id,
+                            reader_builder_file,
+                        )
+                        .await
+                })
+            }))
+    }
+
+    async fn get_file_reader_wrap_reader_builder(
+        self: Arc<Self>,
+        reader_builder: &RepoFileReaderBuilder,
+        details_id: u32,
+        file: RepoFile,
+    ) -> Result<RepoFileReader, GetFilesReaderError> {
+        let repo_id = file.repo_id.clone();
+        let path = file.path.decrypted_path()?.to_owned();
+
+        self.store.mutate(|state, notify, _, _| {
+            mutations::file_reader_loading(state, notify, details_id, file)
+        })?;
+
+        let reader = reader_builder().await?;
+
+        let content_loaded_store = self.store.clone();
+
+        Ok(reader.wrap_reader(|reader| {
+            Box::pin(OnEndReader::new(
+                reader,
+                Box::new(move |res| {
+                    content_loaded_store.mutate(|state, notify, _, _| {
+                        mutations::content_loaded(
+                            state,
+                            notify,
+                            details_id,
+                            repo_id,
+                            path,
+                            res.map(|_| None).map_err(Into::into),
+                        );
+                    });
+                }),
+            ))
+        }))
     }
 
     pub fn edit(&self, details_id: u32) {

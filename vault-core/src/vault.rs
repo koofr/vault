@@ -698,7 +698,7 @@ impl Vault {
             .await
     }
 
-    pub fn repo_files_details_get_file_reader(
+    pub async fn repo_files_details_get_file_reader(
         &self,
         details_id: u32,
     ) -> Result<
@@ -708,6 +708,7 @@ impl Vault {
         self.repo_files_details_service
             .clone()
             .get_file_reader(details_id)
+            .await
     }
 
     pub fn repo_files_details_edit(&self, details_id: u32) {
