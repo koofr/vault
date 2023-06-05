@@ -62,19 +62,8 @@ impl RepoFilesDetailsService {
         dialogs_service: Arc<dialogs::DialogsService>,
         store: Arc<store::Store>,
         runtime: Arc<runtime::BoxRuntime>,
-    ) -> Arc<Self> {
+    ) -> Self {
         let repo_files_mutation_subscription_id = store.get_next_id();
-
-        let repo_files_details_service = Arc::new(Self {
-            repo_files_service,
-            repo_files_read_service,
-            eventstream_service,
-            dialogs_service,
-            store: store.clone(),
-            runtime,
-            autosave_abort_handles: Arc::new(Mutex::new(HashMap::new())),
-            repo_files_mutation_subscription_id,
-        });
 
         store.mutation_on(
             repo_files_mutation_subscription_id,
@@ -84,7 +73,16 @@ impl RepoFilesDetailsService {
             }),
         );
 
-        repo_files_details_service
+        Self {
+            repo_files_service,
+            repo_files_read_service,
+            eventstream_service,
+            dialogs_service,
+            store: store.clone(),
+            runtime,
+            autosave_abort_handles: Arc::new(Mutex::new(HashMap::new())),
+            repo_files_mutation_subscription_id,
+        }
     }
 
     pub fn create(

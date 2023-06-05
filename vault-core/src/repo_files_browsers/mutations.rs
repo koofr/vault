@@ -41,7 +41,6 @@ pub fn create(
     state: &mut store::State,
     options: RepoFilesBrowserOptions,
     location: Result<RepoFilesBrowserLocation, LoadFilesError>,
-    repo_files_subscription_id: u32,
 ) -> u32 {
     let browser_id = state.repo_files_browsers.next_id;
 
@@ -56,7 +55,6 @@ pub fn create(
         file_ids: Vec::new(),
         selection: Selection::default(),
         sort: Default::default(),
-        repo_files_subscription_id,
     };
 
     state
@@ -69,16 +67,8 @@ pub fn create(
     browser_id
 }
 
-pub fn destroy(state: &mut store::State, browser_id: u32) -> Option<u32> {
-    let repo_files_subscription_id = state
-        .repo_files_browsers
-        .browsers
-        .get(&browser_id)
-        .map(|loc| loc.repo_files_subscription_id);
-
+pub fn destroy(state: &mut store::State, browser_id: u32) {
     state.repo_files_browsers.browsers.remove(&browser_id);
-
-    repo_files_subscription_id
 }
 
 pub fn set_location(
@@ -292,4 +282,18 @@ pub fn sort_by(state: &mut store::State, browser_id: u32, field: RepoFilesSortFi
     browser.sort.direction = direction;
 
     update_files(state, browser_id);
+}
+
+pub fn handle_repo_files_mutation(state: &mut store::State, notify: &store::Notify) {
+    for browser_id in state
+        .repo_files_browsers
+        .browsers
+        .keys()
+        .cloned()
+        .collect::<Vec<_>>()
+    {
+        if update_files(state, browser_id) {
+            notify(store::Event::RepoFilesBrowsers);
+        }
+    }
 }

@@ -159,14 +159,15 @@ impl Vault {
                 dialogs_service.clone(),
                 store.clone(),
             ));
-        let repo_files_details_service = repo_files_details::RepoFilesDetailsService::new(
-            repo_files_service.clone(),
-            repo_files_read_service.clone(),
-            eventstream_service.clone(),
-            dialogs_service.clone(),
-            store.clone(),
-            runtime.clone(),
-        );
+        let repo_files_details_service =
+            Arc::new(repo_files_details::RepoFilesDetailsService::new(
+                repo_files_service.clone(),
+                repo_files_read_service.clone(),
+                eventstream_service.clone(),
+                dialogs_service.clone(),
+                store.clone(),
+                runtime.clone(),
+            ));
         let repo_files_move_service = Arc::new(repo_files_move::RepoFilesMoveService::new(
             repo_files_service.clone(),
             repo_files_dir_pickers_service.clone(),

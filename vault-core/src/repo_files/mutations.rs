@@ -194,8 +194,6 @@ pub fn handle_remote_files_mutation(
         )
         .collect();
 
-    let mut mutation_repo_files_dirty = false;
-
     for (repo_id, path) in removed_repo_files {
         if let Some(cipher) = ciphers.get(&repo_id) {
             if let Ok(path) = cipher.decrypt_path(&path) {
@@ -203,8 +201,6 @@ pub fn handle_remote_files_mutation(
                     .repo_files
                     .removed_files
                     .push((repo_id, path));
-
-                mutation_repo_files_dirty = true;
             }
         }
     }
@@ -217,14 +213,12 @@ pub fn handle_remote_files_mutation(
                         .repo_files
                         .moved_files
                         .push((repo_id, from_path, to_path));
-
-                    mutation_repo_files_dirty = true;
                 }
             }
         }
     }
 
-    if mutation_repo_files_dirty {
+    if repo_files_dirty {
         mutation_notify(store::MutationEvent::RepoFiles, state, mutation_state);
     }
 }

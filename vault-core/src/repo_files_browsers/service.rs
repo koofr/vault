@@ -39,6 +39,7 @@ pub struct RepoFilesBrowsersService {
     eventstream_service: Arc<eventstream::EventStreamService>,
     dialogs_service: Arc<dialogs::DialogsService>,
     store: Arc<store::Store>,
+    repo_files_mutation_subscription_id: u32,
 }
 
 impl RepoFilesBrowsersService {
@@ -49,12 +50,23 @@ impl RepoFilesBrowsersService {
         dialogs_service: Arc<dialogs::DialogsService>,
         store: Arc<store::Store>,
     ) -> Self {
+        let repo_files_mutation_subscription_id = store.get_next_id();
+
+        store.mutation_on(
+            repo_files_mutation_subscription_id,
+            &[store::MutationEvent::RepoFiles],
+            Box::new(move |state, notify, _, _| {
+                mutations::handle_repo_files_mutation(state, notify);
+            }),
+        );
+
         Self {
             repo_files_service,
             repo_files_read_service,
             eventstream_service,
             dialogs_service,
-            store,
+            store: store.clone(),
+            repo_files_mutation_subscription_id,
         }
     }
 
@@ -69,12 +81,10 @@ impl RepoFilesBrowsersService {
     ) {
         let location = self.clone().get_location(repo_id, path);
 
-        let repo_files_subscription_id = self.store.get_next_id();
-
         let browser_id = self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoFilesBrowsers);
 
-            mutations::create(state, options, location, repo_files_subscription_id)
+            mutations::create(state, options, location)
         });
 
         let load_self = self.clone();
@@ -87,16 +97,6 @@ impl RepoFilesBrowsersService {
         } else {
             Box::pin(future::ready(Ok(())))
         };
-
-        let update_files_self = self.clone();
-
-        self.store.on(
-            repo_files_subscription_id,
-            &[store::Event::RepoFiles],
-            Box::new(move |_| {
-                update_files_self.update_files(browser_id);
-            }),
-        );
 
         (browser_id, load_future)
     }
@@ -136,24 +136,12 @@ impl RepoFilesBrowsersService {
             })
     }
 
-    fn update_files(&self, browser_id: u32) {
-        self.store.mutate(|state, notify, _, _| {
-            if mutations::update_files(state, browser_id) {
-                notify(store::Event::RepoFilesBrowsers)
-            }
-        });
-    }
-
     pub fn destroy(&self, browser_id: u32) {
-        let repo_files_subscription_id = self.store.mutate(|state, notify, _, _| {
+        self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoFilesBrowsers);
 
-            mutations::destroy(state, browser_id)
+            mutations::destroy(state, browser_id);
         });
-
-        if let Some(repo_files_subscription_id) = repo_files_subscription_id {
-            self.store.remove_listener(repo_files_subscription_id);
-        }
     }
 
     pub async fn set_location(
@@ -374,5 +362,12 @@ impl RepoFilesBrowsersService {
         self.repo_files_service.delete_files(&files, None).await?;
 
         Ok(())
+    }
+}
+
+impl Drop for RepoFilesBrowsersService {
+    fn drop(&mut self) {
+        self.store
+            .remove_listener(self.repo_files_mutation_subscription_id)
     }
 }

@@ -53,7 +53,6 @@ pub struct RepoFilesBrowser {
     pub file_ids: Vec<String>,
     pub selection: Selection,
     pub sort: RepoFilesSort,
-    pub repo_files_subscription_id: u32,
 }
 
 #[derive(Debug, Clone, Default)]
