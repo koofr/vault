@@ -1,8 +1,13 @@
 use std::sync::Arc;
 
 use crate::{
-    eventstream::EventStreamService, oauth2::OAuth2Service, remote::RemoteError,
-    repos::ReposService, space_usage::SpaceUsageService, store, user::UserService,
+    eventstream::EventStreamService,
+    oauth2::OAuth2Service,
+    remote::{Remote, RemoteError},
+    repos::ReposService,
+    space_usage::SpaceUsageService,
+    store,
+    user::UserService,
 };
 
 use super::errors::LoadError;
@@ -23,16 +28,27 @@ impl LifecycleService {
         repos_service: Arc<ReposService>,
         eventstream_service: Arc<EventStreamService>,
         space_usage_service: Arc<SpaceUsageService>,
+        remote: Arc<Remote>,
         store: Arc<store::Store>,
-    ) -> Self {
-        Self {
+    ) -> Arc<Self> {
+        let lifecycle_service = Arc::new(Self {
             oauth2_service,
             user_service,
             repos_service,
             eventstream_service,
             space_usage_service,
             store,
-        }
+        });
+
+        let remote_logout_lifecycle_service = Arc::downgrade(&lifecycle_service);
+
+        remote.set_logout(Box::new(move || {
+            if let Some(lifecycle_service) = remote_logout_lifecycle_service.upgrade() {
+                lifecycle_service.logout();
+            }
+        }));
+
+        lifecycle_service
     }
 
     pub async fn load(&self) -> Result<(), LoadError> {

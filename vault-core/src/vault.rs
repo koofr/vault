@@ -177,21 +177,15 @@ impl Vault {
             remote.clone(),
             store.clone(),
         ));
-        let lifecycle_service = Arc::new(lifecycle::LifecycleService::new(
+        let lifecycle_service = lifecycle::LifecycleService::new(
             oauth2_service.clone(),
             user_service.clone(),
             repos_service.clone(),
             eventstream_service.clone(),
             space_usage_service.clone(),
+            remote.clone(),
             store.clone(),
-        ));
-
-        let remote_logout_lifecycle_service = Arc::downgrade(&lifecycle_service);
-        remote.set_logout(Box::new(move || {
-            if let Some(lifecycle_service) = remote_logout_lifecycle_service.upgrade() {
-                lifecycle_service.logout();
-            }
-        }));
+        );
 
         Self {
             store,
