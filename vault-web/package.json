@@ -46,7 +46,7 @@
     "svgo": "^3.0.2",
     "typescript": "^5.0.4",
     "typescript-format-imports": "^0.1.8",
-    "vite": "^4.3.1",
+    "vite": "^4.3.9",
     "vite-plugin-svgr": "^2.4.0"
   },
   "overrides": {
