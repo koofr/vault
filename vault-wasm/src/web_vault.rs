@@ -338,8 +338,8 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = dialogsData)]
-    pub fn dialogs_data(&self, dialog_id: u32) -> IdVec {
-        self.get_data_js(dialog_id, self.subscription_data.dialogs.clone())
+    pub fn dialogs_data(&self, id: u32) -> IdVec {
+        self.get_data_js(id, self.subscription_data.dialogs.clone())
     }
 
     #[wasm_bindgen(js_name = dialogsDialogSubscribe)]
@@ -358,8 +358,8 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = dialogsDialogData)]
-    pub fn dialogs_dialog_data(&self, dialog_id: u32) -> DialogOption {
-        self.get_data_js(dialog_id, self.subscription_data.dialog.clone())
+    pub fn dialogs_dialog_data(&self, id: u32) -> DialogOption {
+        self.get_data_js(id, self.subscription_data.dialog.clone())
     }
 
     #[wasm_bindgen(js_name = dialogsConfirm)]
