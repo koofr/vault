@@ -5,6 +5,7 @@ use futures::future::BoxFuture;
 use crate::{
     common::state::SizeInfo,
     file_types::file_category::FileCategory,
+    files::file_icon::FileIconAttrs,
     repo_files::{selectors as repo_files_selectors, state::RepoFilesUploadResult},
     repo_files_read::state::RepoFileReader,
 };
@@ -108,6 +109,31 @@ impl Transfer {
 
     pub fn download_transfer_mut(&mut self) -> Option<&mut DownloadTransfer> {
         self.typ.download_transfer_mut()
+    }
+
+    pub fn file_icon_attrs(&self) -> FileIconAttrs {
+        FileIconAttrs {
+            category: self.category.clone(),
+            is_dl: match &self.typ {
+                TransferType::Upload(..) => false,
+                TransferType::Download(..) => true,
+                TransferType::DownloadReader => true,
+            },
+            is_ul: match &self.typ {
+                TransferType::Upload(..) => true,
+                TransferType::Download(..) => false,
+                TransferType::DownloadReader => false,
+            },
+            is_export: false,
+            is_import: false,
+            is_android: false,
+            is_ios: false,
+            is_vault_repo: false,
+            is_error: match &self.state {
+                TransferState::Failed { .. } => true,
+                _ => false,
+            },
+        }
     }
 }
 

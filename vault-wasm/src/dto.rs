@@ -10,6 +10,7 @@ use vault_core::{
     dialogs::state as dialogs_state,
     dir_pickers::state as dir_pickers_state,
     file_types::{file_category, files_filter},
+    files,
     notifications::state as notifications_state,
     remote_files::state as remote_files_state,
     repo_config_backup::state as repo_config_backup_state,
@@ -172,6 +173,25 @@ impl Into<file_category::FileCategory> for FileCategory {
     }
 }
 
+impl Into<vault_file_icon::FileIconCategory> for FileCategory {
+    fn into(self) -> vault_file_icon::FileIconCategory {
+        match self {
+            Self::Generic => vault_file_icon::FileIconCategory::Generic,
+            Self::Folder => vault_file_icon::FileIconCategory::Folder,
+            Self::Archive => vault_file_icon::FileIconCategory::Archive,
+            Self::Audio => vault_file_icon::FileIconCategory::Audio,
+            Self::Code => vault_file_icon::FileIconCategory::Code,
+            Self::Document => vault_file_icon::FileIconCategory::Document,
+            Self::Image => vault_file_icon::FileIconCategory::Image,
+            Self::Pdf => vault_file_icon::FileIconCategory::Pdf,
+            Self::Presentation => vault_file_icon::FileIconCategory::Presentation,
+            Self::Sheet => vault_file_icon::FileIconCategory::Sheet,
+            Self::Text => vault_file_icon::FileIconCategory::Text,
+            Self::Video => vault_file_icon::FileIconCategory::Video,
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub struct FilesFilter {
     pub categories: Vec<FileCategory>,
@@ -183,6 +203,91 @@ impl Into<files_filter::FilesFilter> for FilesFilter {
         files_filter::FilesFilter {
             categories: self.categories.into_iter().map(|x| x.into()).collect(),
             exts: self.exts,
+        }
+    }
+}
+
+// file_icon
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+pub enum FileIconSize {
+    Sm,
+    Lg,
+}
+
+impl Into<vault_file_icon::FileIconSize> for FileIconSize {
+    fn into(self) -> vault_file_icon::FileIconSize {
+        match self {
+            Self::Sm => vault_file_icon::FileIconSize::Sm,
+            Self::Lg => vault_file_icon::FileIconSize::Lg,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+pub struct FileIconAttrs {
+    pub category: FileCategory,
+    #[serde(rename = "isDl")]
+    pub is_dl: bool,
+    #[serde(rename = "isUl")]
+    pub is_ul: bool,
+    #[serde(rename = "isExport")]
+    pub is_export: bool,
+    #[serde(rename = "isImport")]
+    pub is_import: bool,
+    #[serde(rename = "isAndroid")]
+    pub is_android: bool,
+    #[serde(rename = "isIos")]
+    pub is_ios: bool,
+    #[serde(rename = "isVaultRepo")]
+    pub is_vault_repo: bool,
+    #[serde(rename = "isError")]
+    pub is_error: bool,
+}
+
+impl From<files::file_icon::FileIconAttrs> for FileIconAttrs {
+    fn from(attrs: files::file_icon::FileIconAttrs) -> Self {
+        Self {
+            category: (&attrs.category).into(),
+            is_dl: attrs.is_dl,
+            is_ul: attrs.is_ul,
+            is_export: attrs.is_export,
+            is_import: attrs.is_import,
+            is_android: attrs.is_android,
+            is_ios: attrs.is_ios,
+            is_vault_repo: attrs.is_vault_repo,
+            is_error: attrs.is_error,
+        }
+    }
+}
+
+impl Into<vault_file_icon::FileIconAttrs> for FileIconAttrs {
+    fn into(self) -> vault_file_icon::FileIconAttrs {
+        vault_file_icon::FileIconAttrs {
+            category: self.category.into(),
+            is_dl: self.is_dl,
+            is_ul: self.is_ul,
+            is_export: self.is_export,
+            is_import: self.is_import,
+            is_android: self.is_android,
+            is_ios: self.is_ios,
+            is_vault_repo: self.is_vault_repo,
+            is_error: self.is_error,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+pub struct FileIconProps {
+    pub size: FileIconSize,
+    pub attrs: FileIconAttrs,
+}
+
+impl Into<vault_file_icon::FileIconProps> for FileIconProps {
+    fn into(self) -> vault_file_icon::FileIconProps {
+        vault_file_icon::FileIconProps {
+            size: self.size.into(),
+            attrs: self.attrs.into(),
         }
     }
 }
@@ -652,6 +757,8 @@ pub struct RepoFile {
     #[serde(rename = "remoteHash")]
     pub remote_hash: Option<String>,
     pub category: FileCategory,
+    #[serde(rename = "fileIconAttrs")]
+    pub file_icon_attrs: FileIconAttrs,
 }
 
 impl From<&repo_files_state::RepoFile> for RepoFile {
@@ -693,6 +800,7 @@ impl From<&repo_files_state::RepoFile> for RepoFile {
             modified: file.modified as f64,
             remote_hash: file.remote_hash.clone(),
             category: (&file.category).into(),
+            file_icon_attrs: file.file_icon_attrs().into(),
         }
     }
 }
@@ -1022,6 +1130,22 @@ pub fn format_speed(bytes: i64, duration: Duration) -> Option<String> {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+pub enum TransferType {
+    Upload,
+    Download,
+}
+
+impl From<&transfers_state::TransferType> for TransferType {
+    fn from(typ: &transfers_state::TransferType) -> Self {
+        match typ {
+            transfers_state::TransferType::Upload(..) => Self::Upload,
+            transfers_state::TransferType::Download(..) => Self::Download,
+            transfers_state::TransferType::DownloadReader => Self::Download,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 #[serde(tag = "type")]
 pub enum TransferState {
     Waiting,
@@ -1048,8 +1172,10 @@ impl From<&transfers_state::TransferState> for TransferState {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub struct Transfer {
     pub id: u32,
+    pub typ: TransferType,
     pub name: String,
-    pub category: FileCategory,
+    #[serde(rename = "fileIconAttrs")]
+    pub file_icon_attrs: FileIconAttrs,
     pub size: Option<i64>,
     #[serde(rename = "sizeDisplay")]
     pub size_display: Option<String>,
@@ -1075,8 +1201,9 @@ impl From<&transfers_state::Transfer> for Transfer {
 
         Self {
             id: transfer.id,
+            typ: (&transfer.typ).into(),
             name: transfer.name.clone(),
-            category: (&transfer.category).into(),
+            file_icon_attrs: transfer.file_icon_attrs().into(),
             size: transfer.size.exact_or_estimate(),
             size_display: transfer.size.exact_or_estimate().map(format_size),
             transferred_bytes: transfer.transferred_bytes,

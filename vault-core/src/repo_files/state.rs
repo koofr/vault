@@ -6,6 +6,7 @@ use std::{
 use crate::{
     cipher::errors::{DecryptFilenameError, DecryptSizeError},
     file_types::file_category::FileCategory,
+    files::file_icon::FileIconAttrs,
     remote::{models, RemoteFileUploadConflictResolution},
     remote_files::state::RemoteFileType,
 };
@@ -181,6 +182,23 @@ impl RepoFile {
         match self.size {
             RepoFileSize::Decrypted { size } => size,
             RepoFileSize::DecryptError { encrypted_size, .. } => encrypted_size,
+        }
+    }
+
+    pub fn file_icon_attrs(&self) -> FileIconAttrs {
+        FileIconAttrs {
+            category: self.category.clone(),
+            is_dl: false,
+            is_ul: false,
+            is_export: false,
+            is_import: false,
+            is_android: false,
+            is_ios: false,
+            is_vault_repo: false,
+            is_error: match &self.name {
+                RepoFileName::Decrypted { .. } => false,
+                RepoFileName::DecryptError { .. } => true,
+            },
         }
     }
 }

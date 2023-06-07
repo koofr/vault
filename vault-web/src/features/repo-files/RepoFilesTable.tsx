@@ -66,7 +66,7 @@ const FileName = memo<{ file: RepoFile }>(({ file }) => {
           margin-right: 15px;
         `}
       >
-        <FileIcon size="Sm" category={file.category} />
+        <FileIcon size="Sm" attrs={file.fileIconAttrs} />
       </span>
       <span
         className={cx(

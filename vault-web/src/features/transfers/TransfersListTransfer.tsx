@@ -9,7 +9,7 @@ import { useWebVault } from '../../webVault/useWebVault';
 
 export const TransfersListTransfer = memo<{ transfer: Transfer }>(
   ({ transfer }) => {
-    const { id, name, category, state } = transfer;
+    const { id, name, fileIconAttrs, state } = transfer;
     const theme = useTheme();
     const webVault = useWebVault();
     const retry = useCallback(() => {
@@ -64,7 +64,7 @@ export const TransfersListTransfer = memo<{ transfer: Transfer }>(
               flex-shrink: 0;
             `}
           >
-            <FileIcon size="Sm" category={category} />
+            <FileIcon size="Sm" attrs={fileIconAttrs} />
           </div>
           <div
             className={css`

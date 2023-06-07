@@ -59,6 +59,9 @@ extern "C" {
     #[wasm_bindgen(typescript_type = "Uint8Array | undefined")]
     pub type UserProfilePicture;
 
+    #[wasm_bindgen(typescript_type = "FileIconProps")]
+    pub type FileIconProps;
+
     #[wasm_bindgen(typescript_type = "RepoInfo")]
     pub type RepoInfo;
 
@@ -178,6 +181,7 @@ pub struct WebVault {
     errors: Arc<WebErrors>,
     subscription_data: SubscriptionData,
     subscription: WebSubscription,
+    file_icon_factory: vault_file_icon::FileIconFactory,
 }
 
 #[wasm_bindgen]
@@ -212,11 +216,18 @@ impl WebVault {
 
         let errors = Arc::new(WebErrors::new(vault.clone()));
 
+        let subscription_data = SubscriptionData::default();
+        let subscription = WebSubscription::new(vault.clone());
+
+        let file_icon_theme = vault_file_icon::FileIconTheme::default();
+        let file_icon_factory = vault_file_icon::FileIconFactory::new(&file_icon_theme);
+
         Self {
             vault: vault.clone(),
             errors,
-            subscription_data: SubscriptionData::default(),
-            subscription: WebSubscription::new(vault.clone()),
+            subscription_data,
+            subscription,
+            file_icon_factory,
         }
     }
 
@@ -493,6 +504,15 @@ impl WebVault {
     #[wasm_bindgen(js_name = userEnsureProfilePicture)]
     pub async fn user_ensure_profile_picture(&self) {
         self.handle_result(self.vault.user_ensure_profile_picture().await)
+    }
+
+    // file_icon
+
+    #[wasm_bindgen(js_name = fileIconSvg)]
+    pub fn file_icon_svg(&self, props: FileIconProps) -> String {
+        let props: dto::FileIconProps = serde_wasm_bindgen::from_value(props.into()).unwrap();
+        let (svg, _, _) = self.file_icon_factory.generate_svg(&props.into());
+        svg
     }
 
     // repos

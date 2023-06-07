@@ -21,6 +21,7 @@ import init, { initConsole, WebVault } from './vault-wasm/vault-wasm';
 import { BrowserEventstreamWebSocketDelegateImpl } from './webVault/BrowserEventstreamWebSocketDelegateImpl';
 import { BrowserHttpClientDelegateImpl } from './webVault/BrowserHttpClientDelegateImpl';
 import { WebVaultContext } from './webVault/webVaultContext';
+import { FileIconCacheProvider } from './components/file-icon/FileIcon';
 
 interface Config {
   baseUrl: string;
@@ -74,20 +75,22 @@ const main = async () => {
           <DocumentScrollProvider>
             <DynamicThemeProvider>
               <DndProvider backend={FolderAwareHTML5Backend}>
-                <>
-                  <GlobalStyles />
+                <FileIconCacheProvider>
+                  <>
+                    <GlobalStyles />
 
-                  <RemoveAppLoading />
+                    <RemoveAppLoading />
 
-                  <ModalsProvider>
-                    <RouterProvider router={router} />
+                    <ModalsProvider>
+                      <RouterProvider router={router} />
 
-                    <Dialogs />
-                  </ModalsProvider>
+                      <Dialogs />
+                    </ModalsProvider>
 
-                  <Notifications />
-                  <TransfersPreventUnload />
-                </>
+                    <Notifications />
+                    <TransfersPreventUnload />
+                  </>
+                </FileIconCacheProvider>
               </DndProvider>
             </DynamicThemeProvider>
           </DocumentScrollProvider>
