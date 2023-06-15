@@ -237,7 +237,7 @@ impl RepoFilesService {
     pub async fn delete_files(
         &self,
         files: &[(String, String)],
-        before_delete: Option<Box<dyn Fn()>>,
+        before_delete: Option<Box<dyn Fn() + Send + 'static>>,
     ) -> Result<(), DeleteFileError> {
         if self
             .dialogs_service
