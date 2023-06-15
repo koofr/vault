@@ -1,0 +1,2046 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 55;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A103E97F2ACAA66700883DA8 /* FormInfoSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A103E97E2ACAA66700883DA8 /* FormInfoSheet.swift */; };
+		A103E9832ACAF74100883DA8 /* RepoFilesScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A103E9822ACAF74100883DA8 /* RepoFilesScreenViewModel.swift */; };
+		A1062B9C2A83945800DAAB5C /* RemoteFilesBrowserItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1062B9B2A83945800DAAB5C /* RemoteFilesBrowserItemRow.swift */; };
+		A10A8C852ADCE9C0005A081D /* RepoGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10A8C842ADCE9C0005A081D /* RepoGuard.swift */; };
+		A10A8C872ADCFA8C005A081D /* RepoUnlockSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10A8C862ADCFA8C005A081D /* RepoUnlockSheet.swift */; };
+		A10A8C892ADD1B4B005A081D /* RepoFilesDetailsScreenContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10A8C882ADD1B4B005A081D /* RepoFilesDetailsScreenContent.swift */; };
+		A10A8C8B2ADD1B8C005A081D /* RepoFilesDetailsScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10A8C8A2ADD1B8C005A081D /* RepoFilesDetailsScreenViewModel.swift */; };
+		A1265C9A2AA1E2A700CEAA5C /* SheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1265C992AA1E2A700CEAA5C /* SheetView.swift */; };
+		A1265C9C2AA1E2B800CEAA5C /* SheetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1265C9B2AA1E2B800CEAA5C /* SheetsView.swift */; };
+		A1265C9E2AA1E2C900CEAA5C /* Sheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1265C9D2AA1E2C900CEAA5C /* Sheet.swift */; };
+		A1265CA02AA1E2E300CEAA5C /* Sheets.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1265C9F2AA1E2E300CEAA5C /* Sheets.swift */; };
+		A1265CA22AA1E46500CEAA5C /* ShareTargetFilesSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1265CA12AA1E46500CEAA5C /* ShareTargetFilesSheet.swift */; };
+		A1265CA72AAD8E1600CEAA5C /* Overlays.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1265CA62AAD8E1600CEAA5C /* Overlays.swift */; };
+		A1265CA92AADE52B00CEAA5C /* RepoFilesMoveSheetController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1265CA82AADE52B00CEAA5C /* RepoFilesMoveSheetController.swift */; };
+		A1265CAC2AAE3FCF00CEAA5C /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1265CAB2AAE3FCF00CEAA5C /* ErrorView.swift */; };
+		A1265CAE2AAEFE8900CEAA5C /* ViewIf.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1265CAD2AAEFE8900CEAA5C /* ViewIf.swift */; };
+		A1265CB02AAF104200CEAA5C /* RemoteFilesBreadcrumbs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1265CAF2AAF104200CEAA5C /* RemoteFilesBreadcrumbs.swift */; };
+		A1265CB22AAF1FE600CEAA5C /* RepoCreateRcloneSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1265CB12AAF1FE600CEAA5C /* RepoCreateRcloneSheet.swift */; };
+		A1265CB42AAF258E00CEAA5C /* RepoCreateScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1265CB32AAF258E00CEAA5C /* RepoCreateScreenViewModel.swift */; };
+		A1265CB62AAF47C900CEAA5C /* FrozenList.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1265CB52AAF47C900CEAA5C /* FrozenList.swift */; };
+		A1287A492A837FD700855708 /* RepoCreateScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1287A482A837FD700855708 /* RepoCreateScreen.swift */; };
+		A1287A4B2A83810E00855708 /* RepoCreateFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1287A4A2A83810E00855708 /* RepoCreateFormView.swift */; };
+		A1287A4D2A83855500855708 /* RepoCreateRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1287A4C2A83855500855708 /* RepoCreateRow.swift */; };
+		A1287A512A838FDA00855708 /* RemoteFilesBrowserItemIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1287A502A838FDA00855708 /* RemoteFilesBrowserItemIcon.swift */; };
+		A12BEFA92AA0F16D0017A608 /* VaultMobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A182697A2AA0E6AB0072F531 /* VaultMobile.framework */; settings = {ATTRIBUTES = (Required, ); }; };
+		A12BEFAB2AA0F1D90017A608 /* MemorySecureStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12BEFAA2AA0F1D90017A608 /* MemorySecureStorage.swift */; };
+		A12BEFAC2AA0F5EC0017A608 /* MobileVaultHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18269732AA0DC570072F531 /* MobileVaultHelper.swift */; };
+		A12D0A512AB367350010CF38 /* DebugClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12D0A502AB367350010CF38 /* DebugClient.swift */; };
+		A12D0A532AB36AE50010CF38 /* Fixture.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12D0A522AB36AE50010CF38 /* Fixture.swift */; };
+		A12D0A572AB473580010CF38 /* RepoConfigInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12D0A562AB473580010CF38 /* RepoConfigInfo.swift */; };
+		A12D0A592AB474F10010CF38 /* RepoCreateCreatedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12D0A582AB474F10010CF38 /* RepoCreateCreatedView.swift */; };
+		A12D80F72AB8A59B009424D2 /* StorageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12D80F62AB8A59B009424D2 /* StorageHelper.swift */; };
+		A12D80F92AB99B8D009424D2 /* InfoSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12D80F82AB99B8D009424D2 /* InfoSheet.swift */; };
+		A14A53D62AD7EEA300AE65B0 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A14A53D52AD7EEA300AE65B0 /* LoadingView.swift */; };
+		A168FA042AE51CA20041418F /* RefreshableList.swift in Sources */ = {isa = PBXBuildFile; fileRef = A168FA032AE51CA20041418F /* RefreshableList.swift */; };
+		A168FA062AE520C50041418F /* FullSizeListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A168FA052AE520C50041418F /* FullSizeListItem.swift */; };
+		A1699AA12AC31A6600D58F6B /* VaultMobile.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = A182697A2AA0E6AB0072F531 /* VaultMobile.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		A1699AA32AC56E0C00D58F6B /* TransferInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1699AA22AC56E0C00D58F6B /* TransferInfoView.swift */; };
+		A1699AA52AC585B300D58F6B /* UIHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1699AA42AC585B300D58F6B /* UIHelpers.swift */; };
+		A176762F2ABC2F230080D098 /* RepoFileInfoSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A176762E2ABC2F230080D098 /* RepoFileInfoSheet.swift */; };
+		A17676322ABC53F20080D098 /* RepoRemoveScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A17676312ABC53F20080D098 /* RepoRemoveScreen.swift */; };
+		A18269292A9F6CC80072F531 /* LocalAuthenticationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18269282A9F6CC80072F531 /* LocalAuthenticationHelper.swift */; };
+		A18269692AA0B8520072F531 /* VaultUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18269682AA0B8520072F531 /* VaultUITests.swift */; };
+		A182697D2AA0E6AB0072F531 /* VaultMobile.h in Headers */ = {isa = PBXBuildFile; fileRef = A182697C2AA0E6AB0072F531 /* VaultMobile.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A18269852AA0E6E60072F531 /* vault_mobile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A17A7599291BE2EF0037A015 /* vault_mobile.swift */; };
+		A18269882AA0E8BD0072F531 /* libvault_mobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1AD933C2A828C7C006172BF /* libvault_mobile.a */; settings = {ATTRIBUTES = (Required, ); }; };
+		A182698E2AA0EABD0072F531 /* vault_mobileFFI.h in Headers */ = {isa = PBXBuildFile; fileRef = A17A7598291BE2E40037A015 /* vault_mobileFFI.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A182698F2AA0EB7F0072F531 /* Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = A17A75A4291D44D80037A015 /* Subscription.swift */; };
+		A18A8CEA2917988100B8F8B9 /* VaultApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18A8CE92917988100B8F8B9 /* VaultApp.swift */; };
+		A18A8CEE2917988200B8F8B9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A18A8CED2917988200B8F8B9 /* Assets.xcassets */; };
+		A18A8CF12917988200B8F8B9 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A18A8CF02917988200B8F8B9 /* Preview Assets.xcassets */; };
+		A191B2DB2AB0106D00EC5465 /* OpenDownloadsFolderActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A191B2DA2AB0106D00EC5465 /* OpenDownloadsFolderActivity.swift */; };
+		A191B2DD2AB010AA00EC5465 /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A191B2DC2AB010AA00EC5465 /* ActivityView.swift */; };
+		A191B2DF2AB0B42100EC5465 /* DownloadHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A191B2DE2AB0B42100EC5465 /* DownloadHelper.swift */; };
+		A197F9322A7D4BD30000EA27 /* NavControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A197F9312A7D4BD30000EA27 /* NavControllerTests.swift */; };
+		A197F9342A7D60280000EA27 /* NavController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18AB2C12A77CCDA0037156B /* NavController.swift */; };
+		A198035C2A84F5A90047CA6B /* ZoomableScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A198035B2A84F5A90047CA6B /* ZoomableScrollView.swift */; };
+		A19CE5C82A839AE40079E924 /* RemoteFilesDirPickerScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A19CE5C72A839AE40079E924 /* RemoteFilesDirPickerScreen.swift */; };
+		A19CE5CC2A839CCB0079E924 /* RemoteFilesDirPickerListRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A19CE5CB2A839CCB0079E924 /* RemoteFilesDirPickerListRow.swift */; };
+		A19CE5CE2A839D4C0079E924 /* RemoteFilesDirPickerRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = A19CE5CD2A839D4C0079E924 /* RemoteFilesDirPickerRoute.swift */; };
+		A19CE5D02A839D850079E924 /* RemoteFilesDirPickerNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A19CE5CF2A839D850079E924 /* RemoteFilesDirPickerNavigation.swift */; };
+		A19CE5D22A839DB60079E924 /* RemoteFilesDirPickerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A19CE5D12A839DB60079E924 /* RemoteFilesDirPickerViewModel.swift */; };
+		A19CE5D72A83A1EC0079E924 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A19CE5D62A83A1EC0079E924 /* KeychainHelper.swift */; };
+		A1A434822A92859500084D6A /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A434812A92859500084D6A /* WebView.swift */; };
+		A1A77FA32A83B36C001F6CF2 /* UploadHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A77FA22A83B36C001F6CF2 /* UploadHelper.swift */; };
+		A1A77FA52A83B39D001F6CF2 /* UploadFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A77FA42A83B39D001F6CF2 /* UploadFile.swift */; };
+		A1A77FA62A83C6CF001F6CF2 /* CommonAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1AD92F32A8285A7006172BF /* CommonAssets.xcassets */; };
+		A1A77FAA2A84215F001F6CF2 /* ShareExtScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AD93512A828DF1006172BF /* ShareExtScreen.swift */; };
+		A1A77FAC2A842164001F6CF2 /* ShareExtScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A77FA72A83CAD1001F6CF2 /* ShareExtScreenViewModel.swift */; };
+		A1A77FAE2A842DD5001F6CF2 /* RepoFilesImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A77FAD2A842DD5001F6CF2 /* RepoFilesImagePicker.swift */; };
+		A1A90B812ADEFBD50061C286 /* EmptyFolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A90B802ADEFBD50061C286 /* EmptyFolderView.swift */; };
+		A1AD92E02A828283006172BF /* VaultCommon.h in Headers */ = {isa = PBXBuildFile; fileRef = A1AD92DF2A828283006172BF /* VaultCommon.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A1AD92EB2A82833A006172BF /* NavController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18AB2C12A77CCDA0037156B /* NavController.swift */; };
+		A1AD92EC2A82833F006172BF /* NavControllerViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A197F8E02A7C37830000EA27 /* NavControllerViewExtensions.swift */; };
+		A1AD92ED2A828342006172BF /* Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A197F8E62A7CD6AE0000EA27 /* Navigation.swift */; };
+		A1AD92EE2A828345006172BF /* NavigationStackInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1228E812A7C04C400AC1148 /* NavigationStackInfo.swift */; };
+		A1AD92EF2A828348006172BF /* NavView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A16070B02A78F04A00BDE0CE /* NavView.swift */; };
+		A1AD92F02A82834E006172BF /* UINavigationControllerDelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = A197F8DE2A7C1FC80000EA27 /* UINavigationControllerDelegateProxy.m */; };
+		A1AD92F12A8283A4006172BF /* UINavigationControllerDelegateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = A197F8DD2A7C1FC80000EA27 /* UINavigationControllerDelegateProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A1AD92F42A8285A7006172BF /* CommonAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1AD92F32A8285A7006172BF /* CommonAssets.xcassets */; };
+		A1AD92F62A82861D006172BF /* KeychainRepoPasswordStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B6D00C2941DA4600CBF5FC /* KeychainRepoPasswordStorage.swift */; };
+		A1AD92F72A82861D006172BF /* Container.swift in Sources */ = {isa = PBXBuildFile; fileRef = A16070B62A794CF000BDE0CE /* Container.swift */; };
+		A1AD92F82A82861D006172BF /* KeychainSecureStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1ED96E92934C56D00DA54DA /* KeychainSecureStorage.swift */; };
+		A1AD92F92A82861D006172BF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18A8CEB2917988100B8F8B9 /* ContentView.swift */; };
+		A1AD92FC2A82861D006172BF /* PreviewsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A17A7592291B96630037A015 /* PreviewsData.swift */; };
+		A1AD92FD2A82862C006172BF /* AuthHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18AB2BF2A77B6780037156B /* AuthHelper.swift */; };
+		A1AD92FE2A828631006172BF /* DialogsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1228E6D2A7BA11800AC1148 /* DialogsView.swift */; };
+		A1AD92FF2A828634006172BF /* DialogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1228E6F2A7BA24E00AC1148 /* DialogView.swift */; };
+		A1AD93002A828637006172BF /* FileIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18A8CFF2917C58000B8F8B9 /* FileIcon.swift */; };
+		A1AD93012A828639006172BF /* FileIconCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18B59F62A3C60EE00CD1CFD /* FileIconCache.swift */; };
+		A1AD93022A82863D006172BF /* FileRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A16D93352A7A651C00FB3249 /* FileRow.swift */; };
+		A1AD93032A828640006172BF /* LandingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A19FB1E4292279BD00E3C37B /* LandingScreen.swift */; };
+		A1AD93042A828644006172BF /* MainNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18AB2C32A77D0940037156B /* MainNavigation.swift */; };
+		A1AD93052A828647006172BF /* MainRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18AB2D32A77E3480037156B /* MainRoute.swift */; };
+		A1AD93062A82864D006172BF /* NotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18AB2BD2A77B0EF0037156B /* NotificationsView.swift */; };
+		A1AD93072A828650006172BF /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18742EB2A77AE6200C8075A /* NotificationView.swift */; };
+		A1AD93082A828654006172BF /* RelativeTimeHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A16D933B2A7A788200FB3249 /* RelativeTimeHelper.swift */; };
+		A1AD93092A828657006172BF /* RepoInfoScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A17A75A6291D4DC10037A015 /* RepoInfoScreen.swift */; };
+		A1AD930A2A82865A006172BF /* RepoSetupBiometricUnlockSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A16070B42A7937DA00BDE0CE /* RepoSetupBiometricUnlockSheet.swift */; };
+		A1AD930B2A82865E006172BF /* RepoFileMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1228E6A2A7B9EEC00AC1148 /* RepoFileMenu.swift */; };
+		A1AD930C2A828661006172BF /* RepoFileRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1ED96F72936916D00DA54DA /* RepoFileRow.swift */; };
+		A1AD930F2A82866A006172BF /* RepoFilesListRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A16D93322A7A643D00FB3249 /* RepoFilesListRow.swift */; };
+		A1AD93102A82866C006172BF /* RepoFilesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A16D93302A7A642D00FB3249 /* RepoFilesListView.swift */; };
+		A1AD93112A82866F006172BF /* RepoFilesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1ED96F12936490F00DA54DA /* RepoFilesScreen.swift */; };
+		A1AD93122A828673006172BF /* RepoFilesDetailsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A61A172A3A160A008920CB /* RepoFilesDetailsScreen.swift */; };
+		A1AD93152A82867C006172BF /* RepoFilesMoveListRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1228E782A7BE92C00AC1148 /* RepoFilesMoveListRow.swift */; };
+		A1AD93172A828681006172BF /* RepoFilesMoveNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A197F8E82A7CDB760000EA27 /* RepoFilesMoveNavigation.swift */; };
+		A1AD93182A828684006172BF /* RepoFilesMoveRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1228E7F2A7C035800AC1148 /* RepoFilesMoveRoute.swift */; };
+		A1AD93192A828686006172BF /* RepoFilesMoveScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1228E742A7BE13600AC1148 /* RepoFilesMoveScreen.swift */; };
+		A1AD931B2A82868B006172BF /* RepoFilesMoveViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1228E7A2A7BE97800AC1148 /* RepoFilesMoveViewModel.swift */; };
+		A1AD931C2A828690006172BF /* RepoRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18A8CFB2917A26D00B8F8B9 /* RepoRow.swift */; };
+		A1AD931D2A828693006172BF /* ReposScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A17A7590291B95760037A015 /* ReposScreen.swift */; };
+		A1AD931E2A828697006172BF /* RepoUnlockForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = A16070B22A792E9900BDE0CE /* RepoUnlockForm.swift */; };
+		A1AD931F2A82869B006172BF /* RepoUnlockScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1ED96F529364A6E00DA54DA /* RepoUnlockScreen.swift */; };
+		A1AD93202A82869E006172BF /* SettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A16D932E2A7A51C200FB3249 /* SettingsSheet.swift */; };
+		A1AD93232A8286A7006172BF /* ShareTargetNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AD928C2A80ED7F006172BF /* ShareTargetNavigation.swift */; };
+		A1AD93252A8286AC006172BF /* ShareTargetRepoFilesListRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AD92982A80F47C006172BF /* ShareTargetRepoFilesListRow.swift */; };
+		A1AD93272A8286B1006172BF /* ShareTargetRepoFilesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AD92942A80F328006172BF /* ShareTargetRepoFilesScreen.swift */; };
+		A1AD93282A8286B3006172BF /* ShareTargetBottomBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AD92A62A812856006172BF /* ShareTargetBottomBar.swift */; };
+		A1AD93292A8286B6006172BF /* ShareTargetReposScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AD92902A80EFE4006172BF /* ShareTargetReposScreen.swift */; };
+		A1AD932A2A8286B8006172BF /* ShareTargetRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AD928A2A80ED6B006172BF /* ShareTargetRoute.swift */; };
+		A1AD932C2A8286BD006172BF /* ShareTargetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AD92862A80E40B006172BF /* ShareTargetViewModel.swift */; };
+		A1AD932D2A8286C4006172BF /* TransferRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AD929A2A80FA3B006172BF /* TransferRow.swift */; };
+		A1AD932E2A8286C7006172BF /* TransfersSummaryBottomBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AD929C2A80FE7E006172BF /* TransfersSummaryBottomBar.swift */; };
+		A1AD932F2A8286CA006172BF /* TransfersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AD929E2A8100E1006172BF /* TransfersView.swift */; };
+		A1AD93302A8286CC006172BF /* TransfersButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AD92A42A8106E2006172BF /* TransfersButton.swift */; };
+		A1AD93312A8286CE006172BF /* TransfersSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AD92A02A8101E4006172BF /* TransfersSheet.swift */; };
+		A1AD93322A8286D1006172BF /* TransfersSheetController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AD92A22A810463006172BF /* TransfersSheetController.swift */; };
+		A1AD93332A8286D5006172BF /* UserIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1ED96EF293617B300DA54DA /* UserIcon.swift */; };
+		A1AD93362A828724006172BF /* RepoPasswordField.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1228E682A7B841400AC1148 /* RepoPasswordField.swift */; };
+		A1AD93372A828732006172BF /* TimeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A16D93382A7A77E300FB3249 /* TimeUtils.swift */; };
+		A1AD93452A828DDE006172BF /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AD93442A828DDE006172BF /* ShareViewController.swift */; };
+		A1AD934C2A828DDE006172BF /* VaultShareExt.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A1AD93422A828DDE006172BF /* VaultShareExt.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A1AD93592A82D568006172BF /* CommonAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1AD92F32A8285A7006172BF /* CommonAssets.xcassets */; };
+		A1AEB7DE2ABA07AE00B50AB1 /* UIColorRGB.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AEB7DD2ABA07AE00B50AB1 /* UIColorRGB.swift */; };
+		A1C8654E2ABF721F0032F64B /* WindowUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C8654D2ABF721F0032F64B /* WindowUtils.swift */; };
+		A1CC129E2A8AA0EA00C0E1A0 /* ImageData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1CC129D2A8AA0EA00C0E1A0 /* ImageData.swift */; };
+		A1CC12A02A8BB69900C0E1A0 /* ShareTargetFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1CC129F2A8BB69900C0E1A0 /* ShareTargetFile.swift */; };
+		A1CF9AB82ACFF64F00D006AA /* VaultCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1AD92DD2A828283006172BF /* VaultCommon.framework */; };
+		A1CF9AB92ACFF64F00D006AA /* VaultCommon.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = A1AD92DD2A828283006172BF /* VaultCommon.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		A1CF9ABB2ACFF65400D006AA /* VaultMobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A182697A2AA0E6AB0072F531 /* VaultMobile.framework */; };
+		A1CF9ABE2ACFF65A00D006AA /* VaultCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1AD92DD2A828283006172BF /* VaultCommon.framework */; };
+		A1CF9AC12AD002DC00D006AA /* VaultMobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A182697A2AA0E6AB0072F531 /* VaultMobile.framework */; };
+		A1CF9AC22AD002DC00D006AA /* VaultMobile.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = A182697A2AA0E6AB0072F531 /* VaultMobile.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		A1CF9C912AC01F4200E07573 /* AuthGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1CF9C902AC01F4200E07573 /* AuthGuard.swift */; };
+		A1D296A62A8513E4005ED3B5 /* RawImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1D296A52A8513E4005ED3B5 /* RawImage.swift */; };
+		A1D296A82A851E9D005ED3B5 /* GIFImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1D296A72A851E9D005ED3B5 /* GIFImage.swift */; };
+		A1DBAE4F2AC1993900D036C3 /* BlockOn.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1DBAE4E2AC1993900D036C3 /* BlockOn.swift */; };
+		A1DEA2F22ABF763A00F43BBA /* Callbacks.swift in Sources */ = {isa = PBXBuildFile; fileRef = A114176C2A751B9A007E4837 /* Callbacks.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A182696C2AA0B8520072F531 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A18A8CDE2917988100B8F8B9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A18A8CE52917988100B8F8B9;
+			remoteInfo = Vault;
+		};
+		A182698B2AA0E8F20072F531 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A18A8CDE2917988100B8F8B9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A18269792AA0E6AB0072F531;
+			remoteInfo = VaultMobile;
+		};
+		A197F92A2A7D4B8C0000EA27 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A18A8CDE2917988100B8F8B9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A18A8CE52917988100B8F8B9;
+			remoteInfo = Vault;
+		};
+		A1AD92E12A828283006172BF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A18A8CDE2917988100B8F8B9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A1AD92DC2A828283006172BF;
+			remoteInfo = VaultCommon;
+		};
+		A1AD934A2A828DDE006172BF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A18A8CDE2917988100B8F8B9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A1AD93412A828DDE006172BF;
+			remoteInfo = VaultShareExt;
+		};
+		A1AD93552A828E4A006172BF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A18A8CDE2917988100B8F8B9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A1AD92DC2A828283006172BF;
+			remoteInfo = VaultCommon;
+		};
+		A1CF9AC32AD002DC00D006AA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A18A8CDE2917988100B8F8B9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A18269792AA0E6AB0072F531;
+			remoteInfo = VaultMobile;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A1699AA02AC31A5700D58F6B /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				A1699AA12AC31A6600D58F6B /* VaultMobile.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1AD93502A828DDE006172BF /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				A1AD934C2A828DDE006172BF /* VaultShareExt.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1CF9ABA2ACFF64F00D006AA /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				A1CF9AB92ACFF64F00D006AA /* VaultCommon.framework in Embed Frameworks */,
+				A1CF9AC22AD002DC00D006AA /* VaultMobile.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		A103E97E2ACAA66700883DA8 /* FormInfoSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormInfoSheet.swift; sourceTree = "<group>"; };
+		A103E9822ACAF74100883DA8 /* RepoFilesScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesScreenViewModel.swift; sourceTree = "<group>"; };
+		A1062B9B2A83945800DAAB5C /* RemoteFilesBrowserItemRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteFilesBrowserItemRow.swift; sourceTree = "<group>"; };
+		A10A8C842ADCE9C0005A081D /* RepoGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoGuard.swift; sourceTree = "<group>"; };
+		A10A8C862ADCFA8C005A081D /* RepoUnlockSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoUnlockSheet.swift; sourceTree = "<group>"; };
+		A10A8C882ADD1B4B005A081D /* RepoFilesDetailsScreenContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesDetailsScreenContent.swift; sourceTree = "<group>"; };
+		A10A8C8A2ADD1B8C005A081D /* RepoFilesDetailsScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesDetailsScreenViewModel.swift; sourceTree = "<group>"; };
+		A114176C2A751B9A007E4837 /* Callbacks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Callbacks.swift; sourceTree = "<group>"; };
+		A1228E682A7B841400AC1148 /* RepoPasswordField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoPasswordField.swift; sourceTree = "<group>"; };
+		A1228E6A2A7B9EEC00AC1148 /* RepoFileMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFileMenu.swift; sourceTree = "<group>"; };
+		A1228E6D2A7BA11800AC1148 /* DialogsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogsView.swift; sourceTree = "<group>"; };
+		A1228E6F2A7BA24E00AC1148 /* DialogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogView.swift; sourceTree = "<group>"; };
+		A1228E742A7BE13600AC1148 /* RepoFilesMoveScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesMoveScreen.swift; sourceTree = "<group>"; };
+		A1228E782A7BE92C00AC1148 /* RepoFilesMoveListRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesMoveListRow.swift; sourceTree = "<group>"; };
+		A1228E7A2A7BE97800AC1148 /* RepoFilesMoveViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesMoveViewModel.swift; sourceTree = "<group>"; };
+		A1228E7F2A7C035800AC1148 /* RepoFilesMoveRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesMoveRoute.swift; sourceTree = "<group>"; };
+		A1228E812A7C04C400AC1148 /* NavigationStackInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationStackInfo.swift; sourceTree = "<group>"; };
+		A1265C992AA1E2A700CEAA5C /* SheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetView.swift; sourceTree = "<group>"; };
+		A1265C9B2AA1E2B800CEAA5C /* SheetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetsView.swift; sourceTree = "<group>"; };
+		A1265C9D2AA1E2C900CEAA5C /* Sheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sheet.swift; sourceTree = "<group>"; };
+		A1265C9F2AA1E2E300CEAA5C /* Sheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sheets.swift; sourceTree = "<group>"; };
+		A1265CA12AA1E46500CEAA5C /* ShareTargetFilesSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareTargetFilesSheet.swift; sourceTree = "<group>"; };
+		A1265CA62AAD8E1600CEAA5C /* Overlays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Overlays.swift; sourceTree = "<group>"; };
+		A1265CA82AADE52B00CEAA5C /* RepoFilesMoveSheetController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesMoveSheetController.swift; sourceTree = "<group>"; };
+		A1265CAB2AAE3FCF00CEAA5C /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
+		A1265CAD2AAEFE8900CEAA5C /* ViewIf.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewIf.swift; sourceTree = "<group>"; };
+		A1265CAF2AAF104200CEAA5C /* RemoteFilesBreadcrumbs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteFilesBreadcrumbs.swift; sourceTree = "<group>"; };
+		A1265CB12AAF1FE600CEAA5C /* RepoCreateRcloneSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoCreateRcloneSheet.swift; sourceTree = "<group>"; };
+		A1265CB32AAF258E00CEAA5C /* RepoCreateScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoCreateScreenViewModel.swift; sourceTree = "<group>"; };
+		A1265CB52AAF47C900CEAA5C /* FrozenList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrozenList.swift; sourceTree = "<group>"; };
+		A1287A482A837FD700855708 /* RepoCreateScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoCreateScreen.swift; sourceTree = "<group>"; };
+		A1287A4A2A83810E00855708 /* RepoCreateFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoCreateFormView.swift; sourceTree = "<group>"; };
+		A1287A4C2A83855500855708 /* RepoCreateRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoCreateRow.swift; sourceTree = "<group>"; };
+		A1287A502A838FDA00855708 /* RemoteFilesBrowserItemIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteFilesBrowserItemIcon.swift; sourceTree = "<group>"; };
+		A12BEFAA2AA0F1D90017A608 /* MemorySecureStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorySecureStorage.swift; sourceTree = "<group>"; };
+		A12D0A502AB367350010CF38 /* DebugClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugClient.swift; sourceTree = "<group>"; };
+		A12D0A522AB36AE50010CF38 /* Fixture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fixture.swift; sourceTree = "<group>"; };
+		A12D0A562AB473580010CF38 /* RepoConfigInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoConfigInfo.swift; sourceTree = "<group>"; };
+		A12D0A582AB474F10010CF38 /* RepoCreateCreatedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoCreateCreatedView.swift; sourceTree = "<group>"; };
+		A12D80F62AB8A59B009424D2 /* StorageHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageHelper.swift; sourceTree = "<group>"; };
+		A12D80F82AB99B8D009424D2 /* InfoSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoSheet.swift; sourceTree = "<group>"; };
+		A14A53D52AD7EEA300AE65B0 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
+		A16070B02A78F04A00BDE0CE /* NavView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavView.swift; sourceTree = "<group>"; };
+		A16070B22A792E9900BDE0CE /* RepoUnlockForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoUnlockForm.swift; sourceTree = "<group>"; };
+		A16070B42A7937DA00BDE0CE /* RepoSetupBiometricUnlockSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoSetupBiometricUnlockSheet.swift; sourceTree = "<group>"; };
+		A16070B62A794CF000BDE0CE /* Container.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Container.swift; sourceTree = "<group>"; };
+		A168FA032AE51CA20041418F /* RefreshableList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshableList.swift; sourceTree = "<group>"; };
+		A168FA052AE520C50041418F /* FullSizeListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullSizeListItem.swift; sourceTree = "<group>"; };
+		A1699A9D2AC3194300D58F6B /* libvault_mobile.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvault_mobile.a; path = VaultMobile/libvault_mobile.a; sourceTree = "<group>"; };
+		A1699AA22AC56E0C00D58F6B /* TransferInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferInfoView.swift; sourceTree = "<group>"; };
+		A1699AA42AC585B300D58F6B /* UIHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIHelpers.swift; sourceTree = "<group>"; };
+		A16D932E2A7A51C200FB3249 /* SettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSheet.swift; sourceTree = "<group>"; };
+		A16D93302A7A642D00FB3249 /* RepoFilesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesListView.swift; sourceTree = "<group>"; };
+		A16D93322A7A643D00FB3249 /* RepoFilesListRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesListRow.swift; sourceTree = "<group>"; };
+		A16D93352A7A651C00FB3249 /* FileRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileRow.swift; sourceTree = "<group>"; };
+		A16D93382A7A77E300FB3249 /* TimeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeUtils.swift; sourceTree = "<group>"; };
+		A16D933B2A7A788200FB3249 /* RelativeTimeHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelativeTimeHelper.swift; sourceTree = "<group>"; };
+		A176762E2ABC2F230080D098 /* RepoFileInfoSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFileInfoSheet.swift; sourceTree = "<group>"; };
+		A17676312ABC53F20080D098 /* RepoRemoveScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoRemoveScreen.swift; sourceTree = "<group>"; };
+		A17A7590291B95760037A015 /* ReposScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReposScreen.swift; sourceTree = "<group>"; };
+		A17A7592291B96630037A015 /* PreviewsData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewsData.swift; sourceTree = "<group>"; };
+		A17A7597291BE27C0037A015 /* Vault-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Vault-Bridging-Header.h"; sourceTree = "<group>"; };
+		A17A7598291BE2E40037A015 /* vault_mobileFFI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vault_mobileFFI.h; sourceTree = "<group>"; };
+		A17A7599291BE2EF0037A015 /* vault_mobile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = vault_mobile.swift; sourceTree = "<group>"; };
+		A17A75A4291D44D80037A015 /* Subscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subscription.swift; sourceTree = "<group>"; };
+		A17A75A6291D4DC10037A015 /* RepoInfoScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoInfoScreen.swift; sourceTree = "<group>"; };
+		A18269282A9F6CC80072F531 /* LocalAuthenticationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalAuthenticationHelper.swift; sourceTree = "<group>"; };
+		A18269662AA0B8520072F531 /* VaultUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VaultUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A18269682AA0B8520072F531 /* VaultUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultUITests.swift; sourceTree = "<group>"; };
+		A18269712AA0BCEE0072F531 /* VaultTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = VaultTests.xctestplan; sourceTree = SOURCE_ROOT; };
+		A18269722AA0BD700072F531 /* VaultUITests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = VaultUITests.xctestplan; sourceTree = SOURCE_ROOT; };
+		A18269732AA0DC570072F531 /* MobileVaultHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileVaultHelper.swift; sourceTree = "<group>"; };
+		A182697A2AA0E6AB0072F531 /* VaultMobile.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = VaultMobile.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A182697C2AA0E6AB0072F531 /* VaultMobile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VaultMobile.h; sourceTree = "<group>"; };
+		A18742EB2A77AE6200C8075A /* NotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
+		A18A8CE62917988100B8F8B9 /* Vault.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Vault.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A18A8CE92917988100B8F8B9 /* VaultApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultApp.swift; sourceTree = "<group>"; };
+		A18A8CEB2917988100B8F8B9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A18A8CED2917988200B8F8B9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A18A8CF02917988200B8F8B9 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		A18A8CFB2917A26D00B8F8B9 /* RepoRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoRow.swift; sourceTree = "<group>"; };
+		A18A8CFF2917C58000B8F8B9 /* FileIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileIcon.swift; sourceTree = "<group>"; };
+		A18AB2BD2A77B0EF0037156B /* NotificationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsView.swift; sourceTree = "<group>"; };
+		A18AB2BF2A77B6780037156B /* AuthHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthHelper.swift; sourceTree = "<group>"; };
+		A18AB2C12A77CCDA0037156B /* NavController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavController.swift; sourceTree = "<group>"; };
+		A18AB2C32A77D0940037156B /* MainNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainNavigation.swift; sourceTree = "<group>"; };
+		A18AB2D32A77E3480037156B /* MainRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainRoute.swift; sourceTree = "<group>"; };
+		A18B59F62A3C60EE00CD1CFD /* FileIconCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileIconCache.swift; sourceTree = "<group>"; };
+		A191B2DA2AB0106D00EC5465 /* OpenDownloadsFolderActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenDownloadsFolderActivity.swift; sourceTree = "<group>"; };
+		A191B2DC2AB010AA00EC5465 /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
+		A191B2DE2AB0B42100EC5465 /* DownloadHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadHelper.swift; sourceTree = "<group>"; };
+		A197F8DD2A7C1FC80000EA27 /* UINavigationControllerDelegateProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UINavigationControllerDelegateProxy.h; sourceTree = "<group>"; };
+		A197F8DE2A7C1FC80000EA27 /* UINavigationControllerDelegateProxy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UINavigationControllerDelegateProxy.m; sourceTree = "<group>"; };
+		A197F8E02A7C37830000EA27 /* NavControllerViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavControllerViewExtensions.swift; sourceTree = "<group>"; };
+		A197F8E62A7CD6AE0000EA27 /* Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigation.swift; sourceTree = "<group>"; };
+		A197F8E82A7CDB760000EA27 /* RepoFilesMoveNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesMoveNavigation.swift; sourceTree = "<group>"; };
+		A197F9262A7D4B8C0000EA27 /* VaultTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VaultTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A197F9312A7D4BD30000EA27 /* NavControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavControllerTests.swift; sourceTree = "<group>"; };
+		A198035B2A84F5A90047CA6B /* ZoomableScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomableScrollView.swift; sourceTree = "<group>"; };
+		A19CE5C72A839AE40079E924 /* RemoteFilesDirPickerScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteFilesDirPickerScreen.swift; sourceTree = "<group>"; };
+		A19CE5CB2A839CCB0079E924 /* RemoteFilesDirPickerListRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteFilesDirPickerListRow.swift; sourceTree = "<group>"; };
+		A19CE5CD2A839D4C0079E924 /* RemoteFilesDirPickerRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteFilesDirPickerRoute.swift; sourceTree = "<group>"; };
+		A19CE5CF2A839D850079E924 /* RemoteFilesDirPickerNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteFilesDirPickerNavigation.swift; sourceTree = "<group>"; };
+		A19CE5D12A839DB60079E924 /* RemoteFilesDirPickerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteFilesDirPickerViewModel.swift; sourceTree = "<group>"; };
+		A19CE5D62A83A1EC0079E924 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
+		A19FB1E4292279BD00E3C37B /* LandingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandingScreen.swift; sourceTree = "<group>"; };
+		A19FB1E629227E5B00E3C37B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		A1A434812A92859500084D6A /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
+		A1A61A172A3A160A008920CB /* RepoFilesDetailsScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RepoFilesDetailsScreen.swift; sourceTree = "<group>"; };
+		A1A77F9D2A83ADF3001F6CF2 /* Vault.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Vault.entitlements; sourceTree = "<group>"; };
+		A1A77F9E2A83ADFE001F6CF2 /* VaultShareExt.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VaultShareExt.entitlements; sourceTree = "<group>"; };
+		A1A77FA22A83B36C001F6CF2 /* UploadHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadHelper.swift; sourceTree = "<group>"; };
+		A1A77FA42A83B39D001F6CF2 /* UploadFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadFile.swift; sourceTree = "<group>"; };
+		A1A77FA72A83CAD1001F6CF2 /* ShareExtScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareExtScreenViewModel.swift; sourceTree = "<group>"; };
+		A1A77FAD2A842DD5001F6CF2 /* RepoFilesImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesImagePicker.swift; sourceTree = "<group>"; };
+		A1A90B802ADEFBD50061C286 /* EmptyFolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyFolderView.swift; sourceTree = "<group>"; };
+		A1AD92862A80E40B006172BF /* ShareTargetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareTargetViewModel.swift; sourceTree = "<group>"; };
+		A1AD928A2A80ED6B006172BF /* ShareTargetRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareTargetRoute.swift; sourceTree = "<group>"; };
+		A1AD928C2A80ED7F006172BF /* ShareTargetNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareTargetNavigation.swift; sourceTree = "<group>"; };
+		A1AD92902A80EFE4006172BF /* ShareTargetReposScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareTargetReposScreen.swift; sourceTree = "<group>"; };
+		A1AD92942A80F328006172BF /* ShareTargetRepoFilesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareTargetRepoFilesScreen.swift; sourceTree = "<group>"; };
+		A1AD92982A80F47C006172BF /* ShareTargetRepoFilesListRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareTargetRepoFilesListRow.swift; sourceTree = "<group>"; };
+		A1AD929A2A80FA3B006172BF /* TransferRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferRow.swift; sourceTree = "<group>"; };
+		A1AD929C2A80FE7E006172BF /* TransfersSummaryBottomBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransfersSummaryBottomBar.swift; sourceTree = "<group>"; };
+		A1AD929E2A8100E1006172BF /* TransfersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransfersView.swift; sourceTree = "<group>"; };
+		A1AD92A02A8101E4006172BF /* TransfersSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransfersSheet.swift; sourceTree = "<group>"; };
+		A1AD92A22A810463006172BF /* TransfersSheetController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransfersSheetController.swift; sourceTree = "<group>"; };
+		A1AD92A42A8106E2006172BF /* TransfersButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransfersButton.swift; sourceTree = "<group>"; };
+		A1AD92A62A812856006172BF /* ShareTargetBottomBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareTargetBottomBar.swift; sourceTree = "<group>"; };
+		A1AD92DD2A828283006172BF /* VaultCommon.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = VaultCommon.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1AD92DF2A828283006172BF /* VaultCommon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VaultCommon.h; sourceTree = "<group>"; };
+		A1AD92F32A8285A7006172BF /* CommonAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = CommonAssets.xcassets; sourceTree = "<group>"; };
+		A1AD933C2A828C7C006172BF /* libvault_mobile.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvault_mobile.a; path = VaultCommon/libvault_mobile.a; sourceTree = "<group>"; };
+		A1AD93422A828DDE006172BF /* VaultShareExt.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VaultShareExt.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1AD93442A828DDE006172BF /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		A1AD93492A828DDE006172BF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A1AD93512A828DF1006172BF /* ShareExtScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareExtScreen.swift; sourceTree = "<group>"; };
+		A1AEB7DD2ABA07AE00B50AB1 /* UIColorRGB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorRGB.swift; sourceTree = "<group>"; };
+		A1B6D00C2941DA4600CBF5FC /* KeychainRepoPasswordStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainRepoPasswordStorage.swift; sourceTree = "<group>"; };
+		A1C8654D2ABF721F0032F64B /* WindowUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowUtils.swift; sourceTree = "<group>"; };
+		A1CC129D2A8AA0EA00C0E1A0 /* ImageData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageData.swift; sourceTree = "<group>"; };
+		A1CC129F2A8BB69900C0E1A0 /* ShareTargetFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareTargetFile.swift; sourceTree = "<group>"; };
+		A1CF9C902AC01F4200E07573 /* AuthGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthGuard.swift; sourceTree = "<group>"; };
+		A1D296A52A8513E4005ED3B5 /* RawImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RawImage.swift; sourceTree = "<group>"; };
+		A1D296A72A851E9D005ED3B5 /* GIFImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GIFImage.swift; sourceTree = "<group>"; };
+		A1DBAE4E2AC1993900D036C3 /* BlockOn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockOn.swift; sourceTree = "<group>"; };
+		A1ED96E92934C56D00DA54DA /* KeychainSecureStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSecureStorage.swift; sourceTree = "<group>"; };
+		A1ED96EF293617B300DA54DA /* UserIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserIcon.swift; sourceTree = "<group>"; };
+		A1ED96F12936490F00DA54DA /* RepoFilesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesScreen.swift; sourceTree = "<group>"; };
+		A1ED96F529364A6E00DA54DA /* RepoUnlockScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoUnlockScreen.swift; sourceTree = "<group>"; };
+		A1ED96F72936916D00DA54DA /* RepoFileRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFileRow.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A18269632AA0B8520072F531 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A12BEFA92AA0F16D0017A608 /* VaultMobile.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A18269772AA0E6AB0072F531 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A18269882AA0E8BD0072F531 /* libvault_mobile.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A18A8CE32917988100B8F8B9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1CF9AB82ACFF64F00D006AA /* VaultCommon.framework in Frameworks */,
+				A1CF9AC12AD002DC00D006AA /* VaultMobile.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A197F9232A7D4B8C0000EA27 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1AD92DA2A828283006172BF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1CF9ABB2ACFF65400D006AA /* VaultMobile.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1AD933F2A828DDE006172BF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1CF9ABE2ACFF65A00D006AA /* VaultCommon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A1228E672A7B83FF00AC1148 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A1265CAB2AAE3FCF00CEAA5C /* ErrorView.swift */,
+				A168FA052AE520C50041418F /* FullSizeListItem.swift */,
+				A168FA032AE51CA20041418F /* RefreshableList.swift */,
+				A1A90B802ADEFBD50061C286 /* EmptyFolderView.swift */,
+				A14A53D52AD7EEA300AE65B0 /* LoadingView.swift */,
+				A103E97E2ACAA66700883DA8 /* FormInfoSheet.swift */,
+				A1265CB52AAF47C900CEAA5C /* FrozenList.swift */,
+				A1D296A72A851E9D005ED3B5 /* GIFImage.swift */,
+				A1D296A52A8513E4005ED3B5 /* RawImage.swift */,
+				A1228E682A7B841400AC1148 /* RepoPasswordField.swift */,
+				A1A434812A92859500084D6A /* WebView.swift */,
+				A198035B2A84F5A90047CA6B /* ZoomableScrollView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A1228E6C2A7BA10F00AC1148 /* Dialogs */ = {
+			isa = PBXGroup;
+			children = (
+				A1228E6D2A7BA11800AC1148 /* DialogsView.swift */,
+				A1228E6F2A7BA24E00AC1148 /* DialogView.swift */,
+			);
+			path = Dialogs;
+			sourceTree = "<group>";
+		};
+		A1228E732A7BE0FD00AC1148 /* RepoFilesMove */ = {
+			isa = PBXGroup;
+			children = (
+				A1228E782A7BE92C00AC1148 /* RepoFilesMoveListRow.swift */,
+				A197F8E82A7CDB760000EA27 /* RepoFilesMoveNavigation.swift */,
+				A1228E7F2A7C035800AC1148 /* RepoFilesMoveRoute.swift */,
+				A1228E742A7BE13600AC1148 /* RepoFilesMoveScreen.swift */,
+				A1265CA82AADE52B00CEAA5C /* RepoFilesMoveSheetController.swift */,
+				A1228E7A2A7BE97800AC1148 /* RepoFilesMoveViewModel.swift */,
+			);
+			path = RepoFilesMove;
+			sourceTree = "<group>";
+		};
+		A1228E7C2A7BE9C100AC1148 /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+				A18AB2C12A77CCDA0037156B /* NavController.swift */,
+				A197F8E02A7C37830000EA27 /* NavControllerViewExtensions.swift */,
+				A197F8E62A7CD6AE0000EA27 /* Navigation.swift */,
+				A1228E812A7C04C400AC1148 /* NavigationStackInfo.swift */,
+				A16070B02A78F04A00BDE0CE /* NavView.swift */,
+				A197F8DD2A7C1FC80000EA27 /* UINavigationControllerDelegateProxy.h */,
+				A197F8DE2A7C1FC80000EA27 /* UINavigationControllerDelegateProxy.m */,
+			);
+			path = Navigation;
+			sourceTree = "<group>";
+		};
+		A1228E7D2A7BE9DA00AC1148 /* MainNavigation */ = {
+			isa = PBXGroup;
+			children = (
+				A18AB2C32A77D0940037156B /* MainNavigation.swift */,
+				A18AB2D32A77E3480037156B /* MainRoute.swift */,
+			);
+			path = MainNavigation;
+			sourceTree = "<group>";
+		};
+		A1265C982AA1E29900CEAA5C /* Sheets */ = {
+			isa = PBXGroup;
+			children = (
+				A1265C9D2AA1E2C900CEAA5C /* Sheet.swift */,
+				A1265C9F2AA1E2E300CEAA5C /* Sheets.swift */,
+				A1265C9B2AA1E2B800CEAA5C /* SheetsView.swift */,
+				A1265C992AA1E2A700CEAA5C /* SheetView.swift */,
+			);
+			path = Sheets;
+			sourceTree = "<group>";
+		};
+		A1265CA52AAD8E0300CEAA5C /* Overlays */ = {
+			isa = PBXGroup;
+			children = (
+				A1265CA62AAD8E1600CEAA5C /* Overlays.swift */,
+			);
+			path = Overlays;
+			sourceTree = "<group>";
+		};
+		A1287A472A837FCB00855708 /* RepoCreate */ = {
+			isa = PBXGroup;
+			children = (
+				A1287A4A2A83810E00855708 /* RepoCreateFormView.swift */,
+				A12D0A582AB474F10010CF38 /* RepoCreateCreatedView.swift */,
+				A1265CB12AAF1FE600CEAA5C /* RepoCreateRcloneSheet.swift */,
+				A1287A482A837FD700855708 /* RepoCreateScreen.swift */,
+				A1265CB32AAF258E00CEAA5C /* RepoCreateScreenViewModel.swift */,
+			);
+			path = RepoCreate;
+			sourceTree = "<group>";
+		};
+		A1287A4E2A838F9500855708 /* RemoteFiles */ = {
+			isa = PBXGroup;
+			children = (
+				A1265CAF2AAF104200CEAA5C /* RemoteFilesBreadcrumbs.swift */,
+			);
+			path = RemoteFiles;
+			sourceTree = "<group>";
+		};
+		A1287A4F2A838FB100855708 /* RemoteFilesBrowsers */ = {
+			isa = PBXGroup;
+			children = (
+				A1287A502A838FDA00855708 /* RemoteFilesBrowserItemIcon.swift */,
+				A1062B9B2A83945800DAAB5C /* RemoteFilesBrowserItemRow.swift */,
+			);
+			path = RemoteFilesBrowsers;
+			sourceTree = "<group>";
+		};
+		A12D80F52AB8A589009424D2 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				A12D80F62AB8A59B009424D2 /* StorageHelper.swift */,
+			);
+			path = Storage;
+			sourceTree = "<group>";
+		};
+		A16D93342A7A650800FB3249 /* Files */ = {
+			isa = PBXGroup;
+			children = (
+				A16D93352A7A651C00FB3249 /* FileRow.swift */,
+			);
+			path = Files;
+			sourceTree = "<group>";
+		};
+		A16D93372A7A77D800FB3249 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				A16D93382A7A77E300FB3249 /* TimeUtils.swift */,
+				A1CC129D2A8AA0EA00C0E1A0 /* ImageData.swift */,
+				A1AEB7DD2ABA07AE00B50AB1 /* UIColorRGB.swift */,
+				A1C8654D2ABF721F0032F64B /* WindowUtils.swift */,
+				A1265CAD2AAEFE8900CEAA5C /* ViewIf.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		A16D933A2A7A787900FB3249 /* RelativeTime */ = {
+			isa = PBXGroup;
+			children = (
+				A16D933B2A7A788200FB3249 /* RelativeTimeHelper.swift */,
+			);
+			path = RelativeTime;
+			sourceTree = "<group>";
+		};
+		A17676302ABC53DF0080D098 /* RepoRemove */ = {
+			isa = PBXGroup;
+			children = (
+				A17676312ABC53F20080D098 /* RepoRemoveScreen.swift */,
+			);
+			path = RepoRemove;
+			sourceTree = "<group>";
+		};
+		A17A759B291BE3C80037A015 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A1699A9D2AC3194300D58F6B /* libvault_mobile.a */,
+				A1AD933C2A828C7C006172BF /* libvault_mobile.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A18269672AA0B8520072F531 /* VaultUITests */ = {
+			isa = PBXGroup;
+			children = (
+				A18269732AA0DC570072F531 /* MobileVaultHelper.swift */,
+				A18269682AA0B8520072F531 /* VaultUITests.swift */,
+				A1DBAE4E2AC1993900D036C3 /* BlockOn.swift */,
+				A12D0A522AB36AE50010CF38 /* Fixture.swift */,
+				A1699AA42AC585B300D58F6B /* UIHelpers.swift */,
+				A12D0A502AB367350010CF38 /* DebugClient.swift */,
+			);
+			path = VaultUITests;
+			sourceTree = "<group>";
+		};
+		A182697B2AA0E6AB0072F531 /* VaultMobile */ = {
+			isa = PBXGroup;
+			children = (
+				A114176C2A751B9A007E4837 /* Callbacks.swift */,
+				A12BEFAA2AA0F1D90017A608 /* MemorySecureStorage.swift */,
+				A17A75A4291D44D80037A015 /* Subscription.swift */,
+				A17A7599291BE2EF0037A015 /* vault_mobile.swift */,
+				A17A7598291BE2E40037A015 /* vault_mobileFFI.h */,
+				A182697C2AA0E6AB0072F531 /* VaultMobile.h */,
+			);
+			path = VaultMobile;
+			sourceTree = "<group>";
+		};
+		A18A8CDD2917988100B8F8B9 = {
+			isa = PBXGroup;
+			children = (
+				A17A759B291BE3C80037A015 /* Frameworks */,
+				A18A8CE72917988100B8F8B9 /* Products */,
+				A18A8CE82917988100B8F8B9 /* Vault */,
+				A1AD92DE2A828283006172BF /* VaultCommon */,
+				A182697B2AA0E6AB0072F531 /* VaultMobile */,
+				A1AD93432A828DDE006172BF /* VaultShareExt */,
+				A197F9272A7D4B8C0000EA27 /* VaultTests */,
+				A18269672AA0B8520072F531 /* VaultUITests */,
+			);
+			sourceTree = "<group>";
+		};
+		A18A8CE72917988100B8F8B9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A18A8CE62917988100B8F8B9 /* Vault.app */,
+				A197F9262A7D4B8C0000EA27 /* VaultTests.xctest */,
+				A1AD92DD2A828283006172BF /* VaultCommon.framework */,
+				A1AD93422A828DDE006172BF /* VaultShareExt.appex */,
+				A18269662AA0B8520072F531 /* VaultUITests.xctest */,
+				A182697A2AA0E6AB0072F531 /* VaultMobile.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A18A8CE82917988100B8F8B9 /* Vault */ = {
+			isa = PBXGroup;
+			children = (
+				A1A77F9D2A83ADF3001F6CF2 /* Vault.entitlements */,
+				A18A8CED2917988200B8F8B9 /* Assets.xcassets */,
+				A19FB1E629227E5B00E3C37B /* Info.plist */,
+				A18A8CEF2917988200B8F8B9 /* Preview Content */,
+				A17A7597291BE27C0037A015 /* Vault-Bridging-Header.h */,
+				A18A8CE92917988100B8F8B9 /* VaultApp.swift */,
+				A18269712AA0BCEE0072F531 /* VaultTests.xctestplan */,
+				A18269722AA0BD700072F531 /* VaultUITests.xctestplan */,
+			);
+			path = Vault;
+			sourceTree = "<group>";
+		};
+		A18A8CEF2917988200B8F8B9 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				A18A8CF02917988200B8F8B9 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		A18AB2C52A77D6FE0037156B /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				A18AB2C72A77DE360037156B /* Auth */,
+				A1228E6C2A7BA10F00AC1148 /* Dialogs */,
+				A191B2D92AB0105B00EC5465 /* Downloads */,
+				A18AB2C82A77DE8C0037156B /* FileIcon */,
+				A16D93342A7A650800FB3249 /* Files */,
+				A19CE5D82A83A2540079E924 /* Keychain */,
+				A18AB2C92A77DECE0037156B /* Landing */,
+				A1228E7D2A7BE9DA00AC1148 /* MainNavigation */,
+				A1228E7C2A7BE9C100AC1148 /* Navigation */,
+				A18AB2CA2A77DEEC0037156B /* Notifications */,
+				A1265CA52AAD8E0300CEAA5C /* Overlays */,
+				A16D933A2A7A787900FB3249 /* RelativeTime */,
+				A1287A4E2A838F9500855708 /* RemoteFiles */,
+				A1287A4F2A838FB100855708 /* RemoteFilesBrowsers */,
+				A19CE5C62A839AA30079E924 /* RemoteFilesDirPicker */,
+				A18AB2CD2A77DF440037156B /* Repo */,
+				A1287A472A837FCB00855708 /* RepoCreate */,
+				A18AB2CB2A77DF0F0037156B /* RepoFiles */,
+				A18AB2CC2A77DF1A0037156B /* RepoFilesDetails */,
+				A1228E732A7BE0FD00AC1148 /* RepoFilesMove */,
+				A17676302ABC53DF0080D098 /* RepoRemove */,
+				A18AB2C62A77D7070037156B /* Repos */,
+				A18AB2CF2A77DF720037156B /* RepoUnlock */,
+				A18AB2D22A77DFA80037156B /* Settings */,
+				A1A77FA92A84214E001F6CF2 /* ShareExt */,
+				A1AD92852A80E3FD006172BF /* ShareTarget */,
+				A1265C982AA1E29900CEAA5C /* Sheets */,
+				A12D80F52AB8A589009424D2 /* Storage */,
+				A18AB2D12A77DF910037156B /* Transfers */,
+				A1A77FA12A83B35D001F6CF2 /* Uploads */,
+				A18AB2D02A77DF860037156B /* User */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		A18AB2C62A77D7070037156B /* Repos */ = {
+			isa = PBXGroup;
+			children = (
+				A18A8CFB2917A26D00B8F8B9 /* RepoRow.swift */,
+				A1287A4C2A83855500855708 /* RepoCreateRow.swift */,
+				A10A8C842ADCE9C0005A081D /* RepoGuard.swift */,
+				A17A7590291B95760037A015 /* ReposScreen.swift */,
+			);
+			path = Repos;
+			sourceTree = "<group>";
+		};
+		A18AB2C72A77DE360037156B /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				A18AB2BF2A77B6780037156B /* AuthHelper.swift */,
+				A1CF9C902AC01F4200E07573 /* AuthGuard.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		A18AB2C82A77DE8C0037156B /* FileIcon */ = {
+			isa = PBXGroup;
+			children = (
+				A18A8CFF2917C58000B8F8B9 /* FileIcon.swift */,
+				A18B59F62A3C60EE00CD1CFD /* FileIconCache.swift */,
+			);
+			path = FileIcon;
+			sourceTree = "<group>";
+		};
+		A18AB2C92A77DECE0037156B /* Landing */ = {
+			isa = PBXGroup;
+			children = (
+				A19FB1E4292279BD00E3C37B /* LandingScreen.swift */,
+			);
+			path = Landing;
+			sourceTree = "<group>";
+		};
+		A18AB2CA2A77DEEC0037156B /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				A18AB2BD2A77B0EF0037156B /* NotificationsView.swift */,
+				A18742EB2A77AE6200C8075A /* NotificationView.swift */,
+			);
+			path = Notifications;
+			sourceTree = "<group>";
+		};
+		A18AB2CB2A77DF0F0037156B /* RepoFiles */ = {
+			isa = PBXGroup;
+			children = (
+				A176762E2ABC2F230080D098 /* RepoFileInfoSheet.swift */,
+				A1228E6A2A7B9EEC00AC1148 /* RepoFileMenu.swift */,
+				A1ED96F72936916D00DA54DA /* RepoFileRow.swift */,
+				A1A77FAD2A842DD5001F6CF2 /* RepoFilesImagePicker.swift */,
+				A16D93322A7A643D00FB3249 /* RepoFilesListRow.swift */,
+				A16D93302A7A642D00FB3249 /* RepoFilesListView.swift */,
+				A103E9822ACAF74100883DA8 /* RepoFilesScreenViewModel.swift */,
+				A1ED96F12936490F00DA54DA /* RepoFilesScreen.swift */,
+			);
+			path = RepoFiles;
+			sourceTree = "<group>";
+		};
+		A18AB2CC2A77DF1A0037156B /* RepoFilesDetails */ = {
+			isa = PBXGroup;
+			children = (
+				A1A61A172A3A160A008920CB /* RepoFilesDetailsScreen.swift */,
+				A10A8C8A2ADD1B8C005A081D /* RepoFilesDetailsScreenViewModel.swift */,
+				A10A8C882ADD1B4B005A081D /* RepoFilesDetailsScreenContent.swift */,
+			);
+			path = RepoFilesDetails;
+			sourceTree = "<group>";
+		};
+		A18AB2CD2A77DF440037156B /* Repo */ = {
+			isa = PBXGroup;
+			children = (
+				A17A75A6291D4DC10037A015 /* RepoInfoScreen.swift */,
+				A16070B42A7937DA00BDE0CE /* RepoSetupBiometricUnlockSheet.swift */,
+				A12D0A562AB473580010CF38 /* RepoConfigInfo.swift */,
+			);
+			path = Repo;
+			sourceTree = "<group>";
+		};
+		A18AB2CF2A77DF720037156B /* RepoUnlock */ = {
+			isa = PBXGroup;
+			children = (
+				A16070B22A792E9900BDE0CE /* RepoUnlockForm.swift */,
+				A10A8C862ADCFA8C005A081D /* RepoUnlockSheet.swift */,
+				A1ED96F529364A6E00DA54DA /* RepoUnlockScreen.swift */,
+			);
+			path = RepoUnlock;
+			sourceTree = "<group>";
+		};
+		A18AB2D02A77DF860037156B /* User */ = {
+			isa = PBXGroup;
+			children = (
+				A1ED96EF293617B300DA54DA /* UserIcon.swift */,
+			);
+			path = User;
+			sourceTree = "<group>";
+		};
+		A18AB2D12A77DF910037156B /* Transfers */ = {
+			isa = PBXGroup;
+			children = (
+				A1AD929A2A80FA3B006172BF /* TransferRow.swift */,
+				A1699AA22AC56E0C00D58F6B /* TransferInfoView.swift */,
+				A1AD929C2A80FE7E006172BF /* TransfersSummaryBottomBar.swift */,
+				A1AD929E2A8100E1006172BF /* TransfersView.swift */,
+				A1AD92A42A8106E2006172BF /* TransfersButton.swift */,
+				A1AD92A02A8101E4006172BF /* TransfersSheet.swift */,
+				A1AD92A22A810463006172BF /* TransfersSheetController.swift */,
+			);
+			path = Transfers;
+			sourceTree = "<group>";
+		};
+		A18AB2D22A77DFA80037156B /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				A16D932E2A7A51C200FB3249 /* SettingsSheet.swift */,
+				A12D80F82AB99B8D009424D2 /* InfoSheet.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		A191B2D92AB0105B00EC5465 /* Downloads */ = {
+			isa = PBXGroup;
+			children = (
+				A191B2DA2AB0106D00EC5465 /* OpenDownloadsFolderActivity.swift */,
+				A191B2DC2AB010AA00EC5465 /* ActivityView.swift */,
+				A191B2DE2AB0B42100EC5465 /* DownloadHelper.swift */,
+			);
+			path = Downloads;
+			sourceTree = "<group>";
+		};
+		A197F9272A7D4B8C0000EA27 /* VaultTests */ = {
+			isa = PBXGroup;
+			children = (
+				A197F92F2A7D4BA30000EA27 /* Features */,
+			);
+			path = VaultTests;
+			sourceTree = "<group>";
+		};
+		A197F92F2A7D4BA30000EA27 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				A197F9302A7D4BA80000EA27 /* Navigation */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		A197F9302A7D4BA80000EA27 /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+				A197F9312A7D4BD30000EA27 /* NavControllerTests.swift */,
+			);
+			path = Navigation;
+			sourceTree = "<group>";
+		};
+		A19CE5C62A839AA30079E924 /* RemoteFilesDirPicker */ = {
+			isa = PBXGroup;
+			children = (
+				A19CE5CB2A839CCB0079E924 /* RemoteFilesDirPickerListRow.swift */,
+				A19CE5CF2A839D850079E924 /* RemoteFilesDirPickerNavigation.swift */,
+				A19CE5CD2A839D4C0079E924 /* RemoteFilesDirPickerRoute.swift */,
+				A19CE5C72A839AE40079E924 /* RemoteFilesDirPickerScreen.swift */,
+				A19CE5D12A839DB60079E924 /* RemoteFilesDirPickerViewModel.swift */,
+			);
+			path = RemoteFilesDirPicker;
+			sourceTree = "<group>";
+		};
+		A19CE5D82A83A2540079E924 /* Keychain */ = {
+			isa = PBXGroup;
+			children = (
+				A1B6D00C2941DA4600CBF5FC /* KeychainRepoPasswordStorage.swift */,
+				A1ED96E92934C56D00DA54DA /* KeychainSecureStorage.swift */,
+				A19CE5D62A83A1EC0079E924 /* KeychainHelper.swift */,
+				A18269282A9F6CC80072F531 /* LocalAuthenticationHelper.swift */,
+			);
+			path = Keychain;
+			sourceTree = "<group>";
+		};
+		A1A77FA12A83B35D001F6CF2 /* Uploads */ = {
+			isa = PBXGroup;
+			children = (
+				A1A77FA22A83B36C001F6CF2 /* UploadHelper.swift */,
+				A1A77FA42A83B39D001F6CF2 /* UploadFile.swift */,
+			);
+			path = Uploads;
+			sourceTree = "<group>";
+		};
+		A1A77FA92A84214E001F6CF2 /* ShareExt */ = {
+			isa = PBXGroup;
+			children = (
+				A1AD93512A828DF1006172BF /* ShareExtScreen.swift */,
+				A1A77FA72A83CAD1001F6CF2 /* ShareExtScreenViewModel.swift */,
+			);
+			path = ShareExt;
+			sourceTree = "<group>";
+		};
+		A1AD92852A80E3FD006172BF /* ShareTarget */ = {
+			isa = PBXGroup;
+			children = (
+				A1AD928C2A80ED7F006172BF /* ShareTargetNavigation.swift */,
+				A1AD92982A80F47C006172BF /* ShareTargetRepoFilesListRow.swift */,
+				A1AD92942A80F328006172BF /* ShareTargetRepoFilesScreen.swift */,
+				A1AD92A62A812856006172BF /* ShareTargetBottomBar.swift */,
+				A1AD92902A80EFE4006172BF /* ShareTargetReposScreen.swift */,
+				A1AD928A2A80ED6B006172BF /* ShareTargetRoute.swift */,
+				A1AD92862A80E40B006172BF /* ShareTargetViewModel.swift */,
+				A1265CA12AA1E46500CEAA5C /* ShareTargetFilesSheet.swift */,
+				A1CC129F2A8BB69900C0E1A0 /* ShareTargetFile.swift */,
+			);
+			path = ShareTarget;
+			sourceTree = "<group>";
+		};
+		A1AD92DE2A828283006172BF /* VaultCommon */ = {
+			isa = PBXGroup;
+			children = (
+				A1AD92F32A8285A7006172BF /* CommonAssets.xcassets */,
+				A16070B62A794CF000BDE0CE /* Container.swift */,
+				A18A8CEB2917988100B8F8B9 /* ContentView.swift */,
+				A18AB2C52A77D6FE0037156B /* Features */,
+				A17A7592291B96630037A015 /* PreviewsData.swift */,
+				A16D93372A7A77D800FB3249 /* Utils */,
+				A1AD92DF2A828283006172BF /* VaultCommon.h */,
+				A1228E672A7B83FF00AC1148 /* Views */,
+			);
+			path = VaultCommon;
+			sourceTree = "<group>";
+		};
+		A1AD93432A828DDE006172BF /* VaultShareExt */ = {
+			isa = PBXGroup;
+			children = (
+				A1A77F9E2A83ADFE001F6CF2 /* VaultShareExt.entitlements */,
+				A1AD93442A828DDE006172BF /* ShareViewController.swift */,
+				A1AD93492A828DDE006172BF /* Info.plist */,
+			);
+			path = VaultShareExt;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		A18269752AA0E6AB0072F531 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A182697D2AA0E6AB0072F531 /* VaultMobile.h in Headers */,
+				A182698E2AA0EABD0072F531 /* vault_mobileFFI.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1AD92D82A828283006172BF /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1AD92E02A828283006172BF /* VaultCommon.h in Headers */,
+				A1AD92F12A8283A4006172BF /* UINavigationControllerDelegateProxy.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		A18269652AA0B8520072F531 /* VaultUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A182696E2AA0B8520072F531 /* Build configuration list for PBXNativeTarget "VaultUITests" */;
+			buildPhases = (
+				A18269622AA0B8520072F531 /* Sources */,
+				A18269632AA0B8520072F531 /* Frameworks */,
+				A18269642AA0B8520072F531 /* Resources */,
+				A1699AA02AC31A5700D58F6B /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A182696D2AA0B8520072F531 /* PBXTargetDependency */,
+			);
+			name = VaultUITests;
+			productName = VaultUITests;
+			productReference = A18269662AA0B8520072F531 /* VaultUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		A18269792AA0E6AB0072F531 /* VaultMobile */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A18269822AA0E6AB0072F531 /* Build configuration list for PBXNativeTarget "VaultMobile" */;
+			buildPhases = (
+				A18269862AA0E77A0072F531 /* Build Rust binary */,
+				A18269872AA0E7860072F531 /* Generate bindings */,
+				A18269752AA0E6AB0072F531 /* Headers */,
+				A18269762AA0E6AB0072F531 /* Sources */,
+				A18269772AA0E6AB0072F531 /* Frameworks */,
+				A18269782AA0E6AB0072F531 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VaultMobile;
+			productName = VaultMobile;
+			productReference = A182697A2AA0E6AB0072F531 /* VaultMobile.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		A18A8CE52917988100B8F8B9 /* Vault */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A18A8CF42917988200B8F8B9 /* Build configuration list for PBXNativeTarget "Vault" */;
+			buildPhases = (
+				A18A8CE22917988100B8F8B9 /* Sources */,
+				A18A8CE32917988100B8F8B9 /* Frameworks */,
+				A18A8CE42917988100B8F8B9 /* Resources */,
+				A1AD93502A828DDE006172BF /* Embed Foundation Extensions */,
+				A1CF9ABA2ACFF64F00D006AA /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A1AD92E22A828283006172BF /* PBXTargetDependency */,
+				A1AD934B2A828DDE006172BF /* PBXTargetDependency */,
+				A1CF9AC42AD002DC00D006AA /* PBXTargetDependency */,
+			);
+			name = Vault;
+			productName = Vault;
+			productReference = A18A8CE62917988100B8F8B9 /* Vault.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A197F9252A7D4B8C0000EA27 /* VaultTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A197F92C2A7D4B8C0000EA27 /* Build configuration list for PBXNativeTarget "VaultTests" */;
+			buildPhases = (
+				A197F9222A7D4B8C0000EA27 /* Sources */,
+				A197F9232A7D4B8C0000EA27 /* Frameworks */,
+				A197F9242A7D4B8C0000EA27 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A197F92B2A7D4B8C0000EA27 /* PBXTargetDependency */,
+			);
+			name = VaultTests;
+			productName = VaultTests;
+			productReference = A197F9262A7D4B8C0000EA27 /* VaultTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		A1AD92DC2A828283006172BF /* VaultCommon */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1AD92E82A828283006172BF /* Build configuration list for PBXNativeTarget "VaultCommon" */;
+			buildPhases = (
+				A1AD92D82A828283006172BF /* Headers */,
+				A1AD92D92A828283006172BF /* Sources */,
+				A1AD92DA2A828283006172BF /* Frameworks */,
+				A1AD92DB2A828283006172BF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A182698C2AA0E8F20072F531 /* PBXTargetDependency */,
+			);
+			name = VaultCommon;
+			productName = VaultCommon;
+			productReference = A1AD92DD2A828283006172BF /* VaultCommon.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		A1AD93412A828DDE006172BF /* VaultShareExt */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1AD934D2A828DDE006172BF /* Build configuration list for PBXNativeTarget "VaultShareExt" */;
+			buildPhases = (
+				A1AD933E2A828DDE006172BF /* Sources */,
+				A1AD933F2A828DDE006172BF /* Frameworks */,
+				A1AD93402A828DDE006172BF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A1AD93562A828E4A006172BF /* PBXTargetDependency */,
+			);
+			name = VaultShareExt;
+			productName = VaultShareExt;
+			productReference = A1AD93422A828DDE006172BF /* VaultShareExt.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A18A8CDE2917988100B8F8B9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1430;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					A18269652AA0B8520072F531 = {
+						CreatedOnToolsVersion = 14.3.1;
+						TestTargetID = A18A8CE52917988100B8F8B9;
+					};
+					A18269792AA0E6AB0072F531 = {
+						CreatedOnToolsVersion = 14.3.1;
+					};
+					A18A8CE52917988100B8F8B9 = {
+						CreatedOnToolsVersion = 13.4.1;
+					};
+					A197F9252A7D4B8C0000EA27 = {
+						CreatedOnToolsVersion = 14.3.1;
+					};
+					A1AD92DC2A828283006172BF = {
+						CreatedOnToolsVersion = 14.3.1;
+					};
+					A1AD93412A828DDE006172BF = {
+						CreatedOnToolsVersion = 14.3.1;
+					};
+				};
+			};
+			buildConfigurationList = A18A8CE12917988100B8F8B9 /* Build configuration list for PBXProject "Vault" */;
+			compatibilityVersion = "Xcode 13.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A18A8CDD2917988100B8F8B9;
+			productRefGroup = A18A8CE72917988100B8F8B9 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A18A8CE52917988100B8F8B9 /* Vault */,
+				A18269792AA0E6AB0072F531 /* VaultMobile */,
+				A1AD92DC2A828283006172BF /* VaultCommon */,
+				A1AD93412A828DDE006172BF /* VaultShareExt */,
+				A197F9252A7D4B8C0000EA27 /* VaultTests */,
+				A18269652AA0B8520072F531 /* VaultUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A18269642AA0B8520072F531 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A18269782AA0E6AB0072F531 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A18A8CE42917988100B8F8B9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A18A8CF12917988200B8F8B9 /* Preview Assets.xcassets in Resources */,
+				A1AD93592A82D568006172BF /* CommonAssets.xcassets in Resources */,
+				A18A8CEE2917988200B8F8B9 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A197F9242A7D4B8C0000EA27 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1AD92DB2A828283006172BF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1AD92F42A8285A7006172BF /* CommonAssets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1AD93402A828DDE006172BF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1A77FA62A83C6CF001F6CF2 /* CommonAssets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A18269862AA0E77A0072F531 /* Build Rust binary */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build Rust binary";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "${PROJECT_DIR}/bin/compile-library.sh $buildvariant\n";
+		};
+		A18269872AA0E7860072F531 /* Generate bindings */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(PROJECT_DIR)/../vault-mobile/src/vault-mobile.udl",
+			);
+			name = "Generate bindings";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(PROJECT_DIR)/VaultMobile/vault_mobile.swift",
+				"$(PROJECT_DIR)/VaultMobile/vault_mobileFFI.h",
+				"$(PROJECT_DIR)/VaultMobile/vault_mobileFFI.modulemap",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "${PROJECT_DIR}/bin/generate-bindings.sh\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A18269622AA0B8520072F531 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1699AA52AC585B300D58F6B /* UIHelpers.swift in Sources */,
+				A18269692AA0B8520072F531 /* VaultUITests.swift in Sources */,
+				A12D0A512AB367350010CF38 /* DebugClient.swift in Sources */,
+				A12D0A532AB36AE50010CF38 /* Fixture.swift in Sources */,
+				A1DBAE4F2AC1993900D036C3 /* BlockOn.swift in Sources */,
+				A12BEFAC2AA0F5EC0017A608 /* MobileVaultHelper.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A18269762AA0E6AB0072F531 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A182698F2AA0EB7F0072F531 /* Subscription.swift in Sources */,
+				A18269852AA0E6E60072F531 /* vault_mobile.swift in Sources */,
+				A1DEA2F22ABF763A00F43BBA /* Callbacks.swift in Sources */,
+				A12BEFAB2AA0F1D90017A608 /* MemorySecureStorage.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A18A8CE22917988100B8F8B9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A18A8CEA2917988100B8F8B9 /* VaultApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A197F9222A7D4B8C0000EA27 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A197F9322A7D4BD30000EA27 /* NavControllerTests.swift in Sources */,
+				A197F9342A7D60280000EA27 /* NavController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1AD92D92A828283006172BF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1AD93362A828724006172BF /* RepoPasswordField.swift in Sources */,
+				A1AD92F02A82834E006172BF /* UINavigationControllerDelegateProxy.m in Sources */,
+				A1AEB7DE2ABA07AE00B50AB1 /* UIColorRGB.swift in Sources */,
+				A1C8654E2ABF721F0032F64B /* WindowUtils.swift in Sources */,
+				A1CC129E2A8AA0EA00C0E1A0 /* ImageData.swift in Sources */,
+				A1AD932D2A8286C4006172BF /* TransferRow.swift in Sources */,
+				A1AD93022A82863D006172BF /* FileRow.swift in Sources */,
+				A1265CB42AAF258E00CEAA5C /* RepoCreateScreenViewModel.swift in Sources */,
+				A1AD93192A828686006172BF /* RepoFilesMoveScreen.swift in Sources */,
+				A1AD92EF2A828348006172BF /* NavView.swift in Sources */,
+				A10A8C852ADCE9C0005A081D /* RepoGuard.swift in Sources */,
+				A1265CA22AA1E46500CEAA5C /* ShareTargetFilesSheet.swift in Sources */,
+				A1AD93072A828650006172BF /* NotificationView.swift in Sources */,
+				A1AD932A2A8286B8006172BF /* ShareTargetRoute.swift in Sources */,
+				A1AD92F92A82861D006172BF /* ContentView.swift in Sources */,
+				A1265CB22AAF1FE600CEAA5C /* RepoCreateRcloneSheet.swift in Sources */,
+				A1AD93282A8286B3006172BF /* ShareTargetBottomBar.swift in Sources */,
+				A1A77FA52A83B39D001F6CF2 /* UploadFile.swift in Sources */,
+				A1AD93112A82866F006172BF /* RepoFilesScreen.swift in Sources */,
+				A1AD93322A8286D1006172BF /* TransfersSheetController.swift in Sources */,
+				A1AD93272A8286B1006172BF /* ShareTargetRepoFilesScreen.swift in Sources */,
+				A1AD930C2A828661006172BF /* RepoFileRow.swift in Sources */,
+				A18269292A9F6CC80072F531 /* LocalAuthenticationHelper.swift in Sources */,
+				A1AD92FF2A828634006172BF /* DialogView.swift in Sources */,
+				A1AD93082A828654006172BF /* RelativeTimeHelper.swift in Sources */,
+				A1A77FAE2A842DD5001F6CF2 /* RepoFilesImagePicker.swift in Sources */,
+				A1AD93292A8286B6006172BF /* ShareTargetReposScreen.swift in Sources */,
+				A1D296A82A851E9D005ED3B5 /* GIFImage.swift in Sources */,
+				A1AD93122A828673006172BF /* RepoFilesDetailsScreen.swift in Sources */,
+				A12D80F92AB99B8D009424D2 /* InfoSheet.swift in Sources */,
+				A1AD93172A828681006172BF /* RepoFilesMoveNavigation.swift in Sources */,
+				A19CE5CC2A839CCB0079E924 /* RemoteFilesDirPickerListRow.swift in Sources */,
+				A191B2DF2AB0B42100EC5465 /* DownloadHelper.swift in Sources */,
+				A17676322ABC53F20080D098 /* RepoRemoveScreen.swift in Sources */,
+				A1A90B812ADEFBD50061C286 /* EmptyFolderView.swift in Sources */,
+				A1AD932C2A8286BD006172BF /* ShareTargetViewModel.swift in Sources */,
+				A19CE5D02A839D850079E924 /* RemoteFilesDirPickerNavigation.swift in Sources */,
+				A1D296A62A8513E4005ED3B5 /* RawImage.swift in Sources */,
+				A1265CA72AAD8E1600CEAA5C /* Overlays.swift in Sources */,
+				A168FA042AE51CA20041418F /* RefreshableList.swift in Sources */,
+				A1AD93312A8286CE006172BF /* TransfersSheet.swift in Sources */,
+				A1265C9A2AA1E2A700CEAA5C /* SheetView.swift in Sources */,
+				A103E97F2ACAA66700883DA8 /* FormInfoSheet.swift in Sources */,
+				A1A77FAA2A84215F001F6CF2 /* ShareExtScreen.swift in Sources */,
+				A1AD93002A828637006172BF /* FileIcon.swift in Sources */,
+				A103E9832ACAF74100883DA8 /* RepoFilesScreenViewModel.swift in Sources */,
+				A1265CAC2AAE3FCF00CEAA5C /* ErrorView.swift in Sources */,
+				A1AD92EE2A828345006172BF /* NavigationStackInfo.swift in Sources */,
+				A1AD93232A8286A7006172BF /* ShareTargetNavigation.swift in Sources */,
+				A12D80F72AB8A59B009424D2 /* StorageHelper.swift in Sources */,
+				A198035C2A84F5A90047CA6B /* ZoomableScrollView.swift in Sources */,
+				A1AD931C2A828690006172BF /* RepoRow.swift in Sources */,
+				A1AD92FE2A828631006172BF /* DialogsView.swift in Sources */,
+				A1AD93332A8286D5006172BF /* UserIcon.swift in Sources */,
+				A1CC12A02A8BB69900C0E1A0 /* ShareTargetFile.swift in Sources */,
+				A1AD931B2A82868B006172BF /* RepoFilesMoveViewModel.swift in Sources */,
+				A1287A4B2A83810E00855708 /* RepoCreateFormView.swift in Sources */,
+				A1AD93182A828684006172BF /* RepoFilesMoveRoute.swift in Sources */,
+				A1A434822A92859500084D6A /* WebView.swift in Sources */,
+				A1AD930F2A82866A006172BF /* RepoFilesListRow.swift in Sources */,
+				A1AD932F2A8286CA006172BF /* TransfersView.swift in Sources */,
+				A1AD93012A828639006172BF /* FileIconCache.swift in Sources */,
+				A1AD930A2A82865A006172BF /* RepoSetupBiometricUnlockSheet.swift in Sources */,
+				A1265CB02AAF104200CEAA5C /* RemoteFilesBreadcrumbs.swift in Sources */,
+				A1AD93252A8286AC006172BF /* ShareTargetRepoFilesListRow.swift in Sources */,
+				A1AD93302A8286CC006172BF /* TransfersButton.swift in Sources */,
+				A1AD931F2A82869B006172BF /* RepoUnlockScreen.swift in Sources */,
+				A1AD932E2A8286C7006172BF /* TransfersSummaryBottomBar.swift in Sources */,
+				A1CF9C912AC01F4200E07573 /* AuthGuard.swift in Sources */,
+				A1AD93032A828640006172BF /* LandingScreen.swift in Sources */,
+				A1265C9E2AA1E2C900CEAA5C /* Sheet.swift in Sources */,
+				A19CE5CE2A839D4C0079E924 /* RemoteFilesDirPickerRoute.swift in Sources */,
+				A1A77FAC2A842164001F6CF2 /* ShareExtScreenViewModel.swift in Sources */,
+				A10A8C892ADD1B4B005A081D /* RepoFilesDetailsScreenContent.swift in Sources */,
+				A168FA062AE520C50041418F /* FullSizeListItem.swift in Sources */,
+				A1AD92EC2A82833F006172BF /* NavControllerViewExtensions.swift in Sources */,
+				A1062B9C2A83945800DAAB5C /* RemoteFilesBrowserItemRow.swift in Sources */,
+				A1265CAE2AAEFE8900CEAA5C /* ViewIf.swift in Sources */,
+				A1AD92F82A82861D006172BF /* KeychainSecureStorage.swift in Sources */,
+				A1AD93062A82864D006172BF /* NotificationsView.swift in Sources */,
+				A191B2DB2AB0106D00EC5465 /* OpenDownloadsFolderActivity.swift in Sources */,
+				A1AD93202A82869E006172BF /* SettingsSheet.swift in Sources */,
+				A176762F2ABC2F230080D098 /* RepoFileInfoSheet.swift in Sources */,
+				A1AD92EB2A82833A006172BF /* NavController.swift in Sources */,
+				A1699AA32AC56E0C00D58F6B /* TransferInfoView.swift in Sources */,
+				A14A53D62AD7EEA300AE65B0 /* LoadingView.swift in Sources */,
+				A1AD92FC2A82861D006172BF /* PreviewsData.swift in Sources */,
+				A19CE5D72A83A1EC0079E924 /* KeychainHelper.swift in Sources */,
+				A1AD92F72A82861D006172BF /* Container.swift in Sources */,
+				A1AD93042A828644006172BF /* MainNavigation.swift in Sources */,
+				A1265C9C2AA1E2B800CEAA5C /* SheetsView.swift in Sources */,
+				A1265CB62AAF47C900CEAA5C /* FrozenList.swift in Sources */,
+				A1265CA02AA1E2E300CEAA5C /* Sheets.swift in Sources */,
+				A12D0A572AB473580010CF38 /* RepoConfigInfo.swift in Sources */,
+				A1AD931E2A828697006172BF /* RepoUnlockForm.swift in Sources */,
+				A1AD92FD2A82862C006172BF /* AuthHelper.swift in Sources */,
+				A1AD92ED2A828342006172BF /* Navigation.swift in Sources */,
+				A10A8C8B2ADD1B8C005A081D /* RepoFilesDetailsScreenViewModel.swift in Sources */,
+				A1AD930B2A82865E006172BF /* RepoFileMenu.swift in Sources */,
+				A1287A4D2A83855500855708 /* RepoCreateRow.swift in Sources */,
+				A1AD93092A828657006172BF /* RepoInfoScreen.swift in Sources */,
+				A1AD93052A828647006172BF /* MainRoute.swift in Sources */,
+				A1AD93372A828732006172BF /* TimeUtils.swift in Sources */,
+				A1287A492A837FD700855708 /* RepoCreateScreen.swift in Sources */,
+				A12D0A592AB474F10010CF38 /* RepoCreateCreatedView.swift in Sources */,
+				A19CE5C82A839AE40079E924 /* RemoteFilesDirPickerScreen.swift in Sources */,
+				A1AD93102A82866C006172BF /* RepoFilesListView.swift in Sources */,
+				A1A77FA32A83B36C001F6CF2 /* UploadHelper.swift in Sources */,
+				A1287A512A838FDA00855708 /* RemoteFilesBrowserItemIcon.swift in Sources */,
+				A10A8C872ADCFA8C005A081D /* RepoUnlockSheet.swift in Sources */,
+				A1AD92F62A82861D006172BF /* KeychainRepoPasswordStorage.swift in Sources */,
+				A1AD93152A82867C006172BF /* RepoFilesMoveListRow.swift in Sources */,
+				A19CE5D22A839DB60079E924 /* RemoteFilesDirPickerViewModel.swift in Sources */,
+				A1265CA92AADE52B00CEAA5C /* RepoFilesMoveSheetController.swift in Sources */,
+				A1AD931D2A828693006172BF /* ReposScreen.swift in Sources */,
+				A191B2DD2AB010AA00EC5465 /* ActivityView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1AD933E2A828DDE006172BF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1AD93452A828DDE006172BF /* ShareViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A182696D2AA0B8520072F531 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A18A8CE52917988100B8F8B9 /* Vault */;
+			targetProxy = A182696C2AA0B8520072F531 /* PBXContainerItemProxy */;
+		};
+		A182698C2AA0E8F20072F531 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A18269792AA0E6AB0072F531 /* VaultMobile */;
+			targetProxy = A182698B2AA0E8F20072F531 /* PBXContainerItemProxy */;
+		};
+		A197F92B2A7D4B8C0000EA27 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A18A8CE52917988100B8F8B9 /* Vault */;
+			targetProxy = A197F92A2A7D4B8C0000EA27 /* PBXContainerItemProxy */;
+		};
+		A1AD92E22A828283006172BF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A1AD92DC2A828283006172BF /* VaultCommon */;
+			targetProxy = A1AD92E12A828283006172BF /* PBXContainerItemProxy */;
+		};
+		A1AD934B2A828DDE006172BF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A1AD93412A828DDE006172BF /* VaultShareExt */;
+			targetProxy = A1AD934A2A828DDE006172BF /* PBXContainerItemProxy */;
+		};
+		A1AD93562A828E4A006172BF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A1AD92DC2A828283006172BF /* VaultCommon */;
+			targetProxy = A1AD93552A828E4A006172BF /* PBXContainerItemProxy */;
+		};
+		A1CF9AC42AD002DC00D006AA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A18269792AA0E6AB0072F531 /* VaultMobile */;
+			targetProxy = A1CF9AC32AD002DC00D006AA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		A182696F2AA0B8520072F531 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UKS5857P5L;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/VaultMobile",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.koofr.VaultUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Vault;
+			};
+			name = Debug;
+		};
+		A18269702AA0B8520072F531 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UKS5857P5L;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/VaultMobile",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.koofr.VaultUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Vault;
+			};
+			name = Release;
+		};
+		A18269832AA0E6AB0072F531 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = UKS5857P5L;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/VaultMobile",
+				);
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = net.koofr.VaultMobile;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+				buildvariant = debug;
+			};
+			name = Debug;
+		};
+		A18269842AA0E6AB0072F531 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = UKS5857P5L;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/VaultMobile",
+				);
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = net.koofr.VaultMobile;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+				buildvariant = release;
+			};
+			name = Release;
+		};
+		A18A8CF22917988200B8F8B9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A18A8CF32917988200B8F8B9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A18A8CF52917988200B8F8B9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Vault/Vault.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 107002;
+				DEVELOPMENT_ASSET_PATHS = "\"Vault/Preview Content\"";
+				DEVELOPMENT_TEAM = UKS5857P5L;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Vault/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Koofr Vault";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app wants to take pictures.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Save your Safe Keys to this device.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app wants to use your photos.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.7;
+				PRODUCT_BUNDLE_IDENTIFIER = net.koofr.Vault;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_DIR)/$(PROJECT_NAME)/$(PROJECT_NAME)-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A18A8CF62917988200B8F8B9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Vault/Vault.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 107002;
+				DEVELOPMENT_ASSET_PATHS = "\"Vault/Preview Content\"";
+				DEVELOPMENT_TEAM = UKS5857P5L;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Vault/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Koofr Vault";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app wants to take pictures.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Save your Safe Keys to this device.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app wants to use your photos.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.7;
+				PRODUCT_BUNDLE_IDENTIFIER = net.koofr.Vault;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_DIR)/$(PROJECT_NAME)/$(PROJECT_NAME)-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		A197F92D2A7D4B8C0000EA27 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UKS5857P5L;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.koofr.VaultTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A197F92E2A7D4B8C0000EA27 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UKS5857P5L;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.koofr.VaultTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		A1AD92E62A828283006172BF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = UKS5857P5L;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = net.koofr.VaultCommon;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		A1AD92E72A828283006172BF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = UKS5857P5L;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = net.koofr.VaultCommon;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		A1AD934E2A828DDE006172BF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = VaultShareExt/VaultShareExt.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UKS5857P5L;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VaultShareExt/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = VaultShareExt;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.koofr.Vault.VaultShareExt;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A1AD934F2A828DDE006172BF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = VaultShareExt/VaultShareExt.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UKS5857P5L;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VaultShareExt/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = VaultShareExt;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.koofr.Vault.VaultShareExt;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A182696E2AA0B8520072F531 /* Build configuration list for PBXNativeTarget "VaultUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A182696F2AA0B8520072F531 /* Debug */,
+				A18269702AA0B8520072F531 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A18269822AA0E6AB0072F531 /* Build configuration list for PBXNativeTarget "VaultMobile" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A18269832AA0E6AB0072F531 /* Debug */,
+				A18269842AA0E6AB0072F531 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A18A8CE12917988100B8F8B9 /* Build configuration list for PBXProject "Vault" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A18A8CF22917988200B8F8B9 /* Debug */,
+				A18A8CF32917988200B8F8B9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A18A8CF42917988200B8F8B9 /* Build configuration list for PBXNativeTarget "Vault" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A18A8CF52917988200B8F8B9 /* Debug */,
+				A18A8CF62917988200B8F8B9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A197F92C2A7D4B8C0000EA27 /* Build configuration list for PBXNativeTarget "VaultTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A197F92D2A7D4B8C0000EA27 /* Debug */,
+				A197F92E2A7D4B8C0000EA27 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1AD92E82A828283006172BF /* Build configuration list for PBXNativeTarget "VaultCommon" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1AD92E62A828283006172BF /* Debug */,
+				A1AD92E72A828283006172BF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1AD934D2A828DDE006172BF /* Build configuration list for PBXNativeTarget "VaultShareExt" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1AD934E2A828DDE006172BF /* Debug */,
+				A1AD934F2A828DDE006172BF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A18A8CDE2917988100B8F8B9 /* Project object */;
+}

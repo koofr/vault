@@ -1,0 +1,25 @@
+{
+  "configurations" : [
+    {
+      "id" : "A36A2C55-38E7-4C2C-93AE-FF86CDB1C93D",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "skippedTests" : [],
+      "target" : {
+        "containerPath" : "container:Vault.xcodeproj",
+        "identifier" : "A18269652AA0B8520072F531",
+        "name" : "VaultUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSExtension</key>
+	<dict>
+		<key>NSExtensionAttributes</key>
+		<dict>
+			<key>NSExtensionActivationRule</key>
+			<string>SUBQUERY (
+		extensionItems,
+		$extensionItem,
+		SUBQUERY (
+				$extensionItem.attachments,
+				$attachment,
+				ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "com.apple.quicktime-movie" ||
+				ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "com.compuserve.gif" ||
+				ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "org.webmproject.webp" ||
+				ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.directory" ||
+				ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.file-url" ||
+				ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.folder" ||
+				ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.html" ||
+				ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.image" ||
+				ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.jpeg" ||
+				ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.mpeg-4" ||
+				ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.plain-text" ||
+				ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.png" ||
+				ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.rtf" ||
+				ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.text" ||
+				ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.tiff" ||
+				ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.url" ||
+				ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.utf8-plain-text" ||
+				ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.vcard"
+		).@count &gt; 0
+).@count &gt; 0</string>
+		</dict>
+		<key>NSExtensionPrincipalClass</key>
+		<string>$(PRODUCT_MODULE_NAME).ShareViewController</string>
+		<key>NSExtensionPointIdentifier</key>
+		<string>com.apple.share-services</string>
+	</dict>
+</dict>
+</plist>

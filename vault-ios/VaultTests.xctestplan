@@ -1,0 +1,37 @@
+{
+  "configurations" : [
+    {
+      "id" : "056F01E5-98C8-4AE9-9954-859BA70721E1",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:Vault.xcodeproj",
+          "identifier" : "A18A8CE52917988100B8F8B9",
+          "name" : "Vault"
+        }
+      ]
+    },
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Vault.xcodeproj",
+      "identifier" : "A18A8CE52917988100B8F8B9",
+      "name" : "Vault"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Vault.xcodeproj",
+        "identifier" : "A197F9252A7D4B8C0000EA27",
+        "name" : "VaultTests"
+      }
+    }
+  ],
+  "version" : 1
+}

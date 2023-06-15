@@ -24,9 +24,18 @@ build-wasm-web:
 build-wasm-web-tests:
 	cd vault-wasm && wasm-pack build --target nodejs --out-dir ../vault-web-tests/vault-wasm-nodejs --out-name vault-wasm && ./fix-helpers-nodejs.sh ../vault-web-tests/vault-wasm-nodejs
 
+build-ios-simulator:
+	cd vault-ios && xcodebuild -scheme Vault -destination "platform=iOS Simulator,name=iPhone 14 Pro" build
+
+build-ios-device:
+	cd vault-ios && xcodebuild -scheme Vault -destination "generic/platform=iOS" build
+
+build-ios-archive:
+	cd vault-ios && xcodebuild -scheme Vault archive
+
 # format
 
-format: format-rust format-web format-web-tests
+format: format-rust format-web format-web-tests format-ios
 
 format-rust:
 	cargo +nightly fmt -- --config-path rustfmt-unstable.toml
@@ -36,6 +45,9 @@ format-web:
 
 format-web-tests:
 	cd vault-web-tests && npm run prettier
+
+format-ios:
+	cd vault-ios && swift-format --in-place --recursive .
 
 # check
 
@@ -58,7 +70,7 @@ check-web-tests: build-wasm-web-tests
 
 # test
 
-test: test-rust test-web-tests
+test: test-rust test-web-tests test-ios-unit test-ios-ui
 
 test-rust:
 	cargo test
@@ -70,3 +82,9 @@ test-rust-force:
 test-web-tests: build-wasm-web build-wasm-web-tests
 	cd vault-web-tests && scripts/use-fake-remote.sh ../vault-web/public/config.json && scripts/use-fake-remote.sh ../vault-web/dist/config.json
 	cd vault-web-tests && npx playwright test --headed --project=chromium
+
+test-ios-unit:
+	cd vault-ios && xcodebuild test -scheme Vault -testPlan VaultTests -destination "platform=iOS Simulator,name=iPhone 14 Pro"
+
+test-ios-ui:
+	cd vault-ios && xcodebuild test -scheme Vault -testPlan VaultUITests -destination "platform=iOS Simulator,name=iPhone 14 Pro"
