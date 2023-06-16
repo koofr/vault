@@ -1,0 +1,5 @@
+sdk.dir=/home/<YOUR USER>/Android/Sdk
+# you can see the ndk version inside
+# macOS: /Users/<YOUR USER>/Library/Android/Sdk/ndk
+# Linux: /home/<YOUR USER>/Android/Sdk/ndk
+android.ndkVersion=26.0.10792818

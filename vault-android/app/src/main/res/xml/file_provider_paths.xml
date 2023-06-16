@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <files-path name="files" path="documents/"/>
+    <external-files-path name="xfiles" path="documents/"/>
+    <cache-path name="tmp" path="files/"/>
+    <external-cache-path name="xtmp" path="files/"/>
+</paths>

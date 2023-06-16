@@ -33,9 +33,27 @@ build-ios-device:
 build-ios-archive:
 	cd vault-ios && xcodebuild -scheme Vault archive
 
+build-android-bindings: check-android-env
+	cd vault-android && ./gradlew generateUniFFIBindings
+
+build-android-library-debug: check-android-env
+	cd vault-android && GRADLE_CARGO_PROFILE=debug ./gradlew cargoBuild
+
+build-android-library-release: check-android-env
+	cd vault-android && GRADLE_CARGO_PROFILE=release ./gradlew cargoBuild
+
+build-android-assemble-debug: build-android-bindings build-android-library-debug
+	cd vault-android && ./gradlew assembleDebug
+
+build-android-assemble-release: build-android-bindings build-android-library-release
+	cd vault-android && ./gradlew assembleRelease
+
+build-android-bundle-release: build-android-bindings build-android-library-release
+	cd vault-android && ./gradlew bundleRelease
+
 # format
 
-format: format-rust format-web format-web-tests format-ios
+format: format-rust format-web format-web-tests format-ios format-android
 
 format-rust:
 	cargo +nightly fmt -- --config-path rustfmt-unstable.toml
@@ -49,9 +67,12 @@ format-web-tests:
 format-ios:
 	cd vault-ios && swift-format --in-place --recursive .
 
+format-android:
+	cd vault-android && ktlint -F app/src
+
 # check
 
-check: check-rust check-web check-web-tests
+check: check-rust check-web check-web-tests check-android
 
 check-rust:
 	cargo check
@@ -68,9 +89,15 @@ check-web-tests: build-wasm-web-tests
 	cd vault-web-tests && npm run tsc
 	cd vault-web-tests && npm run eslint
 
+check-android-env:
+	if [[ -z "$$ANDROID_HOME" ]]; then echo "ANDROID_HOME not set. run source vault-android/.profile"; false; fi
+
+check-android:
+	cd vault-android && ktlint app/src
+
 # test
 
-test: test-rust test-web-tests test-ios-unit test-ios-ui
+test: test-rust test-web-tests test-ios-unit test-ios-ui test-android-unit test-android-ui
 
 test-rust:
 	cargo test
@@ -88,3 +115,9 @@ test-ios-unit:
 
 test-ios-ui:
 	cd vault-ios && xcodebuild test -scheme Vault -testPlan VaultUITests -destination "platform=iOS Simulator,name=iPhone 14 Pro"
+
+test-android-unit: check-android-env build-android-bindings
+	cd vault-android && ./gradlew test
+
+test-android-ui: check-android-env build-android-bindings build-android-library-debug
+	cd vault-android && ./gradlew connectedAndroidTest

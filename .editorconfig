@@ -1,2 +1,8 @@
 [*.rs]
 indent_size = 4
+
+[*.swift]
+indent_size = 4
+
+[*.kt]
+indent_size = 4
