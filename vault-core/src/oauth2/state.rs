@@ -11,8 +11,17 @@ pub struct OAuth2Token {
     pub expires_at: f64,
 }
 
-#[derive(Clone, Default)]
+#[derive(Clone)]
 pub struct OAuth2State {
     pub status: Status<OAuth2Error>,
     pub token: Option<OAuth2Token>,
+}
+
+impl Default for OAuth2State {
+    fn default() -> Self {
+        Self {
+            status: Status::Loading,
+            token: None,
+        }
+    }
 }

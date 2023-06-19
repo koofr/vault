@@ -57,6 +57,8 @@ impl LifecycleService {
         self.oauth2_service.reset();
 
         self.on_logout();
+
+        let _ = self.oauth2_service.load();
     }
 
     fn on_logout(&self) {
