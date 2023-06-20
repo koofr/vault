@@ -187,7 +187,9 @@ export class WebVaultClient {
   }
 
   async unlockRepo(repo: Repo, password = 'password'): Promise<void> {
-    const unlockId = this.webVault.repoUnlockInit(repo.id);
+    const unlockId = this.webVault.repoUnlockCreate(repo.id, {
+      mode: 'Unlock',
+    });
 
     try {
       await this.webVault.repoUnlockUnlock(unlockId, password);

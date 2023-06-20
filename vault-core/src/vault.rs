@@ -388,8 +388,12 @@ impl Vault {
 
     // repo_unlock
 
-    pub fn repo_unlock_create(&self, repo_id: &str) -> u32 {
-        self.repo_unlock_service.create(repo_id)
+    pub fn repo_unlock_create(
+        &self,
+        repo_id: &str,
+        options: repo_unlock::state::RepoUnlockOptions,
+    ) -> u32 {
+        self.repo_unlock_service.create(repo_id, options)
     }
 
     pub async fn repo_unlock_unlock(

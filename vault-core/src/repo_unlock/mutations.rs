@@ -1,12 +1,20 @@
 use crate::{
     common::state::Status,
-    repos::errors::{RepoNotFoundError, UnlockRepoError},
+    repos::{
+        errors::{RepoNotFoundError, UnlockRepoError},
+        state::RepoUnlockMode,
+    },
     store,
 };
 
-use super::state::RepoUnlock;
+use super::state::{RepoUnlock, RepoUnlockOptions};
 
-pub fn create(state: &mut store::State, notify: &store::Notify, repo_id: &str) -> u32 {
+pub fn create(
+    state: &mut store::State,
+    notify: &store::Notify,
+    repo_id: &str,
+    options: RepoUnlockOptions,
+) -> u32 {
     notify(store::Event::RepoUnlock);
 
     let unlock_id = state.repo_unlocks.next_id;
@@ -15,6 +23,7 @@ pub fn create(state: &mut store::State, notify: &store::Notify, repo_id: &str) -
 
     let repo_unlock = RepoUnlock {
         repo_id: repo_id.to_owned(),
+        mode: options.mode,
         status: Status::Initial,
     };
 
@@ -27,7 +36,7 @@ pub fn unlocking(
     state: &mut store::State,
     notify: &store::Notify,
     unlock_id: u32,
-) -> Result<String, UnlockRepoError> {
+) -> Result<(String, RepoUnlockMode), UnlockRepoError> {
     let repo_unlock = match state.repo_unlocks.unlocks.get_mut(&unlock_id) {
         Some(repo_unlock) => repo_unlock,
         None => return Err(UnlockRepoError::RepoNotFound(RepoNotFoundError)),
@@ -37,7 +46,7 @@ pub fn unlocking(
 
     repo_unlock.status = Status::Loading;
 
-    Ok(repo_unlock.repo_id.clone())
+    Ok((repo_unlock.repo_id.clone(), repo_unlock.mode.clone()))
 }
 
 pub fn unlocked(

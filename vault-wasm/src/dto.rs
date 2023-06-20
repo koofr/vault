@@ -20,6 +20,7 @@ use vault_core::{
     repo_files_move::state as repo_files_move_state,
     repo_remove::state as repo_remove_state,
     repo_space_usage::state as repo_space_usage_state,
+    repo_unlock::state as repo_unlock_state,
     repos::{selectors as repos_selectors, state as repos_state},
     selection,
     space_usage::state as space_usage_state,
@@ -480,6 +481,34 @@ impl From<&repo_create_state::RepoCreated> for RepoCreated {
 pub struct RepoCreateInfo {
     pub form: Option<RepoCreateForm>,
     pub created: Option<RepoCreated>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+pub enum RepoUnlockMode {
+    Unlock,
+    Verify,
+}
+
+impl Into<repos_state::RepoUnlockMode> for RepoUnlockMode {
+    fn into(self) -> repos_state::RepoUnlockMode {
+        match self {
+            Self::Unlock => repos_state::RepoUnlockMode::Unlock,
+            Self::Verify => repos_state::RepoUnlockMode::Verify,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+pub struct RepoUnlockOptions {
+    pub mode: RepoUnlockMode,
+}
+
+impl Into<repo_unlock_state::RepoUnlockOptions> for RepoUnlockOptions {
+    fn into(self) -> repo_unlock_state::RepoUnlockOptions {
+        repo_unlock_state::RepoUnlockOptions {
+            mode: self.mode.into(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]

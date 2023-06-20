@@ -68,6 +68,9 @@ extern "C" {
     #[wasm_bindgen(typescript_type = "RepoCreateInfo | undefined")]
     pub type RepoCreateInfoOption;
 
+    #[wasm_bindgen(typescript_type = "RepoUnlockOptions")]
+    pub type RepoUnlockOptions;
+
     #[wasm_bindgen(typescript_type = "RepoUnlockInfo | undefined")]
     pub type RepoUnlockInfoOption;
 
@@ -675,9 +678,12 @@ impl WebVault {
 
     // repo_unlock
 
-    #[wasm_bindgen(js_name = repoUnlockInit)]
-    pub fn repo_unlock_create(&self, repo_id: &str) -> u32 {
-        self.vault.repo_unlock_create(repo_id)
+    #[wasm_bindgen(js_name = repoUnlockCreate)]
+    pub fn repo_unlock_create(&self, repo_id: &str, options: RepoUnlockOptions) -> u32 {
+        let options: dto::RepoUnlockOptions =
+            serde_wasm_bindgen::from_value(options.into()).unwrap();
+
+        self.vault.repo_unlock_create(repo_id, options.into())
     }
 
     #[wasm_bindgen(js_name = repoUnlockInfoSubscribe)]

@@ -5,7 +5,7 @@ use crate::{
     store,
 };
 
-use super::mutations;
+use super::{mutations, state::RepoUnlockOptions};
 
 pub struct RepoUnlockService {
     repos_service: Arc<ReposService>,
@@ -20,20 +20,23 @@ impl RepoUnlockService {
         }
     }
 
-    pub fn create(&self, repo_id: &str) -> u32 {
+    pub fn create(&self, repo_id: &str, options: RepoUnlockOptions) -> u32 {
         self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoUnlock);
 
-            mutations::create(state, notify, repo_id)
+            mutations::create(state, notify, repo_id, options)
         })
     }
 
     pub async fn unlock(&self, unlock_id: u32, password: &str) -> Result<(), UnlockRepoError> {
-        let repo_id = self
+        let (repo_id, mode) = self
             .store
             .mutate(|state, notify, _, _| mutations::unlocking(state, notify, unlock_id))?;
 
-        let res = self.repos_service.unlock_repo(&repo_id, password).await;
+        let res = self
+            .repos_service
+            .unlock_repo(&repo_id, password, mode)
+            .await;
 
         self.store.mutate(|state, notify, _, _| {
             mutations::unlocked(state, notify, unlock_id, res.clone());

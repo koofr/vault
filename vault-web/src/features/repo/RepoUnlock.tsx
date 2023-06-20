@@ -14,7 +14,10 @@ export const RepoUnlock = memo<{ repoId: string }>(({ repoId }) => {
   const isMobile = useIsMobile();
   const webVault = useWebVault();
   let unlockId = useMemo(
-    () => webVault.repoUnlockInit(repoId),
+    () =>
+      webVault.repoUnlockCreate(repoId, {
+        mode: 'Unlock',
+      }),
     [webVault, repoId]
   );
   useEffect(() => {

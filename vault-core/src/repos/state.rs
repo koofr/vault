@@ -61,6 +61,12 @@ pub struct RepoConfig {
     pub rclone_config: String,
 }
 
+#[derive(Clone)]
+pub enum RepoUnlockMode {
+    Unlock,
+    Verify,
+}
+
 #[derive(Clone, Default)]
 pub struct ReposState {
     pub status: Status<RemoteError>,

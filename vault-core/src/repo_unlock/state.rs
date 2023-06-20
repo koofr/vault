@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use crate::{common::state::Status, repos::errors::UnlockRepoError};
+use crate::{
+    common::state::Status,
+    repos::{errors::UnlockRepoError, state::RepoUnlockMode},
+};
 
 pub struct RepoUnlockInfo<'a> {
     pub repo_id: &'a str,
@@ -9,8 +12,14 @@ pub struct RepoUnlockInfo<'a> {
 }
 
 #[derive(Clone)]
+pub struct RepoUnlockOptions {
+    pub mode: RepoUnlockMode,
+}
+
+#[derive(Clone)]
 pub struct RepoUnlock {
     pub repo_id: String,
+    pub mode: RepoUnlockMode,
     pub status: Status<UnlockRepoError>,
 }
 

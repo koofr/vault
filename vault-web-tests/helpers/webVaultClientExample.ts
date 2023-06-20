@@ -46,7 +46,9 @@ async function main() {
 
   const repo = repos.repos[0];
 
-  const unlockId = client.webVault.repoUnlockInit(repo.id);
+  const unlockId = client.webVault.repoUnlockCreate(repo.id, {
+    mode: 'Unlock',
+  });
   await client.webVault.repoUnlockUnlock(unlockId, 'password');
   client.webVault.repoUnlockDestroy(unlockId);
 

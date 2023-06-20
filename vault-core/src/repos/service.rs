@@ -13,7 +13,7 @@ use super::{
     mutations,
     password_validator::check_password_validator,
     selectors,
-    state::RepoConfig,
+    state::{RepoConfig, RepoUnlockMode},
 };
 
 pub struct ReposService {
@@ -90,19 +90,26 @@ impl ReposService {
         Ok(cipher)
     }
 
-    pub async fn unlock_repo(&self, repo_id: &str, password: &str) -> Result<(), UnlockRepoError> {
+    pub async fn unlock_repo(
+        &self,
+        repo_id: &str,
+        password: &str,
+        mode: RepoUnlockMode,
+    ) -> Result<(), UnlockRepoError> {
         let cipher = self.build_cipher(repo_id, password).await?;
 
-        self.ciphers
-            .write()
-            .unwrap()
-            .insert(repo_id.to_owned(), Arc::new(cipher));
+        if matches!(mode, RepoUnlockMode::Unlock) {
+            self.ciphers
+                .write()
+                .unwrap()
+                .insert(repo_id.to_owned(), Arc::new(cipher));
 
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::Repos);
+            self.store.mutate(|state, notify, _, _| {
+                notify(store::Event::Repos);
 
-            mutations::unlock_repo(state, repo_id)
-        })?;
+                mutations::unlock_repo(state, repo_id)
+            })?;
+        }
 
         Ok(())
     }
