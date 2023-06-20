@@ -47,7 +47,11 @@ fn vault_repo_to_repo(repo: models::VaultRepo, base_url: &str) -> Repo {
 }
 
 pub fn repo_loaded(state: &mut store::State, repo: models::VaultRepo) {
-    let repo = vault_repo_to_repo(repo, &state.config.base_url);
+    let mut repo = vault_repo_to_repo(repo, &state.config.base_url);
+
+    if let Some(existing) = state.repos.repos_by_id.get(&repo.id) {
+        repo.state = existing.state.clone();
+    }
 
     state.repos.repo_ids_by_remote_file_id.insert(
         remote_files_selectors::get_file_id(&repo.mount_id, &repo.path),

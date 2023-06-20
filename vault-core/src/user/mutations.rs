@@ -30,8 +30,17 @@ pub fn loaded(
                 last_name: user.last_name,
                 full_name,
                 email: user.email,
-                profile_picture_status: Status::Initial,
-                profile_picture_bytes: None,
+                profile_picture_status: state
+                    .user
+                    .user
+                    .as_ref()
+                    .map(|x| x.profile_picture_status.clone())
+                    .unwrap_or(Status::Initial),
+                profile_picture_bytes: state
+                    .user
+                    .user
+                    .as_ref()
+                    .and_then(|x| x.profile_picture_bytes.clone()),
             });
 
             state.user.status = Status::Loaded;

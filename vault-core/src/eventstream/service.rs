@@ -94,6 +94,14 @@ impl EventStreamService {
     }
 
     pub fn connect(self: Arc<Self>) {
+        match *self.connection_state.lock().unwrap() {
+            ConnectionState::Connecting
+            | ConnectionState::Authenticating
+            | ConnectionState::Reconnecting
+            | ConnectionState::Connected { .. } => return,
+            ConnectionState::Disconnected => {}
+        }
+
         log::debug!("Eventstream connecting");
 
         let base_ws_url = self
