@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::{common::state::Status, remote, store};
 
-use super::state::User;
+use super::mutations;
 
 pub struct UserService {
     remote: Arc<remote::Remote>,
@@ -16,48 +16,17 @@ impl UserService {
 
     pub async fn load_user(&self) -> Result<(), remote::RemoteError> {
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::User);
-
-            state.user.status = Status::Loading;
+            mutations::loading(state, notify);
         });
 
-        let user = match self.remote.get_user().await {
-            Ok(user) => user,
-            Err(err) => {
-                self.store.mutate(|state, notify, _, _| {
-                    notify(store::Event::User);
+        let res = self.remote.get_user().await;
 
-                    state.user.status = Status::Error { error: err.clone() };
-                });
+        let res_err = res.as_ref().map(|_| ()).map_err(|err| err.clone());
 
-                return Err(err);
-            }
-        };
+        self.store
+            .mutate(|state, notify, _, _| mutations::loaded(state, notify, res));
 
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::User);
-
-            let full_name = match (user.first_name.as_str(), user.last_name.as_str()) {
-                ("", "") => user.email.clone(),
-                (first_name, "") => first_name.to_owned(),
-                ("", last_name) => last_name.to_owned(),
-                (first_name, last_name) => format!("{} {}", first_name, last_name),
-            };
-
-            state.user.user = Some(User {
-                id: user.id,
-                first_name: user.first_name,
-                last_name: user.last_name,
-                full_name,
-                email: user.email,
-                profile_picture_status: Status::Initial,
-                profile_picture_bytes: None,
-            });
-
-            state.user.status = Status::Loaded;
-        });
-
-        Ok(())
+        res_err
     }
 
     pub async fn load_profile_picture(&self) -> Result<(), remote::RemoteError> {
