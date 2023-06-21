@@ -1,17 +1,14 @@
-import { css, cx } from '@emotion/css';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo } from 'react';
 
-import { Button } from '../../components/Button';
-import { AutoFocusPasswordInput } from '../../components/PasswordInput';
 import { DashboardLayout } from '../../components/dashboard/DashboardLayout';
 import { useSingleNavbarBreadcrumb } from '../../components/navbar/useSingleNavbarBreadcrumb';
-import { useIsMobile } from '../../components/useIsMobile';
 import { useDocumentTitle } from '../../utils/useDocumentTitle';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
 
+import { RepoUnlockForm } from './RepoUnlockForm';
+
 export const RepoUnlock = memo<{ repoId: string }>(({ repoId }) => {
-  const isMobile = useIsMobile();
   const webVault = useWebVault();
   let unlockId = useMemo(
     () =>
@@ -30,14 +27,11 @@ export const RepoUnlock = memo<{ repoId: string }>(({ repoId }) => {
     (v) => v.repoUnlockInfoData,
     [unlockId]
   );
-  const [password, setPassword] = useState('');
-  const onSubmit = useCallback(
-    (event: React.FormEvent) => {
-      event.preventDefault();
-
+  const onUnlock = useCallback(
+    (password: string) => {
       webVault.repoUnlockUnlock(unlockId, password);
     },
-    [webVault, unlockId, password]
+    [webVault, unlockId]
   );
   const navbarHeader = useSingleNavbarBreadcrumb(info?.repoName ?? '');
   useDocumentTitle(info?.repoName);
@@ -48,87 +42,9 @@ export const RepoUnlock = memo<{ repoId: string }>(({ repoId }) => {
 
   return (
     <DashboardLayout navbarHeader={navbarHeader}>
-      <div
-        className={cx(
-          css`
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-          `,
-          isMobile
-            ? css`
-                padding: 0;
-              `
-            : css`
-                padding: 50px 218px 0 0;
-
-                @media (max-width: 1024px) {
-                  padding: 50px 0 0;
-                }
-              `
-        )}
-      >
-        <h1
-          className={css`
-            font-size: 32px;
-            line-height: 42px;
-            font-weight: normal;
-            margin: 0 0 25px;
-          `}
-        >
-          {info?.repoName}
-        </h1>
-
-        <h3
-          className={css`
-            font-size: 20px;
-            line-height: 26px;
-            font-weight: 300;
-            margin: 0 0 30px;
-          `}
-        >
-          Enter your Safe Key to unlock
-        </h3>
-
-        <form onSubmit={onSubmit}>
-          {info.status.type === 'Error' ? (
-            <div
-              className={css`
-                background-color: #fbedeb;
-                padding: 6px 15px;
-                border-radius: 3px;
-                margin-bottom: 15px;
-              `}
-            >
-              {info.status.error}
-            </div>
-          ) : null}
-
-          <div
-            className={css`
-              margin-bottom: 20px;
-            `}
-          >
-            <AutoFocusPasswordInput
-              value={password}
-              onChange={setPassword}
-              inputAriaLabel="Safe Key"
-            />
-          </div>
-          <Button
-            type="submit"
-            variant={info.status.type === 'Loading' ? 'disabled' : 'primary'}
-            disabled={info.status.type === 'Loading'}
-            className={css`
-              font-size: 16px;
-              width: 250px;
-            `}
-          >
-            Unlock
-          </Button>
-        </form>
-      </div>
+      {info !== undefined ? (
+        <RepoUnlockForm info={info} onUnlock={onUnlock} />
+      ) : null}
     </DashboardLayout>
   );
 });

@@ -1,8 +1,9 @@
 import { css } from '@emotion/css';
 import format from 'date-fns/format';
 import { memo, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 
-import { Button } from '../../components/Button';
+import { Button, LinkButton } from '../../components/Button';
 import { DashboardLayout } from '../../components/dashboard/DashboardLayout';
 import { DashboardLoading } from '../../components/dashboard/DashboardLoading';
 import { useSingleNavbarBreadcrumb } from '../../components/navbar/useSingleNavbarBreadcrumb';
@@ -12,7 +13,6 @@ import { useModal } from '../../utils/useModal';
 import { Repo } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
 
-import { RepoConfigBackup } from './RepoConfigBackup';
 import { RepoDestroyModal } from './RepoDestroyModal';
 import { RepoError } from './RepoError';
 import { RepoSpaceUsage } from './RepoSpaceUsage';
@@ -115,7 +115,20 @@ export const RepoInfoRepo = memo<{ repo: Repo }>(({ repo }) => {
           <RepoSpaceUsage repoId={repo.id} />
         </div>
 
-        <RepoConfigBackup repoId={repo.id} />
+        <div className={css``}>
+          <h2
+            className={css`
+              font-size: 28px;
+              font-weight: normal;
+              margin: 0 0 20px;
+            `}
+          >
+            Backup config
+          </h2>
+          <LinkButton to={`/repos/${repo.id}/configbackup`} variant="primary">
+            Backup the Safe Box config
+          </LinkButton>
+        </div>
       </div>
 
       <RepoDestroyModal

@@ -518,6 +518,15 @@ pub struct RepoUnlockInfo {
     pub repo_name: Option<String>,
 }
 
+impl<'a> From<&repo_unlock_state::RepoUnlockInfo<'a>> for RepoUnlockInfo {
+    fn from(info: &repo_unlock_state::RepoUnlockInfo<'a>) -> Self {
+        Self {
+            status: info.status.into(),
+            repo_name: info.repo_name.map(str::to_string),
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub struct RepoRemoveInfo {
     pub status: Status,
@@ -536,14 +545,15 @@ impl<'a> From<&repo_remove_state::RepoRemoveInfo<'a>> for RepoRemoveInfo {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub struct RepoConfigBackupInfo {
-    pub status: Status,
+    #[serde(rename = "unlockInfo")]
+    pub unlock_info: RepoUnlockInfo,
     pub config: Option<RepoConfig>,
 }
 
 impl<'a> From<&repo_config_backup_state::RepoConfigBackupInfo<'a>> for RepoConfigBackupInfo {
     fn from(info: &repo_config_backup_state::RepoConfigBackupInfo<'a>) -> Self {
         Self {
-            status: info.status.into(),
+            unlock_info: (&info.unlock_info).into(),
             config: info.config.map(Into::into),
         }
     }

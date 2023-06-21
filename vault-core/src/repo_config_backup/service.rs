@@ -1,15 +1,11 @@
 use std::sync::Arc;
 
 use crate::{
-    common::state::Status,
-    repos::{
-        errors::{RepoConfigError, RepoNotFoundError},
-        ReposService,
-    },
+    repos::{errors::UnlockRepoError, ReposService},
     store,
 };
 
-use super::state::RepoConfigBackupState;
+use super::mutations;
 
 pub struct RepoConfigBackupService {
     repos_service: Arc<ReposService>,
@@ -24,65 +20,29 @@ impl RepoConfigBackupService {
         }
     }
 
-    pub fn init(&self, repo_id: &str) {
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoConfigBackup);
-
-            state.repo_config_backup = Some(RepoConfigBackupState {
-                repo_id: repo_id.to_owned(),
-                status: Status::Initial,
-                config: None,
-            });
-        });
+    pub fn create(&self, repo_id: &str) -> u32 {
+        self.store
+            .mutate(|state, notify, _, _| mutations::create(state, notify, repo_id))
     }
 
-    pub async fn generate(&self, password: &str) -> Result<(), RepoConfigError> {
-        let repo_id = match self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoConfigBackup);
-
-            if let Some(ref mut repo_config_backup) = state.repo_config_backup {
-                repo_config_backup.status = Status::Loading;
-            }
-
-            state
-                .repo_config_backup
-                .as_ref()
-                .map(|repo_config_backup| repo_config_backup.repo_id.clone())
-        }) {
-            Some(repo_id) => repo_id,
-            None => {
-                return Err(RepoConfigError::RepoNotFound(RepoNotFoundError));
-            }
-        };
+    pub async fn generate(&self, backup_id: u32, password: &str) -> Result<(), UnlockRepoError> {
+        let repo_id = self
+            .store
+            .mutate(|state, notify, _, _| mutations::generating(state, notify, backup_id))?;
 
         let res = self.repos_service.get_repo_config(&repo_id, password).await;
 
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoConfigBackup);
+        let res_err = res.as_ref().map(|_| ()).map_err(|err| err.clone());
 
-            if let Some(ref mut repo_config_backup) = state.repo_config_backup {
-                match &res {
-                    Ok(config) => {
-                        repo_config_backup.status = Status::Loaded;
-                        repo_config_backup.config = Some(config.clone());
-                    }
-                    Err(err) => repo_config_backup.status = Status::Error { error: err.clone() },
-                }
-            }
-        });
+        self.store
+            .mutate(|state, notify, _, _| mutations::generated(state, notify, backup_id, res))?;
 
-        res.map(|_| ())
+        res_err
     }
 
-    pub fn destroy(&self, repo_id: &str) {
+    pub fn destroy(&self, backup_id: u32) {
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoConfigBackup);
-
-            if state.repo_config_backup.is_some()
-                && state.repo_config_backup.as_ref().unwrap().repo_id == repo_id
-            {
-                state.repo_config_backup = None;
-            }
-        })
+            mutations::destroy(state, notify, backup_id);
+        });
     }
 }

@@ -427,19 +427,22 @@ impl Vault {
 
     // repo_config_backup
 
-    pub fn repo_config_backup_init(&self, repo_id: &str) {
-        self.repo_config_backup_service.init(repo_id)
+    pub fn repo_config_backup_create(&self, repo_id: &str) -> u32 {
+        self.repo_config_backup_service.create(repo_id)
     }
 
     pub async fn repo_config_backup_generate(
         &self,
+        backup_id: u32,
         password: &str,
-    ) -> Result<(), repos::errors::RepoConfigError> {
-        self.repo_config_backup_service.generate(password).await
+    ) -> Result<(), repos::errors::UnlockRepoError> {
+        self.repo_config_backup_service
+            .generate(backup_id, password)
+            .await
     }
 
-    pub fn repo_config_backup_destroy(&self, repo_id: &str) {
-        self.repo_config_backup_service.destroy(repo_id)
+    pub fn repo_config_backup_destroy(&self, backup_id: u32) {
+        self.repo_config_backup_service.destroy(backup_id)
     }
 
     // repo_space_usage

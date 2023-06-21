@@ -7,7 +7,7 @@ use crate::{cipher::Cipher, rclone, remote, store};
 
 use super::{
     errors::{
-        BuildCipherError, InvalidPasswordError, RemoveRepoError, RepoConfigError, RepoLockedError,
+        BuildCipherError, InvalidPasswordError, RemoveRepoError, RepoLockedError,
         RepoNotFoundError, UnlockRepoError,
     },
     mutations,
@@ -143,8 +143,9 @@ impl ReposService {
         &self,
         repo_id: &str,
         password: &str,
-    ) -> Result<RepoConfig, RepoConfigError> {
-        let _ = self.build_cipher(repo_id, password).await?;
+    ) -> Result<RepoConfig, UnlockRepoError> {
+        self.unlock_repo(repo_id, password, RepoUnlockMode::Verify)
+            .await?;
 
         self.store.with_state(|state| {
             let repo = selectors::select_repo(state, repo_id)?;

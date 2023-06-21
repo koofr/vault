@@ -98,29 +98,3 @@ impl From<BuildCipherError> for RemoveRepoError {
         }
     }
 }
-
-#[derive(Error, Debug, Clone)]
-pub enum RepoConfigError {
-    #[error("{0}")]
-    RepoNotFound(#[from] RepoNotFoundError),
-    #[error("{0}")]
-    InvalidPassword(#[from] InvalidPasswordError),
-}
-
-impl UserError for RepoConfigError {
-    fn user_error(&self) -> String {
-        match self {
-            Self::InvalidPassword(err) => err.user_error(),
-            _ => self.to_string(),
-        }
-    }
-}
-
-impl From<BuildCipherError> for RepoConfigError {
-    fn from(err: BuildCipherError) -> Self {
-        match err {
-            BuildCipherError::RepoNotFound(err) => Self::RepoNotFound(err),
-            BuildCipherError::InvalidPassword(err) => Self::InvalidPassword(err),
-        }
-    }
-}

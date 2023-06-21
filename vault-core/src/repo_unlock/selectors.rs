@@ -10,8 +10,6 @@ pub fn select_info<'a>(state: &'a store::State, unlock_id: u32) -> Option<RepoUn
         .map(|repo_unlock| RepoUnlockInfo {
             repo_id: &repo_unlock.repo_id,
             status: (&repo_unlock.status).into(),
-            repo_name: repos_selectors::select_repo(state, &repo_unlock.repo_id)
-                .ok()
-                .map(|repo| repo.name.as_str()),
+            repo_name: repos_selectors::select_repo_name(state, &repo_unlock.repo_id),
         })
 }

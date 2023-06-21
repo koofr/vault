@@ -760,15 +760,20 @@ impl WebVault {
 
     // repo_config_backup
 
+    #[wasm_bindgen(js_name = repoConfigBackupCreate)]
+    pub fn repo_config_backup_create(&self, repo_id: &str) -> u32 {
+        self.vault.repo_config_backup_create(repo_id)
+    }
+
     #[wasm_bindgen(js_name = repoConfigBackupInfoSubscribe)]
-    pub fn repo_config_backup_info_subscribe(&self, cb: js_sys::Function) -> u32 {
+    pub fn repo_config_backup_info_subscribe(&self, backup_id: u32, cb: js_sys::Function) -> u32 {
         self.subscribe(
             &[Event::RepoConfigBackup],
             cb,
             self.subscription_data.repo_config_backup_info.clone(),
             move |vault| {
                 vault.with_state(|state| {
-                    vault_core::repo_config_backup::selectors::select_info(state)
+                    vault_core::repo_config_backup::selectors::select_info(state, backup_id)
                         .as_ref()
                         .map(Into::into)
                 })
@@ -781,19 +786,17 @@ impl WebVault {
         self.get_data_js(id, self.subscription_data.repo_config_backup_info.clone())
     }
 
-    #[wasm_bindgen(js_name = repoConfigBackupInit)]
-    pub fn repo_config_backup_init(&self, repo_id: &str) {
-        self.vault.repo_config_backup_init(repo_id)
-    }
-
     #[wasm_bindgen(js_name = repoConfigBackupGenerate)]
-    pub async fn repo_config_backup_generate(&self, password: &str) {
-        let _ = self.vault.repo_config_backup_generate(password).await;
+    pub async fn repo_config_backup_generate(&self, backup_id: u32, password: &str) {
+        let _ = self
+            .vault
+            .repo_config_backup_generate(backup_id, password)
+            .await;
     }
 
     #[wasm_bindgen(js_name = repoConfigBackupDestroy)]
-    pub fn repo_config_backup_destroy(&self, repo_id: &str) {
-        self.vault.repo_config_backup_destroy(repo_id)
+    pub fn repo_config_backup_destroy(&self, backup_id: u32) {
+        self.vault.repo_config_backup_destroy(backup_id)
     }
 
     // repo_space_usage

@@ -52,3 +52,9 @@ pub fn select_repo_info<'a>(state: &'a store::State, repo_id: &str) -> RepoInfo<
         repo: repo.ok(),
     }
 }
+
+pub fn select_repo_name<'a>(state: &'a store::State, repo_id: &str) -> Option<&'a str> {
+    select_repo(state, repo_id)
+        .ok()
+        .map(|repo| repo.name.as_str())
+}

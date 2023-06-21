@@ -1,7 +1,7 @@
 use crate::{
     config::state::ConfigState, dialogs::state::DialogsState, dir_pickers::state::DirPickersState,
     notifications::state::NotificationsState, oauth2::state::OAuth2State,
-    remote_files::state::RemoteFilesState, repo_config_backup::state::RepoConfigBackupState,
+    remote_files::state::RemoteFilesState, repo_config_backup::state::RepoConfigBackupsState,
     repo_create::state::RepoCreateState, repo_files::state::RepoFilesState,
     repo_files_browsers::state::RepoFilesBrowsersState,
     repo_files_details::state::RepoFilesDetailsState, repo_files_move::state::RepoFilesMoveState,
@@ -22,7 +22,7 @@ pub struct State {
     pub repo_create: Option<RepoCreateState>,
     pub repo_unlocks: RepoUnlocksState,
     pub repo_remove: Option<RepoRemoveState>,
-    pub repo_config_backup: Option<RepoConfigBackupState>,
+    pub repo_config_backups: RepoConfigBackupsState,
     pub repo_space_usage: Option<RepoSpaceUsageState>,
     pub repo_files: RepoFilesState,
     pub repo_files_browsers: RepoFilesBrowsersState,
