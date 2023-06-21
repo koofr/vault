@@ -804,15 +804,20 @@ impl WebVault {
 
     // repo_space_usage
 
+    #[wasm_bindgen(js_name = repoSpaceUsageCreate)]
+    pub fn repo_space_usage_create(&self, repo_id: &str) -> u32 {
+        self.vault.repo_space_usage_create(repo_id)
+    }
+
     #[wasm_bindgen(js_name = repoSpaceUsageInfoSubscribe)]
-    pub fn repo_space_usage_info_subscribe(&self, cb: js_sys::Function) -> u32 {
+    pub fn repo_space_usage_info_subscribe(&self, usage_id: u32, cb: js_sys::Function) -> u32 {
         self.subscribe(
             &[Event::RepoSpaceUsage],
             cb,
             self.subscription_data.repo_space_usage_info.clone(),
             move |vault| {
                 vault.with_state(|state| {
-                    vault_core::repo_space_usage::selectors::select_info(state)
+                    vault_core::repo_space_usage::selectors::select_info(state, usage_id)
                         .as_ref()
                         .map(Into::into)
                 })
@@ -825,19 +830,14 @@ impl WebVault {
         self.get_data_js(id, self.subscription_data.repo_space_usage_info.clone())
     }
 
-    #[wasm_bindgen(js_name = repoSpaceUsageInit)]
-    pub fn repo_space_usage_init(&self, repo_id: &str) {
-        self.vault.repo_space_usage_init(repo_id)
-    }
-
     #[wasm_bindgen(js_name = repoSpaceUsageCalculate)]
-    pub async fn repo_space_usage_calculate(&self) {
-        let _ = self.vault.repo_space_usage_calculate().await;
+    pub async fn repo_space_usage_calculate(&self, usage_id: u32) {
+        let _ = self.vault.repo_space_usage_calculate(usage_id).await;
     }
 
     #[wasm_bindgen(js_name = repoSpaceUsageDestroy)]
-    pub fn repo_space_usage_destroy(&self, repo_id: &str) {
-        self.vault.repo_space_usage_destroy(repo_id)
+    pub fn repo_space_usage_destroy(&self, usage_id: u32) {
+        self.vault.repo_space_usage_destroy(usage_id)
     }
 
     // repo_files

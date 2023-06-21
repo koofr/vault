@@ -3,14 +3,12 @@ use std::sync::Arc;
 use futures::{future, StreamExt};
 
 use crate::{
-    common::state::Status,
     remote::{models::FilesListRecursiveItem, RemoteError},
     remote_files::RemoteFilesService,
-    repos::{errors::RepoNotFoundError, selectors as repos_selectors},
     store,
 };
 
-use super::{errors::RepoSpaceUsageError, state::RepoSpaceUsageState};
+use super::{errors::RepoSpaceUsageError, mutations};
 
 pub struct RepoSpaceUsageService {
     remote_files_service: Arc<RemoteFilesService>,
@@ -25,38 +23,15 @@ impl RepoSpaceUsageService {
         }
     }
 
-    pub fn init(&self, repo_id: &str) {
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoSpaceUsage);
-
-            state.repo_space_usage = Some(RepoSpaceUsageState {
-                repo_id: repo_id.to_owned(),
-                status: Status::Initial,
-                space_used: None,
-            });
-        });
+    pub fn create(&self, repo_id: &str) -> u32 {
+        self.store
+            .mutate(|state, notify, _, _| mutations::create(state, notify, repo_id))
     }
 
-    pub async fn calculate(&self) -> Result<(), RepoSpaceUsageError> {
-        let repo_location = match self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoSpaceUsage);
-
-            if let Some(ref mut repo_space_usage) = state.repo_space_usage {
-                repo_space_usage.status = Status::Loading;
-            }
-
-            state
-                .repo_space_usage
-                .as_ref()
-                .map(|repo_space_usage| &repo_space_usage.repo_id)
-                .and_then(|repo_id| repos_selectors::select_repo(state, repo_id).ok())
-                .map(|repo| repo.get_location())
-        }) {
-            Some(repo_location) => repo_location,
-            None => {
-                return Err(RepoSpaceUsageError::RepoNotFound(RepoNotFoundError));
-            }
-        };
+    pub async fn calculate(&self, usage_id: u32) -> Result<(), RepoSpaceUsageError> {
+        let repo_location = self
+            .store
+            .mutate(|state, notify, _, _| mutations::calculating(state, notify, usage_id))?;
 
         let items_stream = match self
             .remote_files_service
@@ -67,19 +42,15 @@ impl RepoSpaceUsageService {
             Ok(items_stream) => items_stream,
             Err(err) => {
                 self.store.mutate(|state, notify, _, _| {
-                    notify(store::Event::RepoSpaceUsage);
-
-                    if let Some(ref mut repo_space_usage) = state.repo_space_usage {
-                        repo_space_usage.status = Status::Error { error: err.clone() };
-                    }
-                });
+                    mutations::calculated(state, notify, usage_id, None, Err(err.clone()))
+                })?;
 
                 return Err(err);
             }
         };
 
         let mut space_used = 0;
-        let mut last_error: Option<RepoSpaceUsageError> = None;
+        let mut res: Result<(), RepoSpaceUsageError> = Ok(());
 
         items_stream
             .for_each(|item| {
@@ -89,13 +60,13 @@ impl RepoSpaceUsageService {
                             space_used += file.size;
                         }
                         FilesListRecursiveItem::Error { error, .. } => {
-                            last_error = Some(RepoSpaceUsageError::RemoteError(
+                            res = Err(RepoSpaceUsageError::RemoteError(
                                 RemoteError::from_api_error_details(error, None),
                             ));
                         }
                     },
                     Err(err) => {
-                        last_error = Some(RepoSpaceUsageError::RemoteError(err));
+                        res = Err(RepoSpaceUsageError::RemoteError(err));
                     }
                 };
 
@@ -104,32 +75,14 @@ impl RepoSpaceUsageService {
             .await;
 
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoSpaceUsage);
+            mutations::calculated(state, notify, usage_id, Some(space_used), res.clone())
+        })?;
 
-            if let Some(ref mut repo_space_usage) = state.repo_space_usage {
-                repo_space_usage.status = match &last_error {
-                    Some(err) => Status::Error { error: err.clone() },
-                    None => Status::Loaded,
-                };
-                repo_space_usage.space_used = Some(space_used);
-            }
-        });
-
-        match last_error {
-            Some(err) => Err(err),
-            None => Ok(()),
-        }
+        res
     }
 
-    pub fn destroy(&self, repo_id: &str) {
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoSpaceUsage);
-
-            if state.repo_space_usage.is_some()
-                && state.repo_space_usage.as_ref().unwrap().repo_id == repo_id
-            {
-                state.repo_space_usage = None;
-            }
-        })
+    pub fn destroy(&self, usage_id: u32) {
+        self.store
+            .mutate(|state, notify, _, _| mutations::destroy(state, notify, usage_id));
     }
 }

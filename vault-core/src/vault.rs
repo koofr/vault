@@ -448,18 +448,19 @@ impl Vault {
 
     // repo_space_usage
 
-    pub fn repo_space_usage_init(&self, repo_id: &str) {
-        self.repo_space_usage_service.init(repo_id)
+    pub fn repo_space_usage_create(&self, repo_id: &str) -> u32 {
+        self.repo_space_usage_service.create(repo_id)
     }
 
     pub async fn repo_space_usage_calculate(
         &self,
+        usage_id: u32,
     ) -> Result<(), repo_space_usage::errors::RepoSpaceUsageError> {
-        self.repo_space_usage_service.calculate().await
+        self.repo_space_usage_service.calculate(usage_id).await
     }
 
-    pub fn repo_space_usage_destroy(&self, repo_id: &str) {
-        self.repo_space_usage_service.destroy(repo_id)
+    pub fn repo_space_usage_destroy(&self, usage_id: u32) {
+        self.repo_space_usage_service.destroy(usage_id)
     }
 
     // repo_files

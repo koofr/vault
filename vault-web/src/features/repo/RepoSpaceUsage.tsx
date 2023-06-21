@@ -7,24 +7,27 @@ import { useWebVault } from '../../webVault/useWebVault';
 
 export const RepoSpaceUsage = memo<{ repoId: string }>(({ repoId }) => {
   const webVault = useWebVault();
-  useMemo(() => webVault.repoSpaceUsageInit(repoId), [webVault, repoId]);
+  const usageId = useMemo(
+    () => webVault.repoSpaceUsageCreate(repoId),
+    [webVault, repoId]
+  );
   useEffect(() => {
     return () => {
-      webVault.repoSpaceUsageDestroy(repoId);
+      webVault.repoSpaceUsageDestroy(usageId);
     };
-  }, [webVault, repoId]);
+  }, [webVault, usageId]);
   const [info] = useSubscribe(
-    (v, cb) => v.repoSpaceUsageInfoSubscribe(cb),
+    (v, cb) => v.repoSpaceUsageInfoSubscribe(usageId, cb),
     (v) => v.repoSpaceUsageInfoData,
-    []
+    [usageId]
   );
   const onCalculate = useCallback(
     (event: React.FormEvent) => {
       event.preventDefault();
 
-      webVault.repoSpaceUsageCalculate();
+      webVault.repoSpaceUsageCalculate(usageId);
     },
-    [webVault]
+    [webVault, usageId]
   );
 
   if (info === undefined) {
