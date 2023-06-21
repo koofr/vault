@@ -1,15 +1,11 @@
 use std::sync::Arc;
 
 use crate::{
-    common::state::Status,
-    repos::{
-        errors::{RemoveRepoError, RepoNotFoundError},
-        ReposService,
-    },
+    repos::{errors::RemoveRepoError, ReposService},
     store,
 };
 
-use super::state::RepoRemoveState;
+use super::mutations;
 
 pub struct RepoRemoveService {
     repos_service: Arc<ReposService>,
@@ -24,60 +20,29 @@ impl RepoRemoveService {
         }
     }
 
-    pub fn init(&self, repo_id: &str) {
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoRemove);
-
-            state.repo_remove = Some(RepoRemoveState {
-                repo_id: repo_id.to_owned(),
-                status: Status::Initial,
-            });
-        });
+    pub fn create(&self, repo_id: &str) -> u32 {
+        self.store
+            .mutate(|state, notify, _, _| mutations::create(state, notify, repo_id))
     }
 
-    pub async fn remove(&self, password: &str) -> Result<(), RemoveRepoError> {
-        let repo_id = match self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoRemove);
-
-            if let Some(ref mut repo_remove) = state.repo_remove {
-                repo_remove.status = Status::Loading;
-            }
-
-            state
-                .repo_remove
-                .as_ref()
-                .map(|repo_remove| repo_remove.repo_id.clone())
-        }) {
-            Some(repo_id) => repo_id,
-            None => {
-                return Err(RemoveRepoError::RepoNotFound(RepoNotFoundError));
-            }
-        };
+    pub async fn remove(&self, remove_id: u32, password: &str) -> Result<(), RemoveRepoError> {
+        let repo_id = self
+            .store
+            .mutate(|state, notify, _, _| mutations::removing(state, notify, remove_id))?;
 
         let res = self.repos_service.remove_repo(&repo_id, password).await;
 
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoRemove);
+        let res_err = res.as_ref().map(|_| ()).map_err(|err| err.clone());
 
-            if let Some(ref mut repo_remove) = state.repo_remove {
-                repo_remove.status = match &res {
-                    Ok(()) => Status::Loaded,
-                    Err(err) => Status::Error { error: err.clone() },
-                };
-            }
-        });
+        self.store
+            .mutate(|state, notify, _, _| mutations::removed(state, notify, remove_id, res))?;
 
-        res
+        res_err
     }
 
-    pub fn destroy(&self, repo_id: &str) {
+    pub fn destroy(&self, remove_id: u32) {
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoRemove);
-
-            if state.repo_remove.is_some() && state.repo_remove.as_ref().unwrap().repo_id == repo_id
-            {
-                state.repo_remove = None;
-            }
-        })
+            mutations::destroy(state, notify, remove_id);
+        });
     }
 }

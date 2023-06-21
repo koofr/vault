@@ -5,7 +5,7 @@ use crate::{
     repo_create::state::RepoCreateState, repo_files::state::RepoFilesState,
     repo_files_browsers::state::RepoFilesBrowsersState,
     repo_files_details::state::RepoFilesDetailsState, repo_files_move::state::RepoFilesMoveState,
-    repo_remove::state::RepoRemoveState, repo_space_usage::state::RepoSpaceUsageState,
+    repo_remove::state::RepoRemovesState, repo_space_usage::state::RepoSpaceUsageState,
     repo_unlock::state::RepoUnlocksState, repos::state::ReposState,
     space_usage::state::SpaceUsageState, uploads::state::UploadsState, user::state::UserState,
 };
@@ -21,7 +21,7 @@ pub struct State {
     pub repos: ReposState,
     pub repo_create: Option<RepoCreateState>,
     pub repo_unlocks: RepoUnlocksState,
-    pub repo_remove: Option<RepoRemoveState>,
+    pub repo_removes: RepoRemovesState,
     pub repo_config_backups: RepoConfigBackupsState,
     pub repo_space_usage: Option<RepoSpaceUsageState>,
     pub repo_files: RepoFilesState,

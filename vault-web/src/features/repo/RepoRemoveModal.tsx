@@ -15,22 +15,25 @@ import {
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
 
-export const RepoDestroyModalContent = memo<{
+export const RepoRemoveModalContent = memo<{
   repoId: string;
   hide: () => void;
 }>(({ repoId, hide }) => {
   const webVault = useWebVault();
   const navigate = useNavigate();
-  useMemo(() => webVault.repoRemoveInit(repoId), [webVault, repoId]);
+  const removeId = useMemo(
+    () => webVault.repoRemoveCreate(repoId),
+    [webVault, repoId]
+  );
   useEffect(() => {
     return () => {
-      webVault.repoRemoveDestroy(repoId);
+      webVault.repoRemoveDestroy(removeId);
     };
-  }, [webVault, repoId]);
+  }, [webVault, removeId]);
   const [info] = useSubscribe(
-    (v, cb) => v.repoRemoveInfoSubscribe(cb),
+    (v, cb) => v.repoRemoveInfoSubscribe(removeId, cb),
     (v) => v.repoRemoveInfoData,
-    []
+    [removeId]
   );
   const [password, setPassword] = useState('');
   const onSubmit = useCallback(
@@ -38,14 +41,14 @@ export const RepoDestroyModalContent = memo<{
       event.preventDefault();
 
       (async () => {
-        const success = await webVault.repoRemoveRemove(password);
+        const success = await webVault.repoRemoveRemove(removeId, password);
 
         if (success) {
           navigate('/');
         }
       })();
     },
-    [webVault, password, navigate]
+    [webVault, removeId, password, navigate]
   );
 
   if (info === undefined) {
@@ -144,14 +147,14 @@ export const RepoDestroyModalContent = memo<{
   );
 });
 
-export const RepoDestroyModal = memo<{
+export const RepoRemoveModal = memo<{
   repoId?: string;
   hide: () => void;
 }>(({ repoId, hide }) => {
   return (
     <Modal show={repoId !== undefined} onHide={hide}>
       {repoId !== undefined ? (
-        <RepoDestroyModalContent repoId={repoId} hide={hide} />
+        <RepoRemoveModalContent repoId={repoId} hide={hide} />
       ) : (
         <></>
       )}

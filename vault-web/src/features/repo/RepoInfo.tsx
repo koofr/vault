@@ -13,7 +13,7 @@ import { useModal } from '../../utils/useModal';
 import { Repo } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
 
-import { RepoDestroyModal } from './RepoDestroyModal';
+import { RepoRemoveModal } from './RepoRemoveModal';
 import { RepoError } from './RepoError';
 import { RepoSpaceUsage } from './RepoSpaceUsage';
 
@@ -131,7 +131,7 @@ export const RepoInfoRepo = memo<{ repo: Repo }>(({ repo }) => {
         </div>
       </div>
 
-      <RepoDestroyModal
+      <RepoRemoveModal
         repoId={removeModal.isVisible ? repo.id : undefined}
         hide={removeModal.hide}
       />

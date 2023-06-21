@@ -410,19 +410,20 @@ impl Vault {
 
     // repo_remove
 
-    pub fn repo_remove_init(&self, repo_id: &str) {
-        self.repo_remove_service.init(repo_id)
+    pub fn repo_remove_create(&self, repo_id: &str) -> u32 {
+        self.repo_remove_service.create(repo_id)
     }
 
     pub async fn repo_remove_remove(
         &self,
+        remove_id: u32,
         password: &str,
     ) -> Result<(), repos::errors::RemoveRepoError> {
-        self.repo_remove_service.remove(password).await
+        self.repo_remove_service.remove(remove_id, password).await
     }
 
-    pub fn repo_remove_destroy(&self, repo_id: &str) {
-        self.repo_remove_service.destroy(repo_id)
+    pub fn repo_remove_destroy(&self, remove_id: u32) {
+        self.repo_remove_service.destroy(remove_id)
     }
 
     // repo_config_backup

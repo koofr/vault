@@ -722,15 +722,20 @@ impl WebVault {
 
     // repo_remove
 
+    #[wasm_bindgen(js_name = repoRemoveCreate)]
+    pub fn repo_remove_create(&self, repo_id: &str) -> u32 {
+        self.vault.repo_remove_create(repo_id)
+    }
+
     #[wasm_bindgen(js_name = repoRemoveInfoSubscribe)]
-    pub fn repo_remove_info_subscribe(&self, cb: js_sys::Function) -> u32 {
+    pub fn repo_remove_info_subscribe(&self, remove_id: u32, cb: js_sys::Function) -> u32 {
         self.subscribe(
             &[Event::RepoRemove],
             cb,
             self.subscription_data.repo_remove_info.clone(),
             move |vault| {
                 vault.with_state(|state| {
-                    vault_core::repo_remove::selectors::select_info(state)
+                    vault_core::repo_remove::selectors::select_info(state, remove_id)
                         .as_ref()
                         .map(Into::into)
                 })
@@ -743,19 +748,17 @@ impl WebVault {
         self.get_data_js(id, self.subscription_data.repo_remove_info.clone())
     }
 
-    #[wasm_bindgen(js_name = repoRemoveInit)]
-    pub fn repo_remove_init(&self, repo_id: &str) {
-        self.vault.repo_remove_init(repo_id)
-    }
-
     #[wasm_bindgen(js_name = repoRemoveRemove)]
-    pub async fn repo_remove_remove(&self, password: &str) -> bool {
-        self.vault.repo_remove_remove(password).await.is_ok()
+    pub async fn repo_remove_remove(&self, remove_id: u32, password: &str) -> bool {
+        self.vault
+            .repo_remove_remove(remove_id, password)
+            .await
+            .is_ok()
     }
 
     #[wasm_bindgen(js_name = repoRemoveDestroy)]
-    pub fn repo_remove_destroy(&self, repo_id: &str) {
-        self.vault.repo_remove_destroy(repo_id)
+    pub fn repo_remove_destroy(&self, remove_id: u32) {
+        self.vault.repo_remove_destroy(remove_id)
     }
 
     // repo_config_backup
