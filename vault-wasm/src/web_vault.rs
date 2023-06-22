@@ -323,8 +323,8 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = notificationsRemove)]
-    pub fn notifications_remove(&self, id: u32) {
-        self.vault.notifications_remove(id)
+    pub fn notifications_remove(&self, notification_id: u32) {
+        self.vault.notifications_remove(notification_id)
     }
 
     #[wasm_bindgen(js_name = notificationsRemoveAll)]
