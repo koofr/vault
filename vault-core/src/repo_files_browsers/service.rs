@@ -12,11 +12,12 @@ use crate::{
     repo_files::{
         errors::{
             self as repo_files_errors, CreateDirError, CreateFileError, DeleteFileError,
-            RepoFilesErrors,
+            LoadFilesError, RepoFilesErrors,
         },
         state::{RepoFile, RepoFilesSortField, RepoFilesUploadConflictResolution},
         RepoFilesService,
     },
+    repo_files_move::{state::RepoFilesMoveMode, RepoFilesMoveService},
     repo_files_read::{
         errors::GetFilesReaderError, state::RepoFileReaderProvider, RepoFilesReadService,
     },
@@ -36,6 +37,7 @@ use super::{
 pub struct RepoFilesBrowsersService {
     repo_files_service: Arc<RepoFilesService>,
     repo_files_read_service: Arc<RepoFilesReadService>,
+    repo_files_move_service: Arc<RepoFilesMoveService>,
     eventstream_service: Arc<eventstream::EventStreamService>,
     dialogs_service: Arc<dialogs::DialogsService>,
     store: Arc<store::Store>,
@@ -46,6 +48,7 @@ impl RepoFilesBrowsersService {
     pub fn new(
         repo_files_service: Arc<RepoFilesService>,
         repo_files_read_service: Arc<RepoFilesReadService>,
+        repo_files_move_service: Arc<RepoFilesMoveService>,
         eventstream_service: Arc<eventstream::EventStreamService>,
         dialogs_service: Arc<dialogs::DialogsService>,
         store: Arc<store::Store>,
@@ -63,6 +66,7 @@ impl RepoFilesBrowsersService {
         Self {
             repo_files_service,
             repo_files_read_service,
+            repo_files_move_service,
             eventstream_service,
             dialogs_service,
             store: store.clone(),
@@ -362,6 +366,33 @@ impl RepoFilesBrowsersService {
         self.repo_files_service.delete_files(&files, None).await?;
 
         Ok(())
+    }
+
+    pub async fn move_selected(
+        &self,
+        browser_id: u32,
+        mode: RepoFilesMoveMode,
+    ) -> Result<(), LoadFilesError> {
+        let repo_id = match self
+            .store
+            .with_state(|state| selectors::select_repo_id(state, browser_id).map(str::to_string))
+        {
+            Some(repo_id) => repo_id,
+            None => {
+                return Ok(());
+            }
+        };
+
+        let src_file_ids = self.store.with_state(|state| {
+            selectors::select_selected_file_ids(state, browser_id)
+                .into_iter()
+                .map(|id| id.to_owned())
+                .collect::<Vec<String>>()
+        });
+
+        self.repo_files_move_service
+            .show(&repo_id, src_file_ids, mode)
+            .await
     }
 }
 

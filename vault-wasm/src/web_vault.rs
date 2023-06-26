@@ -1377,6 +1377,19 @@ impl WebVault {
         };
     }
 
+    #[wasm_bindgen(js_name = repoFilesBrowsersMoveSelected)]
+    pub async fn repo_files_browsers_move_selected(
+        &self,
+        browser_id: u32,
+        mode: dto::RepoFilesMoveMode,
+    ) {
+        self.handle_result(
+            self.vault
+                .repo_files_browsers_move_selected(browser_id, mode.into())
+                .await,
+        )
+    }
+
     // repo_files_details
 
     #[wasm_bindgen(js_name = repoFilesDetailsCreate)]
@@ -1604,15 +1617,6 @@ impl WebVault {
     #[wasm_bindgen(js_name = repoFilesMoveInfoData)]
     pub fn repo_files_move_info_data(&self, id: u32) -> RepoFilesMoveInfoOption {
         self.get_data_js(id, self.subscription_data.repo_files_move_info.clone())
-    }
-
-    #[wasm_bindgen(js_name = repoFilesMoveShow)]
-    pub async fn repo_files_move_show(&self, browser_id: u32, mode: dto::RepoFilesMoveMode) {
-        self.handle_result(
-            self.vault
-                .repo_files_move_show(browser_id, mode.into())
-                .await,
-        )
     }
 
     #[wasm_bindgen(js_name = repoFilesMoveMoveFiles)]

@@ -60,7 +60,10 @@ export const RepoFilesToolbar = memo<{ info: RepoFilesBrowserInfo }>(
             icon={<FilesToolbarCopyIcon role="img" />}
             iconHover={<FilesToolbarCopyHoverIcon role="img" />}
             onClick={() => {
-              webVault.repoFilesMoveShow(browserId, RepoFilesMoveMode.Copy);
+              webVault.repoFilesBrowsersMoveSelected(
+                browserId,
+                RepoFilesMoveMode.Copy
+              );
             }}
           >
             Copy
@@ -71,7 +74,10 @@ export const RepoFilesToolbar = memo<{ info: RepoFilesBrowserInfo }>(
             icon={<FilesToolbarMoveIcon role="img" />}
             iconHover={<FilesToolbarMoveHoverIcon role="img" />}
             onClick={() => {
-              webVault.repoFilesMoveShow(browserId, RepoFilesMoveMode.Move);
+              webVault.repoFilesBrowsersMoveSelected(
+                browserId,
+                RepoFilesMoveMode.Move
+              );
             }}
           >
             Move

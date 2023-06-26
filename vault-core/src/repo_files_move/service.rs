@@ -7,7 +7,6 @@ use crate::{
         errors::{CreateDirError, LoadFilesError, MoveFileError, RepoFilesErrors},
         selectors as repo_files_selectors, RepoFilesService,
     },
-    repo_files_browsers::selectors as repo_files_browsers_selectors,
     repo_files_dir_pickers::RepoFilesDirPickersService,
     store,
     utils::path_utils,
@@ -42,23 +41,10 @@ impl RepoFilesMoveService {
 
     pub async fn show(
         &self,
-        browser_id: u32,
+        repo_id: &str,
+        src_file_ids: Vec<String>,
         mode: RepoFilesMoveMode,
     ) -> Result<(), LoadFilesError> {
-        let repo_id = match self.store.with_state(|state| {
-            repo_files_browsers_selectors::select_repo_id(state, browser_id).map(str::to_string)
-        }) {
-            Some(repo_id) => repo_id,
-            None => {
-                return Ok(());
-            }
-        };
-        let src_file_ids = self.store.with_state(|state| {
-            repo_files_browsers_selectors::select_selected_file_ids(state, browser_id)
-                .into_iter()
-                .map(|id| id.to_owned())
-                .collect::<Vec<String>>()
-        });
         if src_file_ids.is_empty() {
             return Ok(());
         }

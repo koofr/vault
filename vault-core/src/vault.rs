@@ -151,10 +151,17 @@ impl Vault {
                 repo_files_service.clone(),
                 store.clone(),
             ));
+        let repo_files_move_service = Arc::new(repo_files_move::RepoFilesMoveService::new(
+            repo_files_service.clone(),
+            repo_files_dir_pickers_service.clone(),
+            dialogs_service.clone(),
+            store.clone(),
+        ));
         let repo_files_browsers_service =
             Arc::new(repo_files_browsers::RepoFilesBrowsersService::new(
                 repo_files_service.clone(),
                 repo_files_read_service.clone(),
+                repo_files_move_service.clone(),
                 eventstream_service.clone(),
                 dialogs_service.clone(),
                 store.clone(),
@@ -168,12 +175,6 @@ impl Vault {
                 store.clone(),
                 runtime.clone(),
             ));
-        let repo_files_move_service = Arc::new(repo_files_move::RepoFilesMoveService::new(
-            repo_files_service.clone(),
-            repo_files_dir_pickers_service.clone(),
-            dialogs_service.clone(),
-            store.clone(),
-        ));
         let space_usage_service = Arc::new(space_usage::SpaceUsageService::new(
             remote.clone(),
             store.clone(),
@@ -666,6 +667,16 @@ impl Vault {
             .await
     }
 
+    pub async fn repo_files_browsers_move_selected(
+        &self,
+        browser_id: u32,
+        mode: repo_files_move::state::RepoFilesMoveMode,
+    ) -> Result<(), repo_files::errors::LoadFilesError> {
+        self.repo_files_browsers_service
+            .move_selected(browser_id, mode)
+            .await
+    }
+
     // repo_files_details
 
     pub fn repo_files_details_create(
@@ -744,14 +755,6 @@ impl Vault {
     }
 
     // repo_files_move
-
-    pub async fn repo_files_move_show(
-        &self,
-        browser_id: u32,
-        mode: repo_files_move::state::RepoFilesMoveMode,
-    ) -> Result<(), repo_files::errors::LoadFilesError> {
-        self.repo_files_move_service.show(browser_id, mode).await
-    }
 
     pub async fn repo_files_move_move_files(
         &self,
