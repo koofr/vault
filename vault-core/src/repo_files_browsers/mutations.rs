@@ -7,10 +7,7 @@ use crate::{
         selectors as repo_files_selectors,
         state::{RepoFilesSortDirection, RepoFilesSortField},
     },
-    selection::{
-        mutations as selection_mutations,
-        state::{Selection, SelectionSummary},
-    },
+    selection::{mutations as selection_mutations, state::Selection},
     store,
     utils::path_utils,
 };
@@ -218,42 +215,28 @@ pub fn select_file(
     selection_mutations::select_item(&mut browser.selection, items, file_id, extend, range, force)
 }
 
-pub fn toggle_select_all(state: &mut store::State, browser_id: u32) {
-    let selection_summary = selectors::select_selection_summary(state, browser_id);
+pub fn select_all(state: &mut store::State, browser_id: u32) {
+    let browser = match state.repo_files_browsers.browsers.get(&browser_id) {
+        Some(browser) => browser,
+        _ => return,
+    };
 
-    match selection_summary {
-        SelectionSummary::All => {
-            let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
-                Some(browser) => browser,
-                _ => return,
-            };
+    let items = browser
+        .location
+        .as_ref()
+        .map(|loc| {
+            selectors::select_file_ids(state, &loc.repo_id, &loc.path)
+                .map(str::to_string)
+                .collect()
+        })
+        .unwrap_or(Vec::new());
 
-            selection_mutations::clear_selection(&mut browser.selection);
-        }
-        _ => {
-            let browser = match state.repo_files_browsers.browsers.get(&browser_id) {
-                Some(browser) => browser,
-                _ => return,
-            };
+    let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
+        Some(browser) => browser,
+        _ => return,
+    };
 
-            let items = browser
-                .location
-                .as_ref()
-                .map(|loc| {
-                    selectors::select_file_ids(state, &loc.repo_id, &loc.path)
-                        .map(str::to_string)
-                        .collect()
-                })
-                .unwrap_or(Vec::new());
-
-            let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
-                Some(browser) => browser,
-                _ => return,
-            };
-
-            selection_mutations::set_selection(&mut browser.selection, items);
-        }
-    }
+    selection_mutations::set_selection(&mut browser.selection, items);
 }
 
 pub fn clear_selection(state: &mut store::State, browser_id: u32) {

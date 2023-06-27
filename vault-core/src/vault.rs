@@ -610,9 +610,8 @@ impl Vault {
             .select_file(browser_id, file_id, extend, range, force)
     }
 
-    pub fn repo_files_browsers_toggle_select_all(&self, browser_id: u32) {
-        self.repo_files_browsers_service
-            .toggle_select_all(browser_id)
+    pub fn repo_files_browsers_select_all(&self, browser_id: u32) {
+        self.repo_files_browsers_service.select_all(browser_id)
     }
 
     pub fn repo_files_browsers_clear_selection(&self, browser_id: u32) {

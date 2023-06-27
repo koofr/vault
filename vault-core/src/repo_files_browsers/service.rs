@@ -209,11 +209,11 @@ impl RepoFilesBrowsersService {
         });
     }
 
-    pub fn toggle_select_all(&self, browser_id: u32) {
+    pub fn select_all(&self, browser_id: u32) {
         self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoFilesBrowsers);
 
-            mutations::toggle_select_all(state, browser_id);
+            mutations::select_all(state, browser_id);
         });
     }
 

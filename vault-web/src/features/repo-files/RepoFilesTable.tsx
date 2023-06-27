@@ -290,14 +290,15 @@ export const RepoFilesTable = memo<{
     ],
     [isMobile, sort]
   );
-  const onHeadCheckboxClick = useCallback(
-    (event: MouseEvent) => {
-      webVault.repoFilesBrowsersToggleSelectAll(browserId);
-    },
-    [webVault, browserId]
-  );
+  const onHeadCheckboxClick = useCallback(() => {
+    if (info.selectionSummary === 'All') {
+      webVault.repoFilesBrowsersClearSelection(browserId);
+    } else {
+      webVault.repoFilesBrowsersSelectAll(browserId);
+    }
+  }, [webVault, browserId, info]);
   const onSortByClick = useCallback(
-    (event: MouseEvent, columnName: string) => {
+    (_: MouseEvent, columnName: string) => {
       switch (columnName) {
         case 'name':
           webVault.repoFilesBrowsersSortBy(

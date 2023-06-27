@@ -1301,9 +1301,9 @@ impl WebVault {
             .repo_files_browsers_select_file(browser_id, file_id, extend, range, force)
     }
 
-    #[wasm_bindgen(js_name = repoFilesBrowsersToggleSelectAll)]
-    pub fn repo_files_browsers_toggle_select_all(&self, browser_id: u32) {
-        self.vault.repo_files_browsers_toggle_select_all(browser_id)
+    #[wasm_bindgen(js_name = repoFilesBrowsersSelectAll)]
+    pub fn repo_files_browsers_select_all(&self, browser_id: u32) {
+        self.vault.repo_files_browsers_select_all(browser_id)
     }
 
     #[wasm_bindgen(js_name = repoFilesBrowsersClearSelection)]
