@@ -4,7 +4,6 @@ use crate::{
         state::{DirPicker, DirPickerItem, DirPickerItemType},
     },
     repo_files::{
-        errors::{CreateDirError, RepoFilesErrors},
         selectors as repo_files_selectors,
         state::{RepoFile, RepoFileType},
     },
@@ -99,33 +98,4 @@ fn select_items_visit_file(
             }
         }
     }
-}
-
-pub fn select_selected_file<'a>(state: &'a store::State, picker_id: u32) -> Option<&'a RepoFile> {
-    dir_pickers_selectors::select_selected_file_id(state, picker_id)
-        .and_then(|file_id| repo_files_selectors::select_file(state, file_id))
-}
-
-pub fn select_create_dir_enabled(state: &store::State, picker_id: u32) -> bool {
-    select_selected_file(state, picker_id).is_some()
-}
-
-pub fn select_check_create_dir(
-    state: &store::State,
-    picker_id: u32,
-    name: &str,
-) -> Result<(), CreateDirError> {
-    let parent_file =
-        select_selected_file(state, picker_id).ok_or_else(RepoFilesErrors::not_found)?;
-
-    let parent_path = parent_file.decrypted_path()?;
-
-    repo_files_selectors::select_check_new_name_valid(
-        state,
-        &parent_file.repo_id,
-        parent_path,
-        name,
-    )?;
-
-    Ok(())
 }

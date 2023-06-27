@@ -154,7 +154,6 @@ impl Vault {
         let repo_files_move_service = Arc::new(repo_files_move::RepoFilesMoveService::new(
             repo_files_service.clone(),
             repo_files_dir_pickers_service.clone(),
-            dialogs_service.clone(),
             store.clone(),
         ));
         let repo_files_browsers_service =
@@ -641,7 +640,7 @@ impl Vault {
     pub async fn repo_files_browsers_create_dir(
         &self,
         browser_id: u32,
-    ) -> Result<(), repo_files::errors::CreateDirError> {
+    ) -> Result<(String, String), repo_files::errors::CreateDirError> {
         self.repo_files_browsers_service
             .create_dir(browser_id)
             .await
@@ -670,7 +669,7 @@ impl Vault {
         &self,
         browser_id: u32,
         mode: repo_files_move::state::RepoFilesMoveMode,
-    ) -> Result<(), repo_files::errors::LoadFilesError> {
+    ) -> Result<(), repo_files_move::errors::ShowError> {
         self.repo_files_browsers_service
             .move_selected(browser_id, mode)
             .await
@@ -755,6 +754,31 @@ impl Vault {
 
     // repo_files_move
 
+    pub async fn repo_files_move_move_file(
+        &self,
+        repo_id: String,
+        path: String,
+        mode: repo_files_move::state::RepoFilesMoveMode,
+    ) -> Result<(), repo_files_move::errors::ShowError> {
+        self.repo_files_move_service
+            .move_file(repo_id, path, mode)
+            .await
+    }
+
+    pub async fn repo_files_move_dir_picker_click(
+        &self,
+        item_id: &str,
+        is_arrow: bool,
+    ) -> Result<(), repo_files_move::errors::DirPickerClickError> {
+        self.repo_files_move_service
+            .dir_picker_click(item_id, is_arrow)
+            .await
+    }
+
+    pub fn repo_files_move_set_dest_path(&self, dest_path: String) {
+        self.repo_files_move_service.set_dest_path(dest_path)
+    }
+
     pub async fn repo_files_move_move_files(
         &self,
     ) -> Result<(), repo_files::errors::MoveFileError> {
@@ -773,13 +797,6 @@ impl Vault {
 
     // remote_files_dir_pickers
 
-    pub async fn remote_files_dir_pickers_load(
-        &self,
-        picker_id: u32,
-    ) -> Result<(), remote::RemoteError> {
-        self.remote_files_dir_pickers_service.load(picker_id).await
-    }
-
     pub async fn remote_files_dir_pickers_click(
         &self,
         picker_id: u32,
@@ -787,19 +804,6 @@ impl Vault {
         is_arrow: bool,
     ) -> Result<(), remote::RemoteError> {
         self.remote_files_dir_pickers_service
-            .click(picker_id, item_id, is_arrow)
-            .await
-    }
-
-    // repo_files_dir_pickers
-
-    pub async fn repo_files_dir_pickers_click(
-        &self,
-        picker_id: u32,
-        item_id: &str,
-        is_arrow: bool,
-    ) -> Result<(), repo_files::errors::LoadFilesError> {
-        self.repo_files_dir_pickers_service
             .click(picker_id, item_id, is_arrow)
             .await
     }

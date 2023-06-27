@@ -11,13 +11,12 @@ use crate::{
     remote_files::errors::RemoteFilesErrors,
     repo_files::{
         errors::{
-            self as repo_files_errors, CreateDirError, CreateFileError, DeleteFileError,
-            LoadFilesError, RepoFilesErrors,
+            CreateDirError, CreateFileError, DeleteFileError, LoadFilesError, RepoFilesErrors,
         },
         state::{RepoFile, RepoFilesSortField, RepoFilesUploadConflictResolution},
         RepoFilesService,
     },
-    repo_files_move::{state::RepoFilesMoveMode, RepoFilesMoveService},
+    repo_files_move::{errors::ShowError, state::RepoFilesMoveMode, RepoFilesMoveService},
     repo_files_read::{
         errors::GetFilesReaderError, state::RepoFileReaderProvider, RepoFilesReadService,
     },
@@ -79,10 +78,7 @@ impl RepoFilesBrowsersService {
         repo_id: &str,
         path: &str,
         options: RepoFilesBrowserOptions,
-    ) -> (
-        u32,
-        BoxFuture<'static, Result<(), repo_files_errors::LoadFilesError>>,
-    ) {
+    ) -> (u32, BoxFuture<'static, Result<(), LoadFilesError>>) {
         let location = self.clone().get_location(repo_id, path);
 
         let browser_id = self.store.mutate(|state, notify, _, _| {
@@ -93,7 +89,7 @@ impl RepoFilesBrowsersService {
 
         let load_self = self.clone();
 
-        let load_future: BoxFuture<'static, Result<(), repo_files_errors::LoadFilesError>> = if self
+        let load_future: BoxFuture<'static, Result<(), LoadFilesError>> = if self
             .store
             .with_state(|state| selectors::select_is_unlocked(state, browser_id))
         {
@@ -109,7 +105,7 @@ impl RepoFilesBrowsersService {
         &self,
         repo_id: &str,
         path: &str,
-    ) -> Result<RepoFilesBrowserLocation, repo_files_errors::LoadFilesError> {
+    ) -> Result<RepoFilesBrowserLocation, LoadFilesError> {
         normalize_path(path)
             .map(|path| {
                 let eventstream_mount_subscription =
@@ -121,9 +117,7 @@ impl RepoFilesBrowsersService {
                     eventstream_mount_subscription,
                 }
             })
-            .map_err(|_| {
-                repo_files_errors::LoadFilesError::RemoteError(RemoteFilesErrors::invalid_path())
-            })
+            .map_err(|_| LoadFilesError::RemoteError(RemoteFilesErrors::invalid_path()))
     }
 
     fn get_eventstream_mount_subscription(&self, repo_id: &str) -> Option<Arc<MountSubscription>> {
@@ -153,7 +147,7 @@ impl RepoFilesBrowsersService {
         browser_id: u32,
         repo_id: &str,
         path: &str,
-    ) -> Result<(), repo_files_errors::LoadFilesError> {
+    ) -> Result<(), LoadFilesError> {
         let location = self.clone().get_location(repo_id, path);
 
         self.store.mutate(|state, notify, _, _| {
@@ -172,10 +166,7 @@ impl RepoFilesBrowsersService {
         Ok(())
     }
 
-    pub async fn load_files(
-        &self,
-        browser_id: u32,
-    ) -> Result<(), repo_files_errors::LoadFilesError> {
+    pub async fn load_files(&self, browser_id: u32) -> Result<(), LoadFilesError> {
         if let Some((repo_id, path)) = self
             .store
             .with_state(|state| selectors::select_repo_id_path_owned(state, browser_id))
@@ -251,7 +242,7 @@ impl RepoFilesBrowsersService {
         self.repo_files_read_service.clone().get_files_reader(files)
     }
 
-    pub async fn create_dir(&self, browser_id: u32) -> Result<(), CreateDirError> {
+    pub async fn create_dir(&self, browser_id: u32) -> Result<(String, String), CreateDirError> {
         let (repo_id, parent_path) =
             self.store
                 .with_state::<_, Result<_, CreateDirError>>(|state| {
@@ -263,32 +254,10 @@ impl RepoFilesBrowsersService {
                     Ok((root_file.repo_id.clone(), root_path.to_owned()))
                 })?;
 
-        let input_value_validator_store = self.store.clone();
-
-        if let Some(name) = self
-            .dialogs_service
-            .show(dialogs::state::DialogShowOptions {
-                input_value_validator: Some(Box::new(move |value| {
-                    input_value_validator_store
-                        .with_state(|state| {
-                            selectors::select_check_create_file(state, browser_id, value)
-                        })
-                        .is_ok()
-                })),
-                input_placeholder: Some(String::from("Folder name")),
-                confirm_button_text: String::from("Create folder"),
-                ..self
-                    .dialogs_service
-                    .build_prompt(String::from("Enter new folder name"))
-            })
-            .await
-        {
-            self.repo_files_service
-                .create_dir(&repo_id, &parent_path, &name)
-                .await?;
-        }
-
-        Ok(())
+        Ok(self
+            .repo_files_service
+            .create_dir(&repo_id, &parent_path)
+            .await?)
     }
 
     pub async fn create_file(
@@ -372,26 +341,23 @@ impl RepoFilesBrowsersService {
         &self,
         browser_id: u32,
         mode: RepoFilesMoveMode,
-    ) -> Result<(), LoadFilesError> {
-        let repo_id = match self
-            .store
-            .with_state(|state| selectors::select_repo_id(state, browser_id).map(str::to_string))
-        {
-            Some(repo_id) => repo_id,
-            None => {
-                return Ok(());
+    ) -> Result<(), ShowError> {
+        let (repo_id, paths) = match self.store.with_state(|state| {
+            let repo_id = selectors::select_repo_id(state, browser_id)?.to_owned();
+            let paths = selectors::select_selected_paths(state, browser_id);
+
+            if paths.is_empty() {
+                return None;
             }
+
+            Some((repo_id, paths))
+        }) {
+            Some(x) => x,
+            None => return Ok(()),
         };
 
-        let src_file_ids = self.store.with_state(|state| {
-            selectors::select_selected_file_ids(state, browser_id)
-                .into_iter()
-                .map(|id| id.to_owned())
-                .collect::<Vec<String>>()
-        });
-
         self.repo_files_move_service
-            .show(&repo_id, src_file_ids, mode)
+            .show(repo_id, paths, mode)
             .await
     }
 }

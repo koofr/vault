@@ -6,9 +6,7 @@ use crate::{
     dir_pickers,
     dir_pickers::state::DirPickerItem,
     repo_files::{
-        errors::{CreateDirError, LoadFilesError, RepoFilesErrors},
-        selectors as repo_files_selectors,
-        state::RepoFilePath,
+        errors::LoadFilesError, selectors as repo_files_selectors, state::RepoFilePath,
         RepoFilesService,
     },
     store,
@@ -106,37 +104,6 @@ impl RepoFilesDirPickersService {
         for expand_future in expand_futures {
             expand_future.await?;
         }
-
-        Ok(())
-    }
-
-    pub async fn create_dir(&self, picker_id: u32, name: &str) -> Result<(), CreateDirError> {
-        let (repo_id, parent_path) =
-            self.store
-                .with_state::<_, Result<_, CreateDirError>>(|state| {
-                    selectors::select_check_create_dir(state, picker_id, name)?;
-
-                    let parent_file = selectors::select_selected_file(state, picker_id)
-                        .ok_or_else(RepoFilesErrors::not_found)?;
-
-                    let parent_path = parent_file.decrypted_path()?;
-
-                    Ok((parent_file.repo_id.clone(), parent_path.to_owned()))
-                })?;
-
-        self.repo_files_service
-            .create_dir(&repo_id, &parent_path, name)
-            .await?;
-
-        let new_path = path_utils::join_path_name(&parent_path, name);
-
-        self.select_file(picker_id, &new_path)
-            .await
-            .map_err(|e| match e {
-                LoadFilesError::RepoNotFound(err) => CreateDirError::RepoNotFound(err),
-                LoadFilesError::RepoLocked(err) => CreateDirError::RepoLocked(err),
-                LoadFilesError::RemoteError(err) => CreateDirError::RemoteError(err),
-            })?;
 
         Ok(())
     }

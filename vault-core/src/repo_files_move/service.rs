@@ -1,11 +1,10 @@
 use std::sync::Arc;
 
 use crate::{
-    dialogs,
     dir_pickers::selectors as dir_pickers_selectors,
     repo_files::{
-        errors::{CreateDirError, LoadFilesError, MoveFileError, RepoFilesErrors},
-        selectors as repo_files_selectors, RepoFilesService,
+        errors::{CreateDirError, MoveFileError, RepoFilesErrors},
+        RepoFilesService,
     },
     repo_files_dir_pickers::RepoFilesDirPickersService,
     store,
@@ -13,14 +12,14 @@ use crate::{
 };
 
 use super::{
-    selectors,
-    state::{RepoFilesMoveMode, RepoFilesMoveState},
+    errors::{DirPickerClickError, ShowError},
+    mutations, selectors,
+    state::RepoFilesMoveMode,
 };
 
 pub struct RepoFilesMoveService {
     repo_files_service: Arc<RepoFilesService>,
     repo_files_dir_pickers_service: Arc<RepoFilesDirPickersService>,
-    dialogs_service: Arc<dialogs::DialogsService>,
     store: Arc<store::Store>,
 }
 
@@ -28,52 +27,52 @@ impl RepoFilesMoveService {
     pub fn new(
         repo_files_service: Arc<RepoFilesService>,
         repo_files_dir_pickers_service: Arc<RepoFilesDirPickersService>,
-        dialogs_service: Arc<dialogs::DialogsService>,
         store: Arc<store::Store>,
     ) -> Self {
         Self {
             repo_files_service,
             repo_files_dir_pickers_service,
-            dialogs_service,
             store,
         }
     }
 
+    pub async fn move_file(
+        &self,
+        repo_id: String,
+        path: String,
+        mode: RepoFilesMoveMode,
+    ) -> Result<(), ShowError> {
+        self.show(repo_id, vec![path], mode).await
+    }
+
     pub async fn show(
         &self,
-        repo_id: &str,
-        src_file_ids: Vec<String>,
+        repo_id: String,
+        src_paths: Vec<String>,
         mode: RepoFilesMoveMode,
-    ) -> Result<(), LoadFilesError> {
-        if src_file_ids.is_empty() {
-            return Ok(());
-        }
-
-        let first_file_path = self.store.with_state(|state| {
-            repo_files_selectors::select_file(state, &src_file_ids.get(0).unwrap())
-                .and_then(|file| file.decrypted_path().ok().map(str::to_string))
-        });
+    ) -> Result<(), ShowError> {
+        let first_src_path = src_paths.get(0).ok_or(ShowError::FilesEmpty)?;
+        let dest_path = path_utils::parent_path(first_src_path)
+            .map(str::to_string)
+            .ok_or(RepoFilesErrors::move_root())?;
 
         let dir_picker_id = self.repo_files_dir_pickers_service.create(&repo_id);
 
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoFilesMove);
-
-            state.repo_files_move = Some(RepoFilesMoveState {
-                repo_id: repo_id.to_owned(),
-                src_file_ids,
+            mutations::show(
+                state,
+                notify,
+                repo_id,
+                src_paths,
+                dest_path.clone(),
                 mode,
                 dir_picker_id,
-            });
+            );
         });
 
-        if let Some(first_file_path) = &first_file_path {
-            if let Some(parent_path) = path_utils::parent_path(&first_file_path) {
-                self.repo_files_dir_pickers_service
-                    .select_file(dir_picker_id, parent_path)
-                    .await?;
-            }
-        }
+        self.repo_files_dir_pickers_service
+            .select_file(dir_picker_id, &dest_path)
+            .await?;
 
         self.repo_files_dir_pickers_service
             .load(dir_picker_id)
@@ -83,71 +82,54 @@ impl RepoFilesMoveService {
         if self.store.with_state(|state| {
             dir_pickers_selectors::select_selected_id(state, dir_picker_id).is_none()
         }) {
-            if let Some(first_file_path) = &first_file_path {
-                if let Some(parent_path) = path_utils::parent_path(&first_file_path) {
-                    self.repo_files_dir_pickers_service
-                        .select_file(dir_picker_id, parent_path)
-                        .await?;
-                }
-            }
+            self.repo_files_dir_pickers_service
+                .select_file(dir_picker_id, &dest_path)
+                .await?;
         }
 
         Ok(())
     }
 
+    pub fn set_dest_path(&self, dest_path: String) {
+        self.store
+            .mutate(|state, notify, _, _| mutations::set_dest_path(state, notify, dest_path))
+    }
+
+    pub async fn dir_picker_click(
+        &self,
+        item_id: &str,
+        is_arrow: bool,
+    ) -> Result<(), DirPickerClickError> {
+        let (dir_picker_id, dest_path) = self
+            .store
+            .with_state(|state| selectors::select_dir_picker_click(state, item_id))?;
+
+        self.set_dest_path(dest_path);
+
+        Ok(self
+            .repo_files_dir_pickers_service
+            .click(dir_picker_id, item_id, is_arrow)
+            .await?)
+    }
+
     pub async fn move_files(&self) -> Result<(), MoveFileError> {
-        let RepoFilesMoveState {
-            repo_id,
-            src_file_ids,
-            mode,
-            dir_picker_id,
-        } = self
+        let info = self
             .store
-            .with_state::<_, Result<_, MoveFileError>>(|state| {
-                selectors::select_check_move(state)?;
+            .mutate(|state, notify, _, _| mutations::move_files(state, notify))?;
 
-                Ok(state
-                    .repo_files_move
-                    .clone()
-                    .ok_or_else(RepoFilesErrors::not_found)?)
-            })?;
+        self.repo_files_dir_pickers_service
+            .destroy(info.dir_picker_id);
 
-        let dest_file_id = self.store.with_state(|state| {
-            dir_pickers_selectors::select_selected_file_id(state, dir_picker_id)
-                .map(str::to_string)
-                .ok_or_else(RepoFilesErrors::not_found)
-        })?;
-
-        let dest_parent_path = self
-            .store
-            .with_state::<_, Result<_, MoveFileError>>(|state| {
-                let file = repo_files_selectors::select_file(state, &dest_file_id)
-                    .ok_or_else(RepoFilesErrors::not_found)?;
-
-                Ok(file.decrypted_path()?.to_owned())
-            })?;
-
-        self.cancel();
-
-        for src_file_id in src_file_ids {
-            let src_path = self
-                .store
-                .with_state::<_, Result<_, MoveFileError>>(|state| {
-                    let file = repo_files_selectors::select_file(state, &src_file_id)
-                        .ok_or_else(RepoFilesErrors::not_found)?;
-
-                    Ok(file.decrypted_path()?.to_owned())
-                })?;
-
-            match mode {
+        for src_path in info.src_paths {
+            match info.mode {
                 RepoFilesMoveMode::Copy => {
                     self.repo_files_service
-                        .copy_file(&repo_id, &src_path, &dest_parent_path)
+                        .copy_file(&info.repo_id, &src_path, &info.dest_path)
                         .await?
                 }
                 RepoFilesMoveMode::Move => {
                     self.repo_files_service
-                        .move_file(&repo_id, &src_path, &dest_parent_path)
+                        .move_file(&info.repo_id, &src_path, &info.dest_path)
                         .await?
                 }
             }
@@ -157,47 +139,35 @@ impl RepoFilesMoveService {
     }
 
     pub fn cancel(&self) {
-        if let Some(dir_picker_id) = self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoFilesMove);
-
-            let dir_picker_id = state.repo_files_move.as_ref().map(|x| x.dir_picker_id);
-
-            state.repo_files_move = None;
-
-            dir_picker_id
-        }) {
+        if let Some(dir_picker_id) = self
+            .store
+            .mutate(|state, notify, _, _| mutations::cancel(state, notify))
+        {
             self.repo_files_dir_pickers_service.destroy(dir_picker_id);
         }
     }
 
     pub async fn create_dir(&self) -> Result<(), CreateDirError> {
-        let picker_id = self
+        let (repo_id, parent_path, dir_picker_id) = self
             .store
-            .with_state(|state| selectors::select_dir_picker_id(state))
+            .with_state(|state| {
+                state
+                    .repo_files_move
+                    .as_ref()
+                    .map(|x| (x.repo_id.clone(), x.dest_path.clone(), x.dir_picker_id))
+            })
             .ok_or_else(RepoFilesErrors::not_found)?;
 
-        let input_value_validator_store = self.store.clone();
+        let (_, path) = self
+            .repo_files_service
+            .create_dir(&repo_id, &parent_path)
+            .await?;
 
-        if let Some(name) = self
-            .dialogs_service
-            .show(dialogs::state::DialogShowOptions {
-                input_value_validator: Some(Box::new(move |value| {
-                    input_value_validator_store
-                        .with_state(|state| selectors::select_check_create_dir(state, value))
-                        .is_ok()
-                })),
-                input_placeholder: Some(String::from("Folder name")),
-                confirm_button_text: String::from("Create folder"),
-                ..self
-                    .dialogs_service
-                    .build_prompt(String::from("Enter new folder name"))
-            })
-            .await
-        {
-            self.repo_files_dir_pickers_service
-                .create_dir(picker_id, &name)
-                .await?;
-        }
+        self.set_dest_path(path.clone());
+
+        self.repo_files_dir_pickers_service
+            .select_file(dir_picker_id, &path)
+            .await?;
 
         Ok(())
     }

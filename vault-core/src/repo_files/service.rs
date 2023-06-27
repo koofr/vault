@@ -184,17 +184,7 @@ impl RepoFilesService {
         conflict_resolution: RepoFilesUploadConflictResolution,
         on_progress: Option<Box<dyn Fn(usize) + Send + Sync>>,
     ) -> Result<RepoFilesUploadResult, UploadFileReaderError> {
-        self.clone()
-            .ensure_dirs(repo_id, parent_path)
-            .await
-            .map_err(|e| match e {
-                EnsureDirError::RepoNotFound(err) => UploadFileReaderError::RepoNotFound(err),
-                EnsureDirError::RepoLocked(err) => UploadFileReaderError::RepoLocked(err),
-                EnsureDirError::DecryptFilenameError(err) => {
-                    UploadFileReaderError::DecryptFilenameError(err)
-                }
-                EnsureDirError::RemoteError(err) => UploadFileReaderError::RemoteError(err),
-            })?;
+        self.clone().ensure_dirs(repo_id, parent_path).await?;
 
         let cipher = self.repos_service.get_cipher(&repo_id)?;
 
@@ -287,6 +277,49 @@ impl RepoFilesService {
         &self,
         repo_id: &str,
         parent_path: &str,
+    ) -> Result<(String, String), CreateDirError> {
+        let input_value_validator_store = self.store.clone();
+        let input_value_validator_repo_id = repo_id.to_owned();
+        let input_value_validator_parent_path = parent_path.to_owned();
+
+        let name = match self
+            .dialogs_service
+            .show(dialogs::state::DialogShowOptions {
+                input_value_validator: Some(Box::new(move |value| {
+                    input_value_validator_store
+                        .with_state(|state| {
+                            selectors::select_check_new_name_valid(
+                                state,
+                                &input_value_validator_repo_id,
+                                &input_value_validator_parent_path,
+                                value,
+                            )
+                        })
+                        .is_ok()
+                })),
+                input_placeholder: Some(String::from("Folder name")),
+                confirm_button_text: String::from("Create folder"),
+                ..self
+                    .dialogs_service
+                    .build_prompt(String::from("Enter new folder name"))
+            })
+            .await
+        {
+            Some(name) => name,
+            None => return Err(CreateDirError::Canceled),
+        };
+
+        let path = path_utils::join_path_name(&parent_path, &name);
+
+        self.create_dir_name(repo_id, parent_path, &name).await?;
+
+        Ok((name, path))
+    }
+
+    pub async fn create_dir_name(
+        &self,
+        repo_id: &str,
+        parent_path: &str,
         name: &str,
     ) -> Result<(), CreateDirError> {
         let (mount_id, remote_parent_path) = self
@@ -328,20 +361,13 @@ impl RepoFilesService {
                 Err(EnsureDirError::RemoteError(remote::RemoteError::ApiError {
                     code: remote::ApiErrorCode::NotFound,
                     ..
-                })) => match self.create_dir(&repo_id, parent_path, name).await {
+                })) => match self.create_dir_name(&repo_id, parent_path, name).await {
                     Ok(()) => Ok(()),
-                    Err(CreateDirError::RepoLocked(err)) => Err(EnsureDirError::RepoLocked(err)),
-                    Err(CreateDirError::RepoNotFound(err)) => {
-                        Err(EnsureDirError::RepoNotFound(err))
-                    }
                     Err(CreateDirError::RemoteError(remote::RemoteError::ApiError {
                         code: remote::ApiErrorCode::AlreadyExists,
                         ..
                     })) => self.ensure_dir_load_file(&repo_id, &path).await,
-                    Err(CreateDirError::DecryptFilenameError(err)) => {
-                        Err(EnsureDirError::DecryptFilenameError(err))
-                    }
-                    Err(CreateDirError::RemoteError(err)) => Err(EnsureDirError::RemoteError(err)),
+                    Err(err) => Err(err.into()),
                 },
                 Err(err) => Err(err),
             },
@@ -349,12 +375,7 @@ impl RepoFilesService {
     }
 
     async fn ensure_dir_load_file(&self, repo_id: &str, path: &str) -> Result<(), EnsureDirError> {
-        match self.load_file(repo_id, path).await {
-            Ok(()) => Ok(()),
-            Err(LoadFileError::RepoLocked(err)) => Err(EnsureDirError::RepoLocked(err)),
-            Err(LoadFileError::RepoNotFound(err)) => Err(EnsureDirError::RepoNotFound(err)),
-            Err(LoadFileError::RemoteError(err)) => Err(EnsureDirError::RemoteError(err)),
-        }
+        Ok(self.load_file(repo_id, path).await?)
     }
 
     pub async fn ensure_dirs(

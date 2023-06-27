@@ -12,12 +12,6 @@ use crate::{
 };
 
 #[derive(Debug, Clone)]
-pub struct RepoFilesLocation {
-    pub repo_id: String,
-    pub path: String,
-}
-
-#[derive(Debug, Clone)]
 pub struct RepoFilesBreadcrumb {
     pub id: String,
     pub repo_id: String,

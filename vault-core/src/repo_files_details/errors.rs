@@ -115,6 +115,7 @@ impl From<UploadFileReaderError> for SaveError {
             UploadFileReaderError::RepoNotFound(err) => Self::RepoNotFound(err),
             UploadFileReaderError::RepoLocked(err) => Self::RepoLocked(err),
             UploadFileReaderError::DecryptFilenameError(err) => Self::DecryptFilenameError(err),
+            UploadFileReaderError::Canceled => Self::Canceled,
             UploadFileReaderError::RemoteError(err) => Self::RemoteError(err),
         }
     }

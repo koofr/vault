@@ -86,7 +86,7 @@ impl RepoFixture {
         self.vault
             .repo_files_service
             .clone()
-            .create_dir(&self.repo_id, parent_path, name)
+            .create_dir_name(&self.repo_id, parent_path, name)
             .await
             .unwrap();
     }

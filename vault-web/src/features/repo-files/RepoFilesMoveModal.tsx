@@ -3,6 +3,7 @@ import { useTheme } from '@emotion/react';
 import { memo, useCallback } from 'react';
 
 import { Button } from '../../components/Button';
+import { DirPicker } from '../../components/dirpicker/DirPicker';
 import {
   Modal,
   ModalBody,
@@ -17,8 +18,6 @@ import { useIsMobile } from '../../components/useIsMobile';
 import { RepoFile, RepoFilesMoveInfo } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
-
-import { RepoFilesDirPicker } from './RepoFilesDirPicker';
 
 export interface RepoFileWithPath extends RepoFile {
   path: string;
@@ -42,6 +41,11 @@ export const RepoFilesMoveModalContent = memo<{
     const isMobile = useIsMobile();
     const theme = useTheme();
     const webVault = useWebVault();
+    const dirPickerOnClick = useCallback(
+      (_: number, itemId: string, isArrow: boolean) =>
+        webVault.repoFilesMoveDirPickerClick(itemId, isArrow),
+      [webVault]
+    );
     const createDir = useCallback(() => {
       webVault.repoFilesMoveCreateDir();
     }, [webVault]);
@@ -102,7 +106,7 @@ export const RepoFilesMoveModalContent = memo<{
                   `
             )}
           >
-            <RepoFilesDirPicker dirPickerId={dirPickerId} />
+            <DirPicker pickerId={dirPickerId} onClick={dirPickerOnClick} />
           </div>
         </ModalBody>
         <ModalFooter>

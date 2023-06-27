@@ -115,6 +115,13 @@ pub fn select_selected_files<'a>(state: &'a store::State, browser_id: u32) -> Ve
         .collect()
 }
 
+pub fn select_selected_paths(state: &store::State, browser_id: u32) -> Vec<String> {
+    select_selected_files(state, browser_id)
+        .into_iter()
+        .filter_map(|file| file.decrypted_path().ok().map(str::to_string))
+        .collect()
+}
+
 pub fn select_info<'a>(state: &'a store::State, browser_id: u32) -> Option<RepoFilesBrowserInfo> {
     select_browser(state, browser_id).map(|browser| {
         let items = select_items(state, browser_id);

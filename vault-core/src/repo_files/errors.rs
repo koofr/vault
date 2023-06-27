@@ -19,7 +19,15 @@ impl RepoFilesErrors {
     }
 
     pub fn not_a_dir() -> RemoteError {
-        RemoteError::from_code(ApiErrorCode::InvalidPath, "Not a dir")
+        RemoteError::from_code(ApiErrorCode::NotDir, "Not a dir")
+    }
+
+    pub fn move_into_self() -> RemoteError {
+        RemoteError::from_code(ApiErrorCode::MoveIntoSelf, "Cannot move into itself")
+    }
+
+    pub fn move_root() -> RemoteError {
+        RemoteError::from_code(ApiErrorCode::NotDir, "Cannot move root")
     }
 
     pub fn invalid_path() -> RemoteError {
@@ -81,8 +89,22 @@ pub enum UploadFileReaderError {
     RepoLocked(#[from] RepoLockedError),
     #[error("{0}")]
     DecryptFilenameError(#[from] DecryptFilenameError),
+    #[error("canceled")]
+    Canceled,
     #[error("{0}")]
     RemoteError(#[from] RemoteError),
+}
+
+impl From<EnsureDirError> for UploadFileReaderError {
+    fn from(err: EnsureDirError) -> Self {
+        match err {
+            EnsureDirError::RepoNotFound(err) => Self::RepoNotFound(err),
+            EnsureDirError::RepoLocked(err) => Self::RepoLocked(err),
+            EnsureDirError::DecryptFilenameError(err) => Self::DecryptFilenameError(err),
+            EnsureDirError::Canceled => Self::Canceled,
+            EnsureDirError::RemoteError(err) => Self::RemoteError(err),
+        }
+    }
 }
 
 #[derive(Error, Debug, Clone, UserError)]
@@ -105,6 +127,8 @@ pub enum CreateDirError {
     RepoLocked(#[from] RepoLockedError),
     #[error("{0}")]
     DecryptFilenameError(#[from] DecryptFilenameError),
+    #[error("canceled")]
+    Canceled,
     #[error("{0}")]
     RemoteError(#[from] RemoteError),
 }
@@ -117,6 +141,16 @@ impl UserError for CreateDirError {
                 ..
             }) => String::from("Folder with this name already exists."),
             _ => self.to_string(),
+        }
+    }
+}
+
+impl From<LoadFilesError> for CreateDirError {
+    fn from(err: LoadFilesError) -> Self {
+        match err {
+            LoadFilesError::RepoNotFound(err) => Self::RepoNotFound(err),
+            LoadFilesError::RepoLocked(err) => Self::RepoLocked(err),
+            LoadFilesError::RemoteError(err) => Self::RemoteError(err),
         }
     }
 }
@@ -153,6 +187,7 @@ impl From<UploadFileReaderError> for CreateFileError {
             UploadFileReaderError::RepoNotFound(err) => Self::RepoNotFound(err),
             UploadFileReaderError::RepoLocked(err) => Self::RepoLocked(err),
             UploadFileReaderError::DecryptFilenameError(err) => Self::DecryptFilenameError(err),
+            UploadFileReaderError::Canceled => Self::Canceled,
             UploadFileReaderError::RemoteError(err) => Self::RemoteError(err),
         }
     }
@@ -166,8 +201,32 @@ pub enum EnsureDirError {
     RepoLocked(#[from] RepoLockedError),
     #[error("{0}")]
     DecryptFilenameError(#[from] DecryptFilenameError),
+    #[error("canceled")]
+    Canceled,
     #[error("{0}")]
     RemoteError(#[from] RemoteError),
+}
+
+impl From<CreateDirError> for EnsureDirError {
+    fn from(err: CreateDirError) -> Self {
+        match err {
+            CreateDirError::RepoNotFound(err) => Self::RepoNotFound(err),
+            CreateDirError::RepoLocked(err) => Self::RepoLocked(err),
+            CreateDirError::DecryptFilenameError(err) => Self::DecryptFilenameError(err),
+            CreateDirError::Canceled => Self::Canceled,
+            CreateDirError::RemoteError(err) => Self::RemoteError(err),
+        }
+    }
+}
+
+impl From<LoadFileError> for EnsureDirError {
+    fn from(err: LoadFileError) -> Self {
+        match err {
+            LoadFileError::RepoNotFound(err) => Self::RepoNotFound(err),
+            LoadFileError::RepoLocked(err) => Self::RepoLocked(err),
+            LoadFileError::RemoteError(err) => Self::RemoteError(err),
+        }
+    }
 }
 
 #[derive(Error, Debug, Clone, UserError)]
@@ -206,6 +265,8 @@ pub enum MoveFileError {
     RepoLocked(#[from] RepoLockedError),
     #[error("{0}")]
     DecryptFilenameError(#[from] DecryptFilenameError),
+    #[error("move root")]
+    MoveRoot,
     #[error("{0}")]
     RemoteError(#[from] RemoteError),
 }

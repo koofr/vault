@@ -82,6 +82,7 @@ impl From<UploadFileReaderError> for TransferError {
             UploadFileReaderError::DecryptFilenameError(err) => {
                 TransferError::DecryptFilenameError(err)
             }
+            UploadFileReaderError::Canceled => TransferError::Aborted,
             UploadFileReaderError::RemoteError(err) => TransferError::RemoteError(err),
         }
     }

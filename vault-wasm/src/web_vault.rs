@@ -1340,7 +1340,13 @@ impl WebVault {
 
     #[wasm_bindgen(js_name = repoFilesBrowsersCreateDir)]
     pub async fn repo_files_browsers_create_dir(&self, browser_id: u32) {
-        self.handle_result(self.vault.repo_files_browsers_create_dir(browser_id).await)
+        self.handle_result(
+            match self.vault.repo_files_browsers_create_dir(browser_id).await {
+                Ok(_) => Ok(()),
+                Err(vault_core::repo_files::errors::CreateDirError::Canceled) => Ok(()),
+                Err(err) => Err(err),
+            },
+        )
     }
 
     #[wasm_bindgen(js_name = repoFilesBrowsersCreateFile)]
@@ -1588,7 +1594,7 @@ impl WebVault {
                         .repo_files_move
                         .as_ref()
                         .map(|files_move| dto::RepoFilesMoveInfo {
-                            src_files_count: files_move.src_file_ids.len(),
+                            src_files_count: files_move.src_paths.len(),
                             mode: (&files_move.mode).into(),
                             dir_picker_id: files_move.dir_picker_id,
                             dest_file_name:
@@ -1619,6 +1625,15 @@ impl WebVault {
         self.get_data_js(id, self.subscription_data.repo_files_move_info.clone())
     }
 
+    #[wasm_bindgen(js_name = repoFilesMoveDirPickerClick)]
+    pub async fn repo_files_move_dir_picker_click(&self, item_id: &str, is_arrow: bool) {
+        self.handle_result(
+            self.vault
+                .repo_files_move_dir_picker_click(item_id, is_arrow)
+                .await,
+        )
+    }
+
     #[wasm_bindgen(js_name = repoFilesMoveMoveFiles)]
     pub async fn repo_files_move_move_files(&self) {
         self.handle_result(self.vault.repo_files_move_move_files().await)
@@ -1631,23 +1646,11 @@ impl WebVault {
 
     #[wasm_bindgen(js_name = repoFilesMoveCreateDir)]
     pub async fn repo_files_move_create_dir(&self) {
-        self.handle_result(self.vault.repo_files_move_create_dir().await)
-    }
-
-    // repo_files_dir_pickers
-
-    #[wasm_bindgen(js_name = repoFilesDirPickersClick)]
-    pub async fn repo_files_dir_pickers_click(
-        &self,
-        picker_id: u32,
-        item_id: &str,
-        is_arrow: bool,
-    ) {
-        self.handle_result(
-            self.vault
-                .repo_files_dir_pickers_click(picker_id, item_id, is_arrow)
-                .await,
-        )
+        self.handle_result(match self.vault.repo_files_move_create_dir().await {
+            Ok(()) => Ok(()),
+            Err(vault_core::repo_files::errors::CreateDirError::Canceled) => Ok(()),
+            Err(err) => Err(err),
+        })
     }
 
     // space_usage
