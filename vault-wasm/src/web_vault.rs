@@ -1013,7 +1013,8 @@ impl WebVault {
                             state.transfers.total_bytes,
                         ),
                         percentage: selectors::select_percentage(state),
-                        remaining_time: (&selectors::select_remaining_time(state, now)).into(),
+                        remaining_time_display: selectors::select_remaining_time(state, now)
+                            .to_string(),
                         speed_display: vault_core::file_size::speed_display_bytes_duration(
                             selectors::select_bytes_done(state),
                             selectors::select_duration(state, now),

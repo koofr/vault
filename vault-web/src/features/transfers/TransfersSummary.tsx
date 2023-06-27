@@ -6,7 +6,6 @@ import { ReactComponent as TransfersFailedIcon } from '../../assets/images/trans
 import { ReactComponent as TransfersIcon } from '../../assets/images/transfers.svg';
 import { Button } from '../../components/Button';
 import { Progress } from '../../components/Progress';
-import { remainingTimeDisplay } from '../../utils/remainingTime';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
 
@@ -25,7 +24,7 @@ export const TransfersSummary = memo<{
       failedCount,
       sizeProgressDisplay,
       percentage,
-      remainingTime,
+      remainingTimeDisplay,
       speedDisplay,
       isTransferring,
       canRetryAll,
@@ -227,7 +226,7 @@ export const TransfersSummary = memo<{
                       font-weight: 600;
                     `}
                   >
-                    {remainingTimeDisplay(remainingTime)}
+                    {remainingTimeDisplay}
                   </span>{' '}
                   remaining
                 </span>

@@ -1,4 +1,4 @@
-use std::pin::Pin;
+use std::{fmt::Display, pin::Pin};
 
 use futures::{AsyncRead, AsyncWrite};
 
@@ -50,6 +50,26 @@ impl RemainingTime {
             minutes,
             seconds,
         }
+    }
+}
+
+impl Display for RemainingTime {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.days > 0 {
+            write!(f, "{}d ", self.days)?;
+        }
+
+        if self.hours > 0 {
+            write!(f, "{}h ", self.hours)?;
+        }
+
+        if self.minutes > 0 {
+            write!(f, "{}m ", self.minutes)?;
+        }
+
+        write!(f, "{}s", self.seconds | 0)?;
+
+        Ok(())
     }
 }
 

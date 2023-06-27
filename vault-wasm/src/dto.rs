@@ -76,25 +76,6 @@ impl From<&common_state::SizeInfo> for SizeInfo {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
-pub struct RemainingTime {
-    pub days: u32,
-    pub hours: u32,
-    pub minutes: u32,
-    pub seconds: u32,
-}
-
-impl From<&common_state::RemainingTime> for RemainingTime {
-    fn from(remaining_time: &common_state::RemainingTime) -> Self {
-        Self {
-            days: remaining_time.days,
-            hours: remaining_time.hours,
-            minutes: remaining_time.minutes,
-            seconds: remaining_time.seconds,
-        }
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub enum SelectionSummary {
     None,
     Partial,
@@ -1210,8 +1191,8 @@ pub struct TransfersSummary {
     #[serde(rename = "sizeProgressDisplay")]
     pub size_progress_display: String,
     pub percentage: u8,
-    #[serde(rename = "remainingTime")]
-    pub remaining_time: RemainingTime,
+    #[serde(rename = "remainingTimeDisplay")]
+    pub remaining_time_display: String,
     #[serde(rename = "speedDisplay")]
     pub speed_display: String,
     #[serde(rename = "isTransferring")]
