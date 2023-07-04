@@ -30,7 +30,7 @@ impl Drop for MountSubscription {
 }
 
 enum ConnectionState {
-    Disconnected,
+    Initial,
     Connecting,
     Authenticating,
     Reconnecting,
@@ -39,6 +39,7 @@ enum ConnectionState {
         request_id_to_mount_listener_id: HashMap<u32, u32>,
         listener_id_to_mount_listener_id: HashMap<i64, u32>,
     },
+    Disconnected,
 }
 
 enum MountListenerState {
@@ -84,7 +85,7 @@ impl EventStreamService {
             remote_files_service,
             runtime,
 
-            connection_state: Arc::new(Mutex::new(ConnectionState::Disconnected)),
+            connection_state: Arc::new(Mutex::new(ConnectionState::Initial)),
             next_mount_listener_id: Arc::new(Mutex::new(1)),
             mount_listeners: Arc::new(Mutex::new(HashMap::new())),
             mount_subscriptions: Arc::new(Mutex::new(HashMap::new())),
@@ -97,9 +98,10 @@ impl EventStreamService {
         match *self.connection_state.lock().unwrap() {
             ConnectionState::Connecting
             | ConnectionState::Authenticating
-            | ConnectionState::Reconnecting
             | ConnectionState::Connected { .. } => return,
-            ConnectionState::Disconnected => {}
+            ConnectionState::Initial
+            | ConnectionState::Reconnecting
+            | ConnectionState::Disconnected => {}
         }
 
         log::debug!("Eventstream connecting");
@@ -148,7 +150,8 @@ impl EventStreamService {
             let authorization = match on_open_self.auth_provider.get_authorization(false).await {
                 Ok(authorization) => authorization,
                 _ => {
-                    // nothing to do here
+                    on_open_self.websocket_client.close();
+
                     return;
                 }
             };
@@ -203,6 +206,13 @@ impl EventStreamService {
     }
 
     fn websocket_on_close(self: Arc<Self>) {
+        match *self.connection_state.lock().unwrap() {
+            ConnectionState::Disconnected => {
+                return;
+            }
+            _ => {}
+        }
+
         log::debug!("Eventstream error");
 
         *self.connection_state.lock().unwrap() = ConnectionState::Reconnecting;
