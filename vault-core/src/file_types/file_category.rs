@@ -150,6 +150,7 @@ static EXT_TO_FILE_CATEGORY: phf::Map<&'static str, FileCategory> = phf_map! {
     "gz" => FileCategory::Archive,
     "h" => FileCategory::Code,
     "h++" => FileCategory::Text,
+    "heic" => FileCategory::Image,
     "hh" => FileCategory::Text,
     "hp" => FileCategory::Text,
     "hpp" => FileCategory::Text,

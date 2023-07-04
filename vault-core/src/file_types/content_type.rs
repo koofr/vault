@@ -59,6 +59,7 @@ static EXT_TO_CONTENT_TYPE: phf::Map<&'static str, &'static str> = phf_map! {
     "gv" => "text/vnd.graphviz",
     "gz" => "application/gzip",
     "h" => "text/plain",
+    "heic" => "image/heic",
     "hh" => "text/x-c",
     "htc" => "text/x-component",
     "htm" => "text/html",
