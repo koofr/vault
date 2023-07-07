@@ -9,6 +9,7 @@ aes = { version = "0.7.5", features = ["ctr"] }
 async_zip_futures = { version = "0.0.12", features = ["chrono"] }
 async-trait = "0.1.68"
 bytes = "1.4.0"
+chrono = { version = "0.4.24", default-features = false, features = ["clock"] }
 data-encoding = "2.4.0"
 # eme-mode 0.3 is not correct for inputs longer than 16 bytes
 eme-mode = "0.2.1"
@@ -16,6 +17,7 @@ futures = { version = "0.3.28", features = ["executor"] }
 http = "0.2.9"
 instant = "0.1.12"
 log = "0.4.17"
+md5 = "0.7.0"
 phf = { version = "0.11.1", features = ["macros"] }
 pin-project-lite = "0.2.9"
 rand_core = "0.6.4"
@@ -33,7 +35,6 @@ urlencoding = "2.1.2"
 user-error-derive = { path = "./user-error-derive" }
 uuid = { version = "1.3.3", features = ["v4", "fast-rng"] }
 xsalsa20poly1305 = "0.9.1"
-chrono = { version = "0.4.24", default-features = false, features = ["clock"] }
 
 [dev-dependencies]
 futures-test = "0.3.28"
