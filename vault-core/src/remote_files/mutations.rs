@@ -6,16 +6,24 @@ use super::{
 };
 
 pub fn mount_to_remote_file(id: String, mount_id: String) -> RemoteFile {
+    let path = String::from("/");
+    let size = 0;
+    let modified = 0;
+    let hash = None;
+    let unique_id =
+        selectors::get_file_unique_id(&mount_id, &path, size, modified, hash.as_deref());
+
     RemoteFile {
         id,
         mount_id,
-        path: String::from("/"),
+        path,
         name: String::from(""),
         name_lower: String::from(""),
         typ: RemoteFileType::Dir,
-        size: 0,
-        modified: 0,
-        hash: None,
+        size,
+        modified,
+        hash,
+        unique_id,
     }
 }
 
@@ -26,6 +34,13 @@ pub fn files_file_to_remote_file(
     file: models::FilesFile,
 ) -> RemoteFile {
     let name_lower = file.name.to_lowercase();
+    let typ = file.typ.as_str().into();
+    let modified = match &typ {
+        RemoteFileType::Dir => 0,
+        RemoteFileType::File => file.modified,
+    };
+    let unique_id =
+        selectors::get_file_unique_id(&mount_id, &path, file.size, modified, file.hash.as_deref());
 
     RemoteFile {
         id,
@@ -33,10 +48,11 @@ pub fn files_file_to_remote_file(
         path,
         name: file.name,
         name_lower,
-        typ: file.typ.as_str().into(),
+        typ,
         size: file.size,
-        modified: file.modified,
+        modified,
         hash: file.hash,
+        unique_id,
     }
 }
 
@@ -47,6 +63,13 @@ pub fn bundle_file_to_remote_file(
     file: models::BundleFile,
 ) -> RemoteFile {
     let name_lower = file.name.to_lowercase();
+    let typ = file.typ.as_str().into();
+    let modified = match &typ {
+        RemoteFileType::Dir => 0,
+        RemoteFileType::File => file.modified,
+    };
+    let unique_id =
+        selectors::get_file_unique_id(&mount_id, &path, file.size, modified, file.hash.as_deref());
 
     RemoteFile {
         id,
@@ -54,15 +77,26 @@ pub fn bundle_file_to_remote_file(
         path,
         name: file.name,
         name_lower,
-        typ: file.typ.as_str().into(),
+        typ,
         size: file.size,
-        modified: file.modified,
+        modified,
         hash: file.hash,
+        unique_id,
     }
 }
 
 fn bookmark_to_remote_file(id: String, bookmark: models::Bookmark) -> RemoteFile {
     let name_lower = bookmark.name.to_lowercase();
+    let size = 0;
+    let modified = 0;
+    let hash = None;
+    let unique_id = selectors::get_file_unique_id(
+        &bookmark.mount_id,
+        &bookmark.path,
+        size,
+        modified,
+        hash.as_deref(),
+    );
 
     RemoteFile {
         id,
@@ -71,23 +105,41 @@ fn bookmark_to_remote_file(id: String, bookmark: models::Bookmark) -> RemoteFile
         name: bookmark.name,
         name_lower,
         typ: RemoteFileType::Dir,
-        size: 0,
-        modified: 0,
-        hash: None,
+        size,
+        modified,
+        hash,
+        unique_id,
     }
 }
 
 fn shared_file_to_remote_file(id: String, shared_file: models::SharedFile) -> RemoteFile {
+    let path = String::from("/");
+    let name_lower = shared_file.name.to_lowercase();
+    let typ = shared_file.typ.as_str().into();
+    let modified = match &typ {
+        RemoteFileType::Dir => 0,
+        RemoteFileType::File => shared_file.modified,
+    };
+    let hash = None;
+    let unique_id = selectors::get_file_unique_id(
+        &shared_file.mount.id,
+        &path,
+        shared_file.size,
+        modified,
+        hash.as_deref(),
+    );
+
     RemoteFile {
         id,
         mount_id: shared_file.mount.id,
-        path: String::from("/"),
+        path,
         name: shared_file.name.clone(),
-        name_lower: shared_file.name.to_lowercase(),
-        typ: shared_file.typ.as_str().into(),
+        name_lower,
+        typ,
         size: shared_file.size,
-        modified: shared_file.modified,
-        hash: None,
+        modified,
+        hash,
+        unique_id,
     }
 }
 
@@ -96,6 +148,11 @@ fn dir_to_remote_file(id: String, mount_id: String, path: String) -> RemoteFile 
         .map(|name| name.to_owned())
         .unwrap_or(String::from(""));
     let name_lower = name.to_lowercase();
+    let size = 0;
+    let modified = 0;
+    let hash = None;
+    let unique_id =
+        selectors::get_file_unique_id(&mount_id, &path, size, modified, hash.as_deref());
 
     RemoteFile {
         id,
@@ -104,9 +161,10 @@ fn dir_to_remote_file(id: String, mount_id: String, path: String) -> RemoteFile 
         name,
         name_lower,
         typ: RemoteFileType::Dir,
-        size: 0,
-        modified: 0,
-        hash: None,
+        size,
+        modified,
+        hash,
+        unique_id,
     }
 }
 

@@ -12,6 +12,24 @@ pub fn get_file_id(mount_id: &str, path: &str) -> String {
     format!("{}:{}", mount_id, path.to_lowercase())
 }
 
+pub fn get_file_unique_id(
+    mount_id: &str,
+    path: &str,
+    size: i64,
+    modified: i64,
+    hash: Option<&str>,
+) -> String {
+    let digest = md5::compute(format!(
+        "{}:{}:{}:{}",
+        get_file_id(mount_id, path),
+        size,
+        modified,
+        hash.unwrap_or(""),
+    ));
+
+    format!("{:x}", digest)
+}
+
 pub fn mount_origin_order(origin: &MountOrigin) -> u32 {
     match origin {
         MountOrigin::Hosted => 0,
