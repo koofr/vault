@@ -380,6 +380,7 @@ pub fn decrypt_file(
         },
         RemoteFileType::Dir => (None, None, FileCategory::Folder),
     };
+    let unique_name = selectors::get_file_unique_name(&remote_file.unique_id, ext.as_deref());
 
     RepoFile {
         id,
@@ -393,12 +394,15 @@ pub fn decrypt_file(
         typ: (&remote_file.typ).into(),
         size,
         modified: remote_file.modified,
+        unique_name,
         remote_hash: remote_file.hash.clone(),
         category,
     }
 }
 
 pub fn get_root_file(repo_id: &str, remote_file: &RemoteFile) -> RepoFile {
+    let unique_name = selectors::get_file_unique_name(&remote_file.unique_id, None);
+
     RepoFile {
         id: selectors::get_file_id(repo_id, "/"),
         mount_id: remote_file.mount_id.clone(),
@@ -416,6 +420,7 @@ pub fn get_root_file(repo_id: &str, remote_file: &RemoteFile) -> RepoFile {
         typ: super::state::RepoFileType::Dir,
         size: RepoFileSize::Decrypted { size: 0 },
         modified: 0,
+        unique_name,
         remote_hash: None,
         category: FileCategory::Folder,
     }
@@ -480,6 +485,7 @@ mod tests {
                 typ: RepoFileType::Dir,
                 size: RepoFileSize::Decrypted { size: 0 },
                 modified: 0,
+                unique_name: String::from("2b6bea08149b89711b061f1291492d46"),
                 remote_hash: None,
                 category: FileCategory::Folder,
             }
@@ -512,7 +518,8 @@ mod tests {
                 content_type: None,
                 typ: RepoFileType::Dir,
                 size: RepoFileSize::Decrypted { size: 0 },
-                modified: 1,
+                modified: 0,
+                unique_name: String::from("4d87c76977a8fc1986fa3d7f6cc1aae0"),
                 remote_hash: None,
                 category: FileCategory::Folder,
             }
@@ -549,7 +556,8 @@ mod tests {
                 content_type: None,
                 typ: RepoFileType::Dir,
                 size: RepoFileSize::Decrypted { size: 0 },
-                modified: 1,
+                modified: 0,
+                unique_name: String::from("a2216f6522ef8e23512f13d37592b43b"),
                 remote_hash: None,
                 category: FileCategory::Folder,
             }
@@ -583,6 +591,7 @@ mod tests {
                 typ: RepoFileType::File,
                 size: RepoFileSize::Decrypted { size: 52 },
                 modified: 1,
+                unique_name: String::from("34f6bbb5f8a54613f67c5b7213bb5084.jpg"),
                 remote_hash: Some(String::from("hash")),
                 category: FileCategory::Image,
             }
@@ -624,6 +633,7 @@ mod tests {
                     error: DecryptSizeError::EncryptedFileTooShort
                 },
                 modified: 1,
+                unique_name: String::from("de40e3afb025fe16012fd421e246c711"),
                 remote_hash: Some(String::from("hash")),
                 category: FileCategory::Generic,
             }

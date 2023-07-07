@@ -20,6 +20,13 @@ pub fn get_file_id(repo_id: &str, path: &str) -> String {
     format!("{}:{}", repo_id, path)
 }
 
+pub fn get_file_unique_name(remote_file_unique_id: &str, ext: Option<&str>) -> String {
+    match ext {
+        Some(ext) => format!("{}.{}", remote_file_unique_id, ext),
+        None => remote_file_unique_id.to_owned(),
+    }
+}
+
 pub fn get_file_ext_content_type_category<'a>(
     name_lower: &'a str,
 ) -> (Option<String>, Option<String>, FileCategory) {
