@@ -42,7 +42,7 @@ pub struct RepoFilesDetailsService {
     eventstream_service: Arc<eventstream::EventStreamService>,
     dialogs_service: Arc<dialogs::DialogsService>,
     store: Arc<store::Store>,
-    runtime: Arc<Box<dyn runtime::Runtime + Send + Sync>>,
+    runtime: Arc<runtime::BoxRuntime>,
     autosave_abort_handles: Arc<Mutex<HashMap<u32, AbortHandle>>>,
     repo_files_mutation_subscription_id: u32,
 }
@@ -54,7 +54,7 @@ impl RepoFilesDetailsService {
         eventstream_service: Arc<eventstream::EventStreamService>,
         dialogs_service: Arc<dialogs::DialogsService>,
         store: Arc<store::Store>,
-        runtime: Arc<Box<dyn runtime::Runtime + Send + Sync>>,
+        runtime: Arc<runtime::BoxRuntime>,
     ) -> Arc<Self> {
         let repo_files_mutation_subscription_id = store.get_next_id();
 

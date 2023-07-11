@@ -33,7 +33,7 @@ pub struct RepoFilesReadService {
     remote_files_service: Arc<RemoteFilesService>,
     repo_files_list_service: Arc<RepoFilesListService>,
     store: Arc<store::Store>,
-    runtime: Arc<Box<dyn runtime::Runtime + Send + Sync>>,
+    runtime: Arc<runtime::BoxRuntime>,
 }
 
 impl RepoFilesReadService {
@@ -42,7 +42,7 @@ impl RepoFilesReadService {
         remote_files_service: Arc<RemoteFilesService>,
         repo_files_list_service: Arc<RepoFilesListService>,
         store: Arc<store::Store>,
-        runtime: Arc<Box<dyn runtime::Runtime + Send + Sync>>,
+        runtime: Arc<runtime::BoxRuntime>,
     ) -> Self {
         Self {
             repos_service,

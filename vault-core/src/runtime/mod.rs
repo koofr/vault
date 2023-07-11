@@ -1,3 +1,3 @@
 pub mod runtime;
 
-pub use self::runtime::Runtime;
+pub use self::runtime::{BoxRuntime, Runtime};

@@ -60,7 +60,7 @@ pub struct EventStreamService {
     websocket_client: Box<dyn WebSocketClient + Send + Sync>,
     auth_provider: Arc<Box<dyn auth::AuthProvider + Send + Sync>>,
     remote_files_service: Arc<RemoteFilesService>,
-    runtime: Arc<Box<dyn runtime::Runtime + Send + Sync>>,
+    runtime: Arc<runtime::BoxRuntime>,
 
     connection_state: Arc<Mutex<ConnectionState>>,
     next_mount_listener_id: Arc<Mutex<u32>>,
@@ -76,7 +76,7 @@ impl EventStreamService {
         websocket_client: Box<dyn WebSocketClient + Send + Sync>,
         auth_provider: Arc<Box<dyn auth::AuthProvider + Send + Sync>>,
         remote_files_service: Arc<RemoteFilesService>,
-        runtime: Arc<Box<dyn runtime::Runtime + Send + Sync>>,
+        runtime: Arc<runtime::BoxRuntime>,
     ) -> EventStreamService {
         EventStreamService {
             base_url,

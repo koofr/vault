@@ -43,7 +43,7 @@ impl Vault {
         http_client: Box<dyn http::HttpClient + Send + Sync>,
         eventstream_websocket_client: Box<dyn eventstream::WebSocketClient + Send + Sync>,
         secure_storage: Box<dyn secure_storage::SecureStorage + Send + Sync>,
-        runtime: Box<dyn runtime::Runtime + Send + Sync>,
+        runtime: runtime::BoxRuntime,
     ) -> Self {
         let state = store::State {
             config: config::state::ConfigState {

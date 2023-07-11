@@ -28,7 +28,7 @@ pub type UploadResult = Result<RepoFilesUploadResult, UploadError>;
 pub struct UploadsService {
     repo_files_service: Arc<RepoFilesService>,
     store: Arc<store::Store>,
-    runtime: Arc<Box<dyn runtime::Runtime + Send + Sync>>,
+    runtime: Arc<runtime::BoxRuntime>,
     uploadables: Arc<RwLock<HashMap<u32, Uploadable>>>,
     results: Arc<RwLock<HashMap<u32, Sender<UploadResult>>>>,
     abort_handles: Arc<RwLock<HashMap<u32, AbortHandle>>>,
@@ -38,7 +38,7 @@ impl UploadsService {
     pub fn new(
         repo_files_service: Arc<RepoFilesService>,
         store: Arc<store::Store>,
-        runtime: Arc<Box<dyn runtime::Runtime + Send + Sync>>,
+        runtime: Arc<runtime::BoxRuntime>,
     ) -> Self {
         Self {
             repo_files_service,
