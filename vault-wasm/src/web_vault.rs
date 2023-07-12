@@ -697,9 +697,15 @@ impl WebVault {
     #[wasm_bindgen(js_name = repoCreateLocationDirPickerCreateDir)]
     pub async fn repo_create_location_dir_picker_create_dir(&self) {
         self.handle_result(
-            self.vault
+            match self
+                .vault
                 .repo_create_location_dir_picker_create_dir()
-                .await,
+                .await
+            {
+                Ok(_) => Ok(()),
+                Err(vault_core::remote_files::errors::CreateDirError::Canceled) => Ok(()),
+                Err(err) => Err(err),
+            },
         )
     }
 

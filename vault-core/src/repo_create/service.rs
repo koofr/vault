@@ -4,12 +4,14 @@ use crate::{
     cipher,
     cipher::random_password::random_password,
     common::state::Status,
-    dialogs,
     dir_pickers::selectors as dir_pickers_selectors,
     rclone,
     remote::{self, models, RemoteError},
     remote_files::{
-        selectors as remote_files_selectors, state::RemoteFilesLocation, RemoteFilesService,
+        errors::{CreateDirError, RemoteFilesErrors},
+        selectors as remote_files_selectors,
+        state::RemoteFilesLocation,
+        RemoteFilesService,
     },
     remote_files_dir_pickers::{self, RemoteFilesDirPickersService},
     repos::{
@@ -36,7 +38,6 @@ pub struct RepoCreateService {
     repos_service: Arc<ReposService>,
     remote_files_service: Arc<RemoteFilesService>,
     remote_files_dir_pickers_service: Arc<RemoteFilesDirPickersService>,
-    dialogs_service: Arc<dialogs::DialogsService>,
     store: Arc<store::Store>,
 }
 
@@ -46,7 +47,6 @@ impl RepoCreateService {
         repos_service: Arc<ReposService>,
         remote_files_service: Arc<RemoteFilesService>,
         remote_files_dir_pickers_service: Arc<RemoteFilesDirPickersService>,
-        dialogs_service: Arc<dialogs::DialogsService>,
         store: Arc<store::Store>,
     ) -> Self {
         Self {
@@ -54,7 +54,6 @@ impl RepoCreateService {
             repos_service,
             remote_files_service,
             remote_files_dir_pickers_service,
-            dialogs_service,
             store,
         }
     }
@@ -212,39 +211,31 @@ impl RepoCreateService {
         }
     }
 
-    pub async fn location_dir_picker_create_dir(&self) -> Result<(), remote::RemoteError> {
-        let picker_id = match self
+    pub async fn location_dir_picker_create_dir(&self) -> Result<(), CreateDirError> {
+        let (mount_id, parent_path, picker_id) = self
             .store
-            .with_state(|state| selectors::select_location_dir_picker_id(state))
-        {
-            Some(picker_id) => picker_id,
-            None => return Ok(()),
-        };
+            .with_state(|state| {
+                let picker_id = selectors::select_location_dir_picker_id(state)?;
 
-        let input_value_validator_store = self.store.clone();
+                let remote_file =
+                    remote_files_dir_pickers::selectors::select_selected_file(state, picker_id)?;
 
-        if let Some(name) = self
-            .dialogs_service
-            .show(dialogs::state::DialogShowOptions {
-                input_value_validator: Some(Box::new(move |value| {
-                    input_value_validator_store
-                        .with_state(|state| {
-                            selectors::select_location_dir_picker_check_create_dir(state, value)
-                        })
-                        .is_ok()
-                })),
-                input_placeholder: Some(String::from("Folder name")),
-                confirm_button_text: String::from("Create folder"),
-                ..self
-                    .dialogs_service
-                    .build_prompt(String::from("Enter new folder name"))
+                Some((
+                    remote_file.mount_id.to_owned(),
+                    remote_file.path.to_owned(),
+                    picker_id,
+                ))
             })
-            .await
-        {
-            self.remote_files_dir_pickers_service
-                .create_dir(picker_id, &name)
-                .await?;
-        }
+            .ok_or_else(RemoteFilesErrors::not_found)?;
+
+        let (_, path) = self
+            .remote_files_service
+            .create_dir(&mount_id, &parent_path)
+            .await?;
+
+        self.remote_files_dir_pickers_service
+            .select_file(picker_id, &RemoteFilesLocation { mount_id, path })
+            .await?;
 
         Ok(())
     }
@@ -334,7 +325,7 @@ impl RepoCreateService {
                 let encrypted_name = cipher.encrypt_filename(name);
 
                 self.remote_files_service
-                    .create_dir(&location.mount_id, &location.path, &encrypted_name)
+                    .create_dir_name(&location.mount_id, &location.path, &encrypted_name)
                     .await?;
             }
         }

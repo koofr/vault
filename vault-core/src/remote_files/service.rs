@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use crate::{
     common::state::BoxAsyncRead,
+    dialogs,
     remote::{
         models, remote::ListRecursiveItemStream, Remote, RemoteError, RemoteFileReader,
         RemoteFileUploadConflictResolution,
@@ -10,16 +11,25 @@ use crate::{
     utils::path_utils,
 };
 
-use super::{mutations, selectors};
+use super::{errors::CreateDirError, mutations, selectors};
 
 pub struct RemoteFilesService {
     remote: Arc<Remote>,
+    dialogs_service: Arc<dialogs::DialogsService>,
     store: Arc<store::Store>,
 }
 
 impl RemoteFilesService {
-    pub fn new(remote: Arc<Remote>, store: Arc<store::Store>) -> Self {
-        Self { remote, store }
+    pub fn new(
+        remote: Arc<Remote>,
+        dialogs_service: Arc<dialogs::DialogsService>,
+        store: Arc<store::Store>,
+    ) -> Self {
+        Self {
+            remote,
+            dialogs_service,
+            store,
+        }
     }
 
     pub async fn load_places(&self) -> Result<(), RemoteError> {
@@ -168,6 +178,49 @@ impl RemoteFilesService {
     }
 
     pub async fn create_dir(
+        &self,
+        mount_id: &str,
+        parent_path: &str,
+    ) -> Result<(String, String), CreateDirError> {
+        let input_value_validator_store = self.store.clone();
+        let input_value_validator_mount_id = mount_id.to_owned();
+        let input_value_validator_parent_path = parent_path.to_owned();
+
+        let name = match self
+            .dialogs_service
+            .show(dialogs::state::DialogShowOptions {
+                input_value_validator: Some(Box::new(move |value| {
+                    input_value_validator_store
+                        .with_state(|state| {
+                            selectors::select_check_new_name_valid(
+                                state,
+                                &input_value_validator_mount_id,
+                                &input_value_validator_parent_path,
+                                value,
+                            )
+                        })
+                        .is_ok()
+                })),
+                input_placeholder: Some(String::from("Folder name")),
+                confirm_button_text: String::from("Create folder"),
+                ..self
+                    .dialogs_service
+                    .build_prompt(String::from("Enter new folder name"))
+            })
+            .await
+        {
+            Some(name) => name,
+            None => return Err(CreateDirError::Canceled),
+        };
+
+        let path = path_utils::join_path_name(&parent_path, &name);
+
+        self.create_dir_name(mount_id, parent_path, &name).await?;
+
+        Ok((name, path))
+    }
+
+    pub async fn create_dir_name(
         &self,
         mount_id: &str,
         parent_path: &str,

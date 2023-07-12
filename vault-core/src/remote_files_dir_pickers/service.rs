@@ -162,7 +162,7 @@ impl RemoteFilesDirPickersService {
                 })?;
 
         self.remote_files_service
-            .create_dir(&mount_id, &parent_path, name)
+            .create_dir_name(&mount_id, &parent_path, name)
             .await?;
 
         let new_path = path_utils::join_path_name(&parent_path, name);

@@ -85,6 +85,7 @@ impl Vault {
         let user_service = Arc::new(user::UserService::new(remote.clone(), store.clone()));
         let remote_files_service = Arc::new(remote_files::RemoteFilesService::new(
             remote.clone(),
+            dialogs_service.clone(),
             store.clone(),
         ));
         let remote_files_dir_pickers_service =
@@ -131,7 +132,6 @@ impl Vault {
             repos_service.clone(),
             remote_files_service.clone(),
             remote_files_dir_pickers_service.clone(),
-            dialogs_service.clone(),
             store.clone(),
         ));
         let transfers_service = Arc::new(transfers::TransfersService::new(
@@ -397,7 +397,7 @@ impl Vault {
 
     pub async fn repo_create_location_dir_picker_create_dir(
         &self,
-    ) -> Result<(), remote::RemoteError> {
+    ) -> Result<(), remote_files::errors::CreateDirError> {
         self.repo_create_service
             .location_dir_picker_create_dir()
             .await

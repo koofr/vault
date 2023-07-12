@@ -333,7 +333,7 @@ impl RepoFilesService {
         let encrypted_name = self.encrypt_filename(repo_id, name)?;
 
         self.remote_files_service
-            .create_dir(&mount_id, &remote_parent_path, &encrypted_name)
+            .create_dir_name(&mount_id, &remote_parent_path, &encrypted_name)
             .await
             .map_err(CreateDirError::RemoteError)?;
 
