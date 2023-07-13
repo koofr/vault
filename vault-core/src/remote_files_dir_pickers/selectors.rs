@@ -16,7 +16,6 @@ use super::state::Options;
 
 pub fn remote_file_ext_type_to_dir_picker_item_type(typ: &RemoteFileExtType) -> DirPickerItemType {
     match typ {
-        RemoteFileExtType::Folder => DirPickerItemType::Folder,
         RemoteFileExtType::Import => DirPickerItemType::Import,
         RemoteFileExtType::Export => DirPickerItemType::Export,
         RemoteFileExtType::Hosted => DirPickerItemType::Hosted,
@@ -233,9 +232,7 @@ fn select_items_visit_file(
         Some(typ) => typ,
         None => {
             if is_root {
-                remote_file_ext_type_to_dir_picker_item_type(
-                    &remote_files_selectors::mount_file_ext_type(mount),
-                )
+                RemoteFileExtType::from(mount).into()
             } else {
                 DirPickerItemType::Folder
             }

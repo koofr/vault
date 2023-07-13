@@ -2,10 +2,7 @@ use crate::{remote::RemoteError, store, utils::path_utils};
 
 use super::{
     errors::RemoteFilesErrors,
-    state::{
-        Mount, MountOrigin, MountType, RemoteFile, RemoteFileExtType, RemoteFileType,
-        RemoteFilesBreadcrumb,
-    },
+    state::{Mount, RemoteFile, RemoteFileType, RemoteFilesBreadcrumb},
 };
 
 pub fn get_file_id(mount_id: &str, path: &str) -> String {
@@ -30,46 +27,12 @@ pub fn get_file_unique_id(
     format!("{:x}", digest)
 }
 
-pub fn mount_origin_order(origin: &MountOrigin) -> u32 {
-    match origin {
-        MountOrigin::Hosted => 0,
-        MountOrigin::Desktop => 1,
-        MountOrigin::Dropbox => 2,
-        MountOrigin::Googledrive => 3,
-        MountOrigin::Onedrive => 4,
-        MountOrigin::Share => 5,
-        MountOrigin::Other { origin: _ } => 6,
-    }
-}
-
 pub fn mount_sort_key<'a>(mount: &'a Mount) -> (u32, u32, &'a str) {
     (
         if mount.is_primary { 0 } else { 1 },
-        mount_origin_order(&mount.origin),
+        mount.origin.order(),
         &mount.name_lower,
     )
-}
-
-pub fn mount_file_ext_type(mount: &Mount) -> RemoteFileExtType {
-    match &mount.typ {
-        MountType::Device => match &mount.origin {
-            MountOrigin::Hosted => RemoteFileExtType::Hosted,
-            MountOrigin::Desktop => {
-                if mount.online {
-                    RemoteFileExtType::Desktop
-                } else {
-                    RemoteFileExtType::DesktopOffline
-                }
-            }
-            MountOrigin::Dropbox => RemoteFileExtType::Dropbox,
-            MountOrigin::Googledrive => RemoteFileExtType::Googledrive,
-            MountOrigin::Onedrive => RemoteFileExtType::Onedrive,
-            MountOrigin::Share => RemoteFileExtType::Hosted,
-            MountOrigin::Other { origin: _ } => RemoteFileExtType::Hosted,
-        },
-        MountType::Import => RemoteFileExtType::Import,
-        MountType::Export => RemoteFileExtType::Export,
-    }
 }
 
 pub fn select_mount<'a>(state: &'a store::State, mount_id: &str) -> Option<&'a Mount> {

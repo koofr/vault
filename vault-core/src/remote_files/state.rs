@@ -3,7 +3,7 @@ use std::{
     collections::{HashMap, HashSet},
 };
 
-use crate::remote::models;
+use crate::{dir_pickers::state::DirPickerItemType, remote::models};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MountOrigin {
@@ -16,17 +16,18 @@ pub enum MountOrigin {
     Other { origin: String },
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum RemoteFileExtType {
-    Folder,
-    Import,
-    Export,
-    Hosted,
-    Desktop,
-    DesktopOffline,
-    Dropbox,
-    Googledrive,
-    Onedrive,
+impl MountOrigin {
+    pub fn order(&self) -> u32 {
+        match self {
+            Self::Hosted => 0,
+            Self::Desktop => 1,
+            Self::Dropbox => 2,
+            Self::Googledrive => 3,
+            Self::Onedrive => 4,
+            Self::Share => 5,
+            Self::Other { origin: _ } => 6,
+        }
+    }
 }
 
 impl From<&str> for MountOrigin {
@@ -46,6 +47,57 @@ impl From<&str> for MountOrigin {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub enum RemoteFileExtType {
+    Import,
+    Export,
+    Hosted,
+    Desktop,
+    DesktopOffline,
+    Dropbox,
+    Googledrive,
+    Onedrive,
+}
+
+impl From<&Mount> for RemoteFileExtType {
+    fn from(mount: &Mount) -> Self {
+        match &mount.typ {
+            MountType::Device => match &mount.origin {
+                MountOrigin::Hosted => RemoteFileExtType::Hosted,
+                MountOrigin::Desktop => {
+                    if mount.online {
+                        RemoteFileExtType::Desktop
+                    } else {
+                        RemoteFileExtType::DesktopOffline
+                    }
+                }
+                MountOrigin::Dropbox => RemoteFileExtType::Dropbox,
+                MountOrigin::Googledrive => RemoteFileExtType::Googledrive,
+                MountOrigin::Onedrive => RemoteFileExtType::Onedrive,
+                MountOrigin::Share => RemoteFileExtType::Hosted,
+                MountOrigin::Other { origin: _ } => RemoteFileExtType::Hosted,
+            },
+            MountType::Import => RemoteFileExtType::Import,
+            MountType::Export => RemoteFileExtType::Export,
+        }
+    }
+}
+
+impl Into<DirPickerItemType> for RemoteFileExtType {
+    fn into(self) -> DirPickerItemType {
+        match self {
+            Self::Import => DirPickerItemType::Import,
+            Self::Export => DirPickerItemType::Export,
+            Self::Hosted => DirPickerItemType::Hosted,
+            Self::Desktop => DirPickerItemType::Desktop,
+            Self::DesktopOffline => DirPickerItemType::DesktopOffline,
+            Self::Dropbox => DirPickerItemType::Dropbox,
+            Self::Googledrive => DirPickerItemType::Googledrive,
+            Self::Onedrive => DirPickerItemType::Onedrive,
+        }
+    }
+}
+
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub enum MountType {
     Device,
     Export,
