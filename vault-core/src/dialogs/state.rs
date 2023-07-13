@@ -4,14 +4,14 @@ use crate::common::state::Status;
 
 use super::errors::DialogError;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum DialogType {
     Alert,
     Confirm,
     Prompt,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum DialogButtonStyle {
     Primary,
     Destructive,
@@ -46,7 +46,7 @@ pub struct DialogInfo<'a> {
     pub cancel_button_text: Option<&'a String>,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Dialog {
     pub id: u32,
     pub status: Status<DialogError>,
@@ -62,7 +62,7 @@ pub struct Dialog {
     pub cancel_button_text: Option<String>,
 }
 
-#[derive(Clone, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct DialogsState {
     pub dialogs: HashMap<u32, Dialog>,
     pub next_id: u32,

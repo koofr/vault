@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use serde_json::Value;
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DirPickerItemType {
     Folder,
     Import,
@@ -19,7 +19,7 @@ pub enum DirPickerItemType {
     Repo,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct DirPickerItem {
     pub id: String,
     pub file_id: Option<String>,
@@ -33,7 +33,7 @@ pub struct DirPickerItem {
     pub text: String,
 }
 
-#[derive(Clone, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct DirPicker {
     pub id: u32,
     pub options: Value,
@@ -43,7 +43,7 @@ pub struct DirPicker {
     pub selected_id: Option<String>,
 }
 
-#[derive(Clone, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct DirPickersState {
     pub pickers: HashMap<u32, DirPicker>,
     pub next_id: u32,

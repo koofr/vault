@@ -11,19 +11,19 @@ pub struct RepoUnlockInfo<'a> {
     pub repo_name: Option<&'a str>,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct RepoUnlockOptions {
     pub mode: RepoUnlockMode,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct RepoUnlock {
     pub repo_id: String,
     pub mode: RepoUnlockMode,
     pub status: Status<UnlockRepoError>,
 }
 
-#[derive(Clone, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct RepoUnlocksState {
     pub unlocks: HashMap<u32, RepoUnlock>,
     pub next_id: u32,

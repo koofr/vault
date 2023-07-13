@@ -10,7 +10,7 @@ use crate::{
     space_usage::state::SpaceUsageState, uploads::state::UploadsState, user::state::UserState,
 };
 
-#[derive(Clone, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct State {
     pub config: ConfigState,
     pub notifications: NotificationsState,

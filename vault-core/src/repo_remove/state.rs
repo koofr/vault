@@ -8,13 +8,13 @@ pub struct RepoRemoveInfo<'a> {
     pub repo_name: Option<&'a str>,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct RepoRemove {
     pub repo_id: String,
     pub status: Status<RemoveRepoError>,
 }
 
-#[derive(Clone, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct RepoRemovesState {
     pub removes: HashMap<u32, RepoRemove>,
     pub next_id: u32,

@@ -5,13 +5,13 @@ use crate::{
 
 use super::errors::RepoCreateError;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct RepoCreated {
     pub repo_id: String,
     pub config: RepoConfig,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct RepoCreateForm {
     pub init_status: Status<RemoteError>,
     pub primary_mount_id: Option<String>,
@@ -23,7 +23,7 @@ pub struct RepoCreateForm {
     pub create_status: Status<RepoCreateError>,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum RepoCreateState {
     Form(RepoCreateForm),
     Created(RepoCreated),

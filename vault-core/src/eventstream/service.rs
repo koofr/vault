@@ -22,6 +22,15 @@ pub struct MountSubscription {
     pub(self) eventstream_service: Arc<EventStreamService>,
 }
 
+impl std::fmt::Debug for MountSubscription {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("MountSubscription")
+            .field("file_id", &self.file_id)
+            .field("listener_id", &self.listener_id)
+            .finish()
+    }
+}
+
 impl Drop for MountSubscription {
     fn drop(&mut self) {
         self.eventstream_service

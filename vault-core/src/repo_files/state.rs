@@ -13,13 +13,13 @@ use crate::{
     remote_files::state::RemoteFileType,
 };
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct RepoFilesLocation {
     pub repo_id: String,
     pub path: String,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct RepoFilesBreadcrumb {
     pub id: String,
     pub repo_id: String,
@@ -28,7 +28,7 @@ pub struct RepoFilesBreadcrumb {
     pub last: bool,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RepoFilePath {
     Decrypted {
         path: String,
@@ -49,7 +49,7 @@ impl RepoFilePath {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RepoFileName {
     Decrypted {
         name: String,
@@ -71,7 +71,7 @@ impl RepoFileName {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RepoFileType {
     Dir,
     File,
@@ -119,7 +119,7 @@ impl From<&RemoteFileType> for RepoFileType {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RepoFileSize {
     Decrypted {
         size: i64,
@@ -139,7 +139,7 @@ impl RepoFileSize {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RepoFile {
     pub id: String,
     pub mount_id: String,
@@ -188,14 +188,14 @@ impl RepoFile {
     }
 }
 
-#[derive(Clone, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct RepoFilesState {
     pub files: HashMap<String, RepoFile>,
     pub children: HashMap<String, Vec<String>>,
     pub loaded_roots: HashSet<String>,
 }
 
-#[derive(Clone, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct RepoFilesMutationState {
     pub removed_files: Vec<(String, String)>,
     pub moved_files: Vec<(String, String, String)>,
@@ -232,13 +232,14 @@ pub trait RepoFileUploadable {
     fn reader(&self) -> Pin<Box<dyn AsyncRead + Send + Sync + 'static>>;
 }
 
+#[derive(Debug)]
 pub struct RepoFilesUploadResult {
     pub file_id: String,
     pub name: String,
     pub remote_file: models::FilesFile,
 }
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RepoFilesSortField {
     Name,
     Size,
@@ -251,7 +252,7 @@ impl Default for RepoFilesSortField {
     }
 }
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RepoFilesSortDirection {
     Asc,
     Desc,
@@ -279,7 +280,7 @@ impl RepoFilesSortDirection {
     }
 }
 
-#[derive(Clone, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct RepoFilesSort {
     pub field: RepoFilesSortField,
     pub direction: RepoFilesSortDirection,

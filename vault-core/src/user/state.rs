@@ -1,6 +1,6 @@
 use crate::{common::state::Status, remote::RemoteError};
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct User {
     pub id: String,
     pub first_name: String,
@@ -11,7 +11,7 @@ pub struct User {
     pub profile_picture_bytes: Option<Vec<u8>>,
 }
 
-#[derive(Clone, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct UserState {
     pub status: Status<RemoteError>,
     pub user: Option<User>,

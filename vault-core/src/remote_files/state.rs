@@ -5,7 +5,7 @@ use std::{
 
 use crate::remote::models;
 
-#[derive(Clone, PartialEq, Eq, Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MountOrigin {
     Hosted,
     Desktop,
@@ -16,7 +16,7 @@ pub enum MountOrigin {
     Other { origin: String },
 }
 
-#[derive(Clone, PartialEq, Eq, Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RemoteFileExtType {
     Folder,
     Import,
@@ -45,7 +45,7 @@ impl From<&str> for MountOrigin {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MountType {
     Device,
     Export,
@@ -63,7 +63,7 @@ impl From<&str> for MountType {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone)]
 pub struct Mount {
     pub id: String,
     pub name: String,
@@ -90,13 +90,13 @@ impl From<models::Mount> for Mount {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RemoteFilesLocation {
     pub mount_id: String,
     pub path: String,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone)]
 pub struct RemoteFilesBreadcrumb {
     pub id: String,
     pub mount_id: String,
@@ -105,7 +105,7 @@ pub struct RemoteFilesBreadcrumb {
     pub last: bool,
 }
 
-#[derive(Clone, PartialEq, Eq, Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RemoteFileType {
     Dir,
     File,
@@ -138,7 +138,7 @@ impl From<&str> for RemoteFileType {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone)]
 pub struct RemoteFile {
     pub id: String,
     pub mount_id: String,
@@ -161,7 +161,7 @@ impl RemoteFile {
     }
 }
 
-#[derive(Clone, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct RemoteFilesState {
     pub mounts: HashMap<String, Mount>,
     pub place_mount_ids: Vec<String>,
@@ -173,7 +173,7 @@ pub struct RemoteFilesState {
     pub shared_file_ids: Vec<String>,
 }
 
-#[derive(Clone, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct RemoteFilesMutationState {
     pub loaded_roots: Vec<(String, String)>,
     pub created_files: Vec<(String, String)>,

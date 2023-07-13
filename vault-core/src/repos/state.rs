@@ -4,7 +4,7 @@ use crate::{common::state::Status, remote::RemoteError, remote_files::state::Rem
 
 use super::{errors::RepoInfoError, repo_tree::RepoTree};
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum RepoState {
     Locked,
     Unlocked,
@@ -23,7 +23,7 @@ impl RepoState {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Repo {
     pub id: String,
     pub name: String,
@@ -46,13 +46,13 @@ impl Repo {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct RepoInfo<'a> {
     pub status: Status<RepoInfoError>,
     pub repo: Option<&'a Repo>,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct RepoConfig {
     pub name: String,
     pub location: RemoteFilesLocation,
@@ -61,13 +61,13 @@ pub struct RepoConfig {
     pub rclone_config: String,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum RepoUnlockMode {
     Unlock,
     Verify,
 }
 
-#[derive(Clone, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct ReposState {
     pub status: Status<RemoteError>,
     pub repos_by_id: HashMap<String, Repo>,

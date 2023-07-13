@@ -6,7 +6,7 @@ use crate::{
 
 use super::errors::UploadError;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum FileUploadState {
     Waiting,
     Uploading,
@@ -14,7 +14,7 @@ pub enum FileUploadState {
     Done,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct FileUpload {
     pub id: u32,
     pub repo_id: String,
@@ -37,7 +37,7 @@ impl FileUpload {
     }
 }
 
-#[derive(Clone, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct UploadsState {
     pub files: HashMap<u32, FileUpload>,
     pub next_id: u32,

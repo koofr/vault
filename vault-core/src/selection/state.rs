@@ -1,13 +1,13 @@
 use std::collections::HashSet;
 
-#[derive(Clone, PartialEq, Eq, Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SelectionSummary {
     None,
     Partial,
     All,
 }
 
-#[derive(Clone, Default, Debug)]
+#[derive(Debug, Clone, Default)]
 pub struct Selection {
     pub selection: HashSet<String>,
     pub last_selected: Option<String>,

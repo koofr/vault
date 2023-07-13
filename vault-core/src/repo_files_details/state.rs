@@ -33,7 +33,7 @@ pub struct RepoFilesDetailsInfo<'a> {
     pub can_delete: bool,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct RepoFilesDetailsContentData {
     pub bytes: Vec<u8>,
     pub remote_size: i64,
@@ -41,14 +41,14 @@ pub struct RepoFilesDetailsContentData {
     pub remote_hash: Option<String>,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct RepoFilesDetailsContentLoading {
     pub remote_size: i64,
     pub remote_modified: i64,
     pub remote_hash: Option<String>,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct RepoFilesDetailsContent {
     pub status: Status<GetFilesReaderError>,
     pub data: Option<RepoFilesDetailsContentData>,
@@ -56,7 +56,7 @@ pub struct RepoFilesDetailsContent {
     pub version: u32,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct RepoFilesDetailsLocation {
     pub repo_id: String,
     pub path: String,
@@ -69,13 +69,13 @@ pub struct RepoFilesDetailsLocation {
     pub should_destroy: bool,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct RepoFilesDetailsOptions {
     pub load_content: FilesFilter,
     pub autosave_interval: Duration,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct RepoFilesDetails {
     pub options: RepoFilesDetailsOptions,
     pub location: Option<RepoFilesDetailsLocation>,
@@ -83,13 +83,13 @@ pub struct RepoFilesDetails {
     pub repo_files_subscription_id: u32,
 }
 
-#[derive(Clone, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct RepoFilesDetailsState {
     pub details: HashMap<u32, RepoFilesDetails>,
     pub next_id: u32,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum SaveInitiator {
     User,
     Autosave,

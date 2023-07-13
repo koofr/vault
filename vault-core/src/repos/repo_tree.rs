@@ -1,4 +1,4 @@
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 struct RepoTreeNode {
     repo_id: Option<String>,
     /// Vec lookups are faster than HashMap for small amounts of children
@@ -7,7 +7,7 @@ struct RepoTreeNode {
 
 /// RepoTree is a trie (prefix tree) for quickly resolving remote paths to
 /// repos. RepoTree contains repos for a single mount.
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct RepoTree {
     nodes: Vec<RepoTreeNode>,
 }

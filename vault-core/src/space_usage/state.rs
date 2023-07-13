@@ -1,13 +1,13 @@
 use crate::{common::state::Status, remote::RemoteError};
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum SpaceUsageSeverity {
     Normal,
     Warn,
     Critical,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct SpaceUsage {
     pub used: i64,
     pub total: i64,
@@ -15,7 +15,7 @@ pub struct SpaceUsage {
     pub severity: SpaceUsageSeverity,
 }
 
-#[derive(Clone, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct SpaceUsageState {
     pub status: Status<RemoteError>,
     pub space_usage: Option<SpaceUsage>,

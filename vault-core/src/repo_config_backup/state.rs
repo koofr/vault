@@ -11,14 +11,14 @@ pub struct RepoConfigBackupInfo<'a> {
     pub config: Option<&'a RepoConfig>,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct RepoConfigBackup {
     pub repo_id: String,
     pub status: Status<UnlockRepoError>,
     pub config: Option<RepoConfig>,
 }
 
-#[derive(Clone, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct RepoConfigBackupsState {
     pub backups: HashMap<u32, RepoConfigBackup>,
     pub next_id: u32,

@@ -4,7 +4,7 @@ use crate::common::state::Status;
 
 use super::errors::OAuth2Error;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OAuth2Token {
     pub access_token: String,
     pub refresh_token: String,
