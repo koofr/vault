@@ -85,6 +85,13 @@ pub fn select_file_name<'a>(state: &'a store::State, file: &'a RemoteFile) -> Op
     }
 }
 
+pub fn select_is_root_loaded(state: &store::State, mount_id: &str, path: &str) -> bool {
+    state
+        .remote_files
+        .loaded_roots
+        .contains(&get_file_id(&mount_id, &path))
+}
+
 pub fn check_name_valid(name: &str) -> Result<(), RemoteError> {
     if !name.is_empty() && !name.contains('/') {
         Ok(())
@@ -149,4 +156,52 @@ pub fn select_breadcrumbs(
             }
         })
         .collect()
+}
+
+pub fn select_bookmarks_files(state: &store::State) -> Vec<&RemoteFile> {
+    state
+        .remote_files
+        .bookmark_file_ids
+        .iter()
+        .filter_map(|id| select_file(state, id))
+        .collect()
+}
+
+pub fn select_places_mount_files(state: &store::State) -> Vec<(&Mount, &RemoteFile)> {
+    state
+        .remote_files
+        .online_place_mount_ids
+        .iter()
+        .filter_map(|mount_id| state.remote_files.mounts.get(mount_id))
+        .filter_map(|mount| {
+            select_file(state, &get_file_id(&mount.id, "/")).map(|file| (mount, file))
+        })
+        .collect()
+}
+
+pub fn select_shared_mount_files(state: &store::State) -> Vec<(&Mount, &RemoteFile)> {
+    state
+        .remote_files
+        .shared_file_ids
+        .iter()
+        .filter_map(|id| {
+            select_file(state, id).and_then(|file| {
+                state
+                    .remote_files
+                    .mounts
+                    .get(&file.mount_id)
+                    .map(|mount| (mount, file))
+            })
+        })
+        .collect()
+}
+
+pub fn select_storage_files<'a>(
+    state: &'a store::State,
+    mount_id: &'a str,
+    path: &'a str,
+) -> Vec<&'a RemoteFile> {
+    select_children(state, &get_file_id(mount_id, path))
+        .map(|ids| ids.iter().filter_map(|id| select_file(state, id)).collect())
+        .unwrap_or_else(|| vec![])
 }

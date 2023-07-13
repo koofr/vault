@@ -214,7 +214,10 @@ pub fn place_loaded(state: &mut store::State, mount: models::Mount) {
 }
 
 pub fn places_loaded(state: &mut store::State, mounts: Vec<models::Mount>) {
-    // TODO remove all old places
+    for mount_id in state.remote_files.place_mount_ids.iter() {
+        state.remote_files.mounts.remove(mount_id);
+    }
+
     for mount in mounts {
         place_loaded(state, mount);
     }
@@ -236,6 +239,8 @@ pub fn places_loaded(state: &mut store::State, mounts: Vec<models::Mount>) {
         .filter(|mount| mount.online)
         .map(|mount| mount.id.clone())
         .collect();
+
+    state.remote_files.places_loaded = true;
 }
 
 pub fn bookmark_loaded(state: &mut store::State, bookmark: models::Bookmark) {
@@ -255,6 +260,8 @@ pub fn bookmarks_loaded(state: &mut store::State, bookmarks: Vec<models::Bookmar
     for bookmark in bookmarks {
         bookmark_loaded(state, bookmark);
     }
+
+    state.remote_files.bookmarks_loaded = true;
 }
 
 pub fn shared_file_loaded(state: &mut store::State, shared_file: models::SharedFile) {
@@ -276,6 +283,8 @@ pub fn shared_files_loaded(state: &mut store::State, shared_files: Vec<models::S
     for shared_file in shared_files {
         shared_file_loaded(state, shared_file);
     }
+
+    state.remote_files.shared_files_loaded = true;
 }
 
 pub fn sort_children(state: &mut store::State, file_id: &str) {

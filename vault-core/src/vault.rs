@@ -4,10 +4,10 @@ use futures::future::BoxFuture;
 
 use crate::{
     auth, config, dialogs, eventstream, http, lifecycle, notifications, oauth2, relative_time,
-    remote, remote_files, remote_files_dir_pickers, repo_config_backup, repo_create, repo_files,
-    repo_files_browsers, repo_files_details, repo_files_dir_pickers, repo_files_list,
-    repo_files_move, repo_files_read, repo_remove, repo_space_usage, repo_unlock, repos, runtime,
-    secure_storage, space_usage, store, transfers, user,
+    remote, remote_files, remote_files_browsers, remote_files_dir_pickers, repo_config_backup,
+    repo_create, repo_files, repo_files_browsers, repo_files_details, repo_files_dir_pickers,
+    repo_files_list, repo_files_move, repo_files_read, repo_remove, repo_space_usage, repo_unlock,
+    repos, runtime, secure_storage, space_usage, store, transfers, user,
 };
 
 pub struct Vault {
@@ -26,6 +26,7 @@ pub struct Vault {
     pub remote_files_dir_pickers_service:
         Arc<remote_files_dir_pickers::RemoteFilesDirPickersService>,
     pub eventstream_service: Arc<eventstream::EventStreamService>,
+    pub remote_files_browsers_service: Arc<remote_files_browsers::RemoteFilesBrowsersService>,
     pub repos_service: Arc<repos::ReposService>,
     pub repo_create_service: Arc<repo_create::RepoCreateService>,
     pub repo_unlock_service: Arc<repo_unlock::RepoUnlockService>,
@@ -95,6 +96,12 @@ impl Vault {
             remote_files_service.clone(),
             runtime.clone(),
         ));
+        let remote_files_browsers_service =
+            Arc::new(remote_files_browsers::RemoteFilesBrowsersService::new(
+                remote_files_service.clone(),
+                eventstream_service.clone(),
+                store.clone(),
+            ));
         let remote_files_dir_pickers_service =
             Arc::new(remote_files_dir_pickers::RemoteFilesDirPickersService::new(
                 remote_files_service.clone(),
@@ -202,6 +209,7 @@ impl Vault {
             remote_files_service,
             remote_files_dir_pickers_service,
             eventstream_service,
+            remote_files_browsers_service,
             repos_service,
             repo_create_service,
             repo_unlock_service,
@@ -345,6 +353,68 @@ impl Vault {
 
     pub async fn user_ensure_profile_picture(&self) -> Result<(), remote::RemoteError> {
         self.user_service.ensure_profile_picture().await
+    }
+
+    // remote_files_browsers
+
+    pub fn remote_files_browsers_create(
+        &self,
+        location: &str,
+        options: remote_files_browsers::state::RemoteFilesBrowserOptions,
+    ) -> (u32, BoxFuture<'static, Result<(), remote::RemoteError>>) {
+        self.remote_files_browsers_service
+            .clone()
+            .create(location, options)
+    }
+
+    pub fn remote_files_browsers_destroy(&self, browser_id: u32) {
+        self.remote_files_browsers_service.destroy(browser_id)
+    }
+
+    pub async fn remote_files_browsers_load(
+        &self,
+        browser_id: u32,
+    ) -> Result<(), remote::RemoteError> {
+        self.remote_files_browsers_service.load(browser_id).await
+    }
+
+    pub fn remote_files_browsers_select_item(
+        &self,
+        browser_id: u32,
+        item_id: &str,
+        extend: bool,
+        range: bool,
+        force: bool,
+    ) {
+        self.remote_files_browsers_service
+            .select_item(browser_id, item_id, extend, range, force)
+    }
+
+    pub fn remote_files_browsers_select_all(&self, browser_id: u32) {
+        self.remote_files_browsers_service.select_all(browser_id)
+    }
+
+    pub fn remote_files_browsers_clear_selection(&self, browser_id: u32) {
+        self.remote_files_browsers_service
+            .clear_selection(browser_id)
+    }
+
+    pub fn remote_files_browsers_sort_by(
+        &self,
+        browser_id: u32,
+        field: remote_files::state::RemoteFilesSortField,
+    ) {
+        self.remote_files_browsers_service
+            .sort_by(browser_id, field)
+    }
+
+    pub async fn remote_files_browsers_create_dir(
+        &self,
+        browser_id: u32,
+    ) -> Result<String, remote_files::errors::CreateDirError> {
+        self.remote_files_browsers_service
+            .create_dir(browser_id)
+            .await
     }
 
     // repos

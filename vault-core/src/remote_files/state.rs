@@ -4,7 +4,10 @@ use std::{
 };
 
 use crate::{
-    dir_pickers::state::DirPickerItemType, files::file_category::FileCategory, remote::models,
+    dir_pickers::state::DirPickerItemType,
+    files::{file_category::FileCategory, file_icon::FileIconAttrs},
+    remote::models,
+    sort::state::SortDirection,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -48,6 +51,7 @@ impl From<&str> for MountOrigin {
     }
 }
 
+// TODO remove, map directly from mount to DirPickerItemType
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RemoteFileExtType {
     Import,
@@ -215,17 +219,38 @@ impl RemoteFile {
             path: self.path.clone(),
         }
     }
+
+    pub fn file_icon_attrs(&self, mount: Option<&Mount>) -> FileIconAttrs {
+        FileIconAttrs {
+            category: self.category.clone(),
+            is_dl: false,
+            is_ul: false,
+            is_export: mount
+                .map(|mount| matches!(mount.typ, MountType::Export))
+                .unwrap_or(false),
+            is_import: mount
+                .map(|mount| matches!(mount.typ, MountType::Import))
+                .unwrap_or(false),
+            is_android: false, // TODO we need to know if file's mount is primary and check path_lower, put it in RemoteFile directly (is_android_media)
+            is_ios: false,     // TODO
+            is_vault_repo: false, // TODO put in RemoteFile
+            is_error: false,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Default)]
 pub struct RemoteFilesState {
     pub mounts: HashMap<String, Mount>,
+    pub places_loaded: bool,
     pub place_mount_ids: Vec<String>,
     pub online_place_mount_ids: Vec<String>,
     pub files: HashMap<String, RemoteFile>,
     pub children: HashMap<String, Vec<String>>,
     pub loaded_roots: HashSet<String>,
+    pub bookmarks_loaded: bool,
     pub bookmark_file_ids: Vec<String>,
+    pub shared_files_loaded: bool,
     pub shared_file_ids: Vec<String>,
 }
 
@@ -235,4 +260,23 @@ pub struct RemoteFilesMutationState {
     pub created_files: Vec<(String, String)>,
     pub removed_files: Vec<(String, String)>,
     pub moved_files: Vec<(String, String, String)>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum RemoteFilesSortField {
+    Name,
+    Size,
+    Modified,
+}
+
+impl Default for RemoteFilesSortField {
+    fn default() -> Self {
+        Self::Name
+    }
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct RemoteFilesSort {
+    pub field: RemoteFilesSortField,
+    pub direction: SortDirection,
 }

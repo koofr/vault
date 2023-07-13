@@ -15,6 +15,7 @@ pub mod rclone;
 pub mod relative_time;
 pub mod remote;
 pub mod remote_files;
+pub mod remote_files_browsers;
 pub mod remote_files_dir_pickers;
 pub mod repo_config_backup;
 pub mod repo_create;

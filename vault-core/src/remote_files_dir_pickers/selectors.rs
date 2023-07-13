@@ -14,19 +14,6 @@ use crate::{
 
 use super::state::Options;
 
-pub fn remote_file_ext_type_to_dir_picker_item_type(typ: &RemoteFileExtType) -> DirPickerItemType {
-    match typ {
-        RemoteFileExtType::Import => DirPickerItemType::Import,
-        RemoteFileExtType::Export => DirPickerItemType::Export,
-        RemoteFileExtType::Hosted => DirPickerItemType::Hosted,
-        RemoteFileExtType::Desktop => DirPickerItemType::Desktop,
-        RemoteFileExtType::DesktopOffline => DirPickerItemType::DesktopOffline,
-        RemoteFileExtType::Dropbox => DirPickerItemType::Dropbox,
-        RemoteFileExtType::Googledrive => DirPickerItemType::Googledrive,
-        RemoteFileExtType::Onedrive => DirPickerItemType::Onedrive,
-    }
-}
-
 pub const BOOKMARKS_ITEM_ID: &'static str = "bookmarks";
 pub const PLACES_ITEM_ID: &'static str = "places";
 pub const SHARED_ITEM_ID: &'static str = "shared";
