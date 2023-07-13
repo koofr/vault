@@ -86,6 +86,8 @@ pub fn set_location(
     browser.location = location.ok();
     browser.status = status;
     browser.selection = Selection::default();
+
+    update_files(state, browser_id);
 }
 
 pub fn loaded(
