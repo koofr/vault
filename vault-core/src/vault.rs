@@ -162,7 +162,6 @@ impl Vault {
                 repo_files_read_service.clone(),
                 repo_files_move_service.clone(),
                 eventstream_service.clone(),
-                dialogs_service.clone(),
                 store.clone(),
             ));
         let repo_files_details_service =
@@ -663,7 +662,7 @@ impl Vault {
         &self,
         browser_id: u32,
         name: &str,
-    ) -> Result<String, repo_files::errors::CreateFileError> {
+    ) -> Result<(String, String), repo_files::errors::CreateFileError> {
         self.repo_files_browsers_service
             .create_file(browser_id, name)
             .await

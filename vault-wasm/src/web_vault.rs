@@ -1372,7 +1372,7 @@ impl WebVault {
             .repo_files_browsers_create_file(browser_id, name)
             .await
         {
-            Ok(path) => Some(path),
+            Ok((_, path)) => Some(path),
             Err(vault_core::repo_files::errors::CreateFileError::Canceled) => None,
             Err(err) => {
                 self.handle_error(err);

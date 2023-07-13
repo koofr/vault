@@ -1,6 +1,5 @@
 use crate::{
     repo_files::{
-        errors::{CreateDirError, RepoFilesErrors},
         selectors as repo_files_selectors,
         state::{RepoFile, RepoFileSize, RepoFilesBreadcrumb},
     },
@@ -191,18 +190,4 @@ pub fn select_root_file_id(state: &store::State, browser_id: u32) -> Option<Stri
 pub fn select_root_file<'a>(state: &'a store::State, browser_id: u32) -> Option<&'a RepoFile> {
     select_root_file_id(state, browser_id)
         .and_then(|file_id| repo_files_selectors::select_file(state, &file_id))
-}
-
-pub fn select_check_create_file(
-    state: &store::State,
-    browser_id: u32,
-    name: &str,
-) -> Result<(), CreateDirError> {
-    let root_file = select_root_file(state, browser_id).ok_or_else(RepoFilesErrors::not_found)?;
-
-    let root_path = root_file.decrypted_path()?;
-
-    repo_files_selectors::select_check_new_name_valid(state, &root_file.repo_id, root_path, name)?;
-
-    Ok(())
 }

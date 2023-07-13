@@ -5,6 +5,7 @@ use std::{
 
 use futures::{
     future::{BoxFuture, Shared},
+    io::Cursor,
     FutureExt,
 };
 
@@ -26,9 +27,9 @@ use crate::{
 
 use super::{
     errors::{
-        CopyFileError, CreateDirError, DeleteFileError, EnsureDirError, GetRepoMountPathError,
-        LoadFileError, LoadFilesError, MoveFileError, RenameFileError, RepoFilesErrors,
-        UploadFileReaderError,
+        CopyFileError, CreateDirError, CreateFileError, DeleteFileError, EnsureDirError,
+        GetRepoMountPathError, LoadFileError, LoadFilesError, MoveFileError, RenameFileError,
+        RepoFilesErrors, UploadFileReaderError,
     },
     mutations, selectors,
     state::{RepoFileType, RepoFilesUploadConflictResolution, RepoFilesUploadResult},
@@ -430,6 +431,73 @@ impl RepoFilesService {
                 res
             }
         }
+    }
+
+    pub async fn create_file(
+        self: Arc<Self>,
+        repo_id: &str,
+        parent_path: &str,
+        name: &str,
+    ) -> Result<(String, String), CreateFileError> {
+        let input_value_validator_store = self.store.clone();
+        let input_value_validator_repo_id = repo_id.to_owned();
+        let input_value_validator_parent_path = parent_path.to_owned();
+        let input_value_selected = Some(name_utils::split_name_ext(&name).0.to_owned());
+
+        let name = match self
+            .dialogs_service
+            .show(dialogs::state::DialogShowOptions {
+                input_value: name.to_owned(),
+                input_value_validator: Some(Box::new(move |value| {
+                    input_value_validator_store
+                        .with_state(|state| {
+                            selectors::select_check_new_name_valid(
+                                state,
+                                &input_value_validator_repo_id,
+                                &input_value_validator_parent_path,
+                                value,
+                            )
+                        })
+                        .is_ok()
+                })),
+                input_value_selected,
+                input_placeholder: Some(String::from("File name")),
+                confirm_button_text: String::from("Create file"),
+                ..self
+                    .dialogs_service
+                    .build_prompt(String::from("Enter new file name"))
+            })
+            .await
+        {
+            Some(name) => name,
+            None => return Err(CreateFileError::Canceled),
+        };
+
+        let path = path_utils::join_path_name(&parent_path, &name);
+
+        self.create_file_name(repo_id, parent_path, &name).await?;
+
+        Ok((name, path))
+    }
+
+    pub async fn create_file_name(
+        self: Arc<Self>,
+        repo_id: &str,
+        parent_path: &str,
+        name: &str,
+    ) -> Result<(), CreateFileError> {
+        self.upload_file_reader(
+            &repo_id,
+            &parent_path,
+            &name,
+            Box::pin(Cursor::new(vec![])),
+            Some(0),
+            RepoFilesUploadConflictResolution::Error,
+            None,
+        )
+        .await?;
+
+        Ok(())
     }
 
     pub async fn rename_file(&self, repo_id: &str, path: &str) -> Result<(), RenameFileError> {

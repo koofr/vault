@@ -1,19 +1,15 @@
 use std::sync::Arc;
 
-use futures::{
-    future::{self, BoxFuture},
-    io::Cursor,
-};
+use futures::future::{self, BoxFuture};
 
 use crate::{
-    dialogs,
     eventstream::{self, service::MountSubscription},
     remote_files::errors::RemoteFilesErrors,
     repo_files::{
         errors::{
             CreateDirError, CreateFileError, DeleteFileError, LoadFilesError, RepoFilesErrors,
         },
-        state::{RepoFile, RepoFilesSortField, RepoFilesUploadConflictResolution},
+        state::{RepoFile, RepoFilesSortField},
         RepoFilesService,
     },
     repo_files_move::{errors::ShowError, state::RepoFilesMoveMode, RepoFilesMoveService},
@@ -22,10 +18,7 @@ use crate::{
     },
     repos::selectors as repos_selectors,
     store,
-    utils::{
-        name_utils,
-        path_utils::{self, normalize_path},
-    },
+    utils::path_utils::normalize_path,
 };
 
 use super::{
@@ -38,7 +31,6 @@ pub struct RepoFilesBrowsersService {
     repo_files_read_service: Arc<RepoFilesReadService>,
     repo_files_move_service: Arc<RepoFilesMoveService>,
     eventstream_service: Arc<eventstream::EventStreamService>,
-    dialogs_service: Arc<dialogs::DialogsService>,
     store: Arc<store::Store>,
     repo_files_mutation_subscription_id: u32,
 }
@@ -49,7 +41,6 @@ impl RepoFilesBrowsersService {
         repo_files_read_service: Arc<RepoFilesReadService>,
         repo_files_move_service: Arc<RepoFilesMoveService>,
         eventstream_service: Arc<eventstream::EventStreamService>,
-        dialogs_service: Arc<dialogs::DialogsService>,
         store: Arc<store::Store>,
     ) -> Self {
         let repo_files_mutation_subscription_id = store.get_next_id();
@@ -67,7 +58,6 @@ impl RepoFilesBrowsersService {
             repo_files_read_service,
             repo_files_move_service,
             eventstream_service,
-            dialogs_service,
             store: store.clone(),
             repo_files_mutation_subscription_id,
         }
@@ -264,7 +254,7 @@ impl RepoFilesBrowsersService {
         &self,
         browser_id: u32,
         name: &str,
-    ) -> Result<String, CreateFileError> {
+    ) -> Result<(String, String), CreateFileError> {
         let (repo_id, parent_path) =
             self.store
                 .with_state::<_, Result<_, CreateFileError>>(|state| {
@@ -276,47 +266,11 @@ impl RepoFilesBrowsersService {
                     Ok((root_file.repo_id.clone(), root_path.to_owned()))
                 })?;
 
-        let input_value = name.to_owned();
-        let input_value_validator_store = self.store.clone();
-        let input_value_selected = Some(name_utils::split_name_ext(&input_value).0.to_owned());
-
-        if let Some(name) = self
-            .dialogs_service
-            .show(dialogs::state::DialogShowOptions {
-                input_value,
-                input_value_validator: Some(Box::new(move |value| {
-                    input_value_validator_store
-                        .with_state(|state| {
-                            selectors::select_check_create_file(state, browser_id, value)
-                        })
-                        .is_ok()
-                })),
-                input_value_selected,
-                input_placeholder: Some(String::from("File name")),
-                confirm_button_text: String::from("Create file"),
-                ..self
-                    .dialogs_service
-                    .build_prompt(String::from("Enter new file name"))
-            })
-            .await
-        {
-            Ok(self
-                .repo_files_service
-                .clone()
-                .upload_file_reader(
-                    &repo_id,
-                    &parent_path,
-                    &name,
-                    Box::pin(Cursor::new(vec![])),
-                    Some(0),
-                    RepoFilesUploadConflictResolution::Error,
-                    None,
-                )
-                .await
-                .map(|_| path_utils::join_path_name(&parent_path, &name))?)
-        } else {
-            Err(CreateFileError::Canceled)
-        }
+        Ok(self
+            .repo_files_service
+            .clone()
+            .create_file(&repo_id, &parent_path, name)
+            .await?)
     }
 
     pub async fn delete_selected(&self, browser_id: u32) -> Result<(), DeleteFileError> {
