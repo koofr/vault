@@ -1,4 +1,4 @@
-use crate::{remote::models, store, utils::path_utils};
+use crate::{files::file_category::FileCategory, remote::models, store, utils::path_utils};
 
 use super::{
     selectors,
@@ -12,6 +12,7 @@ pub fn mount_to_remote_file(id: String, mount_id: String) -> RemoteFile {
     let hash = None;
     let unique_id =
         selectors::get_file_unique_id(&mount_id, &path, size, modified, hash.as_deref());
+    let category = FileCategory::Folder;
 
     RemoteFile {
         id,
@@ -19,11 +20,13 @@ pub fn mount_to_remote_file(id: String, mount_id: String) -> RemoteFile {
         path,
         name: String::from(""),
         name_lower: String::from(""),
+        ext: None,
         typ: RemoteFileType::Dir,
         size,
         modified,
         hash,
         unique_id,
+        category,
     }
 }
 
@@ -35,6 +38,10 @@ pub fn files_file_to_remote_file(
 ) -> RemoteFile {
     let name_lower = file.name.to_lowercase();
     let typ = file.typ.as_str().into();
+    let (ext, category) = match &typ {
+        RemoteFileType::Dir => (None, FileCategory::Folder),
+        RemoteFileType::File => selectors::get_file_ext_category(&name_lower),
+    };
     let modified = match &typ {
         RemoteFileType::Dir => 0,
         RemoteFileType::File => file.modified,
@@ -48,11 +55,13 @@ pub fn files_file_to_remote_file(
         path,
         name: file.name,
         name_lower,
+        ext,
         typ,
         size: file.size,
         modified,
         hash: file.hash,
         unique_id,
+        category,
     }
 }
 
@@ -64,6 +73,10 @@ pub fn bundle_file_to_remote_file(
 ) -> RemoteFile {
     let name_lower = file.name.to_lowercase();
     let typ = file.typ.as_str().into();
+    let (ext, category) = match &typ {
+        RemoteFileType::Dir => (None, FileCategory::Folder),
+        RemoteFileType::File => selectors::get_file_ext_category(&name_lower),
+    };
     let modified = match &typ {
         RemoteFileType::Dir => 0,
         RemoteFileType::File => file.modified,
@@ -77,11 +90,13 @@ pub fn bundle_file_to_remote_file(
         path,
         name: file.name,
         name_lower,
+        ext,
         typ,
         size: file.size,
         modified,
         hash: file.hash,
         unique_id,
+        category,
     }
 }
 
@@ -97,6 +112,7 @@ fn bookmark_to_remote_file(id: String, bookmark: models::Bookmark) -> RemoteFile
         modified,
         hash.as_deref(),
     );
+    let category = FileCategory::Folder;
 
     RemoteFile {
         id,
@@ -104,11 +120,13 @@ fn bookmark_to_remote_file(id: String, bookmark: models::Bookmark) -> RemoteFile
         path: bookmark.path,
         name: bookmark.name,
         name_lower,
+        ext: None,
         typ: RemoteFileType::Dir,
         size,
         modified,
         hash,
         unique_id,
+        category,
     }
 }
 
@@ -116,6 +134,10 @@ fn shared_file_to_remote_file(id: String, shared_file: models::SharedFile) -> Re
     let path = String::from("/");
     let name_lower = shared_file.name.to_lowercase();
     let typ = shared_file.typ.as_str().into();
+    let (ext, category) = match &typ {
+        RemoteFileType::Dir => (None, FileCategory::Folder),
+        RemoteFileType::File => selectors::get_file_ext_category(&name_lower),
+    };
     let modified = match &typ {
         RemoteFileType::Dir => 0,
         RemoteFileType::File => shared_file.modified,
@@ -135,11 +157,13 @@ fn shared_file_to_remote_file(id: String, shared_file: models::SharedFile) -> Re
         path,
         name: shared_file.name.clone(),
         name_lower,
+        ext,
         typ,
         size: shared_file.size,
         modified,
         hash,
         unique_id,
+        category,
     }
 }
 
@@ -153,6 +177,7 @@ fn dir_to_remote_file(id: String, mount_id: String, path: String) -> RemoteFile 
     let hash = None;
     let unique_id =
         selectors::get_file_unique_id(&mount_id, &path, size, modified, hash.as_deref());
+    let category = FileCategory::Folder;
 
     RemoteFile {
         id,
@@ -160,11 +185,13 @@ fn dir_to_remote_file(id: String, mount_id: String, path: String) -> RemoteFile 
         path,
         name,
         name_lower,
+        ext: None,
         typ: RemoteFileType::Dir,
         size,
         modified,
         hash,
         unique_id,
+        category,
     }
 }
 

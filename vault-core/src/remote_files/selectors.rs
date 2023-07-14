@@ -1,4 +1,9 @@
-use crate::{remote::RemoteError, store, utils::path_utils};
+use crate::{
+    files::file_category::{ext_to_file_category, FileCategory},
+    remote::RemoteError,
+    store,
+    utils::{name_utils, path_utils},
+};
 
 use super::{
     errors::RemoteFilesErrors,
@@ -25,6 +30,16 @@ pub fn get_file_unique_id(
     ));
 
     format!("{:x}", digest)
+}
+
+pub fn get_file_ext_category<'a>(name_lower: &'a str) -> (Option<String>, FileCategory) {
+    let ext = name_utils::name_to_ext(name_lower);
+
+    (
+        ext.map(str::to_string),
+        ext.and_then(ext_to_file_category)
+            .unwrap_or(FileCategory::Generic),
+    )
 }
 
 pub fn mount_sort_key<'a>(mount: &'a Mount) -> (u32, u32, &'a str) {

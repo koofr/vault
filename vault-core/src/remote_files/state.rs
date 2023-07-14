@@ -3,7 +3,9 @@ use std::{
     collections::{HashMap, HashSet},
 };
 
-use crate::{dir_pickers::state::DirPickerItemType, remote::models};
+use crate::{
+    dir_pickers::state::DirPickerItemType, files::file_category::FileCategory, remote::models,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MountOrigin {
@@ -197,11 +199,13 @@ pub struct RemoteFile {
     pub path: String,
     pub name: String,
     pub name_lower: String,
+    pub ext: Option<String>,
     pub typ: RemoteFileType,
     pub size: i64,
     pub modified: i64,
     pub hash: Option<String>,
     pub unique_id: String,
+    pub category: FileCategory,
 }
 
 impl RemoteFile {
