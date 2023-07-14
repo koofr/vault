@@ -1,6 +1,6 @@
 use crate::{
     common::state::SizeInfo,
-    file_types::file_category::{ext_to_file_category, FileCategory},
+    files::file_category::{ext_to_file_category, FileCategory},
     store,
     utils::{name_utils, path_utils},
 };
@@ -554,7 +554,7 @@ mod tests {
 
     use crate::{
         common::state::SizeInfo,
-        file_types::file_category::FileCategory,
+        files::file_category::FileCategory,
         repo_files::test_helpers as repo_files_test_helpers,
         repos::test_helpers as repos_test_helpers,
         store::{self, test_helpers as store_test_helpers},

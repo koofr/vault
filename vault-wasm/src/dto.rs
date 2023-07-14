@@ -8,9 +8,11 @@ use vault_core::{
     common::state as common_state,
     dialogs::state as dialogs_state,
     dir_pickers::state as dir_pickers_state,
-    file_size::{size_display, speed_display_bytes_duration},
-    file_types::{file_category, files_filter},
-    files,
+    files::{
+        self, file_category,
+        file_size::{size_display, speed_display_bytes_duration},
+        files_filter,
+    },
     notifications::state as notifications_state,
     relative_time,
     remote_files::state as remote_files_state,
@@ -24,7 +26,8 @@ use vault_core::{
     repo_space_usage::state as repo_space_usage_state,
     repo_unlock::state as repo_unlock_state,
     repos::{selectors as repos_selectors, state as repos_state},
-    selection,
+    selection::state as selection_state,
+    sort::state as sort_state,
     space_usage::state as space_usage_state,
     store,
     transfers::{selectors as transfers_selectors, state as transfers_state},
@@ -83,12 +86,27 @@ pub enum SelectionSummary {
     All,
 }
 
-impl From<&selection::state::SelectionSummary> for SelectionSummary {
-    fn from(selection: &selection::state::SelectionSummary) -> Self {
+impl From<&selection_state::SelectionSummary> for SelectionSummary {
+    fn from(selection: &selection_state::SelectionSummary) -> Self {
         match selection {
-            selection::state::SelectionSummary::None => Self::None,
-            selection::state::SelectionSummary::Partial => Self::Partial,
-            selection::state::SelectionSummary::All => Self::All,
+            selection_state::SelectionSummary::None => Self::None,
+            selection_state::SelectionSummary::Partial => Self::Partial,
+            selection_state::SelectionSummary::All => Self::All,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+pub enum SortDirection {
+    Asc,
+    Desc,
+}
+
+impl From<sort_state::SortDirection> for SortDirection {
+    fn from(direction: sort_state::SortDirection) -> Self {
+        match direction {
+            sort_state::SortDirection::Asc => Self::Asc,
+            sort_state::SortDirection::Desc => Self::Desc,
         }
     }
 }
@@ -800,7 +818,7 @@ impl From<&repo_files_state::RepoFile> for RepoFile {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub struct RepoFilesSort {
     field: RepoFilesSortField,
-    direction: RepoFilesSortDirection,
+    direction: SortDirection,
 }
 
 impl From<&repo_files_state::RepoFilesSort> for RepoFilesSort {
@@ -825,21 +843,6 @@ impl From<repo_files_state::RepoFilesSortField> for RepoFilesSortField {
             repo_files_state::RepoFilesSortField::Name => Self::Name,
             repo_files_state::RepoFilesSortField::Size => Self::Size,
             repo_files_state::RepoFilesSortField::Modified => Self::Modified,
-        }
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
-pub enum RepoFilesSortDirection {
-    Asc,
-    Desc,
-}
-
-impl From<repo_files_state::RepoFilesSortDirection> for RepoFilesSortDirection {
-    fn from(direction: repo_files_state::RepoFilesSortDirection) -> Self {
-        match direction {
-            repo_files_state::RepoFilesSortDirection::Asc => Self::Asc,
-            repo_files_state::RepoFilesSortDirection::Desc => Self::Desc,
         }
     }
 }

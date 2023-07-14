@@ -3,11 +3,10 @@ use std::collections::HashSet;
 use crate::{
     common::state::Status,
     repo_files::{
-        errors::LoadFilesError,
-        selectors as repo_files_selectors,
-        state::{RepoFilesSortDirection, RepoFilesSortField},
+        errors::LoadFilesError, selectors as repo_files_selectors, state::RepoFilesSortField,
     },
     selection::{mutations as selection_mutations, state::Selection},
+    sort::state::SortDirection,
     store,
     utils::path_utils,
 };
@@ -258,8 +257,8 @@ pub fn sort_by(state: &mut store::State, browser_id: u32, field: RepoFilesSortFi
         browser.sort.direction.clone().reverse()
     } else {
         match field {
-            RepoFilesSortField::Size | RepoFilesSortField::Modified => RepoFilesSortDirection::Desc,
-            _ => RepoFilesSortDirection::Asc,
+            RepoFilesSortField::Size | RepoFilesSortField::Modified => SortDirection::Desc,
+            _ => SortDirection::Asc,
         }
     };
 

@@ -4,8 +4,7 @@ use futures::future::BoxFuture;
 
 use crate::{
     common::state::SizeInfo,
-    file_types::file_category::FileCategory,
-    files::file_icon::FileIconAttrs,
+    files::{file_category::FileCategory, file_icon::FileIconAttrs},
     repo_files::{selectors as repo_files_selectors, state::RepoFilesUploadResult},
     repo_files_read::state::RepoFileReader,
 };

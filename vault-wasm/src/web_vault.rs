@@ -1020,14 +1020,14 @@ impl WebVault {
                         total_count: state.transfers.total_count,
                         done_count: state.transfers.done_count,
                         failed_count: state.transfers.failed_count,
-                        size_progress_display: vault_core::file_size::size_of_display(
+                        size_progress_display: vault_core::files::file_size::size_of_display(
                             state.transfers.done_bytes,
                             state.transfers.total_bytes,
                         ),
                         percentage: selectors::select_percentage(state),
                         remaining_time_display: selectors::select_remaining_time(state, now)
                             .to_string(),
-                        speed_display: vault_core::file_size::speed_display_bytes_duration(
+                        speed_display: vault_core::files::file_size::speed_display_bytes_duration(
                             selectors::select_bytes_done(state),
                             selectors::select_duration(state, now),
                         ),

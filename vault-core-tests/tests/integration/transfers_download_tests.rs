@@ -11,7 +11,7 @@ use similar_asserts::assert_eq;
 
 use vault_core::{
     common::state::{BoxAsyncWrite, SizeInfo},
-    file_types::file_category::FileCategory,
+    files::file_category::FileCategory,
     http::HttpError,
     remote::RemoteError,
     repo_files_read::{errors::GetFilesReaderError, state::RepoFileReaderProvider},

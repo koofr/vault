@@ -8,7 +8,7 @@ use std::{
 
 use axum::{http::StatusCode, response::IntoResponse};
 use vault_core::{
-    file_types::{file_category::FileCategory, files_filter::FilesFilter},
+    files::{file_category::FileCategory, files_filter::FilesFilter},
     repo_files_details::state::RepoFilesDetailsOptions,
 };
 use vault_core_tests::helpers::with_repo;

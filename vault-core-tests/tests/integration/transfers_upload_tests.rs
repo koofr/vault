@@ -12,7 +12,7 @@ use similar_asserts::assert_eq;
 
 use vault_core::{
     common::state::{BoxAsyncRead, SizeInfo},
-    file_types::file_category::FileCategory,
+    files::file_category::FileCategory,
     store::{self, test_helpers::StoreWatcher},
     transfers::{
         errors::{TransferError, UploadableError},

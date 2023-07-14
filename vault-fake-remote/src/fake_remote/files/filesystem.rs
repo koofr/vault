@@ -231,7 +231,7 @@ impl Filesystem {
         let ext = name.ext();
         let content_type = ext
             .and_then(|ext| {
-                vault_core::file_types::content_type::ext_to_content_type(&ext).map(str::to_string)
+                vault_core::files::content_type::ext_to_content_type(&ext).map(str::to_string)
             })
             .unwrap_or_else(|| "application/octet-stream".into());
 

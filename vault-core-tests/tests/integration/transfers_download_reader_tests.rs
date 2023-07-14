@@ -5,7 +5,7 @@ use similar_asserts::assert_eq;
 
 use vault_core::{
     common::state::SizeInfo,
-    file_types::file_category::FileCategory,
+    files::file_category::FileCategory,
     transfers::state::{Transfer, TransferState, TransferType, TransfersState},
 };
 use vault_core_tests::helpers::transfers::{

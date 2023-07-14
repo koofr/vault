@@ -1,14 +1,11 @@
-use std::{
-    cmp::Ordering,
-    collections::{HashMap, HashSet},
-};
+use std::collections::{HashMap, HashSet};
 
 use crate::{
     cipher::errors::{DecryptFilenameError, DecryptSizeError},
-    file_types::file_category::FileCategory,
-    files::file_icon::FileIconAttrs,
+    files::{file_category::FileCategory, file_icon::FileIconAttrs},
     remote::{models, RemoteFileUploadConflictResolution},
     remote_files::state::RemoteFileType,
+    sort::state::SortDirection,
 };
 
 #[derive(Debug, Clone)]
@@ -86,18 +83,18 @@ impl RepoFileType {
 }
 
 impl Ord for RepoFileType {
-    fn cmp(&self, other: &Self) -> Ordering {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         match (self, other) {
-            (Self::Dir, Self::Dir) => Ordering::Equal,
-            (Self::Dir, Self::File) => Ordering::Less,
-            (Self::File, Self::Dir) => Ordering::Greater,
-            (Self::File, Self::File) => Ordering::Equal,
+            (Self::Dir, Self::Dir) => std::cmp::Ordering::Equal,
+            (Self::Dir, Self::File) => std::cmp::Ordering::Less,
+            (Self::File, Self::Dir) => std::cmp::Ordering::Greater,
+            (Self::File, Self::File) => std::cmp::Ordering::Equal,
         }
     }
 }
 
 impl PartialOrd for RepoFileType {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
     }
 }
@@ -256,36 +253,8 @@ impl Default for RepoFilesSortField {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum RepoFilesSortDirection {
-    Asc,
-    Desc,
-}
-
-impl Default for RepoFilesSortDirection {
-    fn default() -> Self {
-        Self::Asc
-    }
-}
-
-impl RepoFilesSortDirection {
-    pub fn reverse(self) -> Self {
-        match self {
-            Self::Asc => Self::Desc,
-            Self::Desc => Self::Asc,
-        }
-    }
-
-    pub fn ordering(&self, ordering: Ordering) -> Ordering {
-        match self {
-            Self::Asc => ordering,
-            Self::Desc => ordering.reverse(),
-        }
-    }
-}
-
 #[derive(Debug, Clone, Default)]
 pub struct RepoFilesSort {
     pub field: RepoFilesSortField,
-    pub direction: RepoFilesSortDirection,
+    pub direction: SortDirection,
 }

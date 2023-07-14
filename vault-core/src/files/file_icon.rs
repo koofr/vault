@@ -1,4 +1,4 @@
-use crate::file_types::file_category::FileCategory;
+use super::file_category::FileCategory;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct FileIconAttrs {

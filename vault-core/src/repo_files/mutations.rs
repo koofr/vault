@@ -5,7 +5,7 @@ use std::{
 
 use crate::{
     cipher::{data_cipher::decrypt_size, Cipher},
-    file_types::file_category::FileCategory,
+    files::file_category::FileCategory,
     remote_files::{
         selectors as remote_files_selectors,
         state::{RemoteFile, RemoteFileType},
@@ -451,7 +451,7 @@ mod tests {
             errors::{DecryptFilenameError, DecryptSizeError},
             test_helpers::create_cipher,
         },
-        file_types::file_category::FileCategory,
+        files::file_category::FileCategory,
         remote_files::test_helpers as remote_files_test_helpers,
         repo_files::state::{RepoFile, RepoFileName, RepoFilePath, RepoFileSize, RepoFileType},
     };

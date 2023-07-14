@@ -92,7 +92,7 @@ pub fn speed_display_bytes_duration(bytes: i64, duration: Duration) -> String {
 mod tests {
     use std::time::Duration;
 
-    use crate::file_size::{size_display, size_of_display, speed_display_bytes_duration};
+    use super::{size_display, size_of_display, speed_display_bytes_duration};
 
     #[test]
     fn test_size_display() {

@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use crate::{
     cipher,
-    file_types::{
+    files::{
         content_type::ext_to_content_type,
         file_category::{ext_to_file_category, FileCategory},
     },

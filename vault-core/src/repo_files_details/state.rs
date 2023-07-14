@@ -3,7 +3,7 @@ use std::{collections::HashMap, sync::Arc, time::Duration};
 use crate::{
     common::state::Status,
     eventstream::service::MountSubscription,
-    file_types::{file_category::FileCategory, files_filter::FilesFilter},
+    files::{file_category::FileCategory, files_filter::FilesFilter},
     repo_files::errors::{DeleteFileError, LoadFilesError},
     repo_files_read::errors::GetFilesReaderError,
 };

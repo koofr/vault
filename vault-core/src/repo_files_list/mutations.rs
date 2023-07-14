@@ -86,7 +86,7 @@ mod tests {
 
     use crate::{
         cipher::{errors::DecryptFilenameError, test_helpers::create_cipher},
-        file_types::file_category::FileCategory,
+        files::file_category::FileCategory,
         remote::test_helpers as remote_test_helpers,
         repo_files::state::{RepoFile, RepoFileName, RepoFilePath, RepoFileSize, RepoFileType},
         repo_files_list::{errors::FilesListRecursiveItemError, state::RepoFilesListRecursiveItem},
