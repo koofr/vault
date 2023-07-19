@@ -25,6 +25,7 @@ pub struct Vault {
     pub remote_files_service: Arc<remote_files::RemoteFilesService>,
     pub remote_files_dir_pickers_service:
         Arc<remote_files_dir_pickers::RemoteFilesDirPickersService>,
+    pub eventstream_service: Arc<eventstream::EventStreamService>,
     pub repos_service: Arc<repos::ReposService>,
     pub repo_create_service: Arc<repo_create::RepoCreateService>,
     pub repo_unlock_service: Arc<repo_unlock::RepoUnlockService>,
@@ -34,7 +35,6 @@ pub struct Vault {
     pub repo_files_list_service: Arc<repo_files_list::RepoFilesListService>,
     pub repo_files_read_service: Arc<repo_files_read::RepoFilesReadService>,
     pub repo_files_service: Arc<repo_files::RepoFilesService>,
-    pub eventstream_service: Arc<eventstream::EventStreamService>,
     pub repo_files_dir_pickers_service: Arc<repo_files_dir_pickers::RepoFilesDirPickersService>,
     pub repo_files_browsers_service: Arc<repo_files_browsers::RepoFilesBrowsersService>,
     pub repo_files_details_service: Arc<repo_files_details::RepoFilesDetailsService>,
@@ -88,6 +88,13 @@ impl Vault {
             dialogs_service.clone(),
             store.clone(),
         ));
+        let eventstream_service = Arc::new(eventstream::EventStreamService::new(
+            base_url.clone(),
+            eventstream_websocket_client,
+            auth_provider.clone(),
+            remote_files_service.clone(),
+            runtime.clone(),
+        ));
         let remote_files_dir_pickers_service =
             Arc::new(remote_files_dir_pickers::RemoteFilesDirPickersService::new(
                 remote_files_service.clone(),
@@ -137,13 +144,6 @@ impl Vault {
         let transfers_service = Arc::new(transfers::TransfersService::new(
             repo_files_service.clone(),
             store.clone(),
-            runtime.clone(),
-        ));
-        let eventstream_service = Arc::new(eventstream::EventStreamService::new(
-            base_url.clone(),
-            eventstream_websocket_client,
-            auth_provider.clone(),
-            remote_files_service.clone(),
             runtime.clone(),
         ));
         let repo_files_dir_pickers_service =
@@ -200,8 +200,8 @@ impl Vault {
             user_service,
             transfers_service,
             remote_files_service,
-            eventstream_service,
             remote_files_dir_pickers_service,
+            eventstream_service,
             repos_service,
             repo_create_service,
             repo_unlock_service,
