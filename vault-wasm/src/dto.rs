@@ -17,7 +17,6 @@ use vault_core::{
     relative_time,
     remote_files::state as remote_files_state,
     repo_config_backup::state as repo_config_backup_state,
-    repo_create::state as repo_create_state,
     repo_files::state as repo_files_state,
     repo_files_browsers::state as repo_files_browsers_state,
     repo_files_details::state as repo_files_details_state,
@@ -555,8 +554,8 @@ impl From<&remote_files_state::RemoteFilesBreadcrumb> for RemoteFilesBreadcrumb 
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub struct RepoCreateForm {
-    #[serde(rename = "initStatus")]
-    pub init_status: Status,
+    #[serde(rename = "createLoadStatus")]
+    pub create_load_status: Status,
     pub location: Option<RemoteFilesLocation>,
     #[serde(rename = "locationBreadcrumbs")]
     pub location_breadcrumbs: Vec<RemoteFilesBreadcrumb>,
@@ -572,8 +571,8 @@ pub struct RepoCreateForm {
     pub fill_from_rclone_config_error: Option<String>,
     #[serde(rename = "canCreate")]
     pub can_create: bool,
-    #[serde(rename = "createStatus")]
-    pub create_status: Status,
+    #[serde(rename = "createRepoStatus")]
+    pub create_repo_status: Status,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
@@ -583,8 +582,8 @@ pub struct RepoCreated {
     pub config: RepoConfig,
 }
 
-impl From<&repo_create_state::RepoCreated> for RepoCreated {
-    fn from(created: &repo_create_state::RepoCreated) -> Self {
+impl From<&repos_state::RepoCreated> for RepoCreated {
+    fn from(created: &repos_state::RepoCreated) -> Self {
         Self {
             repo_id: created.repo_id.clone(),
             config: (&created.config).into(),
@@ -593,9 +592,10 @@ impl From<&repo_create_state::RepoCreated> for RepoCreated {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
-pub struct RepoCreateInfo {
-    pub form: Option<RepoCreateForm>,
-    pub created: Option<RepoCreated>,
+#[serde(tag = "type")]
+pub enum RepoCreateInfo {
+    Form(RepoCreateForm),
+    Created(RepoCreated),
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]

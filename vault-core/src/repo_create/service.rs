@@ -1,12 +1,11 @@
 use std::sync::Arc;
 
+use futures::{future::BoxFuture, FutureExt};
+
 use crate::{
-    cipher,
     cipher::random_password::random_password,
-    common::state::Status,
     dir_pickers::selectors as dir_pickers_selectors,
-    rclone,
-    remote::{self, models, RemoteError},
+    rclone, remote,
     remote_files::{
         errors::{CreateDirError, RemoteFilesErrors},
         selectors as remote_files_selectors,
@@ -14,27 +13,13 @@ use crate::{
         RemoteFilesService,
     },
     remote_files_dir_pickers::{self, RemoteFilesDirPickersService},
-    repos::{
-        mutations as repos_mutations, password_validator::generate_password_validator, ReposService,
-    },
+    repos::ReposService,
     store,
-    utils::path_utils,
 };
 
-use super::{
-    errors::RepoCreateError,
-    mutations, selectors,
-    state::{RepoCreateForm, RepoCreateState, RepoCreated},
-};
-
-const DEFAULT_DIR_NAMES: &'static [&'static str] = &[
-    "My private documents",
-    "My private pictures",
-    "My private videos",
-];
+use super::{mutations, selectors};
 
 pub struct RepoCreateService {
-    remote: Arc<remote::Remote>,
     repos_service: Arc<ReposService>,
     remote_files_service: Arc<RemoteFilesService>,
     remote_files_dir_pickers_service: Arc<RemoteFilesDirPickersService>,
@@ -43,14 +28,12 @@ pub struct RepoCreateService {
 
 impl RepoCreateService {
     pub fn new(
-        remote: Arc<remote::Remote>,
         repos_service: Arc<ReposService>,
         remote_files_service: Arc<RemoteFilesService>,
         remote_files_dir_pickers_service: Arc<RemoteFilesDirPickersService>,
         store: Arc<store::Store>,
     ) -> Self {
         Self {
-            remote,
             repos_service,
             remote_files_service,
             remote_files_dir_pickers_service,
@@ -58,86 +41,80 @@ impl RepoCreateService {
         }
     }
 
-    pub async fn init(&self) -> () {
+    pub fn create(self: Arc<Self>) -> (u32, BoxFuture<'static, Result<(), remote::RemoteError>>) {
         let salt = random_password(1024).unwrap();
 
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoCreate);
+        let create_id = self
+            .store
+            .mutate(|state, notify, _, _| mutations::create(state, notify, salt));
 
-            mutations::init_loading(state, salt);
-        });
+        let load_future = async move { self.clone().create_load(create_id).await }.boxed();
 
-        let (init_status, primary_mount_id) =
-            match self.remote_files_service.load_mount("primary").await {
-                Ok(mount_id) => (Status::Loaded, Some(mount_id)),
-                Err(remote::RemoteError::ApiError {
-                    code: remote::ApiErrorCode::NotFound,
-                    ..
-                }) => (Status::Loading, None),
-                Err(err) => (Status::Error { error: err }, None),
-            };
+        (create_id, load_future)
+    }
+
+    async fn create_load(&self, create_id: u32) -> Result<(), remote::RemoteError> {
+        let load_mount_res = self.remote_files_service.load_mount("primary").await;
+
+        let load_mount_res_err = load_mount_res
+            .as_ref()
+            .map(|_| ())
+            .map_err(|err| err.to_owned());
 
         // ignore the error
         let _ = self.repos_service.load_repos().await;
 
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoCreate);
+            mutations::create_loaded(state, notify, create_id, load_mount_res);
+        });
 
-            mutations::init_loaded(state, init_status, primary_mount_id);
+        load_mount_res_err
+    }
+
+    pub fn set_location(&self, create_id: u32, location: RemoteFilesLocation) {
+        self.store.mutate(|state, notify, _, _| {
+            mutations::set_location(state, notify, create_id, location);
         });
     }
 
-    pub fn reset(&self) {
-        self.location_dir_picker_cancel();
-
+    pub fn set_password(&self, create_id: u32, password: String) {
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoCreate);
-
-            mutations::reset(state);
+            mutations::set_password(state, notify, create_id, password);
         });
     }
 
-    pub fn set_location(&self, location: RemoteFilesLocation) {
+    pub fn set_salt(&self, create_id: u32, salt: Option<String>) {
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoCreate);
-
-            mutations::set_location(state, location);
+            mutations::set_salt(state, notify, create_id, salt);
         });
     }
 
-    pub fn set_password(&self, password: String) {
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoCreate);
+    pub fn fill_from_rclone_config(
+        &self,
+        create_id: u32,
+        config: String,
+    ) -> Result<(), rclone::config::ParseConfigError> {
+        let res = rclone::config::parse_config(&config);
 
-            mutations::set_password(state, password);
+        let res_err = res.as_ref().map(|_| ()).map_err(|err| err.clone());
+
+        self.store.mutate(|state, notify, _, _| {
+            mutations::fill_from_rclone_config(state, notify, create_id, res);
         });
+
+        res_err
     }
 
-    pub fn set_salt(&self, salt: Option<String>) {
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoCreate);
-
-            mutations::set_salt(state, salt);
-        });
-    }
-
-    pub fn fill_from_rclone_config(&self, config: String) {
-        let config = rclone::config::parse_config(&config);
-
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoCreate);
-
-            mutations::fill_from_rclone_config(state, config);
-        })
-    }
-
-    pub async fn location_dir_picker_show(&self) -> Result<(), RemoteError> {
+    pub async fn location_dir_picker_show(
+        &self,
+        create_id: u32,
+    ) -> Result<(), remote::RemoteError> {
         let (location, picker_id) = self.store.with_state(|state| {
             (
-                selectors::select_location(state)
+                selectors::select_location(state, create_id)
                     .cloned()
-                    .or_else(|| selectors::select_primary_mount_location(state)),
-                selectors::select_location_dir_picker_id(state),
+                    .or_else(|| selectors::select_primary_mount_location(state, create_id)),
+                selectors::select_location_dir_picker_id(state, create_id),
             )
         });
 
@@ -152,9 +129,7 @@ impl RepoCreateService {
         );
 
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoCreate);
-
-            mutations::location_dir_picker_show(state, location_dir_picker_id);
+            mutations::location_dir_picker_show(state, notify, create_id, location_dir_picker_id);
         });
 
         if let Some(location) = &location {
@@ -181,9 +156,25 @@ impl RepoCreateService {
         Ok(())
     }
 
-    pub fn location_dir_picker_select(&self) {
+    pub async fn location_dir_picker_click(
+        &self,
+        create_id: u32,
+        item_id: &str,
+        is_arrow: bool,
+    ) -> Result<(), remote::RemoteError> {
+        let picker_id = self
+            .store
+            .with_state(|state| selectors::select_location_dir_picker_id(state, create_id))
+            .ok_or_else(RemoteFilesErrors::not_found)?;
+
+        self.remote_files_dir_pickers_service
+            .click(picker_id, item_id, is_arrow)
+            .await
+    }
+
+    pub fn location_dir_picker_select(&self, create_id: u32) {
         if let Some(location_file_id) = self.store.with_state(|state| {
-            selectors::select_location_dir_picker_id(state)
+            selectors::select_location_dir_picker_id(state, create_id)
                 .and_then(|picker_id| {
                     dir_pickers_selectors::select_selected_file_id(state, picker_id)
                 })
@@ -193,29 +184,30 @@ impl RepoCreateService {
                 remote_files_selectors::select_file(state, &location_file_id)
                     .map(|file| file.get_location())
             }) {
-                self.set_location(location);
+                self.set_location(create_id, location);
             }
         }
 
-        self.location_dir_picker_cancel();
+        self.location_dir_picker_cancel(create_id);
     }
 
-    pub fn location_dir_picker_cancel(&self) {
+    pub fn location_dir_picker_cancel(&self, create_id: u32) {
         if let Some(location_dir_picker_id) = self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoCreate);
-
-            mutations::location_dir_picker_cancel(state)
+            mutations::location_dir_picker_cancel(state, notify, create_id)
         }) {
             self.remote_files_dir_pickers_service
                 .destroy(location_dir_picker_id);
         }
     }
 
-    pub async fn location_dir_picker_create_dir(&self) -> Result<(), CreateDirError> {
+    pub async fn location_dir_picker_create_dir(
+        &self,
+        create_id: u32,
+    ) -> Result<(), CreateDirError> {
         let (mount_id, parent_path, picker_id) = self
             .store
             .with_state(|state| {
-                let picker_id = selectors::select_location_dir_picker_id(state)?;
+                let picker_id = selectors::select_location_dir_picker_id(state, create_id)?;
 
                 let remote_file =
                     remote_files_dir_pickers::selectors::select_selected_file(state, picker_id)?;
@@ -240,108 +232,41 @@ impl RepoCreateService {
         Ok(())
     }
 
-    pub async fn create(&self) {
-        self.location_dir_picker_cancel();
+    pub async fn create_repo(&self, create_id: u32) {
+        self.location_dir_picker_cancel(create_id);
 
-        match self.store.with_state(|state| {
-            if !selectors::select_can_create(state) {
-                return None;
-            }
-
-            match state.repo_create {
-                Some(RepoCreateState::Form(ref form)) => Some(form.clone()),
-                _ => None,
-            }
-        }) {
-            Some(form) => {
-                self.store.mutate(|state, notify, _, _| {
-                    notify(store::Event::RepoCreate);
-
-                    mutations::repo_creating(state);
-                });
-
-                let res = self.create_form(form).await;
-
-                self.store.mutate(|state, notify, _, _| {
-                    notify(store::Event::RepoCreate);
-
-                    mutations::repo_create(state, res);
-                });
-            }
+        let form = match self
+            .store
+            .mutate(|state, notify, _, _| mutations::repo_creating(state, notify, create_id))
+        {
+            Some(form) => form,
             None => return,
         };
-    }
 
-    async fn create_form(&self, form: RepoCreateForm) -> Result<RepoCreated, RepoCreateError> {
-        let RepoCreateForm {
-            location,
-            password,
-            salt,
-            ..
-        } = form;
+        let location = form.location.unwrap();
 
-        let location = location.unwrap();
-
-        let already_exists = match (
-            path_utils::parent_path(&location.path),
-            path_utils::path_to_name(&location.path),
-        ) {
-            (Some(parent_path), Some(name)) => match self
-                .remote
-                .create_dir(&location.mount_id, parent_path, name)
-                .await
-            {
-                Ok(_) => false,
-                Err(remote::RemoteError::ApiError {
-                    code: remote::ApiErrorCode::AlreadyExists,
-                    ..
-                }) => true,
-                Err(err) => {
-                    return Err(RepoCreateError::RemoteError(err));
-                }
-            },
-            _ => false,
-        };
-
-        let cipher = cipher::Cipher::new(&password, salt.as_deref());
-
-        let (password_validator, password_validator_encrypted) =
-            generate_password_validator(&cipher).await;
-
-        let repo = self
-            .remote
-            .create_vault_repo(models::VaultRepoCreate {
-                mount_id: location.mount_id.clone(),
-                path: location.path.clone(),
-                salt: salt.clone(),
-                password_validator,
-                password_validator_encrypted,
-            })
-            .await?;
-        let repo_id = repo.id.clone();
-
-        if !already_exists {
-            for name in DEFAULT_DIR_NAMES {
-                let encrypted_name = cipher.encrypt_filename(name);
-
-                self.remote_files_service
-                    .create_dir_name(&location.mount_id, &location.path, &encrypted_name)
-                    .await?;
-            }
-        }
+        let res = self
+            .repos_service
+            .create_repo(
+                &location.mount_id,
+                &location.path,
+                &form.password,
+                form.salt.as_deref(),
+            )
+            .await;
 
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::Repos);
+            notify(store::Event::RepoCreate);
 
-            repos_mutations::repo_loaded(state, repo);
+            mutations::repo_created(state, notify, create_id, res);
         });
+    }
 
-        let config = self
-            .repos_service
-            .get_repo_config(&repo_id, &password)
-            .await
-            .unwrap();
+    pub fn destroy(&self, create_id: u32) {
+        self.location_dir_picker_cancel(create_id);
 
-        Ok(RepoCreated { repo_id, config })
+        self.store.mutate(|state, notify, _, _| {
+            mutations::destroy(state, notify, create_id);
+        });
     }
 }

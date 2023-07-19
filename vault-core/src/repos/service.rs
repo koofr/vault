@@ -3,29 +3,48 @@ use std::{
     sync::{Arc, RwLock, RwLockReadGuard},
 };
 
-use crate::{cipher::Cipher, rclone, remote, store};
+use crate::{
+    cipher::Cipher,
+    rclone,
+    remote::{self, models},
+    remote_files::RemoteFilesService,
+    store,
+    utils::path_utils,
+};
 
 use super::{
     errors::{
-        BuildCipherError, InvalidPasswordError, RemoveRepoError, RepoLockedError,
+        BuildCipherError, CreateRepoError, InvalidPasswordError, RemoveRepoError, RepoLockedError,
         RepoNotFoundError, UnlockRepoError,
     },
     mutations,
-    password_validator::check_password_validator,
+    password_validator::{check_password_validator, generate_password_validator},
     selectors,
-    state::{RepoConfig, RepoUnlockMode},
+    state::{RepoConfig, RepoCreated, RepoUnlockMode},
 };
+
+const DEFAULT_DIR_NAMES: &'static [&'static str] = &[
+    "My private documents",
+    "My private pictures",
+    "My private videos",
+];
 
 pub struct ReposService {
     remote: Arc<remote::Remote>,
+    remote_files_service: Arc<RemoteFilesService>,
     store: Arc<store::Store>,
     ciphers: Arc<RwLock<HashMap<String, Arc<Cipher>>>>,
 }
 
 impl ReposService {
-    pub fn new(remote: Arc<remote::Remote>, store: Arc<store::Store>) -> Self {
+    pub fn new(
+        remote: Arc<remote::Remote>,
+        remote_files_service: Arc<RemoteFilesService>,
+        store: Arc<store::Store>,
+    ) -> Self {
         Self {
             remote,
+            remote_files_service,
             store,
             ciphers: Arc::new(RwLock::new(HashMap::new())),
         }
@@ -112,6 +131,70 @@ impl ReposService {
         }
 
         Ok(())
+    }
+
+    pub async fn create_repo(
+        &self,
+        mount_id: &str,
+        path: &str,
+        password: &str,
+        salt: Option<&str>,
+    ) -> Result<RepoCreated, CreateRepoError> {
+        let already_exists = match (
+            path_utils::parent_path(&path),
+            path_utils::path_to_name(&path),
+        ) {
+            (Some(parent_path), Some(name)) => {
+                match self.remote.create_dir(&mount_id, parent_path, name).await {
+                    Ok(_) => false,
+                    Err(remote::RemoteError::ApiError {
+                        code: remote::ApiErrorCode::AlreadyExists,
+                        ..
+                    }) => true,
+                    Err(err) => {
+                        return Err(CreateRepoError::RemoteError(err));
+                    }
+                }
+            }
+            _ => false,
+        };
+
+        let cipher = Cipher::new(&password, salt.as_deref());
+
+        let (password_validator, password_validator_encrypted) =
+            generate_password_validator(&cipher).await;
+
+        let repo = self
+            .remote
+            .create_vault_repo(models::VaultRepoCreate {
+                mount_id: mount_id.to_owned(),
+                path: path.to_owned(),
+                salt: salt.map(str::to_string),
+                password_validator,
+                password_validator_encrypted,
+            })
+            .await?;
+        let repo_id = repo.id.clone();
+
+        if !already_exists {
+            for name in DEFAULT_DIR_NAMES {
+                let encrypted_name = cipher.encrypt_filename(name);
+
+                self.remote_files_service
+                    .create_dir_name(&mount_id, &path, &encrypted_name)
+                    .await?;
+            }
+        }
+
+        self.store.mutate(|state, notify, _, _| {
+            notify(store::Event::Repos);
+
+            mutations::repo_loaded(state, repo);
+        });
+
+        let config = self.get_repo_config(&repo_id, &password).await.unwrap();
+
+        Ok(RepoCreated { repo_id, config })
     }
 
     pub async fn remove_repo(&self, repo_id: &str, password: &str) -> Result<(), RemoveRepoError> {

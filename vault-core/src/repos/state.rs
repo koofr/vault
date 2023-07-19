@@ -67,6 +67,12 @@ pub enum RepoUnlockMode {
     Verify,
 }
 
+#[derive(Debug, Clone)]
+pub struct RepoCreated {
+    pub repo_id: String,
+    pub config: RepoConfig,
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct ReposState {
     pub status: Status<RemoteError>,

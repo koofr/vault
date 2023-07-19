@@ -3,11 +3,12 @@ use std::sync::Arc;
 use futures::future::BoxFuture;
 
 use crate::{
-    auth, config, dialogs, eventstream, http, lifecycle, notifications, oauth2, relative_time,
-    remote, remote_files, remote_files_browsers, remote_files_dir_pickers, repo_config_backup,
-    repo_create, repo_files, repo_files_browsers, repo_files_details, repo_files_dir_pickers,
-    repo_files_list, repo_files_move, repo_files_read, repo_remove, repo_space_usage, repo_unlock,
-    repos, runtime, secure_storage, space_usage, store, transfers, user,
+    auth, config, dialogs, eventstream, http, lifecycle, notifications, oauth2, rclone,
+    relative_time, remote, remote_files, remote_files_browsers, remote_files_dir_pickers,
+    repo_config_backup, repo_create, repo_files, repo_files_browsers, repo_files_details,
+    repo_files_dir_pickers, repo_files_list, repo_files_move, repo_files_read, repo_remove,
+    repo_space_usage, repo_unlock, repos, runtime, secure_storage, space_usage, store, transfers,
+    user,
 };
 
 pub struct Vault {
@@ -107,7 +108,11 @@ impl Vault {
                 remote_files_service.clone(),
                 store.clone(),
             ));
-        let repos_service = Arc::new(repos::ReposService::new(remote.clone(), store.clone()));
+        let repos_service = Arc::new(repos::ReposService::new(
+            remote.clone(),
+            remote_files_service.clone(),
+            store.clone(),
+        ));
         let repo_unlock_service = Arc::new(repo_unlock::RepoUnlockService::new(
             repos_service.clone(),
             store.clone(),
@@ -142,7 +147,6 @@ impl Vault {
             store.clone(),
         );
         let repo_create_service = Arc::new(repo_create::RepoCreateService::new(
-            remote.clone(),
             repos_service.clone(),
             remote_files_service.clone(),
             remote_files_dir_pickers_service.clone(),
@@ -429,52 +433,80 @@ impl Vault {
 
     // repo_create
 
-    pub async fn repo_create_init(&self) {
-        self.repo_create_service.init().await
+    pub fn repo_create_create(&self) -> (u32, BoxFuture<'static, Result<(), remote::RemoteError>>) {
+        self.repo_create_service.clone().create()
     }
 
-    pub fn repo_create_reset(&self) {
-        self.repo_create_service.reset();
+    pub fn repo_create_set_location(
+        &self,
+        create_id: u32,
+        location: remote_files::state::RemoteFilesLocation,
+    ) {
+        self.repo_create_service.set_location(create_id, location)
     }
 
-    pub fn repo_create_set_location(&self, location: remote_files::state::RemoteFilesLocation) {
-        self.repo_create_service.set_location(location)
+    pub fn repo_create_set_password(&self, create_id: u32, password: String) {
+        self.repo_create_service.set_password(create_id, password)
     }
 
-    pub fn repo_create_set_password(&self, password: String) {
-        self.repo_create_service.set_password(password)
+    pub fn repo_create_set_salt(&self, create_id: u32, salt: Option<String>) {
+        self.repo_create_service.set_salt(create_id, salt)
     }
 
-    pub fn repo_create_set_salt(&self, salt: Option<String>) {
-        self.repo_create_service.set_salt(salt)
+    pub fn repo_create_fill_from_rclone_config(
+        &self,
+        create_id: u32,
+        config: String,
+    ) -> Result<(), rclone::config::ParseConfigError> {
+        self.repo_create_service
+            .fill_from_rclone_config(create_id, config)
     }
 
-    pub fn repo_create_fill_from_rclone_config(&self, config: String) {
-        self.repo_create_service.fill_from_rclone_config(config)
+    pub async fn repo_create_location_dir_picker_show(
+        &self,
+        create_id: u32,
+    ) -> Result<(), remote::RemoteError> {
+        self.repo_create_service
+            .location_dir_picker_show(create_id)
+            .await
     }
 
-    pub async fn repo_create_location_dir_picker_show(&self) -> Result<(), remote::RemoteError> {
-        self.repo_create_service.location_dir_picker_show().await
+    pub async fn repo_create_location_dir_picker_click(
+        &self,
+        create_id: u32,
+        item_id: &str,
+        is_arrow: bool,
+    ) -> Result<(), remote::RemoteError> {
+        self.repo_create_service
+            .location_dir_picker_click(create_id, item_id, is_arrow)
+            .await
     }
 
-    pub fn repo_create_location_dir_picker_select(&self) {
-        self.repo_create_service.location_dir_picker_select()
+    pub fn repo_create_location_dir_picker_select(&self, create_id: u32) {
+        self.repo_create_service
+            .location_dir_picker_select(create_id)
     }
 
-    pub fn repo_create_location_dir_picker_cancel(&self) {
-        self.repo_create_service.location_dir_picker_cancel()
+    pub fn repo_create_location_dir_picker_cancel(&self, create_id: u32) {
+        self.repo_create_service
+            .location_dir_picker_cancel(create_id)
     }
 
     pub async fn repo_create_location_dir_picker_create_dir(
         &self,
+        create_id: u32,
     ) -> Result<(), remote_files::errors::CreateDirError> {
         self.repo_create_service
-            .location_dir_picker_create_dir()
+            .location_dir_picker_create_dir(create_id)
             .await
     }
 
-    pub async fn repo_create_create(&self) {
-        self.repo_create_service.create().await
+    pub async fn repo_create_create_repo(&self, create_id: u32) {
+        self.repo_create_service.create_repo(create_id).await
+    }
+
+    pub fn repo_create_destroy(&self, create_id: u32) {
+        self.repo_create_service.destroy(create_id);
     }
 
     // repo_unlock
@@ -875,19 +907,6 @@ impl Vault {
         &self,
     ) -> Result<(), repo_files::errors::CreateDirError> {
         self.repo_files_move_service.create_dir().await
-    }
-
-    // remote_files_dir_pickers
-
-    pub async fn remote_files_dir_pickers_click(
-        &self,
-        picker_id: u32,
-        item_id: &str,
-        is_arrow: bool,
-    ) -> Result<(), remote::RemoteError> {
-        self.remote_files_dir_pickers_service
-            .click(picker_id, item_id, is_arrow)
-            .await
     }
 }
 

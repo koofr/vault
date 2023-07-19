@@ -1,41 +1,66 @@
 use crate::{
-    common::state::Status, rclone, remote::RemoteError, remote_files::state::RemoteFilesLocation,
+    common::state::Status,
+    rclone, remote,
+    remote_files::state::RemoteFilesLocation,
+    repos::{errors::CreateRepoError, state::RepoCreated},
     store,
 };
 
 use super::{
-    errors::RepoCreateError,
-    state::{RepoCreateForm, RepoCreateState, RepoCreated},
+    selectors,
+    state::{RepoCreate, RepoCreateForm},
 };
 
 pub const DEFAULT_REPO_NAME: &'static str = "My safe box";
 
-pub fn init_loading(state: &mut store::State, salt: String) {
-    state.repo_create = Some(RepoCreateState::Form(RepoCreateForm {
-        init_status: Status::Loading,
+pub fn create(state: &mut store::State, notify: &store::Notify, salt: String) -> u32 {
+    notify(store::Event::RepoCreate);
+
+    let create_id = state.repo_creates.next_id;
+
+    state.repo_creates.next_id += 1;
+
+    let repo_create = RepoCreate::Form(RepoCreateForm {
+        create_load_status: Status::Loading,
         primary_mount_id: None,
         location: None,
         location_dir_picker_id: None,
         password: String::from(""),
         salt: Some(salt),
         fill_from_rclone_config_error: None,
-        create_status: Status::Initial,
-    }));
+        create_repo_status: Status::Initial,
+    });
+
+    state.repo_creates.creates.insert(create_id, repo_create);
+
+    create_id
 }
 
-pub fn init_loaded(
+pub fn create_loaded(
     state: &mut store::State,
-    status: Status<RemoteError>,
-    primary_mount_id: Option<String>,
+    notify: &store::Notify,
+    create_id: u32,
+    load_mount_res: Result<String, remote::RemoteError>,
 ) {
     let no_existing_repos = state.repos.repos_by_id.is_empty();
 
-    let form = match state.repo_create {
-        Some(RepoCreateState::Form(ref mut form)) => form,
+    let form = match state.repo_creates.creates.get_mut(&create_id) {
+        Some(RepoCreate::Form(ref mut form)) => form,
         _ => return,
     };
 
-    form.init_status = status;
+    notify(store::Event::RepoCreate);
+
+    let (create_load_status, primary_mount_id) = match load_mount_res {
+        Ok(mount_id) => (Status::Loaded, Some(mount_id)),
+        Err(remote::RemoteError::ApiError {
+            code: remote::ApiErrorCode::NotFound,
+            ..
+        }) => (Status::Loading, None),
+        Err(err) => (Status::Error { error: err }, None),
+    };
+
+    form.create_load_status = create_load_status;
     form.primary_mount_id = primary_mount_id;
 
     if no_existing_repos {
@@ -48,33 +73,55 @@ pub fn init_loaded(
     }
 }
 
-pub fn reset(state: &mut store::State) {
-    state.repo_create = None;
+pub fn destroy(state: &mut store::State, notify: &store::Notify, create_id: u32) {
+    notify(store::Event::RepoCreate);
+
+    state.repo_creates.creates.remove(&create_id);
 }
 
-pub fn set_location(state: &mut store::State, location: RemoteFilesLocation) {
-    let form = match state.repo_create {
-        Some(RepoCreateState::Form(ref mut form)) => form,
+pub fn set_location(
+    state: &mut store::State,
+    notify: &store::Notify,
+    create_id: u32,
+    location: RemoteFilesLocation,
+) {
+    let form = match state.repo_creates.creates.get_mut(&create_id) {
+        Some(RepoCreate::Form(ref mut form)) => form,
         _ => return,
     };
+
+    notify(store::Event::RepoCreate);
 
     form.location = Some(location);
 }
 
-pub fn location_dir_picker_show(state: &mut store::State, location_dir_picker_id: u32) {
-    let form = match state.repo_create {
-        Some(RepoCreateState::Form(ref mut form)) => form,
+pub fn location_dir_picker_show(
+    state: &mut store::State,
+    notify: &store::Notify,
+    create_id: u32,
+    location_dir_picker_id: u32,
+) {
+    let form = match state.repo_creates.creates.get_mut(&create_id) {
+        Some(RepoCreate::Form(ref mut form)) => form,
         _ => return,
     };
+
+    notify(store::Event::RepoCreate);
 
     form.location_dir_picker_id = Some(location_dir_picker_id);
 }
 
-pub fn location_dir_picker_cancel(state: &mut store::State) -> Option<u32> {
-    let form = match state.repo_create {
-        Some(RepoCreateState::Form(ref mut form)) => form,
+pub fn location_dir_picker_cancel(
+    state: &mut store::State,
+    notify: &store::Notify,
+    create_id: u32,
+) -> Option<u32> {
+    let form = match state.repo_creates.creates.get_mut(&create_id) {
+        Some(RepoCreate::Form(ref mut form)) => form,
         _ => return None,
     };
+
+    notify(store::Event::RepoCreate);
 
     let location_dir_picker_id = form.location_dir_picker_id;
 
@@ -83,32 +130,50 @@ pub fn location_dir_picker_cancel(state: &mut store::State) -> Option<u32> {
     location_dir_picker_id
 }
 
-pub fn set_password(state: &mut store::State, password: String) {
-    let form = match state.repo_create {
-        Some(RepoCreateState::Form(ref mut form)) => form,
+pub fn set_password(
+    state: &mut store::State,
+    notify: &store::Notify,
+    create_id: u32,
+    password: String,
+) {
+    let form = match state.repo_creates.creates.get_mut(&create_id) {
+        Some(RepoCreate::Form(ref mut form)) => form,
         _ => return,
     };
+
+    notify(store::Event::RepoCreate);
 
     form.password = password;
 }
 
-pub fn set_salt(state: &mut store::State, salt: Option<String>) {
-    let form = match state.repo_create {
-        Some(RepoCreateState::Form(ref mut form)) => form,
+pub fn set_salt(
+    state: &mut store::State,
+    notify: &store::Notify,
+    create_id: u32,
+    salt: Option<String>,
+) {
+    let form = match state.repo_creates.creates.get_mut(&create_id) {
+        Some(RepoCreate::Form(ref mut form)) => form,
         _ => return,
     };
+
+    notify(store::Event::RepoCreate);
 
     form.salt = salt;
 }
 
 pub fn fill_from_rclone_config(
     state: &mut store::State,
+    notify: &store::Notify,
+    create_id: u32,
     config: Result<rclone::config::Config, rclone::config::ParseConfigError>,
 ) {
-    let form = match state.repo_create {
-        Some(RepoCreateState::Form(ref mut form)) => form,
+    let form = match state.repo_creates.creates.get_mut(&create_id) {
+        Some(RepoCreate::Form(ref mut form)) => form,
         _ => return,
     };
+
+    notify(store::Event::RepoCreate);
 
     match config {
         Ok(config) => {
@@ -137,22 +202,46 @@ pub fn fill_from_rclone_config(
     }
 }
 
-pub fn repo_creating(state: &mut store::State) {
-    match state.repo_create {
-        Some(RepoCreateState::Form(ref mut form)) => {
-            form.create_status = Status::Loading;
-        }
-        _ => (),
+pub fn repo_creating(
+    state: &mut store::State,
+    notify: &store::Notify,
+    create_id: u32,
+) -> Option<RepoCreateForm> {
+    if !selectors::select_can_create(state, create_id) {
+        return None;
+    }
+
+    let form = match state.repo_creates.creates.get_mut(&create_id) {
+        Some(RepoCreate::Form(ref mut form)) => form,
+        _ => return None,
     };
+
+    notify(store::Event::RepoCreate);
+
+    form.create_repo_status = Status::Loading;
+
+    Some(form.clone())
 }
 
-pub fn repo_create(state: &mut store::State, res: Result<RepoCreated, RepoCreateError>) {
+pub fn repo_created(
+    state: &mut store::State,
+    notify: &store::Notify,
+    create_id: u32,
+    res: Result<RepoCreated, CreateRepoError>,
+) {
+    notify(store::Event::RepoCreate);
+
     match res {
-        Ok(created) => state.repo_create = Some(RepoCreateState::Created(created)),
+        Ok(created) => {
+            state
+                .repo_creates
+                .creates
+                .insert(create_id, RepoCreate::Created(created));
+        }
         Err(err) => {
-            match state.repo_create {
-                Some(RepoCreateState::Form(ref mut form)) => {
-                    form.create_status = Status::Error { error: err };
+            match state.repo_creates.creates.get_mut(&create_id) {
+                Some(RepoCreate::Form(ref mut form)) => {
+                    form.create_repo_status = Status::Error { error: err };
                 }
                 _ => (),
             };

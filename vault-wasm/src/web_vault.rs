@@ -570,24 +570,39 @@ impl WebVault {
 
     // repo_create
 
+    #[wasm_bindgen(js_name = repoCreateCreate)]
+    pub fn repo_create_create(&self) -> u32 {
+        let (create_id, create_load_future) = self.vault.repo_create_create();
+
+        spawn_local(async move {
+            // error is displayed in the details component
+            let _ = create_load_future.await;
+        });
+
+        create_id
+    }
+
     #[wasm_bindgen(js_name = repoCreateInfoSubscribe)]
-    pub fn repo_create_info_subscribe(&self, cb: js_sys::Function) -> u32 {
+    pub fn repo_create_info_subscribe(&self, create_id: u32, cb: js_sys::Function) -> u32 {
         self.subscribe(
             &[Event::RepoCreate, Event::DirPickers],
             cb,
             self.subscription_data.repo_create_info.clone(),
             move |vault| {
+                use vault_core::{
+                    remote_files::selectors as remote_files_selectors,
+                    repo_create::{selectors, state::RepoCreate},
+                };
+
                 vault.with_state(|state| {
-                    state
-                        .repo_create
-                        .as_ref()
-                        .map(|repo_create| match repo_create {
-                            vault_core::repo_create::state::RepoCreateState::Form(form) => {
+                    vault_core::repo_create::selectors::select_repo_create(state, create_id).map(
+                        |repo_create| match repo_create {
+                            vault_core::repo_create::state::RepoCreate::Form(form) => {
                                 let location_breadcrumbs = form
                                     .location
                                     .as_ref()
                                     .map(|location| {
-                                        vault_core::remote_files::selectors::select_breadcrumbs(
+                                        remote_files_selectors::select_breadcrumbs(
                                             state,
                                             &location.mount_id,
                                             &location.path,
@@ -595,46 +610,40 @@ impl WebVault {
                                     })
                                     .unwrap_or(Vec::new());
 
-                                dto::RepoCreateInfo {
-                                    form: Some(dto::RepoCreateForm {
-                                        init_status: (&form.init_status).into(),
-                                        location: form
-                                            .location
-                                            .as_ref()
-                                            .map(|location| location.into()),
-                                        location_breadcrumbs: location_breadcrumbs
-                                            .iter()
-                                            .map(dto::RemoteFilesBreadcrumb::from)
-                                            .collect(),
-                                        location_dir_picker_id: form.location_dir_picker_id,
-                                        location_dir_picker_can_select: vault_core::repo_create::selectors::select_location_dir_picker_can_select(
-                                            state,
+                                dto::RepoCreateInfo::Form(dto::RepoCreateForm {
+                                    create_load_status: (&form.create_load_status).into(),
+                                    location: form
+                                        .location
+                                        .as_ref()
+                                        .map(|location| location.into()),
+                                    location_breadcrumbs: location_breadcrumbs
+                                        .iter()
+                                        .map(dto::RemoteFilesBreadcrumb::from)
+                                        .collect(),
+                                    location_dir_picker_id: form.location_dir_picker_id,
+                                    location_dir_picker_can_select:
+                                        selectors::select_location_dir_picker_can_select(
+                                            state, create_id,
                                         ),
-                                        location_dir_picker_create_dir_enabled: vault_core::repo_create::selectors::select_location_dir_picker_create_dir_enabled(
-                                            state,
+                                    location_dir_picker_create_dir_enabled:
+                                        selectors::select_location_dir_picker_create_dir_enabled(
+                                            state, create_id,
                                         ),
-                                        password: form.password.clone(),
-                                        salt: form.salt.clone(),
-                                        fill_from_rclone_config_error: form
-                                            .fill_from_rclone_config_error
-                                            .as_ref()
-                                            .map(|e| e.to_string()),
-                                        can_create:
-                                            vault_core::repo_create::selectors::select_can_create(
-                                                state,
-                                            ),
-                                        create_status: (&form.create_status).into(),
-                                    }),
-                                    created: None,
-                                }
+                                    password: form.password.clone(),
+                                    salt: form.salt.clone(),
+                                    fill_from_rclone_config_error: form
+                                        .fill_from_rclone_config_error
+                                        .as_ref()
+                                        .map(|e| e.to_string()),
+                                    can_create: selectors::select_can_create(state, create_id),
+                                    create_repo_status: (&form.create_repo_status).into(),
+                                })
                             }
-                            vault_core::repo_create::state::RepoCreateState::Created(created) => {
-                                dto::RepoCreateInfo {
-                                    form: None,
-                                    created: Some(created.into()),
-                                }
+                            RepoCreate::Created(created) => {
+                                dto::RepoCreateInfo::Created(created.into())
                             }
-                        })
+                        },
+                    )
                 })
             },
         )
@@ -645,61 +654,62 @@ impl WebVault {
         self.get_data_js(id, self.subscription_data.repo_create_info.clone())
     }
 
-    #[wasm_bindgen(js_name = repoCreateInit)]
-    pub async fn repo_create_init(&self) {
-        self.vault.repo_create_init().await;
-    }
-
-    #[wasm_bindgen(js_name = repoCreateReset)]
-    pub fn repo_create_reset(&self) {
-        self.vault.repo_create_reset();
-    }
-
-    #[wasm_bindgen(js_name = repoCreateSetLocation)]
-    pub fn repo_create_set_location(&self, mount_id: String, path: String) {
-        self.vault
-            .repo_create_set_location(vault_core::remote_files::state::RemoteFilesLocation {
-                mount_id,
-                path,
-            })
-    }
-
     #[wasm_bindgen(js_name = repoCreateSetPassword)]
-    pub fn repo_create_set_password(&self, password: String) {
-        self.vault.repo_create_set_password(password)
+    pub fn repo_create_set_password(&self, create_id: u32, password: String) {
+        self.vault.repo_create_set_password(create_id, password)
     }
 
     #[wasm_bindgen(js_name = repoCreateSetSalt)]
-    pub fn repo_create_set_salt(&self, salt: Option<String>) {
-        self.vault.repo_create_set_salt(salt)
+    pub fn repo_create_set_salt(&self, create_id: u32, salt: Option<String>) {
+        self.vault.repo_create_set_salt(create_id, salt)
     }
 
     #[wasm_bindgen(js_name = repoCreateFillFromRcloneConfig)]
-    pub fn repo_create_fill_from_rclone_config(&self, config: String) {
-        self.vault.repo_create_fill_from_rclone_config(config)
+    pub fn repo_create_fill_from_rclone_config(&self, create_id: u32, config: String) {
+        let _ = self
+            .vault
+            .repo_create_fill_from_rclone_config(create_id, config);
     }
 
     #[wasm_bindgen(js_name = repoCreateLocationDirPickerShow)]
-    pub async fn repo_create_location_dir_picker_show(&self) {
-        self.handle_result(self.vault.repo_create_location_dir_picker_show().await)
+    pub async fn repo_create_location_dir_picker_show(&self, create_id: u32) {
+        self.handle_result(
+            self.vault
+                .repo_create_location_dir_picker_show(create_id)
+                .await,
+        )
+    }
+
+    #[wasm_bindgen(js_name = repoCreateLocationDirPickerClick)]
+    pub async fn repo_create_location_dir_picker_click(
+        &self,
+        create_id: u32,
+        item_id: &str,
+        is_arrow: bool,
+    ) {
+        self.handle_result(
+            self.vault
+                .repo_create_location_dir_picker_click(create_id, item_id, is_arrow)
+                .await,
+        )
     }
 
     #[wasm_bindgen(js_name = repoCreateLocationDirPickerSelect)]
-    pub fn repo_create_location_dir_picker_select(&self) {
-        self.vault.repo_create_location_dir_picker_select()
+    pub fn repo_create_location_dir_picker_select(&self, create_id: u32) {
+        self.vault.repo_create_location_dir_picker_select(create_id)
     }
 
     #[wasm_bindgen(js_name = repoCreateLocationDirPickerCancel)]
-    pub fn repo_create_location_dir_picker_cancel(&self) {
-        self.vault.repo_create_location_dir_picker_cancel()
+    pub fn repo_create_location_dir_picker_cancel(&self, create_id: u32) {
+        self.vault.repo_create_location_dir_picker_cancel(create_id)
     }
 
     #[wasm_bindgen(js_name = repoCreateLocationDirPickerCreateDir)]
-    pub async fn repo_create_location_dir_picker_create_dir(&self) {
+    pub async fn repo_create_location_dir_picker_create_dir(&self, create_id: u32) {
         self.handle_result(
             match self
                 .vault
-                .repo_create_location_dir_picker_create_dir()
+                .repo_create_location_dir_picker_create_dir(create_id)
                 .await
             {
                 Ok(_) => Ok(()),
@@ -709,9 +719,14 @@ impl WebVault {
         )
     }
 
-    #[wasm_bindgen(js_name = repoCreateCreate)]
-    pub async fn repo_create_create(&self) {
-        self.vault.repo_create_create().await
+    #[wasm_bindgen(js_name = repoCreateCreateRepo)]
+    pub async fn repo_create_create_repo(&self, create_id: u32) {
+        self.vault.repo_create_create_repo(create_id).await
+    }
+
+    #[wasm_bindgen(js_name = repoCreateDestroy)]
+    pub fn repo_create_destroy(&self, create_id: u32) {
+        self.vault.repo_create_destroy(create_id);
     }
 
     // repo_unlock
@@ -1150,22 +1165,6 @@ impl WebVault {
     #[wasm_bindgen(js_name = dirPickersItemsData)]
     pub fn dir_pickers_items_data(&self, id: u32) -> DirPickerItemVec {
         self.get_data_js(id, self.subscription_data.dir_pickers_items.clone())
-    }
-
-    // remote_files_dir_pickers
-
-    #[wasm_bindgen(js_name = remoteFilesDirPickersClick)]
-    pub async fn remote_files_dir_pickers_click(
-        &self,
-        picker_id: u32,
-        item_id: &str,
-        is_arrow: bool,
-    ) {
-        self.handle_result(
-            self.vault
-                .remote_files_dir_pickers_click(picker_id, item_id, is_arrow)
-                .await,
-        )
     }
 
     // repo_files_browsers

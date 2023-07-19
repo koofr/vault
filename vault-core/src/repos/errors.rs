@@ -72,6 +72,28 @@ impl From<BuildCipherError> for UnlockRepoError {
 }
 
 #[derive(Error, Debug, Clone)]
+pub enum CreateRepoError {
+    #[error("{0}")]
+    RemoteError(#[from] remote::RemoteError),
+}
+
+impl UserError for CreateRepoError {
+    fn user_error(&self) -> String {
+        match self {
+            Self::RemoteError(remote::RemoteError::ApiError {
+                code: remote::ApiErrorCode::VaultReposAlreadyExists,
+                ..
+            }) => String::from("This location is already a Safe Box."),
+            Self::RemoteError(remote::RemoteError::ApiError {
+                code: remote::ApiErrorCode::VaultReposMaxTotalLimitExceeded,
+                ..
+            }) => String::from("You cannot create more Safe Boxes. Please upgrade your account."),
+            _ => self.to_string(),
+        }
+    }
+}
+
+#[derive(Error, Debug, Clone)]
 pub enum RemoveRepoError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),

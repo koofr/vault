@@ -15,21 +15,30 @@ import {
 } from '../../components/modal/Modal';
 import { useIsMobile } from '../../components/useIsMobile';
 
-import { RemoteFilesDirPicker } from './RemoteFilesDirPicker';
-
-export interface RemoteFilesDirPickerModalPayload {
-  onSelect: (mountId: string, path: string) => void;
-}
+import { DirPicker } from '../../components/dirpicker/DirPicker';
 
 export const RemoteFilesDirPickerModalContent = memo<{
   dirPickerId: number;
+  onClick: (
+    pickerId: number,
+    itemId: string,
+    isArrow: boolean
+  ) => Promise<void>;
   canSelect: boolean;
   select: () => void;
   cancel: () => void;
   createDirEnabled: boolean;
   createDir: () => void;
 }>(
-  ({ dirPickerId, canSelect, select, cancel, createDirEnabled, createDir }) => {
+  ({
+    dirPickerId,
+    onClick,
+    canSelect,
+    select,
+    cancel,
+    createDirEnabled,
+    createDir,
+  }) => {
     const isMobile = useIsMobile();
     const theme = useTheme();
 
@@ -61,7 +70,7 @@ export const RemoteFilesDirPickerModalContent = memo<{
                   `
             )}
           >
-            <RemoteFilesDirPicker dirPickerId={dirPickerId} />
+            <DirPicker pickerId={dirPickerId} onClick={onClick} />
           </div>
         </ModalBody>
         <ModalFooter>
@@ -95,18 +104,32 @@ export const RemoteFilesDirPickerModalContent = memo<{
 
 export const RemoteFilesDirPickerModal = memo<{
   dirPickerId?: number;
+  onClick: (
+    pickerId: number,
+    itemId: string,
+    isArrow: boolean
+  ) => Promise<void>;
   canSelect: boolean;
   select: () => void;
   cancel: () => void;
   createDirEnabled: boolean;
   createDir: () => void;
 }>(
-  ({ dirPickerId, canSelect, select, cancel, createDirEnabled, createDir }) => {
+  ({
+    dirPickerId,
+    onClick,
+    canSelect,
+    select,
+    cancel,
+    createDirEnabled,
+    createDir,
+  }) => {
     return (
       <Modal show={dirPickerId !== undefined} onHide={cancel}>
         {dirPickerId !== undefined ? (
           <RemoteFilesDirPickerModalContent
             dirPickerId={dirPickerId}
+            onClick={onClick}
             canSelect={canSelect}
             select={select}
             cancel={cancel}

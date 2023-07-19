@@ -1,28 +1,34 @@
 use crate::{
-    remote::RemoteError,
-    remote_files::{
-        errors::RemoteFilesErrors,
-        state::{RemoteFile, RemoteFilesLocation},
-    },
+    remote_files::state::{RemoteFile, RemoteFilesLocation},
     remote_files_dir_pickers::selectors as remote_files_dir_pickers_selectors,
     store,
 };
 
-use super::state::{RepoCreateForm, RepoCreateState};
+use super::state::{RepoCreate, RepoCreateForm};
 
-pub fn select_repo_create_form<'a>(state: &'a store::State) -> Option<&'a RepoCreateForm> {
-    match &state.repo_create {
-        Some(RepoCreateState::Form(repo_create_form)) => Some(repo_create_form),
+pub fn select_repo_create<'a>(state: &'a store::State, create_id: u32) -> Option<&'a RepoCreate> {
+    state.repo_creates.creates.get(&create_id)
+}
+
+pub fn select_form<'a>(state: &'a store::State, create_id: u32) -> Option<&'a RepoCreateForm> {
+    match select_repo_create(state, create_id) {
+        Some(RepoCreate::Form(repo_create_form)) => Some(repo_create_form),
         _ => None,
     }
 }
 
-pub fn select_location<'a>(state: &'a store::State) -> Option<&'a RemoteFilesLocation> {
-    select_repo_create_form(state).and_then(|form| form.location.as_ref())
+pub fn select_location<'a>(
+    state: &'a store::State,
+    create_id: u32,
+) -> Option<&'a RemoteFilesLocation> {
+    select_form(state, create_id).and_then(|form| form.location.as_ref())
 }
 
-pub fn select_primary_mount_location(state: &store::State) -> Option<RemoteFilesLocation> {
-    select_repo_create_form(state).and_then(|form| {
+pub fn select_primary_mount_location(
+    state: &store::State,
+    create_id: u32,
+) -> Option<RemoteFilesLocation> {
+    select_form(state, create_id).and_then(|form| {
         form.primary_mount_id
             .as_ref()
             .map(|mount_id| RemoteFilesLocation {
@@ -32,51 +38,42 @@ pub fn select_primary_mount_location(state: &store::State) -> Option<RemoteFiles
     })
 }
 
-pub fn select_location_dir_picker_id(state: &store::State) -> Option<u32> {
-    select_repo_create_form(state).and_then(|form| form.location_dir_picker_id)
+pub fn select_location_dir_picker_id(state: &store::State, create_id: u32) -> Option<u32> {
+    select_form(state, create_id).and_then(|form| form.location_dir_picker_id)
 }
 
 pub fn select_location_dir_picker_selected_file<'a>(
     state: &'a store::State,
+    create_id: u32,
 ) -> Option<&'a RemoteFile> {
-    select_location_dir_picker_id(state).and_then(|picker_id| {
+    select_location_dir_picker_id(state, create_id).and_then(|picker_id| {
         remote_files_dir_pickers_selectors::select_selected_file(state, picker_id)
     })
 }
 
-pub fn select_location_dir_picker_can_select(state: &store::State) -> bool {
-    select_location_dir_picker_selected_file(state)
+pub fn select_location_dir_picker_can_select(state: &store::State, create_id: u32) -> bool {
+    select_location_dir_picker_selected_file(state, create_id)
         .filter(|file| file.path != "/")
         .is_some()
 }
 
-pub fn select_location_dir_picker_create_dir_enabled(state: &store::State) -> bool {
-    select_location_dir_picker_id(state)
+pub fn select_location_dir_picker_create_dir_enabled(state: &store::State, create_id: u32) -> bool {
+    select_location_dir_picker_id(state, create_id)
         .map(|picker_id| {
             remote_files_dir_pickers_selectors::select_create_dir_enabled(state, picker_id)
         })
         .unwrap_or(false)
 }
 
-pub fn select_location_dir_picker_check_create_dir(
-    state: &store::State,
-    name: &str,
-) -> Result<(), RemoteError> {
-    let picker_id =
-        select_location_dir_picker_id(state).ok_or_else(RemoteFilesErrors::not_found)?;
-
-    remote_files_dir_pickers_selectors::select_check_create_dir(state, picker_id, name)
-}
-
 pub fn is_password_valid(password: &str) -> bool {
     password.len() >= 8
 }
 
-pub fn select_can_create(state: &store::State) -> bool {
-    match &state.repo_create {
-        Some(RepoCreateState::Form(RepoCreateForm {
+pub fn select_can_create(state: &store::State, create_id: u32) -> bool {
+    match &select_form(state, create_id) {
+        Some(RepoCreateForm {
             location, password, ..
-        })) => location.is_some() && is_password_valid(password),
+        }) => location.is_some() && is_password_valid(password),
         _ => false,
     }
 }
