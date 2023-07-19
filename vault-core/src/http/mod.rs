@@ -5,6 +5,7 @@ pub mod mock_http_client;
 pub use self::{
     errors::HttpError,
     http_client::{
-        HttpClient, HttpRequest, HttpRequestBody, HttpResponse, HttpResponseBytesStream,
+        BoxHttpResponse, HttpClient, HttpRequest, HttpRequestBody, HttpResponse,
+        HttpResponseBytesStream,
     },
 };

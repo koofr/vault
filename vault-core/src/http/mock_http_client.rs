@@ -1,8 +1,10 @@
 use async_trait::async_trait;
 use futures::stream;
-use http::HeaderMap;
+use http::{header::CONTENT_TYPE, HeaderMap, HeaderValue};
 
-use super::{HttpClient, HttpError, HttpRequest, HttpResponse, HttpResponseBytesStream};
+use super::{
+    BoxHttpResponse, HttpClient, HttpError, HttpRequest, HttpResponse, HttpResponseBytesStream,
+};
 
 pub struct MockHttpClient {
     on_request: Box<dyn Fn(HttpRequest) -> Result<MockHttpResponse, HttpError> + Send + Sync>,
@@ -18,12 +20,8 @@ impl MockHttpClient {
 
 #[async_trait]
 impl HttpClient for MockHttpClient {
-    async fn request(
-        &self,
-        http_request: HttpRequest,
-    ) -> Result<Box<dyn HttpResponse + Send + Sync>, HttpError> {
-        (self.on_request)(http_request)
-            .map(|res| Box::new(res) as Box<dyn HttpResponse + Send + Sync>)
+    async fn request(&self, http_request: HttpRequest) -> Result<BoxHttpResponse, HttpError> {
+        (self.on_request)(http_request).map(|res| -> BoxHttpResponse { Box::new(res) })
     }
 }
 
@@ -42,6 +40,16 @@ impl MockHttpResponse {
             bytes,
             bytes_stream: None,
         }
+    }
+
+    pub fn json(status_code: u16, json: &str) -> Self {
+        let mut headers = HeaderMap::new();
+        headers.insert(
+            CONTENT_TYPE,
+            HeaderValue::from_static("application/json; charset=utf-8"),
+        );
+
+        Self::new(status_code, headers, json.to_owned().into_bytes())
     }
 }
 

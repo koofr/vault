@@ -15,7 +15,7 @@ use crate::{
     auth,
     auth::errors::AuthError,
     common::state::BoxAsyncRead,
-    http::{HttpClient, HttpError, HttpRequest, HttpRequestBody, HttpResponse},
+    http::{BoxHttpResponse, HttpClient, HttpError, HttpRequest, HttpRequestBody},
     oauth2::errors::OAuth2Error,
 };
 
@@ -75,15 +75,51 @@ impl Remote {
         *logout_guard = Some(logout)
     }
 
-    async fn request(
+    async fn request(&self, mut request: HttpRequest) -> Result<BoxHttpResponse, RemoteError> {
+        request.set_base_url(&self.base_url);
+
+        let is_req_retriable = request.is_retriable;
+
+        let request_clone = match request.try_clone() {
+            Some(request_clone) => request_clone,
+            None => return self.request_inner(request).await,
+        };
+
+        match self.request_inner(request_clone).await {
+            Ok(res) => {
+                if is_res_unauthorized(&res) || (is_req_retriable && is_res_server_error(&res)) {
+                    match self.request_inner(request).await {
+                        Ok(retried_res) => {
+                            if is_res_server_error(&retried_res) {
+                                // on retried response server error return the original response
+                                Ok(res)
+                            } else {
+                                Ok(retried_res)
+                            }
+                        }
+                        // on retry error return the original response
+                        Err(_) => Ok(res),
+                    }
+                } else {
+                    Ok(res)
+                }
+            }
+            Err(err) if is_req_retriable => {
+                match self.request_inner(request).await {
+                    Ok(res) => Ok(res),
+                    // on retry error return the original error
+                    Err(_) => Err(err),
+                }
+            }
+            Err(err) => Err(err),
+        }
+    }
+
+    async fn request_inner(
         &self,
-        request: HttpRequest,
-    ) -> Result<Box<dyn HttpResponse + Send + Sync>, RemoteError> {
+        mut request: HttpRequest,
+    ) -> Result<BoxHttpResponse, RemoteError> {
         let authorization = self.get_authorization(false).await?;
-
-        let mut request = request;
-
-        request.url = format!("{}{}", self.base_url, request.url);
 
         request
             .headers
@@ -96,12 +132,12 @@ impl Remote {
             .map_err(RemoteError::HttpError)?;
 
         // invalid oauth2 token
-        if res.status_code() == 401 {
+        if is_res_unauthorized(&res) {
             // try to refresh the token
             let _ = self.get_authorization(true).await;
         }
 
-        Ok(res)
+        return Ok(res);
     }
 
     async fn get_authorization(&self, force_refresh_token: bool) -> Result<String, RemoteError> {
@@ -127,6 +163,7 @@ impl Remote {
             .request(HttpRequest {
                 method: String::from("GET"),
                 url: format!("/api/v2.1/user"),
+                is_retriable: true,
                 ..Default::default()
             })
             .await?;
@@ -146,6 +183,7 @@ impl Remote {
                     "/content/api/v2.1/users/{}/profile-picture?nodefault",
                     user_id,
                 ),
+                is_retriable: true,
                 ..Default::default()
             })
             .await?;
@@ -162,6 +200,7 @@ impl Remote {
             .request(HttpRequest {
                 method: String::from("GET"),
                 url: format!("/api/v2.1/mounts/{}", encode(id)),
+                is_retriable: true,
                 ..Default::default()
             })
             .await?;
@@ -178,6 +217,7 @@ impl Remote {
             .request(HttpRequest {
                 method: String::from("GET"),
                 url: format!("/api/v2.1/vault/repos"),
+                is_retriable: true,
                 ..Default::default()
             })
             .await?;
@@ -201,6 +241,7 @@ impl Remote {
                 url: format!("/api/v2.1/vault/repos"),
                 headers: req_headers,
                 body: req_body,
+                is_retriable: false,
                 ..Default::default()
             })
             .await?;
@@ -217,6 +258,7 @@ impl Remote {
             .request(HttpRequest {
                 method: String::from("DELETE"),
                 url: format!("/api/v2.1/vault/repos/{}", repo_id),
+                is_retriable: true,
                 ..Default::default()
             })
             .await?;
@@ -233,6 +275,7 @@ impl Remote {
             .request(HttpRequest {
                 method: String::from("GET"),
                 url: String::from("/api/v2.1/places"),
+                is_retriable: true,
                 ..Default::default()
             })
             .await?;
@@ -251,6 +294,7 @@ impl Remote {
             .request(HttpRequest {
                 method: String::from("GET"),
                 url: String::from("/api/v2.1/user/bookmarks"),
+                is_retriable: true,
                 ..Default::default()
             })
             .await?;
@@ -269,6 +313,7 @@ impl Remote {
             .request(HttpRequest {
                 method: String::from("GET"),
                 url: String::from("/api/v2.1/shared"),
+                is_retriable: true,
                 ..Default::default()
             })
             .await?;
@@ -291,6 +336,7 @@ impl Remote {
             .request(HttpRequest {
                 method: String::from("GET"),
                 url: format!("/api/v2.1/mounts/{}/bundle?path={}", mount_id, encode(path)),
+                is_retriable: true,
                 ..Default::default()
             })
             .await?;
@@ -315,6 +361,7 @@ impl Remote {
                     mount_id,
                     encode(path)
                 ),
+                is_retriable: true,
                 ..Default::default()
             })
             .await?;
@@ -358,6 +405,7 @@ impl Remote {
                     mount_id,
                     encode(path)
                 ),
+                is_retriable: true,
                 ..Default::default()
             })
             .await?;
@@ -382,6 +430,7 @@ impl Remote {
                     mount_id,
                     encode(path)
                 ),
+                is_retriable: true,
                 ..Default::default()
             })
             .await?;
@@ -474,6 +523,7 @@ impl Remote {
                 headers: HeaderMap::new(),
                 body: Some(HttpRequestBody::Reader(reader)),
                 on_body_progress: on_progress,
+                is_retriable: false,
                 ..Default::default()
             })
             .await?;
@@ -494,6 +544,7 @@ impl Remote {
                     mount_id,
                     encode(path)
                 ),
+                is_retriable: true,
                 ..Default::default()
             })
             .await?;
@@ -525,7 +576,7 @@ impl Remote {
                 ),
                 headers: req_headers,
                 body: req_body,
-                on_body_progress: None,
+                is_retriable: true,
                 ..Default::default()
             })
             .await?;
@@ -557,6 +608,7 @@ impl Remote {
                 ),
                 headers: req_headers,
                 body: req_body,
+                is_retriable: true,
                 ..Default::default()
             })
             .await?;
@@ -590,6 +642,7 @@ impl Remote {
                 ),
                 headers: req_headers,
                 body: req_body,
+                is_retriable: true,
                 ..Default::default()
             })
             .await?;
@@ -626,6 +679,7 @@ impl Remote {
                 ),
                 headers: req_headers,
                 body: req_body,
+                is_retriable: true,
                 ..Default::default()
             })
             .await?;
@@ -650,11 +704,11 @@ where
     (Some(HttpRequestBody::Bytes(body)), headers)
 }
 
-async fn res_bytes(res: Box<dyn HttpResponse + Send + Sync>) -> Result<Vec<u8>, RemoteError> {
+async fn res_bytes(res: BoxHttpResponse) -> Result<Vec<u8>, RemoteError> {
     res.bytes().await.map_err(RemoteError::HttpError)
 }
 
-async fn res_error<T>(res: Box<dyn HttpResponse + Send + Sync>) -> Result<T, RemoteError> {
+async fn res_error<T>(res: BoxHttpResponse) -> Result<T, RemoteError> {
     let status_code = res.status_code();
 
     let is_content_type_json = res
@@ -687,7 +741,7 @@ async fn res_error<T>(res: Box<dyn HttpResponse + Send + Sync>) -> Result<T, Rem
     ))));
 }
 
-async fn res_json<'a, T>(res: Box<dyn HttpResponse + Send + Sync>) -> Result<T, RemoteError>
+async fn res_json<'a, T>(res: BoxHttpResponse) -> Result<T, RemoteError>
 where
     T: serde::de::DeserializeOwned,
 {
@@ -701,45 +755,64 @@ where
     })
 }
 
+fn is_res_unauthorized(res: &BoxHttpResponse) -> bool {
+    res.status_code() == 401
+}
+
+fn is_res_server_error(res: &BoxHttpResponse) -> bool {
+    res.status_code() >= 500
+}
+
 #[cfg(test)]
 pub mod tests {
-    use std::{collections::HashMap, sync::Arc};
+    use std::{
+        collections::HashMap,
+        sync::{
+            atomic::{AtomicUsize, Ordering},
+            Arc,
+        },
+    };
 
     use futures::{executor::block_on, stream, StreamExt};
     use http::HeaderMap;
 
     use crate::{
-        auth::{mock_auth_provider::MockAuthProvider, AuthProvider},
+        auth::{errors::AuthError, mock_auth_provider::MockAuthProvider, AuthProvider},
         http::{
             mock_http_client::{MockHttpClient, MockHttpResponse},
             HttpClient, HttpError, HttpRequest,
         },
+        oauth2::errors::OAuth2Error,
         remote::{models, RemoteError},
     };
 
     use super::Remote;
 
-    fn get_remote(
+    const USER_JSON: &'static str = r#"{"id":"30bce243-bae7-40d3-9f6f-782fb060c3e7","firstName":"Test","lastName":"User","email":"test@example.com","level":1000,"hasPassword":true}"#;
+    const VAULT_REPO_JSON: &'static str = r#"{"id":"e85595ea-3779-4e8b-515e-f75ef67c5004","name":"My safe box","mountId":"aedbf61c-b0e6-4717-457e-dc592e303e3e","path":"/My safe box","salt":"salt","passwordValidator":"d743454e-894e-41ca-ac11-dab6245bca99","passwordValidatorEncrypted":"v2:UkNMT05FAABEV3wkWimmVM_myUXfm2wHc95EcEnaA8mjJZ-uPsUq4O5YKnPHB_n4B5imt2SpHEpwHlStL1F7QSEEJZw6U9cU1UZb-kmwYP45FI5C","added":1687355910628}"#;
+
+    fn get_remote_auth(
         on_request: Box<dyn Fn(HttpRequest) -> Result<MockHttpResponse, HttpError> + Send + Sync>,
+        auth_provider: MockAuthProvider,
     ) -> Remote {
         let base_url = String::from("https://app.koofr.net");
         let http_client: Arc<Box<dyn HttpClient + Send + Sync>> =
             Arc::new(Box::new(MockHttpClient::new(on_request)));
         let auth_provider: Arc<Box<dyn AuthProvider + Send + Sync>> =
-            Arc::new(Box::new(MockAuthProvider::default()));
+            Arc::new(Box::new(auth_provider));
 
         Remote::new(base_url, http_client, auth_provider)
     }
 
+    fn get_remote(
+        on_request: Box<dyn Fn(HttpRequest) -> Result<MockHttpResponse, HttpError> + Send + Sync>,
+    ) -> Remote {
+        get_remote_auth(on_request, MockAuthProvider::default())
+    }
+
     #[test]
     fn test_get_user() {
-        let remote = get_remote(Box::new(|_| {
-            Ok(MockHttpResponse::new(
-                200,
-                HeaderMap::new(),
-                String::from(r#"{"id":"30bce243-bae7-40d3-9f6f-782fb060c3e7","firstName":"Test","lastName":"User","email":"test@example.com","level":1000,"hasPassword":true}"#).into_bytes(),
-            ))
-        }));
+        let remote = get_remote(Box::new(|_| Ok(MockHttpResponse::json(200, USER_JSON))));
 
         let user = block_on(async { remote.get_user().await }).unwrap();
 
@@ -876,5 +949,290 @@ r#"{"type":"file","path":"/","file":{"name":"Vault","type":"dir","modified":1677
             );
             assert_eq!(items_stream.next().await, None);
         });
+    }
+
+    #[test]
+    fn test_retry_network_error_ok() {
+        let request_counter = Arc::new(AtomicUsize::new(0));
+
+        let remote_request_counter = request_counter.clone();
+        let remote = get_remote(Box::new(move |_| {
+            let attempt = remote_request_counter.fetch_add(1, Ordering::SeqCst);
+
+            match attempt {
+                0 => Err(HttpError::ResponseError("network error".into())),
+                1 => Ok(MockHttpResponse::json(200, USER_JSON)),
+                _ => panic!("only one retry"),
+            }
+        }));
+
+        block_on(async { remote.get_user().await }).unwrap();
+    }
+
+    #[test]
+    fn test_retry_network_error_fail() {
+        let request_counter = Arc::new(AtomicUsize::new(0));
+
+        let remote_request_counter = request_counter.clone();
+        let remote = get_remote(Box::new(move |_| {
+            let attempt = remote_request_counter.fetch_add(1, Ordering::SeqCst);
+
+            match attempt {
+                0 => Err(HttpError::ResponseError("network error".into())),
+                1 => Err(HttpError::ResponseError("also network error".into())),
+                _ => panic!("only one retry"),
+            }
+        }));
+
+        let res = block_on(async { remote.get_user().await });
+
+        assert_eq!(
+            res.unwrap_err().to_string(),
+            "response error: network error"
+        );
+    }
+
+    fn counter_auth_provider(force_refresh_token_counter: Arc<AtomicUsize>) -> MockAuthProvider {
+        MockAuthProvider::new(Box::new(move |force_refresh_token| {
+            let count = force_refresh_token_counter.fetch_add(
+                if force_refresh_token { 1 } else { 0 },
+                std::sync::atomic::Ordering::SeqCst,
+            );
+
+            Ok(format!("Bearer TOKEN{}", count))
+        }))
+    }
+
+    #[test]
+    fn test_retry_expired_oauth_token_refresh() {
+        let request_counter = Arc::new(AtomicUsize::new(0));
+
+        let remote_request_counter = request_counter.clone();
+        let remote = get_remote_auth(
+            Box::new(move |request| {
+                let attempt = remote_request_counter.fetch_add(1, Ordering::SeqCst);
+
+                match attempt {
+                    0 => {
+                        assert_eq!(
+                            request.headers.get("Authorization").unwrap(),
+                            "Bearer TOKEN0"
+                        );
+
+                        Ok(MockHttpResponse::new(401, HeaderMap::new(), vec![]))
+                    }
+                    1 => {
+                        assert_eq!(
+                            request.headers.get("Authorization").unwrap(),
+                            "Bearer TOKEN1"
+                        );
+
+                        Ok(MockHttpResponse::json(200, USER_JSON))
+                    }
+                    _ => panic!("only one retry"),
+                }
+            }),
+            counter_auth_provider(Arc::new(AtomicUsize::new(0))),
+        );
+
+        block_on(async { remote.get_user().await }).unwrap();
+    }
+
+    #[test]
+    fn test_retry_expired_oauth_token_error() {
+        let request_counter = Arc::new(AtomicUsize::new(0));
+
+        let remote_request_counter = request_counter.clone();
+        let remote = get_remote_auth(
+            Box::new(move |request| {
+                let attempt = remote_request_counter.fetch_add(1, Ordering::SeqCst);
+
+                match attempt {
+                    0 => {
+                        assert_eq!(
+                            request.headers.get("Authorization").unwrap(),
+                            "Bearer TOKEN0"
+                        );
+
+                        Ok(MockHttpResponse::new(401, HeaderMap::new(), vec![]))
+                    }
+                    1 => {
+                        assert_eq!(
+                            request.headers.get("Authorization").unwrap(),
+                            "Bearer TOKEN1"
+                        );
+
+                        Err(HttpError::ResponseError("network error".into()))
+                    }
+                    _ => panic!("only one retry"),
+                }
+            }),
+            counter_auth_provider(Arc::new(AtomicUsize::new(0))),
+        );
+
+        let res = block_on(async { remote.get_user().await });
+
+        assert_eq!(
+            res.unwrap_err().to_string(),
+            "response error: unexpected status: 401: "
+        );
+    }
+
+    #[test]
+    fn test_retry_expired_oauth_token_expired() {
+        let request_counter = Arc::new(AtomicUsize::new(0));
+
+        let remote_request_counter = request_counter.clone();
+        let remote = get_remote_auth(
+            Box::new(move |request| {
+                let attempt = remote_request_counter.fetch_add(1, Ordering::SeqCst);
+
+                match attempt {
+                    0 => {
+                        assert_eq!(
+                            request.headers.get("Authorization").unwrap(),
+                            "Bearer TOKEN0"
+                        );
+
+                        Ok(MockHttpResponse::new(401, HeaderMap::new(), vec![]))
+                    }
+                    1 => {
+                        assert_eq!(
+                            request.headers.get("Authorization").unwrap(),
+                            "Bearer TOKEN1"
+                        );
+
+                        Ok(MockHttpResponse::new(401, HeaderMap::new(), vec![]))
+                    }
+                    _ => panic!("only one retry"),
+                }
+            }),
+            counter_auth_provider(Arc::new(AtomicUsize::new(0))),
+        );
+
+        let res = block_on(async { remote.get_user().await });
+
+        assert_eq!(
+            res.unwrap_err().to_string(),
+            "response error: unexpected status: 401: "
+        );
+    }
+
+    #[test]
+    fn test_retry_revoked_oauth_token() {
+        let request_counter = Arc::new(AtomicUsize::new(0));
+
+        let remote_request_counter = request_counter.clone();
+        let remote = get_remote_auth(
+            Box::new(move |request| {
+                let attempt = remote_request_counter.fetch_add(1, Ordering::SeqCst);
+
+                match attempt {
+                    0 => {
+                        assert_eq!(
+                            request.headers.get("Authorization").unwrap(),
+                            "Bearer TOKEN0"
+                        );
+
+                        Ok(MockHttpResponse::new(401, HeaderMap::new(), vec![]))
+                    }
+                    1 => {
+                        assert_eq!(
+                            request.headers.get("Authorization").unwrap(),
+                            "Bearer TOKEN0"
+                        );
+
+                        Ok(MockHttpResponse::new(401, HeaderMap::new(), vec![]))
+                    }
+                    _ => panic!("only one retry"),
+                }
+            }),
+            MockAuthProvider::new(Box::new(move |force_refresh_token| {
+                if force_refresh_token {
+                    Err(AuthError::OAuth2Error(OAuth2Error::InvalidGrant(
+                        "invalid grant".into(),
+                    )))
+                } else {
+                    Ok("Bearer TOKEN0".into())
+                }
+            })),
+        );
+
+        let res = block_on(async { remote.get_user().await });
+
+        assert_eq!(
+            res.unwrap_err().to_string(),
+            "response error: unexpected status: 401: "
+        );
+    }
+
+    #[test]
+    fn test_retry_non_retriable_network_error_fail() {
+        let request_counter = Arc::new(AtomicUsize::new(0));
+
+        let remote_request_counter = request_counter.clone();
+        let remote = get_remote(Box::new(move |_| {
+            let attempt = remote_request_counter.fetch_add(1, Ordering::SeqCst);
+
+            match attempt {
+                0 => Err(HttpError::ResponseError("network error".into())),
+                _ => panic!("non-retriable"),
+            }
+        }));
+
+        let res = block_on(async {
+            remote
+                .create_vault_repo(models::VaultRepoCreate::default())
+                .await
+        });
+
+        assert_eq!(
+            res.unwrap_err().to_string(),
+            "response error: network error"
+        );
+    }
+
+    #[test]
+    fn test_retry_non_retriable_expired_oauth_token_refresh() {
+        let request_counter = Arc::new(AtomicUsize::new(0));
+
+        let remote_request_counter = request_counter.clone();
+        let remote = get_remote_auth(
+            Box::new(move |request| {
+                let attempt = remote_request_counter.fetch_add(1, Ordering::SeqCst);
+
+                match attempt {
+                    0 => {
+                        assert_eq!(
+                            request.headers.get("Authorization").unwrap(),
+                            "Bearer TOKEN0"
+                        );
+
+                        Ok(MockHttpResponse::new(401, HeaderMap::new(), vec![]))
+                    }
+                    1 => {
+                        assert_eq!(
+                            request.headers.get("Authorization").unwrap(),
+                            "Bearer TOKEN1"
+                        );
+
+                        Ok(MockHttpResponse::new(
+                            201,
+                            HeaderMap::new(),
+                            String::from(VAULT_REPO_JSON).into_bytes(),
+                        ))
+                    }
+                    _ => panic!("non-retriable"),
+                }
+            }),
+            counter_auth_provider(Arc::new(AtomicUsize::new(0))),
+        );
+
+        block_on(async {
+            remote
+                .create_vault_repo(models::VaultRepoCreate::default())
+                .await
+        })
+        .unwrap();
     }
 }

@@ -735,7 +735,8 @@ fn test_upload_load_root_error() {
 
         fixture.fake_remote.intercept(Box::new(move |parts| {
             if parts.uri.path().contains("/bundle") {
-                if interceptor_bundle_counter.fetch_add(1, Ordering::SeqCst) == 0 {
+                // one retry on server errors in http client
+                if interceptor_bundle_counter.fetch_add(1, Ordering::SeqCst) < 2 {
                     InterceptorResult::Response(StatusCode::INTERNAL_SERVER_ERROR.into_response())
                 } else {
                     InterceptorResult::Ignore

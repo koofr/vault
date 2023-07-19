@@ -7,7 +7,8 @@ use reqwest;
 
 use vault_core::{
     http::{
-        HttpClient, HttpError, HttpRequest, HttpRequestBody, HttpResponse, HttpResponseBytesStream,
+        BoxHttpResponse, HttpClient, HttpError, HttpRequest, HttpRequestBody, HttpResponse,
+        HttpResponseBytesStream,
     },
     utils::{
         abort_reader::AbortReader, drop_abort::DropAbort, on_end_reader::OnEndReader,
@@ -34,10 +35,7 @@ impl NativeHttpClient {
 
 #[async_trait]
 impl HttpClient for NativeHttpClient {
-    async fn request(
-        &self,
-        http_request: HttpRequest,
-    ) -> Result<Box<dyn HttpResponse + Send + Sync>, HttpError> {
+    async fn request(&self, http_request: HttpRequest) -> Result<BoxHttpResponse, HttpError> {
         let mut http_request = http_request;
 
         let method = reqwest::Method::from_bytes(http_request.method.as_bytes()).unwrap();

@@ -48,6 +48,7 @@ fn test_content_loaded_error() {
 
         tokio::time::sleep(Duration::from_millis(100)).await;
 
-        assert_eq!(download_counter.load(Ordering::SeqCst), 1);
+        // one retry on server errors in http client
+        assert_eq!(download_counter.load(Ordering::SeqCst), 2);
     });
 }

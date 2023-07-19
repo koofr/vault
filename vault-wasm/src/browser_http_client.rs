@@ -11,7 +11,8 @@ use web_sys::{AbortController, AbortSignal, Request, RequestInit, Response};
 use vault_core::{
     cipher::constants::BLOCK_SIZE,
     http::{
-        HttpClient, HttpError, HttpRequest, HttpRequestBody, HttpResponse, HttpResponseBytesStream,
+        BoxHttpResponse, HttpClient, HttpError, HttpRequest, HttpRequestBody, HttpResponse,
+        HttpResponseBytesStream,
     },
     utils::progress_reader::ProgressReader,
 };
@@ -200,14 +201,11 @@ impl BrowserHttpClient {
 
 #[async_trait]
 impl HttpClient for BrowserHttpClient {
-    async fn request(
-        &self,
-        http_request: HttpRequest,
-    ) -> Result<Box<dyn HttpResponse + Send + Sync>, HttpError> {
+    async fn request(&self, http_request: HttpRequest) -> Result<BoxHttpResponse, HttpError> {
         let future = Box::into_pin(unsafe {
             Box::from_raw(Box::into_raw(Box::new(self.request_js(http_request))
                 as Box<dyn Future<Output = Result<Box<dyn HttpResponse>, HttpError>>>)
-                as *mut (dyn Future<Output = Result<Box<dyn HttpResponse + Send + Sync>, HttpError>>
+                as *mut (dyn Future<Output = Result<BoxHttpResponse, HttpError>>
                      + Send
                      + Sync))
         });
