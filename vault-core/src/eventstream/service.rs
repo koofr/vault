@@ -191,7 +191,9 @@ impl EventStreamService {
                 } => {
                     let mut connection_state = self.connection_state.lock().unwrap();
 
-                    self.handle_registered(&mut connection_state, request_id, listener_id);
+                    if let Some(request_id) = request_id {
+                        self.handle_registered(&mut connection_state, request_id, listener_id);
+                    }
                 }
                 Message::Deregistered { .. } => {}
                 Message::Event { listener_id, event } => {
@@ -306,7 +308,7 @@ impl EventStreamService {
 
                     self.websocket_client.send(
                         serde_json::to_string(&Request::Register {
-                            request_id,
+                            request_id: Some(request_id),
                             mount_id: &mount_listener.mount_id,
                             path: &mount_listener.path,
                         })

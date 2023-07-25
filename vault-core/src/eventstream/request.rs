@@ -9,7 +9,7 @@ pub enum Request<'a> {
     #[serde(rename = "register")]
     Register {
         #[serde(rename = "requestId")]
-        request_id: u32,
+        request_id: Option<u32>,
         #[serde(rename = "mountId")]
         mount_id: &'a str,
         #[serde(rename = "path")]

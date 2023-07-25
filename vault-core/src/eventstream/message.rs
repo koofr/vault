@@ -11,7 +11,7 @@ pub enum Message {
     #[serde(rename = "registered")]
     Registered {
         #[serde(rename = "requestId")]
-        request_id: u32,
+        request_id: Option<u32>,
         #[serde(rename = "listenerId")]
         listener_id: i64,
     },
