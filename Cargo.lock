@@ -2587,6 +2587,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "vault-store"
+version = "0.1.0"
+dependencies = [
+ "futures",
+]
+
+[[package]]
 name = "vault-wasm"
 version = "0.1.0"
 dependencies = [

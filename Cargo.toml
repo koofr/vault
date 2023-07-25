@@ -6,6 +6,7 @@ members = [
   "vault-fake-remote",
   "vault-file-icon",
   "vault-native",
+  "vault-store",
   "vault-wasm",
 ]
 
