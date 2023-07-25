@@ -1,0 +1,888 @@
+// logging
+
+enum LoggerLevel {
+  "Error",
+  "Warn",
+  "Info",
+  "Debug",
+  "Trace",
+};
+
+callback interface LoggerCallback {
+  void log(LoggerLevel level, string message);
+};
+
+// secure_storage
+
+[Error]
+interface SecureStorageError {
+  StorageError(string reason);
+};
+
+callback interface SecureStorage {
+  [Throws=SecureStorageError]
+  string? get_item(string key);
+
+  [Throws=SecureStorageError]
+  void set_item(string key, string value);
+
+  [Throws=SecureStorageError]
+  void remove_item(string key);
+
+  [Throws=SecureStorageError]
+  void clear();
+};
+
+// subscription
+
+callback interface SubscriptionCallback {
+  void on_change();
+};
+
+// status
+
+[Enum]
+interface Status {
+  Initial();
+  Loading(boolean loaded);
+  Loaded();
+  Err(string error, boolean loaded);
+};
+
+// selection
+
+enum SelectionSummary {
+  "None",
+  "Partial",
+  "All",
+};
+
+// sort
+
+enum SortDirection {
+  "Asc",
+  "Desc",
+};
+
+// relative_time
+
+dictionary RelativeTime {
+  i64 value;
+  string display;
+  i64? next_update;
+};
+
+// files
+
+[Enum]
+interface SizeInfo {
+  Exact(i64 size);
+  Estimate(i64 size);
+  Unknown();
+};
+
+enum FileCategory {
+  "Generic",
+  "Folder",
+  "Archive",
+  "Audio",
+  "Code",
+  "Document",
+  "Image",
+  "Pdf",
+  "Presentation",
+  "Sheet",
+  "Text",
+  "Video",
+};
+
+dictionary FilesFilter {
+  sequence<FileCategory> categories;
+  sequence<string> exts;
+};
+
+// file_icon
+
+enum FileIconSize {
+  "Sm",
+  "Lg",
+};
+
+dictionary FileIconAttrs {
+  FileCategory category;
+  boolean is_dl;
+  boolean is_ul;
+  boolean is_export;
+  boolean is_import;
+  boolean is_android;
+  boolean is_ios;
+  boolean is_vault_repo;
+  boolean is_error;
+};
+
+dictionary FileIconProps {
+  FileIconSize size;
+  FileIconAttrs attrs;
+};
+
+dictionary FileIconPng {
+  bytes png;
+  u32 width;
+  u32 height;
+};
+
+// streams
+
+[Error]
+interface StreamError {
+  IoError(string reason);
+  NotRetriable();
+  NotOpenable();
+};
+
+callback interface UploadStream {
+  [Throws=StreamError]
+  bytes read();
+
+  [Throws=StreamError]
+  void close();
+};
+
+callback interface UploadStreamProvider {
+  [Throws=StreamError]
+  SizeInfo size();
+
+  [Throws=StreamError]
+  boolean is_retriable();
+
+  [Throws=StreamError]
+  UploadStream stream();
+
+  [Throws=StreamError]
+  void dispose();
+};
+
+callback interface DownloadStream {
+  [Throws=StreamError]
+  void write(bytes buf);
+
+  [Throws=StreamError]
+  void close();
+};
+
+callback interface DownloadStreamProvider {
+  [Throws=StreamError]
+  boolean is_retriable();
+
+  [Throws=StreamError]
+  boolean is_openable();
+
+  [Throws=StreamError]
+  DownloadStream stream(string name, SizeInfo size, string? content_type, string? unique_name);
+
+  [Throws=StreamError]
+  void done(string? error);
+
+  [Throws=StreamError]
+  void open();
+
+  [Throws=StreamError]
+  void dispose();
+};
+
+// notifications
+
+dictionary Notification {
+  u32 id;
+  string message;
+};
+
+// dialogs
+
+enum DialogType {
+  "Alert",
+  "Confirm",
+  "Prompt",
+};
+
+enum DialogButtonStyle {
+  "Primary",
+  "Destructive",
+};
+
+dictionary Dialog {
+  u32 id;
+  DialogType typ;
+  string title;
+  string? message;
+  string input_value;
+  boolean is_input_value_valid;
+  string? input_value_selected;
+  string? input_placeholder;
+  string confirm_button_text;
+  boolean confirm_button_enabled;
+  DialogButtonStyle confirm_button_style;
+  string? cancel_button_text;
+};
+
+// oauth2
+
+callback interface OAuth2FinishFlowDone {
+  void on_done();
+};
+
+// user
+
+dictionary User {
+  string id;
+  string first_name;
+  string last_name;
+  string full_name;
+  string email;
+};
+
+// remote_files
+
+enum MountOrigin {
+  "Hosted",
+  "Desktop",
+  "Dropbox",
+  "Googledrive",
+  "Onedrive",
+  "Share",
+  "Other",
+};
+
+enum RemoteFileType {
+  "Dir",
+  "File",
+};
+
+enum RemoteFilesSortField {
+  "Name",
+  "Size",
+  "Modified",
+};
+
+dictionary RemoteFilesSort {
+  RemoteFilesSortField field;
+  SortDirection direction;
+};
+
+dictionary RemoteFilesLocation {
+  string mount_id;
+  string path;
+};
+
+dictionary RemoteFilesBreadcrumb {
+  string id;
+  string mount_id;
+  string path;
+  string name;
+  boolean last;
+};
+
+// remote_files_browsers
+
+dictionary RemoteFilesBrowserOptions {
+  string? select_name;
+  boolean only_hosted_devices;
+};
+
+[Enum]
+interface RemoteFilesBrowserItemType {
+  Bookmarks();
+  Place(MountOrigin origin);
+  File(RemoteFileType typ, FileIconAttrs file_icon_attrs);
+  Shared();
+};
+
+dictionary RemoteFilesBrowserItem {
+  string id;
+  string? mount_id;
+  string? path;
+  string name;
+  RemoteFilesBrowserItemType typ;
+  string? size_display;
+  i64? modified;
+  boolean is_selected;
+};
+
+dictionary RemoteFilesBrowserInfo {
+  string? mount_id;
+  string? path;
+  SelectionSummary selection_summary;
+  RemoteFilesSort sort;
+  Status status;
+  string? error;
+  string? title;
+  u32 total_count;
+  string total_size_display;
+  u32 selected_count;
+  string selected_size_display;
+  boolean can_create_dir;
+  sequence<RemoteFilesBrowserItem> items;
+};
+
+dictionary RemoteFilesBrowserBreadcrumb {
+  string id;
+  string? mount_id;
+  string? path;
+  string name;
+  boolean last;
+};
+
+callback interface RemoteFilesBrowserDirCreated {
+  void on_created(string location);
+};
+
+// repos
+
+enum RepoState {
+  "Locked",
+  "Unlocked",
+};
+
+dictionary Repo {
+  string id;
+  string name;
+  string mount_id;
+  string path;
+  RepoState state;
+  i64 added;
+  string web_url;
+};
+
+dictionary Repos {
+  Status status;
+  sequence<Repo> repos;
+};
+
+dictionary RepoInfo {
+  Status status;
+  Repo? repo;
+};
+
+dictionary RepoConfig {
+  string name;
+  RemoteFilesLocation location;
+  string password;
+  string? salt;
+  string rclone_config;
+};
+
+// repo_create
+
+dictionary RepoCreateForm {
+  Status create_load_status;
+  RemoteFilesLocation? location;
+  sequence<RemoteFilesBreadcrumb> location_breadcrumbs;
+  string password;
+  string? salt;
+  string? fill_from_rclone_config_error;
+  boolean can_create;
+  Status create_repo_status;
+};
+
+dictionary RepoCreated {
+  string repo_id;
+  RepoConfig config;
+};
+
+[Enum]
+interface RepoCreateInfo {
+  Form(RepoCreateForm form);
+  Created(RepoCreated created);
+};
+
+// repo_unlock
+
+enum RepoUnlockMode {
+  "Unlock",
+  "Verify",
+};
+
+dictionary RepoUnlockOptions {
+  RepoUnlockMode mode;
+};
+
+dictionary RepoUnlockInfo {
+  Status status;
+  string? repo_name;
+};
+
+callback interface RepoUnlockUnlocked {
+  void on_unlocked();
+};
+
+// repo_remove
+
+dictionary RepoRemoveInfo {
+  Status status;
+  string? repo_name;
+};
+
+callback interface RepoRemoved {
+  void on_removed();
+};
+
+// repo_files
+
+enum RepoFileType {
+  "Dir",
+  "File",
+};
+
+dictionary RepoFile {
+  string id;
+  string repo_id;
+  string? path;
+  string name;
+  string? name_error;
+  string? ext;
+  string? content_type;
+  RepoFileType typ;
+  string size_display;
+  i64? modified;
+  FileCategory category;
+  FileIconAttrs file_icon_attrs;
+};
+
+enum RepoFilesSortField {
+  "Name",
+  "Size",
+  "Modified",
+};
+
+dictionary RepoFilesSort {
+  RepoFilesSortField field;
+  SortDirection direction;
+};
+
+// transfers
+
+enum TransferType {
+  "Upload",
+  "Download",
+};
+
+[Enum]
+interface TransferState {
+  Waiting();
+  Processing();
+  Transferring();
+  Failed(string error);
+  Done();
+};
+
+dictionary Transfer {
+  u32 id;
+  TransferType typ;
+  string name;
+  FileIconAttrs file_icon_attrs;
+  i64? size;
+  string? size_display;
+  string? size_progress_display;
+  u8? percentage;
+  i64 transferred_bytes;
+  string transferred_display;
+  string? speed_display;
+  TransferState state;
+  boolean can_retry;
+  boolean can_open;
+};
+
+dictionary TransfersSummary {
+  u32 total_count;
+  u32 done_count;
+  u32 failed_count;
+  string size_progress_display;
+  u8 percentage;
+  string remaining_time_display;
+  string speed_display;
+  boolean is_transferring;
+  boolean is_all_done;
+  boolean can_retry_all;
+  boolean can_abort_all;
+};
+
+callback interface TransfersDownloadOpen {
+  void on_open(string local_file_path, string? content_type);
+};
+
+callback interface TransfersDownloadDone {
+  void on_done(string local_file_path, string? content_type);
+};
+
+// repo_files_browsers
+
+dictionary RepoFilesBrowserOptions {
+  string? select_name;
+};
+
+dictionary RepoFilesBrowserItem {
+  RepoFile file;
+  boolean is_selected;
+};
+
+dictionary RepoFilesBrowserInfo {
+  string? repo_id;
+  string? path;
+  SelectionSummary selection_summary;
+  RepoFilesSort sort;
+  Status status;
+  string? error;
+  string? title;
+  u32 total_count;
+  string total_size_display;
+  u32 selected_count;
+  string selected_size_display;
+  sequence<RepoFilesBrowserItem> items;
+};
+
+callback interface RepoFilesBrowserDirCreated {
+  void on_created(string path);
+};
+
+// repo_files_details
+
+dictionary RepoFilesDetailsOptions {
+  FilesFilter load_content;
+  u32 autosave_interval_ms;
+};
+
+dictionary RepoFilesDetailsInfo {
+  string? repo_id;
+  string? parent_path;
+  string? path;
+  Status status;
+  string? file_name;
+  string? file_ext;
+  FileCategory? file_category;
+  i64? file_modified;
+  boolean file_exists;
+  Status content_status;
+  u32? transfer_id;
+  Status save_status;
+  string? error;
+  boolean is_editing;
+  boolean is_dirty;
+  boolean should_destroy;
+  boolean can_save;
+  boolean can_download;
+  boolean can_copy;
+  boolean can_move;
+  boolean can_delete;
+};
+
+// repo_files_move
+
+enum RepoFilesMoveMode {
+  "Copy",
+  "Move",
+};
+
+dictionary RepoFilesMoveInfo {
+  string repo_id;
+  u32 src_files_count;
+  RepoFilesMoveMode mode;
+  sequence<string> dest_path_chain;
+  boolean can_move;
+};
+
+// local_files
+
+enum LocalFileType {
+  "Dir",
+  "File",
+};
+
+dictionary LocalFile {
+  string id;
+  string name;
+  string? ext;
+  LocalFileType typ;
+  string size_display;
+  i64? modified;
+  FileCategory category;
+  FileIconAttrs file_icon_attrs;
+};
+
+// version
+
+dictionary Version {
+  string? git_revision;
+  string? git_revision_url;
+  string? git_release;
+  string? git_release_url;
+};
+
+// MobileVault
+
+interface MobileVault {
+  constructor(
+    string base_url,
+    string app_name,
+    string oauth2_auth_base_url,
+    string oauth2_client_id,
+    string oauth2_client_secret,
+    string oauth2_redirect_uri,
+    SecureStorage secure_storage
+  );
+
+  // subscription
+
+  void unsubscribe(u32 id);
+
+  // lifecycle
+
+  [Self=ByArc]
+  void load();
+  void logout();
+
+  // relative_time
+
+  RelativeTime relative_time(i64 value, boolean with_modifier);
+
+  // notifications
+
+  u32 notifications_subscribe(SubscriptionCallback cb);
+  sequence<Notification>? notifications_data(u32 id);
+  void notifications_show(string message);
+  void notifications_remove(u32 notification_id);
+  [Self=ByArc]
+  void notifications_remove_after(u32 notification_id, u32 duration_ms);
+
+  // dialogs
+
+  u32 dialogs_subscribe(SubscriptionCallback cb);
+  sequence<u32>? dialogs_data(u32 id);
+  u32 dialogs_dialog_subscribe(u32 dialog_id, SubscriptionCallback cb);
+  Dialog? dialogs_dialog_data(u32 id);
+  void dialogs_confirm(u32 dialog_id);
+  void dialogs_cancel(u32 dialog_id);
+  void dialogs_set_input_value(u32 dialog_id, string value);
+
+  // oauth2
+
+  u32 oauth2_status_subscribe(SubscriptionCallback cb);
+  Status? oauth2_status_data(u32 id);
+  string? oauth2_start_login_flow();
+  string? oauth2_start_logout_flow();
+  [Self=ByArc]
+  void oauth2_finish_flow_url(string url, OAuth2FinishFlowDone cb);
+
+  // user
+
+  u32 user_subscribe(SubscriptionCallback cb);
+  User? user_data(u32 id);
+  u32 user_profile_picture_loaded_subscribe(SubscriptionCallback cb);
+  boolean? user_profile_picture_loaded_data(u32 id);
+  bytes? user_get_profile_picture();
+  [Self=ByArc]
+  void user_ensure_profile_picture();
+
+  // file_icon
+
+  FileIconPng file_icon_png(FileIconProps props, u32 scale);
+
+  // remote_files_browsers
+
+  [Self=ByArc]
+  u32 remote_files_browsers_create(string location, RemoteFilesBrowserOptions options);
+  void remote_files_browsers_destroy(u32 browser_id);
+  u32 remote_files_browsers_info_subscribe(u32 browser_id, SubscriptionCallback cb);
+  RemoteFilesBrowserInfo? remote_files_browsers_info_data(u32 id);
+  [Self=ByArc]
+  void remote_files_browsers_load(u32 browser_id);
+  void remote_files_browsers_select_item(u32 browser_id, string item_id, boolean extend, boolean range, boolean force);
+  void remote_files_browsers_select_all(u32 browser_id);
+  void remote_files_browsers_clear_selection(u32 browser_id);
+  void remote_files_browsers_set_selection(u32 browser_id, sequence<string> selection);
+  void remote_files_browsers_sort_by(u32 browser_id, RemoteFilesSortField field, SortDirection? direction);
+  [Self=ByArc]
+  void remote_files_browsers_create_dir(u32 browser_id, RemoteFilesBrowserDirCreated cb);
+
+  // repos
+
+  u32 repos_subscribe(SubscriptionCallback cb);
+  Repos? repos_data(u32 id);
+  [Self=ByArc]
+  void repos_load();
+  u32 repos_repo_subscribe(string repo_id, SubscriptionCallback cb);
+  RepoInfo? repos_repo_data(u32 id);
+  void repos_lock_repo(string repo_id);
+
+  // repo_create
+
+  [Self=ByArc]
+  u32 repo_create_create();
+  [Self=ByArc]
+  void repo_create_create_load(u32 create_id);
+  u32 repo_create_info_subscribe(u32 create_id, SubscriptionCallback cb);
+  RepoCreateInfo? repo_create_info_data(u32 id);
+  void repo_create_set_location(u32 create_id, RemoteFilesLocation location);
+  void repo_create_set_password(u32 create_id, string password);
+  void repo_create_set_salt(u32 create_id, string? salt);
+  boolean repo_create_fill_from_rclone_config(u32 create_id, string config);
+  [Self=ByArc]
+  void repo_create_create_repo(u32 create_id);
+  void repo_create_destroy(u32 create_id);
+
+  // repo_unlock
+
+  u32 repo_unlock_create(string repo_id, RepoUnlockOptions options);
+  u32 repo_unlock_info_subscribe(u32 unlock_id, SubscriptionCallback cb);
+  RepoUnlockInfo? repo_unlock_info_data(u32 id);
+  [Self=ByArc]
+  void repo_unlock_unlock(u32 unlock_id, string password, RepoUnlockUnlocked cb);
+  void repo_unlock_destroy(u32 unlock_id);
+
+  // repo_remove
+
+  u32 repo_remove_create(string repo_id);
+  u32 repo_remove_info_subscribe(u32 remove_id, SubscriptionCallback cb);
+  RepoRemoveInfo? repo_remove_info_data(u32 id);
+  [Self=ByArc]
+  void repo_remove_remove(u32 remove_id, string password, RepoRemoved cb);
+  void repo_remove_destroy(u32 remove_id);
+
+  // repo_files
+
+  u32 repo_files_file_subscribe(string file_id, SubscriptionCallback cb);
+  RepoFile? repo_files_file_data(u32 id);
+  [Self=ByArc]
+  void repo_files_delete_file(string repo_id, string path);
+  [Self=ByArc]
+  void repo_files_rename_file(string repo_id, string path);
+  [Self=ByArc]
+  void repo_files_move_file(string repo_id, string path, RepoFilesMoveMode mode);
+
+  // transfers
+
+  u32 transfers_is_active_subscribe(SubscriptionCallback cb);
+  boolean? transfers_is_active_data(u32 id);
+  u32 transfers_summary_subscribe(SubscriptionCallback cb);
+  TransfersSummary? transfers_summary_data(u32 id);
+  u32 transfers_list_subscribe(SubscriptionCallback cb);
+  sequence<Transfer>? transfers_list_data(u32 id);
+  u32 transfers_transfer_subscribe(u32 transfer_id, SubscriptionCallback cb);
+  Transfer? transfers_transfer_data(u32 id);
+  [Self=ByArc]
+  void transfers_upload_file(string repo_id, string parent_path, string name, string local_file_path, boolean remove_file_after_upload);
+  [Self=ByArc]
+  void transfers_upload_stream(string repo_id, string parent_path, string name, UploadStreamProvider stream_provider);
+  [Self=ByArc]
+  void transfers_upload_bytes(string repo_id, string parent_path, string name, bytes bytes);
+  [Self=ByArc]
+  void transfers_download_file(string repo_id, string path, string local_file_path, boolean append_name, boolean autorename, TransfersDownloadOpen? on_open, TransfersDownloadDone on_done);
+  [Self=ByArc]
+  void transfers_download_temp_file(string repo_id, string path, string local_base_path, TransfersDownloadOpen? on_open, TransfersDownloadDone on_done);
+  [Self=ByArc]
+  void transfers_download_stream(string repo_id, string path, DownloadStreamProvider stream_provider);
+  void transfers_abort(u32 id);
+  void transfers_abort_all();
+  void transfers_retry(u32 id);
+  void transfers_retry_all();
+  [Self=ByArc]
+  void transfers_open(u32 id);
+
+  // repo_files_browsers
+
+  [Self=ByArc]
+  u32 repo_files_browsers_create(string repo_id, string path, RepoFilesBrowserOptions options);
+  void repo_files_browsers_destroy(u32 browser_id);
+  u32 repo_files_browsers_info_subscribe(u32 browser_id, SubscriptionCallback cb);
+  RepoFilesBrowserInfo? repo_files_browsers_info_data(u32 id);
+  [Self=ByArc]
+  void repo_files_browsers_set_location(u32 browser_id, string repo_id, string path);
+  [Self=ByArc]
+  void repo_files_browsers_load_files(u32 browser_id);
+  void repo_files_browsers_select_file(u32 browser_id, string file_id, boolean extend, boolean range, boolean force);
+  void repo_files_browsers_select_all(u32 browser_id);
+  void repo_files_browsers_clear_selection(u32 browser_id);
+  void repo_files_browsers_set_selection(u32 browser_id, sequence<string> selection);
+  void repo_files_browsers_sort_by(u32 browser_id, RepoFilesSortField field, SortDirection? direction);
+  [Self=ByArc]
+  void repo_files_browsers_download_selected_file(u32 browser_id, string local_file_path, boolean append_name, boolean autorename, TransfersDownloadOpen? on_open, TransfersDownloadDone on_done);
+  [Self=ByArc]
+  void repo_files_browsers_download_selected_stream(u32 browser_id, DownloadStreamProvider stream_provider);
+  [Self=ByArc]
+  void repo_files_browsers_create_dir(u32 browser_id, RepoFilesBrowserDirCreated cb);
+  [Self=ByArc]
+  void repo_files_browsers_delete_selected(u32 browser_id);
+  [Self=ByArc]
+  void repo_files_browsers_move_selected(u32 browser_id, RepoFilesMoveMode mode);
+
+  // repo_files_details
+
+  [Self=ByArc]
+  u32 repo_files_details_create(string repo_id, string path, boolean is_editing, RepoFilesDetailsOptions options);
+  [Self=ByArc]
+  void repo_files_details_destroy(u32 details_id);
+  u32 repo_files_details_info_subscribe(u32 details_id, SubscriptionCallback cb);
+  RepoFilesDetailsInfo? repo_files_details_info_data(u32 id);
+  u32 repo_files_details_file_subscribe(u32 details_id, SubscriptionCallback cb);
+  RepoFile? repo_files_details_file_data(u32 id);
+  u32 repo_files_details_content_bytes_subscribe(u32 details_id, SubscriptionCallback cb);
+  bytes? repo_files_details_content_bytes_data(u32 id);
+  [Self=ByArc]
+  void repo_files_details_download_temp_file(u32 details_id, string local_base_path, TransfersDownloadDone on_done);
+  void repo_files_details_edit(u32 details_id);
+  [Self=ByArc]
+  void repo_files_details_edit_cancel(u32 details_id);
+  void repo_files_details_set_content(u32 details_id, bytes content);
+  [Self=ByArc]
+  void repo_files_details_save(u32 details_id);
+  [Self=ByArc]
+  void repo_files_details_delete(u32 details_id);
+
+  // repo_files_move
+
+  u32 repo_files_move_is_visible_subscribe(SubscriptionCallback cb);
+  boolean? repo_files_move_is_visible_data(u32 id);
+  u32 repo_files_move_info_subscribe(SubscriptionCallback cb);
+  RepoFilesMoveInfo? repo_files_move_info_data(u32 id);
+  void repo_files_move_set_dest_path(string dest_path);
+  [Self=ByArc]
+  void repo_files_move_move_files();
+  void repo_files_move_cancel();
+
+  // local_files
+
+  LocalFile local_files_file_info(string name, LocalFileType typ, i64? size, i64? modified);
+
+  // version
+
+  Version version();
+};
+
+// FakeRemote
+
+[Error]
+interface FakeRemoteError {
+  Err(string reason);
+  NotImplemented();
+};
+
+dictionary FakeRemoteStarted {
+  string http_url;
+  string https_url;
+};
+
+interface FakeRemote {
+  [Throws=FakeRemoteError]
+  constructor(string http_addr, string https_addr);
+
+  [Throws=FakeRemoteError]
+  FakeRemoteStarted start();
+
+  [Throws=FakeRemoteError]
+  void stop();
+};
+
+namespace vault_mobile {
+  // logging
+
+  void set_logger(LoggerLevel level, LoggerCallback cb);
+};

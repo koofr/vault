@@ -85,7 +85,7 @@ jobs:
         with:
           toolchain: "1.71.1"
       - name: Run cargo test
-        run: cargo test -p vault-core -p vault-core-tests
+        run: cargo test
 
   playwright:
     timeout-minutes: 60

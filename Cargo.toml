@@ -4,6 +4,8 @@ members = [
   "vault-core",
   "vault-fake-remote",
   "vault-file-icon",
+  "vault-mobile",
+  "vault-mobile/uniffi-bindgen",
   "vault-native",
   "vault-store",
   "vault-version",
