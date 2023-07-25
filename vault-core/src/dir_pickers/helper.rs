@@ -42,9 +42,7 @@ impl<E: Send + Sync + 'static> DirPickersHelper<E> {
         let picker_id = self.store.mutate(|state, notify, _, _| {
             notify(store::Event::DirPickers);
 
-            let picker_id = state.dir_pickers.next_id;
-
-            state.dir_pickers.next_id += 1;
+            let picker_id = state.dir_pickers.next_id.next();
 
             let picker = DirPicker {
                 id: picker_id,

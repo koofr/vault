@@ -6,6 +6,7 @@ use crate::{
     files::{file_category::FileCategory, files_filter::FilesFilter},
     repo_files::errors::{DeleteFileError, LoadFilesError},
     repo_files_read::errors::GetFilesReaderError,
+    store::NextId,
 };
 
 use super::errors::SaveError;
@@ -86,7 +87,7 @@ pub struct RepoFilesDetails {
 #[derive(Debug, Clone, Default)]
 pub struct RepoFilesDetailsState {
     pub details: HashMap<u32, RepoFilesDetails>,
-    pub next_id: u32,
+    pub next_id: NextId,
 }
 
 #[derive(Debug, Clone)]

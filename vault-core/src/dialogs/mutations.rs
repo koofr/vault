@@ -6,11 +6,7 @@ use super::{
 };
 
 pub fn get_next_id(state: &mut store::State) -> u32 {
-    let dialog_id = state.dialogs.next_id;
-
-    state.dialogs.next_id += 1;
-
-    dialog_id
+    state.dialogs.next_id.next()
 }
 
 pub fn show(

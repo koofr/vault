@@ -5,8 +5,8 @@ use std::{
 };
 
 use super::{
-    event_emitter::EventEmitter, mutation_event_emitter::MutationEventEmitter, Event,
-    MutationEvent, MutationNotify, MutationState, Notify, State,
+    event_emitter::EventEmitter, mutation_event_emitter::MutationEventEmitter, next_id::NextId,
+    Event, MutationEvent, MutationNotify, MutationState, Notify, State,
 };
 
 pub type OnCallback = Box<dyn Fn(&MutationState) + Send + Sync>;
@@ -18,7 +18,7 @@ pub struct Store {
     state: Arc<RwLock<State>>,
     event_emitter: EventEmitter,
     mutation_event_emitter: Arc<MutationEventEmitter>,
-    next_id: Arc<Mutex<u32>>,
+    next_id: Arc<Mutex<NextId>>,
 }
 
 impl Store {
@@ -27,18 +27,12 @@ impl Store {
             state: Arc::new(RwLock::new(initial_state)),
             event_emitter: EventEmitter::new(),
             mutation_event_emitter: Arc::new(MutationEventEmitter::new()),
-            next_id: Arc::new(Mutex::new(0)),
+            next_id: Arc::new(Mutex::new(Default::default())),
         }
     }
 
     pub fn get_next_id(&self) -> u32 {
-        let mut next_id = self.next_id.lock().unwrap();
-
-        let id = *next_id + 1;
-
-        *next_id = *next_id + 1;
-
-        id
+        self.next_id.lock().unwrap().next()
     }
 
     pub fn on(&self, id: u32, events: &[Event], callback: OnCallback) {

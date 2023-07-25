@@ -7,6 +7,7 @@ use crate::{
     remote,
     remote_files::state::{MountOrigin, RemoteFileType, RemoteFilesBreadcrumb, RemoteFilesSort},
     selection::state::{Selection, SelectionSummary},
+    store::NextId,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -118,5 +119,5 @@ impl From<RemoteFilesBreadcrumb> for RemoteFilesBrowserBreadcrumb {
 #[derive(Debug, Clone, Default)]
 pub struct RemoteFilesBrowsersState {
     pub browsers: HashMap<u32, RemoteFilesBrowser>,
-    pub next_id: u32,
+    pub next_id: NextId,
 }

@@ -7,6 +7,7 @@ use crate::{
     files::{file_category::FileCategory, file_icon::FileIconAttrs},
     repo_files::{selectors as repo_files_selectors, state::RepoFilesUploadResult},
     repo_files_read::state::RepoFileReader,
+    store::NextId,
 };
 
 use super::errors::TransferError;
@@ -139,7 +140,7 @@ impl Transfer {
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct TransfersState {
     pub transfers: HashMap<u32, Transfer>,
-    pub next_id: u32,
+    pub next_id: NextId,
     pub started: Option<i64>,
     pub last_progress_update: Option<i64>,
     pub transferring_count: usize,

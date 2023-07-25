@@ -16,11 +16,7 @@ use super::{
 
 pub fn get_next_id(state: &mut store::State) -> u32 {
     // just generating next id does not need to call notify
-    let upload_id = state.transfers.next_id;
-
-    state.transfers.next_id += 1;
-
-    upload_id
+    state.transfers.next_id.next()
 }
 
 pub enum CreateTransferType {

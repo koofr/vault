@@ -10,9 +10,7 @@ use super::{errors::RepoSpaceUsageError, state::RepoSpaceUsage};
 pub fn create(state: &mut store::State, notify: &store::Notify, repo_id: &str) -> u32 {
     notify(store::Event::RepoSpaceUsage);
 
-    let usage_id = state.repo_space_usages.next_id;
-
-    state.repo_space_usages.next_id += 1;
+    let usage_id = state.repo_space_usages.next_id.next();
 
     let usage = RepoSpaceUsage {
         repo_id: repo_id.to_owned(),

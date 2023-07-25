@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::common::state::Status;
+use crate::{common::state::Status, store::NextId};
 
 use super::errors::RepoSpaceUsageError;
 
@@ -20,5 +20,5 @@ pub struct RepoSpaceUsage {
 #[derive(Debug, Clone, Default)]
 pub struct RepoSpaceUsagesState {
     pub usages: HashMap<u32, RepoSpaceUsage>,
-    pub next_id: u32,
+    pub next_id: NextId,
 }

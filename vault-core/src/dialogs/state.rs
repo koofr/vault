@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::common::state::Status;
+use crate::{common::state::Status, store::NextId};
 
 use super::errors::DialogError;
 
@@ -65,5 +65,5 @@ pub struct Dialog {
 #[derive(Debug, Clone, Default)]
 pub struct DialogsState {
     pub dialogs: HashMap<u32, Dialog>,
-    pub next_id: u32,
+    pub next_id: NextId,
 }

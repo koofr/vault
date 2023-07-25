@@ -17,9 +17,7 @@ impl NotificationsService {
         self.store.mutate(|state, notify, _, _| {
             notify(store::Event::Notifications);
 
-            let id = state.notifications.next_id;
-
-            state.notifications.next_id += 1;
+            let id = state.notifications.next_id.next();
 
             let notification = Notification { id, message };
 

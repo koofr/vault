@@ -13,7 +13,7 @@ use similar_asserts::assert_eq;
 use vault_core::{
     common::state::{BoxAsyncRead, SizeInfo},
     files::file_category::FileCategory,
-    store::{self, test_helpers::StoreWatcher},
+    store::{self, test_helpers::StoreWatcher, NextId},
     transfers::{
         errors::{TransferError, UploadableError},
         state::{Transfer, TransferState, TransferType, TransfersState, UploadTransfer},
@@ -113,13 +113,13 @@ fn test_upload_name_path() {
                 0 => assert_eq!(transfers, TransfersState::default()),
                 1 => assert_eq!(
                     transfers,
-                    patch_transfer(expected_transfers_waiting(&repo_id, &transfers), 0, patch)
+                    patch_transfer(expected_transfers_waiting(&repo_id, &transfers), 1, patch)
                 ),
                 2 => assert_eq!(
                     transfers,
                     patch_transfer(
                         expected_transfers_processing(&repo_id, &transfers, 1),
-                        0,
+                        1,
                         patch
                     )
                 ),
@@ -127,7 +127,7 @@ fn test_upload_name_path() {
                     transfers,
                     patch_transfer(
                         expected_transfers_transferring(&repo_id, &transfers, 1),
-                        0,
+                        1,
                         patch
                     )
                 ),
@@ -135,7 +135,7 @@ fn test_upload_name_path() {
                     transfers,
                     patch_transfer(
                         expected_transfers_transferring_progress(&repo_id, &transfers, 1),
-                        0,
+                        1,
                         patch
                     )
                 ),
@@ -197,13 +197,13 @@ fn test_upload_name_path_autorename() {
                 0 => assert_eq!(transfers, TransfersState::default()),
                 1 => assert_eq!(
                     transfers,
-                    patch_transfer(expected_transfers_waiting(&repo_id, &transfers), 0, patch)
+                    patch_transfer(expected_transfers_waiting(&repo_id, &transfers), 1, patch)
                 ),
                 2 => assert_eq!(
                     transfers,
                     patch_transfer(
                         expected_transfers_processing(&repo_id, &transfers, 1),
-                        0,
+                        1,
                         patch
                     )
                 ),
@@ -211,7 +211,7 @@ fn test_upload_name_path_autorename() {
                     transfers,
                     patch_transfer(
                         expected_transfers_transferring(&repo_id, &transfers, 1),
-                        0,
+                        1,
                         patch_processed
                     )
                 ),
@@ -219,7 +219,7 @@ fn test_upload_name_path_autorename() {
                     transfers,
                     patch_transfer(
                         expected_transfers_transferring_progress(&repo_id, &transfers, 1),
-                        0,
+                        1,
                         patch_processed
                     )
                 ),
@@ -278,13 +278,13 @@ fn test_upload_size_estimate() {
                 0 => assert_eq!(transfers, TransfersState::default()),
                 1 => assert_eq!(
                     transfers,
-                    patch_transfer(expected_transfers_waiting(&repo_id, &transfers), 0, patch)
+                    patch_transfer(expected_transfers_waiting(&repo_id, &transfers), 1, patch)
                 ),
                 2 => assert_eq!(
                     transfers,
                     patch_transfer(
                         expected_transfers_processing(&repo_id, &transfers, 1),
-                        0,
+                        1,
                         patch
                     ),
                 ),
@@ -292,7 +292,7 @@ fn test_upload_size_estimate() {
                     transfers,
                     patch_transfer(
                         expected_transfers_transferring(&repo_id, &transfers, 1),
-                        0,
+                        1,
                         patch
                     ),
                 ),
@@ -300,7 +300,7 @@ fn test_upload_size_estimate() {
                     transfers,
                     patch_transfer(
                         expected_transfers_transferring_progress(&repo_id, &transfers, 1),
-                        0,
+                        1,
                         patch
                     ),
                 ),
@@ -361,7 +361,7 @@ fn test_upload_size_unknown() {
                     transfers,
                     TransfersState {
                         total_bytes: 0,
-                        ..patch_transfer(expected_transfers_waiting(&repo_id, &transfers), 0, patch)
+                        ..patch_transfer(expected_transfers_waiting(&repo_id, &transfers), 1, patch)
                     }
                 ),
                 2 => assert_eq!(
@@ -370,7 +370,7 @@ fn test_upload_size_unknown() {
                         total_bytes: 0,
                         ..patch_transfer(
                             expected_transfers_processing(&repo_id, &transfers, 1),
-                            0,
+                            1,
                             patch
                         )
                     }
@@ -381,7 +381,7 @@ fn test_upload_size_unknown() {
                         total_bytes: 0,
                         ..patch_transfer(
                             expected_transfers_transferring(&repo_id, &transfers, 1),
-                            0,
+                            1,
                             patch
                         )
                     }
@@ -392,7 +392,7 @@ fn test_upload_size_unknown() {
                         total_bytes: 0,
                         ..patch_transfer(
                             expected_transfers_transferring_progress(&repo_id, &transfers, 1),
-                            0,
+                            1,
                             patch
                         )
                     }
@@ -450,7 +450,7 @@ fn test_upload_size_unknown_to_estimate() {
                     transfers,
                     TransfersState {
                         total_bytes: 0,
-                        ..patch_transfer(expected_transfers_waiting(&repo_id, &transfers), 0, |t| {
+                        ..patch_transfer(expected_transfers_waiting(&repo_id, &transfers), 1, |t| {
                             t.size = SizeInfo::Unknown
                         })
                     }
@@ -461,7 +461,7 @@ fn test_upload_size_unknown_to_estimate() {
                         total_bytes: 0,
                         ..patch_transfer(
                             expected_transfers_processing(&repo_id, &transfers, 1),
-                            0,
+                            1,
                             |t| t.size = SizeInfo::Unknown
                         )
                     }
@@ -470,7 +470,7 @@ fn test_upload_size_unknown_to_estimate() {
                     transfers,
                     patch_transfer(
                         expected_transfers_transferring(&repo_id, &transfers, 1),
-                        0,
+                        1,
                         |t| t.size = SizeInfo::Estimate(4)
                     )
                 ),
@@ -478,7 +478,7 @@ fn test_upload_size_unknown_to_estimate() {
                     transfers,
                     patch_transfer(
                         expected_transfers_transferring_progress(&repo_id, &transfers, 1),
-                        0,
+                        1,
                         |t| t.size = SizeInfo::Estimate(4)
                     )
                 ),
@@ -535,7 +535,7 @@ fn test_upload_size_unknown_to_exact() {
                     transfers,
                     TransfersState {
                         total_bytes: 0,
-                        ..patch_transfer(expected_transfers_waiting(&repo_id, &transfers), 0, |t| {
+                        ..patch_transfer(expected_transfers_waiting(&repo_id, &transfers), 1, |t| {
                             t.size = SizeInfo::Unknown
                         })
                     }
@@ -546,7 +546,7 @@ fn test_upload_size_unknown_to_exact() {
                         total_bytes: 0,
                         ..patch_transfer(
                             expected_transfers_processing(&repo_id, &transfers, 1),
-                            0,
+                            1,
                             |t| t.size = SizeInfo::Unknown
                         )
                     }
@@ -612,7 +612,7 @@ fn test_upload_size_estimate_to_exact() {
                     transfers,
                     TransfersState {
                         total_bytes: 5,
-                        ..patch_transfer(expected_transfers_waiting(&repo_id, &transfers), 0, |t| {
+                        ..patch_transfer(expected_transfers_waiting(&repo_id, &transfers), 1, |t| {
                             t.size = SizeInfo::Estimate(5)
                         })
                     }
@@ -623,7 +623,7 @@ fn test_upload_size_estimate_to_exact() {
                         total_bytes: 5,
                         ..patch_transfer(
                             expected_transfers_processing(&repo_id, &transfers, 1),
-                            0,
+                            1,
                             |t| t.size = SizeInfo::Estimate(5)
                         )
                     }
@@ -777,13 +777,13 @@ fn test_upload_load_root_error() {
                 0 => assert_eq!(transfers, TransfersState::default()),
                 1 => assert_eq!(
                     transfers,
-                    patch_transfer(expected_transfers_waiting(&repo_id, &transfers), 0, patch)
+                    patch_transfer(expected_transfers_waiting(&repo_id, &transfers), 1, patch)
                 ),
                 2 => assert_eq!(
                     transfers,
                     patch_transfer(
                         expected_transfers_processing(&repo_id, &transfers, 1),
-                        0,
+                        1,
                         patch
                     ),
                 ),
@@ -791,7 +791,7 @@ fn test_upload_load_root_error() {
                     transfers,
                     patch_transfer(
                         expected_transfers_waiting_failed(&repo_id, &transfers, 1),
-                        0,
+                        1,
                         patch
                     ),
                 ),
@@ -799,7 +799,7 @@ fn test_upload_load_root_error() {
                     transfers,
                     patch_transfer(
                         expected_transfers_processing(&repo_id, &transfers, 2),
-                        0,
+                        1,
                         patch
                     ),
                 ),
@@ -807,7 +807,7 @@ fn test_upload_load_root_error() {
                     transfers,
                     patch_transfer(
                         expected_transfers_transferring(&repo_id, &transfers, 2),
-                        0,
+                        1,
                         patch
                     ),
                 ),
@@ -815,7 +815,7 @@ fn test_upload_load_root_error() {
                     transfers,
                     patch_transfer(
                         expected_transfers_transferring_progress(&repo_id, &transfers, 2),
-                        0,
+                        1,
                         patch
                     ),
                 ),
@@ -996,7 +996,7 @@ fn test_upload_abort_waiting() {
 
         let recorder = transfers_recorder(&fixture.vault);
 
-        let watcher = transfer_abort_when(fixture.vault.clone(), 0, |t| {
+        let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
             matches!(t.state, TransferState::Waiting)
         });
 
@@ -1032,7 +1032,7 @@ fn test_upload_abort_processing() {
 
         let recorder = transfers_recorder(&fixture.vault);
 
-        let watcher = transfer_abort_when(fixture.vault.clone(), 0, |t| {
+        let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
             matches!(t.state, TransferState::Processing)
         });
 
@@ -1072,7 +1072,7 @@ fn test_upload_abort_transferring() {
 
         let recorder = transfers_recorder(&fixture.vault);
 
-        let watcher = transfer_abort_when(fixture.vault.clone(), 0, |t| {
+        let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
             matches!(t.state, TransferState::Transferring)
         });
 
@@ -1125,13 +1125,13 @@ fn test_upload_abort_all() {
                     state
                         .transfers
                         .transfers
-                        .get(&0)
+                        .get(&1)
                         .filter(|t| matches!(t.state, TransferState::Processing))
                         .is_some()
                         && state
                             .transfers
                             .transfers
-                            .get(&1)
+                            .get(&2)
                             .filter(|t| matches!(t.state, TransferState::Processing))
                             .is_some()
                 }) {
@@ -1178,9 +1178,9 @@ fn test_upload_abort_all() {
                     transfers,
                     TransfersState {
                         transfers: [(
-                            0,
+                            1,
                             Transfer {
-                                id: 0,
+                                id: 1,
                                 typ: TransferType::Upload(UploadTransfer {
                                     repo_id: repo_id.to_owned(),
                                     parent_path: "/".into(),
@@ -1201,7 +1201,7 @@ fn test_upload_abort_all() {
                             },
                         )]
                         .into(),
-                        next_id: 1,
+                        next_id: NextId(2),
                         started: None,
                         last_progress_update: transfers.last_progress_update,
                         transferring_count: 0,
@@ -1220,9 +1220,9 @@ fn test_upload_abort_all() {
                     transfers,
                     TransfersState {
                         transfers: [(
-                            0,
+                            1,
                             Transfer {
-                                id: 0,
+                                id: 1,
                                 typ: TransferType::Upload(UploadTransfer {
                                     repo_id: repo_id.to_owned(),
                                     parent_path: "/".into(),
@@ -1236,7 +1236,7 @@ fn test_upload_abort_all() {
                                 started: Some(
                                     transfers
                                         .transfers
-                                        .get(&0)
+                                        .get(&1)
                                         .and_then(|t| t.started)
                                         .unwrap_or(9999),
                                 ),
@@ -1249,7 +1249,7 @@ fn test_upload_abort_all() {
                             },
                         )]
                         .into(),
-                        next_id: 1,
+                        next_id: NextId(2),
                         started: Some(transfers.started.unwrap_or(999)),
                         last_progress_update: transfers.last_progress_update,
                         transferring_count: 1,
@@ -1269,9 +1269,9 @@ fn test_upload_abort_all() {
                     TransfersState {
                         transfers: [
                             (
-                                0,
+                                1,
                                 Transfer {
-                                    id: 0,
+                                    id: 1,
                                     typ: TransferType::Upload(UploadTransfer {
                                         repo_id: repo_id.to_owned(),
                                         parent_path: "/".into(),
@@ -1285,7 +1285,7 @@ fn test_upload_abort_all() {
                                     started: Some(
                                         transfers
                                             .transfers
-                                            .get(&0)
+                                            .get(&1)
                                             .and_then(|t| t.started)
                                             .unwrap_or(9999),
                                     ),
@@ -1298,9 +1298,9 @@ fn test_upload_abort_all() {
                                 },
                             ),
                             (
-                                1,
+                                2,
                                 Transfer {
-                                    id: 1,
+                                    id: 2,
                                     typ: TransferType::Upload(UploadTransfer {
                                         repo_id: repo_id.to_owned(),
                                         parent_path: "/".into(),
@@ -1322,7 +1322,7 @@ fn test_upload_abort_all() {
                             )
                         ]
                         .into(),
-                        next_id: 2,
+                        next_id: NextId(3),
                         started: Some(transfers.started.unwrap_or(999)),
                         last_progress_update: transfers.last_progress_update,
                         transferring_count: 1,
@@ -1342,9 +1342,9 @@ fn test_upload_abort_all() {
                     TransfersState {
                         transfers: [
                             (
-                                0,
+                                1,
                                 Transfer {
-                                    id: 0,
+                                    id: 1,
                                     typ: TransferType::Upload(UploadTransfer {
                                         repo_id: repo_id.to_owned(),
                                         parent_path: "/".into(),
@@ -1358,7 +1358,7 @@ fn test_upload_abort_all() {
                                     started: Some(
                                         transfers
                                             .transfers
-                                            .get(&0)
+                                            .get(&1)
                                             .and_then(|t| t.started)
                                             .unwrap_or(9999),
                                     ),
@@ -1371,9 +1371,9 @@ fn test_upload_abort_all() {
                                 },
                             ),
                             (
-                                1,
+                                2,
                                 Transfer {
-                                    id: 1,
+                                    id: 2,
                                     typ: TransferType::Upload(UploadTransfer {
                                         repo_id: repo_id.to_owned(),
                                         parent_path: "/".into(),
@@ -1387,7 +1387,7 @@ fn test_upload_abort_all() {
                                     started: Some(
                                         transfers
                                             .transfers
-                                            .get(&1)
+                                            .get(&2)
                                             .and_then(|t| t.started)
                                             .unwrap_or(9999),
                                     ),
@@ -1401,7 +1401,7 @@ fn test_upload_abort_all() {
                             )
                         ]
                         .into(),
-                        next_id: 2,
+                        next_id: NextId(3),
                         started: Some(transfers.started.unwrap_or(999)),
                         last_progress_update: transfers.last_progress_update,
                         transferring_count: 2,
@@ -1419,7 +1419,7 @@ fn test_upload_abort_all() {
                 5 => assert_eq!(
                     transfers,
                     TransfersState {
-                        next_id: 2,
+                        next_id: NextId(3),
                         ..expected_tranfers_done()
                     }
                 ),
@@ -1442,7 +1442,7 @@ fn test_upload_fail_autoretry_succeed() {
             if parts.uri.path().contains("/content/api") && parts.uri.path().contains("/files/put")
             {
                 if interceptor_upload_counter.fetch_add(1, Ordering::SeqCst) == 0 {
-                    uploaded_server_error(interceptor_store.clone(), 0, 4)
+                    uploaded_server_error(interceptor_store.clone(), 1, 4)
                 } else {
                     InterceptorResult::Ignore
                 }
@@ -1514,7 +1514,7 @@ fn test_upload_fail_autoretry_fail() {
         fixture.fake_remote.intercept(Box::new(move |parts| {
             if parts.uri.path().contains("/content/api") && parts.uri.path().contains("/files/put")
             {
-                uploaded_server_error(interceptor_store.clone(), 0, 4)
+                uploaded_server_error(interceptor_store.clone(), 1, 4)
             } else {
                 InterceptorResult::Ignore
             }
@@ -1522,7 +1522,7 @@ fn test_upload_fail_autoretry_fail() {
 
         let recorder = transfers_recorder(&fixture.vault);
 
-        let watcher = transfer_abort_when(fixture.vault.clone(), 0, |t| {
+        let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
             matches!(t.state, TransferState::Failed { .. })
         });
 
@@ -1630,7 +1630,7 @@ fn test_upload_fail_autoretry_retry() {
             if parts.uri.path().contains("/content/api") && parts.uri.path().contains("/files/put")
             {
                 if interceptor_upload_counter.fetch_add(1, Ordering::SeqCst) < 5 {
-                    uploaded_server_error(interceptor_store.clone(), 0, 4)
+                    uploaded_server_error(interceptor_store.clone(), 1, 4)
                 } else {
                     InterceptorResult::Ignore
                 }
@@ -1643,9 +1643,9 @@ fn test_upload_fail_autoretry_retry() {
 
         let watcher = transfer_do_when(
             fixture.vault.clone(),
-            0,
+            1,
             |t| matches!(t.state, TransferState::Failed { .. }),
-            |vault| vault.transfers_retry(0),
+            |vault| vault.transfers_retry(1),
         );
 
         let (_, create_future) = fixture.vault.transfers_upload(
@@ -1760,7 +1760,7 @@ fn test_upload_fail_autoretry_not_retriable() {
         fixture.fake_remote.intercept(Box::new(move |parts| {
             if parts.uri.path().contains("/content/api") && parts.uri.path().contains("/files/put")
             {
-                uploaded_server_error(interceptor_store.clone(), 0, 4)
+                uploaded_server_error(interceptor_store.clone(), 1, 4)
             } else {
                 InterceptorResult::Ignore
             }
@@ -1768,7 +1768,7 @@ fn test_upload_fail_autoretry_not_retriable() {
 
         let recorder = transfers_recorder(&fixture.vault);
 
-        let watcher = transfer_abort_when(fixture.vault.clone(), 0, |t| {
+        let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
             matches!(t.state, TransferState::Failed { .. })
         });
 
@@ -1830,7 +1830,7 @@ fn test_upload_fail_autoretry_not_retriable() {
                 ),
                 7 => assert_eq!(
                     transfers,
-                    patch_transfer(expected_transfers_failed(&repo_id, &transfers, 2), 0, |t| {
+                    patch_transfer(expected_transfers_failed(&repo_id, &transfers, 2), 1, |t| {
                         t.is_retriable = false
                     })
                 ),
@@ -1856,13 +1856,13 @@ fn test_upload_retry_all() {
                     state
                         .transfers
                         .transfers
-                        .get(&0)
+                        .get(&1)
                         .filter(|t| matches!(t.state, TransferState::Failed { .. }))
                         .is_some()
                         && state
                             .transfers
                             .transfers
-                            .get(&1)
+                            .get(&2)
                             .filter(|t| matches!(t.state, TransferState::Failed { .. }))
                             .is_some()
                 }) {
@@ -1934,9 +1934,9 @@ fn test_upload_retry_all() {
 fn expected_transfers_waiting(repo_id: &str, transfers: &TransfersState) -> TransfersState {
     TransfersState {
         transfers: [(
-            0,
+            1,
             Transfer {
-                id: 0,
+                id: 1,
                 typ: TransferType::Upload(UploadTransfer {
                     repo_id: repo_id.to_owned(),
                     parent_path: "/".into(),
@@ -1957,7 +1957,7 @@ fn expected_transfers_waiting(repo_id: &str, transfers: &TransfersState) -> Tran
             },
         )]
         .into(),
-        next_id: 1,
+        next_id: NextId(2),
         started: None,
         last_progress_update: transfers.last_progress_update,
         transferring_count: 0,
@@ -1980,9 +1980,9 @@ fn expected_transfers_processing(
 ) -> TransfersState {
     TransfersState {
         transfers: [(
-            0,
+            1,
             Transfer {
-                id: 0,
+                id: 1,
                 typ: TransferType::Upload(UploadTransfer {
                     repo_id: repo_id.to_owned(),
                     parent_path: "/".into(),
@@ -1996,7 +1996,7 @@ fn expected_transfers_processing(
                 started: Some(
                     transfers
                         .transfers
-                        .get(&0)
+                        .get(&1)
                         .and_then(|t| t.started)
                         .unwrap_or(9999),
                 ),
@@ -2009,7 +2009,7 @@ fn expected_transfers_processing(
             },
         )]
         .into(),
-        next_id: 1,
+        next_id: NextId(2),
         started: Some(transfers.started.unwrap_or(999)),
         last_progress_update: transfers.last_progress_update,
         transferring_count: 1,
@@ -2032,9 +2032,9 @@ fn expected_transfers_transferring(
 ) -> TransfersState {
     TransfersState {
         transfers: [(
-            0,
+            1,
             Transfer {
-                id: 0,
+                id: 1,
                 typ: TransferType::Upload(UploadTransfer {
                     repo_id: repo_id.to_owned(),
                     parent_path: "/".into(),
@@ -2048,7 +2048,7 @@ fn expected_transfers_transferring(
                 started: Some(
                     transfers
                         .transfers
-                        .get(&0)
+                        .get(&1)
                         .and_then(|t| t.started)
                         .unwrap_or(9999),
                 ),
@@ -2061,7 +2061,7 @@ fn expected_transfers_transferring(
             },
         )]
         .into(),
-        next_id: 1,
+        next_id: NextId(2),
         started: Some(transfers.started.unwrap_or(999)),
         last_progress_update: transfers.last_progress_update,
         transferring_count: 1,
@@ -2084,9 +2084,9 @@ fn expected_transfers_transferring_progress(
 ) -> TransfersState {
     TransfersState {
         transfers: [(
-            0,
+            1,
             Transfer {
-                id: 0,
+                id: 1,
                 typ: TransferType::Upload(UploadTransfer {
                     repo_id: repo_id.to_owned(),
                     parent_path: "/".into(),
@@ -2100,7 +2100,7 @@ fn expected_transfers_transferring_progress(
                 started: Some(
                     transfers
                         .transfers
-                        .get(&0)
+                        .get(&1)
                         .and_then(|t| t.started)
                         .unwrap_or(9999),
                 ),
@@ -2113,7 +2113,7 @@ fn expected_transfers_transferring_progress(
             },
         )]
         .into(),
-        next_id: 1,
+        next_id: NextId(2),
         started: Some(transfers.started.unwrap_or(999)),
         last_progress_update: transfers.last_progress_update,
         transferring_count: 1,
@@ -2136,9 +2136,9 @@ fn expected_transfers_waiting_failed(
 ) -> TransfersState {
     TransfersState {
         transfers: [(
-            0,
+            1,
             Transfer {
-                id: 0,
+                id: 1,
                 typ: TransferType::Upload(UploadTransfer {
                     repo_id: repo_id.to_owned(),
                     parent_path: "/".into(),
@@ -2159,7 +2159,7 @@ fn expected_transfers_waiting_failed(
             },
         )]
         .into(),
-        next_id: 1,
+        next_id: NextId(2),
         started: Some(transfers.started.unwrap_or(999)),
         last_progress_update: transfers.last_progress_update,
         transferring_count: 0,
@@ -2182,9 +2182,9 @@ fn expected_transfers_failed(
 ) -> TransfersState {
     TransfersState {
         transfers: [(
-            0,
+            1,
             Transfer {
-                id: 0,
+                id: 1,
                 typ: TransferType::Upload(UploadTransfer {
                     repo_id: repo_id.to_owned(),
                     parent_path: "/".into(),
@@ -2198,7 +2198,7 @@ fn expected_transfers_failed(
                 started: None,
                 is_persistent: false,
                 is_retriable: true,
-                state: match &transfers.transfers.get(&0).unwrap().state {
+                state: match &transfers.transfers.get(&1).unwrap().state {
                     TransferState::Failed { error } => TransferState::Failed {
                         error: error.clone(),
                     },
@@ -2210,7 +2210,7 @@ fn expected_transfers_failed(
             },
         )]
         .into(),
-        next_id: 1,
+        next_id: NextId(2),
         started: None,
         last_progress_update: transfers.last_progress_update,
         transferring_count: 0,
@@ -2228,7 +2228,7 @@ fn expected_transfers_failed(
 
 fn expected_tranfers_done() -> TransfersState {
     TransfersState {
-        next_id: 1,
+        next_id: NextId(2),
         ..Default::default()
     }
 }

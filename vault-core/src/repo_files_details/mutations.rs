@@ -52,9 +52,7 @@ pub fn create(
     location: Result<RepoFilesDetailsLocation, LoadFilesError>,
     repo_files_subscription_id: u32,
 ) -> u32 {
-    let details_id = state.repo_files_details.next_id;
-
-    state.repo_files_details.next_id += 1;
+    let details_id = state.repo_files_details.next_id.next();
 
     let status = match &location {
         Ok(location) => {

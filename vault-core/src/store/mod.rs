@@ -4,6 +4,7 @@ pub mod mutation_event;
 mod mutation_event_emitter;
 pub mod mutation_notify;
 pub mod mutation_state;
+pub mod next_id;
 pub mod notify;
 pub mod state;
 pub mod store;
@@ -16,6 +17,7 @@ pub use self::{
     mutation_event::MutationEvent,
     mutation_notify::MutationNotify,
     mutation_state::MutationState,
+    next_id::NextId,
     notify::Notify,
     state::State,
     store::Store,

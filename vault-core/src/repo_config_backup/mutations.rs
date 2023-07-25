@@ -12,9 +12,7 @@ use super::state::RepoConfigBackup;
 pub fn create(state: &mut store::State, notify: &store::Notify, repo_id: &str) -> u32 {
     notify(store::Event::RepoConfigBackup);
 
-    let backup_id = state.repo_config_backups.next_id;
-
-    state.repo_config_backups.next_id += 1;
+    let backup_id = state.repo_config_backups.next_id.next();
 
     let backup = RepoConfigBackup {
         repo_id: repo_id.to_owned(),

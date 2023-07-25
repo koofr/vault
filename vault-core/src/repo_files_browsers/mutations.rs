@@ -38,9 +38,7 @@ pub fn create(
     options: RepoFilesBrowserOptions,
     location: Result<RepoFilesBrowserLocation, LoadFilesError>,
 ) -> u32 {
-    let browser_id = state.repo_files_browsers.next_id;
-
-    state.repo_files_browsers.next_id += 1;
+    let browser_id = state.repo_files_browsers.next_id.next();
 
     let status = get_initial_status(state, location.as_ref());
 

@@ -6,6 +6,7 @@ use similar_asserts::assert_eq;
 use vault_core::{
     common::state::SizeInfo,
     files::file_category::FileCategory,
+    store::NextId,
     transfers::state::{Transfer, TransferState, TransferType, TransfersState},
 };
 use vault_core_tests::helpers::transfers::{
@@ -112,7 +113,7 @@ fn test_download_reader_abort() {
 
         let recorder = transfers_recorder(&fixture.vault);
 
-        let watcher = transfer_abort_when(fixture.vault.clone(), 0, |t| {
+        let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
             matches!(t.state, TransferState::Transferring)
         });
 
@@ -148,9 +149,9 @@ fn test_download_reader_abort() {
 fn expected_transfers_transferring(transfers: &TransfersState, attempts: usize) -> TransfersState {
     TransfersState {
         transfers: [(
-            0,
+            1,
             Transfer {
-                id: 0,
+                id: 1,
                 typ: TransferType::DownloadReader,
                 name: "file.txt".into(),
                 size: SizeInfo::Exact(4),
@@ -158,7 +159,7 @@ fn expected_transfers_transferring(transfers: &TransfersState, attempts: usize) 
                 started: Some(
                     transfers
                         .transfers
-                        .get(&0)
+                        .get(&1)
                         .and_then(|t| t.started)
                         .unwrap_or(9999),
                 ),
@@ -171,7 +172,7 @@ fn expected_transfers_transferring(transfers: &TransfersState, attempts: usize) 
             },
         )]
         .into(),
-        next_id: 1,
+        next_id: NextId(2),
         started: Some(transfers.started.unwrap_or(999)),
         last_progress_update: transfers.last_progress_update,
         transferring_count: 1,
@@ -193,9 +194,9 @@ fn expected_transfers_transferring_progress(
 ) -> TransfersState {
     TransfersState {
         transfers: [(
-            0,
+            1,
             Transfer {
-                id: 0,
+                id: 1,
                 typ: TransferType::DownloadReader,
                 name: "file.txt".into(),
                 size: SizeInfo::Exact(4),
@@ -203,7 +204,7 @@ fn expected_transfers_transferring_progress(
                 started: Some(
                     transfers
                         .transfers
-                        .get(&0)
+                        .get(&1)
                         .and_then(|t| t.started)
                         .unwrap_or(9999),
                 ),
@@ -216,7 +217,7 @@ fn expected_transfers_transferring_progress(
             },
         )]
         .into(),
-        next_id: 1,
+        next_id: NextId(2),
         started: Some(transfers.started.unwrap_or(999)),
         last_progress_update: transfers.last_progress_update,
         transferring_count: 1,
@@ -234,7 +235,7 @@ fn expected_transfers_transferring_progress(
 
 fn expected_tranfers_done() -> TransfersState {
     TransfersState {
-        next_id: 1,
+        next_id: NextId(2),
         ..Default::default()
     }
 }

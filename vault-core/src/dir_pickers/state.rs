@@ -2,6 +2,8 @@ use std::collections::{HashMap, HashSet};
 
 use serde_json::Value;
 
+use crate::store::NextId;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DirPickerItemType {
     Folder,
@@ -46,5 +48,5 @@ pub struct DirPicker {
 #[derive(Debug, Clone, Default)]
 pub struct DirPickersState {
     pub pickers: HashMap<u32, DirPicker>,
-    pub next_id: u32,
+    pub next_id: NextId,
 }

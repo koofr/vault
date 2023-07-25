@@ -6,6 +6,7 @@ use crate::{
     remote::RemoteError,
     remote_files::state::RemoteFilesLocation,
     repos::{errors::CreateRepoError, state::RepoCreated},
+    store::NextId,
 };
 
 #[derive(Debug, Clone)]
@@ -29,5 +30,5 @@ pub enum RepoCreate {
 #[derive(Debug, Clone, Default)]
 pub struct RepoCreatesState {
     pub creates: HashMap<u32, RepoCreate>,
-    pub next_id: u32,
+    pub next_id: NextId,
 }

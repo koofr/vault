@@ -16,9 +16,7 @@ pub const DEFAULT_REPO_NAME: &'static str = "My safe box";
 pub fn create(state: &mut store::State, notify: &store::Notify, salt: String) -> u32 {
     notify(store::Event::RepoCreate);
 
-    let create_id = state.repo_creates.next_id;
-
-    state.repo_creates.next_id += 1;
+    let create_id = state.repo_creates.next_id.next();
 
     let repo_create = RepoCreate::Form(RepoCreateForm {
         create_load_status: Status::Loading,

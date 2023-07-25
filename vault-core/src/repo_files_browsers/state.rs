@@ -8,6 +8,7 @@ use crate::{
         state::{RepoFile, RepoFilesSort},
     },
     selection::state::{Selection, SelectionSummary},
+    store::NextId,
 };
 
 pub struct RepoFilesBrowserItem<'a> {
@@ -58,5 +59,5 @@ pub struct RepoFilesBrowser {
 #[derive(Debug, Clone, Default)]
 pub struct RepoFilesBrowsersState {
     pub browsers: HashMap<u32, RepoFilesBrowser>,
-    pub next_id: u32,
+    pub next_id: NextId,
 }

@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use crate::{
     common::state::Status,
     repos::{errors::UnlockRepoError, state::RepoUnlockMode},
+    store::NextId,
 };
 
 pub struct RepoUnlockInfo<'a> {
@@ -26,5 +27,5 @@ pub struct RepoUnlock {
 #[derive(Debug, Clone, Default)]
 pub struct RepoUnlocksState {
     pub unlocks: HashMap<u32, RepoUnlock>,
-    pub next_id: u32,
+    pub next_id: NextId,
 }

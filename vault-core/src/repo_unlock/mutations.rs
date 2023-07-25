@@ -17,9 +17,7 @@ pub fn create(
 ) -> u32 {
     notify(store::Event::RepoUnlock);
 
-    let unlock_id = state.repo_unlocks.next_id;
-
-    state.repo_unlocks.next_id += 1;
+    let unlock_id = state.repo_unlocks.next_id.next();
 
     let repo_unlock = RepoUnlock {
         repo_id: repo_id.to_owned(),

@@ -9,9 +9,7 @@ use super::state::RepoRemove;
 pub fn create(state: &mut store::State, notify: &store::Notify, repo_id: &str) -> u32 {
     notify(store::Event::RepoRemove);
 
-    let remove_id = state.repo_removes.next_id;
-
-    state.repo_removes.next_id += 1;
+    let remove_id = state.repo_removes.next_id.next();
 
     let remove = RepoRemove {
         repo_id: repo_id.to_owned(),

@@ -15,6 +15,7 @@ use vault_core::{
     http::HttpError,
     remote::RemoteError,
     repo_files_read::{errors::GetFilesReaderError, state::RepoFileReaderProvider},
+    store::NextId,
     transfers::{
         errors::{DownloadableError, TransferError},
         state::{DownloadTransfer, Transfer, TransferState, TransferType, TransfersState},
@@ -98,7 +99,7 @@ fn test_download_change_name() {
                 2 => assert_eq!(transfers, expected_transfers_processing(&transfers, 1)),
                 3 => assert_eq!(
                     transfers,
-                    patch_transfer(expected_transfers_transferring(&transfers, 1), 0, |t| {
+                    patch_transfer(expected_transfers_transferring(&transfers, 1), 1, |t| {
                         t.typ = TransferType::Download(DownloadTransfer {
                             name: "file renamed.txt".into(),
                         });
@@ -109,7 +110,7 @@ fn test_download_change_name() {
                     transfers,
                     patch_transfer(
                         expected_transfers_transferring_progress(&transfers, 1),
-                        0,
+                        1,
                         |t| {
                             t.typ = TransferType::Download(DownloadTransfer {
                                 name: "file renamed.txt".into(),
@@ -250,7 +251,7 @@ fn test_download_reader_error() {
 
         let recorder = transfers_recorder(&fixture.vault);
 
-        let watcher = transfer_abort_when(fixture.vault.clone(), 0, |t| {
+        let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
             matches!(t.state, TransferState::Failed { .. })
         });
 
@@ -295,7 +296,7 @@ fn test_download_reader_error() {
                 10 => assert_eq!(transfers, expected_transfers_processing(&transfers, 5)),
                 11 => {
                     assert_eq!(transfers, expected_transfers_failed(&transfers, 5));
-                    match &transfers.transfers.get(&0).as_ref().unwrap().state {
+                    match &transfers.transfers.get(&1).as_ref().unwrap().state {
                         TransferState::Failed { error } => assert!(
                             matches!(error, TransferError::RemoteError(RemoteError::HttpError(
                                 HttpError::ResponseError(err),
@@ -318,7 +319,7 @@ fn test_download_downloadable_writer_error() {
 
         let recorder = transfers_recorder(&fixture.vault);
 
-        let watcher = transfer_abort_when(fixture.vault.clone(), 0, |t| {
+        let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
             matches!(t.state, TransferState::Failed { .. })
         });
 
@@ -369,7 +370,7 @@ fn test_download_downloadable_writer_error() {
                 15 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 5)),
                 16 => {
                     assert_eq!(transfers, expected_transfers_failed(&transfers, 5));
-                    match &transfers.transfers.get(&0).as_ref().unwrap().state {
+                    match &transfers.transfers.get(&1).as_ref().unwrap().state {
                         TransferState::Failed { error } => assert!(
                             matches!(error, TransferError::LocalFileError(err) if err == "writer error")
                         ),
@@ -390,7 +391,7 @@ fn test_download_downloadable_close_error() {
 
         let recorder = transfers_recorder(&fixture.vault);
 
-        let watcher = transfer_abort_when(fixture.vault.clone(), 0, |t| {
+        let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
             matches!(t.state, TransferState::Failed { .. })
         });
 
@@ -470,7 +471,7 @@ fn test_download_downloadable_close_error() {
                 16 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 5)),
                 17 => {
                     assert_eq!(transfers, expected_transfers_failed(&transfers, 5));
-                    match &transfers.transfers.get(&0).as_ref().unwrap().state {
+                    match &transfers.transfers.get(&1).as_ref().unwrap().state {
                         TransferState::Failed { error } => assert!(
                             matches!(error, TransferError::LocalFileError(err) if err == "close error")
                         ),
@@ -491,7 +492,7 @@ fn test_download_downloadable_done_error() {
 
         let recorder = transfers_recorder(&fixture.vault);
 
-        let watcher = transfer_abort_when(fixture.vault.clone(), 0, |t| {
+        let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
             matches!(t.state, TransferState::Failed { .. })
         });
 
@@ -548,7 +549,7 @@ fn test_download_downloadable_done_error() {
                 16 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 5)),
                 17 => {
                     assert_eq!(transfers, expected_transfers_failed(&transfers, 5));
-                    match &transfers.transfers.get(&0).as_ref().unwrap().state {
+                    match &transfers.transfers.get(&1).as_ref().unwrap().state {
                         TransferState::Failed { error } => assert!(
                             matches!(error, TransferError::LocalFileError(err) if err == "done error")
                         ),
@@ -594,7 +595,7 @@ fn test_download_abort_waiting() {
 
         let recorder = transfers_recorder(&fixture.vault);
 
-        let watcher = transfer_abort_when(fixture.vault.clone(), 0, |t| {
+        let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
             matches!(t.state, TransferState::Waiting)
         });
 
@@ -627,7 +628,7 @@ fn test_download_abort_processing() {
 
         let recorder = transfers_recorder(&fixture.vault);
 
-        let watcher = transfer_abort_when(fixture.vault.clone(), 0, |t| {
+        let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
             matches!(t.state, TransferState::Processing)
         });
 
@@ -663,7 +664,7 @@ fn test_download_abort_transferring() {
 
         let recorder = transfers_recorder(&fixture.vault);
 
-        let watcher = transfer_abort_when(fixture.vault.clone(), 0, |t| {
+        let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
             matches!(t.state, TransferState::Transferring)
         });
 
@@ -759,7 +760,7 @@ fn test_download_fail_autoretry_fail() {
 
         let recorder = transfers_recorder(&fixture.vault);
 
-        let watcher = transfer_abort_when(fixture.vault.clone(), 0, |t| {
+        let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
             matches!(t.state, TransferState::Failed { .. })
         });
 
@@ -827,9 +828,9 @@ fn test_download_fail_autoretry_retry() {
 
         let watcher = transfer_do_when(
             fixture.vault.clone(),
-            0,
+            1,
             |t| matches!(t.state, TransferState::Failed { .. }),
-            |vault| vault.transfers_retry(0),
+            |vault| vault.transfers_retry(1),
         );
 
         let (_, create_future, content_future) =
@@ -879,9 +880,9 @@ fn test_download_fail_autoretry_retry() {
 fn expected_transfers_waiting(transfers: &TransfersState) -> TransfersState {
     TransfersState {
         transfers: [(
-            0,
+            1,
             Transfer {
-                id: 0,
+                id: 1,
                 typ: TransferType::Download(DownloadTransfer {
                     name: "file.txt".into(),
                 }),
@@ -898,7 +899,7 @@ fn expected_transfers_waiting(transfers: &TransfersState) -> TransfersState {
             },
         )]
         .into(),
-        next_id: 1,
+        next_id: NextId(2),
         started: None,
         last_progress_update: transfers.last_progress_update,
         transferring_count: 0,
@@ -917,9 +918,9 @@ fn expected_transfers_waiting(transfers: &TransfersState) -> TransfersState {
 fn expected_transfers_processing(transfers: &TransfersState, attempts: usize) -> TransfersState {
     TransfersState {
         transfers: [(
-            0,
+            1,
             Transfer {
-                id: 0,
+                id: 1,
                 typ: TransferType::Download(DownloadTransfer {
                     name: "file.txt".into(),
                 }),
@@ -929,7 +930,7 @@ fn expected_transfers_processing(transfers: &TransfersState, attempts: usize) ->
                 started: Some(
                     transfers
                         .transfers
-                        .get(&0)
+                        .get(&1)
                         .and_then(|t| t.started)
                         .unwrap_or(9999),
                 ),
@@ -942,7 +943,7 @@ fn expected_transfers_processing(transfers: &TransfersState, attempts: usize) ->
             },
         )]
         .into(),
-        next_id: 1,
+        next_id: NextId(2),
         started: Some(transfers.started.unwrap_or(999)),
         last_progress_update: transfers.last_progress_update,
         transferring_count: 1,
@@ -961,9 +962,9 @@ fn expected_transfers_processing(transfers: &TransfersState, attempts: usize) ->
 fn expected_transfers_transferring(transfers: &TransfersState, attempts: usize) -> TransfersState {
     TransfersState {
         transfers: [(
-            0,
+            1,
             Transfer {
-                id: 0,
+                id: 1,
                 typ: TransferType::Download(DownloadTransfer {
                     name: "file.txt".into(),
                 }),
@@ -973,7 +974,7 @@ fn expected_transfers_transferring(transfers: &TransfersState, attempts: usize) 
                 started: Some(
                     transfers
                         .transfers
-                        .get(&0)
+                        .get(&1)
                         .and_then(|t| t.started)
                         .unwrap_or(9999),
                 ),
@@ -986,7 +987,7 @@ fn expected_transfers_transferring(transfers: &TransfersState, attempts: usize) 
             },
         )]
         .into(),
-        next_id: 1,
+        next_id: NextId(2),
         started: Some(transfers.started.unwrap_or(999)),
         last_progress_update: transfers.last_progress_update,
         transferring_count: 1,
@@ -1008,9 +1009,9 @@ fn expected_transfers_transferring_progress(
 ) -> TransfersState {
     TransfersState {
         transfers: [(
-            0,
+            1,
             Transfer {
-                id: 0,
+                id: 1,
                 typ: TransferType::Download(DownloadTransfer {
                     name: "file.txt".into(),
                 }),
@@ -1020,7 +1021,7 @@ fn expected_transfers_transferring_progress(
                 started: Some(
                     transfers
                         .transfers
-                        .get(&0)
+                        .get(&1)
                         .and_then(|t| t.started)
                         .unwrap_or(9999),
                 ),
@@ -1033,7 +1034,7 @@ fn expected_transfers_transferring_progress(
             },
         )]
         .into(),
-        next_id: 1,
+        next_id: NextId(2),
         started: Some(transfers.started.unwrap_or(999)),
         last_progress_update: transfers.last_progress_update,
         transferring_count: 1,
@@ -1055,9 +1056,9 @@ fn expected_transfers_waiting_failed(
 ) -> TransfersState {
     TransfersState {
         transfers: [(
-            0,
+            1,
             Transfer {
-                id: 0,
+                id: 1,
                 typ: TransferType::Download(DownloadTransfer {
                     name: "file.txt".into(),
                 }),
@@ -1074,7 +1075,7 @@ fn expected_transfers_waiting_failed(
             },
         )]
         .into(),
-        next_id: 1,
+        next_id: NextId(2),
         started: Some(transfers.started.unwrap_or(999)),
         last_progress_update: transfers.last_progress_update,
         transferring_count: 0,
@@ -1093,9 +1094,9 @@ fn expected_transfers_waiting_failed(
 fn expected_transfers_failed(transfers: &TransfersState, attempts: usize) -> TransfersState {
     TransfersState {
         transfers: [(
-            0,
+            1,
             Transfer {
-                id: 0,
+                id: 1,
                 typ: TransferType::Download(DownloadTransfer {
                     name: "file.txt".into(),
                 }),
@@ -1105,7 +1106,7 @@ fn expected_transfers_failed(transfers: &TransfersState, attempts: usize) -> Tra
                 started: None,
                 is_persistent: false,
                 is_retriable: true,
-                state: match &transfers.transfers.get(&0).unwrap().state {
+                state: match &transfers.transfers.get(&1).unwrap().state {
                     TransferState::Failed { error } => TransferState::Failed {
                         error: error.clone(),
                     },
@@ -1117,7 +1118,7 @@ fn expected_transfers_failed(transfers: &TransfersState, attempts: usize) -> Tra
             },
         )]
         .into(),
-        next_id: 1,
+        next_id: NextId(2),
         started: None,
         last_progress_update: transfers.last_progress_update,
         transferring_count: 0,
@@ -1135,7 +1136,7 @@ fn expected_transfers_failed(transfers: &TransfersState, attempts: usize) -> Tra
 
 fn expected_tranfers_done() -> TransfersState {
     TransfersState {
-        next_id: 1,
+        next_id: NextId(2),
         ..Default::default()
     }
 }

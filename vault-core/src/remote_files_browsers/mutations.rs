@@ -41,9 +41,7 @@ pub fn create(
 ) -> u32 {
     notify(store::Event::RemoteFilesBrowsers);
 
-    let browser_id = state.remote_files_browsers.next_id;
-
-    state.remote_files_browsers.next_id += 1;
+    let browser_id = state.remote_files_browsers.next_id.next();
 
     let status = get_initial_status(state, location.as_ref());
 

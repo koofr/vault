@@ -4,6 +4,7 @@ use crate::{
     common::state::Status,
     repo_unlock::state::RepoUnlockInfo,
     repos::{errors::UnlockRepoError, state::RepoConfig},
+    store::NextId,
 };
 
 pub struct RepoConfigBackupInfo<'a> {
@@ -21,5 +22,5 @@ pub struct RepoConfigBackup {
 #[derive(Debug, Clone, Default)]
 pub struct RepoConfigBackupsState {
     pub backups: HashMap<u32, RepoConfigBackup>,
-    pub next_id: u32,
+    pub next_id: NextId,
 }
