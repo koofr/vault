@@ -613,6 +613,9 @@ impl Remote {
         let (req_body, req_headers) = req_json(&models::FilesMove {
             to_mount_id: to_mount_id.to_owned(),
             to_path: to_path.to_owned(),
+            if_modified: None,
+            if_size: None,
+            if_hash: None,
         });
 
         let res = self
