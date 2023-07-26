@@ -1,9 +1,11 @@
+use std::sync::Arc;
+
 use thiserror::Error;
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, Clone)]
 pub enum SecureStorageError {
     #[error("serialization error: {0}")]
-    SerializationError(#[from] serde_json::Error),
+    SerializationError(Arc<serde_json::Error>),
     #[error("secure storage error: {0}")]
     Error(String),
 }

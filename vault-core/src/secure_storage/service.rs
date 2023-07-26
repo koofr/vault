@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use serde::de::DeserializeOwned;
 
 use super::{errors::SecureStorageError, secure_storage::SecureStorage};
@@ -26,14 +28,17 @@ impl SecureStorageService {
             }
         };
 
-        Ok(Some(serde_json::from_str(&raw_value)?))
+        Ok(Some(serde_json::from_str(&raw_value).map_err(|err| {
+            SecureStorageError::SerializationError(Arc::new(err))
+        })?))
     }
 
     pub fn set<T>(&self, key: &str, value: &T) -> Result<(), SecureStorageError>
     where
         T: serde::Serialize,
     {
-        let raw_value = serde_json::to_string(value)?;
+        let raw_value = serde_json::to_string(value)
+            .map_err(|err| SecureStorageError::SerializationError(Arc::new(err)))?;
 
         self.secure_storage
             .set_item(key, &raw_value)
