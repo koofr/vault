@@ -23,6 +23,12 @@ export const Notifications = memo<{}>(() => {
     },
     [webVault]
   );
+  const removeAfter = useCallback(
+    (id: number, durationMs: number) => {
+      webVault.notificationsRemoveAfter(id, durationMs);
+    },
+    [webVault]
+  );
   const removeAll = useCallback(() => {
     webVault.notificationsRemoveAll();
   }, [webVault]);
@@ -71,6 +77,7 @@ export const Notifications = memo<{}>(() => {
           key={notification.id}
           message={notification.message}
           remove={() => remove(notification.id)}
+          removeAfter={(durationMs) => removeAfter(notification.id, durationMs)}
         />
       ))}
     </div>

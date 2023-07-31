@@ -1,16 +1,17 @@
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 
-use crate::store;
+use crate::{runtime, store};
 
 use super::state::Notification;
 
 pub struct NotificationsService {
     store: Arc<store::Store>,
+    runtime: Arc<runtime::BoxRuntime>,
 }
 
 impl NotificationsService {
-    pub fn new(store: Arc<store::Store>) -> Self {
-        Self { store }
+    pub fn new(store: Arc<store::Store>, runtime: Arc<runtime::BoxRuntime>) -> Self {
+        Self { store, runtime }
     }
 
     pub fn show(&self, message: String) {
@@ -31,6 +32,12 @@ impl NotificationsService {
 
             state.notifications.notifications.remove(&id);
         });
+    }
+
+    pub async fn remove_after(&self, id: u32, duration: Duration) {
+        self.runtime.sleep(duration).await;
+
+        self.remove(id);
     }
 
     pub fn remove_all(&self) {

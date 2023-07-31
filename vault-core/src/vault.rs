@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 
 use futures::future::BoxFuture;
 
@@ -66,8 +66,10 @@ impl Vault {
         let runtime = Arc::new(runtime);
         let secure_storage_service =
             Arc::new(secure_storage::SecureStorageService::new(secure_storage));
-        let notifications_service =
-            Arc::new(notifications::NotificationsService::new(store.clone()));
+        let notifications_service = Arc::new(notifications::NotificationsService::new(
+            store.clone(),
+            runtime.clone(),
+        ));
         let dialogs_service = Arc::new(dialogs::DialogsService::new(store.clone()));
         let oauth2_service = Arc::new(oauth2::OAuth2Service::new(
             oauth2_config,
@@ -293,8 +295,14 @@ impl Vault {
         self.notifications_service.show(message)
     }
 
-    pub fn notifications_remove(&self, id: u32) {
-        self.notifications_service.remove(id)
+    pub fn notifications_remove(&self, notification_id: u32) {
+        self.notifications_service.remove(notification_id)
+    }
+
+    pub async fn notifications_remove_after(&self, notification_id: u32, duration: Duration) {
+        self.notifications_service
+            .remove_after(notification_id, duration)
+            .await
     }
 
     pub fn notifications_remove_all(&self) {

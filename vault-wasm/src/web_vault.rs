@@ -1,6 +1,7 @@
 use std::{
     collections::{hash_map, HashMap},
     sync::{Arc, Mutex},
+    time::Duration,
 };
 
 use serde::Serialize;
@@ -337,6 +338,13 @@ impl WebVault {
     #[wasm_bindgen(js_name = notificationsRemove)]
     pub fn notifications_remove(&self, notification_id: u32) {
         self.vault.notifications_remove(notification_id)
+    }
+
+    #[wasm_bindgen(js_name = notificationsRemoveAfter)]
+    pub async fn notifications_remove_after(&self, notification_id: u32, duration_ms: u32) {
+        self.vault
+            .notifications_remove_after(notification_id, Duration::from_millis(duration_ms as u64))
+            .await
     }
 
     #[wasm_bindgen(js_name = notificationsRemoveAll)]
