@@ -133,8 +133,9 @@ pub fn select_info<'a>(state: &'a store::State, browser_id: u32) -> Option<RepoF
         let total_size = items
             .iter()
             .map(|item| match item.file.size {
-                RepoFileSize::Decrypted { size } => size,
-                RepoFileSize::DecryptError { encrypted_size, .. } => encrypted_size,
+                Some(RepoFileSize::Decrypted { size }) => size,
+                Some(RepoFileSize::DecryptError { encrypted_size, .. }) => encrypted_size,
+                None => 0,
             })
             .sum();
         let selected_count = items.iter().filter(|item| item.is_selected).count();
@@ -142,8 +143,9 @@ pub fn select_info<'a>(state: &'a store::State, browser_id: u32) -> Option<RepoF
             .iter()
             .filter(|item| item.is_selected)
             .map(|item| match item.file.size {
-                RepoFileSize::Decrypted { size } => size,
-                RepoFileSize::DecryptError { encrypted_size, .. } => encrypted_size,
+                Some(RepoFileSize::Decrypted { size }) => size,
+                Some(RepoFileSize::DecryptError { encrypted_size, .. }) => encrypted_size,
+                None => 0,
             })
             .sum();
         let selected_file = items

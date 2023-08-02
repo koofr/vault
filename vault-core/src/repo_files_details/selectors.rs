@@ -216,7 +216,7 @@ pub fn select_info<'a>(state: &'a store::State, details_id: u32) -> Option<RepoF
                 None => (None, None, None),
             })
         };
-        let file_modified = file.map(|file| file.modified);
+        let file_modified = file.and_then(|file| file.modified);
         let file_exists = file.is_some();
         let remote_file =
             file.and_then(|file| repo_files_selectors::select_remote_file(state, file));

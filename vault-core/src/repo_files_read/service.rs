@@ -104,14 +104,17 @@ impl RepoFilesReadService {
         file: RepoFile,
     ) -> Result<RepoFileReaderProvider, GetFilesReaderError> {
         let name = file.decrypted_name()?.to_owned();
-        let size = file.decrypted_size()?;
+        let size = file
+            .decrypted_size()?
+            .map(SizeInfo::Exact)
+            .unwrap_or(SizeInfo::Unknown);
 
         let this = self.clone();
         let file = Arc::new(file);
 
         Ok(RepoFileReaderProvider {
             name: name.to_owned(),
-            size: SizeInfo::Exact(size),
+            size,
             unique_name: Some(file.unique_name.clone()),
             reader_builder: Box::new(move || {
                 let this = this.clone();

@@ -100,14 +100,8 @@ pub fn get_file_item(
             typ: file.typ.clone(),
             file_icon_attrs: file.file_icon_attrs(mount),
         },
-        size: match &file.typ {
-            RemoteFileType::Dir => None,
-            RemoteFileType::File => Some(file.size),
-        },
-        modified: match &file.typ {
-            RemoteFileType::Dir => None,
-            RemoteFileType::File => Some(file.modified),
-        },
+        size: file.size,
+        modified: file.modified,
     }
 }
 

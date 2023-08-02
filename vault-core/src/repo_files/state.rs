@@ -3,8 +3,8 @@ use std::collections::{HashMap, HashSet};
 use crate::{
     cipher::errors::{DecryptFilenameError, DecryptSizeError},
     files::{file_category::FileCategory, file_icon::FileIconAttrs},
-    remote::{models, RemoteFileUploadConflictResolution},
-    remote_files::state::RemoteFileType,
+    remote::RemoteFileUploadConflictResolution,
+    remote_files::state::{RemoteFile, RemoteFileType},
     sort::state::SortDirection,
 };
 
@@ -139,8 +139,8 @@ pub struct RepoFile {
     pub ext: Option<String>,
     pub content_type: Option<String>,
     pub typ: RepoFileType,
-    pub size: RepoFileSize,
-    pub modified: i64,
+    pub size: Option<RepoFileSize>,
+    pub modified: Option<i64>,
     pub unique_name: String,
     pub remote_hash: Option<String>,
     pub category: FileCategory,
@@ -165,14 +165,18 @@ impl RepoFile {
         }
     }
 
-    pub fn decrypted_size(&self) -> Result<i64, DecryptSizeError> {
-        self.size.decrypted_size()
+    pub fn decrypted_size(&self) -> Result<Option<i64>, DecryptSizeError> {
+        match &self.size {
+            Some(size) => size.decrypted_size().map(Some),
+            None => Ok(None),
+        }
     }
 
     pub fn size_force(&self) -> i64 {
         match self.size {
-            RepoFileSize::Decrypted { size } => size,
-            RepoFileSize::DecryptError { encrypted_size, .. } => encrypted_size,
+            Some(RepoFileSize::Decrypted { size }) => size,
+            Some(RepoFileSize::DecryptError { encrypted_size, .. }) => encrypted_size,
+            None => 0,
         }
     }
 
@@ -238,7 +242,7 @@ impl Into<RemoteFileUploadConflictResolution> for RepoFilesUploadConflictResolut
 pub struct RepoFilesUploadResult {
     pub file_id: String,
     pub name: String,
-    pub remote_file: models::FilesFile,
+    pub remote_file: RemoteFile,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

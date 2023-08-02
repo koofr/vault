@@ -355,16 +355,13 @@ pub fn decrypt_file(
             )
         }
     };
-    let size = match remote_file.typ {
-        RemoteFileType::File => match decrypt_size(remote_file.size) {
-            Ok(size) => RepoFileSize::Decrypted { size },
-            Err(err) => RepoFileSize::DecryptError {
-                encrypted_size: remote_file.size,
-                error: err,
-            },
+    let size = remote_file.size.map(|size| match decrypt_size(size) {
+        Ok(size) => RepoFileSize::Decrypted { size },
+        Err(err) => RepoFileSize::DecryptError {
+            encrypted_size: size,
+            error: err,
         },
-        RemoteFileType::Dir => RepoFileSize::Decrypted { size: 0 },
-    };
+    });
     let (ext, content_type, category) = match &remote_file.typ {
         RemoteFileType::File => match &name {
             RepoFileName::Decrypted { name_lower, .. } => {
@@ -412,8 +409,8 @@ pub fn get_root_file(repo_id: &str, remote_file: &RemoteFile) -> RepoFile {
         ext: None,
         content_type: None,
         typ: super::state::RepoFileType::Dir,
-        size: RepoFileSize::Decrypted { size: 0 },
-        modified: 0,
+        size: None,
+        modified: None,
         unique_name,
         remote_hash: None,
         category: FileCategory::Folder,
@@ -479,8 +476,8 @@ mod tests {
                 ext: None,
                 content_type: None,
                 typ: RepoFileType::Dir,
-                size: RepoFileSize::Decrypted { size: 0 },
-                modified: 0,
+                size: None,
+                modified: None,
                 unique_name: String::from("2b6bea08149b89711b061f1291492d46"),
                 remote_hash: None,
                 category: FileCategory::Folder,
@@ -513,8 +510,8 @@ mod tests {
                 ext: None,
                 content_type: None,
                 typ: RepoFileType::Dir,
-                size: RepoFileSize::Decrypted { size: 0 },
-                modified: 0,
+                size: None,
+                modified: None,
                 unique_name: String::from("4d6bb967e30d7a5d36c3e6b607d71cf2"),
                 remote_hash: None,
                 category: FileCategory::Folder,
@@ -551,8 +548,8 @@ mod tests {
                 ext: None,
                 content_type: None,
                 typ: RepoFileType::Dir,
-                size: RepoFileSize::Decrypted { size: 0 },
-                modified: 0,
+                size: None,
+                modified: None,
                 unique_name: String::from("a2216f6522ef8e23512f13d37592b43b"),
                 remote_hash: None,
                 category: FileCategory::Folder,
@@ -585,8 +582,8 @@ mod tests {
                 ext: Some(String::from("jpg")),
                 content_type: Some(String::from("image/jpeg")),
                 typ: RepoFileType::File,
-                size: RepoFileSize::Decrypted { size: 52 },
-                modified: 1,
+                size: Some(RepoFileSize::Decrypted { size: 52 }),
+                modified: Some(1),
                 unique_name: String::from("c7f010983b2f25f3e1d604c2870d82c8.jpg"),
                 remote_hash: Some(String::from("hash")),
                 category: FileCategory::Image,
@@ -598,7 +595,7 @@ mod tests {
     fn test_decrypt_file_file_decrypt_error() {
         let cipher = create_cipher();
         let mut remote_file = remote_files_test_helpers::create_file("m1", "/Vault/F1");
-        remote_file.size = 10;
+        remote_file.size = Some(10);
 
         assert_eq!(
             decrypt_file("r1", "/", &remote_file, &cipher),
@@ -624,11 +621,11 @@ mod tests {
                 ext: None,
                 content_type: None,
                 typ: RepoFileType::File,
-                size: RepoFileSize::DecryptError {
+                size: Some(RepoFileSize::DecryptError {
                     encrypted_size: 10,
                     error: DecryptSizeError::EncryptedFileTooShort
-                },
-                modified: 1,
+                }),
+                modified: Some(1),
                 unique_name: String::from("de40e3afb025fe16012fd421e246c711"),
                 remote_hash: Some(String::from("hash")),
                 category: FileCategory::Generic,

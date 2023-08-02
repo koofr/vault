@@ -4,6 +4,7 @@ use std::{
 };
 
 use crate::{
+    common::state::BoxAsyncRead,
     dir_pickers::state::DirPickerItemType,
     files::{file_category::FileCategory, file_icon::FileIconAttrs},
     remote::models,
@@ -205,8 +206,8 @@ pub struct RemoteFile {
     pub name_lower: String,
     pub ext: Option<String>,
     pub typ: RemoteFileType,
-    pub size: i64,
-    pub modified: i64,
+    pub size: Option<i64>,
+    pub modified: Option<i64>,
     pub hash: Option<String>,
     pub unique_id: String,
     pub category: FileCategory,
@@ -237,6 +238,12 @@ impl RemoteFile {
             is_error: false,
         }
     }
+}
+
+pub struct RemoteFilesFileReader {
+    pub file: RemoteFile,
+    pub size: i64,
+    pub reader: BoxAsyncRead,
 }
 
 #[derive(Debug, Clone, Default)]

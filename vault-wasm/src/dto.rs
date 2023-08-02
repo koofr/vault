@@ -714,8 +714,8 @@ pub struct RemoteFile {
     pub name: String,
     #[serde(rename = "type")]
     pub typ: RemoteFileType,
-    pub size: f64,
-    pub modified: f64,
+    pub size: Option<f64>,
+    pub modified: Option<f64>,
 }
 
 impl From<&remote_files_state::RemoteFile> for RemoteFile {
@@ -726,8 +726,8 @@ impl From<&remote_files_state::RemoteFile> for RemoteFile {
             path: file.path.to_owned(),
             name: file.name.to_owned(),
             typ: (&file.typ).into(),
-            size: file.size as f64,
-            modified: file.modified as f64,
+            size: file.size.map(|size| size as f64),
+            modified: file.modified.map(|modified| modified as f64),
         }
     }
 }
@@ -763,7 +763,7 @@ pub struct RepoFile {
     pub typ: RepoFileType,
     #[serde(rename = "sizeDisplay")]
     pub size_display: String,
-    pub modified: f64,
+    pub modified: Option<f64>,
     #[serde(rename = "remoteHash")]
     pub remote_hash: Option<String>,
     pub category: FileCategory,
@@ -797,17 +797,15 @@ impl From<&repo_files_state::RepoFile> for RepoFile {
             ext: file.ext.clone(),
             content_type: file.content_type.clone(),
             typ: (&file.typ).into(),
-            size_display: match &file.typ {
-                repo_files_state::RepoFileType::File => match file.size {
-                    repo_files_state::RepoFileSize::Decrypted { size } => size_display(size),
-                    repo_files_state::RepoFileSize::DecryptError {
-                        encrypted_size: _,
-                        error: _,
-                    } => String::from("???"),
-                },
-                repo_files_state::RepoFileType::Dir => String::from(""),
+            size_display: match &file.size {
+                Some(repo_files_state::RepoFileSize::Decrypted { size }) => size_display(*size),
+                Some(repo_files_state::RepoFileSize::DecryptError {
+                    encrypted_size: _,
+                    error: _,
+                }) => String::from("???"),
+                None => "".into(),
             },
-            modified: file.modified as f64,
+            modified: file.modified.map(|modified| modified as f64),
             remote_hash: file.remote_hash.clone(),
             category: (&file.category).into(),
             file_icon_attrs: file.file_icon_attrs().into(),

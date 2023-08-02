@@ -74,7 +74,7 @@ pub fn list_recursive_items_to_remote_zip_entries(
                 };
 
                 let size = match file.decrypted_size() {
-                    Ok(size) => size,
+                    Ok(size) => size.unwrap_or(0),
                     Err(_) => {
                         // skip non-decrypted files
                         continue;
@@ -86,7 +86,7 @@ pub fn list_recursive_items_to_remote_zip_entries(
                     remote_path: file.remote_path.clone(),
                     repo_id: file.repo_id.clone(),
                     filename,
-                    modified: zip_date_time_from_millis(file.modified),
+                    modified: zip_date_time_from_millis(file.modified.unwrap_or(0)),
                     typ: file.typ,
                     size,
                 });
@@ -115,9 +115,9 @@ pub fn file_to_remote_zip_entry(file: &RepoFile) -> Result<RemoteZipEntry, GetFi
         remote_path: file.remote_path.clone(),
         repo_id: file.repo_id.clone(),
         filename: file.decrypted_name().map(str::to_string)?,
-        modified: zip_date_time_from_millis(file.modified),
+        modified: zip_date_time_from_millis(file.modified.unwrap_or(0)),
         typ: file.typ.clone(),
-        size: file.decrypted_size()?,
+        size: file.decrypted_size()?.unwrap_or(0),
     })
 }
 

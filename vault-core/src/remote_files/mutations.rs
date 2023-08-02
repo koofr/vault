@@ -7,8 +7,8 @@ use super::{
 
 pub fn mount_to_remote_file(id: String, mount_id: String) -> RemoteFile {
     let path = String::from("/");
-    let size = 0;
-    let modified = 0;
+    let size = None;
+    let modified = None;
     let hash = None;
     let unique_id =
         selectors::get_file_unique_id(&mount_id, &path, size, modified, hash.as_deref());
@@ -42,12 +42,12 @@ pub fn files_file_to_remote_file(
         RemoteFileType::Dir => (None, FileCategory::Folder),
         RemoteFileType::File => selectors::get_file_ext_category(&name_lower),
     };
-    let modified = match &typ {
-        RemoteFileType::Dir => 0,
-        RemoteFileType::File => file.modified,
+    let (size, modified) = match &typ {
+        RemoteFileType::Dir => (None, None),
+        RemoteFileType::File => (Some(file.size), Some(file.modified)),
     };
     let unique_id =
-        selectors::get_file_unique_id(&mount_id, &path, file.size, modified, file.hash.as_deref());
+        selectors::get_file_unique_id(&mount_id, &path, size, modified, file.hash.as_deref());
 
     RemoteFile {
         id,
@@ -57,7 +57,7 @@ pub fn files_file_to_remote_file(
         name_lower,
         ext,
         typ,
-        size: file.size,
+        size,
         modified,
         hash: file.hash,
         unique_id,
@@ -77,12 +77,12 @@ pub fn bundle_file_to_remote_file(
         RemoteFileType::Dir => (None, FileCategory::Folder),
         RemoteFileType::File => selectors::get_file_ext_category(&name_lower),
     };
-    let modified = match &typ {
-        RemoteFileType::Dir => 0,
-        RemoteFileType::File => file.modified,
+    let (size, modified) = match &typ {
+        RemoteFileType::Dir => (None, None),
+        RemoteFileType::File => (Some(file.size), Some(file.modified)),
     };
     let unique_id =
-        selectors::get_file_unique_id(&mount_id, &path, file.size, modified, file.hash.as_deref());
+        selectors::get_file_unique_id(&mount_id, &path, size, modified, file.hash.as_deref());
 
     RemoteFile {
         id,
@@ -92,7 +92,7 @@ pub fn bundle_file_to_remote_file(
         name_lower,
         ext,
         typ,
-        size: file.size,
+        size,
         modified,
         hash: file.hash,
         unique_id,
@@ -102,8 +102,8 @@ pub fn bundle_file_to_remote_file(
 
 fn bookmark_to_remote_file(id: String, bookmark: models::Bookmark) -> RemoteFile {
     let name_lower = bookmark.name.to_lowercase();
-    let size = 0;
-    let modified = 0;
+    let size = None;
+    let modified = None;
     let hash = None;
     let unique_id = selectors::get_file_unique_id(
         &bookmark.mount_id,
@@ -138,15 +138,15 @@ fn shared_file_to_remote_file(id: String, shared_file: models::SharedFile) -> Re
         RemoteFileType::Dir => (None, FileCategory::Folder),
         RemoteFileType::File => selectors::get_file_ext_category(&name_lower),
     };
-    let modified = match &typ {
-        RemoteFileType::Dir => 0,
-        RemoteFileType::File => shared_file.modified,
+    let (size, modified) = match &typ {
+        RemoteFileType::Dir => (None, None),
+        RemoteFileType::File => (Some(shared_file.size), Some(shared_file.modified)),
     };
     let hash = None;
     let unique_id = selectors::get_file_unique_id(
         &shared_file.mount.id,
         &path,
-        shared_file.size,
+        size,
         modified,
         hash.as_deref(),
     );
@@ -159,7 +159,7 @@ fn shared_file_to_remote_file(id: String, shared_file: models::SharedFile) -> Re
         name_lower,
         ext,
         typ,
-        size: shared_file.size,
+        size,
         modified,
         hash,
         unique_id,
@@ -172,8 +172,8 @@ fn dir_to_remote_file(id: String, mount_id: String, path: String) -> RemoteFile 
         .map(|name| name.to_owned())
         .unwrap_or(String::from(""));
     let name_lower = name.to_lowercase();
-    let size = 0;
-    let modified = 0;
+    let size = None;
+    let modified = None;
     let hash = None;
     let unique_id =
         selectors::get_file_unique_id(&mount_id, &path, size, modified, hash.as_deref());

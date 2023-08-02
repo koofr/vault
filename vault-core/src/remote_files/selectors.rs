@@ -17,15 +17,15 @@ pub fn get_file_id(mount_id: &str, path: &str) -> String {
 pub fn get_file_unique_id(
     mount_id: &str,
     path: &str,
-    size: i64,
-    modified: i64,
+    size: Option<i64>,
+    modified: Option<i64>,
     hash: Option<&str>,
 ) -> String {
     let digest = md5::compute(format!(
         "{}:{}:{}:{}",
         get_file_id(mount_id, path),
-        size,
-        modified,
+        size.unwrap_or(0),
+        modified.unwrap_or(0),
         hash.unwrap_or(""),
     ));
 

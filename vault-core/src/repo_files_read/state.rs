@@ -4,7 +4,7 @@ use futures::future::BoxFuture;
 
 use crate::{
     common::state::{BoxAsyncRead, SizeInfo},
-    remote::models,
+    remote_files::state::RemoteFile,
     repo_files::state::RepoFileType,
 };
 
@@ -18,7 +18,7 @@ pub struct RepoFileReader {
     pub content_type: Option<String>,
     /// remote_file is needed in repo files details to check if the remote
     /// content has changed by comparing remote (size, modified, hash)
-    pub remote_file: Option<models::FilesFile>,
+    pub remote_file: Option<RemoteFile>,
     /// unique_name is used for local file caching. it will not be set for
     /// generated files (e.g. ZIP files of a dir)
     pub unique_name: Option<String>,

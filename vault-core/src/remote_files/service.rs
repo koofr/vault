@@ -4,14 +4,18 @@ use crate::{
     common::state::BoxAsyncRead,
     dialogs,
     remote::{
-        models, remote::ListRecursiveItemStream, Remote, RemoteError, RemoteFileReader,
+        models, remote::ListRecursiveItemStream, Remote, RemoteError,
         RemoteFileUploadConflictResolution,
     },
     store,
     utils::path_utils,
 };
 
-use super::{errors::CreateDirError, mutations, selectors};
+use super::{
+    errors::CreateDirError,
+    mutations, selectors,
+    state::{RemoteFile, RemoteFilesFileReader},
+};
 
 pub struct RemoteFilesService {
     remote: Arc<Remote>,
@@ -126,8 +130,19 @@ impl RemoteFilesService {
         &self,
         mount_id: &str,
         path: &str,
-    ) -> Result<RemoteFileReader, RemoteError> {
-        self.remote.get_file_reader(&mount_id, &path).await
+    ) -> Result<RemoteFilesFileReader, RemoteError> {
+        let reader = self.remote.get_file_reader(&mount_id, &path).await?;
+
+        Ok(RemoteFilesFileReader {
+            file: mutations::files_file_to_remote_file(
+                selectors::get_file_id(mount_id, path),
+                mount_id.to_owned(),
+                path.to_owned(),
+                reader.file,
+            ),
+            size: reader.size,
+            reader: reader.reader,
+        })
     }
 
     pub async fn get_list_recursive(
@@ -147,7 +162,7 @@ impl RemoteFilesService {
         size: Option<i64>,
         conflict_resolution: RemoteFileUploadConflictResolution,
         on_progress: Option<Box<dyn Fn(usize) + Send + Sync>>,
-    ) -> Result<(String, models::FilesFile), RemoteError> {
+    ) -> Result<(String, RemoteFile), RemoteError> {
         let file = self
             .remote
             .upload_file_reader(
@@ -162,12 +177,20 @@ impl RemoteFilesService {
             )
             .await?;
 
-        let name = file.name.clone();
-        let path = path_utils::join_path_name(parent_path, &name);
+        let path = path_utils::join_path_name(parent_path, &file.name);
 
         self.file_created(mount_id, &path, file.clone());
 
-        Ok((selectors::get_file_id(mount_id, &path), file))
+        let file_id = selectors::get_file_id(mount_id, &path);
+
+        let file = mutations::files_file_to_remote_file(
+            file_id.clone(),
+            mount_id.to_owned(),
+            path.clone(),
+            file,
+        );
+
+        Ok((file_id, file))
     }
 
     pub async fn delete_file(&self, mount_id: &str, path: &str) -> Result<(), RemoteError> {

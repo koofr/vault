@@ -598,8 +598,8 @@ impl RepoFilesDetailsService {
             (
                 name.to_owned(),
                 RepoFilesUploadConflictResolution::Overwrite {
-                    if_remote_size: Some(data.remote_size),
-                    if_remote_modified: Some(data.remote_modified),
+                    if_remote_size: data.remote_size,
+                    if_remote_modified: data.remote_modified,
                     if_remote_hash: data.remote_hash.clone(),
                 },
             )

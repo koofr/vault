@@ -37,15 +37,15 @@ pub struct RepoFilesDetailsInfo<'a> {
 #[derive(Debug, Clone)]
 pub struct RepoFilesDetailsContentData {
     pub bytes: Vec<u8>,
-    pub remote_size: i64,
-    pub remote_modified: i64,
+    pub remote_size: Option<i64>,
+    pub remote_modified: Option<i64>,
     pub remote_hash: Option<String>,
 }
 
 #[derive(Debug, Clone)]
 pub struct RepoFilesDetailsContentLoading {
-    pub remote_size: i64,
-    pub remote_modified: i64,
+    pub remote_size: Option<i64>,
+    pub remote_modified: Option<i64>,
     pub remote_hash: Option<String>,
 }
 

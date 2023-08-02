@@ -189,7 +189,7 @@ export const FileSize = memo<{ file: RepoFile }>(({ file }) => {
 });
 
 export const FileModified = memo<{ file: RepoFile }>(({ file }) => {
-  if (file.type !== 'File') {
+  if (file.modified === undefined) {
     return null;
   }
 
