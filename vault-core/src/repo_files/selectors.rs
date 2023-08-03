@@ -164,16 +164,14 @@ pub fn select_check_rename_file(
     let file =
         select_file(state, &get_file_id(repo_id, path)).ok_or_else(RepoFilesErrors::not_found)?;
 
-    let file_name = file.decrypted_name()?;
-
-    // case change
-    if name != file_name && name.to_lowercase() == file_name.to_lowercase() {
-        return Ok(());
-    }
-
     let path = file.decrypted_path()?;
 
-    select_check_new_name_valid(state, &file.repo_id, path, name)?;
+    let parent_path = match path_utils::parent_path(path) {
+        Some(parent_path) => parent_path,
+        None => return Err(RenameFileError::RenameRoot),
+    };
+
+    select_check_new_name_valid(state, &file.repo_id, parent_path, name)?;
 
     Ok(())
 }

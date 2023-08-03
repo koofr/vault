@@ -237,6 +237,8 @@ pub enum RenameFileError {
     RepoLocked(#[from] RepoLockedError),
     #[error("{0}")]
     DecryptFilenameError(#[from] DecryptFilenameError),
+    #[error("rename root")]
+    RenameRoot,
     #[error("{0}")]
     RemoteError(#[from] RemoteError),
 }
