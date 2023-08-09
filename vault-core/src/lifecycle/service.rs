@@ -5,6 +5,8 @@ use crate::{
     repos::ReposService, space_usage::SpaceUsageService, store, user::UserService,
 };
 
+use super::errors::LoadError;
+
 pub struct LifecycleService {
     oauth2_service: Arc<OAuth2Service>,
     user_service: Arc<UserService>,
@@ -33,8 +35,8 @@ impl LifecycleService {
         }
     }
 
-    pub async fn load(&self) -> Result<(), RemoteError> {
-        let _ = self.oauth2_service.load();
+    pub async fn load(&self) -> Result<(), LoadError> {
+        self.oauth2_service.load()?;
 
         if self.oauth2_service.is_authenticated() {
             self.on_login().await?;

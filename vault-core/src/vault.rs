@@ -246,7 +246,7 @@ impl Vault {
 
     // lifecycle
 
-    pub async fn load(&self) -> Result<(), remote::RemoteError> {
+    pub async fn load(&self) -> Result<(), lifecycle::errors::LoadError> {
         self.lifecycle_service.load().await
     }
 
