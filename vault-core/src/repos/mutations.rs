@@ -70,7 +70,10 @@ pub fn repo_loaded(state: &mut store::State, repo: models::VaultRepo) {
 }
 
 pub fn repos_loading(state: &mut store::State) {
-    state.repos.status = Status::Loading;
+    state.repos.status = match state.repos.status {
+        Status::Loaded | Status::Error { .. } => Status::Reloading,
+        _ => Status::Loading,
+    };
 }
 
 pub fn repos_loaded(state: &mut store::State, repos: Vec<models::VaultRepo>) {
