@@ -13,3 +13,32 @@ members = [
 
 [profile.release.package.vault-wasm]
 opt-level = "s"
+
+# dev optimization
+
+[profile.dev.package.aead]
+opt-level = 3
+
+[profile.dev.package.aes]
+opt-level = 3
+
+[profile.dev.package.eme-mode]
+opt-level = 3
+
+[profile.dev.package.poly1305]
+opt-level = 3
+
+[profile.dev.package.salsa20]
+opt-level = 3
+
+[profile.dev.package.scrypt]
+opt-level = 3
+
+[profile.dev.package.subtle]
+opt-level = 3
+
+[profile.dev.package.xsalsa20poly1305]
+opt-level = 3
+
+[profile.dev.package.zeroize]
+opt-level = 3
