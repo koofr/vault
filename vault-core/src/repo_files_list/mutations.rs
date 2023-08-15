@@ -82,6 +82,8 @@ pub fn decrypt_files_list_recursive_item(
 
 #[cfg(test)]
 mod tests {
+    use similar_asserts::assert_eq;
+
     use crate::{
         cipher::{errors::DecryptFilenameError, test_helpers::create_cipher},
         file_types::file_category::FileCategory,

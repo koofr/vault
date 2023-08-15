@@ -64,6 +64,8 @@ pub fn select_files_zip_name(state: &store::State, files: &[RepoFile]) -> String
 mod tests {
     use std::{collections::HashMap, rc::Rc, sync::Arc};
 
+    use similar_asserts::assert_eq;
+
     use crate::{
         cipher::test_helpers as cipher_test_helpers,
         remote::test_helpers as remote_test_helpers,

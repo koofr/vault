@@ -450,6 +450,8 @@ pub fn cleanup_file(state: &mut store::State, file_id: &str) {
 
 #[cfg(test)]
 mod tests {
+    use similar_asserts::assert_eq;
+
     use crate::{
         cipher::{
             errors::{DecryptFilenameError, DecryptSizeError},

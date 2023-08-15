@@ -34,6 +34,9 @@ opt-level = 3
 [profile.dev.package.scrypt]
 opt-level = 3
 
+[profile.dev.package.similar-asserts]
+opt-level = 3
+
 [profile.dev.package.subtle]
 opt-level = 3
 

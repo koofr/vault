@@ -38,4 +38,5 @@ xsalsa20poly1305 = "0.9.1"
 
 [dev-dependencies]
 futures-test = "0.3.28"
+similar-asserts = "1.4.2"
 regex = "1.8.2"
