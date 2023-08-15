@@ -3,11 +3,10 @@ use crate::common::errors::InvalidPathError;
 pub fn path_to_name<'a>(path: &'a str) -> Option<&'a str> {
     match path {
         "/" => None,
-        _ => {
-            let idx = path.rfind('/').unwrap();
-
-            Some(&path[idx + 1..])
-        }
+        _ => match path.rfind('/') {
+            Some(idx) => Some(&path[idx + 1..]),
+            None => Some(path),
+        },
     }
 }
 
@@ -19,10 +18,12 @@ pub fn join_path_name(path: &str, name: &str) -> String {
 }
 
 pub fn join_paths(parent_path: &str, path: &str) -> String {
-    match (parent_path, path) {
-        (_, "/") => parent_path.to_owned(),
-        ("/", _) => path.to_owned(),
-        (_, _) => parent_path.to_owned() + path,
+    match (parent_path, path, path.starts_with("/")) {
+        (_, "/", _) => parent_path.to_owned(),
+        ("/", _, false) => format!("/{}", path),
+        ("/", _, true) => path.to_owned(),
+        (_, _, false) => format!("{}/{}", parent_path, path),
+        (_, _, true) => format!("{}{}", parent_path, path),
     }
 }
 
@@ -151,6 +152,8 @@ mod tests {
         assert_eq!(path_to_name("/"), None);
         assert_eq!(path_to_name("/foo"), Some("foo"));
         assert_eq!(path_to_name("/foo/bar"), Some("bar"));
+        assert_eq!(path_to_name("foo"), Some("foo"));
+        assert_eq!(path_to_name("foo/bar"), Some("bar"));
     }
 
     #[test]
@@ -158,7 +161,10 @@ mod tests {
         assert_eq!(join_paths("/", "/"), "/");
         assert_eq!(join_paths("/foo", "/"), "/foo");
         assert_eq!(join_paths("/", "/foo"), "/foo");
+        assert_eq!(join_paths("/", "foo"), "/foo");
         assert_eq!(join_paths("/foo", "/bar"), "/foo/bar");
+        assert_eq!(join_paths("/foo", "bar"), "/foo/bar");
+        assert_eq!(join_paths("/foo", "bar/baz"), "/foo/bar/baz");
     }
 
     #[test]
