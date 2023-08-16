@@ -4,10 +4,7 @@ use futures::{
     stream::{BoxStream, TryStreamExt},
     AsyncBufReadExt, StreamExt,
 };
-use http::{
-    header::{AUTHORIZATION, CONTENT_TYPE},
-    HeaderMap, HeaderValue,
-};
+use http::{header, HeaderMap, HeaderValue};
 use serde::Serialize;
 use urlencoding::encode;
 
@@ -34,14 +31,28 @@ pub struct RemoteFileReader {
     pub reader: BoxAsyncRead,
 }
 
+#[derive(Debug, Clone)]
 pub enum RemoteFileUploadConflictResolution {
     Autorename,
     Overwrite {
         if_size: Option<i64>,
         if_modified: Option<i64>,
         if_hash: Option<String>,
+        ignore_nonexisting: bool,
     },
     Error,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct RemoteFileRemoveConditions {
+    pub if_empty: bool,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct RemoteFileMoveConditions {
+    pub if_size: Option<i64>,
+    pub if_modified: Option<i64>,
+    pub if_hash: Option<String>,
 }
 
 pub type Logout = Box<dyn Fn() + Send + Sync + 'static>;
@@ -52,6 +63,7 @@ pub struct Remote {
     auth_provider: Arc<Box<dyn auth::AuthProvider + Send + Sync>>,
 
     logout: Arc<RwLock<Option<Logout>>>,
+    user_agent: Option<String>,
 }
 
 impl Remote {
@@ -66,6 +78,7 @@ impl Remote {
             auth_provider,
 
             logout: Arc::new(RwLock::new(None)),
+            user_agent: None,
         }
     }
 
@@ -75,8 +88,26 @@ impl Remote {
         *logout_guard = Some(logout)
     }
 
+    pub fn with_useragent(&self, user_agent: Option<String>) -> Self {
+        Self {
+            base_url: self.base_url.clone(),
+            http_client: self.http_client.clone(),
+            auth_provider: self.auth_provider.clone(),
+
+            logout: self.logout.clone(),
+            user_agent,
+        }
+    }
+
     async fn request(&self, mut request: HttpRequest) -> Result<BoxHttpResponse, RemoteError> {
         request.set_base_url(&self.base_url);
+
+        if let Some(user_agent) = &self.user_agent {
+            request.headers.insert(
+                header::USER_AGENT,
+                HeaderValue::from_str(user_agent).unwrap(),
+            );
+        }
 
         let is_req_retriable = request.is_retriable;
 
@@ -123,7 +154,7 @@ impl Remote {
 
         request
             .headers
-            .insert(AUTHORIZATION, authorization.parse().unwrap());
+            .insert(header::AUTHORIZATION, authorization.parse().unwrap());
 
         let res = self
             .http_client
@@ -140,7 +171,10 @@ impl Remote {
         return Ok(res);
     }
 
-    async fn get_authorization(&self, force_refresh_token: bool) -> Result<String, RemoteError> {
+    pub async fn get_authorization(
+        &self,
+        force_refresh_token: bool,
+    ) -> Result<String, RemoteError> {
         let res = self
             .auth_provider
             .get_authorization(force_refresh_token)
@@ -480,19 +514,36 @@ impl Remote {
         name: &str,
         reader: BoxAsyncRead,
         size: Option<i64>,
+        modified: Option<i64>,
         conflict_resolution: RemoteFileUploadConflictResolution,
         on_progress: Option<Box<dyn Fn(usize) + Send + Sync>>,
     ) -> Result<models::FilesFile, RemoteError> {
-        let (autorename, overwrite, overwrite_if_size, overwrite_if_modified, overwrite_if_hash) =
-            match conflict_resolution {
-                RemoteFileUploadConflictResolution::Autorename => (true, false, None, None, None),
-                RemoteFileUploadConflictResolution::Overwrite {
-                    if_size,
-                    if_modified,
-                    if_hash,
-                } => (false, true, if_size, if_modified, if_hash),
-                RemoteFileUploadConflictResolution::Error => (false, false, None, None, None),
-            };
+        let (
+            autorename,
+            overwrite,
+            overwrite_if_size,
+            overwrite_if_modified,
+            overwrite_if_hash,
+            overwrite_ignore_nonexisting,
+        ) = match conflict_resolution {
+            RemoteFileUploadConflictResolution::Autorename => {
+                (true, false, None, None, None, false)
+            }
+            RemoteFileUploadConflictResolution::Overwrite {
+                if_size,
+                if_modified,
+                if_hash,
+                ignore_nonexisting,
+            } => (
+                false,
+                true,
+                if_size,
+                if_modified,
+                if_hash,
+                ignore_nonexisting,
+            ),
+            RemoteFileUploadConflictResolution::Error => (false, false, None, None, None, false),
+        };
 
         let mut url = format!(
             "/content/api/v2.1/mounts/{}/files/put?path={}&filename={}&autorename={}&overwrite={}&info=true",
@@ -506,6 +557,9 @@ impl Remote {
         if let Some(size) = size {
             url = format!("{}&size={}", url, size);
         }
+        if let Some(modified) = modified {
+            url = format!("{}&modified={}", url, modified);
+        }
         if let Some(overwrite_if_size) = overwrite_if_size {
             url = format!("{}&overwriteIfSize={}", url, overwrite_if_size);
         }
@@ -514,6 +568,9 @@ impl Remote {
         }
         if let Some(overwrite_if_hash) = overwrite_if_hash {
             url = format!("{}&overwriteIfHash={}", url, overwrite_if_hash);
+        }
+        if overwrite_ignore_nonexisting {
+            url = format!("{}&overwriteIgnoreNonexisting=", url);
         }
 
         let res = self
@@ -535,15 +592,26 @@ impl Remote {
         res_json(res).await
     }
 
-    pub async fn delete_file(&self, mount_id: &str, path: &str) -> Result<(), RemoteError> {
+    pub async fn delete_file(
+        &self,
+        mount_id: &str,
+        path: &str,
+        conditions: RemoteFileRemoveConditions,
+    ) -> Result<(), RemoteError> {
+        let mut url = format!(
+            "/api/v2.1/mounts/{}/files/remove?path={}",
+            mount_id,
+            encode(path)
+        );
+
+        if conditions.if_empty {
+            url = format!("{}&removeIfEmpty=", url);
+        }
+
         let res = self
             .request(HttpRequest {
                 method: String::from("DELETE"),
-                url: format!(
-                    "/api/v2.1/mounts/{}/files/remove?path={}",
-                    mount_id,
-                    encode(path)
-                ),
+                url,
                 is_retriable: true,
                 ..Default::default()
             })
@@ -660,13 +728,14 @@ impl Remote {
         path: &str,
         to_mount_id: &str,
         to_path: &str,
+        conditions: RemoteFileMoveConditions,
     ) -> Result<(), RemoteError> {
         let (req_body, req_headers) = req_json(&models::FilesMove {
             to_mount_id: to_mount_id.to_owned(),
             to_path: to_path.to_owned(),
-            if_modified: None,
-            if_size: None,
-            if_hash: None,
+            if_modified: conditions.if_modified,
+            if_size: conditions.if_size,
+            if_hash: conditions.if_hash,
         });
 
         let res = self
@@ -699,7 +768,10 @@ where
     let body = serde_json::to_vec(value).unwrap();
 
     let mut headers = HeaderMap::new();
-    headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+    headers.insert(
+        header::CONTENT_TYPE,
+        HeaderValue::from_static("application/json"),
+    );
 
     (Some(HttpRequestBody::Bytes(body)), headers)
 }
@@ -713,7 +785,7 @@ async fn res_error<T>(res: BoxHttpResponse) -> Result<T, RemoteError> {
 
     let is_content_type_json = res
         .headers()
-        .get(CONTENT_TYPE)
+        .get(header::CONTENT_TYPE)
         .filter(|x| x.as_bytes() == b"application/json; charset=utf-8")
         .is_some();
 
@@ -721,7 +793,7 @@ async fn res_error<T>(res: BoxHttpResponse) -> Result<T, RemoteError> {
 
     if is_content_type_json {
         match serde_json::from_slice::<ApiError>(&bytes) {
-            Ok(api_error) => return Err(api_error.into()),
+            Ok(api_error) => return Err(RemoteError::from_api_error(api_error, status_code)),
             _ => (),
         }
     }
@@ -733,12 +805,12 @@ async fn res_error<T>(res: BoxHttpResponse) -> Result<T, RemoteError> {
         _ => (),
     }
 
-    let str = String::from_utf8(bytes).unwrap_or(String::from("non-utf8 response"));
+    let message = String::from_utf8(bytes).unwrap_or(String::from("non-utf8 response"));
 
-    return Err(RemoteError::HttpError(HttpError::ResponseError(format!(
-        "unexpected status: {}: {}",
-        status_code, &str,
-    ))));
+    Err(RemoteError::UnexpectedStatus {
+        status_code,
+        message,
+    })
 }
 
 async fn res_json<'a, T>(res: BoxHttpResponse) -> Result<T, RemoteError>
@@ -1072,10 +1144,7 @@ r#"{"type":"file","path":"/","file":{"name":"Vault","type":"dir","modified":1677
 
         let res = block_on(async { remote.get_user().await });
 
-        assert_eq!(
-            res.unwrap_err().to_string(),
-            "response error: unexpected status: 401: "
-        );
+        assert_eq!(res.unwrap_err().to_string(), "unexpected status: 401: ");
     }
 
     #[test]
@@ -1112,10 +1181,7 @@ r#"{"type":"file","path":"/","file":{"name":"Vault","type":"dir","modified":1677
 
         let res = block_on(async { remote.get_user().await });
 
-        assert_eq!(
-            res.unwrap_err().to_string(),
-            "response error: unexpected status: 401: "
-        );
+        assert_eq!(res.unwrap_err().to_string(), "unexpected status: 401: ");
     }
 
     #[test]
@@ -1160,10 +1226,7 @@ r#"{"type":"file","path":"/","file":{"name":"Vault","type":"dir","modified":1677
 
         let res = block_on(async { remote.get_user().await });
 
-        assert_eq!(
-            res.unwrap_err().to_string(),
-            "response error: unexpected status: 401: "
-        );
+        assert_eq!(res.unwrap_err().to_string(), "unexpected status: 401: ");
     }
 
     #[test]

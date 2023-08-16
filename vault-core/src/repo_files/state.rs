@@ -227,6 +227,7 @@ impl Into<RemoteFileUploadConflictResolution> for RepoFilesUploadConflictResolut
                 if_size: if_remote_size,
                 if_modified: if_remote_modified,
                 if_hash: if_remote_hash,
+                ignore_nonexisting: false,
             },
             Self::Error => RemoteFileUploadConflictResolution::Error,
         }

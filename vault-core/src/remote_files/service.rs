@@ -156,6 +156,7 @@ impl RemoteFilesService {
                 name,
                 reader,
                 size,
+                None,
                 conflict_resolution,
                 on_progress,
             )
@@ -170,7 +171,9 @@ impl RemoteFilesService {
     }
 
     pub async fn delete_file(&self, mount_id: &str, path: &str) -> Result<(), RemoteError> {
-        self.remote.delete_file(mount_id, path).await?;
+        self.remote
+            .delete_file(mount_id, path, Default::default())
+            .await?;
 
         self.file_removed(mount_id, path);
 
@@ -259,7 +262,7 @@ impl RemoteFilesService {
         to_path: &str,
     ) -> Result<(), RemoteError> {
         self.remote
-            .move_file(mount_id, path, to_mount_id, to_path)
+            .move_file(mount_id, path, to_mount_id, to_path, Default::default())
             .await?;
 
         // self.file_moved() called from eventstream service

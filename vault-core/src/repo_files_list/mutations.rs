@@ -73,7 +73,7 @@ pub fn decrypt_files_list_recursive_item(
                 mount_id: mount_id.to_owned(),
                 remote_path: path.map(|path| path_utils::join_paths(&root_remote_path, &path)),
                 error: FilesListRecursiveItemError::RemoteError(
-                    RemoteError::from_api_error_details(error, None),
+                    RemoteError::from_api_error_details(error, None, None),
                 ),
             }
         }

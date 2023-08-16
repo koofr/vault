@@ -61,7 +61,7 @@ impl RepoSpaceUsageService {
                         }
                         FilesListRecursiveItem::Error { error, .. } => {
                             res = Err(RepoSpaceUsageError::RemoteError(
-                                RemoteError::from_api_error_details(error, None),
+                                RemoteError::from_api_error_details(error, None, None),
                             ));
                         }
                     },

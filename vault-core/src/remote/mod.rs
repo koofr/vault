@@ -6,5 +6,8 @@ pub mod test_helpers;
 
 pub use self::{
     errors::{ApiErrorCode, RemoteError},
-    remote::{Remote, RemoteFileReader, RemoteFileUploadConflictResolution},
+    remote::{
+        Remote, RemoteFileMoveConditions, RemoteFileReader, RemoteFileRemoveConditions,
+        RemoteFileUploadConflictResolution,
+    },
 };
