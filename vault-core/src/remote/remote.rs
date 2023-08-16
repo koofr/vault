@@ -145,7 +145,7 @@ impl Remote {
             .request(HttpRequest {
                 method: String::from("GET"),
                 url: format!(
-                    "/content/api/v2/users/{}/profile-picture?nodefault",
+                    "/content/api/v2.1/users/{}/profile-picture?nodefault",
                     user_id,
                 ),
                 ..Default::default()
