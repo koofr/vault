@@ -2,6 +2,7 @@
 members = [
   "vault-core",
   "vault-core/user-error-derive",
+  "vault-fake-remote",
   "vault-wasm",
 ]
 
