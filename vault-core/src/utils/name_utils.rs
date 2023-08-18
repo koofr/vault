@@ -1,3 +1,5 @@
+use crate::common::errors::InvalidPathError;
+
 pub fn split_name_ext<'a>(name: &'a str) -> (&'a str, Option<&'a str>) {
     name.rfind('.')
         .map(|idx| (&name[..idx], Some(&name[idx + 1..])))
@@ -34,6 +36,25 @@ where
             return new_name;
         }
     }
+}
+
+pub fn validate_name(name: &str) -> Result<(), InvalidPathError> {
+    // empty
+    if name.is_empty() {
+        return Err(InvalidPathError);
+    }
+
+    // slash
+    if name.contains("/") {
+        return Err(InvalidPathError);
+    }
+
+    // backslash
+    if name.contains("\\") {
+        return Err(InvalidPathError);
+    }
+
+    Ok(())
 }
 
 #[cfg(test)]

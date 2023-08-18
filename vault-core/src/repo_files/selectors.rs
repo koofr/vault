@@ -121,11 +121,7 @@ pub fn select_is_root_loaded(state: &store::State, repo_id: &str, path: &str) ->
 }
 
 pub fn check_name_valid(name: &str) -> Result<(), RemoteError> {
-    if !name.is_empty() && !name.contains('/') {
-        Ok(())
-    } else {
-        Err(RepoFilesErrors::invalid_path())
-    }
+    name_utils::validate_name(name).map_err(|_| RepoFilesErrors::invalid_path())
 }
 
 pub fn select_check_new_name_valid(
