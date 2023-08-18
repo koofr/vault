@@ -126,6 +126,7 @@ impl RepoFilesDetailsService {
                         let should_reload = !selectors::select_is_dirty(state, details_id)
                             && !selectors::select_is_saving(state, details_id)
                             && !selectors::select_is_content_loading(state, details_id)
+                            && !selectors::select_is_content_loaded_error(state, details_id)
                             && selectors::select_is_content_stale(state, details_id)
                             && !was_removed;
 

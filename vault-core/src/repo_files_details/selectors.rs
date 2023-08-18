@@ -314,6 +314,12 @@ pub fn select_is_content_loading(state: &store::State, details_id: u32) -> bool 
         .unwrap_or(false)
 }
 
+pub fn select_is_content_loaded_error(state: &store::State, details_id: u32) -> bool {
+    select_details_location(state, details_id)
+        .map(|loc| matches!(loc.content.status, Status::Error { .. }))
+        .unwrap_or(false)
+}
+
 pub fn select_is_saving(state: &store::State, details_id: u32) -> bool {
     select_details_location(state, details_id)
         .map(|loc| matches!(loc.save_status, Status::Loading))
