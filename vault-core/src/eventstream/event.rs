@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::remote::models::FilesFile;
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 #[serde(tag = "type")]
 pub enum Event {
     #[serde(rename = "fileCreated")]
