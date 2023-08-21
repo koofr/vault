@@ -477,7 +477,10 @@ impl RepoFilesDetailsService {
                     None => Err(SaveError::Canceled),
                 }
             }
-            SaveInitiator::Autosave => panic!("unreachable"),
+            SaveInitiator::Autosave => {
+                // we do not handle conflicts in autosave
+                Err(SaveError::Canceled)
+            }
             SaveInitiator::Cancel => {
                 let message = format!("File {} is no longer accessible. Probably it was deleted or you no longer have access to it. Do you want to Save the file to a new location or Discard the changes?", name);
 
