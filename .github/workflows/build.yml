@@ -51,7 +51,7 @@ jobs:
       - name: Install rust
         uses: dtolnay/rust-toolchain@b44cb146d03e8d870c57ab64b80f04586349ca5d
         with:
-          toolchain: "1.69.0"
+          toolchain: "1.71.1"
       - name: Run cargo test
         run: cargo test -p vault-core
 
