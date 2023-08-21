@@ -383,9 +383,12 @@ pub fn select_is_content_stale<'a>(state: &'a store::State, details_id: u32) -> 
     }
 }
 
-pub fn select_is_not_deleting(state: &store::State, details_id: u32) -> bool {
+pub fn select_is_not_deleting_or_deleted(state: &store::State, details_id: u32) -> bool {
     select_details_location(state, details_id)
-        .map(|loc| !matches!(loc.delete_status, Status::Loading))
+        .map(|loc| {
+            !matches!(loc.delete_status, Status::Loading)
+                && !matches!(loc.delete_status, Status::Loaded)
+        })
         .unwrap_or(false)
 }
 

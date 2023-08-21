@@ -641,7 +641,7 @@ impl RepoFilesDetailsService {
 
     async fn file_removed(&self, details_id: u32) {
         if let Some(file_name) = self.store.with_state(|state| {
-            if selectors::select_is_not_deleting(state, details_id) {
+            if selectors::select_is_not_deleting_or_deleted(state, details_id) {
                 selectors::select_file_name(state, details_id).map(str::to_owned)
             } else {
                 None
