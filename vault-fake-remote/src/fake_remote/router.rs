@@ -1,4 +1,5 @@
 use axum::{
+    middleware,
     routing::{delete, get, post, put},
     Router,
 };
@@ -6,7 +7,7 @@ use http::{header, Method};
 use tower::ServiceBuilder;
 use tower_http::cors;
 
-use super::{app_state::AppState, eventstream, fix_response_json::FixResponseJsonLayer, handlers};
+use super::{app_state::AppState, eventstream, fix_response_json::fix_response_json, handlers};
 
 pub fn build_router(app_state: AppState) -> Router {
     let cors = cors::CorsLayer::new()
@@ -96,5 +97,5 @@ pub fn build_router(app_state: AppState) -> Router {
         .route("/events", get(eventstream::handler::eventstream))
         .with_state(app_state)
         .layer(ServiceBuilder::new().layer(cors))
-        .layer(ServiceBuilder::new().layer(FixResponseJsonLayer))
+        .layer(middleware::from_fn(fix_response_json))
 }
