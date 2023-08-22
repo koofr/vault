@@ -251,7 +251,7 @@ impl Vault {
     }
 
     pub fn logout(&self) {
-        self.lifecycle_service.logout()
+        self.lifecycle_service.logout();
     }
 
     // notifications
@@ -284,23 +284,34 @@ impl Vault {
 
     // oauth2
 
-    pub fn oauth2_start_flow(&self) -> String {
-        self.oauth2_service.start_flow()
+    pub fn oauth2_start_login_flow(&self) -> String {
+        self.oauth2_service.start_login_flow()
+    }
+
+    pub fn oauth2_start_logout_flow(&self) -> String {
+        self.oauth2_service.start_logout_flow()
     }
 
     pub async fn oauth2_finish_flow_url(
         &self,
         url: &str,
     ) -> Result<(), oauth2::errors::OAuth2Error> {
-        self.oauth2_service.finish_flow_url(url).await?;
-
-        self.lifecycle_service
-            .on_login()
-            .await
-            .map_err(|e| match e {
-                remote::RemoteError::HttpError(err) => oauth2::errors::OAuth2Error::HttpError(err),
-                _ => oauth2::errors::OAuth2Error::Unknown(e.to_string()),
-            })?;
+        match self.oauth2_service.finish_flow_url(url).await? {
+            oauth2::state::FinishFlowResult::LoggedIn => {
+                self.lifecycle_service
+                    .on_login()
+                    .await
+                    .map_err(|e| match e {
+                        remote::RemoteError::HttpError(err) => {
+                            oauth2::errors::OAuth2Error::HttpError(err)
+                        }
+                        _ => oauth2::errors::OAuth2Error::Unknown(e.to_string()),
+                    })?;
+            }
+            oauth2::state::FinishFlowResult::LoggedOut => {
+                self.lifecycle_service.on_logout();
+            }
+        }
 
         Ok(())
     }

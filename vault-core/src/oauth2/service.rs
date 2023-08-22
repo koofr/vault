@@ -9,17 +9,20 @@ use url::Url;
 
 use crate::{
     auth::errors::AuthError,
-    common::state::Status,
     http::{HttpClient, HttpError, HttpRequest, HttpRequestBody},
     runtime,
-    secure_storage::SecureStorageService,
+    secure_storage::{errors::SecureStorageError, SecureStorageService},
     store,
 };
 
-use super::{errors::OAuth2Error, selectors, state::OAuth2Token};
+use super::{
+    errors::OAuth2Error,
+    mutations, selectors,
+    state::{FinishFlowResult, OAuth2Token},
+};
 
-const TOKEN_STORAGE_KEY: &str = "vaultOAuth2Token";
-const STATE_STORAGE_KEY: &str = "vaultOAuth2State";
+pub const TOKEN_STORAGE_KEY: &str = "vaultOAuth2Token";
+pub const STATE_STORAGE_KEY: &str = "vaultOAuth2State";
 
 pub struct OAuth2Config {
     pub base_url: String,
@@ -70,34 +73,21 @@ impl OAuth2Service {
 
     pub fn load(&self) -> Result<(), OAuth2Error> {
         let token = self
-            .secure_storage_service
-            .get::<OAuth2Token>(TOKEN_STORAGE_KEY)
+            .load_token()
             .map_err(|e| OAuth2Error::InvalidOAuth2Token(e.to_string()))?;
 
-        // TODO validate the token from storage
-
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::Auth);
-
-            state.oauth2.status = match token {
-                Some(_) => Status::Loaded,
-                None => Status::Initial,
-            };
-
-            state.oauth2.token = token;
+            mutations::loaded(state, notify, token);
         });
 
         Ok(())
     }
 
-    pub fn reset(&self) {
-        let _ = self.secure_storage_service.remove(TOKEN_STORAGE_KEY);
+    pub fn logout(&self) {
+        let _ = self.remove_token();
 
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::Auth);
-
-            state.oauth2.status = Status::Initial;
-            state.oauth2.token = None;
+            mutations::logout(state, notify);
         });
     }
 
@@ -117,7 +107,7 @@ impl OAuth2Service {
         &self,
         force_refresh_token: bool,
     ) -> Result<Option<OAuth2Token>, OAuth2Error> {
-        self.refresh_token_mutex.lock().await;
+        let refresh_token_guard = self.refresh_token_mutex.lock().await;
 
         let mut token = match self.store.with_state(|state| state.oauth2.token.clone()) {
             Some(token) => token,
@@ -129,50 +119,84 @@ impl OAuth2Service {
         if self.is_token_expired(&token) || force_refresh_token {
             token = self.refresh_token(&token.refresh_token).await?;
 
-            self.secure_storage_service
-                .set(TOKEN_STORAGE_KEY, &token)
-                .unwrap();
+            self.save_token(&token)?;
 
             self.store.mutate(|state, notify, _, _| {
-                notify(store::Event::Auth);
-
-                state.oauth2.token = Some(token.clone());
+                mutations::update_token(state, notify, token.clone());
             });
         }
+
+        drop(refresh_token_guard);
 
         Ok(Some(token))
     }
 
-    pub fn start_flow(&self) -> String {
+    pub fn start_login_flow(&self) -> String {
         let flow_state = self.generate_flow_state();
 
-        let auth_url = self.get_auth_url(&flow_state);
-
-        self.secure_storage_service
-            .set(STATE_STORAGE_KEY, &flow_state)
-            .unwrap();
-
-        auth_url
+        self.get_login_url(&flow_state)
     }
 
-    pub async fn finish_flow_url(&self, url: &str) -> Result<(), OAuth2Error> {
-        let (code, state) = match self.parse_url(url) {
-            Ok(x) => x,
-            Err(err) => {
-                self.store.mutate(|state, notify, _, _| {
-                    notify(store::Event::Auth);
+    pub fn start_logout_flow(&self) -> String {
+        let flow_state = self.generate_flow_state();
 
-                    state.oauth2.status = Status::Error { error: err.clone() };
-                });
+        self.get_logout_url(&flow_state)
+    }
+
+    pub async fn finish_flow_url(&self, url: &str) -> Result<FinishFlowResult, OAuth2Error> {
+        let query = match self.parse_url(url) {
+            Ok(query) => query,
+            Err(err) => {
+                self.handle_error(err.clone());
 
                 return Err(err);
             }
         };
 
-        self.finish_flow(&code, &state).await
+        let state = match query.get("state").ok_or(OAuth2Error::Unknown(format!(
+            "state missing in url: {}",
+            url
+        ))) {
+            Ok(state) => state,
+            Err(err) => {
+                self.handle_error(err.clone());
+
+                return Err(err);
+            }
+        };
+
+        if !self.is_flow_state_ok(state) {
+            let err = OAuth2Error::InvalidOAuth2State;
+
+            self.handle_error(err.clone());
+
+            return Err(err);
+        }
+
+        if query.get("loggedout").filter(|x| *x == "true").is_some() {
+            self.finish_logout_flow();
+
+            Ok(FinishFlowResult::LoggedOut)
+        } else {
+            let code = match query.get("code").ok_or(OAuth2Error::Unknown(format!(
+                "code missing in url: {}",
+                url
+            ))) {
+                Ok(state) => state,
+                Err(err) => {
+                    self.handle_error(err.clone());
+
+                    return Err(err);
+                }
+            };
+
+            self.finish_login_flow(&code).await?;
+
+            Ok(FinishFlowResult::LoggedIn)
+        }
     }
 
-    fn parse_url(&self, url: &str) -> Result<(String, String), OAuth2Error> {
+    fn parse_url(&self, url: &str) -> Result<HashMap<String, String>, OAuth2Error> {
         let parsed_url = Url::parse(url)
             .map_err(|e| OAuth2Error::Unknown(format!("invalid url: {}", e.to_string())))?;
         let query: HashMap<_, _> = parsed_url.query_pairs().into_owned().collect();
@@ -185,37 +209,19 @@ impl OAuth2Service {
             return Err(OAuth2Error::Unknown(error.to_owned()));
         }
 
-        let code = query.get("code").ok_or(OAuth2Error::Unknown(format!(
-            "code missing in url: {}",
-            url
-        )))?;
-
-        let state = query.get("state").ok_or(OAuth2Error::Unknown(format!(
-            "state missing in url: {}",
-            url
-        )))?;
-
-        Ok((code.to_owned(), state.to_owned()))
+        Ok(query)
     }
 
-    pub async fn finish_flow(&self, code: &str, state: &str) -> Result<(), OAuth2Error> {
+    fn handle_error(&self, err: OAuth2Error) {
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::Auth);
-
-            state.oauth2.status = Status::Loading;
+            mutations::error(state, notify, err);
         });
+    }
 
-        if !self.is_state_ok(state) {
-            self.store.mutate(|state, notify, _, _| {
-                notify(store::Event::Auth);
-
-                state.oauth2.status = Status::Error {
-                    error: OAuth2Error::InvalidOAuth2State,
-                };
-            });
-
-            return Err(OAuth2Error::InvalidOAuth2State);
-        }
+    async fn finish_login_flow(&self, code: &str) -> Result<(), OAuth2Error> {
+        self.store.mutate(|state, notify, _, _| {
+            mutations::logging_in(state, notify);
+        });
 
         let token = match self
             .exchange_token("authorization_code", "code", code)
@@ -223,40 +229,48 @@ impl OAuth2Service {
         {
             Ok(token) => token,
             Err(err) => {
-                self.store.mutate(|state, notify, _, _| {
-                    notify(store::Event::Auth);
+                let _ = self.remove_state();
 
-                    state.oauth2.status = Status::Error { error: err.clone() };
-                });
+                self.handle_error(err.clone());
 
                 return Err(err);
             }
         };
 
-        self.secure_storage_service
-            .set(TOKEN_STORAGE_KEY, &token)
-            .unwrap();
+        match self.save_token(&token) {
+            Ok(()) => {}
+            Err(err) => {
+                let _ = self.remove_state();
+
+                self.handle_error(err.clone().into());
+
+                return Err(err.into());
+            }
+        }
 
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::Auth);
-
-            state.oauth2.status = Status::Loaded;
-            state.oauth2.token = Some(token);
+            mutations::logged_in(state, notify, token);
         });
 
-        let _ = self.secure_storage_service.remove(STATE_STORAGE_KEY);
+        let _ = self.remove_state();
 
         Ok(())
     }
 
-    fn is_state_ok(&self, state: &str) -> bool {
-        match self.secure_storage_service.get::<String>(STATE_STORAGE_KEY) {
+    fn finish_logout_flow(&self) {
+        let _ = self.remove_state();
+
+        self.logout();
+    }
+
+    fn is_flow_state_ok(&self, state: &str) -> bool {
+        match self.load_state() {
             Ok(Some(saved_state)) => state == saved_state,
             _ => false,
         }
     }
 
-    fn get_auth_url(&self, state: &str) -> String {
+    fn get_login_url(&self, state: &str) -> String {
         let mut params: HashMap<&str, &str> = HashMap::new();
         params.insert("client_id", &self.config.client_id);
         params.insert("redirect_uri", &self.config.redirect_uri);
@@ -270,6 +284,19 @@ impl OAuth2Service {
         auth_url.to_string()
     }
 
+    fn get_logout_url(&self, state: &str) -> String {
+        let mut params: HashMap<&str, &str> = HashMap::new();
+        params.insert("client_id", &self.config.client_id);
+        params.insert("post_logout_redirect_uri", &self.config.redirect_uri);
+        params.insert("state", state);
+
+        let mut logout_url =
+            Url::parse(&format!("{}/oauth2/logout", &self.config.base_url)).unwrap();
+        logout_url.query_pairs_mut().extend_pairs(&params);
+
+        logout_url.to_string()
+    }
+
     fn get_token_url(&self) -> String {
         format!("{}/oauth2/token", &self.config.base_url)
     }
@@ -279,7 +306,11 @@ impl OAuth2Service {
 
         (&mut OsRng).try_fill_bytes(&mut state).unwrap();
 
-        BASE64URL_NOPAD.encode(&state)
+        let state = BASE64URL_NOPAD.encode(&state);
+
+        let _ = self.save_state(&state);
+
+        state
     }
 
     async fn refresh_token(&self, refresh_token: &str) -> Result<OAuth2Token, OAuth2Error> {
@@ -352,5 +383,29 @@ impl OAuth2Service {
         };
 
         Ok(token)
+    }
+
+    fn load_token(&self) -> Result<Option<OAuth2Token>, SecureStorageError> {
+        self.secure_storage_service.get(TOKEN_STORAGE_KEY)
+    }
+
+    fn save_token(&self, token: &OAuth2Token) -> Result<(), SecureStorageError> {
+        self.secure_storage_service.set(TOKEN_STORAGE_KEY, &token)
+    }
+
+    fn remove_token(&self) -> Result<(), SecureStorageError> {
+        self.secure_storage_service.remove(TOKEN_STORAGE_KEY)
+    }
+
+    fn load_state(&self) -> Result<Option<String>, SecureStorageError> {
+        self.secure_storage_service.get(STATE_STORAGE_KEY)
+    }
+
+    fn save_state(&self, state: &str) -> Result<(), SecureStorageError> {
+        self.secure_storage_service.set(STATE_STORAGE_KEY, &state)
+    }
+
+    fn remove_state(&self) -> Result<(), SecureStorageError> {
+        self.secure_storage_service.remove(STATE_STORAGE_KEY)
     }
 }

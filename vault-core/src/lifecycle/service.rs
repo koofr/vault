@@ -54,14 +54,12 @@ impl LifecycleService {
     }
 
     pub fn logout(&self) {
-        self.oauth2_service.reset();
+        self.oauth2_service.logout();
 
         self.on_logout();
-
-        let _ = self.oauth2_service.load();
     }
 
-    fn on_logout(&self) {
+    pub fn on_logout(&self) {
         self.eventstream_service.disconnect();
 
         self.store.mutate(|state, notify, _, _| {
@@ -73,5 +71,9 @@ impl LifecycleService {
         });
 
         self.repos_service.reset();
+
+        // store state reset will set the oauth2 state status to loading, load
+        // is called to set it to loaded
+        let _ = self.oauth2_service.load();
     }
 }

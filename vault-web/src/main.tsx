@@ -58,7 +58,10 @@ const main = async () => {
 
   (window as any).webVault = webVault;
 
-  webVault.load();
+  // don't load the app on oauth2 login or logout
+  if (document.location.pathname !== '/oauth2callback') {
+    webVault.load();
+  }
 
   const router = createRouter();
 

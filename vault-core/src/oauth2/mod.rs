@@ -1,4 +1,5 @@
 pub mod errors;
+pub mod mutations;
 pub mod oauth2_auth_provider;
 pub mod selectors;
 pub mod service;

@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-use crate::{http, user_error::UserError};
+use crate::{http, secure_storage::errors::SecureStorageError, user_error::UserError};
 
 #[derive(Error, Debug, Clone, UserError)]
 pub enum OAuth2Error {
@@ -12,6 +12,8 @@ pub enum OAuth2Error {
     InvalidGrant(String),
     #[error("{0}")]
     HttpError(#[from] http::HttpError),
+    #[error("storage error: {0}")]
+    StorageError(#[from] SecureStorageError),
     #[error("{0}")]
     Unknown(String),
 }

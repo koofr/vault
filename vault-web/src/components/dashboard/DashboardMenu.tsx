@@ -2,7 +2,6 @@ import { css } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { useDropdownMenu } from '@restart/ui/DropdownMenu';
 import { memo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import { ReactComponent as DirPickerItemHostedHoverIcon } from '../../assets/images/dir-picker-item-hosted-hover.svg';
 import { ReactComponent as DirPickerItemHostedIcon } from '../../assets/images/dir-picker-item-hosted.svg';
@@ -80,7 +79,6 @@ export const DashboardMenuUserInfoItem = memo(() => {
 
 export const DashboardMenu = memo(() => {
   const theme = useTheme();
-  const navigate = useNavigate();
   const webVault = useWebVault();
   const baseUrl = webVault.configGetBaseUrl();
   const [props, { show, popper }] = useDropdownMenu({
@@ -89,9 +87,8 @@ export const DashboardMenu = memo(() => {
   });
   useMenuUpdate(show, popper);
   const logout = useCallback(() => {
-    webVault.logout();
-    navigate('/');
-  }, [webVault, navigate]);
+    document.location.href = webVault.oauth2StartLogoutFlow();
+  }, [webVault]);
 
   return (
     <Menu

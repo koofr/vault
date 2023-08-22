@@ -11,7 +11,13 @@ pub struct OAuth2Token {
     pub expires_at: f64,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
+pub enum FinishFlowResult {
+    LoggedIn,
+    LoggedOut,
+}
+
+#[derive(Debug, Clone)]
 pub struct OAuth2State {
     pub status: Status<OAuth2Error>,
     pub token: Option<OAuth2Token>,

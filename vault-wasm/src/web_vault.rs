@@ -396,9 +396,14 @@ impl WebVault {
         self.get_data_js(id, self.subscription_data.oauth2_status.clone())
     }
 
-    #[wasm_bindgen(js_name = oauth2StartFlow)]
-    pub fn oauth2_start_flow(&self) -> String {
-        self.vault.oauth2_start_flow()
+    #[wasm_bindgen(js_name = oauth2StartLoginFlow)]
+    pub fn oauth2_start_login_flow(&self) -> String {
+        self.vault.oauth2_start_login_flow()
+    }
+
+    #[wasm_bindgen(js_name = oauth2StartLogoutFlow)]
+    pub fn oauth2_start_logout_flow(&self) -> String {
+        self.vault.oauth2_start_logout_flow()
     }
 
     #[wasm_bindgen(js_name = oauth2FinishFlowUrl)]
