@@ -1,4 +1,5 @@
-use instant::Duration;
+use std::time::Duration;
+
 use serde::{Deserialize, Serialize};
 use size;
 use tsify::Tsify;
@@ -27,6 +28,8 @@ use vault_core::{
     user::state as user_state,
     user_error::UserError,
 };
+
+use crate::browser_runtime::now_ms;
 
 pub fn format_size(bytes: i64) -> String {
     size::Size::from_bytes(bytes)
@@ -1017,7 +1020,7 @@ pub struct FileUpload {
 
 impl From<&uploads_state::FileUpload> for FileUpload {
     fn from(file: &uploads_state::FileUpload) -> Self {
-        let elapsed = instant::now() - file.started as f64;
+        let elapsed = now_ms() as f64 - file.started as f64;
 
         Self {
             id: file.id,

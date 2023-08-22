@@ -11,6 +11,7 @@ use crate::{
     auth::errors::AuthError,
     common::state::Status,
     http::{HttpClient, HttpError, HttpRequest, HttpRequestBody},
+    runtime,
     secure_storage::SecureStorageService,
     store,
 };
@@ -39,6 +40,8 @@ pub struct OAuth2Service {
     secure_storage_service: Arc<SecureStorageService>,
     http_client: Arc<Box<dyn HttpClient + Send + Sync>>,
     store: Arc<store::Store>,
+    runtime: Arc<runtime::BoxRuntime>,
+
     refresh_token_mutex: Arc<AsyncMutex<()>>,
 }
 
@@ -48,12 +51,15 @@ impl OAuth2Service {
         secure_storage_service: Arc<SecureStorageService>,
         http_client: Arc<Box<dyn HttpClient + Send + Sync>>,
         store: Arc<store::Store>,
+        runtime: Arc<runtime::BoxRuntime>,
     ) -> Self {
         Self {
             config,
             secure_storage_service,
             http_client,
             store,
+            runtime,
+
             refresh_token_mutex: Arc::new(AsyncMutex::new(())),
         }
     }
@@ -283,7 +289,7 @@ impl OAuth2Service {
 
     fn is_token_expired(&self, token: &OAuth2Token) -> bool {
         // 10 minutes for clock skew
-        token.expires_at < instant::now() - 10.0 * 60.0
+        (token.expires_at as i64) < self.runtime.now_ms() - 10 * 60 * 1000
     }
 
     async fn exchange_token(
@@ -342,7 +348,7 @@ impl OAuth2Service {
         let token = OAuth2Token {
             access_token: raw_token.access_token,
             refresh_token: raw_token.refresh_token,
-            expires_at: instant::now() + raw_token.expires_in as f64 * 1000.0,
+            expires_at: (self.runtime.now_ms() as f64) + (raw_token.expires_in as f64) * 1000.0,
         };
 
         Ok(token)

@@ -15,7 +15,7 @@ use crate::{
         BrowserEventstreamWebSocketClient, BrowserEventstreamWebSocketDelegate,
     },
     browser_http_client::{BrowserHttpClient, BrowserHttpClientDelegate},
-    browser_runtime::BrowserRuntime,
+    browser_runtime::{now_ms, BrowserRuntime},
     browser_secure_storage::BrowserSecureStorage,
     dto, helpers,
     uploadable::Uploadable,
@@ -949,7 +949,7 @@ impl WebVault {
                 vault.with_state(|state| {
                     use vault_core::uploads::selectors;
 
-                    let now = instant::now() as i64;
+                    let now = now_ms();
 
                     dto::UploadsSummary {
                         total_count: state.uploads.total_count,

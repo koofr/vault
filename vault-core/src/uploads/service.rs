@@ -51,7 +51,7 @@ impl UploadsService {
     }
 
     pub fn now(&self) -> i64 {
-        instant::now() as i64
+        self.runtime.now_ms()
     }
 
     pub async fn upload(

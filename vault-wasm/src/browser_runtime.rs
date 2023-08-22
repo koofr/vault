@@ -27,4 +27,12 @@ impl runtime::Runtime for BrowserRuntime {
             )
         })
     }
+
+    fn now_ms(&self) -> i64 {
+        now_ms()
+    }
+}
+
+pub fn now_ms() -> i64 {
+    js_sys::Date::now() as i64
 }

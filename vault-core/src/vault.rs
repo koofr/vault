@@ -65,6 +65,7 @@ impl Vault {
             secure_storage_service.clone(),
             http_client.clone(),
             store.clone(),
+            runtime.clone(),
         ));
         let auth_provider: Arc<Box<(dyn auth::AuthProvider + Send + Sync + 'static)>> = Arc::new(
             Box::new(oauth2::OAuth2AuthProvider::new(oauth2_service.clone())),
