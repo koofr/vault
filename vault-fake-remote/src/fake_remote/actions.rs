@@ -14,7 +14,7 @@ pub fn create_user(
     files_service: &FilesService,
     user_id: Option<String>,
     mount_id: Option<String>,
-) -> String {
+) -> (String, String) {
     let user_id = user_id.unwrap_or(uuid::Uuid::new_v4().to_string());
 
     let user: models::User = models::User {
@@ -55,7 +55,7 @@ pub fn create_user(
         },
     );
 
-    user_id
+    (user_id, mount_id)
 }
 
 pub fn create_vault_repo(

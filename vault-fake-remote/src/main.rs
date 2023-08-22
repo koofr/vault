@@ -98,14 +98,17 @@ fn main() {
 }
 
 async fn init_state(state: &RwLock<FakeRemoteState>, files_service: &FilesService, args: &Args) {
-    let (user_id, mount_id) = {
+    let user_id = args.user_id.clone();
+    let mount_id = args.mount_id.clone();
+
+    {
         let mut state = state.write().unwrap();
 
-        let user_id = actions::create_user(
+        actions::create_user(
             &mut state,
             files_service,
-            Some(args.user_id.clone()),
-            Some(args.mount_id.clone()),
+            Some(user_id.clone()),
+            Some(mount_id.clone()),
         );
 
         state.default_user_id = Some(user_id.clone());
@@ -116,18 +119,7 @@ async fn init_state(state: &RwLock<FakeRemoteState>, files_service: &FilesServic
         state
             .oauth2_refresh_tokens
             .insert(args.oauth2_refresh_token.clone(), user_id.to_owned());
-
-        let mount_id = state
-            .users
-            .get(&user_id)
-            .unwrap()
-            .mounts
-            .first()
-            .unwrap()
-            .clone();
-
-        (user_id, mount_id)
-    };
+    }
 
     if args.create_vault_repo {
         let context = Context {
