@@ -1,5 +1,6 @@
 [workspace]
 members = [
+  "vault-core-tests",
   "vault-core",
   "vault-core/user-error-derive",
   "vault-fake-remote",

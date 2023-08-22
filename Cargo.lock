@@ -2224,6 +2224,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "vault-core-tests"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "axum",
+ "futures",
+ "serde",
+ "serde_json",
+ "tokio",
+ "uuid",
+ "vault-core",
+ "vault-fake-remote",
+ "vault-native",
+]
+
+[[package]]
 name = "vault-fake-remote"
 version = "0.1.0"
 dependencies = [
