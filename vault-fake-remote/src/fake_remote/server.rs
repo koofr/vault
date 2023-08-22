@@ -6,10 +6,7 @@ use std::{
 use axum_server::{tls_rustls::RustlsConfig, Handle};
 use tokio::{sync::oneshot, task::JoinHandle};
 
-use super::{
-    app_state::AppState, errors::FakeRemoteServerStartError, eventstream,
-    files::service::FilesService, router::build_router, state::FakeRemoteState,
-};
+use super::{app_state::AppState, errors::FakeRemoteServerStartError, router::build_router};
 
 pub struct FakeRemoteServer {
     app_state: AppState,
@@ -26,20 +23,12 @@ pub struct FakeRemoteServer {
 
 impl FakeRemoteServer {
     pub fn new(
-        state: Arc<RwLock<FakeRemoteState>>,
-        files_service: Arc<FilesService>,
-        eventstream_listeners: Arc<eventstream::Listeners>,
+        app_state: AppState,
         proposed_addr: Option<SocketAddr>,
         cert_pem: Vec<u8>,
         key_pem: Vec<u8>,
         tokio_runtime: Arc<tokio::runtime::Runtime>,
     ) -> Self {
-        let app_state = AppState {
-            state,
-            files_service,
-            eventstream_listeners,
-        };
-
         let proposed_addr = proposed_addr.unwrap_or(SocketAddr::from(([127, 0, 0, 1], 0)));
 
         Self {

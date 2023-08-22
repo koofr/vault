@@ -9,6 +9,7 @@ use tokio::signal;
 use vault_core::remote::models;
 use vault_fake_remote::fake_remote::{
     self, actions,
+    app_state::AppState,
     context::Context,
     eventstream,
     files::{self, service::FilesService},
@@ -79,10 +80,15 @@ fn main() {
 
         init_state(&state, &files_service, &args).await;
 
+        let app_state = AppState {
+            state: state.clone(),
+            files_service: files_service.clone(),
+            eventstream_listeners: eventstream_listeners.clone(),
+            interceptor: Arc::new(None),
+        };
+
         let fake_remote_server = fake_remote::FakeRemoteServer::new(
-            state.clone(),
-            files_service.clone(),
-            eventstream_listeners.clone(),
+            app_state,
             Some(args.addr),
             fake_remote::CERT_PEM.to_owned(),
             fake_remote::KEY_PEM.to_owned(),

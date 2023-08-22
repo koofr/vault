@@ -7,7 +7,10 @@ use http::{header, Method};
 use tower::ServiceBuilder;
 use tower_http::cors;
 
-use super::{app_state::AppState, eventstream, fix_response_json::fix_response_json, handlers};
+use super::{
+    app_state::AppState, eventstream, fix_response_json::fix_response_json, handlers,
+    interceptor::interceptor_middleware,
+};
 
 pub fn build_router(app_state: AppState) -> Router {
     let cors = cors::CorsLayer::new()
@@ -95,7 +98,11 @@ pub fn build_router(app_state: AppState) -> Router {
             delete(handlers::vault_repos_remove),
         )
         .route("/events", get(eventstream::handler::eventstream))
-        .with_state(app_state)
         .layer(ServiceBuilder::new().layer(cors))
         .layer(middleware::from_fn(fix_response_json))
+        .layer(middleware::from_fn_with_state(
+            app_state.clone(),
+            interceptor_middleware,
+        ))
+        .with_state(app_state)
 }

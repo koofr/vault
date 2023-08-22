@@ -7,6 +7,7 @@ pub mod extract;
 pub mod files;
 pub mod fix_response_json;
 pub mod handlers;
+pub mod interceptor;
 pub mod router;
 pub mod server;
 pub mod state;
