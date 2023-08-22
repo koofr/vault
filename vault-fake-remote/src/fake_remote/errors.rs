@@ -67,7 +67,7 @@ fn api_error_response(status_code: StatusCode, code: ApiErrorCode, message: Stri
 }
 
 #[derive(Error, Debug, Clone)]
-pub enum FakeRemoteStartError {
+pub enum FakeRemoteServerStartError {
     #[error("invalid TLS cert or key: {0}")]
     InvalidCertOrKey(Arc<std::io::Error>),
     #[error("server listen error: {0}")]

@@ -83,7 +83,7 @@ fn main() {
             state.clone(),
             files_service.clone(),
             eventstream_listeners.clone(),
-            args.addr,
+            Some(args.addr),
             fake_remote::CERT_PEM.to_owned(),
             fake_remote::KEY_PEM.to_owned(),
             tokio_runtime.clone(),
