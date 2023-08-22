@@ -88,7 +88,7 @@ pub fn set_location(
 ) {
     let status = get_initial_status(state, location.as_ref());
 
-    let mut browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
+    let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
         _ => return,
     };
@@ -105,7 +105,7 @@ pub fn loaded(
     path: &str,
     error: Option<&LoadFilesError>,
 ) {
-    let mut browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
+    let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
         _ => return,
     };
@@ -185,8 +185,6 @@ pub fn update_files(state: &mut store::State, browser_id: u32) -> bool {
     if selection_mutations::update_selection(&mut browser.selection, file_ids_set) {
         dirty = true;
     }
-
-    drop(browser);
 
     if let Some(file_id) = select_file_id {
         select_file(state, browser_id, &file_id, false, false, true);

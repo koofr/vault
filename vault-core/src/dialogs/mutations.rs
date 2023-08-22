@@ -42,7 +42,7 @@ pub fn remove(state: &mut store::State, dialog_id: u32) {
 }
 
 pub fn set_input_value(state: &mut store::State, dialog_id: u32, value: String, is_valid: bool) {
-    let mut dialog = match selectors::select_dialog_mut(state, dialog_id) {
+    let dialog = match selectors::select_dialog_mut(state, dialog_id) {
         Some(dialog) => dialog,
         None => return,
     };

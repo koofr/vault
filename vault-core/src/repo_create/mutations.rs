@@ -30,7 +30,7 @@ pub fn init_loaded(
 ) {
     let no_existing_repos = state.repos.repos_by_id.is_empty();
 
-    let mut form = match state.repo_create {
+    let form = match state.repo_create {
         Some(RepoCreateState::Form(ref mut form)) => form,
         _ => return,
     };
@@ -53,7 +53,7 @@ pub fn reset(state: &mut store::State) {
 }
 
 pub fn set_location(state: &mut store::State, location: RemoteFilesLocation) {
-    let mut form = match state.repo_create {
+    let form = match state.repo_create {
         Some(RepoCreateState::Form(ref mut form)) => form,
         _ => return,
     };
@@ -62,7 +62,7 @@ pub fn set_location(state: &mut store::State, location: RemoteFilesLocation) {
 }
 
 pub fn location_dir_picker_show(state: &mut store::State, location_dir_picker_id: u32) {
-    let mut form = match state.repo_create {
+    let form = match state.repo_create {
         Some(RepoCreateState::Form(ref mut form)) => form,
         _ => return,
     };
@@ -71,7 +71,7 @@ pub fn location_dir_picker_show(state: &mut store::State, location_dir_picker_id
 }
 
 pub fn location_dir_picker_cancel(state: &mut store::State) -> Option<u32> {
-    let mut form = match state.repo_create {
+    let form = match state.repo_create {
         Some(RepoCreateState::Form(ref mut form)) => form,
         _ => return None,
     };
@@ -84,7 +84,7 @@ pub fn location_dir_picker_cancel(state: &mut store::State) -> Option<u32> {
 }
 
 pub fn set_password(state: &mut store::State, password: String) {
-    let mut form = match state.repo_create {
+    let form = match state.repo_create {
         Some(RepoCreateState::Form(ref mut form)) => form,
         _ => return,
     };
@@ -93,7 +93,7 @@ pub fn set_password(state: &mut store::State, password: String) {
 }
 
 pub fn set_salt(state: &mut store::State, salt: Option<String>) {
-    let mut form = match state.repo_create {
+    let form = match state.repo_create {
         Some(RepoCreateState::Form(ref mut form)) => form,
         _ => return,
     };
@@ -105,7 +105,7 @@ pub fn fill_from_rclone_config(
     state: &mut store::State,
     config: Result<rclone::config::Config, rclone::config::ParseConfigError>,
 ) {
-    let mut form = match state.repo_create {
+    let form = match state.repo_create {
         Some(RepoCreateState::Form(ref mut form)) => form,
         _ => return,
     };

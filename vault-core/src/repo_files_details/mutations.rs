@@ -104,7 +104,7 @@ pub fn loaded(
     path: &str,
     error: Option<&LoadFilesError>,
 ) {
-    let mut details = match state.repo_files_details.details.get_mut(&details_id) {
+    let details = match state.repo_files_details.details.get_mut(&details_id) {
         Some(details) => details,
         _ => return,
     };
@@ -150,7 +150,7 @@ pub fn content_loading(
         }
     });
 
-    let mut location = match selectors::select_details_location_mut(state, details_id) {
+    let location = match selectors::select_details_location_mut(state, details_id) {
         Some(location) => location,
         _ => return Err(LoadContentError::FileNotFound),
     };
@@ -175,7 +175,7 @@ pub fn content_loaded(
     path: String,
     res: Result<(Vec<u8>, models::FilesFile), GetFilesReaderError>,
 ) {
-    let mut location = match selectors::select_details_location_mut(state, details_id) {
+    let location = match selectors::select_details_location_mut(state, details_id) {
         Some(location) => location,
         _ => return,
     };
@@ -212,7 +212,7 @@ pub fn content_loaded(
 }
 
 pub fn edit(state: &mut store::State, details_id: u32) {
-    let mut location = match selectors::select_details_location_mut(state, details_id) {
+    let location = match selectors::select_details_location_mut(state, details_id) {
         Some(location) => location,
         _ => return,
     };
@@ -226,7 +226,7 @@ pub fn edit_cancel(
     details_id: u32,
     is_discarded: bool,
 ) {
-    let mut location = match selectors::select_details_location_mut(state, details_id) {
+    let location = match selectors::select_details_location_mut(state, details_id) {
         Some(location) => location,
         _ => return,
     };
@@ -253,7 +253,7 @@ pub fn set_content(
     details_id: u32,
     content: Vec<u8>,
 ) {
-    let mut location = match selectors::select_details_location_mut(state, details_id) {
+    let location = match selectors::select_details_location_mut(state, details_id) {
         Some(location) => location,
         _ => return,
     };
@@ -309,7 +309,7 @@ pub fn saving(
 
     let version = content.version;
 
-    let mut location = match selectors::select_details_location_mut(state, details_id) {
+    let location = match selectors::select_details_location_mut(state, details_id) {
         Some(location) => location,
         _ => return Err(SaveError::InvalidState),
     };
@@ -334,7 +334,7 @@ pub fn saved(
     saved_version: u32,
     res: Result<(String, RepoFilesUploadResult, bool), SaveError>,
 ) {
-    let mut location = match selectors::select_details_location_mut(state, details_id) {
+    let location = match selectors::select_details_location_mut(state, details_id) {
         Some(location) => location,
         _ => return,
     };
@@ -379,7 +379,7 @@ pub fn saved(
 }
 
 pub fn deleting(state: &mut store::State, notify: &store::Notify, details_id: u32) {
-    let mut location = match selectors::select_details_location_mut(state, details_id) {
+    let location = match selectors::select_details_location_mut(state, details_id) {
         Some(location) => location,
         _ => return,
     };
@@ -395,7 +395,7 @@ pub fn deleted(
     details_id: u32,
     res: Result<(), DeleteFileError>,
 ) {
-    let mut location = match selectors::select_details_location_mut(state, details_id) {
+    let location = match selectors::select_details_location_mut(state, details_id) {
         Some(location) => location,
         _ => return,
     };
