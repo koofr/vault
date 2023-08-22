@@ -2255,6 +2255,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "vault-native"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "env_logger",
+ "futures",
+ "http",
+ "log",
+ "reqwest",
+ "rustls",
+ "tokio",
+ "tokio-tungstenite 0.19.0",
+ "url",
+ "vault-core",
+]
+
+[[package]]
 name = "vault-wasm"
 version = "0.1.0"
 dependencies = [
