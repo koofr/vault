@@ -3,23 +3,26 @@ use std::sync::Arc;
 use futures::io::Cursor;
 use vault_core::{
     remote::models, repo_files::state::RepoFilesUploadConflictResolution,
-    repos::state::RepoUnlockMode, utils::path_utils,
+    repos::state::RepoUnlockMode, utils::path_utils, Vault,
 };
 use vault_fake_remote::fake_remote::{actions, context::Context, files};
 
-use crate::fixtures::user_fixture::UserFixture;
+use crate::{fake_remote::FakeRemote, fixtures::user_fixture::UserFixture};
 
 pub struct RepoFixture {
     pub user_fixture: Arc<UserFixture>,
 
+    pub fake_remote: Arc<FakeRemote>,
+    pub vault: Arc<Vault>,
     pub mount_id: String,
     pub path: String,
     pub repo_id: String,
 }
 
 impl RepoFixture {
-    pub async fn create(user_fixture: Arc<UserFixture>) -> Self {
+    pub async fn create(user_fixture: Arc<UserFixture>) -> Arc<Self> {
         let fake_remote = user_fixture.fake_remote.clone();
+        let vault = user_fixture.vault.clone();
 
         let user_id = user_fixture.user_id.clone();
         let mount_id = user_fixture.mount_id.clone();
@@ -58,20 +61,32 @@ impl RepoFixture {
             .unwrap().id
         };
 
-        Self {
+        Arc::new(Self {
             user_fixture,
 
+            fake_remote,
+            vault,
             mount_id,
             path,
             repo_id,
-        }
+        })
     }
 
     pub async fn unlock(&self) {
-        self.user_fixture
-            .vault
+        self.vault
             .repos_service
             .unlock_repo(&self.repo_id, "password", RepoUnlockMode::Unlock)
+            .await
+            .unwrap();
+    }
+
+    pub async fn create_dir(&self, path: &str) {
+        let (parent_path, name) = path_utils::split_parent_name(path).unwrap();
+
+        self.vault
+            .repo_files_service
+            .clone()
+            .create_dir(&self.repo_id, parent_path, name)
             .await
             .unwrap();
     }
@@ -83,8 +98,7 @@ impl RepoFixture {
         let size = bytes.len();
         let reader = Box::pin(Cursor::new(bytes));
 
-        self.user_fixture
-            .vault
+        self.vault
             .repo_files_service
             .clone()
             .upload_file_reader(

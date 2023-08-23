@@ -521,7 +521,7 @@ mod tests {
                 typ: RepoFileType::Dir,
                 size: RepoFileSize::Decrypted { size: 0 },
                 modified: 0,
-                unique_name: String::from("4d87c76977a8fc1986fa3d7f6cc1aae0"),
+                unique_name: String::from("4d6bb967e30d7a5d36c3e6b607d71cf2"),
                 remote_hash: None,
                 category: FileCategory::Folder,
             }
@@ -593,7 +593,7 @@ mod tests {
                 typ: RepoFileType::File,
                 size: RepoFileSize::Decrypted { size: 52 },
                 modified: 1,
-                unique_name: String::from("34f6bbb5f8a54613f67c5b7213bb5084.jpg"),
+                unique_name: String::from("c7f010983b2f25f3e1d604c2870d82c8.jpg"),
                 remote_hash: Some(String::from("hash")),
                 category: FileCategory::Image,
             }

@@ -8,6 +8,8 @@ pub mod notify;
 pub mod state;
 pub mod store;
 pub mod subscription;
+#[cfg(test)]
+pub mod test_helpers;
 pub mod wait;
 
 pub use self::{

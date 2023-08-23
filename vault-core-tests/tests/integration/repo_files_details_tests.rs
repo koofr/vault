@@ -11,16 +11,16 @@ use vault_core::{
     file_types::{file_category::FileCategory, files_filter::FilesFilter},
     repo_files_details::state::RepoFilesDetailsOptions,
 };
-use vault_core_tests::{fixtures::repo_fixture::RepoFixture, helpers::with_vault};
+use vault_core_tests::helpers::with_repo;
 use vault_fake_remote::fake_remote::interceptor::InterceptorResult;
 
 #[test]
 fn test_content_loaded_error() {
-    with_vault(|user_fixture| async move {
+    with_repo(|fixture| async move {
         let download_counter = Arc::new(AtomicUsize::new(0));
         let interceptor_download_counter = download_counter.clone();
 
-        user_fixture.fake_remote.intercept(Box::new(move |parts| {
+        fixture.fake_remote.intercept(Box::new(move |parts| {
             if parts.uri.path().contains("/content/api") && parts.uri.path().contains("/files/get")
             {
                 interceptor_download_counter.fetch_add(1, Ordering::SeqCst);
@@ -30,16 +30,10 @@ fn test_content_loaded_error() {
             }
         }));
 
-        let repo_fixture = RepoFixture::create(user_fixture.clone()).await;
+        fixture.upload_file("/file.txt", "text").await;
 
-        user_fixture.load().await;
-
-        repo_fixture.unlock().await;
-
-        repo_fixture.upload_file("/file.txt", "text").await;
-
-        let (_, load_future) = user_fixture.vault.repo_files_details_create(
-            &repo_fixture.repo_id,
+        let (_, load_future) = fixture.vault.repo_files_details_create(
+            &fixture.repo_id,
             "/file.txt",
             false,
             RepoFilesDetailsOptions {

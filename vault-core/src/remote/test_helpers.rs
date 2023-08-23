@@ -53,9 +53,9 @@ pub fn create_repo(repo_id: &str, mount_id: &str, path: &str) -> models::VaultRe
         name: path_utils::path_to_name(path).unwrap_or("/").to_owned(),
         mount_id: mount_id.to_owned(),
         path: path.to_owned(),
-        salt: None,
-        password_validator: String::from("pv"),
-        password_validator_encrypted: String::from("pve"),
+        salt: Some("salt".into()),
+        password_validator: String::from("a8668309-60f9-40f1-9a4c-0d1de0ff5852"),
+        password_validator_encrypted: String::from("v2:UkNMT05FAADWjQahYq7E1ij2zegBBHbFuDbGIHAvdpym3P4eW2CPQcWhcTuAz4YGLAwRQzj2PoP4vwS2hAEwFwqMlFsWTgLMQ2ONzdNJK4d3kaVw"),
         added: 1,
     }
 }

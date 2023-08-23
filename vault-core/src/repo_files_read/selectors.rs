@@ -62,16 +62,11 @@ pub fn select_files_zip_name(state: &store::State, files: &[RepoFile]) -> String
 
 #[cfg(test)]
 mod tests {
-    use std::{collections::HashMap, rc::Rc, sync::Arc};
-
     use similar_asserts::assert_eq;
 
     use crate::{
-        cipher::test_helpers as cipher_test_helpers,
-        remote::test_helpers as remote_test_helpers,
-        remote_files::mutations as remote_files_mutations,
-        repo_files::{mutations as repo_files_mutations, selectors as repo_files_selectors},
-        repos::mutations as repos_mutations,
+        repo_files::{selectors as repo_files_selectors, test_helpers as repo_files_test_helpers},
+        repos::test_helpers as repos_test_helpers,
         store,
     };
 
@@ -80,67 +75,25 @@ mod tests {
     #[test]
     fn test_select_files_zip_name() {
         let mut state = store::State::default();
-        let repo_1 = remote_test_helpers::create_repo("r1", "m1", "/Vault");
-        let cipher = Arc::new(cipher_test_helpers::create_cipher());
-        let mut ciphers = HashMap::new();
-        ciphers.insert(String::from("r1"), cipher.clone());
-        let ciphers = Rc::new(ciphers);
-        repos_mutations::repos_loaded(&mut state, vec![repo_1]);
-        let notify: Rc<store::Notify> = Rc::new(Box::new(|_| {}));
-        let mut mutation_state = store::MutationState::default();
-        let ciphers1 = ciphers.clone();
-        let mutation_notify: store::MutationNotify = Box::new(move |_, state, mutation_state| {
-            let repo_files_mutation_notify: store::MutationNotify = Box::new(move |_, _, _| {});
-
-            repo_files_mutations::handle_remote_files_mutation(
-                state,
-                notify.clone().as_ref(),
-                mutation_state,
-                &repo_files_mutation_notify,
-                ciphers1.as_ref(),
-            );
-        });
-        remote_files_mutations::bundle_loaded(
+        let (repo, cipher, ciphers) =
+            repos_test_helpers::create_repo(&mut state, "r1", "m1", "/Vault");
+        repo_files_test_helpers::files_loaded(
             &mut state,
-            &mut mutation_state,
-            &mutation_notify,
-            "m1",
-            "/Vault",
-            remote_test_helpers::create_bundle(
-                "Vault",
-                Some(vec![
-                    remote_test_helpers::create_dir(&cipher.encrypt_filename("D1")),
-                    remote_test_helpers::create_file(&cipher.encrypt_filename("F1")),
-                    remote_test_helpers::create_file(&cipher.encrypt_filename("F2")),
-                ]),
-            ),
+            &repo.id,
+            "/",
+            ciphers.clone(),
+            vec![
+                repo_files_test_helpers::create_dir("D1", &cipher),
+                repo_files_test_helpers::create_file("F1", &cipher),
+                repo_files_test_helpers::create_file("F2", &cipher),
+            ],
         );
-        let notify: Rc<store::Notify> = Rc::new(Box::new(|_| {}));
-        let mut mutation_state = store::MutationState::default();
-        let ciphers2 = ciphers.clone();
-        let mutation_notify: store::MutationNotify = Box::new(move |_, state, mutation_state| {
-            let repo_files_mutation_notify: store::MutationNotify = Box::new(move |_, _, _| {});
-
-            repo_files_mutations::handle_remote_files_mutation(
-                state,
-                notify.clone().as_ref(),
-                mutation_state,
-                &repo_files_mutation_notify,
-                ciphers2.as_ref(),
-            );
-        });
-        remote_files_mutations::bundle_loaded(
+        repo_files_test_helpers::files_loaded(
             &mut state,
-            &mut mutation_state,
-            &mutation_notify,
-            "m1",
-            &format!("/Vault/{}", &cipher.encrypt_filename("D1")),
-            remote_test_helpers::create_bundle(
-                &cipher.encrypt_filename("D1"),
-                Some(vec![remote_test_helpers::create_file(
-                    &cipher.encrypt_filename("F3"),
-                )]),
-            ),
+            &repo.id,
+            "/D1",
+            ciphers.clone(),
+            vec![repo_files_test_helpers::create_file("F3", &cipher)],
         );
         let d1 = repo_files_selectors::select_file(&state, "r1:/D1").unwrap();
         let f1 = repo_files_selectors::select_file(&state, "r1:/F1").unwrap();
