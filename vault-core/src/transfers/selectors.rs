@@ -105,13 +105,6 @@ pub fn select_duration(state: &store::State, now: i64) -> Duration {
     transfers_duration(&state.transfers, now)
 }
 
-pub fn select_bytes_per_second(state: &store::State, now: i64) -> f64 {
-    match state.transfers.started {
-        Some(started) => state.transfers.done_bytes as f64 / ((now - started) / 1000) as f64,
-        None => 0.0,
-    }
-}
-
 pub fn select_remaining_time(state: &store::State, now: i64) -> RemainingTime {
     let bytes_done = select_bytes_done(state);
 

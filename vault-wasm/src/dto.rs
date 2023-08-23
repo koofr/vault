@@ -1,7 +1,6 @@
 use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
-use size;
 use tsify::Tsify;
 use wasm_bindgen::prelude::*;
 
@@ -9,6 +8,7 @@ use vault_core::{
     common::state as common_state,
     dialogs::state as dialogs_state,
     dir_pickers::state as dir_pickers_state,
+    file_size::{size_display, speed_display_bytes_duration},
     file_types::{file_category, files_filter},
     files,
     notifications::state as notifications_state,
@@ -32,14 +32,6 @@ use vault_core::{
 };
 
 use crate::browser_runtime::now_ms;
-
-pub fn format_size(bytes: i64) -> String {
-    size::Size::from_bytes(bytes)
-        .format()
-        .with_style(size::Style::Abbreviated)
-        .with_base(size::Base::Base2)
-        .to_string()
-}
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 #[serde(tag = "type")]
@@ -675,7 +667,7 @@ impl<'a> From<&repo_space_usage_state::RepoSpaceUsageInfo<'a>> for RepoSpaceUsag
     fn from(info: &repo_space_usage_state::RepoSpaceUsageInfo<'a>) -> Self {
         Self {
             status: info.status.into(),
-            space_used_display: info.space_used.map(format_size),
+            space_used_display: info.space_used.map(size_display),
         }
     }
 }
@@ -789,7 +781,7 @@ impl From<&repo_files_state::RepoFile> for RepoFile {
             typ: (&file.typ).into(),
             size_display: match &file.typ {
                 repo_files_state::RepoFileType::File => match file.size {
-                    repo_files_state::RepoFileSize::Decrypted { size } => format_size(size),
+                    repo_files_state::RepoFileSize::Decrypted { size } => size_display(size),
                     repo_files_state::RepoFileSize::DecryptError {
                         encrypted_size: _,
                         error: _,
@@ -976,9 +968,9 @@ impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFile
             sort: (&info.sort).into(),
             status: info.status.into(),
             total_count: info.total_count,
-            total_size_display: format_size(info.total_size),
+            total_size_display: size_display(info.total_size),
             selected_count: info.selected_count,
-            selected_size_display: format_size(info.selected_size),
+            selected_size_display: size_display(info.selected_size),
             selected_file: info.selected_file.map(Into::into),
             can_download_selected: info.can_download_selected,
             can_copy_selected: info.can_copy_selected,
@@ -1119,16 +1111,6 @@ pub struct RepoFilesMoveInfo {
     pub can_move: bool,
 }
 
-pub fn format_speed(bytes: i64, duration: Duration) -> Option<String> {
-    if duration.is_zero() {
-        return None;
-    }
-
-    let speed = (bytes as f64 / duration.as_secs_f64()) as i64;
-
-    Some(format!("{}/s", format_size(speed)))
-}
-
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub enum TransferType {
     Upload,
@@ -1183,8 +1165,8 @@ pub struct Transfer {
     pub transferred_bytes: i64,
     #[serde(rename = "transferredDisplay")]
     pub transferred_display: String,
-    pub elapsed: f64,
-    pub speed: Option<String>,
+    #[serde(rename = "speedDisplay")]
+    pub speed_display: Option<String>,
     pub state: TransferState,
     #[serde(rename = "canRetry")]
     pub can_retry: bool,
@@ -1194,25 +1176,17 @@ pub struct Transfer {
 
 impl From<&transfers_state::Transfer> for Transfer {
     fn from(transfer: &transfers_state::Transfer) -> Self {
-        let elapsed = transfer
-            .started
-            .map(|started| now_ms() as f64 - started as f64)
-            .unwrap_or(0.0);
-
         Self {
             id: transfer.id,
             typ: (&transfer.typ).into(),
             name: transfer.name.clone(),
             file_icon_attrs: transfer.file_icon_attrs().into(),
             size: transfer.size.exact_or_estimate(),
-            size_display: transfer.size.exact_or_estimate().map(format_size),
+            size_display: transfer.size.exact_or_estimate().map(size_display),
             transferred_bytes: transfer.transferred_bytes,
-            transferred_display: format_size(transfer.transferred_bytes),
-            elapsed,
-            speed: format_speed(
-                transfer.transferred_bytes,
-                Duration::from_millis(elapsed as u64),
-            ),
+            transferred_display: size_display(transfer.transferred_bytes),
+            speed_display: transfers_selectors::transfer_duration(&transfer, now_ms())
+                .map(|duration| speed_display_bytes_duration(transfer.transferred_bytes, duration)),
             state: (&transfer.state).into(),
             can_retry: transfers_selectors::can_retry(transfer),
             can_abort: transfers_selectors::can_abort(transfer),
@@ -1233,15 +1207,13 @@ pub struct TransfersSummary {
     pub done_count: usize,
     #[serde(rename = "failedCount")]
     pub failed_count: usize,
-    #[serde(rename = "totalBytes")]
-    pub total_bytes: i64,
-    #[serde(rename = "doneBytes")]
-    pub done_bytes: i64,
+    #[serde(rename = "sizeProgressDisplay")]
+    pub size_progress_display: String,
     pub percentage: u8,
     #[serde(rename = "remainingTime")]
     pub remaining_time: RemainingTime,
-    #[serde(rename = "bytesPerSecond")]
-    pub bytes_per_second: f64,
+    #[serde(rename = "speedDisplay")]
+    pub speed_display: String,
     #[serde(rename = "isTransferring")]
     pub is_transferring: bool,
     #[serde(rename = "canRetryAll")]
@@ -1353,8 +1325,8 @@ pub struct SpaceUsage {
 impl From<&space_usage_state::SpaceUsage> for SpaceUsage {
     fn from(space_usage: &space_usage_state::SpaceUsage) -> Self {
         Self {
-            used_display: format_size(space_usage.used),
-            total_display: format_size(space_usage.total),
+            used_display: size_display(space_usage.used),
+            total_display: size_display(space_usage.total),
             percentage: space_usage.percentage,
             severity: (&space_usage.severity).into(),
         }

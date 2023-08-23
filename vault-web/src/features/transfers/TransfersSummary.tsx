@@ -7,7 +7,6 @@ import { ReactComponent as TransfersIcon } from '../../assets/images/transfers.s
 import { Button } from '../../components/Button';
 import { Progress } from '../../components/Progress';
 import { remainingTimeDisplay } from '../../utils/remainingTime';
-import { sizeDisplay, sizeOfDisplay } from '../../utils/sizeDisplay';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
 
@@ -24,11 +23,10 @@ export const TransfersSummary = memo<{
       totalCount,
       doneCount,
       failedCount,
-      totalBytes,
-      doneBytes,
+      sizeProgressDisplay,
       percentage,
       remainingTime,
-      bytesPerSecond,
+      speedDisplay,
       isTransferring,
       canRetryAll,
       canAbortAll,
@@ -156,7 +154,7 @@ export const TransfersSummary = memo<{
                   font-weight: 600;
                 `}
               >
-                {sizeOfDisplay(doneBytes, totalBytes)}
+                {sizeProgressDisplay}
               </span>
             ) : (
               <span>
@@ -220,7 +218,7 @@ export const TransfersSummary = memo<{
                     font-weight: 600;
                   `}
                 >
-                  {sizeDisplay(bytesPerSecond)}/s
+                  {speedDisplay}
                 </span>
               ) : (
                 <span>

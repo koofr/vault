@@ -5,6 +5,7 @@ pub mod config;
 pub mod dialogs;
 pub mod dir_pickers;
 pub mod eventstream;
+pub mod file_size;
 pub mod file_types;
 pub mod files;
 pub mod http;
