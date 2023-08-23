@@ -12,6 +12,7 @@ use vault_core::{
     file_types::{file_category, files_filter},
     files,
     notifications::state as notifications_state,
+    relative_time,
     remote_files::state as remote_files_state,
     repo_config_backup::state as repo_config_backup_state,
     repo_create::state as repo_create_state,
@@ -88,6 +89,24 @@ impl From<&selection::state::SelectionSummary> for SelectionSummary {
             selection::state::SelectionSummary::None => Self::None,
             selection::state::SelectionSummary::Partial => Self::Partial,
             selection::state::SelectionSummary::All => Self::All,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+pub struct RelativeTime {
+    pub value: f64,
+    pub display: String,
+    #[serde(rename = "nextUpdate")]
+    pub next_update: Option<f64>,
+}
+
+impl From<relative_time::RelativeTime> for RelativeTime {
+    fn from(time: relative_time::RelativeTime) -> Self {
+        Self {
+            value: time.value as f64,
+            display: time.display,
+            next_update: time.next_update.map(|x| x as f64),
         }
     }
 }

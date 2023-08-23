@@ -1,5 +1,29 @@
 use std::time::Duration;
 
+use crate::locale::{get_locale, BoxLocale};
+
+pub struct LocaleConfig {
+    pub name: String,
+    pub locale: BoxLocale,
+}
+
+impl std::fmt::Debug for LocaleConfig {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("LocaleConfig")
+            .field("name", &self.name)
+            .finish()
+    }
+}
+
+impl Clone for LocaleConfig {
+    fn clone(&self) -> Self {
+        Self {
+            name: self.name.clone(),
+            locale: get_locale(&self.name).unwrap(),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct TransfersConfig {
     pub upload_concurrency: usize,
@@ -25,12 +49,17 @@ impl Default for TransfersConfig {
 pub struct ConfigState {
     pub base_url: String,
     pub transfers: TransfersConfig,
+    pub locale: LocaleConfig,
 }
 
 impl Default for ConfigState {
     fn default() -> Self {
         Self {
             base_url: String::from(""),
+            locale: LocaleConfig {
+                name: String::from("en"),
+                locale: get_locale("en").unwrap(),
+            },
             transfers: TransfersConfig::default(),
         }
     }

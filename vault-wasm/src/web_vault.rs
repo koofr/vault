@@ -41,6 +41,9 @@ extern "C" {
     #[wasm_bindgen(typescript_type = "Status")]
     pub type Status;
 
+    #[wasm_bindgen(typescript_type = "RelativeTime")]
+    pub type RelativeTime;
+
     #[wasm_bindgen(typescript_type = "Notification[]")]
     pub type NotificationVec;
 
@@ -296,6 +299,15 @@ impl WebVault {
     #[wasm_bindgen(js_name = logout)]
     pub fn logout(&self) {
         self.vault.logout()
+    }
+
+    // relative_time
+
+    #[wasm_bindgen(js_name = relativeTime)]
+    pub fn relative_time(&self, value: f64, with_modifier: bool) -> RelativeTime {
+        to_js(&dto::RelativeTime::from(
+            self.vault.relative_time(value as i64, with_modifier),
+        ))
     }
 
     // notifications

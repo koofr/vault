@@ -3,8 +3,8 @@ use std::sync::Arc;
 use futures::future::BoxFuture;
 
 use crate::{
-    auth, config, dialogs, eventstream, http, lifecycle, notifications, oauth2, remote,
-    remote_files, remote_files_dir_pickers, repo_config_backup, repo_create, repo_files,
+    auth, config, dialogs, eventstream, http, lifecycle, notifications, oauth2, relative_time,
+    remote, remote_files, remote_files_dir_pickers, repo_config_backup, repo_create, repo_files,
     repo_files_browsers, repo_files_details, repo_files_dir_pickers, repo_files_list,
     repo_files_move, repo_files_read, repo_remove, repo_space_usage, repo_unlock, repos, runtime,
     secure_storage, space_usage, store, transfers, user,
@@ -261,6 +261,19 @@ impl Vault {
 
     pub fn logout(&self) {
         self.lifecycle_service.logout();
+    }
+
+    // relative_time
+
+    pub fn relative_time(&self, value: i64, with_modifier: bool) -> relative_time::RelativeTime {
+        self.with_state(|state| {
+            relative_time::RelativeTime::new(
+                &self.runtime,
+                value,
+                &state.config.locale.locale,
+                with_modifier,
+            )
+        })
     }
 
     // notifications
