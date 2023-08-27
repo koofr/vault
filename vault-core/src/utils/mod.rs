@@ -1,4 +1,6 @@
+pub mod abort_http_body;
 pub mod abort_reader;
+pub mod delayed_http_body;
 pub mod drop_abort;
 pub mod md5_reader;
 pub mod memory_writer;
