@@ -12,7 +12,7 @@ import { FolderAwareHTML5Backend } from './components/dnd/backend';
 import { ModalsProvider } from './components/modal/Modals';
 import { Dialogs } from './features/dialogs/Dialogs';
 import { Notifications } from './features/notifications/Notifications';
-import { UploadsPreventUnload } from './features/uploads/UploadsPreventUnload';
+import { TransfersPreventUnload } from './features/transfers/TransfersPreventUnload';
 import { createFallbackRouter, createRouter } from './router';
 import { GlobalStyles } from './styles/GlobalStyles';
 import { emotionCache } from './styles/emotionCache';
@@ -86,7 +86,7 @@ const main = async () => {
                   </ModalsProvider>
 
                   <Notifications />
-                  <UploadsPreventUnload />
+                  <TransfersPreventUnload />
                 </>
               </DndProvider>
             </DynamicThemeProvider>

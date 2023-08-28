@@ -9,27 +9,6 @@ import {
 } from '../../utils/domFiles';
 import { normalizeFilename } from '../../utils/normalizeFilename';
 
-export function normalizePath(path: string): string {
-  if (path === '' || path === '/') {
-    return '/';
-  }
-  if (path[path.length - 1] === '/') {
-    return path.slice(0, path.length - 1);
-  }
-  return path;
-}
-
-export function joinPaths(parentPath: string, path: string): string {
-  parentPath = normalizePath(parentPath);
-  path = normalizePath(path);
-
-  if (path === '/') {
-    return parentPath;
-  }
-
-  return parentPath + (/\/$/.test(parentPath) ? '' : '/') + path.slice(1);
-}
-
 export function joinPath(path: string, name: string): string {
   return (
     path +

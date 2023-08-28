@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::{
     cipher,
     file_types::{
@@ -244,4 +246,24 @@ pub fn select_sorted_files(
         .map(|file| file.id.clone())
         .chain(files.iter().map(|file| file.id.clone()))
         .collect()
+}
+
+pub fn select_used_names(
+    state: &store::State,
+    repo_id: &str,
+    parent_path: &str,
+) -> HashSet<String> {
+    let mut used_names = HashSet::new();
+
+    for f in select_files(state, repo_id, parent_path) {
+        if let Ok(name) = f.decrypted_name() {
+            used_names.insert(name.to_lowercase());
+        }
+    }
+
+    used_names
+}
+
+pub fn get_unused_name(used_names: HashSet<String>, name: &str) -> String {
+    name_utils::unused_name(name, |name| used_names.contains(&name.to_lowercase()))
 }

@@ -7,7 +7,7 @@ use crate::{
     repo_files_details::state::RepoFilesDetailsState, repo_files_move::state::RepoFilesMoveState,
     repo_remove::state::RepoRemovesState, repo_space_usage::state::RepoSpaceUsagesState,
     repo_unlock::state::RepoUnlocksState, repos::state::ReposState,
-    space_usage::state::SpaceUsageState, uploads::state::UploadsState, user::state::UserState,
+    space_usage::state::SpaceUsageState, transfers::state::TransfersState, user::state::UserState,
 };
 
 #[derive(Debug, Clone, Default)]
@@ -28,7 +28,7 @@ pub struct State {
     pub repo_files_browsers: RepoFilesBrowsersState,
     pub repo_files_details: RepoFilesDetailsState,
     pub repo_files_move: Option<RepoFilesMoveState>,
-    pub uploads: UploadsState,
+    pub transfers: TransfersState,
     pub dir_pickers: DirPickersState,
     pub space_usage: SpaceUsageState,
 }

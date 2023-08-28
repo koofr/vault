@@ -25,7 +25,7 @@ use vault_core::{
     selection,
     space_usage::state as space_usage_state,
     store,
-    uploads::state as uploads_state,
+    transfers::{selectors as transfers_selectors, state as transfers_state},
     user::state as user_state,
     user_error::UserError,
 };
@@ -1022,77 +1022,90 @@ pub fn format_speed(bytes: i64, duration: Duration) -> Option<String> {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
-pub enum FileUploadState {
+#[serde(tag = "type")]
+pub enum TransferState {
     Waiting,
-    Uploading,
-    Failed,
+    Processing,
+    Transferring,
+    Failed { error: String },
     Done,
 }
 
-impl From<&uploads_state::FileUploadState> for FileUploadState {
-    fn from(typ: &uploads_state::FileUploadState) -> Self {
+impl From<&transfers_state::TransferState> for TransferState {
+    fn from(typ: &transfers_state::TransferState) -> Self {
         match typ {
-            uploads_state::FileUploadState::Waiting => Self::Waiting,
-            uploads_state::FileUploadState::Uploading => Self::Uploading,
-            uploads_state::FileUploadState::Failed { .. } => Self::Failed,
-            uploads_state::FileUploadState::Done => Self::Done,
+            transfers_state::TransferState::Waiting => Self::Waiting,
+            transfers_state::TransferState::Processing => Self::Processing,
+            transfers_state::TransferState::Transferring => Self::Transferring,
+            transfers_state::TransferState::Failed { error } => Self::Failed {
+                error: error.user_error(),
+            },
+            transfers_state::TransferState::Done => Self::Done,
         }
     }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
-pub struct FileUpload {
+pub struct Transfer {
     pub id: u32,
     pub name: String,
     pub category: FileCategory,
     pub size: Option<i64>,
     #[serde(rename = "sizeDisplay")]
     pub size_display: Option<String>,
-    pub uploaded: i64,
-    #[serde(rename = "uploadedDisplay")]
-    pub uploaded_display: String,
+    #[serde(rename = "transferredBytes")]
+    pub transferred_bytes: i64,
+    #[serde(rename = "transferredDisplay")]
+    pub transferred_display: String,
     pub elapsed: f64,
     pub speed: Option<String>,
-    pub state: FileUploadState,
-    pub error: Option<String>,
+    pub state: TransferState,
+    #[serde(rename = "canRetry")]
+    pub can_retry: bool,
+    #[serde(rename = "canAbort")]
+    pub can_abort: bool,
 }
 
-impl From<&uploads_state::FileUpload> for FileUpload {
-    fn from(file: &uploads_state::FileUpload) -> Self {
-        let elapsed = now_ms() as f64 - file.started as f64;
+impl From<&transfers_state::Transfer> for Transfer {
+    fn from(transfer: &transfers_state::Transfer) -> Self {
+        let elapsed = transfer
+            .started
+            .map(|started| now_ms() as f64 - started as f64)
+            .unwrap_or(0.0);
 
         Self {
-            id: file.id,
-            name: file.name.clone(),
-            category: (&file.category).into(),
-            size: file.size,
-            size_display: file.size.map(format_size),
-            uploaded: file.uploaded_bytes,
-            uploaded_display: format_size(file.uploaded_bytes),
+            id: transfer.id,
+            name: transfer.name.clone(),
+            category: (&transfer.category).into(),
+            size: transfer.size.exact_or_estimate(),
+            size_display: transfer.size.exact_or_estimate().map(format_size),
+            transferred_bytes: transfer.transferred_bytes,
+            transferred_display: format_size(transfer.transferred_bytes),
             elapsed,
-            speed: format_speed(file.uploaded_bytes, Duration::from_millis(elapsed as u64)),
-            state: (&file.state).into(),
-            error: match &file.state {
-                uploads_state::FileUploadState::Failed { error } => Some(error.user_error()),
-                _ => None,
-            },
+            speed: format_speed(
+                transfer.transferred_bytes,
+                Duration::from_millis(elapsed as u64),
+            ),
+            state: (&transfer.state).into(),
+            can_retry: transfers_selectors::can_retry(transfer),
+            can_abort: transfers_selectors::can_abort(transfer),
         }
     }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
-pub struct UploadsFiles {
-    pub files: Vec<FileUpload>,
+pub struct TransfersList {
+    pub transfers: Vec<Transfer>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
-pub struct UploadsSummary {
+pub struct TransfersSummary {
     #[serde(rename = "totalCount")]
-    pub total_count: u32,
+    pub total_count: usize,
     #[serde(rename = "doneCount")]
-    pub done_count: u32,
+    pub done_count: usize,
     #[serde(rename = "failedCount")]
-    pub failed_count: u32,
+    pub failed_count: usize,
     #[serde(rename = "totalBytes")]
     pub total_bytes: i64,
     #[serde(rename = "doneBytes")]
@@ -1102,12 +1115,12 @@ pub struct UploadsSummary {
     pub remaining_time: RemainingTime,
     #[serde(rename = "bytesPerSecond")]
     pub bytes_per_second: f64,
-    #[serde(rename = "isUploading")]
-    pub is_uploading: bool,
-    #[serde(rename = "canRetry")]
-    pub can_retry: bool,
-    #[serde(rename = "canAbort")]
-    pub can_abort: bool,
+    #[serde(rename = "isTransferring")]
+    pub is_transferring: bool,
+    #[serde(rename = "canRetryAll")]
+    pub can_retry_all: bool,
+    #[serde(rename = "canAbortAll")]
+    pub can_abort_all: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]

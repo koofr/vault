@@ -72,11 +72,11 @@ async function main() {
 
   console.log('Files', items);
 
-  const uploadsUnsubscribe = client.subscribe(
-    (v, cb) => v.uploadsSummarySubscribe(cb),
-    (v) => v.uploadsSummaryData,
+  const transfersUnsubscribe = client.subscribe(
+    (v, cb) => v.transfersSummarySubscribe(cb),
+    (v) => v.transfersSummaryData,
     (data) => {
-      console.log('Uploads summary', data);
+      console.log('Transfers summary', data);
     }
   );
 
@@ -85,11 +85,11 @@ async function main() {
 
   console.log('Upload file');
 
-  await client.webVault.uploadsUpload(repo.id, '/', fileName, fileContent);
+  await client.webVault.transfersUpload(repo.id, '/', fileName, fileContent);
 
   console.log('Upload done');
 
-  uploadsUnsubscribe();
+  transfersUnsubscribe();
 
   items = await client.waitFor(
     (v, cb) => v.repoFilesBrowsersItemsSubscribe(browserId, cb),

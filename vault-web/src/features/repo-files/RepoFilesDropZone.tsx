@@ -5,7 +5,7 @@ import { NativeTypes } from 'react-dnd-html5-backend';
 import { DropZone } from '../../components/dnd/DropZone';
 import { useClipboardUpload } from '../../utils/useClipboardUpload';
 
-import { useUploadFiles } from '../uploads/useUploadFiles';
+import { useUploadFiles } from '../transfers/useUploadFiles';
 
 export const RepoFilesDropZoneComponent = memo(() => {
   const canUpload = true;

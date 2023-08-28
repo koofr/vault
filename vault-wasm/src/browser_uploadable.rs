@@ -1,20 +1,23 @@
-use std::pin::Pin;
-
-use futures::AsyncRead;
+use async_trait::async_trait;
 use wasm_bindgen::{prelude::*, JsCast};
 use web_sys::{Blob, File, ReadableStream};
 
+use vault_core::{
+    common::state::{BoxAsyncRead, SizeInfo},
+    transfers::{errors::UploadableError, uploadable::Uploadable},
+};
+
 use crate::helpers;
 
-pub enum Uploadable {
+pub enum BrowserUploadable {
     File(File),
     Blob(Blob),
 }
 
-unsafe impl Send for Uploadable {}
-unsafe impl Sync for Uploadable {}
+unsafe impl Send for BrowserUploadable {}
+unsafe impl Sync for BrowserUploadable {}
 
-impl Uploadable {
+impl BrowserUploadable {
     pub fn from_value(value: JsValue) -> Result<Self, String> {
         if value.has_type::<File>() {
             Ok(Self::File(value.unchecked_into()))
@@ -39,17 +42,22 @@ impl Uploadable {
         }
     }
 
-    pub fn reader(&self) -> Pin<Box<dyn AsyncRead + Send + Sync + 'static>> {
+    pub fn reader(&self) -> BoxAsyncRead {
         helpers::stream_to_reader(self.stream())
     }
 }
 
-impl vault_core::repo_files::state::RepoFileUploadable for Uploadable {
-    fn size(&self) -> Option<i64> {
-        Some(self.size())
+#[async_trait]
+impl Uploadable for BrowserUploadable {
+    async fn size(&self) -> Result<SizeInfo, UploadableError> {
+        Ok(SizeInfo::Exact(self.size()))
     }
 
-    fn reader(&self) -> Pin<Box<dyn AsyncRead + Send + Sync + 'static>> {
-        self.reader()
+    async fn is_retriable(&self) -> Result<bool, UploadableError> {
+        Ok(true)
+    }
+
+    async fn reader(&self) -> Result<(BoxAsyncRead, SizeInfo), UploadableError> {
+        Ok((self.reader(), SizeInfo::Exact(self.size())))
     }
 }

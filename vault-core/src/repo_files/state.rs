@@ -1,10 +1,7 @@
 use std::{
     cmp::Ordering,
     collections::{HashMap, HashSet},
-    pin::Pin,
 };
-
-use futures::AsyncRead;
 
 use crate::{
     cipher::errors::{DecryptFilenameError, DecryptSizeError},
@@ -225,11 +222,6 @@ impl Into<RemoteFileUploadConflictResolution> for RepoFilesUploadConflictResolut
             Self::Error => RemoteFileUploadConflictResolution::Error,
         }
     }
-}
-
-pub trait RepoFileUploadable {
-    fn size(&self) -> Option<i64>;
-    fn reader(&self) -> Pin<Box<dyn AsyncRead + Send + Sync + 'static>>;
 }
 
 #[derive(Debug)]

@@ -86,7 +86,7 @@ export class TextEditor {
     this.currentParentPath = '/';
     this.currentPath = joinParentName(this.currentParentPath, this.currentName);
 
-    await this.webVaultClient.webVault.uploadsUpload(
+    await this.webVaultClient.webVault.transfersUpload(
       this.repo.id,
       '/',
       this.currentName,

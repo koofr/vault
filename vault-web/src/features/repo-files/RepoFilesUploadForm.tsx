@@ -7,7 +7,7 @@ import {
   useRef,
 } from 'react';
 
-import { useUploadFiles } from '../uploads/useUploadFiles';
+import { useUploadFiles } from '../transfers/useUploadFiles';
 
 export interface RepoFilesUploadApi {
   uploadFile?: () => void;

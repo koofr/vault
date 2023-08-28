@@ -16,7 +16,7 @@ pub enum Event {
     RepoFilesDetails,
     RepoFilesDetailsContentData,
     RepoFilesMove,
-    Uploads,
+    Transfers,
     DirPickers,
     SpaceUsage,
 }
@@ -40,7 +40,7 @@ impl Event {
             Self::RepoFilesDetails,
             Self::RepoFilesDetailsContentData,
             Self::RepoFilesMove,
-            Self::Uploads,
+            Self::Transfers,
             Self::DirPickers,
             Self::SpaceUsage,
         ]

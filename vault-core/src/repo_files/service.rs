@@ -1,5 +1,5 @@
 use std::{
-    collections::{HashMap, HashSet},
+    collections::HashMap,
     sync::{Arc, Mutex},
 };
 
@@ -536,20 +536,10 @@ impl RepoFilesService {
     ) -> Result<String, LoadFilesError> {
         self.load_files(repo_id, parent_path).await?;
 
-        let used_names = self.store.with_state(|state| {
-            let mut used_names = HashSet::<String>::new();
+        Ok(self.store.with_state(|state| {
+            let used_names = selectors::select_used_names(state, repo_id, parent_path);
 
-            for f in selectors::select_files(state, &repo_id, &parent_path) {
-                if let Ok(name) = f.decrypted_name() {
-                    used_names.insert(name.to_lowercase());
-                }
-            }
-
-            used_names
-        });
-
-        Ok(name_utils::unused_name(name, |name| {
-            used_names.contains(&name.to_lowercase())
+            selectors::get_unused_name(used_names, name)
         }))
     }
 }

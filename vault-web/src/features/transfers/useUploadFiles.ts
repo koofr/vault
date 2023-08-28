@@ -4,7 +4,7 @@ import { useWebVault } from '../../webVault/useWebVault';
 
 import { useRepoFilesBrowserId } from '../repo-files/RepoFilesBrowserId';
 
-import { joinPaths, UploadsHelper } from './UploadsHelper';
+import { UploadsHelper } from './UploadsHelper';
 
 export function useUploadFiles(): (
   files: File[] | DataTransferItem[]
@@ -26,14 +26,12 @@ export function useUploadFiles(): (
       const helper = new UploadsHelper({
         upload(entries) {
           return entries.map(async (entry) => {
-            const fullPath = joinPaths(path, entry.parentPath);
+            const name =
+              entry.parentPath === '/'
+                ? entry.name
+                : entry.parentPath.slice(1) + '/' + entry.name;
 
-            await webVault.uploadsUpload(
-              repoId,
-              fullPath,
-              entry.name,
-              entry.file
-            );
+            await webVault.transfersUpload(repoId, path, name, entry.file);
           });
         },
       });

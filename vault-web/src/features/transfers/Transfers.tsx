@@ -4,10 +4,10 @@ import { memo, useCallback, useState } from 'react';
 
 import { useSubscribe } from '../../webVault/useSubscribe';
 
-import { UploadsFiles } from './UploadsFiles';
-import { UploadsSummary } from './UploadsSummary';
+import { TransfersList } from './TransfersList';
+import { TransfersSummary } from './TransfersSummary';
 
-export const Uploads = memo(() => {
+export const Transfers = memo(() => {
   const theme = useTheme();
   const [areDetailsVisible, setDetailsVisible] = useState(false);
   const toggleDetailsVisible = useCallback(
@@ -15,8 +15,8 @@ export const Uploads = memo(() => {
     []
   );
   const [isActive] = useSubscribe(
-    (v, cb) => v.uploadsIsActiveSubscribe(cb),
-    (v) => v.uploadsIsActiveData,
+    (v, cb) => v.transfersIsActiveSubscribe(cb),
+    (v) => v.transfersIsActiveData,
     []
   );
 
@@ -32,12 +32,12 @@ export const Uploads = memo(() => {
         left: 0;
         right: 0;
         bottom: 0;
-        z-index: ${theme.zindex.uploads};
+        z-index: ${theme.zindex.transfers};
         border-top: 1px solid ${theme.colors.border};
         background-color: #fff;
       `}
     >
-      <UploadsSummary
+      <TransfersSummary
         areDetailsVisible={areDetailsVisible}
         toggleDetailsVisible={toggleDetailsVisible}
       />
@@ -55,7 +55,7 @@ export const Uploads = memo(() => {
             `
         )}
       >
-        {areDetailsVisible ? <UploadsFiles /> : null}
+        {areDetailsVisible ? <TransfersList /> : null}
       </div>
     </div>
   );

@@ -7,7 +7,7 @@ use crate::{
     remote_files, remote_files_dir_pickers, repo_config_backup, repo_create, repo_files,
     repo_files_browsers, repo_files_details, repo_files_dir_pickers, repo_files_list,
     repo_files_move, repo_files_read, repo_remove, repo_space_usage, repo_unlock, repos, runtime,
-    secure_storage, space_usage, store, uploads, user,
+    secure_storage, space_usage, store, transfers, user,
 };
 
 pub struct Vault {
@@ -21,7 +21,7 @@ pub struct Vault {
     pub auth_provider: Arc<Box<(dyn auth::AuthProvider + Send + Sync)>>,
     pub remote: Arc<remote::Remote>,
     pub user_service: Arc<user::UserService>,
-    pub uploads_service: Arc<uploads::UploadsService>,
+    pub transfers_service: Arc<transfers::TransfersService>,
     pub remote_files_service: Arc<remote_files::RemoteFilesService>,
     pub remote_files_dir_pickers_service:
         Arc<remote_files_dir_pickers::RemoteFilesDirPickersService>,
@@ -134,7 +134,7 @@ impl Vault {
             dialogs_service.clone(),
             store.clone(),
         ));
-        let uploads_service = Arc::new(uploads::UploadsService::new(
+        let transfers_service = Arc::new(transfers::TransfersService::new(
             repo_files_service.clone(),
             store.clone(),
             runtime.clone(),
@@ -204,7 +204,7 @@ impl Vault {
             auth_provider,
             remote,
             user_service,
-            uploads_service,
+            transfers_service,
             remote_files_service,
             eventstream_service,
             remote_files_dir_pickers_service,
@@ -515,35 +515,51 @@ impl Vault {
         self.repo_files_service.rename_file(repo_id, path).await
     }
 
-    // uploads
+    // transfers
 
-    pub async fn uploads_upload(
+    pub fn transfers_upload(
         &self,
-        repo_id: &str,
-        parent_path: &str,
-        name: &str,
-        uploadable: uploads::service::Uploadable,
-    ) -> Result<repo_files::state::RepoFilesUploadResult, uploads::errors::UploadError> {
-        self.uploads_service
+        repo_id: String,
+        parent_path: String,
+        name: String,
+        uploadable: transfers::uploadable::BoxUploadable,
+    ) -> (u32, transfers::state::CreateUploadResultFuture) {
+        self.transfers_service
             .clone()
             .upload(repo_id, parent_path, name, uploadable)
-            .await
     }
 
-    pub fn uploads_abort_file(&self, id: u32) {
-        self.uploads_service.abort_file(id);
+    pub fn transfers_download(
+        &self,
+        reader_provider: repo_files_read::state::RepoFileReaderProvider,
+        downloadable: transfers::downloadable::BoxDownloadable,
+    ) -> (u32, transfers::state::CreateDownloadResultFuture) {
+        self.transfers_service
+            .clone()
+            .download(reader_provider, downloadable)
     }
 
-    pub fn uploads_abort_all(&self) {
-        self.uploads_service.abort_all();
+    pub fn transfers_download_reader(
+        &self,
+        reader: repo_files_read::state::RepoFileReader,
+    ) -> transfers::state::DownloadReaderResult {
+        self.transfers_service.clone().download_reader(reader)
     }
 
-    pub fn uploads_retry_file(&self, id: u32) {
-        self.uploads_service.clone().retry_file(id);
+    pub fn transfers_abort(&self, id: u32) {
+        self.transfers_service.clone().abort(id);
     }
 
-    pub fn uploads_retry_all(&self) {
-        self.uploads_service.clone().retry_all();
+    pub fn transfers_abort_all(&self) {
+        self.transfers_service.clone().abort_all();
+    }
+
+    pub fn transfers_retry(&self, id: u32) {
+        self.transfers_service.clone().retry(id);
+    }
+
+    pub fn transfers_retry_all(&self) {
+        self.transfers_service.clone().retry_all();
     }
 
     // repo_files_browsers

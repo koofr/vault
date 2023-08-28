@@ -24,7 +24,7 @@ export const zindex = {
   navbarExtra: 600,
   navbarMain: 601,
   spaceUsage: 602,
-  uploads: 605,
+  transfers: 605,
   dropZoneLines: 610,
   repoFilesAddMenu: 1000,
   dashboardMenu: 1006,

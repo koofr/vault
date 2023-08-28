@@ -6,9 +6,9 @@ use std::{
 use serde::Serialize;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::spawn_local;
+use web_sys::{AbortSignal, Storage};
 
 use vault_core::store::Event;
-use web_sys::Storage;
 
 use crate::{
     browser_eventstream_websocket_client::{
@@ -17,8 +17,8 @@ use crate::{
     browser_http_client::{BrowserHttpClient, BrowserHttpClientDelegate},
     browser_runtime::{now_ms, BrowserRuntime},
     browser_secure_storage::BrowserSecureStorage,
+    browser_uploadable::BrowserUploadable,
     dto, helpers,
-    uploadable::Uploadable,
     web_errors::WebErrors,
     web_subscription::WebSubscription,
 };
@@ -110,11 +110,11 @@ extern "C" {
     #[wasm_bindgen(typescript_type = "RepoFilesMoveInfo | undefined")]
     pub type RepoFilesMoveInfoOption;
 
-    #[wasm_bindgen(typescript_type = "UploadsSummary")]
-    pub type UploadsSummary;
+    #[wasm_bindgen(typescript_type = "TransfersSummary")]
+    pub type TransfersSummary;
 
-    #[wasm_bindgen(typescript_type = "UploadsFiles")]
-    pub type UploadsFiles;
+    #[wasm_bindgen(typescript_type = "TransfersList")]
+    pub type TransfersList;
 
     #[wasm_bindgen(typescript_type = "FileStream | undefined")]
     pub type FileStreamOption;
@@ -158,9 +158,9 @@ struct SubscriptionData {
     repo_config_backup_info: Data<Option<dto::RepoConfigBackupInfo>>,
     repo_space_usage_info: Data<Option<dto::RepoSpaceUsageInfo>>,
     repo_files_file: Data<Option<dto::RepoFile>>,
-    uploads_is_active: Data<bool>,
-    uploads_summary: Data<dto::UploadsSummary>,
-    uploads_files: Data<dto::UploadsFiles>,
+    transfers_is_active: Data<bool>,
+    transfers_summary: Data<dto::TransfersSummary>,
+    transfers_list: Data<dto::TransfersList>,
     dir_pickers_items: Data<Vec<dto::DirPickerItem>>,
     repo_files_browsers_info: Data<Option<dto::RepoFilesBrowserInfo>>,
     repo_files_browsers_items: Data<Vec<dto::RepoFilesBrowserItem>>,
@@ -873,18 +873,32 @@ impl WebVault {
             vault_core::repo_files_read::errors::GetFilesReaderError,
         >,
         force_blob: bool,
+        abort_signal: Option<AbortSignal>,
     ) -> FileStreamOption {
-        let file_reader = match file_reader {
-            Ok(file_reader) => file_reader,
+        let reader = match file_reader {
+            Ok(reader) => reader,
             Err(err) => {
                 self.handle_error(err);
+
                 return JsValue::UNDEFINED.into();
             }
         };
 
+        let (transfer_id, file_reader) = self.vault.clone().transfers_download_reader(reader);
+
+        let reader = match abort_signal {
+            Some(abort_signal) => helpers::transfers_download_reader_abort_signal(
+                self.vault.clone(),
+                file_reader.reader,
+                transfer_id,
+                abort_signal,
+            ),
+            None => file_reader.reader,
+        };
+
         let file_stream = match helpers::reader_to_file_stream(
             &file_reader.name,
-            file_reader.reader,
+            reader,
             file_reader.size,
             file_reader.content_type.as_deref(),
             force_blob,
@@ -894,6 +908,7 @@ impl WebVault {
             Ok(file_stream) => file_stream,
             Err(err) => {
                 self.handle_error(err);
+
                 return JsValue::UNDEFINED.into();
             }
         };
@@ -914,6 +929,7 @@ impl WebVault {
                 Err(err) => Err(err),
             },
             force_blob,
+            None,
         )
         .await
     }
@@ -936,70 +952,70 @@ impl WebVault {
         self.handle_result(self.vault.repo_files_rename_file(repo_id, path).await)
     }
 
-    // uploads
+    // transfers
 
-    #[wasm_bindgen(js_name = uploadsIsActiveSubscribe)]
-    pub fn uploads_is_active_subscribe(&self, cb: js_sys::Function) -> u32 {
+    #[wasm_bindgen(js_name = transfersIsActiveSubscribe)]
+    pub fn transfers_is_active_subscribe(&self, cb: js_sys::Function) -> u32 {
         self.subscribe(
-            &[Event::Uploads],
+            &[Event::Transfers],
             cb,
-            self.subscription_data.uploads_is_active.clone(),
+            self.subscription_data.transfers_is_active.clone(),
             move |vault| {
-                vault.with_state(|state| vault_core::uploads::selectors::select_is_active(state))
+                vault.with_state(|state| vault_core::transfers::selectors::select_is_active(state))
             },
         )
     }
 
-    #[wasm_bindgen(js_name = uploadsIsActiveData)]
-    pub fn uploads_is_active_data(&self, id: u32) -> bool {
-        self.get_data(id, self.subscription_data.uploads_is_active.clone())
+    #[wasm_bindgen(js_name = transfersIsActiveData)]
+    pub fn transfers_is_active_data(&self, id: u32) -> bool {
+        self.get_data(id, self.subscription_data.transfers_is_active.clone())
             .unwrap_or(false)
     }
 
-    #[wasm_bindgen(js_name = uploadsSummarySubscribe)]
-    pub fn uploads_summary_subscribe(&self, cb: js_sys::Function) -> u32 {
+    #[wasm_bindgen(js_name = transfersSummarySubscribe)]
+    pub fn transfers_summary_subscribe(&self, cb: js_sys::Function) -> u32 {
         self.subscribe(
-            &[Event::Uploads],
+            &[Event::Transfers],
             cb,
-            self.subscription_data.uploads_summary.clone(),
+            self.subscription_data.transfers_summary.clone(),
             move |vault| {
                 vault.with_state(|state| {
-                    use vault_core::uploads::selectors;
+                    use vault_core::transfers::selectors;
 
                     let now = now_ms();
 
-                    dto::UploadsSummary {
-                        total_count: state.uploads.total_count,
-                        done_count: state.uploads.done_count,
-                        failed_count: state.uploads.failed_count,
-                        total_bytes: state.uploads.total_bytes,
-                        done_bytes: state.uploads.done_bytes,
+                    dto::TransfersSummary {
+                        total_count: state.transfers.total_count,
+                        done_count: state.transfers.done_count,
+                        failed_count: state.transfers.failed_count,
+                        total_bytes: state.transfers.total_bytes,
+                        done_bytes: state.transfers.done_bytes,
                         percentage: selectors::select_percentage(state),
                         remaining_time: (&selectors::select_remaining_time(state, now)).into(),
                         bytes_per_second: selectors::select_bytes_per_second(state, now),
-                        is_uploading: selectors::select_is_uploading(state),
-                        can_retry: selectors::select_can_retry(state),
-                        can_abort: selectors::select_can_abort(state),
+                        is_transferring: selectors::select_is_transferring(state),
+                        can_retry_all: selectors::select_can_retry_all(state),
+                        can_abort_all: selectors::select_can_abort_all(state),
                     }
                 })
             },
         )
     }
 
-    #[wasm_bindgen(js_name = uploadsSummaryData)]
-    pub fn uploads_summary_data(&self, id: u32) -> UploadsSummary {
-        self.get_data_js(id, self.subscription_data.uploads_summary.clone())
+    #[wasm_bindgen(js_name = transfersSummaryData)]
+    pub fn transfers_summary_data(&self, id: u32) -> TransfersSummary {
+        self.get_data_js(id, self.subscription_data.transfers_summary.clone())
     }
 
-    #[wasm_bindgen(js_name = uploadsFilesSubscribe)]
-    pub fn uploads_files_subscribe(&self, cb: js_sys::Function) -> u32 {
+    #[wasm_bindgen(js_name = transfersListSubscribe)]
+    pub fn transfers_list_subscribe(&self, cb: js_sys::Function) -> u32 {
         self.subscribe(
-            &[Event::Uploads],
+            &[Event::Transfers],
             cb,
-            self.subscription_data.uploads_files.clone(),
+            self.subscription_data.transfers_list.clone(),
             move |vault| {
-                vault.with_state(|state| dto::UploadsFiles {
-                    files: vault_core::uploads::selectors::select_files(state)
+                vault.with_state(|state| dto::TransfersList {
+                    transfers: vault_core::transfers::selectors::select_transfers(state)
                         .into_iter()
                         .map(Into::into)
                         .collect(),
@@ -1008,52 +1024,62 @@ impl WebVault {
         )
     }
 
-    #[wasm_bindgen(js_name = uploadsFilesData)]
-    pub fn uploads_files_data(&self, id: u32) -> UploadsFiles {
-        self.get_data_js(id, self.subscription_data.uploads_files.clone())
+    #[wasm_bindgen(js_name = transfersListData)]
+    pub fn transfers_list_data(&self, id: u32) -> TransfersList {
+        self.get_data_js(id, self.subscription_data.transfers_list.clone())
     }
 
-    #[wasm_bindgen(js_name = uploadsUpload)]
-    pub async fn uploads_upload(
+    #[wasm_bindgen(js_name = transfersUpload)]
+    pub async fn transfers_upload(
         &self,
-        repo_id: &str,
-        parent_path: &str,
-        name: &str,
+        repo_id: String,
+        parent_path: String,
+        name: String,
         file: FileOrBlob,
     ) -> RepoFilesUploadResultOption {
-        let uploadable = Box::pin(Uploadable::from_value(file.into()).unwrap());
+        let uploadable = Box::new(BrowserUploadable::from_value(file.into()).unwrap());
 
-        match self
-            .vault
-            .uploads_upload(repo_id, parent_path, name, uploadable)
-            .await
-        {
+        let (_, create_future) =
+            self.vault
+                .transfers_upload(repo_id, parent_path, name, uploadable);
+
+        let future = match create_future.await {
+            Ok(future) => future,
+            Err(err) => {
+                // create transfer errors have to be displayed
+                self.handle_error(err);
+
+                return JsValue::UNDEFINED.into();
+            }
+        };
+
+        match future.await {
             Ok(res) => to_js(&dto::RepoFilesUploadResult::from(res)),
             Err(_) => {
-                // upload errors are displayed in uploads component
+                // transfer errors are displayed in transfers component
                 JsValue::UNDEFINED.into()
             }
         }
     }
 
-    #[wasm_bindgen(js_name = uploadsAbortFile)]
-    pub fn uploads_abort_file(&self, id: u32) {
-        self.vault.uploads_abort_file(id);
+    #[wasm_bindgen(js_name = transfersAbort)]
+    pub fn transfers_abort(&self, id: u32) {
+        self.vault.transfers_abort(id);
     }
 
-    #[wasm_bindgen(js_name = uploadsAbortAll)]
-    pub fn uploads_abort_all(&self) {
-        self.vault.uploads_abort_all();
+    #[wasm_bindgen(js_name = transfersAbortAll)]
+    pub fn transfers_abort_all(&self) {
+        self.vault.transfers_abort_all();
     }
 
-    #[wasm_bindgen(js_name = uploadsRetryFile)]
-    pub fn uploads_retry_file(&self, id: u32) {
-        self.vault.uploads_retry_file(id);
+    #[wasm_bindgen(js_name = transfersRetry)]
+    pub fn transfers_retry(&self, id: u32) {
+        self.vault.transfers_retry(id);
     }
 
-    #[wasm_bindgen(js_name = uploadsRetryAll)]
-    pub fn uploads_retry_all(&self) {
-        self.vault.uploads_retry_all();
+    #[wasm_bindgen(js_name = transfersRetryAll)]
+    pub fn transfers_retry_all(&self) {
+        self.vault.transfers_retry_all();
     }
 
     // dir_pickers
@@ -1281,6 +1307,7 @@ impl WebVault {
                 Err(err) => Err(err),
             },
             force_blob,
+            None,
         )
         .await
     }
@@ -1465,6 +1492,7 @@ impl WebVault {
                 Err(err) => Err(err),
             },
             force_blob,
+            None,
         )
         .await
     }

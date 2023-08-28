@@ -7,7 +7,7 @@ import { Progress } from '../../components/Progress';
 import { useIsMobile } from '../../components/useIsMobile';
 import { useSubscribe } from '../../webVault/useSubscribe';
 
-import { UPLOADS_SUMMARY_HEIGHT } from '../uploads/UploadsSummary';
+import { TRANSFERS_SUMMARY_HEIGHT } from '../transfers/TransfersSummary';
 
 export const SpaceUsage = memo(() => {
   const isMobile = useIsMobile();
@@ -17,12 +17,12 @@ export const SpaceUsage = memo(() => {
     (v) => v.spaceUsageData,
     []
   );
-  const [uploadsIsActive] = useSubscribe(
-    (v, cb) => v.uploadsIsActiveSubscribe(cb),
-    (v) => v.uploadsIsActiveData,
+  const [transfersIsActive] = useSubscribe(
+    (v, cb) => v.transfersIsActiveSubscribe(cb),
+    (v) => v.transfersIsActiveData,
     []
   );
-  const bottom = uploadsIsActive ? UPLOADS_SUMMARY_HEIGHT : 0;
+  const bottom = transfersIsActive ? TRANSFERS_SUMMARY_HEIGHT : 0;
 
   if (spaceUsage === undefined) {
     return null;

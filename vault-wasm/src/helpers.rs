@@ -1,16 +1,22 @@
-use std::pin::Pin;
+use std::sync::Arc;
 
 use futures::{
     stream::{StreamExt, TryStreamExt},
     AsyncRead, AsyncReadExt,
 };
 use thiserror::Error;
-use vault_core::{common::state::SizeInfo, user_error::UserError};
 use wasm_bindgen::{prelude::*, JsCast};
 use wasm_bindgen_futures::JsFuture;
 use wasm_streams::ReadableStream;
+use web_sys::AbortSignal;
 
-use vault_core::cipher::constants::BLOCK_SIZE;
+use vault_core::{
+    cipher::constants::BLOCK_SIZE,
+    common::state::{BoxAsyncRead, SizeInfo},
+    user_error::UserError,
+    utils::on_end_reader::OnEndReader,
+    Vault,
+};
 
 use crate::dto;
 
@@ -64,7 +70,7 @@ pub fn bytes_to_blob(bytes: &[u8], content_type: Option<&str>) -> JsValue {
 pub struct ReaderToBlobError(String);
 
 pub async fn reader_to_blob(
-    mut reader: Pin<Box<dyn AsyncRead + Send + 'static>>,
+    mut reader: BoxAsyncRead,
     content_type: Option<&str>,
 ) -> Result<JsValue, ReaderToBlobError> {
     if supports_readable_byte_stream() {
@@ -89,9 +95,7 @@ pub async fn reader_to_blob(
     }
 }
 
-pub fn stream_to_reader(
-    stream: web_sys::ReadableStream,
-) -> Pin<Box<dyn AsyncRead + Send + Sync + 'static>> {
+pub fn stream_to_reader(stream: web_sys::ReadableStream) -> BoxAsyncRead {
     let stream = ReadableStream::from_raw(stream.unchecked_into()).into_stream();
 
     let reader = stream
@@ -118,7 +122,7 @@ pub enum ReaderToFileStreamError {
 
 pub async fn reader_to_file_stream(
     name: &str,
-    reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
+    reader: BoxAsyncRead,
     size: SizeInfo,
     content_type: Option<&str>,
     force_blob: bool,
@@ -150,4 +154,36 @@ pub async fn reader_to_file_stream(
     }
 
     Ok(JsValue::from(file_stream))
+}
+
+pub fn transfers_download_reader_abort_signal(
+    vault: Arc<Vault>,
+    reader: BoxAsyncRead,
+    transfer_id: u32,
+    abort_signal: AbortSignal,
+) -> BoxAsyncRead {
+    let on_abort_closure = Closure::<dyn Fn() + 'static>::new(move || {
+        vault.transfers_abort(transfer_id);
+    });
+
+    abort_signal.set_onabort(Some(on_abort_closure.as_ref().unchecked_ref()));
+
+    let cleanup: Box<dyn FnOnce() + 'static> = Box::new(move || {
+        abort_signal.set_onabort(None);
+        // drop the close on reader end so that we don't leak the memory
+        drop(on_abort_closure);
+    });
+    let cleanup = unsafe {
+        Box::from_raw(
+            Box::into_raw(Box::new(cleanup) as Box<dyn FnOnce() + 'static>)
+                as *mut (dyn FnOnce() + Send + Sync + 'static),
+        )
+    };
+
+    Box::pin(OnEndReader::new(
+        reader,
+        Box::new(move |_| {
+            cleanup();
+        }),
+    ))
 }

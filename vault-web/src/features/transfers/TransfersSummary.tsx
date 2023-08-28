@@ -2,18 +2,18 @@ import { css, cx } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { memo, MouseEvent, useCallback, useState } from 'react';
 
-import { ReactComponent as UploadsFailedIcon } from '../../assets/images/uploads-failed.svg';
-import { ReactComponent as UploadsIcon } from '../../assets/images/uploads.svg';
+import { ReactComponent as TransfersFailedIcon } from '../../assets/images/transfers-failed.svg';
+import { ReactComponent as TransfersIcon } from '../../assets/images/transfers.svg';
 import { Button } from '../../components/Button';
 import { Progress } from '../../components/Progress';
+import { remainingTimeDisplay } from '../../utils/remainingTime';
 import { sizeDisplay, sizeOfDisplay } from '../../utils/sizeDisplay';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
-import { remainingTimeDisplay } from '../../utils/remainingTime';
 
-export const UPLOADS_SUMMARY_HEIGHT = 48;
+export const TRANSFERS_SUMMARY_HEIGHT = 48;
 
-export const UploadsSummary = memo<{
+export const TransfersSummary = memo<{
   areDetailsVisible: boolean;
   toggleDetailsVisible: () => void;
 }>(({ areDetailsVisible, toggleDetailsVisible }) => {
@@ -29,13 +29,13 @@ export const UploadsSummary = memo<{
       percentage,
       remainingTime,
       bytesPerSecond,
-      isUploading,
-      canRetry,
-      canAbort,
+      isTransferring,
+      canRetryAll,
+      canAbortAll,
     },
   ] = useSubscribe(
-    (v, cb) => v.uploadsSummarySubscribe(cb),
-    (v) => v.uploadsSummaryData,
+    (v, cb) => v.transfersSummarySubscribe(cb),
+    (v) => v.transfersSummaryData,
     []
   );
   let [isSizeVisible, setSizeVisible] = useState(false);
@@ -43,14 +43,14 @@ export const UploadsSummary = memo<{
   const onAbortAllClick = useCallback(
     (event: MouseEvent<HTMLElement>) => {
       event.stopPropagation();
-      webVault.uploadsAbortAll();
+      webVault.transfersAbortAll();
     },
     [webVault]
   );
   const onRetryAllClick = useCallback(
     (event: MouseEvent<HTMLElement>) => {
       event.stopPropagation();
-      webVault.uploadsRetryAll();
+      webVault.transfersRetryAll();
     },
     [webVault]
   );
@@ -67,7 +67,7 @@ export const UploadsSummary = memo<{
     <div
       className={cx(
         css`
-          height: ${UPLOADS_SUMMARY_HEIGHT}px;
+          height: ${TRANSFERS_SUMMARY_HEIGHT}px;
           cursor: pointer;
           display: flex;
           align-items: center;
@@ -137,9 +137,9 @@ export const UploadsSummary = memo<{
             `}
           >
             {failedCount > 0 ? (
-              <UploadsFailedIcon role="img" />
+              <TransfersFailedIcon role="img" />
             ) : (
-              <UploadsIcon role="img" />
+              <TransfersIcon role="img" />
             )}
           </div>
           <div
@@ -203,7 +203,7 @@ export const UploadsSummary = memo<{
                 `
           )}
         >
-          {isUploading ? (
+          {isTransferring ? (
             <div
               className={css`
                 display: flex;
@@ -236,7 +236,7 @@ export const UploadsSummary = memo<{
               )}
             </div>
           ) : null}
-          {!isUploading ? (
+          {!isTransferring ? (
             <Button type="button" variant="primary-inline">
               {areDetailsVisible ? 'Hide details' : 'Show details'}
             </Button>
@@ -259,7 +259,7 @@ export const UploadsSummary = memo<{
               `
         )}
       >
-        {canRetry ? (
+        {canRetryAll ? (
           <Button
             type="button"
             variant="primary-inline"
@@ -268,12 +268,12 @@ export const UploadsSummary = memo<{
               margin-right: 15px;
             `}
             onClick={onRetryAllClick}
-            title="Retry failed uploads"
+            title="Retry failed transfers"
           >
             Retry
           </Button>
         ) : null}
-        {canAbort ? (
+        {canAbortAll ? (
           <Button
             type="button"
             variant="destructive-inline"
@@ -281,7 +281,7 @@ export const UploadsSummary = memo<{
               flex-shrink: 0;
             `}
             onClick={onAbortAllClick}
-            title="Cancel all uploads"
+            title="Cancel all transfers"
           >
             Cancel
           </Button>

@@ -1,3 +1,5 @@
+pub mod transfers;
+
 use std::{future::Future, sync::Arc};
 
 use crate::fixtures::{

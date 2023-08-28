@@ -2,7 +2,7 @@ import { css, cx } from '@emotion/css';
 import { memo, PropsWithChildren, ReactNode } from 'react';
 
 import { SpaceUsage } from '../../features/space-usage/SpaceUsage';
-import { Uploads } from '../../features/uploads/Uploads';
+import { Transfers } from '../../features/transfers/Transfers';
 
 import { useIsMobile } from '../useIsMobile';
 
@@ -78,7 +78,7 @@ export const DashboardLayout = memo<
           </main>
         </div>
 
-        <Uploads />
+        <Transfers />
         <SpaceUsage />
       </>
     );
