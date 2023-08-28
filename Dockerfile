@@ -58,31 +58,6 @@ RUN cd vault-web && node_modules/.bin/eslint src
 RUN cd vault-web && VITE_GIT_REVISION=${GIT_REVISION} node_modules/.bin/vite build
 RUN echo -n ${GIT_REVISION} > vault-web/dist/gitrevision.txt
 
-### fake-remote
-
-# FROM rust:1.71.1-slim-buster AS fake-remote-rust-stage
-FROM rust@sha256:8a4b4377076a59211e6593b6e9a39fec38d8d0bc311a910baaea6463846fbc75 AS fake-remote-rust-stage
-WORKDIR /app
-
-RUN apt-get update && apt-get install -y wget
-
-ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
-
-RUN cd /tmp \
-  && wget https://github.com/LukeMathWalker/cargo-chef/releases/download/v0.1.62/cargo-chef-x86_64-unknown-linux-musl.tar.gz \
-  && tar xf cargo-chef-x86_64-unknown-linux-musl.tar.gz \
-  && mv cargo-chef /usr/local/bin/cargo-chef
-
-FROM fake-remote-rust-stage AS fake-remote-chef-planner-stage
-COPY . .
-RUN cargo chef prepare --recipe-path recipe.json
-
-FROM fake-remote-rust-stage AS fake-remote-stage
-COPY --from=fake-remote-chef-planner-stage /app/recipe.json recipe.json
-RUN cargo chef cook --recipe-path recipe.json --package vault-fake-remote
-COPY . .
-RUN cd vault-fake-remote && cargo build --bin fake_remote
-
 ### static
 
 # FROM busybox:1.34.1 AS static-stage
@@ -90,11 +65,6 @@ FROM busybox@sha256:d345780059f4b200c1ebfbcfb141c67212e1ad4ea7538dcff759895bfcf9
 COPY --from=frontend-stage /app/vault-web/dist/ /vault-web
 RUN cd vault-web && tar cvzpf ../vault-web.tar.gz .
 COPY --from=wasm-stage /app/vault-wasm/vault-wasm-nodejs.tar.gz /vault-wasm-nodejs.tar.gz
-
-### ci
-
-FROM static-stage AS ci-stage
-COPY --from=fake-remote-stage /app/target/debug/fake_remote /fake_remote
 
 ### caddy
 

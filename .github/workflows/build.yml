@@ -15,11 +15,10 @@ jobs:
       - name: Build static files
         run: |
           GIT_REVISION=$(git rev-parse --short HEAD)
-          docker buildx build --build-arg GIT_REVISION="$GIT_REVISION" --target ci-stage -t vault-ci --cache-from=type=gha --cache-to=type=gha,mode=max --load .
-          docker run --rm vault-ci cat vault-web.tar.gz > vault-web.tar.gz
+          docker buildx build --build-arg GIT_REVISION="$GIT_REVISION" --target static-stage -t vault-static --cache-from=type=gha --cache-to=type=gha,mode=max --load .
+          docker run --rm vault-static cat vault-web.tar.gz > vault-web.tar.gz
           sha256sum vault-web.tar.gz | awk '{print $1}' > vault-web.tar.gz.sha256
-          docker run --rm vault-ci cat vault-wasm-nodejs.tar.gz > vault-wasm-nodejs.tar.gz
-          docker run --rm vault-ci cat fake_remote > fake_remote
+          docker run --rm vault-static cat vault-wasm-nodejs.tar.gz > vault-wasm-nodejs.tar.gz
       - uses: actions/upload-artifact@v3
         with:
           name: vault-web
@@ -30,10 +29,36 @@ jobs:
           name: vault-wasm-nodejs
           path: vault-wasm-nodejs.tar.gz*
           retention-days: 30
+
+  build-fake-remote:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cargo/registry
+          key: "cargo-registry-${{ hashFiles('**/Cargo.lock') }}"
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cargo/git
+          key: "cargo-index-${{ hashFiles('**/Cargo.lock') }}"
+      - uses: actions/cache@v3
+        with:
+          path: target
+          key: cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install rust
+        uses: dtolnay/rust-toolchain@b44cb146d03e8d870c57ab64b80f04586349ca5d
+        with:
+          toolchain: "1.71.1"
+      - name: Build fake-remote
+        run: cargo build --bin fake_remote
+        working-directory: vault-fake-remote
       - uses: actions/upload-artifact@v3
         with:
           name: vault-fake-remote
-          path: fake_remote
+          path: target/debug/fake_remote
           retention-days: 30
 
   cargo-test:
@@ -64,7 +89,7 @@ jobs:
   playwright:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, build-fake-remote]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
