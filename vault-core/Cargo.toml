@@ -34,6 +34,7 @@ url = "2.3.1"
 urlencoding = "2.1.2"
 user-error-derive = { path = "./user-error-derive" }
 uuid = { version = "1.3.3", features = ["v4", "fast-rng"] }
+vault-store = { path = "../vault-store" }
 xsalsa20poly1305 = "0.9.1"
 
 [dev-dependencies]

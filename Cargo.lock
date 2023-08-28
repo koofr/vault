@@ -2509,6 +2509,7 @@ dependencies = [
  "urlencoding",
  "user-error-derive",
  "uuid",
+ "vault-store",
  "xsalsa20poly1305",
 ]
 
@@ -2527,6 +2528,7 @@ dependencies = [
  "vault-core",
  "vault-fake-remote",
  "vault-native",
+ "vault-store",
 ]
 
 [[package]]

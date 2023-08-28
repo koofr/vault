@@ -13,7 +13,7 @@ use similar_asserts::assert_eq;
 use vault_core::{
     common::state::{BoxAsyncRead, SizeInfo},
     files::file_category::FileCategory,
-    store::{self, test_helpers::StoreWatcher, NextId},
+    store::{self, NextId},
     transfers::{
         errors::{TransferError, UploadableError},
         state::{Transfer, TransferState, TransferType, TransfersState, UploadTransfer},
@@ -24,6 +24,7 @@ use vault_core_tests::helpers::transfers::{
     transfers_recorder, uploaded_server_error, with_transfers, TestUploadable,
 };
 use vault_fake_remote::fake_remote::interceptor::InterceptorResult;
+use vault_store::test_helpers::StoreWatcher;
 
 #[test]
 fn test_upload() {

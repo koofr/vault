@@ -1,4 +1,4 @@
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum MutationEvent {
     RemoteFiles,
     RepoFiles,

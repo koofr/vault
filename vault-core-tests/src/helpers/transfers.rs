@@ -16,11 +16,7 @@ use futures::{
 };
 use vault_core::{
     common::state::{BoxAsyncRead, BoxAsyncWrite, SizeInfo},
-    store::{
-        self,
-        test_helpers::{StateRecorder, StoreWatcher},
-        wait_for,
-    },
+    store,
     transfers::{
         downloadable::{BoxDownloadable, Downloadable, DownloadableStatus},
         errors::{DownloadableError, UploadableError},
@@ -31,6 +27,7 @@ use vault_core::{
     Vault,
 };
 use vault_fake_remote::fake_remote::interceptor::InterceptorResult;
+use vault_store::test_helpers::{StateRecorder, StoreWatcher};
 
 use crate::{fake_remote::FakeRemote, fixtures::repo_fixture::RepoFixture};
 
@@ -333,7 +330,7 @@ pub async fn transfer_wait<Filter: Fn(&Transfer) -> bool + Send + Sync + 'static
     transfer_id: u32,
     filter: Filter,
 ) {
-    wait_for(store.clone(), &[store::Event::Transfers], move || {
+    store::wait_for(store.clone(), &[store::Event::Transfers], move || {
         store.with_state(|state| {
             state
                 .transfers
