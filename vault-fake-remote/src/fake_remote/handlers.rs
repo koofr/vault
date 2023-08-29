@@ -79,6 +79,28 @@ pub async fn oauth2_auth(
 }
 
 #[derive(Deserialize)]
+pub struct OAuth2LogoutQuery {
+    post_logout_redirect_uri: String,
+    state: String,
+}
+
+pub async fn oauth2_logout(
+    Query(query): Query<OAuth2LogoutQuery>,
+) -> Result<Response, FakeRemoteError> {
+    let uri = format!(
+        "{}?loggedout=true&state={}",
+        query.post_logout_redirect_uri,
+        encode(&query.state)
+    );
+
+    Ok((
+        StatusCode::SEE_OTHER,
+        [(header::LOCATION, HeaderValue::try_from(uri).unwrap())],
+    )
+        .into_response())
+}
+
+#[derive(Deserialize)]
 #[serde(tag = "grant_type")]
 pub enum OAuth2TokenForm {
     #[serde(rename = "authorization_code")]

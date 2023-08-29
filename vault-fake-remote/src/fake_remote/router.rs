@@ -44,6 +44,7 @@ pub fn build_router(app_state: AppState) -> Router {
     Router::new()
         .route("/health", get(handlers::health))
         .route("/oauth2/auth", get(handlers::oauth2_auth))
+        .route("/oauth2/logout", get(handlers::oauth2_logout))
         .route("/oauth2/token", post(handlers::oauth2_token))
         .route("/api/v2.1/user", get(handlers::user))
         .route(
