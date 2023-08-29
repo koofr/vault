@@ -299,7 +299,7 @@ impl WebVault {
 
     #[wasm_bindgen(js_name = logout)]
     pub fn logout(&self) {
-        self.vault.logout()
+        self.handle_result(self.vault.logout());
     }
 
     // relative_time
@@ -431,13 +431,25 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = oauth2StartLoginFlow)]
-    pub fn oauth2_start_login_flow(&self) -> String {
-        self.vault.oauth2_start_login_flow()
+    pub fn oauth2_start_login_flow(&self) -> Option<String> {
+        match self.vault.oauth2_start_login_flow() {
+            Ok(url) => Some(url),
+            Err(err) => {
+                self.handle_error(err);
+                None
+            }
+        }
     }
 
     #[wasm_bindgen(js_name = oauth2StartLogoutFlow)]
-    pub fn oauth2_start_logout_flow(&self) -> String {
-        self.vault.oauth2_start_logout_flow()
+    pub fn oauth2_start_logout_flow(&self) -> Option<String> {
+        match self.vault.oauth2_start_logout_flow() {
+            Ok(url) => Some(url),
+            Err(err) => {
+                self.handle_error(err);
+                None
+            }
+        }
     }
 
     #[wasm_bindgen(js_name = oauth2FinishFlowUrl)]

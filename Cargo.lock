@@ -2520,6 +2520,7 @@ dependencies = [
  "async-trait",
  "axum",
  "futures",
+ "reqwest",
  "serde",
  "serde_json",
  "similar-asserts",

@@ -72,23 +72,24 @@ impl OAuth2Service {
     }
 
     pub fn load(&self) -> Result<(), OAuth2Error> {
-        let token = self
-            .load_token()
-            .map_err(|e| OAuth2Error::InvalidOAuth2Token(e.to_string()))?;
+        let res = self.load_token().map_err(OAuth2Error::from);
+        let res_err = res.as_ref().map(|_| ()).map_err(|err| err.clone());
 
         self.store.mutate(|state, notify, _, _| {
-            mutations::loaded(state, notify, token);
+            mutations::loaded(state, notify, res);
         });
 
-        Ok(())
+        res_err
     }
 
-    pub fn logout(&self) {
-        let _ = self.remove_token();
+    pub fn logout(&self) -> Result<(), OAuth2Error> {
+        let res = self.remove_token().map_err(OAuth2Error::StorageError);
 
         self.store.mutate(|state, notify, _, _| {
-            mutations::logout(state, notify);
+            mutations::logout(state, notify, res.clone());
         });
+
+        res
     }
 
     pub async fn get_authorization(&self, force_refresh_token: bool) -> Result<String, AuthError> {
@@ -131,16 +132,16 @@ impl OAuth2Service {
         Ok(Some(token))
     }
 
-    pub fn start_login_flow(&self) -> String {
-        let flow_state = self.generate_flow_state();
+    pub fn start_login_flow(&self) -> Result<String, OAuth2Error> {
+        let flow_state = self.generate_flow_state()?;
 
-        self.get_login_url(&flow_state)
+        Ok(self.get_login_url(&flow_state))
     }
 
-    pub fn start_logout_flow(&self) -> String {
-        let flow_state = self.generate_flow_state();
+    pub fn start_logout_flow(&self) -> Result<String, OAuth2Error> {
+        let flow_state = self.generate_flow_state()?;
 
-        self.get_logout_url(&flow_state)
+        Ok(self.get_logout_url(&flow_state))
     }
 
     pub async fn finish_flow_url(&self, url: &str) -> Result<FinishFlowResult, OAuth2Error> {
@@ -173,8 +174,8 @@ impl OAuth2Service {
             return Err(err);
         }
 
-        if query.get("loggedout").filter(|x| *x == "true").is_some() {
-            self.finish_logout_flow();
+        if query.get("loggedout").filter(|&x| x == "true").is_some() {
+            self.finish_logout_flow()?;
 
             Ok(FinishFlowResult::LoggedOut)
         } else {
@@ -248,19 +249,27 @@ impl OAuth2Service {
             }
         }
 
+        if let Err(err) = self.remove_state().map_err(OAuth2Error::from) {
+            self.handle_error(err.clone());
+
+            return Err(err);
+        }
+
         self.store.mutate(|state, notify, _, _| {
             mutations::logged_in(state, notify, token);
         });
 
-        let _ = self.remove_state();
-
         Ok(())
     }
 
-    fn finish_logout_flow(&self) {
-        let _ = self.remove_state();
+    fn finish_logout_flow(&self) -> Result<(), OAuth2Error> {
+        if let Err(err) = self.remove_state().map_err(OAuth2Error::from) {
+            self.handle_error(err.clone());
 
-        self.logout();
+            return Err(err);
+        }
+
+        self.logout()
     }
 
     fn is_flow_state_ok(&self, state: &str) -> bool {
@@ -301,16 +310,16 @@ impl OAuth2Service {
         format!("{}/oauth2/token", &self.config.base_url)
     }
 
-    fn generate_flow_state(&self) -> String {
+    fn generate_flow_state(&self) -> Result<String, OAuth2Error> {
         let mut state = vec![0; 16];
 
         (&mut OsRng).try_fill_bytes(&mut state).unwrap();
 
         let state = BASE64URL_NOPAD.encode(&state);
 
-        let _ = self.save_state(&state);
+        self.save_state(&state)?;
 
-        state
+        Ok(state)
     }
 
     async fn refresh_token(&self, refresh_token: &str) -> Result<OAuth2Token, OAuth2Error> {
@@ -374,7 +383,7 @@ impl OAuth2Service {
         let res_bytes = res.bytes().await?;
 
         let raw_token: RawOAuth2Token = serde_json::from_slice(&res_bytes)
-            .map_err(|e| OAuth2Error::InvalidOAuth2Token(e.to_string()))?;
+            .map_err(|err| OAuth2Error::InvalidOAuth2Token(err.to_string()))?;
 
         let token = OAuth2Token {
             access_token: raw_token.access_token,

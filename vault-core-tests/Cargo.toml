@@ -7,6 +7,10 @@ edition = "2021"
 async-trait = "0.1.68"
 axum = { version = "0.6.20", features = ["ws", "multipart", "http2"] }
 futures = "0.3.28"
+reqwest = { version = "0.11.18", default-features = false, features = [
+  "rustls-tls",
+  "stream",
+] }
 serde = "1.0.174"
 serde_json = "1.0.96"
 similar-asserts = "1.5.0"

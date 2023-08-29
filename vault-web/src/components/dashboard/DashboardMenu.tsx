@@ -87,7 +87,11 @@ export const DashboardMenu = memo(() => {
   });
   useMenuUpdate(show, popper);
   const logout = useCallback(() => {
-    document.location.href = webVault.oauth2StartLogoutFlow();
+    const url = webVault.oauth2StartLogoutFlow();
+
+    if (url !== undefined) {
+      document.location.href = url;
+    }
   }, [webVault]);
 
   return (

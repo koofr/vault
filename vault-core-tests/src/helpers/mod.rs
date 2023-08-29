@@ -1,6 +1,7 @@
+pub mod secure_storage;
 pub mod transfers;
 
-use std::{future::Future, sync::Arc};
+use std::sync::Arc;
 
 use futures::{future::BoxFuture, FutureExt};
 

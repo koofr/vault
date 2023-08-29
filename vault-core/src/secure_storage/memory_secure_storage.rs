@@ -41,4 +41,10 @@ impl SecureStorage for MemorySecureStorage {
 
         Ok(())
     }
+
+    fn clear(&self) -> Result<(), String> {
+        self.data.write().unwrap().clear();
+
+        Ok(())
+    }
 }

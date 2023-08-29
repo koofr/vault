@@ -20,7 +20,11 @@ export const LoginPage: React.FC<{}> = () => {
         replace: true,
       });
     } else {
-      document.location.href = webVault.oauth2StartLoginFlow();
+      const url = webVault.oauth2StartLoginFlow();
+
+      if (url !== undefined) {
+        document.location.href = url;
+      }
     }
   }, [webVault, oauth2Status, navigate]);
 

@@ -29,4 +29,12 @@ impl SecureStorage for BrowserSecureStorage {
 
         Ok(())
     }
+
+    fn clear(&self) -> Result<(), String> {
+        let _ = self.storage.remove_item("vaultOAuth2Token");
+        let _ = self.storage.remove_item("vaultOAuth2State");
+        let _ = self.storage.remove_item("vaultLoginRedirect");
+
+        Ok(())
+    }
 }

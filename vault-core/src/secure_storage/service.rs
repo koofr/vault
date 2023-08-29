@@ -52,4 +52,10 @@ impl SecureStorageService {
             .remove_item(key)
             .map_err(SecureStorageError::Error)
     }
+
+    pub fn clear(&self) -> Result<(), SecureStorageError> {
+        self.secure_storage
+            .clear()
+            .map_err(SecureStorageError::Error)
+    }
 }

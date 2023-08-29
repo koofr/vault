@@ -191,6 +191,8 @@ impl Vault {
             store.clone(),
         ));
         let lifecycle_service = lifecycle::LifecycleService::new(
+            secure_storage_service.clone(),
+            notifications_service.clone(),
             oauth2_service.clone(),
             user_service.clone(),
             repos_service.clone(),
@@ -204,8 +206,8 @@ impl Vault {
             store,
             http_client,
             runtime,
-            secure_storage_service,
             notifications_service,
+            secure_storage_service,
             dialogs_service,
             oauth2_service,
             auth_provider,
@@ -272,8 +274,8 @@ impl Vault {
         self.lifecycle_service.load().await
     }
 
-    pub fn logout(&self) {
-        self.lifecycle_service.logout();
+    pub fn logout(&self) -> Result<(), oauth2::errors::OAuth2Error> {
+        self.lifecycle_service.logout()
     }
 
     // relative_time
@@ -325,11 +327,11 @@ impl Vault {
 
     // oauth2
 
-    pub fn oauth2_start_login_flow(&self) -> String {
+    pub fn oauth2_start_login_flow(&self) -> Result<String, oauth2::errors::OAuth2Error> {
         self.oauth2_service.start_login_flow()
     }
 
-    pub fn oauth2_start_logout_flow(&self) -> String {
+    pub fn oauth2_start_logout_flow(&self) -> Result<String, oauth2::errors::OAuth2Error> {
         self.oauth2_service.start_logout_flow()
     }
 
@@ -337,24 +339,7 @@ impl Vault {
         &self,
         url: &str,
     ) -> Result<(), oauth2::errors::OAuth2Error> {
-        match self.oauth2_service.finish_flow_url(url).await? {
-            oauth2::state::FinishFlowResult::LoggedIn => {
-                self.lifecycle_service
-                    .on_login()
-                    .await
-                    .map_err(|e| match e {
-                        remote::RemoteError::HttpError(err) => {
-                            oauth2::errors::OAuth2Error::HttpError(err)
-                        }
-                        _ => oauth2::errors::OAuth2Error::Unknown(e.to_string()),
-                    })?;
-            }
-            oauth2::state::FinishFlowResult::LoggedOut => {
-                self.lifecycle_service.on_logout();
-            }
-        }
-
-        Ok(())
+        self.lifecycle_service.oauth2_finish_flow_url(url).await
     }
 
     // user
