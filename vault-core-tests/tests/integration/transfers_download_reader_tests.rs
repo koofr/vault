@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use futures::AsyncReadExt;
+use futures::{AsyncReadExt, FutureExt};
 use similar_asserts::assert_eq;
 
 use vault_core::{
@@ -51,7 +51,7 @@ fn test_download_reader() {
                 _ => panic!("unexpected state: {:#?}", transfers),
             },
         );
-    });
+    }.boxed());
 }
 
 #[test]
@@ -94,7 +94,7 @@ fn test_download_reader_fail() {
                 _ => panic!("unexpected state: {:#?}", transfers),
             },
         );
-    });
+    }.boxed());
 }
 
 #[test]
@@ -143,7 +143,7 @@ fn test_download_reader_abort() {
                 _ => panic!("unexpected state: {:#?}", transfers),
             },
         );
-    });
+    }.boxed());
 }
 
 fn expected_transfers_transferring(transfers: &TransfersState, attempts: usize) -> TransfersState {

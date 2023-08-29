@@ -12,7 +12,7 @@ use futures::{
     channel::oneshot::{self, Sender},
     future::{self, BoxFuture},
     io::Cursor,
-    Future, FutureExt,
+    FutureExt,
 };
 use vault_core::{
     common::state::{BoxAsyncRead, BoxAsyncWrite, SizeInfo},
@@ -33,14 +33,19 @@ use crate::{fake_remote::FakeRemote, fixtures::repo_fixture::RepoFixture};
 
 use super::with_repo;
 
-pub fn with_transfers<F: Future<Output = ()>>(f: impl FnOnce(Arc<RepoFixture>) -> F) {
-    with_repo(|repo_fixture| async move {
-        repo_fixture.vault.store.mutate(|state, _, _, _| {
-            // the default value 100 ms causes flaky tests
-            state.config.transfers.progress_throttle = Duration::from_secs(5);
-        });
+pub fn with_transfers(
+    f: impl FnOnce(Arc<RepoFixture>) -> BoxFuture<'static, ()> + Send + Sync + 'static,
+) {
+    with_repo(|repo_fixture| {
+        async move {
+            repo_fixture.vault.store.mutate(|state, _, _, _| {
+                // the default value 100 ms causes flaky tests
+                state.config.transfers.progress_throttle = Duration::from_secs(5);
+            });
 
-        f(repo_fixture).await;
+            f(repo_fixture).await;
+        }
+        .boxed()
     });
 }
 

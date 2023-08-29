@@ -30,291 +30,311 @@ use vault_fake_remote::fake_remote::interceptor::InterceptorResult;
 
 #[test]
 fn test_download() {
-    with_transfers(|fixture| async move {
-        fixture.upload_file("/file.txt", "test").await;
+    with_transfers(|fixture| {
+        async move {
+            fixture.upload_file("/file.txt", "test").await;
 
-        let recorder = transfers_recorder(&fixture.vault);
+            let recorder = transfers_recorder(&fixture.vault);
 
-        let (_, create_future, content_future) =
-            download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
-        let future = create_future.await.unwrap();
+            let (_, create_future, content_future) =
+                download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
+            let future = create_future.await.unwrap();
 
-        assert!(matches!(future.await.unwrap(), ()));
-        assert_eq!(content_future.await.unwrap(), "test");
+            assert!(matches!(future.await.unwrap(), ()));
+            assert_eq!(content_future.await.unwrap(), "test");
 
-        check_recorded(
-            recorder,
-            |len| assert_eq!(len, 6),
-            |i, transfers| match i {
-                0 => assert_eq!(transfers, TransfersState::default()),
-                1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
-                2 => assert_eq!(transfers, expected_transfers_processing(&transfers, 1)),
-                3 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 1)),
-                4 => assert_eq!(
-                    transfers,
-                    expected_transfers_transferring_progress(&transfers, 1)
-                ),
-                5 => assert_eq!(transfers, expected_tranfers_done()),
-                _ => panic!("unexpected state: {:#?}", transfers),
-            },
-        );
+            check_recorded(
+                recorder,
+                |len| assert_eq!(len, 6),
+                |i, transfers| match i {
+                    0 => assert_eq!(transfers, TransfersState::default()),
+                    1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
+                    2 => assert_eq!(transfers, expected_transfers_processing(&transfers, 1)),
+                    3 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 1)),
+                    4 => assert_eq!(
+                        transfers,
+                        expected_transfers_transferring_progress(&transfers, 1)
+                    ),
+                    5 => assert_eq!(transfers, expected_tranfers_done()),
+                    _ => panic!("unexpected state: {:#?}", transfers),
+                },
+            );
+        }
+        .boxed()
     });
 }
 
 #[test]
 fn test_download_change_name() {
-    with_transfers(|fixture| async move {
-        fixture.upload_file("/file.txt", "test").await;
+    with_transfers(|fixture| {
+        async move {
+            fixture.upload_file("/file.txt", "test").await;
 
-        let recorder = transfers_recorder(&fixture.vault);
+            let recorder = transfers_recorder(&fixture.vault);
 
-        let reader_provider = fixture
-            .vault
-            .repo_files_get_file_reader(&fixture.repo_id, "/file.txt")
-            .unwrap()
-            .wrap_reader_builder(|reader_builder| {
-                async move {
-                    reader_builder().await.map(|mut reader| {
-                        reader.name = "file renamed.txt".into();
-                        reader
-                    })
-                }
-                .boxed()
-            });
-        let (downloadable, content_future) = TestDownloadable::string();
-        let (_, create_future) = fixture
-            .vault
-            .transfers_download(reader_provider, downloadable);
-        let future = create_future.await.unwrap();
+            let reader_provider = fixture
+                .vault
+                .repo_files_get_file_reader(&fixture.repo_id, "/file.txt")
+                .unwrap()
+                .wrap_reader_builder(|reader_builder| {
+                    async move {
+                        reader_builder().await.map(|mut reader| {
+                            reader.name = "file renamed.txt".into();
+                            reader
+                        })
+                    }
+                    .boxed()
+                });
+            let (downloadable, content_future) = TestDownloadable::string();
+            let (_, create_future) = fixture
+                .vault
+                .transfers_download(reader_provider, downloadable);
+            let future = create_future.await.unwrap();
 
-        assert!(matches!(future.await.unwrap(), ()));
-        assert_eq!(content_future.await.unwrap(), "test");
+            assert!(matches!(future.await.unwrap(), ()));
+            assert_eq!(content_future.await.unwrap(), "test");
 
-        check_recorded(
-            recorder,
-            |len| assert_eq!(len, 6),
-            |i, transfers| match i {
-                0 => assert_eq!(transfers, TransfersState::default()),
-                1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
-                2 => assert_eq!(transfers, expected_transfers_processing(&transfers, 1)),
-                3 => assert_eq!(
-                    transfers,
-                    patch_transfer(expected_transfers_transferring(&transfers, 1), 1, |t| {
-                        t.typ = TransferType::Download(DownloadTransfer {
-                            name: "file renamed.txt".into(),
-                        });
-                        t.name = "file renamed.txt".into();
-                    })
-                ),
-                4 => assert_eq!(
-                    transfers,
-                    patch_transfer(
-                        expected_transfers_transferring_progress(&transfers, 1),
-                        1,
-                        |t| {
+            check_recorded(
+                recorder,
+                |len| assert_eq!(len, 6),
+                |i, transfers| match i {
+                    0 => assert_eq!(transfers, TransfersState::default()),
+                    1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
+                    2 => assert_eq!(transfers, expected_transfers_processing(&transfers, 1)),
+                    3 => assert_eq!(
+                        transfers,
+                        patch_transfer(expected_transfers_transferring(&transfers, 1), 1, |t| {
                             t.typ = TransferType::Download(DownloadTransfer {
                                 name: "file renamed.txt".into(),
                             });
                             t.name = "file renamed.txt".into();
-                        }
-                    )
-                ),
-                5 => assert_eq!(transfers, expected_tranfers_done()),
-                _ => panic!("unexpected state: {:#?}", transfers),
-            },
-        );
+                        })
+                    ),
+                    4 => assert_eq!(
+                        transfers,
+                        patch_transfer(
+                            expected_transfers_transferring_progress(&transfers, 1),
+                            1,
+                            |t| {
+                                t.typ = TransferType::Download(DownloadTransfer {
+                                    name: "file renamed.txt".into(),
+                                });
+                                t.name = "file renamed.txt".into();
+                            }
+                        )
+                    ),
+                    5 => assert_eq!(transfers, expected_tranfers_done()),
+                    _ => panic!("unexpected state: {:#?}", transfers),
+                },
+            );
+        }
+        .boxed()
     });
 }
 
 #[test]
 fn test_download_already_exists() {
-    with_transfers(|fixture| async move {
-        fixture.upload_file("/file.txt", "test").await;
+    with_transfers(|fixture| {
+        async move {
+            fixture.upload_file("/file.txt", "test").await;
 
-        let recorder = transfers_recorder(&fixture.vault);
+            let recorder = transfers_recorder(&fixture.vault);
 
-        let reader_provider = fixture
-            .vault
-            .repo_files_get_file_reader(&fixture.repo_id, "/file.txt")
-            .unwrap();
-        let downloadable = Box::new(TestDownloadable {
-            is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
-            exists_fn: Box::new(|_, _| future::ready(Ok(true)).boxed()),
-            writer_fn: Box::new(|_, _, _, _| panic!("unreachable")),
-            done_fn: Box::new(|_| future::ready(Ok(())).boxed()),
-            sender: Default::default(),
-        });
-        let (_, create_future) = fixture
-            .vault
-            .transfers_download(reader_provider, downloadable);
+            let reader_provider = fixture
+                .vault
+                .repo_files_get_file_reader(&fixture.repo_id, "/file.txt")
+                .unwrap();
+            let downloadable = Box::new(TestDownloadable {
+                is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
+                exists_fn: Box::new(|_, _| future::ready(Ok(true)).boxed()),
+                writer_fn: Box::new(|_, _, _, _| panic!("unreachable")),
+                done_fn: Box::new(|_| future::ready(Ok(())).boxed()),
+                sender: Default::default(),
+            });
+            let (_, create_future) = fixture
+                .vault
+                .transfers_download(reader_provider, downloadable);
 
-        assert!(matches!(
-            create_future.await,
-            Err(TransferError::AlreadyExists)
-        ));
+            assert!(matches!(
+                create_future.await,
+                Err(TransferError::AlreadyExists)
+            ));
 
-        check_recorded(
-            recorder,
-            |len| assert_eq!(len, 1),
-            |i, transfers| match i {
-                0 => assert_eq!(transfers, TransfersState::default()),
-                _ => panic!("unexpected state: {:#?}", transfers),
-            },
-        );
+            check_recorded(
+                recorder,
+                |len| assert_eq!(len, 1),
+                |i, transfers| match i {
+                    0 => assert_eq!(transfers, TransfersState::default()),
+                    _ => panic!("unexpected state: {:#?}", transfers),
+                },
+            );
+        }
+        .boxed()
     });
 }
 
 #[test]
 fn test_download_already_exists_error() {
-    with_transfers(|fixture| async move {
-        fixture.upload_file("/file.txt", "test").await;
+    with_transfers(|fixture| {
+        async move {
+            fixture.upload_file("/file.txt", "test").await;
 
-        let recorder = transfers_recorder(&fixture.vault);
+            let recorder = transfers_recorder(&fixture.vault);
 
-        let reader_provider = fixture
-            .vault
-            .repo_files_get_file_reader(&fixture.repo_id, "/file.txt")
-            .unwrap();
-        let downloadable = Box::new(TestDownloadable {
-            is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
-            exists_fn: Box::new(|_, _| {
-                future::ready(Err(DownloadableError::LocalFileError("io error".into()))).boxed()
-            }),
-            writer_fn: Box::new(|_, _, _, _| panic!("unreachable")),
-            done_fn: Box::new(|_| future::ready(Ok(())).boxed()),
-            sender: Default::default(),
-        });
-        let (_, create_future) = fixture
-            .vault
-            .transfers_download(reader_provider, downloadable);
+            let reader_provider = fixture
+                .vault
+                .repo_files_get_file_reader(&fixture.repo_id, "/file.txt")
+                .unwrap();
+            let downloadable = Box::new(TestDownloadable {
+                is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
+                exists_fn: Box::new(|_, _| {
+                    future::ready(Err(DownloadableError::LocalFileError("io error".into()))).boxed()
+                }),
+                writer_fn: Box::new(|_, _, _, _| panic!("unreachable")),
+                done_fn: Box::new(|_| future::ready(Ok(())).boxed()),
+                sender: Default::default(),
+            });
+            let (_, create_future) = fixture
+                .vault
+                .transfers_download(reader_provider, downloadable);
 
-        assert!(matches!(
-            create_future.await,
-            Err(TransferError::LocalFileError(err)) if err == "io error"
-        ));
+            assert!(matches!(
+                create_future.await,
+                Err(TransferError::LocalFileError(err)) if err == "io error"
+            ));
 
-        check_recorded(
-            recorder,
-            |len| assert_eq!(len, 1),
-            |i, transfers| match i {
-                0 => assert_eq!(transfers, TransfersState::default()),
-                _ => panic!("unexpected state: {:#?}", transfers),
-            },
-        );
+            check_recorded(
+                recorder,
+                |len| assert_eq!(len, 1),
+                |i, transfers| match i {
+                    0 => assert_eq!(transfers, TransfersState::default()),
+                    _ => panic!("unexpected state: {:#?}", transfers),
+                },
+            );
+        }
+        .boxed()
     });
 }
 
 #[test]
 fn test_download_already_exists_done_error() {
-    with_transfers(|fixture| async move {
-        fixture.upload_file("/file.txt", "test").await;
+    with_transfers(|fixture| {
+        async move {
+            fixture.upload_file("/file.txt", "test").await;
 
-        let recorder = transfers_recorder(&fixture.vault);
+            let recorder = transfers_recorder(&fixture.vault);
 
-        let reader_provider = fixture
-            .vault
-            .repo_files_get_file_reader(&fixture.repo_id, "/file.txt")
-            .unwrap();
-        let downloadable = Box::new(TestDownloadable {
-            is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
-            exists_fn: Box::new(|_, _| future::ready(Ok(true)).boxed()),
-            writer_fn: Box::new(|_, _, _, _| panic!("unreachable")),
-            done_fn: Box::new(|_| {
-                future::ready(Err(DownloadableError::LocalFileError("done error".into()))).boxed()
-            }),
-            sender: Default::default(),
-        });
-        let (_, create_future) = fixture
-            .vault
-            .transfers_download(reader_provider, downloadable);
+            let reader_provider = fixture
+                .vault
+                .repo_files_get_file_reader(&fixture.repo_id, "/file.txt")
+                .unwrap();
+            let downloadable = Box::new(TestDownloadable {
+                is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
+                exists_fn: Box::new(|_, _| future::ready(Ok(true)).boxed()),
+                writer_fn: Box::new(|_, _, _, _| panic!("unreachable")),
+                done_fn: Box::new(|_| {
+                    future::ready(Err(DownloadableError::LocalFileError("done error".into())))
+                        .boxed()
+                }),
+                sender: Default::default(),
+            });
+            let (_, create_future) = fixture
+                .vault
+                .transfers_download(reader_provider, downloadable);
 
-        assert!(matches!(
-            create_future.await,
-            Err(TransferError::LocalFileError(err)) if err == "done error"
-        ));
+            assert!(matches!(
+                create_future.await,
+                Err(TransferError::LocalFileError(err)) if err == "done error"
+            ));
 
-        check_recorded(
-            recorder,
-            |len| assert_eq!(len, 1),
-            |i, transfers| match i {
-                0 => assert_eq!(transfers, TransfersState::default()),
-                _ => panic!("unexpected state: {:#?}", transfers),
-            },
-        );
+            check_recorded(
+                recorder,
+                |len| assert_eq!(len, 1),
+                |i, transfers| match i {
+                    0 => assert_eq!(transfers, TransfersState::default()),
+                    _ => panic!("unexpected state: {:#?}", transfers),
+                },
+            );
+        }
+        .boxed()
     });
 }
 
 #[test]
 fn test_download_reader_error() {
-    with_transfers(|fixture| async move {
-        fixture.upload_file("/file.txt", "test").await;
+    with_transfers(|fixture| {
+        async move {
+            fixture.upload_file("/file.txt", "test").await;
 
-        let recorder = transfers_recorder(&fixture.vault);
+            let recorder = transfers_recorder(&fixture.vault);
 
-        let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
-            matches!(t.state, TransferState::Failed { .. })
-        });
+            let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
+                matches!(t.state, TransferState::Failed { .. })
+            });
 
-        let reader_provider = RepoFileReaderProvider {
-            name: "file.txt".into(),
-            size: SizeInfo::Exact(4),
-            unique_name: None,
-            reader_builder: Box::new(|| {
-                async {
-                    Err(GetFilesReaderError::RemoteError(RemoteError::HttpError(
-                        HttpError::ResponseError("response error".into()),
-                    )))
-                }
-                .boxed()
-            }),
-        };
-        let (downloadable, content_future) = TestDownloadable::string();
-        let (_, create_future) = fixture
-            .vault
-            .transfers_download(reader_provider, downloadable);
-        let future = create_future.await.unwrap();
+            let reader_provider = RepoFileReaderProvider {
+                name: "file.txt".into(),
+                size: SizeInfo::Exact(4),
+                unique_name: None,
+                reader_builder: Box::new(|| {
+                    async {
+                        Err(GetFilesReaderError::RemoteError(RemoteError::HttpError(
+                            HttpError::ResponseError("response error".into()),
+                        )))
+                    }
+                    .boxed()
+                }),
+            };
+            let (downloadable, content_future) = TestDownloadable::string();
+            let (_, create_future) = fixture
+                .vault
+                .transfers_download(reader_provider, downloadable);
+            let future = create_future.await.unwrap();
 
-        assert!(matches!(future.await, Err(TransferError::Aborted)));
-        assert!(matches!(content_future.await, None));
+            assert!(matches!(future.await, Err(TransferError::Aborted)));
+            assert!(matches!(content_future.await, None));
 
-        drop(watcher);
+            drop(watcher);
 
-        check_recorded(
-            recorder,
-            |len| assert_eq!(len, 13),
-            |i, transfers| match i {
-                0 => assert_eq!(transfers, TransfersState::default()),
-                1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
-                2 => assert_eq!(transfers, expected_transfers_processing(&transfers, 1)),
-                3 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 1)),
-                4 => assert_eq!(transfers, expected_transfers_processing(&transfers, 2)),
-                5 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 2)),
-                6 => assert_eq!(transfers, expected_transfers_processing(&transfers, 3)),
-                7 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 3)),
-                8 => assert_eq!(transfers, expected_transfers_processing(&transfers, 4)),
-                9 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 4)),
-                10 => assert_eq!(transfers, expected_transfers_processing(&transfers, 5)),
-                11 => {
-                    assert_eq!(transfers, expected_transfers_failed(&transfers, 5));
-                    match &transfers.transfers.get(&1).as_ref().unwrap().state {
-                        TransferState::Failed { error } => assert!(
-                            matches!(error, TransferError::RemoteError(RemoteError::HttpError(
+            check_recorded(
+                recorder,
+                |len| assert_eq!(len, 13),
+                |i, transfers| match i {
+                    0 => assert_eq!(transfers, TransfersState::default()),
+                    1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
+                    2 => assert_eq!(transfers, expected_transfers_processing(&transfers, 1)),
+                    3 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 1)),
+                    4 => assert_eq!(transfers, expected_transfers_processing(&transfers, 2)),
+                    5 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 2)),
+                    6 => assert_eq!(transfers, expected_transfers_processing(&transfers, 3)),
+                    7 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 3)),
+                    8 => assert_eq!(transfers, expected_transfers_processing(&transfers, 4)),
+                    9 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 4)),
+                    10 => assert_eq!(transfers, expected_transfers_processing(&transfers, 5)),
+                    11 => {
+                        assert_eq!(transfers, expected_transfers_failed(&transfers, 5));
+                        match &transfers.transfers.get(&1).as_ref().unwrap().state {
+                            TransferState::Failed { error } => assert!(
+                                matches!(error, TransferError::RemoteError(RemoteError::HttpError(
                                 HttpError::ResponseError(err),
                             )) if err == "response error")
-                        ),
-                        _ => {}
+                            ),
+                            _ => {}
+                        }
                     }
-                }
-                12 => assert_eq!(transfers, expected_tranfers_done()),
-                _ => panic!("unexpected state: {:#?}", transfers),
-            },
-        );
+                    12 => assert_eq!(transfers, expected_tranfers_done()),
+                    _ => panic!("unexpected state: {:#?}", transfers),
+                },
+            );
+        }
+        .boxed()
     });
 }
 
 #[test]
 fn test_download_downloadable_writer_error() {
-    with_transfers(|fixture| async move {
+    with_transfers(|fixture| {
+        async move {
         fixture.upload_file("/file.txt", "test").await;
 
         let recorder = transfers_recorder(&fixture.vault);
@@ -381,12 +401,14 @@ fn test_download_downloadable_writer_error() {
                 _ => panic!("unexpected state: {:#?}", transfers),
             },
         );
+    }.boxed()
     });
 }
 
 #[test]
 fn test_download_downloadable_close_error() {
-    with_transfers(|fixture| async move {
+    with_transfers(|fixture| {
+        async move {
         fixture.upload_file("/file.txt", "test").await;
 
         let recorder = transfers_recorder(&fixture.vault);
@@ -482,12 +504,14 @@ fn test_download_downloadable_close_error() {
                 _ => panic!("unexpected state: {:#?}", transfers),
             },
         );
+    }.boxed()
     });
 }
 
 #[test]
 fn test_download_downloadable_done_error() {
-    with_transfers(|fixture| async move {
+    with_transfers(|fixture| {
+        async move {
         fixture.upload_file("/file.txt", "test").await;
 
         let recorder = transfers_recorder(&fixture.vault);
@@ -560,320 +584,345 @@ fn test_download_downloadable_done_error() {
                 _ => panic!("unexpected state: {:#?}", transfers),
             },
         );
+    }.boxed()
     });
 }
 
 #[test]
 fn test_download_abort_immediately() {
-    with_transfers(|fixture| async move {
-        fixture.upload_file("/file.txt", "test").await;
+    with_transfers(|fixture| {
+        async move {
+            fixture.upload_file("/file.txt", "test").await;
 
-        let recorder = transfers_recorder(&fixture.vault);
+            let recorder = transfers_recorder(&fixture.vault);
 
-        let (transfer_id, create_future, content_future) =
-            download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
-        fixture.vault.transfers_abort(transfer_id);
+            let (transfer_id, create_future, content_future) =
+                download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
+            fixture.vault.transfers_abort(transfer_id);
 
-        assert!(matches!(create_future.await, Err(TransferError::Aborted)));
-        assert!(matches!(content_future.await, None));
+            assert!(matches!(create_future.await, Err(TransferError::Aborted)));
+            assert!(matches!(content_future.await, None));
 
-        check_recorded(
-            recorder,
-            |len| assert_eq!(len, 1),
-            |i, transfers| match i {
-                0 => assert_eq!(transfers, TransfersState::default()),
-                _ => panic!("unexpected state: {:#?}", transfers),
-            },
-        );
+            check_recorded(
+                recorder,
+                |len| assert_eq!(len, 1),
+                |i, transfers| match i {
+                    0 => assert_eq!(transfers, TransfersState::default()),
+                    _ => panic!("unexpected state: {:#?}", transfers),
+                },
+            );
+        }
+        .boxed()
     });
 }
 
 #[test]
 fn test_download_abort_waiting() {
-    with_transfers(|fixture| async move {
-        fixture.upload_file("/file.txt", "test").await;
+    with_transfers(|fixture| {
+        async move {
+            fixture.upload_file("/file.txt", "test").await;
 
-        let recorder = transfers_recorder(&fixture.vault);
+            let recorder = transfers_recorder(&fixture.vault);
 
-        let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
-            matches!(t.state, TransferState::Waiting)
-        });
+            let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
+                matches!(t.state, TransferState::Waiting)
+            });
 
-        let (_, create_future, content_future) =
-            download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
-        let future = create_future.await.unwrap();
+            let (_, create_future, content_future) =
+                download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
+            let future = create_future.await.unwrap();
 
-        assert!(matches!(future.await, Err(TransferError::Aborted)));
-        assert!(matches!(content_future.await, None));
+            assert!(matches!(future.await, Err(TransferError::Aborted)));
+            assert!(matches!(content_future.await, None));
 
-        drop(watcher);
+            drop(watcher);
 
-        check_recorded(
-            recorder,
-            |len| assert_eq!(len, 3),
-            |i, transfers| match i {
-                0 => assert_eq!(transfers, TransfersState::default()),
-                1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
-                2 => assert_eq!(transfers, expected_tranfers_done()),
-                _ => panic!("unexpected state: {:#?}", transfers),
-            },
-        );
+            check_recorded(
+                recorder,
+                |len| assert_eq!(len, 3),
+                |i, transfers| match i {
+                    0 => assert_eq!(transfers, TransfersState::default()),
+                    1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
+                    2 => assert_eq!(transfers, expected_tranfers_done()),
+                    _ => panic!("unexpected state: {:#?}", transfers),
+                },
+            );
+        }
+        .boxed()
     });
 }
 
 #[test]
 fn test_download_abort_processing() {
-    with_transfers(|fixture| async move {
-        fixture.upload_file("/file.txt", "test").await;
+    with_transfers(|fixture| {
+        async move {
+            fixture.upload_file("/file.txt", "test").await;
 
-        let recorder = transfers_recorder(&fixture.vault);
+            let recorder = transfers_recorder(&fixture.vault);
 
-        let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
-            matches!(t.state, TransferState::Processing)
-        });
+            let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
+                matches!(t.state, TransferState::Processing)
+            });
 
-        let (_, create_future, content_future) =
-            download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
-        let future = create_future.await.unwrap();
+            let (_, create_future, content_future) =
+                download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
+            let future = create_future.await.unwrap();
 
-        assert!(matches!(future.await, Err(TransferError::Aborted)));
-        assert!(matches!(content_future.await, None));
+            assert!(matches!(future.await, Err(TransferError::Aborted)));
+            assert!(matches!(content_future.await, None));
 
-        drop(watcher);
+            drop(watcher);
 
-        check_recorded(
-            recorder,
-            |len| assert_eq!(len, 4),
-            |i, transfers| match i {
-                0 => assert_eq!(transfers, TransfersState::default()),
-                1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
-                2 => assert_eq!(transfers, expected_transfers_processing(&transfers, 1)),
-                3 => assert_eq!(transfers, expected_tranfers_done()),
-                _ => panic!("unexpected state: {:#?}", transfers),
-            },
-        );
+            check_recorded(
+                recorder,
+                |len| assert_eq!(len, 4),
+                |i, transfers| match i {
+                    0 => assert_eq!(transfers, TransfersState::default()),
+                    1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
+                    2 => assert_eq!(transfers, expected_transfers_processing(&transfers, 1)),
+                    3 => assert_eq!(transfers, expected_tranfers_done()),
+                    _ => panic!("unexpected state: {:#?}", transfers),
+                },
+            );
+        }
+        .boxed()
     });
 }
 
 #[test]
 fn test_download_abort_transferring() {
-    with_transfers(|fixture| async move {
-        fixture.upload_file("/file.txt", "test").await;
+    with_transfers(|fixture| {
+        async move {
+            fixture.upload_file("/file.txt", "test").await;
 
-        download_delay_response_body(&fixture.fake_remote, Duration::from_millis(50));
+            download_delay_response_body(&fixture.fake_remote, Duration::from_millis(50));
 
-        let recorder = transfers_recorder(&fixture.vault);
+            let recorder = transfers_recorder(&fixture.vault);
 
-        let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
-            matches!(t.state, TransferState::Transferring)
-        });
+            let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
+                matches!(t.state, TransferState::Transferring)
+            });
 
-        let (_, create_future, content_future) =
-            download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
-        let future = create_future.await.unwrap();
+            let (_, create_future, content_future) =
+                download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
+            let future = create_future.await.unwrap();
 
-        assert!(matches!(future.await, Err(TransferError::Aborted)));
-        assert!(matches!(content_future.await, None));
+            assert!(matches!(future.await, Err(TransferError::Aborted)));
+            assert!(matches!(content_future.await, None));
 
-        drop(watcher);
+            drop(watcher);
 
-        check_recorded(
-            recorder,
-            |len| assert_eq!(len, 5),
-            |i, transfers| match i {
-                0 => assert_eq!(transfers, TransfersState::default()),
-                1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
-                2 => assert_eq!(transfers, expected_transfers_processing(&transfers, 1)),
-                3 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 1)),
-                4 => assert_eq!(transfers, expected_tranfers_done()),
-                _ => panic!("unexpected state: {:#?}", transfers),
-            },
-        );
+            check_recorded(
+                recorder,
+                |len| assert_eq!(len, 5),
+                |i, transfers| match i {
+                    0 => assert_eq!(transfers, TransfersState::default()),
+                    1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
+                    2 => assert_eq!(transfers, expected_transfers_processing(&transfers, 1)),
+                    3 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 1)),
+                    4 => assert_eq!(transfers, expected_tranfers_done()),
+                    _ => panic!("unexpected state: {:#?}", transfers),
+                },
+            );
+        }
+        .boxed()
     });
 }
 
 #[test]
 fn test_download_fail_autoretry_succeed() {
-    with_transfers(|fixture| async move {
-        fixture.upload_file("/file.txt", "test").await;
+    with_transfers(|fixture| {
+        async move {
+            fixture.upload_file("/file.txt", "test").await;
 
-        let download_counter = Arc::new(AtomicUsize::new(0));
-        let interceptor_download_counter = download_counter.clone();
+            let download_counter = Arc::new(AtomicUsize::new(0));
+            let interceptor_download_counter = download_counter.clone();
 
-        fixture.fake_remote.intercept(Box::new(move |parts| {
-            if parts.uri.path().contains("/content/api") && parts.uri.path().contains("/files/get")
-            {
-                if interceptor_download_counter.fetch_add(1, Ordering::SeqCst) == 0 {
-                    InterceptorResult::delayed_abort_response_body(Duration::from_millis(50))
+            fixture.fake_remote.intercept(Box::new(move |parts| {
+                if parts.uri.path().contains("/content/api")
+                    && parts.uri.path().contains("/files/get")
+                {
+                    if interceptor_download_counter.fetch_add(1, Ordering::SeqCst) == 0 {
+                        InterceptorResult::delayed_abort_response_body(Duration::from_millis(50))
+                    } else {
+                        InterceptorResult::Ignore
+                    }
                 } else {
                     InterceptorResult::Ignore
                 }
-            } else {
-                InterceptorResult::Ignore
-            }
-        }));
+            }));
 
-        let recorder = transfers_recorder(&fixture.vault);
+            let recorder = transfers_recorder(&fixture.vault);
 
-        let (_, create_future, content_future) =
-            download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
-        let future = create_future.await.unwrap();
+            let (_, create_future, content_future) =
+                download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
+            let future = create_future.await.unwrap();
 
-        assert!(matches!(future.await.unwrap(), ()));
-        assert_eq!(content_future.await.unwrap(), "test");
+            assert!(matches!(future.await.unwrap(), ()));
+            assert_eq!(content_future.await.unwrap(), "test");
 
-        check_recorded(
-            recorder,
-            |len| assert_eq!(len, 9),
-            |i, transfers| match i {
-                0 => assert_eq!(transfers, TransfersState::default()),
-                1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
-                2 => assert_eq!(transfers, expected_transfers_processing(&transfers, 1)),
-                3 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 1)),
-                4 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 1)),
-                5 => assert_eq!(transfers, expected_transfers_processing(&transfers, 2)),
-                6 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 2)),
-                7 => assert_eq!(
-                    transfers,
-                    expected_transfers_transferring_progress(&transfers, 2)
-                ),
-                8 => assert_eq!(transfers, expected_tranfers_done()),
-                _ => panic!("unexpected state: {:#?}", transfers),
-            },
-        );
+            check_recorded(
+                recorder,
+                |len| assert_eq!(len, 9),
+                |i, transfers| match i {
+                    0 => assert_eq!(transfers, TransfersState::default()),
+                    1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
+                    2 => assert_eq!(transfers, expected_transfers_processing(&transfers, 1)),
+                    3 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 1)),
+                    4 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 1)),
+                    5 => assert_eq!(transfers, expected_transfers_processing(&transfers, 2)),
+                    6 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 2)),
+                    7 => assert_eq!(
+                        transfers,
+                        expected_transfers_transferring_progress(&transfers, 2)
+                    ),
+                    8 => assert_eq!(transfers, expected_tranfers_done()),
+                    _ => panic!("unexpected state: {:#?}", transfers),
+                },
+            );
+        }
+        .boxed()
     });
 }
 
 #[test]
 fn test_download_fail_autoretry_fail() {
-    with_transfers(|fixture| async move {
-        fixture.upload_file("/file.txt", "test").await;
+    with_transfers(|fixture| {
+        async move {
+            fixture.upload_file("/file.txt", "test").await;
 
-        fixture.fake_remote.intercept(Box::new(move |parts| {
-            if parts.uri.path().contains("/content/api") && parts.uri.path().contains("/files/get")
-            {
-                InterceptorResult::delayed_abort_response_body(Duration::from_millis(50))
-            } else {
-                InterceptorResult::Ignore
-            }
-        }));
+            fixture.fake_remote.intercept(Box::new(move |parts| {
+                if parts.uri.path().contains("/content/api")
+                    && parts.uri.path().contains("/files/get")
+                {
+                    InterceptorResult::delayed_abort_response_body(Duration::from_millis(50))
+                } else {
+                    InterceptorResult::Ignore
+                }
+            }));
 
-        let recorder = transfers_recorder(&fixture.vault);
+            let recorder = transfers_recorder(&fixture.vault);
 
-        let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
-            matches!(t.state, TransferState::Failed { .. })
-        });
+            let watcher = transfer_abort_when(fixture.vault.clone(), 1, |t| {
+                matches!(t.state, TransferState::Failed { .. })
+            });
 
-        let (_, create_future, content_future) =
-            download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
-        let future = create_future.await.unwrap();
+            let (_, create_future, content_future) =
+                download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
+            let future = create_future.await.unwrap();
 
-        let res = future.await;
-        // TODO should this be Aborted or the last error from the Failed transfer
-        assert!(matches!(res, Err(TransferError::Aborted)));
-        assert!(matches!(content_future.await, None));
+            let res = future.await;
+            // TODO should this be Aborted or the last error from the Failed transfer
+            assert!(matches!(res, Err(TransferError::Aborted)));
+            assert!(matches!(content_future.await, None));
 
-        drop(watcher);
+            drop(watcher);
 
-        check_recorded(
-            recorder,
-            |len| assert_eq!(len, 18),
-            |i, transfers| match i {
-                0 => assert_eq!(transfers, TransfersState::default()),
-                1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
-                2 => assert_eq!(transfers, expected_transfers_processing(&transfers, 1)),
-                3 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 1)),
-                4 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 1)),
-                5 => assert_eq!(transfers, expected_transfers_processing(&transfers, 2)),
-                6 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 2)),
-                7 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 2)),
-                8 => assert_eq!(transfers, expected_transfers_processing(&transfers, 3)),
-                9 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 3)),
-                10 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 3)),
-                11 => assert_eq!(transfers, expected_transfers_processing(&transfers, 4)),
-                12 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 4)),
-                13 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 4)),
-                14 => assert_eq!(transfers, expected_transfers_processing(&transfers, 5)),
-                15 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 5)),
-                16 => assert_eq!(transfers, expected_transfers_failed(&transfers, 5)),
-                17 => assert_eq!(transfers, expected_tranfers_done()),
-                _ => panic!("unexpected state: {:#?}", transfers),
-            },
-        );
+            check_recorded(
+                recorder,
+                |len| assert_eq!(len, 18),
+                |i, transfers| match i {
+                    0 => assert_eq!(transfers, TransfersState::default()),
+                    1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
+                    2 => assert_eq!(transfers, expected_transfers_processing(&transfers, 1)),
+                    3 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 1)),
+                    4 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 1)),
+                    5 => assert_eq!(transfers, expected_transfers_processing(&transfers, 2)),
+                    6 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 2)),
+                    7 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 2)),
+                    8 => assert_eq!(transfers, expected_transfers_processing(&transfers, 3)),
+                    9 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 3)),
+                    10 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 3)),
+                    11 => assert_eq!(transfers, expected_transfers_processing(&transfers, 4)),
+                    12 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 4)),
+                    13 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 4)),
+                    14 => assert_eq!(transfers, expected_transfers_processing(&transfers, 5)),
+                    15 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 5)),
+                    16 => assert_eq!(transfers, expected_transfers_failed(&transfers, 5)),
+                    17 => assert_eq!(transfers, expected_tranfers_done()),
+                    _ => panic!("unexpected state: {:#?}", transfers),
+                },
+            );
+        }
+        .boxed()
     });
 }
 
 #[test]
 fn test_download_fail_autoretry_retry() {
-    with_transfers(|fixture| async move {
-        fixture.upload_file("/file.txt", "test").await;
+    with_transfers(|fixture| {
+        async move {
+            fixture.upload_file("/file.txt", "test").await;
 
-        let download_counter = Arc::new(AtomicUsize::new(0));
-        let interceptor_download_counter = download_counter.clone();
+            let download_counter = Arc::new(AtomicUsize::new(0));
+            let interceptor_download_counter = download_counter.clone();
 
-        fixture.fake_remote.intercept(Box::new(move |parts| {
-            if parts.uri.path().contains("/content/api") && parts.uri.path().contains("/files/get")
-            {
-                if interceptor_download_counter.fetch_add(1, Ordering::SeqCst) < 5 {
-                    InterceptorResult::delayed_abort_response_body(Duration::from_millis(50))
+            fixture.fake_remote.intercept(Box::new(move |parts| {
+                if parts.uri.path().contains("/content/api")
+                    && parts.uri.path().contains("/files/get")
+                {
+                    if interceptor_download_counter.fetch_add(1, Ordering::SeqCst) < 5 {
+                        InterceptorResult::delayed_abort_response_body(Duration::from_millis(50))
+                    } else {
+                        InterceptorResult::Ignore
+                    }
                 } else {
                     InterceptorResult::Ignore
                 }
-            } else {
-                InterceptorResult::Ignore
-            }
-        }));
+            }));
 
-        let recorder = transfers_recorder(&fixture.vault);
+            let recorder = transfers_recorder(&fixture.vault);
 
-        let watcher = transfer_do_when(
-            fixture.vault.clone(),
-            1,
-            |t| matches!(t.state, TransferState::Failed { .. }),
-            |vault| vault.transfers_retry(1),
-        );
+            let watcher = transfer_do_when(
+                fixture.vault.clone(),
+                1,
+                |t| matches!(t.state, TransferState::Failed { .. }),
+                |vault| vault.transfers_retry(1),
+            );
 
-        let (_, create_future, content_future) =
-            download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
-        let future = create_future.await.unwrap();
+            let (_, create_future, content_future) =
+                download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
+            let future = create_future.await.unwrap();
 
-        assert!(matches!(future.await.unwrap(), ()));
-        assert_eq!(content_future.await.unwrap(), "test");
+            assert!(matches!(future.await.unwrap(), ()));
+            assert_eq!(content_future.await.unwrap(), "test");
 
-        drop(watcher);
+            drop(watcher);
 
-        check_recorded(
-            recorder,
-            |len| assert_eq!(len, 22),
-            |i, transfers| match i {
-                0 => assert_eq!(transfers, TransfersState::default()),
-                1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
-                2 => assert_eq!(transfers, expected_transfers_processing(&transfers, 1)),
-                3 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 1)),
-                4 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 1)),
-                5 => assert_eq!(transfers, expected_transfers_processing(&transfers, 2)),
-                6 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 2)),
-                7 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 2)),
-                8 => assert_eq!(transfers, expected_transfers_processing(&transfers, 3)),
-                9 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 3)),
-                10 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 3)),
-                11 => assert_eq!(transfers, expected_transfers_processing(&transfers, 4)),
-                12 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 4)),
-                13 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 4)),
-                14 => assert_eq!(transfers, expected_transfers_processing(&transfers, 5)),
-                15 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 5)),
-                16 => assert_eq!(transfers, expected_transfers_failed(&transfers, 5)),
-                17 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 5)),
-                18 => assert_eq!(transfers, expected_transfers_processing(&transfers, 6)),
-                19 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 6)),
-                20 => assert_eq!(
-                    transfers,
-                    expected_transfers_transferring_progress(&transfers, 6)
-                ),
-                21 => assert_eq!(transfers, expected_tranfers_done()),
-                _ => panic!("unexpected state: {:#?}", transfers),
-            },
-        );
+            check_recorded(
+                recorder,
+                |len| assert_eq!(len, 22),
+                |i, transfers| match i {
+                    0 => assert_eq!(transfers, TransfersState::default()),
+                    1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
+                    2 => assert_eq!(transfers, expected_transfers_processing(&transfers, 1)),
+                    3 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 1)),
+                    4 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 1)),
+                    5 => assert_eq!(transfers, expected_transfers_processing(&transfers, 2)),
+                    6 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 2)),
+                    7 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 2)),
+                    8 => assert_eq!(transfers, expected_transfers_processing(&transfers, 3)),
+                    9 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 3)),
+                    10 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 3)),
+                    11 => assert_eq!(transfers, expected_transfers_processing(&transfers, 4)),
+                    12 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 4)),
+                    13 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 4)),
+                    14 => assert_eq!(transfers, expected_transfers_processing(&transfers, 5)),
+                    15 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 5)),
+                    16 => assert_eq!(transfers, expected_transfers_failed(&transfers, 5)),
+                    17 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 5)),
+                    18 => assert_eq!(transfers, expected_transfers_processing(&transfers, 6)),
+                    19 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 6)),
+                    20 => assert_eq!(
+                        transfers,
+                        expected_transfers_transferring_progress(&transfers, 6)
+                    ),
+                    21 => assert_eq!(transfers, expected_tranfers_done()),
+                    _ => panic!("unexpected state: {:#?}", transfers),
+                },
+            );
+        }
+        .boxed()
     });
 }
 
