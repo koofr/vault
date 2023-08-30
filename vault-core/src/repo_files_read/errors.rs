@@ -7,7 +7,7 @@ use crate::{
     user_error::UserError,
 };
 
-#[derive(Error, Debug, Clone, UserError)]
+#[derive(Error, Debug, Clone, PartialEq, UserError)]
 pub enum GetFilesReaderError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),

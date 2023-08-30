@@ -7,7 +7,7 @@ use pin_project_lite::pin_project;
 use std::{io::Result, pin::Pin};
 use thiserror::Error;
 
-#[derive(Error, Debug, Clone)]
+#[derive(Error, Debug, Clone, PartialEq)]
 #[error("reader aborted")]
 pub struct ReaderAbortedError;
 

@@ -9,7 +9,7 @@ use crate::{
     user_error::UserError,
 };
 
-#[derive(Error, Debug, Clone, UserError)]
+#[derive(Error, Debug, Clone, PartialEq, UserError)]
 pub enum UploadableError {
     #[error("{0}")]
     LocalFileError(String),
@@ -23,7 +23,7 @@ impl From<std::io::Error> for UploadableError {
     }
 }
 
-#[derive(Error, Debug, Clone, UserError)]
+#[derive(Error, Debug, Clone, PartialEq, UserError)]
 pub enum DownloadableError {
     #[error("{0}")]
     LocalFileError(String),
@@ -37,7 +37,7 @@ impl From<std::io::Error> for DownloadableError {
     }
 }
 
-#[derive(Error, Debug, Clone, UserError)]
+#[derive(Error, Debug, Clone, PartialEq, UserError)]
 pub enum TransferError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -65,13 +65,6 @@ pub enum TransferError {
     IOError(String),
     #[error("aborted")]
     Aborted,
-}
-
-impl PartialEq for TransferError {
-    fn eq(&self, other: &Self) -> bool {
-        // just compare displays so not all from errors need to implement PartialEq
-        self.to_string() == other.to_string()
-    }
 }
 
 impl From<UploadFileReaderError> for TransferError {

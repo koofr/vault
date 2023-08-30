@@ -2,7 +2,7 @@ use thiserror::Error;
 
 use crate::oauth2::errors::OAuth2Error;
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum AuthError {
     #[error("unauthenticated")]
     Unauthenticated,

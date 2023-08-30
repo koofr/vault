@@ -57,7 +57,7 @@ impl Into<String> for ApiErrorCode {
     }
 }
 
-#[derive(Error, Debug, Clone, UserError, PartialEq, Eq)]
+#[derive(Error, Debug, Clone, PartialEq, UserError)]
 pub enum RemoteError {
     #[error("{message}")]
     ApiError {

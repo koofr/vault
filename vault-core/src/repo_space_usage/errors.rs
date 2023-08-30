@@ -2,7 +2,7 @@ use thiserror::Error;
 
 use crate::{remote, repos::errors::RepoNotFoundError, user_error::UserError};
 
-#[derive(Error, Debug, Clone, UserError)]
+#[derive(Error, Debug, Clone, PartialEq, UserError)]
 pub enum RepoSpaceUsageError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),

@@ -20,7 +20,7 @@ impl UserError for InvalidPasswordError {
     }
 }
 
-#[derive(Error, Debug, Clone)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum BuildCipherError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -28,7 +28,7 @@ pub enum BuildCipherError {
     InvalidPassword(#[from] InvalidPasswordError),
 }
 
-#[derive(Error, Debug, Clone)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum RepoInfoError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -45,7 +45,7 @@ impl UserError for RepoInfoError {
     }
 }
 
-#[derive(Error, Debug, Clone)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum UnlockRepoError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -71,7 +71,7 @@ impl From<BuildCipherError> for UnlockRepoError {
     }
 }
 
-#[derive(Error, Debug, Clone)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum CreateRepoError {
     #[error("{0}")]
     RemoteError(#[from] remote::RemoteError),
@@ -93,7 +93,7 @@ impl UserError for CreateRepoError {
     }
 }
 
-#[derive(Error, Debug, Clone)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum RemoveRepoError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),

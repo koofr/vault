@@ -21,7 +21,7 @@ impl Nonce {
 
         (&mut OsRng)
             .try_fill_bytes(&mut nonce)
-            .map_err(CipherError::GenerateNonceError)?;
+            .map_err(CipherError::from)?;
 
         Ok(Self { value: nonce })
     }

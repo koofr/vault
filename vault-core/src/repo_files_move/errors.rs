@@ -8,7 +8,7 @@ use crate::{
     user_error::UserError,
 };
 
-#[derive(Error, Debug, Clone, UserError)]
+#[derive(Error, Debug, Clone, PartialEq, UserError)]
 pub enum ShowError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -30,7 +30,7 @@ impl From<LoadFilesError> for ShowError {
     }
 }
 
-#[derive(Error, Debug, Clone, UserError)]
+#[derive(Error, Debug, Clone, PartialEq, UserError)]
 pub enum DirPickerClickError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),

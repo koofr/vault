@@ -9,7 +9,7 @@ use crate::{
     user_error::UserError,
 };
 
-#[derive(Error, Debug, Clone, UserError)]
+#[derive(Error, Debug, Clone, PartialEq, UserError)]
 pub enum LoadDetailsError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -29,7 +29,7 @@ impl From<LoadFilesError> for LoadDetailsError {
     }
 }
 
-#[derive(Error, Debug, Clone, UserError)]
+#[derive(Error, Debug, Clone, PartialEq, UserError)]
 pub enum LoadContentError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -73,7 +73,7 @@ impl From<GetFilesReaderError> for LoadContentError {
     }
 }
 
-#[derive(Error, Debug, Clone, UserError)]
+#[derive(Error, Debug, Clone, PartialEq, UserError)]
 pub enum SaveError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),

@@ -9,3 +9,9 @@ pub enum SecureStorageError {
     #[error("secure storage error: {0}")]
     Error(String),
 }
+
+impl PartialEq for SecureStorageError {
+    fn eq(&self, other: &Self) -> bool {
+        self.to_string() == other.to_string()
+    }
+}

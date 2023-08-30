@@ -16,7 +16,7 @@ const CRYPT_KEY: [u8; 32] = [
 
 const AES_BLOCK_SIZE: usize = 16;
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, Clone, PartialEq)]
 #[error("obscure error: {0}")]
 pub struct ObscureError(String);
 

@@ -9,7 +9,7 @@ use thiserror::Error;
 use uuid::Uuid;
 use vault_core::remote::models;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ApiErrorCode {
     NotFound,
     AlreadyExists,
@@ -27,7 +27,7 @@ pub enum ApiErrorCode {
     Other,
 }
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum FakeRemoteError {
     #[error("unauthorized: {0}")]
     Unauthorized(String),
@@ -74,4 +74,10 @@ pub enum FakeRemoteServerStartError {
     ListenError(Arc<std::io::Error>),
     #[error("already started")]
     AlreadyStarted(String),
+}
+
+impl PartialEq for FakeRemoteServerStartError {
+    fn eq(&self, other: &Self) -> bool {
+        self.to_string() == other.to_string()
+    }
 }

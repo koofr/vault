@@ -2,7 +2,7 @@ use crate::{cipher::errors::DecryptFilenameError, repo_files::state::RepoFile};
 
 use super::errors::FilesListRecursiveItemError;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum RepoFilesListRecursiveItem {
     File {
         relative_repo_path: Result<String, DecryptFilenameError>,

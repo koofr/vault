@@ -17,7 +17,7 @@ pub struct RepoFilesBreadcrumb {
     pub last: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum RepoFilePath {
     Decrypted {
         path: String,
@@ -38,7 +38,7 @@ impl RepoFilePath {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum RepoFileName {
     Decrypted {
         name: String,
@@ -108,7 +108,7 @@ impl From<&RemoteFileType> for RepoFileType {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum RepoFileSize {
     Decrypted {
         size: i64,
@@ -128,7 +128,7 @@ impl RepoFileSize {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct RepoFile {
     pub id: String,
     pub mount_id: String,

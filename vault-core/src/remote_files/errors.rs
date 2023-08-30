@@ -25,7 +25,7 @@ impl RemoteFilesErrors {
     }
 }
 
-#[derive(Error, Debug, Clone)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum CreateDirError {
     #[error("canceled")]
     Canceled,

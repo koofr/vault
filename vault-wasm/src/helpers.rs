@@ -65,7 +65,7 @@ pub fn bytes_to_blob(bytes: &[u8], content_type: Option<&str>) -> JsValue {
         .into()
 }
 
-#[derive(Error, Debug, UserError)]
+#[derive(Error, Debug, Clone, PartialEq, UserError)]
 #[error("{0}")]
 pub struct ReaderToBlobError(String);
 
@@ -114,7 +114,7 @@ pub fn stream_to_reader(stream: web_sys::ReadableStream) -> BoxAsyncRead {
     })
 }
 
-#[derive(Error, Debug, UserError)]
+#[derive(Error, Debug, Clone, PartialEq, UserError)]
 pub enum ReaderToFileStreamError {
     #[error("{0}")]
     ReaderToBlobError(#[from] ReaderToBlobError),

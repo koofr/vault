@@ -2,7 +2,7 @@ use data_encoding::BASE64URL_NOPAD;
 use rand_core::{OsRng, RngCore};
 use thiserror::Error;
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, Clone, PartialEq)]
 #[error("random password error: {0}")]
 pub struct RandomPasswordError(String);
 

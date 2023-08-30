@@ -1,7 +1,19 @@
+use std::sync::Arc;
+
 use rand_core;
 use thiserror::Error;
 
-#[derive(Debug, Error)]
+#[derive(Error, Debug, Clone)]
+#[error("generate nonce error: {0:?}")]
+pub struct GenerateNonceError(pub Arc<rand_core::Error>);
+
+impl PartialEq for GenerateNonceError {
+    fn eq(&self, other: &Self) -> bool {
+        self.to_string() == other.to_string()
+    }
+}
+
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum CipherError {
     #[error("file is too short to be decrypted")]
     EncryptedFileTooShort,
@@ -13,13 +25,13 @@ pub enum CipherError {
     EncryptionError,
     #[error("decryption error")]
     DecryptionError,
-    #[error("generate nonce error: {0:?}")]
-    GenerateNonceError(rand_core::Error),
+    #[error("{0}")]
+    GenerateNonceError(GenerateNonceError),
 }
 
 impl From<rand_core::Error> for CipherError {
     fn from(err: rand_core::Error) -> Self {
-        Self::GenerateNonceError(err)
+        Self::GenerateNonceError(GenerateNonceError(Arc::new(err)))
     }
 }
 
@@ -29,7 +41,7 @@ impl Into<std::io::Error> for CipherError {
     }
 }
 
-#[derive(Debug, Error, Clone, PartialEq, Eq)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum DecryptSizeError {
     #[error("file is too short to be decrypted")]
     EncryptedFileTooShort,
@@ -37,7 +49,7 @@ pub enum DecryptSizeError {
     EncryptedFileBadHeader,
 }
 
-#[derive(Error, Debug, Clone, PartialEq, Eq)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum DecryptFilenameError {
     #[error("decode error: {0}")]
     DecodeError(String),

@@ -16,7 +16,7 @@ pub struct Config {
     pub salt: Option<String>,
 }
 
-#[derive(Error, Clone, Debug)]
+#[derive(Error, Debug, Clone, PartialEq)]
 #[error("parse config failed: {0}")]
 pub struct ParseConfigError(String);
 

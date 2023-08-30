@@ -7,7 +7,7 @@ use crate::{
     user_error::UserError,
 };
 
-#[derive(Error, Debug, Clone, PartialEq, Eq, UserError)]
+#[derive(Error, Debug, Clone, PartialEq, UserError)]
 pub enum FilesListRecursiveItemError {
     #[error("{0}")]
     DecryptFilenameError(#[from] DecryptFilenameError),
@@ -15,7 +15,7 @@ pub enum FilesListRecursiveItemError {
     RemoteError(#[from] RemoteError),
 }
 
-#[derive(Error, Debug, Clone, UserError)]
+#[derive(Error, Debug, Clone, PartialEq, UserError)]
 pub enum GetListRecursiveError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),

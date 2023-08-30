@@ -35,7 +35,7 @@ impl RepoFilesErrors {
     }
 }
 
-#[derive(Error, Debug, Clone)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum GetRepoMountPathError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -43,7 +43,7 @@ pub enum GetRepoMountPathError {
     RepoLocked(#[from] RepoLockedError),
 }
 
-#[derive(Error, Debug, Clone, UserError)]
+#[derive(Error, Debug, Clone, PartialEq, UserError)]
 pub enum LoadFilesError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -53,7 +53,7 @@ pub enum LoadFilesError {
     RemoteError(#[from] RemoteError),
 }
 
-#[derive(Error, Debug, Clone)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum LoadFileError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -63,7 +63,7 @@ pub enum LoadFileError {
     RemoteError(#[from] RemoteError),
 }
 
-#[derive(Error, Debug, Clone, UserError)]
+#[derive(Error, Debug, Clone, PartialEq, UserError)]
 pub enum FileNameError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -71,7 +71,7 @@ pub enum FileNameError {
     DecryptFilenameError(#[from] DecryptFilenameError),
 }
 
-#[derive(Error, Debug, Clone)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum DecryptFilesError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -81,7 +81,7 @@ pub enum DecryptFilesError {
     DecryptFilenameError(#[from] DecryptFilenameError),
 }
 
-#[derive(Error, Debug, Clone, UserError)]
+#[derive(Error, Debug, Clone, PartialEq, UserError)]
 pub enum UploadFileReaderError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -107,7 +107,7 @@ impl From<EnsureDirError> for UploadFileReaderError {
     }
 }
 
-#[derive(Error, Debug, Clone, UserError)]
+#[derive(Error, Debug, Clone, PartialEq, UserError)]
 pub enum DeleteFileError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -119,7 +119,7 @@ pub enum DeleteFileError {
     RemoteError(#[from] RemoteError),
 }
 
-#[derive(Error, Debug, Clone)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum CreateDirError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -155,7 +155,7 @@ impl From<LoadFilesError> for CreateDirError {
     }
 }
 
-#[derive(Error, Debug, Clone)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum CreateFileError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -193,7 +193,7 @@ impl From<UploadFileReaderError> for CreateFileError {
     }
 }
 
-#[derive(Error, Debug, Clone)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum EnsureDirError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -229,7 +229,7 @@ impl From<LoadFileError> for EnsureDirError {
     }
 }
 
-#[derive(Error, Debug, Clone, UserError)]
+#[derive(Error, Debug, Clone, PartialEq, UserError)]
 pub enum RenameFileError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -243,7 +243,7 @@ pub enum RenameFileError {
     RemoteError(#[from] RemoteError),
 }
 
-#[derive(Error, Debug, Clone, UserError)]
+#[derive(Error, Debug, Clone, PartialEq, UserError)]
 pub enum CopyFileError {
     #[error("invalid path")]
     InvalidPath,
@@ -257,7 +257,7 @@ pub enum CopyFileError {
     RemoteError(#[from] RemoteError),
 }
 
-#[derive(Error, Debug, Clone, UserError)]
+#[derive(Error, Debug, Clone, PartialEq, UserError)]
 pub enum MoveFileError {
     #[error("invalid path")]
     InvalidPath,
