@@ -46,7 +46,7 @@ pub enum Status {
     Error { error: String },
 }
 
-impl<E: UserError + Clone> From<&common_state::Status<E>> for Status {
+impl<E: std::error::Error + Clone + PartialEq + UserError> From<&common_state::Status<E>> for Status {
     fn from(status: &common_state::Status<E>) -> Self {
         match status {
             common_state::Status::Initial => Self::Initial,

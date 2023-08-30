@@ -6,8 +6,8 @@ pub type BoxAsyncRead = Pin<Box<dyn AsyncRead + Send + Sync + 'static>>;
 
 pub type BoxAsyncWrite = Pin<Box<dyn AsyncWrite + Send + Sync + 'static>>;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Status<E: Clone> {
+#[derive(Debug, Clone, PartialEq)]
+pub enum Status<E: std::error::Error + Clone + PartialEq> {
     Initial,
     Loading,
     Loaded,
@@ -15,7 +15,7 @@ pub enum Status<E: Clone> {
     Error { error: E },
 }
 
-impl<E: Clone> Default for Status<E> {
+impl<E: std::error::Error + Clone + PartialEq> Default for Status<E> {
     fn default() -> Self {
         Self::Initial
     }
