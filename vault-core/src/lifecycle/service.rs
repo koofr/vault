@@ -1,6 +1,9 @@
 use std::sync::Arc;
 
+use futures::join;
+
 use crate::{
+    common::state::Status,
     eventstream::EventStreamService,
     notifications::NotificationsService,
     oauth2::{errors::OAuth2Error, state::FinishFlowResult, OAuth2Service},
@@ -9,7 +12,7 @@ use crate::{
     secure_storage::SecureStorageService,
     space_usage::SpaceUsageService,
     store,
-    user::UserService, common::state::Status,
+    user::UserService,
 };
 
 use super::errors::LoadError;
@@ -72,9 +75,16 @@ impl LifecycleService {
     pub async fn on_login(&self) -> Result<(), RemoteError> {
         self.eventstream_service.clone().connect();
 
-        self.user_service.load_user().await?;
-        self.repos_service.load_repos().await?;
-        self.space_usage_service.load().await?;
+        let user_future = self.user_service.load_user();
+        let repos_future = self.repos_service.load_repos();
+        let space_usage_future = self.space_usage_service.load();
+
+        let (user_res, repos_res, space_usage_res) =
+            join!(user_future, repos_future, space_usage_future);
+
+        user_res?;
+        repos_res?;
+        space_usage_res?;
 
         Ok(())
     }
