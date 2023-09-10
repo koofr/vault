@@ -18,7 +18,7 @@ pub enum InterceptorResult {
         Box<dyn FnOnce(Response) -> BoxFuture<'static, Response> + Send + Sync + 'static>,
     ),
     Response(Response),
-    AsyncResponse(BoxFuture<'static, Response>),
+    AsyncResponse(BoxFuture<'static, Option<Response>>),
 }
 
 impl InterceptorResult {
@@ -64,7 +64,10 @@ pub async fn interceptor_middleware<B>(
                     transform(next.run(request).await).await
                 }
                 InterceptorResult::Response(response) => response,
-                InterceptorResult::AsyncResponse(response) => response.await,
+                InterceptorResult::AsyncResponse(response) => match response.await {
+                    Some(response) => response,
+                    None => next.run(request).await,
+                },
             }
         }
         None => next.run(request).await,

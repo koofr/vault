@@ -360,7 +360,7 @@ pub fn uploaded_server_error(
             })
             .await;
 
-            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+            Some(StatusCode::INTERNAL_SERVER_ERROR.into_response())
         }
         .boxed(),
     )
