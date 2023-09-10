@@ -16,7 +16,7 @@ pub fn create_repo(
 ) -> (Repo, Arc<Cipher>, Rc<HashMap<String, Arc<Cipher>>>) {
     let repo = remote_test_helpers::create_repo(repo_id, mount_id, path);
 
-    mutations::repos_loaded(state, vec![repo]);
+    mutations::repos_loaded(state, Ok(vec![repo]));
 
     let repo = selectors::select_repo(state, repo_id).unwrap().clone();
 

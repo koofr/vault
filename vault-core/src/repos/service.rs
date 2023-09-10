@@ -61,15 +61,17 @@ impl ReposService {
             mutations::repos_loading(state);
         });
 
-        let repos = self.remote.get_vault_repos().await?.repos;
+        let res = self.remote.get_vault_repos().await.map(|res| res.repos);
+
+        let res_err = res.as_ref().map(|_| ()).map_err(|err| err.clone());
 
         self.store.mutate(|state, notify, _, _| {
             notify(store::Event::Repos);
 
-            mutations::repos_loaded(state, repos);
+            mutations::repos_loaded(state, res);
         });
 
-        Ok(())
+        res_err
     }
 
     pub fn lock_repo(&self, repo_id: &str) -> Result<(), RepoNotFoundError> {

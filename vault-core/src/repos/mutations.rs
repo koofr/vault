@@ -3,8 +3,11 @@ use std::collections::HashSet;
 use urlencoding::encode;
 
 use crate::{
-    common::state::Status, remote::models, remote_files::selectors as remote_files_selectors,
-    repo_files::selectors as repo_files_selectors, store,
+    common::state::Status,
+    remote::{models, RemoteError},
+    remote_files::selectors as remote_files_selectors,
+    repo_files::selectors as repo_files_selectors,
+    store,
 };
 
 use super::{
@@ -76,32 +79,39 @@ pub fn repos_loading(state: &mut store::State) {
     };
 }
 
-pub fn repos_loaded(state: &mut store::State, repos: Vec<models::VaultRepo>) {
-    state.repos.status = Status::Loaded;
+pub fn repos_loaded(state: &mut store::State, res: Result<Vec<models::VaultRepo>, RemoteError>) {
+    match res {
+        Ok(repos) => {
+            state.repos.status = Status::Loaded;
 
-    let remove_repo_ids = {
-        let new_repo_ids = repos.iter().map(|repo| &repo.id).collect::<HashSet<_>>();
+            let remove_repo_ids = {
+                let new_repo_ids = repos.iter().map(|repo| &repo.id).collect::<HashSet<_>>();
 
-        state
-            .repos
-            .repos_by_id
-            .iter()
-            .filter_map(|(repo_id, _)| {
-                if new_repo_ids.contains(repo_id) {
-                    None
-                } else {
-                    Some(repo_id.to_owned())
-                }
-            })
-            .collect::<Vec<_>>()
-    };
+                state
+                    .repos
+                    .repos_by_id
+                    .iter()
+                    .filter_map(|(repo_id, _)| {
+                        if new_repo_ids.contains(repo_id) {
+                            None
+                        } else {
+                            Some(repo_id.to_owned())
+                        }
+                    })
+                    .collect::<Vec<_>>()
+            };
 
-    for repo in repos {
-        repo_loaded(state, repo);
-    }
+            for repo in repos {
+                repo_loaded(state, repo);
+            }
 
-    for repo_id in remove_repo_ids {
-        remove_repo(state, &repo_id);
+            for repo_id in remove_repo_ids {
+                remove_repo(state, &repo_id);
+            }
+        }
+        Err(err) => {
+            state.repos.status = Status::Error { error: err };
+        }
     }
 }
 
