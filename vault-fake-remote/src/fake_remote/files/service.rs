@@ -10,12 +10,12 @@ use tokio_util::compat::TokioAsyncWriteCompatExt;
 use vault_core::{remote::models, utils::md5_reader};
 
 use crate::fake_remote::{
-    actions,
     context::Context,
     errors::{ApiErrorCode, FakeRemoteError},
     eventstream,
     state::FakeRemoteState,
     utils::now_ms,
+    vault_repos_service::VaultReposRemoveService,
 };
 
 use super::{
@@ -25,6 +25,7 @@ use super::{
 
 pub struct FilesService {
     state: Arc<RwLock<FakeRemoteState>>,
+    vault_repos_remove_service: Arc<VaultReposRemoveService>,
     eventstream_listeners: Arc<eventstream::Listeners>,
     data_path: std::path::PathBuf,
 }
@@ -32,11 +33,13 @@ pub struct FilesService {
 impl FilesService {
     pub fn new(
         state: Arc<RwLock<FakeRemoteState>>,
+        vault_repos_remove_service: Arc<VaultReposRemoveService>,
         eventstream_listeners: Arc<eventstream::Listeners>,
         data_path: std::path::PathBuf,
     ) -> Self {
         Self {
             state,
+            vault_repos_remove_service,
             eventstream_listeners,
             data_path,
         }
@@ -295,26 +298,31 @@ impl FilesService {
         delete_if_empty: bool,
     ) -> Result<(), FakeRemoteError> {
         let file = {
-            let mut state = self.state.write().unwrap();
+            let (file, repo_ids) = {
+                let mut state = self.state.write().unwrap();
 
-            let fs = self.get_filesystem_mut(&mut state, &mount_id)?;
+                let fs = self.get_filesystem_mut(&mut state, &mount_id)?;
 
-            let file = fs.delete_file(path, delete_if_empty)?;
+                let file = fs.delete_file(path, delete_if_empty)?;
 
-            let repo_ids: Vec<String> = state
-                .vault_repos
-                .values()
-                .filter_map(|repo| {
-                    if Path(repo.path.clone()).relative_to(path).is_some() {
-                        Some(repo.id.clone())
-                    } else {
-                        None
-                    }
-                })
-                .collect();
+                let repo_ids: Vec<String> = state
+                    .vault_repos
+                    .values()
+                    .filter_map(|repo| {
+                        if Path(repo.path.clone()).relative_to(path).is_some() {
+                            Some(repo.id.clone())
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+
+                (file, repo_ids)
+            };
 
             for repo_id in repo_ids {
-                actions::remove_vault_repo(context, &mut state, &repo_id)?;
+                self.vault_repos_remove_service
+                    .remove_vault_repo(context, &repo_id)?;
             }
 
             file

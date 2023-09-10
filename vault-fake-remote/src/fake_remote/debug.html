@@ -1,0 +1,204 @@
+<html>
+  <body>
+    <h1>Fake remote debug</h1>
+
+    <p>
+      <button type="button" onclick="reset()">Reset</button>
+    </p>
+
+    <p>
+      <strong>Queue:</strong> <span id="queueEnabled"></span>
+      <button
+        type="button"
+        id="queueEnableButton"
+        style="display: none"
+        onclick="queueEnable()"
+      >
+        Enable</button
+      ><button
+        type="button"
+        id="queueDisableButton"
+        style="display: none"
+        onclick="queueDisable()"
+      >
+        Disable
+      </button>
+    </p>
+
+    <p>
+      <strong>Pause:</strong> <span id="pauseEnabled"></span>
+      <button
+        type="button"
+        id="pauseEnableButton"
+        style="display: none"
+        onclick="pauseEnable()"
+      >
+        Enable</button
+      ><button
+        type="button"
+        id="pauseDisableButton"
+        style="display: none"
+        onclick="pauseDisable()"
+      >
+        Disable
+      </button>
+    </p>
+
+    <p>
+      <strong>Downloads pause:</strong>
+      <span id="downloadsPauseEnabled"></span>
+      <button
+        type="button"
+        id="downloadsPauseEnableButton"
+        style="display: none"
+        onclick="downloadsPauseEnable()"
+      >
+        Enable</button
+      ><button
+        type="button"
+        id="downloadsPauseDisableButton"
+        style="display: none"
+        onclick="downloadsPauseDisable()"
+      >
+        Disable
+      </button>
+    </p>
+
+    <p>
+      <strong>Uploads pause:</strong> <span id="uploadsPauseEnabled"></span>
+      <button
+        type="button"
+        id="uploadsPauseEnableButton"
+        style="display: none"
+        onclick="uploadsPauseEnable()"
+      >
+        Enable</button
+      ><button
+        type="button"
+        id="uploadsPauseDisableButton"
+        style="display: none"
+        onclick="uploadsPauseDisable()"
+      >
+        Disable
+      </button>
+    </p>
+
+    <div id="queueRequests" style="display: none">
+      <p>
+        <strong>Queue requests:</strong>
+        <button type="button" onclick="queueNext()">Next</button>
+        <button type="button" onclick="queueNext(500)">Fail (500)</button>
+        <button type="button" onclick="queueNext(404)">Fail (404)</button>
+        <button type="button" onclick="queueNext(401)">Fail (401)</button>
+      </p>
+
+      <pre><code id="queueRequestsList"></code></pre>
+    </div>
+
+    <script>
+      async function update() {
+        const res = await fetch("/debug/state.json");
+        const state = await res.json();
+
+        document.getElementById("queueEnabled").innerText = state.queueEnabled
+          ? "enabled"
+          : "disabled";
+        document.getElementById("queueEnableButton").style.display =
+          state.queueEnabled ? "none" : "inline";
+        document.getElementById("queueDisableButton").style.display =
+          state.queueEnabled ? "inline" : "none";
+
+        document.getElementById("pauseEnabled").innerText = state.pauseEnabled
+          ? "enabled"
+          : "disabled";
+        document.getElementById("pauseEnableButton").style.display =
+          state.pauseEnabled ? "none" : "inline";
+        document.getElementById("pauseDisableButton").style.display =
+          state.pauseEnabled ? "inline" : "none";
+
+        document.getElementById("downloadsPauseEnabled").innerText =
+          state.downloadsPauseEnabled ? "enabled" : "disabled";
+        document.getElementById("downloadsPauseEnableButton").style.display =
+          state.downloadsPauseEnabled ? "none" : "inline";
+        document.getElementById("downloadsPauseDisableButton").style.display =
+          state.downloadsPauseEnabled ? "inline" : "none";
+
+        document.getElementById("uploadsPauseEnabled").innerText =
+          state.uploadsPauseEnabled ? "enabled" : "disabled";
+        document.getElementById("uploadsPauseEnableButton").style.display =
+          state.uploadsPauseEnabled ? "none" : "inline";
+        document.getElementById("uploadsPauseDisableButton").style.display =
+          state.uploadsPauseEnabled ? "inline" : "none";
+
+        document.getElementById("queueRequests").style.display =
+          state.queueEnabled ? "block" : "none";
+        document.getElementById("queueRequestsList").innerText =
+          state.queueRequests
+            .map((req) => `${req.method} ${req.url}`)
+            .join("\n");
+      }
+
+      function autoUpdate() {
+        update()
+          .catch(() => {})
+          .then(() => {
+            setTimeout(autoUpdate, 300);
+          });
+      }
+
+      autoUpdate();
+
+      async function reset() {
+        await fetch("/debug/reset");
+        update();
+      }
+
+      async function queueEnable() {
+        await fetch("/debug/queue/enable");
+        update();
+      }
+
+      async function queueDisable() {
+        await fetch("/debug/queue/disable");
+        update();
+      }
+
+      async function queueNext(status) {
+        await fetch(
+          "/debug/queue/next" + (status != null ? `?status=${status}` : "")
+        );
+        update();
+      }
+
+      async function pauseEnable() {
+        await fetch("/debug/pause");
+        update();
+      }
+
+      async function pauseDisable() {
+        await fetch("/debug/resume");
+        update();
+      }
+
+      async function downloadsPauseEnable() {
+        await fetch("/debug/downloads/pause");
+        update();
+      }
+
+      async function downloadsPauseDisable() {
+        await fetch("/debug/downloads/resume");
+        update();
+      }
+
+      async function uploadsPauseEnable() {
+        await fetch("/debug/uploads/pause");
+        update();
+      }
+
+      async function uploadsPauseDisable() {
+        await fetch("/debug/uploads/resume");
+        update();
+      }
+    </script>
+  </body>
+</html>

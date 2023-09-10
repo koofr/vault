@@ -1,17 +1,16 @@
 use std::{
-    path::PathBuf,
-    sync::{Arc, Mutex, RwLock},
+    net::SocketAddr,
+    sync::{Arc, Mutex},
 };
 
 use vault_fake_remote::fake_remote::{
     self,
     app_state::AppState,
     errors::FakeRemoteServerStartError,
-    eventstream,
-    files::service::FilesService,
     interceptor::{Interceptor, InterceptorResult},
-    state::FakeRemoteState,
-    FakeRemoteServer,
+    router::build_router,
+    server::FakeRemoteServer,
+    server::FakeRemoteServerListener,
 };
 
 struct InterceptorContainer {
@@ -21,10 +20,8 @@ struct InterceptorContainer {
 pub struct FakeRemote {
     pub tokio_runtime: Arc<tokio::runtime::Runtime>,
 
+    pub app_state: AppState,
     pub server: Arc<FakeRemoteServer>,
-    pub data_path: PathBuf,
-    pub state: Arc<RwLock<FakeRemoteState>>,
-    pub files_service: Arc<FilesService>,
 
     interceptor_container: Arc<InterceptorContainer>,
 }
@@ -38,22 +35,17 @@ impl FakeRemote {
 
         std::fs::create_dir_all(&data_path).unwrap();
 
-        let state = Arc::new(RwLock::new(FakeRemoteState::default()));
-        let eventstream_listeners = Arc::new(eventstream::Listeners::new());
-        let files_service = Arc::new(FilesService::new(
-            state.clone(),
-            eventstream_listeners.clone(),
-            data_path.clone(),
-        ));
+        let mut app_state = AppState::new(data_path.clone());
 
         let interceptor_container = Arc::new(InterceptorContainer {
             interceptor: Arc::new(Mutex::new(None)),
         });
 
         let interceptor_interceptor_container = interceptor_container.clone();
-        let interceptor: Interceptor =
-            Box::new(move |parts| {
-                match interceptor_interceptor_container
+
+        app_state.interceptor =
+            Arc::new(Some(Box::new(
+                move |parts| match interceptor_interceptor_container
                     .interceptor
                     .lock()
                     .unwrap()
@@ -61,38 +53,32 @@ impl FakeRemote {
                 {
                     Some(interceptor) => interceptor(parts),
                     None => InterceptorResult::Ignore,
-                }
-            });
-
-        let app_state = AppState {
-            state: state.clone(),
-            files_service: files_service.clone(),
-            eventstream_listeners: eventstream_listeners.clone(),
-            interceptor: Arc::new(Some(interceptor)),
-        };
+                },
+            )));
 
         let server = Arc::new(FakeRemoteServer::new(
-            app_state,
-            None,
-            fake_remote::CERT_PEM.to_owned(),
-            fake_remote::KEY_PEM.to_owned(),
+            FakeRemoteServerListener::Https {
+                proposed_addr: SocketAddr::from(([127, 0, 0, 1], 0)),
+                cert_pem: fake_remote::CERT_PEM.to_owned(),
+                key_pem: fake_remote::KEY_PEM.to_owned(),
+            },
             tokio_runtime.clone(),
         ));
 
         Self {
             tokio_runtime,
 
+            app_state,
             server,
-            data_path,
-            state,
-            files_service,
 
             interceptor_container,
         }
     }
 
     pub async fn start(&self) -> Result<String, FakeRemoteServerStartError> {
-        self.server.start().await
+        self.server
+            .start(build_router(self.app_state.clone()))
+            .await
     }
 
     pub async fn stop(&self) {
@@ -110,7 +96,7 @@ impl Drop for FakeRemote {
 
         self.tokio_runtime.spawn(async move { server.stop().await });
 
-        std::fs::remove_dir_all(&self.data_path).unwrap();
+        std::fs::remove_dir_all(self.app_state.data_path.as_ref()).unwrap();
     }
 }
 

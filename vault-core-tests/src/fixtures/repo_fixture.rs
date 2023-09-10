@@ -5,7 +5,7 @@ use vault_core::{
     remote::models, repo_files::state::RepoFilesUploadConflictResolution,
     repos::state::RepoUnlockMode, utils::path_utils, Vault,
 };
-use vault_fake_remote::fake_remote::{actions, context::Context, files};
+use vault_fake_remote::fake_remote::{context::Context, files};
 
 use crate::{fake_remote::FakeRemote, fixtures::user_fixture::UserFixture};
 
@@ -34,6 +34,7 @@ impl RepoFixture {
         };
 
         fake_remote
+            .app_state
             .files_service
             .create_dir(
                 &context,
@@ -44,12 +45,8 @@ impl RepoFixture {
             .await
             .unwrap();
 
-        let repo_id = {
-            let mut state = fake_remote.state.write().unwrap();
-
-            actions::create_vault_repo(
+        let repo_id = fake_remote.app_state.vault_repos_create_service.create_vault_repo(
                 &context,
-                &mut state,
                 models::VaultRepoCreate {
                     mount_id: mount_id.clone(),
                     path: path.clone(),
@@ -58,8 +55,7 @@ impl RepoFixture {
                     password_validator_encrypted: "v2:UkNMT05FAABVyJmka7FKh8CKL2AtIZc1xiZk-SO5GeuZPnHvw0ehM1dENa4iBCyPEf50da9V2XvL5CjpZlUle1lifEHtaRy9YHoFLHtiq1PCAqYY".into(),
                 },
             )
-            .unwrap().id
-        };
+            .unwrap().id;
 
         Arc::new(Self {
             user_fixture,

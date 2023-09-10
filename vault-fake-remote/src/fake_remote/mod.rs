@@ -1,6 +1,7 @@
-pub mod actions;
+pub mod app;
 pub mod app_state;
 pub mod context;
+pub mod debug_interceptor;
 pub mod errors;
 pub mod eventstream;
 pub mod extract;
@@ -11,9 +12,9 @@ pub mod interceptor;
 pub mod router;
 pub mod server;
 pub mod state;
+pub mod users_service;
 pub mod utils;
+pub mod vault_repos_service;
 
 pub const CERT_PEM: &[u8] = include_bytes!("cert.pem");
 pub const KEY_PEM: &[u8] = include_bytes!("key.pem");
-
-pub use self::server::FakeRemoteServer;

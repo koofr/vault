@@ -3,16 +3,36 @@ use std::{
     sync::{Arc, RwLock},
 };
 
+use axum::Router;
 use axum_server::{tls_rustls::RustlsConfig, Handle};
+use futures::FutureExt;
 use tokio::{sync::oneshot, task::JoinHandle};
 
-use super::{app_state::AppState, errors::FakeRemoteServerStartError, router::build_router};
+use super::errors::FakeRemoteServerStartError;
+
+#[derive(Debug)]
+pub enum FakeRemoteServerListener {
+    Http {
+        proposed_addr: SocketAddr,
+    },
+    Https {
+        proposed_addr: SocketAddr,
+        cert_pem: Vec<u8>,
+        key_pem: Vec<u8>,
+    },
+}
+
+impl FakeRemoteServerListener {
+    pub fn addr_to_url(&self, addr: SocketAddr) -> String {
+        match self {
+            Self::Http { .. } => format!("http://{}", addr),
+            Self::Https { .. } => format!("https://{}", addr),
+        }
+    }
+}
 
 pub struct FakeRemoteServer {
-    app_state: AppState,
-    proposed_addr: SocketAddr,
-    cert_pem: Vec<u8>,
-    key_pem: Vec<u8>,
+    listener: FakeRemoteServerListener,
     tokio_runtime: Arc<tokio::runtime::Runtime>,
 
     handle: Arc<RwLock<Option<Handle>>>,
@@ -23,19 +43,11 @@ pub struct FakeRemoteServer {
 
 impl FakeRemoteServer {
     pub fn new(
-        app_state: AppState,
-        proposed_addr: Option<SocketAddr>,
-        cert_pem: Vec<u8>,
-        key_pem: Vec<u8>,
+        listener: FakeRemoteServerListener,
         tokio_runtime: Arc<tokio::runtime::Runtime>,
     ) -> Self {
-        let proposed_addr = proposed_addr.unwrap_or(SocketAddr::from(([127, 0, 0, 1], 0)));
-
         Self {
-            app_state,
-            proposed_addr,
-            cert_pem,
-            key_pem,
+            listener,
             tokio_runtime,
 
             handle: Arc::new(RwLock::new(None)),
@@ -45,22 +57,14 @@ impl FakeRemoteServer {
         }
     }
 
-    pub async fn start(&self) -> Result<String, FakeRemoteServerStartError> {
+    pub async fn start(&self, router: Router) -> Result<String, FakeRemoteServerStartError> {
         let start_guard = self.start_mutex.lock().await;
 
         if let Some(addr) = self.addr.read().unwrap().as_ref() {
-            return Err(FakeRemoteServerStartError::AlreadyStarted(addr_to_url(
-                *addr,
-            )));
+            return Err(FakeRemoteServerStartError::AlreadyStarted(
+                self.listener.addr_to_url(*addr),
+            ));
         }
-
-        let proposed_addr = self.proposed_addr;
-
-        let rustls_config = RustlsConfig::from_pem(self.cert_pem.clone(), self.key_pem.clone())
-            .await
-            .map_err(|err| FakeRemoteServerStartError::InvalidCertOrKey(Arc::new(err)))?;
-
-        let router = build_router(self.app_state.clone());
 
         let handle = Handle::new();
 
@@ -70,12 +74,31 @@ impl FakeRemoteServer {
 
         let serve_handle = handle.clone();
 
+        let serve_future = match &self.listener {
+            FakeRemoteServerListener::Http { proposed_addr } => {
+                axum_server::bind(proposed_addr.to_owned())
+                    .handle(serve_handle)
+                    .serve(router.into_make_service())
+                    .boxed()
+            }
+            FakeRemoteServerListener::Https {
+                proposed_addr,
+                cert_pem,
+                key_pem,
+            } => {
+                let rustls_config = RustlsConfig::from_pem(cert_pem.clone(), key_pem.clone())
+                    .await
+                    .map_err(|err| FakeRemoteServerStartError::InvalidCertOrKey(Arc::new(err)))?;
+
+                axum_server::bind_rustls(proposed_addr.to_owned(), rustls_config)
+                    .handle(serve_handle)
+                    .serve(router.into_make_service())
+                    .boxed()
+            }
+        };
+
         let serve_join_handle = self.tokio_runtime.spawn(async move {
-            if let Err(err) = axum_server::bind_rustls(proposed_addr, rustls_config)
-                .handle(serve_handle)
-                .serve(router.into_make_service())
-                .await
-            {
+            if let Err(err) = serve_future.await {
                 let _ = serve_error_tx.send(err);
             }
         });
@@ -90,7 +113,7 @@ impl FakeRemoteServer {
 
                 drop(start_guard);
 
-                Ok(addr_to_url(addr))
+                Ok(self.listener.addr_to_url(addr))
             }
             None => {
                 let _ = serve_join_handle.await;
@@ -106,8 +129,11 @@ impl FakeRemoteServer {
         }
     }
 
-    pub async fn ensure_started(&self) -> Result<String, FakeRemoteServerStartError> {
-        match self.start().await {
+    pub async fn ensure_started(
+        &self,
+        router: Router,
+    ) -> Result<String, FakeRemoteServerStartError> {
+        match self.start(router).await {
             Ok(proxy_url) => Ok(proxy_url),
             Err(FakeRemoteServerStartError::AlreadyStarted(proxy_url)) => Ok(proxy_url),
             Err(err) => Err(err),
@@ -132,8 +158,4 @@ impl FakeRemoteServer {
 
         drop(start_guard);
     }
-}
-
-pub fn addr_to_url(addr: SocketAddr) -> String {
-    format!("https://{}", addr)
 }

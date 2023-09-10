@@ -99,11 +99,11 @@ pub fn build_router(app_state: AppState) -> Router {
             delete(handlers::vault_repos_remove),
         )
         .route("/events", get(eventstream::handler::eventstream))
-        .layer(ServiceBuilder::new().layer(cors))
         .layer(middleware::from_fn(fix_response_json))
         .layer(middleware::from_fn_with_state(
             app_state.clone(),
             interceptor_middleware,
         ))
+        .layer(ServiceBuilder::new().layer(cors))
         .with_state(app_state)
 }

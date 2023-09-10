@@ -32,3 +32,9 @@ pub struct FakeRemoteState {
     // mount ids to filesystems
     pub filesystems: HashMap<String, Filesystem>,
 }
+
+impl FakeRemoteState {
+    pub fn reset(&mut self) {
+        *self = Default::default();
+    }
+}

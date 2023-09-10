@@ -1,27 +1,19 @@
-use std::{
-    net::SocketAddr,
-    path::PathBuf,
-    sync::{Arc, RwLock},
-};
+use std::{net::SocketAddr, path::PathBuf, sync::Arc};
 
 use clap::Parser;
 use tokio::signal;
-use vault_core::remote::models;
-use vault_fake_remote::fake_remote::{
-    self, actions,
-    app_state::AppState,
-    context::Context,
-    eventstream,
-    files::{self, service::FilesService},
-    state::FakeRemoteState,
-};
+use vault_fake_remote::fake_remote::app::{FakeRemoteApp, FakeRemoteAppConfig};
 
-#[derive(Parser, Debug)]
+#[derive(Parser, Debug, Clone)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    /// Listen addr
+    /// HTTP server listen addr
+    #[arg(long, default_value = "127.0.0.1:3080")]
+    http_addr: SocketAddr,
+
+    /// HTTPS server listen addr
     #[arg(long, default_value = "127.0.0.1:3443")]
-    addr: SocketAddr,
+    https_addr: SocketAddr,
 
     /// Data path
     #[arg(long)]
@@ -67,97 +59,24 @@ fn main() {
 
     log::info!("Data path: {:?}", data_path);
 
+    let config = FakeRemoteAppConfig {
+        http_addr: args.http_addr,
+        https_addr: args.https_addr,
+        data_path,
+        user_id: args.user_id,
+        mount_id: args.mount_id,
+        oauth2_access_token: args.oauth2_access_token,
+        oauth2_refresh_token: args.oauth2_refresh_token,
+        create_vault_repo: args.create_vault_repo,
+    };
+
     tokio_runtime.clone().block_on(async move {
-        let args = args;
+        let app = FakeRemoteApp::new(config, tokio_runtime).await;
 
-        let state = Arc::new(RwLock::new(FakeRemoteState::default()));
-        let eventstream_listeners = Arc::new(eventstream::Listeners::new());
-        let files_service = Arc::new(FilesService::new(
-            state.clone(),
-            eventstream_listeners.clone(),
-            data_path,
-        ));
-
-        init_state(&state, &files_service, &args).await;
-
-        let app_state = AppState {
-            state: state.clone(),
-            files_service: files_service.clone(),
-            eventstream_listeners: eventstream_listeners.clone(),
-            interceptor: Arc::new(None),
-        };
-
-        let fake_remote_server = fake_remote::FakeRemoteServer::new(
-            app_state,
-            Some(args.addr),
-            fake_remote::CERT_PEM.to_owned(),
-            fake_remote::KEY_PEM.to_owned(),
-            tokio_runtime.clone(),
-        );
-
-        fake_remote_server.start().await.unwrap();
+        app.start().await.unwrap();
 
         let _ = signal::ctrl_c().await;
 
-        fake_remote_server.stop().await;
+        app.stop().await;
     });
-}
-
-async fn init_state(state: &RwLock<FakeRemoteState>, files_service: &FilesService, args: &Args) {
-    let user_id = args.user_id.clone();
-    let mount_id = args.mount_id.clone();
-
-    {
-        let mut state = state.write().unwrap();
-
-        actions::create_user(
-            &mut state,
-            files_service,
-            Some(user_id.clone()),
-            Some(mount_id.clone()),
-        );
-
-        state.default_user_id = Some(user_id.clone());
-
-        state
-            .oauth2_access_tokens
-            .insert(args.oauth2_access_token.clone(), user_id.to_owned());
-        state
-            .oauth2_refresh_tokens
-            .insert(args.oauth2_refresh_token.clone(), user_id.to_owned());
-    }
-
-    if args.create_vault_repo {
-        let context = Context {
-            user_id: user_id.clone(),
-            user_agent: None,
-        };
-
-        files_service
-            .create_dir(
-                &context,
-                &mount_id,
-                &files::Path::root(),
-                files::Name("My safe box".into()),
-            )
-            .await
-            .unwrap();
-
-        {
-            let mut state = state.write().unwrap();
-
-            actions::create_vault_repo(
-                &context,
-                &mut state,
-                models::VaultRepoCreate {
-                    mount_id: mount_id.clone(),
-                    path: "/My safe box".into(),
-                    salt: Some("salt".into()),
-                    password_validator: "ad3238a5-5fc7-4b8f-9575-88c69c0c91cd".into(),
-                    password_validator_encrypted: "v2:UkNMT05FAABVyJmka7FKh8CKL2AtIZc1xiZk-SO5GeuZPnHvw0ehM1dENa4iBCyPEf50da9V2XvL5CjpZlUle1lifEHtaRy9YHoFLHtiq1PCAqYY".into(),
-                },
-            )
-            .unwrap();
-        }
-    }
 }

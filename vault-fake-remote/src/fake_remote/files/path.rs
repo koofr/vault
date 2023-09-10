@@ -34,9 +34,12 @@ impl Path {
         if path.0 == "/" {
             Some(self.clone())
         } else {
-            if self.0 == path.0 {
+            let self_norm = self.normalize();
+            let path_norm = path.normalize();
+
+            if self_norm == path_norm {
                 Some(Self("/".into()))
-            } else if self.0.starts_with(&format!("{}/", path.0)) {
+            } else if self_norm.0.starts_with(&format!("{}/", path_norm.0)) {
                 Some(Self(self.0[path.0.len()..].to_owned()))
             } else {
                 None
@@ -100,9 +103,13 @@ mod tests {
         assert_eq!(p("/").relative_to(&p("/")), Some(p("/")));
         assert_eq!(p("/").relative_to(&p("/path")), None);
         assert_eq!(p("/path").relative_to(&p("/path")), Some(p("/")));
+        assert_eq!(p("/Path").relative_to(&p("/path")), Some(p("/")));
+        assert_eq!(p("/path").relative_to(&p("/Path")), Some(p("/")));
         assert_eq!(p("/pathto").relative_to(&p("/path")), None);
         assert_eq!(p("/path/to").relative_to(&p("/path")), Some(p("/to")));
         assert_eq!(p("/path/to").relative_to(&p("/path")), Some(p("/to")));
+        assert_eq!(p("/path/to").relative_to(&p("/Path")), Some(p("/to")));
+        assert_eq!(p("/Path/To").relative_to(&p("/path")), Some(p("/To")));
         assert_eq!(
             p("/path/to/file").relative_to(&p("/path")),
             Some(p("/to/file"))

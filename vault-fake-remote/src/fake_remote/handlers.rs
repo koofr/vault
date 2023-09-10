@@ -15,10 +15,12 @@ use urlencoding::encode;
 use vault_core::remote::models;
 
 use super::{
-    actions,
     context::Context,
     errors::{ApiErrorCode, FakeRemoteError},
-    extract::{ExtractFilesService, ExtractState},
+    extract::{
+        ExtractFilesService, ExtractState, ExtractVaultReposCreateService,
+        ExtractVaultReposRemoveService,
+    },
     files,
     state::FakeRemoteState,
 };
@@ -661,29 +663,26 @@ pub async fn vault_repos_all(
 
 pub async fn vault_repos_create(
     ExtractState(state): ExtractState,
+    ExtractVaultReposCreateService(vault_repos_create_service): ExtractVaultReposCreateService,
     context: Context,
     Json(create): Json<models::VaultRepoCreate>,
 ) -> Result<(StatusCode, Json<models::VaultRepo>), FakeRemoteError> {
-    let mut state = state.write().unwrap();
-
     let create = models::VaultRepoCreate {
-        mount_id: resolve_mount_id(&context, &state, create.mount_id),
+        mount_id: resolve_mount_id(&context, &state.read().unwrap(), create.mount_id),
         ..create
     };
 
-    let repo = actions::create_vault_repo(&context, &mut state, create)?;
+    let repo = vault_repos_create_service.create_vault_repo(&context, create)?;
 
     Ok((StatusCode::CREATED, Json(repo)))
 }
 
 pub async fn vault_repos_remove(
-    ExtractState(state): ExtractState,
+    ExtractVaultReposRemoveService(vault_repos_remove_service): ExtractVaultReposRemoveService,
     context: Context,
     Path(repo_id): Path<String>,
 ) -> Result<StatusCode, FakeRemoteError> {
-    let mut state = state.write().unwrap();
-
-    actions::remove_vault_repo(&context, &mut state, &repo_id)?;
+    vault_repos_remove_service.remove_vault_repo(&context, &repo_id)?;
 
     Ok(StatusCode::NO_CONTENT)
 }

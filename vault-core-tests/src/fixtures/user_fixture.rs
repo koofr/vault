@@ -4,7 +4,7 @@ use vault_core::{
     oauth2::{service::TOKEN_STORAGE_KEY, state::OAuth2Token},
     Vault,
 };
-use vault_fake_remote::fake_remote::{actions, context::Context, utils::now_ms};
+use vault_fake_remote::fake_remote::{context::Context, utils::now_ms};
 
 use crate::fake_remote::FakeRemote;
 
@@ -27,14 +27,13 @@ impl UserFixture {
         let vault = vault_fixture.vault.clone();
         let fake_remote = vault_fixture.fake_remote_fixture.fake_remote.clone();
 
-        let (user_id, mount_id, oauth2_access_token, oauth2_refresh_token) = {
-            let mut state = fake_remote.state.write().unwrap();
+        let (user_id, mount_id) = fake_remote.app_state.users_service.create_user(None, None);
 
-            let (user_id, mount_id) =
-                actions::create_user(&mut state, &fake_remote.files_service, None, None);
+        let oauth2_access_token = uuid::Uuid::new_v4().to_string();
+        let oauth2_refresh_token = uuid::Uuid::new_v4().to_string();
 
-            let oauth2_access_token = uuid::Uuid::new_v4().to_string();
-            let oauth2_refresh_token = uuid::Uuid::new_v4().to_string();
+        {
+            let mut state = fake_remote.app_state.state.write().unwrap();
 
             state
                 .oauth2_access_tokens
@@ -42,8 +41,6 @@ impl UserFixture {
             state
                 .oauth2_refresh_tokens
                 .insert(oauth2_refresh_token.clone(), user_id.clone());
-
-            (user_id, mount_id, oauth2_access_token, oauth2_refresh_token)
         };
 
         let context = Context {

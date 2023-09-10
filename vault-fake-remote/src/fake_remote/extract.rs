@@ -8,8 +8,14 @@ use axum::extract::FromRequestParts;
 use http::{header, request::Parts, HeaderMap};
 
 use super::{
-    app_state::AppState, context::Context, errors::FakeRemoteError, eventstream,
-    files::service::FilesService, state::FakeRemoteState,
+    app_state::AppState,
+    context::Context,
+    errors::FakeRemoteError,
+    eventstream,
+    files::service::FilesService,
+    state::FakeRemoteState,
+    users_service::UsersService,
+    vault_repos_service::{VaultReposCreateService, VaultReposRemoveService},
 };
 
 pub fn get_authorization_access_token<'a>(
@@ -50,7 +56,7 @@ pub fn get_user_id_by_access_token<'a>(
         Some(user_id) => Ok(user_id.as_str()),
         None => {
             return Err(FakeRemoteError::Unauthorized(
-                "sync state not found for access token".into(),
+                "user id not found for access token".into(),
             ))
         }
     }
@@ -72,7 +78,7 @@ impl FromRequestParts<AppState> for Context {
 
         let user_agent = get_user_agent(&parts.headers);
 
-        Ok(Context {
+        Ok(Self {
             user_id,
             user_agent,
         })
@@ -86,7 +92,7 @@ impl FromRequestParts<AppState> for ExtractState {
     type Rejection = Infallible;
 
     async fn from_request_parts(_: &mut Parts, state: &AppState) -> Result<Self, Self::Rejection> {
-        Ok(ExtractState(state.state.clone()))
+        Ok(Self(state.state.clone()))
     }
 }
 
@@ -97,7 +103,40 @@ impl FromRequestParts<AppState> for ExtractFilesService {
     type Rejection = Infallible;
 
     async fn from_request_parts(_: &mut Parts, state: &AppState) -> Result<Self, Self::Rejection> {
-        Ok(ExtractFilesService(state.files_service.clone()))
+        Ok(Self(state.files_service.clone()))
+    }
+}
+
+pub struct ExtractUsersService(pub Arc<UsersService>);
+
+#[async_trait]
+impl FromRequestParts<AppState> for ExtractUsersService {
+    type Rejection = Infallible;
+
+    async fn from_request_parts(_: &mut Parts, state: &AppState) -> Result<Self, Self::Rejection> {
+        Ok(Self(state.users_service.clone()))
+    }
+}
+
+pub struct ExtractVaultReposCreateService(pub Arc<VaultReposCreateService>);
+
+#[async_trait]
+impl FromRequestParts<AppState> for ExtractVaultReposCreateService {
+    type Rejection = Infallible;
+
+    async fn from_request_parts(_: &mut Parts, state: &AppState) -> Result<Self, Self::Rejection> {
+        Ok(Self(state.vault_repos_create_service.clone()))
+    }
+}
+
+pub struct ExtractVaultReposRemoveService(pub Arc<VaultReposRemoveService>);
+
+#[async_trait]
+impl FromRequestParts<AppState> for ExtractVaultReposRemoveService {
+    type Rejection = Infallible;
+
+    async fn from_request_parts(_: &mut Parts, state: &AppState) -> Result<Self, Self::Rejection> {
+        Ok(Self(state.vault_repos_remove_service.clone()))
     }
 }
 
@@ -108,8 +147,6 @@ impl FromRequestParts<AppState> for ExtractEventstreamListeners {
     type Rejection = Infallible;
 
     async fn from_request_parts(_: &mut Parts, state: &AppState) -> Result<Self, Self::Rejection> {
-        Ok(ExtractEventstreamListeners(
-            state.eventstream_listeners.clone(),
-        ))
+        Ok(Self(state.eventstream_listeners.clone()))
     }
 }
