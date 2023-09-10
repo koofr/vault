@@ -26,6 +26,7 @@ export const RepoGuard: React.FC<{
       React.createElement(component, { repo: info.repo })
     );
   } else if (
+    info.status.type === 'Initial' ||
     info.status.type === 'Loading' ||
     info.status.type === 'Reloading'
   ) {
