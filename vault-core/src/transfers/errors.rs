@@ -27,6 +27,8 @@ impl From<std::io::Error> for UploadableError {
 pub enum DownloadableError {
     #[error("{0}")]
     LocalFileError(String),
+    #[error("download not openable")]
+    NotOpenable,
     #[error("download not retriable")]
     NotRetriable,
 }
@@ -53,6 +55,8 @@ pub enum TransferError {
     LocalFileError(String),
     #[error("transfer not retriable")]
     NotRetriable,
+    #[error("transfer not openable")]
+    NotOpenable,
     #[error("remote file not found")]
     RemoteFileNotFound,
     #[error("remote files empty")]
@@ -129,6 +133,7 @@ impl From<DownloadableError> for TransferError {
     fn from(err: DownloadableError) -> Self {
         match err {
             DownloadableError::LocalFileError(err) => TransferError::LocalFileError(err),
+            DownloadableError::NotOpenable => TransferError::NotOpenable,
             DownloadableError::NotRetriable => TransferError::NotRetriable,
         }
     }

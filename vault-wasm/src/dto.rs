@@ -1172,8 +1172,6 @@ pub struct Transfer {
     pub state: TransferState,
     #[serde(rename = "canRetry")]
     pub can_retry: bool,
-    #[serde(rename = "canAbort")]
-    pub can_abort: bool,
 }
 
 impl From<&transfers_state::Transfer> for Transfer {
@@ -1191,7 +1189,6 @@ impl From<&transfers_state::Transfer> for Transfer {
                 .map(|duration| speed_display_bytes_duration(transfer.transferred_bytes, duration)),
             state: (&transfer.state).into(),
             can_retry: transfers_selectors::can_retry(transfer),
-            can_abort: transfers_selectors::can_abort(transfer),
         }
     }
 }

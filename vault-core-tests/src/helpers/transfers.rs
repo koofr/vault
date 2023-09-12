@@ -18,7 +18,7 @@ use vault_core::{
     common::state::{BoxAsyncRead, BoxAsyncWrite, SizeInfo},
     store,
     transfers::{
-        downloadable::{BoxDownloadable, Downloadable, DownloadableStatus},
+        downloadable::{Downloadable, DownloadableStatus},
         errors::{DownloadableError, UploadableError},
         state::{CreateDownloadResultFuture, Transfer, TransferState, TransfersState},
         uploadable::{BoxUploadable, Uploadable},
@@ -109,6 +109,9 @@ pub struct TestDownloadable {
     pub is_retriable_fn: Box<
         dyn Fn() -> BoxFuture<'static, Result<bool, DownloadableError>> + Send + Sync + 'static,
     >,
+    pub is_openable_fn: Box<
+        dyn Fn() -> BoxFuture<'static, Result<bool, DownloadableError>> + Send + Sync + 'static,
+    >,
     pub exists_fn: Box<
         dyn Fn(String, String) -> BoxFuture<'static, Result<bool, DownloadableError>>
             + Send
@@ -121,7 +124,8 @@ pub struct TestDownloadable {
                 SizeInfo,
                 Option<String>,
                 Option<String>,
-            ) -> BoxFuture<'static, Result<BoxAsyncWrite, DownloadableError>>
+            )
+                -> BoxFuture<'static, Result<(BoxAsyncWrite, String), DownloadableError>>
             + Send
             + Sync
             + 'static,
@@ -134,11 +138,14 @@ pub struct TestDownloadable {
             + Sync
             + 'static,
     >,
+    pub open_fn:
+        Box<dyn Fn() -> BoxFuture<'static, Result<(), DownloadableError>> + Send + Sync + 'static>,
     pub sender: Arc<Mutex<Option<Sender<Option<Vec<u8>>>>>>,
+    pub data: Arc<Mutex<Option<Vec<u8>>>>,
 }
 
 impl TestDownloadable {
-    pub fn bytes() -> (BoxDownloadable, BoxFuture<'static, Option<Vec<u8>>>) {
+    pub fn bytes() -> (Self, BoxFuture<'static, Option<Vec<u8>>>) {
         let data: Arc<Mutex<Option<Vec<u8>>>> = Arc::new(Mutex::new(None));
 
         let writer_data = data.clone();
@@ -147,23 +154,26 @@ impl TestDownloadable {
 
         let sender = Arc::new(Mutex::new(Some(sender)));
 
+        let done_data = data.clone();
         let done_sender = sender.clone();
 
-        let downloadable = Box::new(TestDownloadable {
+        let downloadable = TestDownloadable {
             is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
+            is_openable_fn: Box::new(|| future::ready(Ok(false)).boxed()),
             exists_fn: Box::new(|_, _| future::ready(Ok(false)).boxed()),
-            writer_fn: Box::new(move |_, _, _, _| {
+            writer_fn: Box::new(move |name, _, _, _| {
                 let data = writer_data.clone();
 
-                future::ready(Ok(Box::pin(MemoryWriter::new(Box::new(move |buf| {
+                let writer: BoxAsyncWrite = Box::pin(MemoryWriter::new(Box::new(move |buf| {
                     *data.lock().unwrap() = Some(buf);
-                }))) as BoxAsyncWrite))
-                .boxed()
+                })));
+
+                future::ready(Ok((writer, name))).boxed()
             }),
             done_fn: Box::new(move |res| {
                 match res {
                     Ok(DownloadableStatus::Downloaded) => {
-                        let data = data.lock().unwrap().take();
+                        let data = done_data.lock().unwrap().take();
 
                         if let Some(sender) = done_sender.lock().unwrap().take() {
                             let _ = sender.send(data);
@@ -175,13 +185,15 @@ impl TestDownloadable {
 
                 future::ready(Ok(())).boxed()
             }),
+            open_fn: Box::new(move || future::ready(Ok(())).boxed()),
             sender,
-        });
+            data,
+        };
 
         (downloadable, async { receiver.await.unwrap() }.boxed())
     }
 
-    pub fn string() -> (BoxDownloadable, BoxFuture<'static, Option<String>>) {
+    pub fn string() -> (Self, BoxFuture<'static, Option<String>>) {
         let (downloadable, future) = Self::bytes();
 
         let future = async { future.await.map(|buf| String::from_utf8(buf).unwrap()) }.boxed();
@@ -194,6 +206,10 @@ impl TestDownloadable {
 impl Downloadable for TestDownloadable {
     async fn is_retriable(&self) -> Result<bool, DownloadableError> {
         (self.is_retriable_fn)().await
+    }
+
+    async fn is_openable(&self) -> Result<bool, DownloadableError> {
+        (self.is_openable_fn)().await
     }
 
     async fn exists(
@@ -210,7 +226,7 @@ impl Downloadable for TestDownloadable {
         size: SizeInfo,
         content_type: Option<String>,
         unique_name: Option<String>,
-    ) -> Result<BoxAsyncWrite, DownloadableError> {
+    ) -> Result<(BoxAsyncWrite, String), DownloadableError> {
         (self.writer_fn)(name, size, content_type, unique_name).await
     }
 
@@ -219,6 +235,10 @@ impl Downloadable for TestDownloadable {
         res: Result<DownloadableStatus, DownloadableError>,
     ) -> Result<(), DownloadableError> {
         (self.done_fn)(res).await
+    }
+
+    async fn open(&self) -> Result<(), DownloadableError> {
+        (self.open_fn)().await
     }
 }
 
@@ -241,7 +261,7 @@ pub fn download_string(
 ) {
     let reader_provider = vault.repo_files_get_file_reader(repo_id, path).unwrap();
     let (downloadable, content_future) = TestDownloadable::string();
-    let (id, future) = vault.transfers_download(reader_provider, downloadable);
+    let (id, future) = vault.transfers_download(reader_provider, Box::new(downloadable));
 
     (id, future, content_future)
 }

@@ -11,14 +11,8 @@ pub fn can_retry(transfer: &Transfer) -> bool {
     matches!(transfer.state, TransferState::Failed { .. }) && transfer.is_retriable
 }
 
-pub fn can_abort(transfer: &Transfer) -> bool {
-    match &transfer.state {
-        TransferState::Waiting
-        | TransferState::Processing
-        | TransferState::Transferring
-        | TransferState::Failed { .. } => true,
-        TransferState::Done => false,
-    }
+pub fn can_open(transfer: &Transfer) -> bool {
+    matches!(transfer.state, TransferState::Done { .. }) && transfer.is_openable
 }
 
 pub fn transfer_duration(transfer: &Transfer, now: i64) -> Option<Duration> {
@@ -79,7 +73,7 @@ pub fn select_can_retry_all(state: &store::State) -> bool {
 }
 
 pub fn select_can_abort_all(state: &store::State) -> bool {
-    state.transfers.total_count > state.transfers.done_count
+    state.transfers.total_count > 0
 }
 
 pub fn select_can_autoretry(state: &store::State, transfer: &Transfer) -> bool {

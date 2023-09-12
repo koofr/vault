@@ -1,6 +1,6 @@
 use std::{
     sync::{
-        atomic::{AtomicUsize, Ordering},
+        atomic::{AtomicBool, AtomicUsize, Ordering},
         Arc,
     },
     time::Duration,
@@ -55,7 +55,7 @@ fn test_download() {
                         transfers,
                         expected_transfers_transferring_progress(&transfers, 1)
                     ),
-                    5 => assert_eq!(transfers, expected_tranfers_done()),
+                    5 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -88,7 +88,7 @@ fn test_download_change_name() {
             let (downloadable, content_future) = TestDownloadable::string();
             let (_, create_future) = fixture
                 .vault
-                .transfers_download(reader_provider, downloadable);
+                .transfers_download(reader_provider, Box::new(downloadable));
             let future = create_future.await.unwrap();
 
             assert!(matches!(future.await.unwrap(), ()));
@@ -123,7 +123,76 @@ fn test_download_change_name() {
                             }
                         )
                     ),
-                    5 => assert_eq!(transfers, expected_tranfers_done()),
+                    5 => assert_eq!(transfers, expected_transfers_done()),
+                    _ => panic!("unexpected state: {:#?}", transfers),
+                },
+            );
+        }
+        .boxed()
+    });
+}
+
+#[test]
+fn test_download_change_name_writer() {
+    with_transfers(|fixture| {
+        async move {
+            fixture.upload_file("/file.txt", "test").await;
+
+            let recorder = transfers_recorder(&fixture.vault);
+
+            let reader_provider = fixture
+                .vault
+                .repo_files_get_file_reader(&fixture.repo_id, "/file.txt")
+                .unwrap();
+            let (mut downloadable, content_future) = TestDownloadable::string();
+            let writer_data = downloadable.data.clone();
+            downloadable.writer_fn = Box::new(move |_, _, _, _| {
+                let data = writer_data.clone();
+
+                let writer: BoxAsyncWrite = Box::pin(MemoryWriter::new(Box::new(move |buf| {
+                    *data.lock().unwrap() = Some(buf);
+                })));
+
+                future::ready(Ok((writer, "file renamed.txt".into()))).boxed()
+            });
+            let (_, create_future) = fixture
+                .vault
+                .transfers_download(reader_provider, Box::new(downloadable));
+            let future = create_future.await.unwrap();
+
+            assert!(matches!(future.await.unwrap(), ()));
+            assert_eq!(content_future.await.unwrap(), "test");
+
+            check_recorded(
+                recorder,
+                |len| assert_eq!(len, 6),
+                |i, transfers| match i {
+                    0 => assert_eq!(transfers, TransfersState::default()),
+                    1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
+                    2 => assert_eq!(transfers, expected_transfers_processing(&transfers, 1)),
+                    3 => assert_eq!(
+                        transfers,
+                        patch_transfer(expected_transfers_transferring(&transfers, 1), 1, |t| {
+                            t.typ = TransferType::Download(DownloadTransfer {
+                                name: "file renamed.txt".into(),
+                            });
+                            t.name = "file renamed.txt".into();
+                        })
+                    ),
+                    4 => assert_eq!(
+                        transfers,
+                        patch_transfer(
+                            expected_transfers_transferring_progress(&transfers, 1),
+                            1,
+                            |t| {
+                                t.typ = TransferType::Download(DownloadTransfer {
+                                    name: "file renamed.txt".into(),
+                                });
+                                t.name = "file renamed.txt".into();
+                            }
+                        )
+                    ),
+                    5 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -146,10 +215,13 @@ fn test_download_already_exists() {
                 .unwrap();
             let downloadable = Box::new(TestDownloadable {
                 is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
+                is_openable_fn: Box::new(|| future::ready(Ok(false)).boxed()),
                 exists_fn: Box::new(|_, _| future::ready(Ok(true)).boxed()),
                 writer_fn: Box::new(|_, _, _, _| panic!("unreachable")),
                 done_fn: Box::new(|_| future::ready(Ok(())).boxed()),
+                open_fn: Box::new(|| future::ready(Ok(())).boxed()),
                 sender: Default::default(),
+                data: Default::default(),
             });
             let (_, create_future) = fixture
                 .vault
@@ -187,12 +259,15 @@ fn test_download_already_exists_error() {
                 .unwrap();
             let downloadable = Box::new(TestDownloadable {
                 is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
+                is_openable_fn: Box::new(|| future::ready(Ok(false)).boxed()),
                 exists_fn: Box::new(|_, _| {
                     future::ready(Err(DownloadableError::LocalFileError("io error".into()))).boxed()
                 }),
                 writer_fn: Box::new(|_, _, _, _| panic!("unreachable")),
                 done_fn: Box::new(|_| future::ready(Ok(())).boxed()),
+                open_fn: Box::new(|| future::ready(Ok(())).boxed()),
                 sender: Default::default(),
+                data: Default::default(),
             });
             let (_, create_future) = fixture
                 .vault
@@ -230,13 +305,16 @@ fn test_download_already_exists_done_error() {
                 .unwrap();
             let downloadable = Box::new(TestDownloadable {
                 is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
+                is_openable_fn: Box::new(|| future::ready(Ok(false)).boxed()),
                 exists_fn: Box::new(|_, _| future::ready(Ok(true)).boxed()),
                 writer_fn: Box::new(|_, _, _, _| panic!("unreachable")),
                 done_fn: Box::new(|_| {
                     future::ready(Err(DownloadableError::LocalFileError("done error".into())))
                         .boxed()
                 }),
+                open_fn: Box::new(|| future::ready(Ok(())).boxed()),
                 sender: Default::default(),
+                data: Default::default(),
             });
             let (_, create_future) = fixture
                 .vault
@@ -288,7 +366,7 @@ fn test_download_reader_error() {
             let (downloadable, content_future) = TestDownloadable::string();
             let (_, create_future) = fixture
                 .vault
-                .transfers_download(reader_provider, downloadable);
+                .transfers_download(reader_provider, Box::new(downloadable));
             let future = create_future.await.unwrap();
 
             assert!(matches!(future.await, Err(TransferError::Aborted)));
@@ -322,7 +400,7 @@ fn test_download_reader_error() {
                             _ => {}
                         }
                     }
-                    12 => assert_eq!(transfers, expected_tranfers_done()),
+                    12 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -349,6 +427,7 @@ fn test_download_downloadable_writer_error() {
             .unwrap();
         let downloadable = Box::new(TestDownloadable {
             is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
+            is_openable_fn: Box::new(|| future::ready(Ok(false)).boxed()),
             exists_fn: Box::new(|_, _| future::ready(Ok(false)).boxed()),
             writer_fn: Box::new(|_, _, _, _| {
                 future::ready(Err(DownloadableError::LocalFileError(
@@ -357,7 +436,9 @@ fn test_download_downloadable_writer_error() {
                 .boxed()
             }),
             done_fn: Box::new(|_| future::ready(Ok(())).boxed()),
+            open_fn: Box::new(|| future::ready(Ok(())).boxed()),
             sender: Default::default(),
+            data: Default::default(),
         });
         let (_, create_future) = fixture
             .vault
@@ -370,25 +451,20 @@ fn test_download_downloadable_writer_error() {
 
         check_recorded(
             recorder,
-            |len| assert_eq!(len, 18),
+            |len| assert_eq!(len, 13),
             |i, transfers| match i {
                 0 => assert_eq!(transfers, TransfersState::default()),
                 1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
                 2 => assert_eq!(transfers, expected_transfers_processing(&transfers, 1)),
-                3 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 1)),
-                4 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 1)),
-                5 => assert_eq!(transfers, expected_transfers_processing(&transfers, 2)),
-                6 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 2)),
-                7 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 2)),
-                8 => assert_eq!(transfers, expected_transfers_processing(&transfers, 3)),
-                9 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 3)),
-                10 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 3)),
-                11 => assert_eq!(transfers, expected_transfers_processing(&transfers, 4)),
-                12 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 4)),
-                13 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 4)),
-                14 => assert_eq!(transfers, expected_transfers_processing(&transfers, 5)),
-                15 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 5)),
-                16 => {
+                3 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 1)),
+                4 => assert_eq!(transfers, expected_transfers_processing(&transfers, 2)),
+                5 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 2)),
+                6 => assert_eq!(transfers, expected_transfers_processing(&transfers, 3)),
+                7 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 3)),
+                8 => assert_eq!(transfers, expected_transfers_processing(&transfers, 4)),
+                9 => assert_eq!(transfers, expected_transfers_waiting_failed(&transfers, 4)),
+                10 => assert_eq!(transfers, expected_transfers_processing(&transfers, 5)),
+                11 => {
                     assert_eq!(transfers, expected_transfers_failed(&transfers, 5));
                     match &transfers.transfers.get(&1).as_ref().unwrap().state {
                         TransferState::Failed { error } => assert!(
@@ -397,7 +473,7 @@ fn test_download_downloadable_writer_error() {
                         _ => {}
                     }
                 }
-                17 => assert_eq!(transfers, expected_tranfers_done()),
+                12 => assert_eq!(transfers, expected_transfers_done()),
                 _ => panic!("unexpected state: {:#?}", transfers),
             },
         );
@@ -451,12 +527,15 @@ fn test_download_downloadable_close_error() {
 
         let downloadable = Box::new(TestDownloadable {
             is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
+            is_openable_fn: Box::new(|| future::ready(Ok(false)).boxed()),
             exists_fn: Box::new(|_, _| future::ready(Ok(false)).boxed()),
-            writer_fn: Box::new(|_, _, _, _| {
-                future::ready(Ok(Box::pin(CloseErrorWriter) as BoxAsyncWrite)).boxed()
+            writer_fn: Box::new(|name, _, _, _| {
+                future::ready(Ok((Box::pin(CloseErrorWriter) as BoxAsyncWrite, name))).boxed()
             }),
             done_fn: Box::new(|_| future::ready(Ok(())).boxed()),
+            open_fn: Box::new(|| future::ready(Ok(())).boxed()),
             sender: Default::default(),
+            data: Default::default(),
         });
         let (_, create_future) = fixture
             .vault
@@ -500,7 +579,7 @@ fn test_download_downloadable_close_error() {
                         _ => {}
                     }
                 }
-                18 => assert_eq!(transfers, expected_tranfers_done()),
+                18 => assert_eq!(transfers, expected_transfers_done()),
                 _ => panic!("unexpected state: {:#?}", transfers),
             },
         );
@@ -526,17 +605,20 @@ fn test_download_downloadable_done_error() {
             .unwrap();
         let downloadable = Box::new(TestDownloadable {
             is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
+            is_openable_fn: Box::new(|| future::ready(Ok(false)).boxed()),
             exists_fn: Box::new(|_, _| future::ready(Ok(false)).boxed()),
-            writer_fn: Box::new(|_, _, _, _| {
+            writer_fn: Box::new(|name, _, _, _| {
                 future::ready(Ok(
-                    Box::pin(MemoryWriter::new(Box::new(|_| {}))) as BoxAsyncWrite
+                    (Box::pin(MemoryWriter::new(Box::new(|_| {}))) as BoxAsyncWrite, name)
                 ))
                 .boxed()
             }),
             done_fn: Box::new(|_| {
                 future::ready(Err(DownloadableError::LocalFileError("done error".into()))).boxed()
             }),
+            open_fn: Box::new(|| future::ready(Ok(())).boxed()),
             sender: Default::default(),
+            data: Default::default(),
         });
         let (_, create_future) = fixture
             .vault
@@ -580,7 +662,7 @@ fn test_download_downloadable_done_error() {
                         _ => {}
                     }
                 }
-                18 => assert_eq!(transfers, expected_tranfers_done()),
+                18 => assert_eq!(transfers, expected_transfers_done()),
                 _ => panic!("unexpected state: {:#?}", transfers),
             },
         );
@@ -643,7 +725,7 @@ fn test_download_abort_waiting() {
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
                     1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
-                    2 => assert_eq!(transfers, expected_tranfers_done()),
+                    2 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -680,7 +762,7 @@ fn test_download_abort_processing() {
                     0 => assert_eq!(transfers, TransfersState::default()),
                     1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
                     2 => assert_eq!(transfers, expected_transfers_processing(&transfers, 1)),
-                    3 => assert_eq!(transfers, expected_tranfers_done()),
+                    3 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -720,7 +802,7 @@ fn test_download_abort_transferring() {
                     1 => assert_eq!(transfers, expected_transfers_waiting(&transfers)),
                     2 => assert_eq!(transfers, expected_transfers_processing(&transfers, 1)),
                     3 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 1)),
-                    4 => assert_eq!(transfers, expected_tranfers_done()),
+                    4 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -776,7 +858,7 @@ fn test_download_fail_autoretry_succeed() {
                         transfers,
                         expected_transfers_transferring_progress(&transfers, 2)
                     ),
-                    8 => assert_eq!(transfers, expected_tranfers_done()),
+                    8 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -839,7 +921,7 @@ fn test_download_fail_autoretry_fail() {
                     14 => assert_eq!(transfers, expected_transfers_processing(&transfers, 5)),
                     15 => assert_eq!(transfers, expected_transfers_transferring(&transfers, 5)),
                     16 => assert_eq!(transfers, expected_transfers_failed(&transfers, 5)),
-                    17 => assert_eq!(transfers, expected_tranfers_done()),
+                    17 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -917,7 +999,84 @@ fn test_download_fail_autoretry_retry() {
                         transfers,
                         expected_transfers_transferring_progress(&transfers, 6)
                     ),
-                    21 => assert_eq!(transfers, expected_tranfers_done()),
+                    21 => assert_eq!(transfers, expected_transfers_done()),
+                    _ => panic!("unexpected state: {:#?}", transfers),
+                },
+            );
+        }
+        .boxed()
+    });
+}
+
+#[test]
+fn test_download_openable() {
+    with_transfers(|fixture| {
+        async move {
+            fixture.upload_file("/file.txt", "test").await;
+
+            let recorder = transfers_recorder(&fixture.vault);
+
+            let reader_provider = fixture
+                .vault
+                .repo_files_get_file_reader(&fixture.repo_id, "/file.txt")
+                .unwrap();
+            let (mut downloadable, content_future) = TestDownloadable::string();
+            downloadable.is_openable_fn = Box::new(|| future::ready(Ok(true)).boxed());
+            let opened = Arc::new(AtomicBool::new(false));
+            let downloadable_opened = opened.clone();
+            downloadable.open_fn = Box::new(move || {
+                downloadable_opened.store(true, Ordering::SeqCst);
+
+                future::ready(Ok(())).boxed()
+            });
+            let (transfer_id, create_future) = fixture
+                .vault
+                .transfers_download(reader_provider, Box::new(downloadable));
+            let future = create_future.await.unwrap();
+
+            assert!(matches!(future.await.unwrap(), ()));
+            assert_eq!(content_future.await.unwrap(), "test");
+
+            assert!(!opened.load(Ordering::SeqCst));
+
+            fixture.vault.transfers_open(transfer_id).await.unwrap();
+
+            assert!(opened.load(Ordering::SeqCst));
+
+            fixture.vault.transfers_abort(transfer_id);
+
+            let patch = |t: &mut Transfer| {
+                t.is_persistent = true;
+                t.is_openable = true;
+            };
+
+            check_recorded(
+                recorder,
+                |len| assert_eq!(len, 7),
+                |i, transfers| match i {
+                    0 => assert_eq!(transfers, TransfersState::default()),
+                    1 => assert_eq!(
+                        transfers,
+                        patch_transfer(expected_transfers_waiting(&transfers), 1, patch)
+                    ),
+                    2 => assert_eq!(
+                        transfers,
+                        patch_transfer(expected_transfers_processing(&transfers, 1), 1, patch)
+                    ),
+                    3 => assert_eq!(
+                        transfers,
+                        patch_transfer(expected_transfers_transferring(&transfers, 1), 1, patch)
+                    ),
+                    4 => assert_eq!(
+                        transfers,
+                        patch_transfer(
+                            expected_transfers_transferring_progress(&transfers, 1),
+                            1,
+                            patch
+                        )
+                    ),
+                    5 => assert_eq!(transfers, expected_transfers_done_openable(&transfers, 1)),
+                    6 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -941,6 +1100,7 @@ fn expected_transfers_waiting(transfers: &TransfersState) -> TransfersState {
                 started: None,
                 is_persistent: false,
                 is_retriable: true,
+                is_openable: false,
                 state: TransferState::Waiting,
                 transferred_bytes: 0,
                 attempts: 0,
@@ -985,6 +1145,7 @@ fn expected_transfers_processing(transfers: &TransfersState, attempts: usize) ->
                 ),
                 is_persistent: false,
                 is_retriable: true,
+                is_openable: false,
                 state: TransferState::Processing,
                 transferred_bytes: 0,
                 attempts,
@@ -1029,6 +1190,7 @@ fn expected_transfers_transferring(transfers: &TransfersState, attempts: usize) 
                 ),
                 is_persistent: false,
                 is_retriable: true,
+                is_openable: false,
                 state: TransferState::Transferring,
                 transferred_bytes: 0,
                 attempts,
@@ -1076,6 +1238,7 @@ fn expected_transfers_transferring_progress(
                 ),
                 is_persistent: false,
                 is_retriable: true,
+                is_openable: false,
                 state: TransferState::Transferring,
                 transferred_bytes: 4,
                 attempts,
@@ -1117,6 +1280,7 @@ fn expected_transfers_waiting_failed(
                 started: None,
                 is_persistent: false,
                 is_retriable: true,
+                is_openable: false,
                 state: TransferState::Waiting,
                 transferred_bytes: 0,
                 attempts,
@@ -1155,6 +1319,7 @@ fn expected_transfers_failed(transfers: &TransfersState, attempts: usize) -> Tra
                 started: None,
                 is_persistent: false,
                 is_retriable: true,
+                is_openable: false,
                 state: match &transfers.transfers.get(&1).unwrap().state {
                     TransferState::Failed { error } => TransferState::Failed {
                         error: error.clone(),
@@ -1183,9 +1348,48 @@ fn expected_transfers_failed(transfers: &TransfersState, attempts: usize) -> Tra
     }
 }
 
-fn expected_tranfers_done() -> TransfersState {
+fn expected_transfers_done() -> TransfersState {
     TransfersState {
         next_id: NextId(2),
         ..Default::default()
+    }
+}
+
+fn expected_transfers_done_openable(transfers: &TransfersState, attempts: usize) -> TransfersState {
+    TransfersState {
+        transfers: [(
+            1,
+            Transfer {
+                id: 1,
+                typ: TransferType::Download(DownloadTransfer {
+                    name: "file.txt".into(),
+                }),
+                name: "file.txt".into(),
+                size: SizeInfo::Exact(4),
+                category: FileCategory::Text,
+                started: None,
+                is_persistent: true,
+                is_retriable: true,
+                is_openable: true,
+                state: TransferState::Done,
+                transferred_bytes: 4,
+                attempts,
+                order: 0,
+            },
+        )]
+        .into(),
+        next_id: NextId(2),
+        started: None,
+        last_progress_update: transfers.last_progress_update,
+        transferring_count: 0,
+        transferring_uploads_count: 0,
+        transferring_downloads_count: 0,
+        done_count: 1,
+        failed_count: 0,
+        retriable_count: 0,
+        total_count: 1,
+        done_bytes: 4,
+        failed_bytes: 0,
+        total_bytes: 4,
     }
 }

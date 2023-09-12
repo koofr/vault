@@ -102,18 +102,16 @@ export const TransfersListTransfer = memo<{ transfer: Transfer }>(
               Retry
             </Button>
           ) : null}
-          {transfer.canAbort ? (
-            <Button
-              type="button"
-              variant="destructive-inline"
-              className={css`
-                flex-shrink: 0;
-              `}
-              onClick={abort}
-            >
-              Cancel
-            </Button>
-          ) : null}
+          <Button
+            type="button"
+            variant="destructive-inline"
+            className={css`
+              flex-shrink: 0;
+            `}
+            onClick={abort}
+          >
+            Cancel
+          </Button>
         </div>
       </div>
     );

@@ -1,6 +1,6 @@
 use std::{
     collections::HashMap,
-    sync::{Arc, Mutex},
+    sync::{Arc, RwLock},
 };
 
 use futures::{
@@ -38,14 +38,14 @@ use super::{
 
 #[derive(Default)]
 struct TransfersServiceTransferStateUpload {
-    uploadable: Option<BoxUploadable>,
+    uploadable: Option<Arc<BoxUploadable>>,
     result_sender: Option<Sender<UploadResult>>,
 }
 
 #[derive(Default)]
 struct TransfersServiceTransferStateDownload {
-    reader_provider: Option<RepoFileReaderProvider>,
-    downloadable: Option<BoxDownloadable>,
+    reader_provider: Option<Arc<RepoFileReaderProvider>>,
+    downloadable: Option<Arc<futures::lock::Mutex<BoxDownloadable>>>,
     result_sender: Option<Sender<DownloadResult>>,
 }
 
@@ -70,7 +70,7 @@ pub struct TransfersService {
     store: Arc<store::Store>,
     runtime: Arc<runtime::BoxRuntime>,
 
-    state: Arc<Mutex<TransfersServiceState>>,
+    state: Arc<RwLock<TransfersServiceState>>,
 }
 
 impl TransfersService {
@@ -102,7 +102,7 @@ impl TransfersService {
     ) -> (u32, CreateUploadResultFuture) {
         let id = self.get_next_id();
 
-        self.state.lock().unwrap().transfers.insert(
+        self.state.write().unwrap().transfers.insert(
             id,
             TransfersServiceTransferState {
                 typ: TransfersServiceTransferStateType::Upload(Default::default()),
@@ -130,13 +130,13 @@ impl TransfersService {
         let is_retriable = uploadable.is_retriable().await?;
 
         let result_receiver = self.store.mutate(|state, notify, _, _| {
-            let result_receiver = match self.state.lock().unwrap().transfers.get_mut(&id) {
+            let result_receiver = match self.state.write().unwrap().transfers.get_mut(&id) {
                 Some(state) => {
                     let (result_sender, result_receiver) = oneshot::channel();
 
                     match &mut state.typ {
                         TransfersServiceTransferStateType::Upload(upload) => {
-                            upload.uploadable = Some(uploadable);
+                            upload.uploadable = Some(Arc::new(uploadable));
                             upload.result_sender = Some(result_sender);
                         }
                         _ => {}
@@ -148,6 +148,7 @@ impl TransfersService {
             };
 
             let is_persistent = false;
+            let is_openable = false;
 
             mutations::create_transfer(
                 state,
@@ -161,6 +162,7 @@ impl TransfersService {
                 size,
                 is_persistent,
                 is_retriable,
+                is_openable,
             );
 
             Ok(result_receiver)
@@ -178,7 +180,7 @@ impl TransfersService {
     ) -> (u32, CreateDownloadResultFuture) {
         let id = self.get_next_id();
 
-        self.state.lock().unwrap().transfers.insert(
+        self.state.write().unwrap().transfers.insert(
             id,
             TransfersServiceTransferState {
                 typ: TransfersServiceTransferStateType::Download(Default::default()),
@@ -196,10 +198,9 @@ impl TransfersService {
     async fn create_download(
         self: Arc<Self>,
         reader_provider: RepoFileReaderProvider,
-        downloadable: BoxDownloadable,
+        mut downloadable: BoxDownloadable,
         id: u32,
     ) -> CreateDownloadResult {
-        let mut downloadable = downloadable;
         let name = reader_provider.name.clone();
         let size = reader_provider.size;
 
@@ -229,16 +230,19 @@ impl TransfersService {
         }
 
         let is_retriable = downloadable.is_retriable().await?;
+        let is_openable = downloadable.is_openable().await?;
+        let is_persistent = is_openable;
 
         let result_receiver = self.store.mutate(|state, notify, _, _| {
-            let result_receiver = match self.state.lock().unwrap().transfers.get_mut(&id) {
+            let result_receiver = match self.state.write().unwrap().transfers.get_mut(&id) {
                 Some(state) => {
                     let (result_sender, result_receiver) = oneshot::channel();
 
                     match &mut state.typ {
                         TransfersServiceTransferStateType::Download(download) => {
-                            download.reader_provider = Some(reader_provider);
-                            download.downloadable = Some(downloadable);
+                            download.reader_provider = Some(Arc::new(reader_provider));
+                            download.downloadable =
+                                Some(Arc::new(futures::lock::Mutex::new(downloadable)));
                             download.result_sender = Some(result_sender);
                         }
                         _ => {}
@@ -249,8 +253,6 @@ impl TransfersService {
                 None => return Err(TransferError::Aborted),
             };
 
-            let is_persistent = false;
-
             mutations::create_transfer(
                 state,
                 notify,
@@ -259,6 +261,7 @@ impl TransfersService {
                 size,
                 is_persistent,
                 is_retriable,
+                is_openable,
             );
 
             Ok(result_receiver)
@@ -275,7 +278,7 @@ impl TransfersService {
         let (abort_handle, _) = AbortHandle::new_pair();
 
         self.store.mutate(|state, notify, _, _| {
-            self.state.lock().unwrap().transfers.insert(
+            self.state.write().unwrap().transfers.insert(
                 id,
                 TransfersServiceTransferState {
                     typ: TransfersServiceTransferStateType::DownloadReader,
@@ -305,7 +308,7 @@ impl TransfersService {
                 progress_reader,
                 Box::new(move |_| {
                     this.store.mutate(|state, notify, _, _| {
-                        this.state.lock().unwrap().transfers.remove(&id);
+                        this.state.write().unwrap().transfers.remove(&id);
 
                         mutations::cleanup_download_reader_transfer(state, notify, id);
                     });
@@ -320,7 +323,7 @@ impl TransfersService {
         let state = self.store.mutate(|state, notify, _, _| {
             mutations::abort(state, notify, id);
 
-            self.state.lock().unwrap().transfers.remove(&id)
+            self.state.write().unwrap().transfers.remove(&id)
         });
 
         if let Some(state) = state {
@@ -334,7 +337,7 @@ impl TransfersService {
         let states: Vec<_> = self.store.mutate(|state, notify, _, _| {
             let ids = mutations::abort_all(state, notify);
 
-            let mut state = self.state.lock().unwrap();
+            let mut state = self.state.write().unwrap();
 
             ids.iter()
                 .filter_map(|id| state.transfers.remove(&id))
@@ -390,12 +393,34 @@ impl TransfersService {
         self.process_next();
     }
 
+    pub async fn open(self: Arc<Self>, id: u32) -> Result<(), TransferError> {
+        let downloadable = {
+            let state = self.state.read().unwrap();
+
+            let state = state
+                .transfers
+                .get(&id)
+                .ok_or(TransferError::TransferNotFound)?;
+
+            (match &state.typ {
+                TransfersServiceTransferStateType::Download(download) => {
+                    download.downloadable.clone()
+                }
+                _ => None,
+            })
+            .ok_or(TransferError::NotOpenable)?
+        };
+        let downloadable = downloadable.lock().await;
+
+        Ok(downloadable.open().await?)
+    }
+
     fn process_next(self: Arc<Self>) {
         loop {
             let (id, abort_registration) = match self.store.mutate(|state, notify, _, _| {
                 let id = mutations::next_transfer(state, notify, self.runtime.now_ms())?;
 
-                let mut state = self.state.lock().unwrap();
+                let mut state = self.state.write().unwrap();
 
                 let (abort_handle, abort_registration) = AbortHandle::new_pair();
 
@@ -421,9 +446,9 @@ impl TransfersService {
         match res {
             Ok(Ok(send_result)) => {
                 self.store.mutate(|state, notify, _, _| {
-                    mutations::transfer_done(state, notify, id);
-
-                    self.state.lock().unwrap().transfers.remove(&id);
+                    if mutations::transfer_done(state, notify, id) {
+                        self.state.write().unwrap().transfers.remove(&id);
+                    }
                 });
 
                 // we send the result after the store is updated
@@ -439,7 +464,7 @@ impl TransfersService {
                         self.runtime.now_ms(),
                     );
 
-                    if let Some(state) = self.state.lock().unwrap().transfers.get_mut(&id) {
+                    if let Some(state) = self.state.write().unwrap().transfers.get_mut(&id) {
                         state.abort_handle = None;
                     }
                 });
@@ -492,53 +517,28 @@ impl TransfersService {
 
         let uploadable = self
             .state
-            .lock()
+            .read()
             .unwrap()
             .transfers
-            .get_mut(&id)
-            .and_then(|state| match &mut state.typ {
-                TransfersServiceTransferStateType::Upload(upload) => upload.uploadable.take(),
+            .get(&id)
+            .and_then(|state| match &state.typ {
+                TransfersServiceTransferStateType::Upload(upload) => upload.uploadable.clone(),
                 _ => None,
             })
             .ok_or(TransferError::TransferNotFound)?;
 
-        let rollback = |uploadable: BoxUploadable| {
-            if let Some(state) = self.state.lock().unwrap().transfers.get_mut(&id) {
-                match &mut state.typ {
-                    TransfersServiceTransferStateType::Upload(upload) => {
-                        upload.uploadable = Some(uploadable);
-                    }
-                    _ => {}
-                }
-            }
-        };
+        let (reader, size) = uploadable.reader().await?;
 
-        let (reader, size) = match uploadable.reader().await {
-            Ok(reader) => reader,
-            Err(err) => {
-                rollback(uploadable);
-
-                return Err(err.into());
-            }
-        };
-
-        let name = match self.store.mutate(|state, notify, _, _| {
+        let name = self.store.mutate(|state, notify, _, _| {
             mutations::upload_transfer_processed(state, notify, id, size)
-        }) {
-            Ok(name) => name,
-            Err(err) => {
-                rollback(uploadable);
-
-                return Err(err);
-            }
-        };
+        })?;
 
         let size = match size {
             SizeInfo::Exact(size) => Some(size),
             _ => None,
         };
 
-        match self
+        let res = self
             .repo_files_service
             .clone()
             .upload_file_reader(
@@ -550,51 +550,41 @@ impl TransfersService {
                 RepoFilesUploadConflictResolution::Error,
                 Some(self.clone().get_transfer_on_progress(id)),
             )
-            .await
-        {
-            Ok(res) => {
-                let sender = self
-                    .state
-                    .lock()
-                    .unwrap()
-                    .transfers
-                    .get_mut(&id)
-                    .and_then(|state| match &mut state.typ {
-                        TransfersServiceTransferStateType::Upload(upload) => {
-                            upload.result_sender.take()
-                        }
-                        _ => None,
-                    });
+            .await?;
 
-                Ok(Box::new(move || {
-                    if let Some(sender) = sender {
-                        let _ = sender.send(Ok(res));
-                    }
-                }))
-            }
-            Err(err) => {
-                rollback(uploadable);
+        let sender = self
+            .state
+            .write()
+            .unwrap()
+            .transfers
+            .get_mut(&id)
+            .and_then(|state| match &mut state.typ {
+                TransfersServiceTransferStateType::Upload(upload) => upload.result_sender.take(),
+                _ => None,
+            });
 
-                Err(err.into())
+        Ok(Box::new(move || {
+            if let Some(sender) = sender {
+                let _ = sender.send(Ok(res));
             }
-        }
+        }))
     }
 
     async fn process_download_transfer(
         self: Arc<Self>,
         id: u32,
     ) -> Result<Box<dyn FnOnce()>, TransferError> {
-        let (reader_provider, mut downloadable) = self
+        let (reader_provider, downloadable) = self
             .state
-            .lock()
+            .read()
             .unwrap()
             .transfers
-            .get_mut(&id)
-            .and_then(|state| match &mut state.typ {
+            .get(&id)
+            .and_then(|state| match &state.typ {
                 TransfersServiceTransferStateType::Download(download) => {
                     match (
-                        download.reader_provider.take(),
-                        download.downloadable.take(),
+                        download.reader_provider.clone(),
+                        download.downloadable.clone(),
                     ) {
                         (Some(reader_provider), Some(downloadable)) => {
                             Some((reader_provider, downloadable))
@@ -606,56 +596,23 @@ impl TransfersService {
             })
             .ok_or(TransferError::TransferNotFound)?;
 
-        let rollback = |reader_provider: RepoFileReaderProvider, downloadable: BoxDownloadable| {
-            if let Some(state) = self.state.lock().unwrap().transfers.get_mut(&id) {
-                match &mut state.typ {
-                    TransfersServiceTransferStateType::Download(download) => {
-                        download.reader_provider = Some(reader_provider);
-                        download.downloadable = Some(downloadable);
-                    }
-                    _ => {}
-                }
-            }
-        };
+        let mut downloadable = downloadable.lock().await;
 
-        let reader = match reader_provider.reader().await {
-            Ok(reader) => reader,
-            Err(err) => {
-                rollback(reader_provider, downloadable);
-
-                return Err(err.into());
-            }
-        };
-
-        self.store.mutate(|state, notify, _, _| {
-            mutations::download_transfer_processed(
-                state,
-                notify,
-                id,
-                reader.name.clone(),
-                reader.size,
-            )
-        })?;
+        let reader = reader_provider.reader().await?;
 
         let progress_reader =
             ProgressReader::new(reader.reader, self.clone().get_transfer_on_progress(id));
 
-        let mut writer = match downloadable
-            .writer(
-                reader.name.clone(),
-                reader.size,
-                reader.content_type,
-                reader.unique_name.clone(),
-            )
-            .await
-        {
-            Ok(writer) => writer,
-            Err(err) => {
-                rollback(reader_provider, downloadable);
+        let name = reader.name.clone();
+        let unique_name = reader.unique_name.clone();
 
-                return Err(err.into());
-            }
-        };
+        let (mut writer, name) = downloadable
+            .writer(name, reader.size, reader.content_type, unique_name)
+            .await?;
+
+        self.store.mutate(|state, notify, _, _| {
+            mutations::download_transfer_processed(state, notify, id, name, reader.size)
+        })?;
 
         let copy_res = io::copy_buf(
             BufReader::with_capacity(1024 * 1024, progress_reader),
@@ -670,8 +627,6 @@ impl TransfersService {
 
                 let _ = downloadable.done(Err(err.clone())).await;
 
-                rollback(reader_provider, downloadable);
-
                 return Err(err.into());
             }
         }
@@ -679,20 +634,15 @@ impl TransfersService {
         drop(writer);
 
         match copy_res {
-            Ok(_) => match downloadable.done(Ok(DownloadableStatus::Downloaded)).await {
-                Ok(_) => {}
-                Err(err) => {
-                    rollback(reader_provider, downloadable);
-
-                    return Err(err.into());
-                }
-            },
+            Ok(_) => {
+                downloadable
+                    .done(Ok(DownloadableStatus::Downloaded))
+                    .await?
+            }
             Err(err) => {
                 let err: DownloadableError = err.into();
 
                 let _ = downloadable.done(Err(err.clone())).await;
-
-                rollback(reader_provider, downloadable);
 
                 return Err(err.into());
             }
@@ -700,12 +650,14 @@ impl TransfersService {
 
         let sender = self
             .state
-            .lock()
+            .write()
             .unwrap()
             .transfers
             .get_mut(&id)
             .and_then(|state| match &mut state.typ {
                 TransfersServiceTransferStateType::Download(download) => {
+                    download.reader_provider = None;
+
                     download.result_sender.take()
                 }
                 _ => None,

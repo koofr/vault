@@ -47,6 +47,7 @@ pub fn create_transfer(
     size: SizeInfo,
     is_persistent: bool,
     is_retriable: bool,
+    is_openable: bool,
 ) {
     notify(store::Event::Transfers);
 
@@ -106,6 +107,7 @@ pub fn create_transfer(
         started: None,
         is_persistent,
         is_retriable,
+        is_openable,
         state: TransferState::Waiting,
         transferred_bytes: 0,
         attempts: 0,
@@ -281,7 +283,7 @@ pub fn transfer_progress(
     }
 }
 
-pub fn transfer_done(state: &mut store::State, notify: &store::Notify, id: u32) {
+pub fn transfer_done(state: &mut store::State, notify: &store::Notify, id: u32) -> bool {
     let remove = match state.transfers.transfers.get_mut(&id) {
         Some(transfer) => {
             notify(store::Event::Transfers);
@@ -296,6 +298,7 @@ pub fn transfer_done(state: &mut store::State, notify: &store::Notify, id: u32) 
             }
 
             if transfer.is_persistent {
+                transfer.started = None;
                 transfer.state = TransferState::Done;
             }
 
@@ -312,6 +315,8 @@ pub fn transfer_done(state: &mut store::State, notify: &store::Notify, id: u32) 
     }
 
     cleanup(state, notify);
+
+    remove
 }
 
 pub fn transfer_failed(
@@ -522,6 +527,7 @@ pub fn create_download_reader_transfer(
 ) {
     let is_persistent = false;
     let is_retriable = false;
+    let is_openable = false;
 
     create_transfer(
         state,
@@ -531,6 +537,7 @@ pub fn create_download_reader_transfer(
         size,
         is_persistent,
         is_retriable,
+        is_openable,
     );
 
     start_transfer(state, notify, id, now);
@@ -589,6 +596,7 @@ mod tests {
             SizeInfo::Exact(10),
             false,
             true,
+            false,
         );
 
         assert_eq!(
@@ -608,6 +616,7 @@ mod tests {
                 started: None,
                 is_persistent: false,
                 is_retriable: true,
+                is_openable: false,
                 state: TransferState::Waiting,
                 transferred_bytes: 0,
                 attempts: 0,
@@ -635,6 +644,7 @@ mod tests {
                 started: Some(2),
                 is_persistent: false,
                 is_retriable: true,
+                is_openable: false,
                 state: TransferState::Processing,
                 transferred_bytes: 0,
                 attempts: 1,
@@ -663,6 +673,7 @@ mod tests {
                 started: Some(2),
                 is_persistent: false,
                 is_retriable: true,
+                is_openable: false,
                 state: TransferState::Transferring,
                 transferred_bytes: 0,
                 attempts: 1,
@@ -712,6 +723,7 @@ mod tests {
             SizeInfo::Exact(10),
             false,
             true,
+            false,
         );
 
         assert_eq!(
@@ -731,6 +743,7 @@ mod tests {
                 started: None,
                 is_persistent: false,
                 is_retriable: true,
+                is_openable: false,
                 state: TransferState::Waiting,
                 transferred_bytes: 0,
                 attempts: 0,
@@ -758,6 +771,7 @@ mod tests {
                 started: Some(2),
                 is_persistent: false,
                 is_retriable: true,
+                is_openable: false,
                 state: TransferState::Processing,
                 transferred_bytes: 0,
                 attempts: 1,
@@ -786,6 +800,7 @@ mod tests {
                 started: Some(2),
                 is_persistent: false,
                 is_retriable: true,
+                is_openable: false,
                 state: TransferState::Transferring,
                 transferred_bytes: 0,
                 attempts: 1,
@@ -813,6 +828,7 @@ mod tests {
             SizeInfo::Exact(10),
             false,
             true,
+            false,
         );
 
         assert_eq!(
@@ -832,6 +848,7 @@ mod tests {
                 started: None,
                 is_persistent: false,
                 is_retriable: true,
+                is_openable: false,
                 state: TransferState::Waiting,
                 transferred_bytes: 0,
                 attempts: 0,
@@ -852,6 +869,7 @@ mod tests {
             SizeInfo::Exact(10),
             false,
             true,
+            false,
         );
 
         let (notify, _, _) = store_test_helpers::mutation();
@@ -881,6 +899,7 @@ mod tests {
                 started: Some(2),
                 is_persistent: false,
                 is_retriable: true,
+                is_openable: false,
                 state: TransferState::Processing,
                 transferred_bytes: 0,
                 attempts: 1,
@@ -909,6 +928,7 @@ mod tests {
                 started: Some(2),
                 is_persistent: false,
                 is_retriable: true,
+                is_openable: false,
                 state: TransferState::Transferring,
                 transferred_bytes: 0,
                 attempts: 1,

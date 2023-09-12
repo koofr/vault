@@ -669,6 +669,10 @@ impl Vault {
         self.transfers_service.clone().retry_all();
     }
 
+    pub async fn transfers_open(&self, id: u32) -> Result<(), transfers::errors::TransferError> {
+        self.transfers_service.clone().open(id).await
+    }
+
     // repo_files_browsers
 
     pub fn repo_files_browsers_create(

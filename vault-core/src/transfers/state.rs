@@ -88,6 +88,7 @@ pub struct Transfer {
     pub started: Option<i64>,
     pub is_persistent: bool,
     pub is_retriable: bool,
+    pub is_openable: bool,
     pub state: TransferState,
     pub transferred_bytes: i64,
     pub attempts: usize,

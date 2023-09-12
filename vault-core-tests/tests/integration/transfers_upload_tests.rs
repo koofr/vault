@@ -72,7 +72,7 @@ fn test_upload() {
                         transfers,
                         expected_transfers_transferring_progress(&repo_id, &transfers, 1)
                     ),
-                    5 => assert_eq!(transfers, expected_tranfers_done()),
+                    5 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -144,7 +144,7 @@ fn test_upload_name_path() {
                             patch
                         )
                     ),
-                    5 => assert_eq!(transfers, expected_tranfers_done()),
+                    5 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -231,7 +231,7 @@ fn test_upload_name_path_autorename() {
                             patch_processed
                         )
                     ),
-                    5 => assert_eq!(transfers, expected_tranfers_done()),
+                    5 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -315,7 +315,7 @@ fn test_upload_size_estimate() {
                             patch
                         ),
                     ),
-                    5 => assert_eq!(transfers, expected_tranfers_done()),
+                    5 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -415,7 +415,7 @@ fn test_upload_size_unknown() {
                             )
                         }
                     ),
-                    5 => assert_eq!(transfers, expected_tranfers_done()),
+                    5 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -505,7 +505,7 @@ fn test_upload_size_unknown_to_estimate() {
                             |t| t.size = SizeInfo::Estimate(4)
                         )
                     ),
-                    5 => assert_eq!(transfers, expected_tranfers_done()),
+                    5 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -587,7 +587,7 @@ fn test_upload_size_unknown_to_exact() {
                         transfers,
                         expected_transfers_transferring_progress(&repo_id, &transfers, 1)
                     ),
-                    5 => assert_eq!(transfers, expected_tranfers_done()),
+                    5 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -669,7 +669,7 @@ fn test_upload_size_estimate_to_exact() {
                         transfers,
                         expected_transfers_transferring_progress(&repo_id, &transfers, 1)
                     ),
-                    5 => assert_eq!(transfers, expected_tranfers_done()),
+                    5 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -860,7 +860,7 @@ fn test_upload_load_root_error() {
                             patch
                         ),
                     ),
-                    7 => assert_eq!(transfers, expected_tranfers_done()),
+                    7 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -1006,7 +1006,7 @@ fn test_upload_reader_error_retriable() {
                         transfers,
                         expected_transfers_transferring_progress(&repo_id, &transfers, 2)
                     ),
-                    7 => assert_eq!(transfers, expected_tranfers_done()),
+                    7 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -1074,7 +1074,7 @@ fn test_upload_abort_waiting() {
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
                     1 => assert_eq!(transfers, expected_transfers_waiting(&repo_id, &transfers)),
-                    2 => assert_eq!(transfers, expected_tranfers_done()),
+                    2 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -1117,7 +1117,7 @@ fn test_upload_abort_processing() {
                         transfers,
                         expected_transfers_processing(&repo_id, &transfers, 1)
                     ),
-                    3 => assert_eq!(transfers, expected_tranfers_done()),
+                    3 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -1164,7 +1164,7 @@ fn test_upload_abort_transferring() {
                         transfers,
                         expected_transfers_transferring(&repo_id, &transfers, 1)
                     ),
-                    4 => assert_eq!(transfers, expected_tranfers_done()),
+                    4 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -1259,6 +1259,7 @@ fn test_upload_abort_all() {
                                     started: None,
                                     is_persistent: false,
                                     is_retriable: true,
+                                    is_openable: false,
                                     state: TransferState::Waiting,
                                     transferred_bytes: 0,
                                     attempts: 0,
@@ -1307,6 +1308,7 @@ fn test_upload_abort_all() {
                                     ),
                                     is_persistent: false,
                                     is_retriable: true,
+                                    is_openable: false,
                                     state: TransferState::Processing,
                                     transferred_bytes: 0,
                                     attempts: 1,
@@ -1356,6 +1358,7 @@ fn test_upload_abort_all() {
                                         ),
                                         is_persistent: false,
                                         is_retriable: true,
+                                        is_openable: false,
                                         state: TransferState::Processing,
                                         transferred_bytes: 0,
                                         attempts: 1,
@@ -1379,6 +1382,7 @@ fn test_upload_abort_all() {
                                         started: None,
                                         is_persistent: false,
                                         is_retriable: true,
+                                        is_openable: false,
                                         state: TransferState::Waiting,
                                         transferred_bytes: 0,
                                         attempts: 0,
@@ -1429,6 +1433,7 @@ fn test_upload_abort_all() {
                                         ),
                                         is_persistent: false,
                                         is_retriable: true,
+                                        is_openable: false,
                                         state: TransferState::Processing,
                                         transferred_bytes: 0,
                                         attempts: 1,
@@ -1458,6 +1463,7 @@ fn test_upload_abort_all() {
                                         ),
                                         is_persistent: false,
                                         is_retriable: true,
+                                        is_openable: false,
                                         state: TransferState::Processing,
                                         transferred_bytes: 0,
                                         attempts: 1,
@@ -1485,7 +1491,7 @@ fn test_upload_abort_all() {
                         transfers,
                         TransfersState {
                             next_id: NextId(3),
-                            ..expected_tranfers_done()
+                            ..expected_transfers_done()
                         }
                     ),
                     _ => panic!("unexpected state: {:#?}", transfers),
@@ -1567,7 +1573,7 @@ fn test_upload_fail_autoretry_succeed() {
                             expected_transfers_transferring(&repo_id, &transfers, 2)
                         ),
                         // no progress because last_progress_update is set from the first attempt
-                        8 => assert_eq!(transfers, expected_tranfers_done()),
+                        8 => assert_eq!(transfers, expected_transfers_done()),
                         _ => panic!("unexpected state: {:#?}", transfers),
                     }
                 },
@@ -1685,7 +1691,7 @@ fn test_upload_fail_autoretry_fail() {
                         transfers,
                         expected_transfers_failed(&repo_id, &transfers, 5)
                     ),
-                    18 => assert_eq!(transfers, expected_tranfers_done()),
+                    18 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -1822,7 +1828,7 @@ fn test_upload_fail_autoretry_retry() {
                         transfers,
                         expected_transfers_transferring(&repo_id, &transfers, 6)
                     ),
-                    21 => assert_eq!(transfers, expected_tranfers_done()),
+                    21 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -1919,7 +1925,7 @@ fn test_upload_fail_autoretry_not_retriable() {
                             |t| { t.is_retriable = false }
                         )
                     ),
-                    8 => assert_eq!(transfers, expected_tranfers_done()),
+                    8 => assert_eq!(transfers, expected_transfers_done()),
                     _ => panic!("unexpected state: {:#?}", transfers),
                 },
             );
@@ -2044,6 +2050,7 @@ fn expected_transfers_waiting(repo_id: &str, transfers: &TransfersState) -> Tran
                 started: None,
                 is_persistent: false,
                 is_retriable: true,
+                is_openable: false,
                 state: TransferState::Waiting,
                 transferred_bytes: 0,
                 attempts: 0,
@@ -2096,6 +2103,7 @@ fn expected_transfers_processing(
                 ),
                 is_persistent: false,
                 is_retriable: true,
+                is_openable: false,
                 state: TransferState::Processing,
                 transferred_bytes: 0,
                 attempts,
@@ -2148,6 +2156,7 @@ fn expected_transfers_transferring(
                 ),
                 is_persistent: false,
                 is_retriable: true,
+                is_openable: false,
                 state: TransferState::Transferring,
                 transferred_bytes: 0,
                 attempts,
@@ -2200,6 +2209,7 @@ fn expected_transfers_transferring_progress(
                 ),
                 is_persistent: false,
                 is_retriable: true,
+                is_openable: false,
                 state: TransferState::Transferring,
                 transferred_bytes: 4,
                 attempts,
@@ -2246,6 +2256,7 @@ fn expected_transfers_waiting_failed(
                 started: None,
                 is_persistent: false,
                 is_retriable: true,
+                is_openable: false,
                 state: TransferState::Waiting,
                 transferred_bytes: 0,
                 attempts,
@@ -2292,6 +2303,7 @@ fn expected_transfers_failed(
                 started: None,
                 is_persistent: false,
                 is_retriable: true,
+                is_openable: false,
                 state: match &transfers.transfers.get(&1).unwrap().state {
                     TransferState::Failed { error } => TransferState::Failed {
                         error: error.clone(),
@@ -2320,7 +2332,7 @@ fn expected_transfers_failed(
     }
 }
 
-fn expected_tranfers_done() -> TransfersState {
+fn expected_transfers_done() -> TransfersState {
     TransfersState {
         next_id: NextId(2),
         ..Default::default()

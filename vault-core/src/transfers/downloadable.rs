@@ -14,6 +14,8 @@ pub enum DownloadableStatus {
 pub trait Downloadable {
     async fn is_retriable(&self) -> Result<bool, DownloadableError>;
 
+    async fn is_openable(&self) -> Result<bool, DownloadableError>;
+
     async fn exists(
         &mut self,
         name: String,
@@ -26,12 +28,14 @@ pub trait Downloadable {
         size: SizeInfo,
         content_type: Option<String>,
         unique_name: Option<String>,
-    ) -> Result<BoxAsyncWrite, DownloadableError>;
+    ) -> Result<(BoxAsyncWrite, String), DownloadableError>;
 
     async fn done(
         &self,
         res: Result<DownloadableStatus, DownloadableError>,
     ) -> Result<(), DownloadableError>;
+
+    async fn open(&self) -> Result<(), DownloadableError>;
 }
 
 pub type BoxDownloadable = Box<dyn Downloadable + Send + Sync>;
