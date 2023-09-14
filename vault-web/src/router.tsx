@@ -2,10 +2,8 @@ import { createBrowserRouter } from 'react-router-dom';
 
 import { AuthGuardLazy } from './pages/AuthGuardLazy';
 import { HomePageLazy } from './pages/HomePageLazy';
-import { LandingPageLazy } from './pages/LandingPageLazy';
 import { LoginPageLazy } from './pages/LoginPageLazy';
 import { NotFoundPageLazy } from './pages/NotFoundPageLazy';
-import { NotSupportedPageLazy } from './pages/NotSupportedPageLazy';
 import { OAuth2CallbackPageLazy } from './pages/OAuth2CallbackPageLazy';
 import { RepoConfigBackupPageLazy } from './pages/RepoConfigBackupPageLazy';
 import { RepoCreatePageLazy } from './pages/RepoCreatePageLazy';
@@ -56,19 +54,6 @@ export const createRouter = () => {
     {
       path: '*',
       element: <NotFoundPageLazy />,
-    },
-  ]);
-};
-
-export const createFallbackRouter = () => {
-  return createBrowserRouter([
-    {
-      path: '/login',
-      element: <NotSupportedPageLazy />,
-    },
-    {
-      path: '*',
-      element: <LandingPageLazy />,
     },
   ]);
 };

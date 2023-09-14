@@ -1,7 +1,6 @@
 /* eslint-disable react/jsx-no-target-blank */
 import { css, cx } from '@emotion/css';
-import { memo, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { memo } from 'react';
 import Typewriter from 'typewriter-effect';
 
 import arrowDownImage from '../assets/images/landing/arrow-down.png';
@@ -31,14 +30,12 @@ import step3Image from '../assets/images/landing/step-3.png';
 import step32xImage from '../assets/images/landing/step-3@2x.png';
 import vaultImage from '../assets/images/landing/vault.png';
 import vault2xImage from '../assets/images/landing/vault@2x.png';
-import { BaseLinkButton } from '../components/Button';
+import { BaseAnchorButton } from '../components/Button';
 import { GitRevision } from '../components/GitRevision';
 import { RetinaImage } from '../components/RetinaImage';
 import { buttonStyle } from '../styles/mixins/buttons';
 import { allStates } from '../styles/mixins/hover';
 import { useDocumentTitle } from '../utils/useDocumentTitle';
-
-import { setLoginRedirect } from './loginRedirect';
 
 const landingButtonStyle = buttonStyle(
   '#1683fb',
@@ -103,20 +100,7 @@ const TypingText = memo(() => {
 });
 
 export const LandingPage = memo(() => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const locationRelUrl = location.pathname + location.search;
   useDocumentTitle();
-
-  useEffect(() => {
-    if (locationRelUrl !== '/') {
-      setLoginRedirect(locationRelUrl);
-
-      navigate('/login', {
-        replace: true,
-      });
-    }
-  }, [navigate, locationRelUrl]);
 
   return (
     <div
@@ -166,8 +150,8 @@ export const LandingPage = memo(() => {
             align-items: center;
           `}
         >
-          <BaseLinkButton
-            to="/login"
+          <BaseAnchorButton
+            href="/login"
             className={cx(
               landingButtonStyle,
               css`
@@ -192,7 +176,7 @@ export const LandingPage = memo(() => {
             )}
           >
             Get started
-          </BaseLinkButton>
+          </BaseAnchorButton>
         </div>
       </div>
 
@@ -298,8 +282,8 @@ export const LandingPage = memo(() => {
             security for your most sensitive files with Koofr Vault.
           </p>
 
-          <BaseLinkButton
-            to="/login"
+          <BaseAnchorButton
+            href="/login"
             className={cx(
               landingButtonStyle,
               css`
@@ -318,7 +302,7 @@ export const LandingPage = memo(() => {
             )}
           >
             Get started
-          </BaseLinkButton>
+          </BaseAnchorButton>
         </div>
 
         <div
@@ -1281,8 +1265,8 @@ export const LandingPage = memo(() => {
             .
           </p>
 
-          <BaseLinkButton
-            to="/login"
+          <BaseAnchorButton
+            href="/login"
             className={cx(
               landingButtonStyle,
               css`
@@ -1294,7 +1278,7 @@ export const LandingPage = memo(() => {
             )}
           >
             Get started
-          </BaseLinkButton>
+          </BaseAnchorButton>
         </div>
         <p
           className={css`

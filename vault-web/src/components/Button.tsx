@@ -33,6 +33,8 @@ export const BaseButton = styled(RestartUIButton)`
 
 export const BaseLinkButton = BaseButton.withComponent(Link);
 
+export const BaseAnchorButton = BaseButton.withComponent('a');
+
 export type ButtonVariant =
   | 'primary'
   | 'primary-inline'
