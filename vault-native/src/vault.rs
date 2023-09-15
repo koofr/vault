@@ -11,7 +11,9 @@ use crate::{
 };
 
 pub fn accept_invalid_certs(base_url: &str) -> bool {
-    base_url.starts_with("https://127.0.0.1:") || base_url.starts_with("https://localhost:")
+    base_url.starts_with("https://127.0.0.1:")
+        || base_url.starts_with("https://localhost:")
+        || base_url.starts_with("https://10.0.2.2:")
 }
 
 pub fn build_vault(
