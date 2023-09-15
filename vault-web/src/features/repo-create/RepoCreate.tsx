@@ -6,8 +6,9 @@ import { useSingleNavbarBreadcrumb } from '../../components/navbar/useSingleNavb
 import { useDocumentTitle } from '../../utils/useDocumentTitle';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
+
+import { RepoCreateCreatedComponent } from './RepoCreateCreatedComponent';
 import { RepoCreateFormComponent } from './RepoCreateFormComponent';
-import { RepoCreatedComponent } from './RepoCreatedComponent';
 
 export const RepoCreate = memo(() => {
   const webVault = useWebVault();
@@ -30,7 +31,7 @@ export const RepoCreate = memo(() => {
       {info?.type === 'Form' ? (
         <RepoCreateFormComponent createId={createId} form={info} />
       ) : info?.type === 'Created' ? (
-        <RepoCreatedComponent created={info} />
+        <RepoCreateCreatedComponent created={info} />
       ) : (
         <LoadingCircle />
       )}

@@ -8,7 +8,7 @@ import { RepoCreated } from '../../vault-wasm/vault-wasm';
 
 import { RepoConfigInfo } from '../repo/RepoConfigInfo';
 
-export const RepoCreatedComponent = memo<{ created: RepoCreated }>(
+export const RepoCreateCreatedComponent = memo<{ created: RepoCreated }>(
   ({ created }) => {
     const theme = useTheme();
     const navigate = useNavigate();
