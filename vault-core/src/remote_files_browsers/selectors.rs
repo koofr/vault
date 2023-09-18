@@ -1,7 +1,10 @@
 use crate::{
     remote_files::{
         selectors as remote_files_selectors,
-        state::{Mount, RemoteFile, RemoteFileType, RemoteFilesSort, RemoteFilesSortField},
+        state::{
+            Mount, MountOrigin, MountType, RemoteFile, RemoteFileType, RemoteFilesSort,
+            RemoteFilesSortField,
+        },
     },
     selection::{selectors as selection_selectors, state::SelectionSummary},
     store,
@@ -11,7 +14,7 @@ use crate::{
 use super::state::{
     RemoteFilesBrowser, RemoteFilesBrowserBreadcrumb, RemoteFilesBrowserInfo,
     RemoteFilesBrowserItem, RemoteFilesBrowserItemInfo, RemoteFilesBrowserItemType,
-    RemoteFilesBrowserLocation, RemoteFilesBrowserLocationFiles,
+    RemoteFilesBrowserLocation, RemoteFilesBrowserLocationFiles, RemoteFilesBrowserOptions,
 };
 
 pub const ITEM_ID_HOME: &'static str = "";
@@ -194,7 +197,10 @@ pub fn select_browser_location<'a>(
     select_browser(state, browser_id).and_then(|browser| browser.location.as_ref())
 }
 
-pub fn select_home_items(state: &store::State) -> Vec<RemoteFilesBrowserItem> {
+pub fn select_home_items(
+    state: &store::State,
+    options: &RemoteFilesBrowserOptions,
+) -> Vec<RemoteFilesBrowserItem> {
     let mut items = vec![];
 
     let bookmarks_files = remote_files_selectors::select_bookmarks_files(state);
@@ -206,13 +212,21 @@ pub fn select_home_items(state: &store::State) -> Vec<RemoteFilesBrowserItem> {
     let places_mount_files = remote_files_selectors::select_places_mount_files(state);
 
     for (mount, file) in places_mount_files {
+        if options.only_hosted_devices
+            && (mount.typ != MountType::Device || mount.origin != MountOrigin::Hosted)
+        {
+            continue;
+        }
+
         items.push(get_place_item(mount, file));
     }
 
-    let shared_mount_files = remote_files_selectors::select_shared_mount_files(state);
+    if !options.only_hosted_devices {
+        let shared_mount_files = remote_files_selectors::select_shared_mount_files(state);
 
-    if shared_mount_files.len() > 0 {
-        items.push(get_shared_item());
+        if shared_mount_files.len() > 0 {
+            items.push(get_shared_item());
+        }
     }
 
     items

@@ -113,7 +113,9 @@ pub fn update_items(state: &mut store::State, notify: &store::Notify, browser_id
         .location
         .as_ref()
         .map(|location| match location {
-            RemoteFilesBrowserLocation::Home => selectors::select_home_items(state),
+            RemoteFilesBrowserLocation::Home => {
+                selectors::select_home_items(state, &browser.options)
+            }
             RemoteFilesBrowserLocation::Bookmarks => {
                 selectors::sort_items(selectors::select_bookmarks_items(state), &browser.sort)
             }
