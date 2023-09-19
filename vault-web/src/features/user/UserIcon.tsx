@@ -2,9 +2,9 @@ import { css } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { memo, useMemo } from 'react';
 
-import { User } from '../vault-wasm/vault-wasm';
-import { useSubscribe } from '../webVault/useSubscribe';
-import { useWebVault } from '../webVault/useWebVault';
+import { User } from '../../vault-wasm/vault-wasm';
+import { useSubscribe } from '../../webVault/useSubscribe';
+import { useWebVault } from '../../webVault/useWebVault';
 
 const UserIconLoading = memo(() => {
   const theme = useTheme();

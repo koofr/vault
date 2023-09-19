@@ -3,7 +3,7 @@ import Dropdown from '@restart/ui/Dropdown';
 import { useDropdownToggle } from '@restart/ui/DropdownToggle';
 import { memo, useState } from 'react';
 
-import { UserIcon } from '../UserIcon';
+import { UserIcon } from '../../features/user/UserIcon';
 
 import { DashboardMenu } from './DashboardMenu';
 

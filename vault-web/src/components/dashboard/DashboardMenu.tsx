@@ -7,11 +7,11 @@ import { ReactComponent as DirPickerItemHostedHoverIcon } from '../../assets/ima
 import { ReactComponent as DirPickerItemHostedIcon } from '../../assets/images/dir-picker-item-hosted.svg';
 import { ReactComponent as LogoutHoverIcon } from '../../assets/images/logout-hover.svg';
 import { ReactComponent as LogoutIcon } from '../../assets/images/logout.svg';
+import { UserIcon } from '../../features/user/UserIcon';
 import { allStates } from '../../styles/mixins/hover';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
 
-import { UserIcon } from '../UserIcon';
 import { Menu, MenuBaseItem, MenuDivider, MenuItem } from '../menu/Menu';
 import { useMenuUpdate } from '../menu/useMenuUpdate';
 
