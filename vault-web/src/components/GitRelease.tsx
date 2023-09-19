@@ -2,18 +2,18 @@ import { css } from '@emotion/css';
 import { memo } from 'react';
 import { allStates } from '../styles/mixins/hover';
 
-export const GitRevision = memo<{ className?: string }>(({ className }) => {
-  const gitRevision = import.meta.env.VITE_GIT_REVISION;
+export const GitRelease = memo<{ className?: string }>(({ className }) => {
+  const gitRelease = import.meta.env.VITE_GIT_RELEASE;
 
-  if (gitRevision == null || gitRevision === '') {
+  if (gitRelease == null || gitRelease === '') {
     return null;
   }
 
   return (
     <div className={className}>
-      Git revision:{' '}
+      Version:{' '}
       <a
-        href={`https://github.com/koofr/vault/commit/${gitRevision}`}
+        href={`https://github.com/koofr/vault/releases/tag/${gitRelease}`}
         target="_blank"
         rel="noreferrer"
         className={css`
@@ -22,7 +22,7 @@ export const GitRevision = memo<{ className?: string }>(({ className }) => {
           }
         `}
       >
-        {gitRevision}
+        {gitRelease}
       </a>
     </div>
   );

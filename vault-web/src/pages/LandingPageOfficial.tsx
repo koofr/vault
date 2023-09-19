@@ -31,6 +31,7 @@ import step32xImage from '../assets/images/landing/step-3@2x.png';
 import vaultImage from '../assets/images/landing/vault.png';
 import vault2xImage from '../assets/images/landing/vault@2x.png';
 import { BaseAnchorButton } from '../components/Button';
+import { GitRelease } from '../components/GitRelease';
 import { GitRevision } from '../components/GitRevision';
 import { RetinaImage } from '../components/RetinaImage';
 import { buttonStyle } from '../styles/mixins/buttons';
@@ -1344,13 +1345,16 @@ export const LandingPageOfficial = memo(() => {
           all rights reserved.
         </p>
 
-        <GitRevision
+        <div
           className={css`
             font-size: 13px;
             color: #011722;
             text-align: center;
           `}
-        />
+        >
+          <GitRelease />
+          <GitRevision />
+        </div>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { memo } from 'react';
 
 import { ReactComponent as LogoImage } from '../assets/images/landing/logo.svg';
 import { BaseAnchorButton } from '../components/Button';
+import { GitRelease } from '../components/GitRelease';
 import { GitRevision } from '../components/GitRevision';
 import { buttonStyle } from '../styles/mixins/buttons';
 import { allStates } from '../styles/mixins/hover';
@@ -198,13 +199,16 @@ export const LandingPageUnofficial = memo(() => {
           all rights reserved.
         </p>
 
-        <GitRevision
+        <div
           className={css`
             font-size: 13px;
             color: #011722;
             text-align: center;
           `}
-        />
+        >
+          <GitRelease />
+          <GitRevision />
+        </div>
       </div>
     </div>
   );

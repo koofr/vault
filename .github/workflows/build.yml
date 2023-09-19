@@ -15,7 +15,8 @@ jobs:
       - name: Build static files
         run: |
           GIT_REVISION=$(git rev-parse --short HEAD)
-          docker buildx build --build-arg GIT_REVISION="$GIT_REVISION" --target static-stage -t vault-static --cache-from=type=gha --cache-to=type=gha,mode=max --load .
+          GIT_RELEASE=$(git describe --tags --exact-match 2> /dev/null || echo -n '')
+          docker buildx build --build-arg GIT_REVISION="$GIT_REVISION" --build-arg GIT_RELEASE="$GIT_RELEASE" --target static-stage -t vault-static --cache-from=type=gha --cache-to=type=gha,mode=max --load .
           docker run --rm vault-static cat vault-web.tar.gz > vault-web.tar.gz
           sha256sum vault-web.tar.gz | awk '{print $1}' > vault-web.tar.gz.sha256
           docker run --rm vault-static cat vault-wasm-nodejs.tar.gz > vault-wasm-nodejs.tar.gz

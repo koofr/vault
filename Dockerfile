@@ -33,6 +33,10 @@ RUN cargo chef cook --recipe-path recipe.json --target wasm32-unknown-unknown --
   && cd vault-wasm \
   # this downloads wasm-opt but the version is pinned so it is reproducible
   && wasm-pack build --target web --out-name vault-wasm
+ARG GIT_REVISION=unknown
+ARG GIT_RELEASE=
+ENV GIT_REVISION=${GIT_REVISION}
+ENV GIT_RELEASE=${GIT_RELEASE}
 COPY . .
 RUN sed -i 's/# lto = true/lto = true/' Cargo.toml
 RUN cd vault-wasm \
@@ -48,6 +52,7 @@ RUN cd vault-wasm \
 FROM node@sha256:0eb54d5716d8cf0dd313a8658dae30bf553edcac2d73f85ceee1a78abf7fdaa5 AS frontend-stage
 WORKDIR /app
 ARG GIT_REVISION=unknown
+ARG GIT_RELEASE=
 COPY vault-web/package.json vault-web/package.json
 COPY vault-web/package-lock.json vault-web/package-lock.json
 RUN cd vault-web && npm ci
@@ -55,8 +60,9 @@ COPY vault-web vault-web
 COPY --from=wasm-stage /app/vault-wasm/vault-wasm-web vault-web/src/vault-wasm
 RUN cd vault-web && node_modules/.bin/tsc
 RUN cd vault-web && node_modules/.bin/eslint src
-RUN cd vault-web && VITE_GIT_REVISION=${GIT_REVISION} node_modules/.bin/vite build
+RUN cd vault-web && VITE_GIT_REVISION=${GIT_REVISION} VITE_GIT_RELEASE=${GIT_RELEASE} node_modules/.bin/vite build
 RUN echo -n ${GIT_REVISION} > vault-web/dist/gitrevision.txt
+RUN echo -n ${GIT_RELEASE} > vault-web/dist/gitrelease.txt
 
 ### static
 

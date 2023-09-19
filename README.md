@@ -29,7 +29,7 @@ You can now open http://localhost:5173 in your browser.
 Alternatively, you can build static files, which will produce `vault-web.tar.gz` file with the static files:
 
 ```sh
-docker build --build-arg GIT_REVISION=$(git rev-parse --short HEAD) --target static-stage -t vault-static .
+docker build --build-arg GIT_REVISION=$(git rev-parse --short HEAD) --build-arg GIT_RELEASE=$(git describe --tags --exact-match 2> /dev/null || echo -n '') --target static-stage -t vault-static .
 
 docker run --rm vault-static cat vault-web.tar.gz > vault-web.tar.gz
 ```

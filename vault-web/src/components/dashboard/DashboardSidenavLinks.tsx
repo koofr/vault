@@ -5,8 +5,9 @@ import { memo } from 'react';
 import { buttonReset } from '../../styles/mixins/buttons';
 import { allStates } from '../../styles/mixins/hover';
 import { useWebVault } from '../../webVault/useWebVault';
-import { GitRevision } from '../GitRevision';
 
+import { GitRelease } from '../GitRelease';
+import { GitRevision } from '../GitRevision';
 import { IntroModalLazy } from '../intro/IntroModalLazy';
 import { useIntro } from '../intro/useIntro';
 
@@ -71,12 +72,15 @@ export const DashboardSidenavLinks = memo(() => {
           </a>
         </div>
 
-        <GitRevision
+        <div
           className={css`
             font-size: 12px;
             text-align: center;
           `}
-        />
+        >
+          <GitRelease />
+          <GitRevision />
+        </div>
       </footer>
 
       <IntroModalLazy isVisible={intro.isVisible} hide={intro.hide} />
