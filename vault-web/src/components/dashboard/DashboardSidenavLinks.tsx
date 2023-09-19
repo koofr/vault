@@ -33,7 +33,7 @@ export const DashboardSidenavLinks = memo(() => {
           `}
         >
           <a
-            href={`${baseUrl}/app/help-center`}
+            href="https://koofr.eu/help/koofr-vault/"
             target="_blank"
             rel="noreferrer"
             className={css`
