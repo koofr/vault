@@ -245,6 +245,15 @@ pub fn clear_selection(state: &mut store::State, browser_id: u32) {
     selection_mutations::clear_selection(&mut browser.selection);
 }
 
+pub fn set_selection(state: &mut store::State, browser_id: u32, selection: Vec<String>) {
+    let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
+        Some(browser) => browser,
+        _ => return,
+    };
+
+    selection_mutations::set_selection(&mut browser.selection, selection);
+}
+
 pub fn sort_by(state: &mut store::State, browser_id: u32, field: RepoFilesSortField) {
     let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,

@@ -396,6 +396,11 @@ impl Vault {
             .clear_selection(browser_id)
     }
 
+    pub fn remote_files_browsers_set_selection(&self, browser_id: u32, selection: Vec<String>) {
+        self.remote_files_browsers_service
+            .set_selection(browser_id, selection)
+    }
+
     pub fn remote_files_browsers_sort_by(
         &self,
         browser_id: u32,
@@ -722,6 +727,11 @@ impl Vault {
 
     pub fn repo_files_browsers_clear_selection(&self, browser_id: u32) {
         self.repo_files_browsers_service.clear_selection(browser_id)
+    }
+
+    pub fn repo_files_browsers_set_selection(&self, browser_id: u32, selection: Vec<String>) {
+        self.repo_files_browsers_service
+            .set_selection(browser_id, selection)
     }
 
     pub fn repo_files_browsers_sort_by(

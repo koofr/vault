@@ -177,6 +177,12 @@ impl RemoteFilesBrowsersService {
         });
     }
 
+    pub fn set_selection(&self, browser_id: u32, selection: Vec<String>) {
+        self.store.mutate(|state, notify, _, _| {
+            mutations::set_selection(state, notify, browser_id, selection);
+        });
+    }
+
     pub fn sort_by(&self, browser_id: u32, field: RemoteFilesSortField) {
         self.store.mutate(|state, notify, _, _| {
             mutations::sort_by(state, notify, browser_id, field);

@@ -206,6 +206,14 @@ impl RepoFilesBrowsersService {
         });
     }
 
+    pub fn set_selection(&self, browser_id: u32, selection: Vec<String>) {
+        self.store.mutate(|state, notify, _, _| {
+            notify(store::Event::RepoFilesBrowsers);
+
+            mutations::set_selection(state, browser_id, selection);
+        });
+    }
+
     pub fn sort_by(&self, browser_id: u32, field: RepoFilesSortField) {
         self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoFilesBrowsers);

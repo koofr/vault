@@ -225,6 +225,22 @@ pub fn clear_selection(state: &mut store::State, notify: &store::Notify, browser
     selection_mutations::clear_selection(&mut browser.selection);
 }
 
+pub fn set_selection(
+    state: &mut store::State,
+    notify: &store::Notify,
+    browser_id: u32,
+    selection: Vec<String>,
+) {
+    let browser = match state.remote_files_browsers.browsers.get_mut(&browser_id) {
+        Some(browser) => browser,
+        _ => return,
+    };
+
+    notify(store::Event::RemoteFilesBrowsers);
+
+    selection_mutations::set_selection(&mut browser.selection, selection);
+}
+
 pub fn sort_by(
     state: &mut store::State,
     notify: &store::Notify,
