@@ -34,16 +34,17 @@ pub fn select_repo_info<'a>(state: &'a store::State, repo_id: &str) -> RepoInfo<
 
     let status = match &state.repos.status {
         Status::Initial => Status::Initial,
-        Status::Loading => Status::Loading,
+        Status::Loading { loaded } => Status::Loading { loaded: *loaded },
         Status::Loaded => match repo {
             Ok(_) => Status::Loaded,
             Err(ref err) => Status::Error {
                 error: RepoInfoError::RepoNotFound(err.clone()),
+                loaded: true,
             },
         },
-        Status::Reloading => Status::Reloading,
-        Status::Error { error } => Status::Error {
+        Status::Error { error, loaded } => Status::Error {
             error: RepoInfoError::RemoteError(error.clone()),
+            loaded: *loaded,
         },
     };
 

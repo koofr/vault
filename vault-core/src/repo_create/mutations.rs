@@ -19,7 +19,7 @@ pub fn create(state: &mut store::State, notify: &store::Notify, salt: String) ->
     let create_id = state.repo_creates.next_id.next();
 
     let repo_create = RepoCreate::Form(RepoCreateForm {
-        create_load_status: Status::Loading,
+        create_load_status: Status::Loading { loaded: false },
         primary_mount_id: None,
         location: None,
         location_dir_picker_id: None,
@@ -54,8 +54,19 @@ pub fn create_loaded(
         Err(remote::RemoteError::ApiError {
             code: remote::ApiErrorCode::NotFound,
             ..
-        }) => (Status::Loading, None),
-        Err(err) => (Status::Error { error: err }, None),
+        }) => (
+            Status::Loading {
+                loaded: form.create_load_status.loaded(),
+            },
+            None,
+        ),
+        Err(err) => (
+            Status::Error {
+                error: err,
+                loaded: form.create_load_status.loaded(),
+            },
+            None,
+        ),
     };
 
     form.create_load_status = create_load_status;
@@ -216,7 +227,9 @@ pub fn repo_creating(
 
     notify(store::Event::RepoCreate);
 
-    form.create_repo_status = Status::Loading;
+    form.create_repo_status = Status::Loading {
+        loaded: form.create_repo_status.loaded(),
+    };
 
     Some(form.clone())
 }
@@ -239,7 +252,10 @@ pub fn repo_created(
         Err(err) => {
             match state.repo_creates.creates.get_mut(&create_id) {
                 Some(RepoCreate::Form(ref mut form)) => {
-                    form.create_repo_status = Status::Error { error: err };
+                    form.create_repo_status = Status::Error {
+                        error: err,
+                        loaded: form.create_repo_status.loaded(),
+                    };
                 }
                 _ => (),
             };

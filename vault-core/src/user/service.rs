@@ -44,7 +44,9 @@ impl UserService {
             notify(store::Event::User);
 
             if let Some(ref mut user) = state.user.user {
-                user.profile_picture_status = Status::Loading;
+                user.profile_picture_status = Status::Loading {
+                    loaded: user.profile_picture_status.loaded(),
+                };
             }
         });
 
@@ -59,7 +61,10 @@ impl UserService {
                     notify(store::Event::User);
 
                     if let Some(ref mut user) = state.user.user {
-                        user.profile_picture_status = Status::Error { error: err.clone() };
+                        user.profile_picture_status = Status::Error {
+                            error: err.clone(),
+                            loaded: user.profile_picture_status.loaded(),
+                        };
                     }
                 });
 

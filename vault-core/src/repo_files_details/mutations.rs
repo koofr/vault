@@ -55,19 +55,17 @@ pub fn create(
     let details_id = state.repo_files_details.next_id.next();
 
     let status = match &location {
-        Ok(location) => {
-            if repo_files_selectors::select_file(
+        Ok(location) => Status::Loading {
+            loaded: repo_files_selectors::select_file(
                 state,
                 &repo_files_selectors::get_file_id(&location.repo_id, &location.path),
             )
-            .is_some()
-            {
-                Status::Reloading
-            } else {
-                Status::Loading
-            }
-        }
-        Err(err) => Status::Error { error: err.clone() },
+            .is_some(),
+        },
+        Err(err) => Status::Error {
+            error: err.clone(),
+            loaded: false,
+        },
     };
 
     let details = RepoFilesDetails {
@@ -115,6 +113,7 @@ pub fn loaded(
         details.status = match error {
             Some(error) => Status::Error {
                 error: error.clone(),
+                loaded: details.status.loaded(),
             },
             None => Status::Loaded,
         };
@@ -153,9 +152,11 @@ pub fn content_loading(
     };
 
     location.content.status = match location.content.status {
-        Status::Initial => Status::Loading,
-        Status::Loaded | Status::Error { .. } => Status::Reloading,
-        Status::Loading | Status::Reloading => return Err(LoadContentError::AlreadyLoading),
+        Status::Initial => Status::Loading { loaded: false },
+        Status::Loaded | Status::Error { .. } => Status::Loading {
+            loaded: location.content.status.loaded(),
+        },
+        Status::Loading { .. } => return Err(LoadContentError::AlreadyLoading),
     };
     location.content.loading = loading;
 
@@ -183,9 +184,8 @@ pub fn file_reader_loading(
         _ => return Err(GetFilesReaderError::FileNotFound),
     };
 
-    location.content.status = match location.content.status {
-        Status::Initial | Status::Loading | Status::Reloading => Status::Loading,
-        Status::Loaded | Status::Error { .. } => Status::Reloading,
+    location.content.status = Status::Loading {
+        loaded: location.content.status.loaded(),
     };
     location.content.loading = loading;
 
@@ -215,7 +215,7 @@ pub fn content_loaded(
 
     location.content.loading = None;
 
-    if location.is_dirty || matches!(location.save_status, Status::Loading) {
+    if location.is_dirty || matches!(location.save_status, Status::Loading { .. }) {
         location.content.status = Status::Loaded;
     } else {
         match res {
@@ -227,7 +227,10 @@ pub fn content_loaded(
                 notify(store::Event::RepoFilesDetailsContentData);
             }
             Err(err) => {
-                location.content.status = Status::Error { error: err };
+                location.content.status = Status::Error {
+                    error: err,
+                    loaded: location.content.status.loaded(),
+                };
             }
         }
     }
@@ -336,7 +339,9 @@ pub fn saving(
         _ => return Err(SaveError::InvalidState),
     };
 
-    location.save_status = Status::Loading;
+    location.save_status = Status::Loading {
+        loaded: location.save_status.loaded(),
+    };
 
     notify(store::Event::RepoFilesDetails);
 
@@ -393,7 +398,10 @@ pub fn saved(
                     }
                 }
                 err => {
-                    location.save_status = Status::Error { error: err };
+                    location.save_status = Status::Error {
+                        error: err,
+                        loaded: location.save_status.loaded(),
+                    };
                 }
             };
         }
@@ -408,7 +416,9 @@ pub fn deleting(state: &mut store::State, notify: &store::Notify, details_id: u3
 
     notify(store::Event::RepoFilesDetails);
 
-    location.delete_status = Status::Loading;
+    location.delete_status = Status::Loading {
+        loaded: location.delete_status.loaded(),
+    };
 }
 
 pub fn deleted(
@@ -433,7 +443,10 @@ pub fn deleted(
             location.delete_status = Status::Initial;
         }
         Err(err) => {
-            location.delete_status = Status::Error { error: err };
+            location.delete_status = Status::Error {
+                error: err,
+                loaded: location.delete_status.loaded(),
+            };
         }
     }
 }

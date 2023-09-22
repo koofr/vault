@@ -1560,6 +1560,26 @@ impl WebVault {
         .into()
     }
 
+    #[wasm_bindgen(js_name = repoFilesDetailsLoadFile)]
+    pub async fn repo_files_details_load_file(&self, details_id: u32) {
+        // error is displayed in the details component
+        let _ = self
+            .vault
+            .clone()
+            .repo_files_details_load_file(details_id)
+            .await;
+    }
+
+    #[wasm_bindgen(js_name = repoFilesDetailsLoadContent)]
+    pub async fn repo_files_details_load_content(&self, details_id: u32) {
+        // error is displayed in the details component
+        let _ = self
+            .vault
+            .clone()
+            .repo_files_details_load_content(details_id)
+            .await;
+    }
+
     #[wasm_bindgen(js_name = repoFilesDetailsGetFileStream)]
     pub async fn repo_files_details_get_file_stream(
         &self,

@@ -215,7 +215,7 @@ impl RepoFilesDetailsService {
         Ok(())
     }
 
-    async fn load_file(&self, details_id: u32) -> Result<(), LoadFilesError> {
+    pub async fn load_file(&self, details_id: u32) -> Result<(), LoadDetailsError> {
         if let Some((repo_id, path)) = self
             .store
             .with_state(|state| selectors::select_repo_id_path_owned(state, details_id))
@@ -234,7 +234,7 @@ impl RepoFilesDetailsService {
         Ok(())
     }
 
-    async fn load_content(self: Arc<Self>, details_id: u32) -> Result<(), LoadContentError> {
+    pub async fn load_content(self: Arc<Self>, details_id: u32) -> Result<(), LoadContentError> {
         let file = self
             .store
             .mutate(|state, notify, _, _| mutations::content_loading(state, notify, details_id))?;

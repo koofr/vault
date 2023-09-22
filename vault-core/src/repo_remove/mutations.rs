@@ -33,7 +33,9 @@ pub fn removing(
 
     notify(store::Event::RepoRemove);
 
-    remove.status = Status::Loading;
+    remove.status = Status::Loading {
+        loaded: remove.status.loaded(),
+    };
 
     Ok(remove.repo_id.clone())
 }
@@ -53,7 +55,10 @@ pub fn removed(
 
     remove.status = match res {
         Ok(()) => Status::Loaded,
-        Err(err) => Status::Error { error: err },
+        Err(err) => Status::Error {
+            error: err,
+            loaded: remove.status.loaded(),
+        },
     };
 
     Ok(())

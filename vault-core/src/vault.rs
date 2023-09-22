@@ -819,6 +819,23 @@ impl Vault {
             .await
     }
 
+    pub async fn repo_files_details_load_file(
+        &self,
+        details_id: u32,
+    ) -> Result<(), repo_files_details::errors::LoadDetailsError> {
+        self.repo_files_details_service.load_file(details_id).await
+    }
+
+    pub async fn repo_files_details_load_content(
+        &self,
+        details_id: u32,
+    ) -> Result<(), repo_files_details::errors::LoadContentError> {
+        self.repo_files_details_service
+            .clone()
+            .load_content(details_id)
+            .await
+    }
+
     pub async fn repo_files_details_get_file_reader(
         &self,
         details_id: u32,

@@ -9,6 +9,7 @@ import { useDocumentTitle } from '../../../utils/useDocumentTitle';
 import { usePreventUnload } from '../../../utils/usePreventUnload';
 import { Repo } from '../../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../../webVault/useSubscribe';
+import { useWebVault } from '../../../webVault/useWebVault';
 
 import { Transfers } from '../../transfers/Transfers';
 
@@ -26,6 +27,7 @@ const RepoFilesDetailsInner = memo<{
   autosaveIntervalMs?: number;
   expectedNewPath: MutableRefObject<string | undefined>;
 }>(({ repo, path, isEditing, autosaveIntervalMs, expectedNewPath }) => {
+  const webVault = useWebVault();
   const navigate = useNavigate();
   const detailsId = useDetails(repo.id, path, isEditing, autosaveIntervalMs);
 
@@ -74,8 +76,6 @@ const RepoFilesDetailsInner = memo<{
     return null;
   }
 
-  // const file = info?.file;
-
   const contentEl = getContentEl(
     detailsId,
     info.fileName,
@@ -98,11 +98,15 @@ const RepoFilesDetailsInner = memo<{
         `}
       >
         {info.status.type === 'Error' && !info.isDirty ? (
-          <ErrorComponent error={info.status.error} />
+          <ErrorComponent
+            error={info.status.error}
+            onRetry={() => {
+              webVault.repoFilesDetailsLoadFile(detailsId);
+            }}
+          />
         ) : contentEl !== undefined ? (
           contentEl
-        ) : info.status.type === 'Loading' ||
-          info.status.type === 'Reloading' ? (
+        ) : info.status.type === 'Loading' ? (
           <LoadingCircle />
         ) : null}
       </main>

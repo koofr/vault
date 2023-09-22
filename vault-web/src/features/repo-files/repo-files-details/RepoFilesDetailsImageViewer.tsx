@@ -16,7 +16,7 @@ export const RepoFilesDetailsImageViewer = memo<{
   const blobUrl = useRepoFilesDetailsBlobUrl(detailsId);
 
   return contentStatus === undefined ||
-    contentStatus.type === 'Loading' ||
+    (contentStatus.type === 'Loading' && !contentStatus.loaded) ||
     blobUrl === undefined ? (
     <LoadingCircle />
   ) : (

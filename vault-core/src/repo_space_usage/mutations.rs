@@ -43,7 +43,9 @@ pub fn calculating(
 
     notify(store::Event::RepoSpaceUsage);
 
-    usage.status = Status::Loading;
+    usage.status = Status::Loading {
+        loaded: usage.status.loaded(),
+    };
 
     Ok(location)
 }
@@ -64,7 +66,10 @@ pub fn calculated(
 
     usage.status = match res {
         Ok(()) => Status::Loaded,
-        Err(err) => Status::Error { error: err },
+        Err(err) => Status::Error {
+            error: err,
+            loaded: usage.status.loaded(),
+        },
     };
 
     usage.space_used = space_used;

@@ -21,15 +21,17 @@ fn get_initial_status(
     location: Result<&RepoFilesBrowserLocation, &LoadFilesError>,
 ) -> Status<LoadFilesError> {
     match location {
-        Ok(location) => {
-            if repo_files_selectors::select_is_root_loaded(state, &location.repo_id, &location.path)
-            {
-                Status::Reloading
-            } else {
-                Status::Loading
-            }
-        }
-        Err(err) => Status::Error { error: err.clone() },
+        Ok(location) => Status::Loading {
+            loaded: repo_files_selectors::select_is_root_loaded(
+                state,
+                &location.repo_id,
+                &location.path,
+            ),
+        },
+        Err(err) => Status::Error {
+            error: err.clone(),
+            loaded: false,
+        },
     }
 }
 
@@ -106,6 +108,7 @@ pub fn loaded(
             Some(error) => {
                 browser.status = Status::Error {
                     error: error.clone(),
+                    loaded: browser.status.loaded(),
                 }
             }
             None => browser.status = Status::Loaded,

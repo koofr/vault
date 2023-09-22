@@ -5,7 +5,9 @@ use super::state::User;
 pub fn loading(state: &mut store::State, notify: &store::Notify) {
     notify(store::Event::User);
 
-    state.user.status = Status::Loading;
+    state.user.status = Status::Loading {
+        loaded: state.user.status.loaded(),
+    };
 }
 
 pub fn loaded(
@@ -46,7 +48,10 @@ pub fn loaded(
             state.user.status = Status::Loaded;
         }
         Err(err) => {
-            state.user.status = Status::Error { error: err.clone() };
+            state.user.status = Status::Error {
+                error: err.clone(),
+                loaded: state.user.status.loaded(),
+            };
         }
     }
 }

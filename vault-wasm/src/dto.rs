@@ -40,21 +40,22 @@ use crate::browser_runtime::now_ms;
 #[serde(tag = "type")]
 pub enum Status {
     Initial,
-    Loading,
+    Loading { loaded: bool },
     Loaded,
-    Reloading,
-    Error { error: String },
+    Error { error: String, loaded: bool },
 }
 
-impl<E: std::error::Error + Clone + PartialEq + UserError> From<&common_state::Status<E>> for Status {
+impl<E: std::error::Error + Clone + PartialEq + UserError> From<&common_state::Status<E>>
+    for Status
+{
     fn from(status: &common_state::Status<E>) -> Self {
         match status {
             common_state::Status::Initial => Self::Initial,
-            common_state::Status::Loading => Self::Loading,
+            common_state::Status::Loading { loaded } => Self::Loading { loaded: *loaded },
             common_state::Status::Loaded => Self::Loaded,
-            common_state::Status::Reloading => Self::Reloading,
-            common_state::Status::Error { error } => Self::Error {
+            common_state::Status::Error { error, loaded } => Self::Error {
                 error: error.user_error(),
+                loaded: *loaded,
             },
         }
     }

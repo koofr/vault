@@ -42,7 +42,9 @@ pub fn unlocking(
 
     notify(store::Event::RepoUnlock);
 
-    repo_unlock.status = Status::Loading;
+    repo_unlock.status = Status::Loading {
+        loaded: repo_unlock.status.loaded(),
+    };
 
     Ok((repo_unlock.repo_id.clone(), repo_unlock.mode.clone()))
 }
@@ -62,7 +64,10 @@ pub fn unlocked(
 
     repo_unlock.status = match &res {
         Ok(()) => Status::Loaded,
-        Err(err) => Status::Error { error: err.clone() },
+        Err(err) => Status::Error {
+            error: err.clone(),
+            loaded: repo_unlock.status.loaded(),
+        },
     };
 }
 

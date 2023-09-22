@@ -18,7 +18,9 @@ impl SpaceUsageService {
         self.store.mutate(|state, notify, _, _| {
             notify(store::Event::SpaceUsage);
 
-            state.user.status = Status::Loading;
+            state.user.status = Status::Loading {
+                loaded: state.user.status.loaded(),
+            };
         });
 
         let mount = match self.remote.get_mount("primary").await {
@@ -27,7 +29,10 @@ impl SpaceUsageService {
                 self.store.mutate(|state, notify, _, _| {
                     notify(store::Event::SpaceUsage);
 
-                    state.user.status = Status::Error { error: err.clone() };
+                    state.user.status = Status::Error {
+                        error: err.clone(),
+                        loaded: state.user.status.loaded(),
+                    };
                 });
 
                 return Err(err);

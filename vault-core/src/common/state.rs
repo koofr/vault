@@ -9,10 +9,20 @@ pub type BoxAsyncWrite = Pin<Box<dyn AsyncWrite + Send + Sync + 'static>>;
 #[derive(Debug, Clone, PartialEq)]
 pub enum Status<E: std::error::Error + Clone + PartialEq> {
     Initial,
-    Loading,
+    Loading { loaded: bool },
     Loaded,
-    Reloading,
-    Error { error: E },
+    Error { error: E, loaded: bool },
+}
+
+impl<E: std::error::Error + Clone + PartialEq> Status<E> {
+    pub fn loaded(&self) -> bool {
+        match self {
+            Self::Initial => false,
+            Self::Loading { loaded } => *loaded,
+            Self::Loaded => true,
+            Self::Error { loaded, .. } => *loaded,
+        }
+    }
 }
 
 impl<E: std::error::Error + Clone + PartialEq> Default for Status<E> {

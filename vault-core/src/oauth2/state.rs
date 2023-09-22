@@ -26,7 +26,7 @@ pub struct OAuth2State {
 impl Default for OAuth2State {
     fn default() -> Self {
         Self {
-            status: Status::Loading,
+            status: Status::Loading { loaded: false },
             token: None,
         }
     }

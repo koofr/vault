@@ -36,7 +36,7 @@ fn test_load_get_item_error() {
             );
 
             match oauth2_fixture.get_status() {
-                Status::Error { error } => assert_eq!(
+                Status::Error { error, .. } => assert_eq!(
                     error.to_string(),
                     "storage error: secure storage error: secure storage get error"
                 ),

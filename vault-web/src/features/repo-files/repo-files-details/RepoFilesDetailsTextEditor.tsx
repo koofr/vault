@@ -1,5 +1,6 @@
 import { memo, useCallback } from 'react';
 
+import { ErrorComponent } from '../../../components/ErrorComponent';
 import { LoadingCircle } from '../../../components/LoadingCircle';
 import { TextEditorLazy } from '../../../components/TextEditorLazy';
 import { Status } from '../../../vault-wasm/vault-wasm';
@@ -10,7 +11,7 @@ import { useRepoFilesDetailsString } from './useRepoFilesDetailsBytes';
 export const RepoFilesDetailsTextEditor = memo<{
   detailsId: number;
   fileName: string;
-  contentStatus: Status | undefined;
+  contentStatus: Status;
   isEditing: boolean;
   width: number;
   height: number;
@@ -29,8 +30,14 @@ export const RepoFilesDetailsTextEditor = memo<{
     [webVault, detailsId]
   );
 
-  return contentStatus === undefined ||
-    contentStatus.type === 'Loading' ||
+  return contentStatus.type === 'Error' && !contentStatus.loaded ? (
+    <ErrorComponent
+      error={contentStatus.error}
+      onRetry={() => {
+        webVault.repoFilesDetailsLoadContent(detailsId);
+      }}
+    />
+  ) : (contentStatus.type === 'Loading' && !contentStatus.loaded) ||
     text === undefined ? (
     <LoadingCircle />
   ) : (

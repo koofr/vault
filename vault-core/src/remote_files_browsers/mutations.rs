@@ -22,14 +22,13 @@ fn get_initial_status(
     location: Result<&RemoteFilesBrowserLocation, &remote::RemoteError>,
 ) -> Status<remote::RemoteError> {
     match location {
-        Ok(location) => {
-            if selectors::select_is_root_loaded(state, &location) {
-                Status::Reloading
-            } else {
-                Status::Loading
-            }
-        }
-        Err(err) => Status::Error { error: err.clone() },
+        Ok(location) => Status::Loading {
+            loaded: selectors::select_is_root_loaded(state, &location),
+        },
+        Err(err) => Status::Error {
+            error: err.clone(),
+            loaded: false,
+        },
     }
 }
 
@@ -92,7 +91,12 @@ pub fn loaded(
     {
         match res {
             Ok(()) => browser.status = Status::Loaded,
-            Err(err) => browser.status = Status::Error { error: err },
+            Err(err) => {
+                browser.status = Status::Error {
+                    error: err,
+                    loaded: browser.status.loaded(),
+                }
+            }
         }
     }
 

@@ -19,13 +19,13 @@ export class Dialogs {
     await expect(this.dialogLocator()).not.toBeVisible();
   }
 
-  async waitForTitle(title: string) {
+  async waitForTitle(title: string | RegExp) {
     await expect(
       this.dialogLocator().getByRole('heading', { name: title })
     ).toBeVisible();
   }
 
-  async waitForMessage(message: string) {
+  async waitForMessage(message: string | RegExp) {
     await expect(this.dialogLocator().getByText(message)).toBeVisible();
   }
 
@@ -45,8 +45,8 @@ export class Dialogs {
   }
 
   async waitForDialog(
-    title: string,
-    message: string,
+    title: string | RegExp,
+    message: string | RegExp,
     primary: string,
     secondary?: string
   ) {

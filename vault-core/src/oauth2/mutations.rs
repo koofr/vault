@@ -19,7 +19,10 @@ pub fn loaded(
             state.oauth2.token = token;
         }
         Err(err) => {
-            state.oauth2.status = Status::Error { error: err };
+            state.oauth2.status = Status::Error {
+                error: err,
+                loaded: state.oauth2.status.loaded(),
+            };
             state.oauth2.token = None;
         }
     }
@@ -34,7 +37,10 @@ pub fn logout(state: &mut store::State, notify: &store::Notify, res: Result<(), 
             state.oauth2.token = None;
         }
         Err(err) => {
-            state.oauth2.status = Status::Error { error: err };
+            state.oauth2.status = Status::Error {
+                error: err,
+                loaded: state.oauth2.status.loaded(),
+            };
             state.oauth2.token = None;
         }
     }
@@ -49,13 +55,18 @@ pub fn update_token(state: &mut store::State, notify: &store::Notify, token: OAu
 pub fn error(state: &mut store::State, notify: &store::Notify, err: OAuth2Error) {
     notify(store::Event::Auth);
 
-    state.oauth2.status = Status::Error { error: err };
+    state.oauth2.status = Status::Error {
+        error: err,
+        loaded: state.oauth2.status.loaded(),
+    };
 }
 
 pub fn logging_in(state: &mut store::State, notify: &store::Notify) {
     notify(store::Event::Auth);
 
-    state.oauth2.status = Status::Loading;
+    state.oauth2.status = Status::Loading {
+        loaded: state.oauth2.status.loaded(),
+    };
 }
 
 pub fn logged_in(state: &mut store::State, notify: &store::Notify, token: OAuth2Token) {

@@ -37,7 +37,9 @@ pub fn generating(
 
     notify(store::Event::RepoConfigBackup);
 
-    backup.status = Status::Loading;
+    backup.status = Status::Loading {
+        loaded: backup.status.loaded(),
+    };
 
     Ok(backup.repo_id.clone())
 }
@@ -60,7 +62,12 @@ pub fn generated(
             backup.status = Status::Loaded;
             backup.config = Some(config);
         }
-        Err(err) => backup.status = Status::Error { error: err },
+        Err(err) => {
+            backup.status = Status::Error {
+                error: err,
+                loaded: backup.status.loaded(),
+            }
+        }
     }
 
     Ok(())

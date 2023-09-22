@@ -18,7 +18,7 @@ export const getContentEl = (
   fileName: string | undefined,
   fileExt: string | undefined,
   fileCategory: FileCategory | undefined,
-  contentStatus: Status | undefined,
+  contentStatus: Status,
   isEditing: boolean,
   documentSize: DocumentSizeInfo
 ): React.ReactElement | undefined => {

@@ -88,6 +88,7 @@ pub fn get_status(status: &Status<LoadFilesError>, file_exists: bool) -> Status<
             } else {
                 Status::Error {
                     error: LoadFilesError::RemoteError(RepoFilesErrors::not_found()),
+                    loaded: true,
                 }
             }
         }
@@ -119,7 +120,7 @@ pub fn get_conflict_error(is_conflict: bool) -> Option<String> {
 
 pub fn get_is_save_conflict(status: &Status<SaveError>) -> bool {
     match status {
-        Status::Error { error } => match error {
+        Status::Error { error, .. } => match error {
             SaveError::RemoteError(error) => error.is_api_error_code(ApiErrorCode::Conflict),
             _ => false,
         },
@@ -133,7 +134,7 @@ pub fn get_is_conflict(
     remote_file: Option<&RemoteFile>,
     save_status: &Status<SaveError>,
 ) -> bool {
-    !matches!(save_status, Status::Loading)
+    !matches!(save_status, Status::Loading { loaded: false })
         && (get_is_content_conflict(is_dirty, data, remote_file)
             || get_is_save_conflict(save_status))
 }
@@ -143,7 +144,7 @@ pub fn get_save_error(status: &Status<SaveError>) -> Option<String> {
         get_conflict_error(true)
     } else {
         match status {
-            Status::Error { error } => Some(error.user_error()),
+            Status::Error { error, .. } => Some(error.user_error()),
             _ => None,
         }
     }
@@ -151,7 +152,7 @@ pub fn get_save_error(status: &Status<SaveError>) -> Option<String> {
 
 pub fn get_load_error(status: &Status<LoadFilesError>) -> Option<String> {
     match status {
-        Status::Error { error } => match error {
+        Status::Error { error, .. } => match error {
             LoadFilesError::RemoteError(error) if error.is_api_error_code(ApiErrorCode::NotFound) => Some(String::from("This file is no longer accessible. Probably it was deleted or you no longer have access to it.")),
             _ => Some(error.user_error()),
         },
@@ -161,7 +162,7 @@ pub fn get_load_error(status: &Status<LoadFilesError>) -> Option<String> {
 
 pub fn get_content_error(status: &Status<GetFilesReaderError>) -> Option<String> {
     match status {
-        Status::Error { error } => match error {
+        Status::Error { error, .. } => match error {
             GetFilesReaderError::RemoteError(error) if error.is_api_error_code(ApiErrorCode::NotFound) => Some(String::from("This file is no longer accessible. Probably it was deleted or you no longer have access to it.")),
             _ => Some(error.user_error()),
         },
@@ -236,7 +237,7 @@ pub fn select_info<'a>(state: &'a store::State, details_id: u32) -> Option<RepoF
             .or_else(|| get_content_error(&content_status))
             .or_else(|| get_conflict_error(is_conflict));
         let is_editing = location.map(|loc| loc.is_editing).unwrap_or(false);
-        let can_save = is_editing && is_dirty && !matches!(save_status, Status::Loading);
+        let can_save = is_editing && is_dirty && !matches!(save_status, Status::Loading { .. });
         let can_download = true;
         let can_copy = true;
         let can_move = true;
@@ -307,10 +308,7 @@ pub fn select_is_dirty(state: &store::State, details_id: u32) -> bool {
 
 pub fn select_is_content_loading(state: &store::State, details_id: u32) -> bool {
     select_details_location(state, details_id)
-        .map(|loc| {
-            matches!(loc.content.status, Status::Loading)
-                || matches!(loc.content.status, Status::Reloading)
-        })
+        .map(|loc| matches!(loc.content.status, Status::Loading { .. }))
         .unwrap_or(false)
 }
 
@@ -322,7 +320,7 @@ pub fn select_is_content_loaded_error(state: &store::State, details_id: u32) -> 
 
 pub fn select_is_saving(state: &store::State, details_id: u32) -> bool {
     select_details_location(state, details_id)
-        .map(|loc| matches!(loc.save_status, Status::Loading))
+        .map(|loc| matches!(loc.save_status, Status::Loading { .. }))
         .unwrap_or(false)
 }
 
@@ -392,7 +390,7 @@ pub fn select_is_content_stale<'a>(state: &'a store::State, details_id: u32) -> 
 pub fn select_is_not_deleting_or_deleted(state: &store::State, details_id: u32) -> bool {
     select_details_location(state, details_id)
         .map(|loc| {
-            !matches!(loc.delete_status, Status::Loading)
+            !matches!(loc.delete_status, Status::Loading { .. })
                 && !matches!(loc.delete_status, Status::Loaded)
         })
         .unwrap_or(false)
@@ -417,8 +415,8 @@ pub fn select_was_removed(
 pub fn select_should_wait_for_loaded(state: &store::State, details_id: u32) -> Option<()> {
     match select_details(state, details_id) {
         Some(details) => match &details.status {
-            Status::Initial | Status::Loading => None,
-            Status::Loaded | Status::Reloading | Status::Error { .. } => Some(()),
+            Status::Initial | Status::Loading { .. } => None,
+            Status::Loaded | Status::Error { .. } => Some(()),
         },
         None => {
             // details not found, stop waiting

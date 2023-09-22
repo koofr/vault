@@ -16,6 +16,7 @@ import { useSubscribe } from '../../webVault/useSubscribe';
 import { RepoRemoveModal } from './RepoRemoveModal';
 import { RepoError } from './RepoError';
 import { RepoSpaceUsage } from './RepoSpaceUsage';
+import { useWebVault } from '../../webVault/useWebVault';
 
 export const RepoInfoRepo = memo<{ repo: Repo }>(({ repo }) => {
   const isMobile = useIsMobile();
@@ -140,6 +141,7 @@ export const RepoInfoRepo = memo<{ repo: Repo }>(({ repo }) => {
 });
 
 export const RepoInfo = memo<{ repoId: string }>(({ repoId }) => {
+  const webVault = useWebVault();
   const [info] = useSubscribe(
     (v, cb) => v.reposRepoSubscribe(repoId, cb),
     (v) => v.reposRepoData,
@@ -147,7 +149,9 @@ export const RepoInfo = memo<{ repoId: string }>(({ repoId }) => {
   );
 
   if (info.status.type === 'Error') {
-    return <RepoError error={info.status.error} />;
+    return (
+      <RepoError error={info.status.error} onRetry={() => webVault.load()} />
+    );
   } else if (info.repo !== undefined) {
     return <RepoInfoRepo repo={info.repo} />;
   } else {

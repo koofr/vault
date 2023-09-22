@@ -9,8 +9,18 @@ export const RepoFilesDetailsNavbarHeader = memo<{
   info: RepoFilesDetailsInfo;
 }>(({ info }) => {
   const theme = useTheme();
-  const { fileName, fileModified, isEditing, saveStatus, isDirty, error } =
-    info;
+  const {
+    status,
+    fileName,
+    fileModified,
+    isEditing,
+    contentStatus,
+    saveStatus,
+    isDirty,
+    error,
+  } = info;
+  const isLoading =
+    status.type === 'Loading' || contentStatus.type === 'Loading';
   const isSaving = saveStatus.type === 'Loading';
 
   return (
@@ -28,7 +38,16 @@ export const RepoFilesDetailsNavbarHeader = memo<{
       >
         {fileName}
       </div>
-      {isSaving ? (
+      {isLoading ? (
+        <div
+          className={css`
+            font-size: 10px;
+            font-weight: normal;
+          `}
+        >
+          Loading...
+        </div>
+      ) : isSaving ? (
         <div
           className={css`
             font-size: 10px;
