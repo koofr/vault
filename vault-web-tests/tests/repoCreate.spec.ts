@@ -1,10 +1,10 @@
 import { expect } from '@playwright/test';
 
-import { test } from '../helpers/base';
 import { openApp } from '../helpers/app';
-import { unlockRepo } from '../helpers/repos';
+import { test } from '../helpers/base';
 import { hideIntro } from '../helpers/intro';
 import { filesTableRowNameLocator } from '../helpers/repoFiles';
+import { unlockRepo } from '../helpers/repos';
 
 test('create a new safe box', async ({ page }) => {
   await openApp(page);

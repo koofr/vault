@@ -394,11 +394,8 @@ export class TextEditor {
 }
 
 export const textEditorTest = test.extend<{ textEditor: TextEditor }>({
-  textEditor: async (
-    { page, koofrApiClient, webVaultClient, dialogs },
-    use
-  ) => {
-    await createRepo(koofrApiClient);
+  textEditor: async ({ page, debugClient, webVaultClient, dialogs }, use) => {
+    await createRepo(debugClient);
 
     await webVaultClient.load();
 

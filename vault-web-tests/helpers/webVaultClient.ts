@@ -6,7 +6,6 @@ import vaultWasm, {
 } from '../vault-wasm-nodejs/vault-wasm.js';
 import { BrowserEventstreamWebSocketDelegate } from '../vault-wasm-nodejs/vault-wasm.js';
 
-import { OAuth2Token } from './oauth2.js';
 import { splitParentName } from './pathUtils.js';
 import { sleep } from './time.js';
 
@@ -30,7 +29,7 @@ export class WebVaultClient {
 
   constructor(
     baseUrl: string,
-    oauth2Token: OAuth2Token,
+    oauth2Token: string,
     oauth2ClientId: string,
     oauth2ClientSecret: string,
     oauth2RedirectUri: string,
@@ -40,7 +39,7 @@ export class WebVaultClient {
 
     const storage = new MemoryStorage();
 
-    storage.setItem('vaultOAuth2Token', JSON.stringify(oauth2Token));
+    storage.setItem('vaultOAuth2Token', oauth2Token);
 
     const browserHttpClientDelegate: BrowserHttpClientDelegate = {
       async fetch(request) {
@@ -70,7 +69,7 @@ export class WebVaultClient {
           throw new Error('send not implemented.');
         },
         close(): void {
-          throw new Error('close not implemented.');
+          // not implemented, but should not throw an error
         },
       };
 

@@ -1,8 +1,8 @@
 import { Page, expect } from '@playwright/test';
 
-import { KoofrApiClient } from './koofrApiClient';
+import { DebugClient } from './debugClient';
 
-export async function createRepo(client: KoofrApiClient) {
+export async function createRepo(client: DebugClient) {
   await client.createTestVaultRepo();
 }
 
@@ -16,7 +16,7 @@ export async function unlockRepo(page: Page) {
   await page.getByRole('button', { name: 'Continue' }).click();
 }
 
-export async function createUnlockedRepo(page: Page, client: KoofrApiClient) {
+export async function createUnlockedRepo(page: Page, client: DebugClient) {
   await createRepo(client);
   await unlockRepo(page);
 }

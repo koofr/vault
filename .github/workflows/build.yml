@@ -129,9 +129,6 @@ jobs:
       - name: Prepare fake remote
         run: |
           chmod +x fake_remote
-      - name: Prepare credentials
-        run: node scripts/generate-playwright-auth-user.js
-        working-directory: vault-web-tests
       - name: Run eslint
         run: npm run eslint
         working-directory: vault-web-tests

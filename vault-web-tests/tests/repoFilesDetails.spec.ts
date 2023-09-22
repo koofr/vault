@@ -102,18 +102,18 @@ test.describe('repoFilesDetails', () => {
 
       test('Edit, close (logo), upload error, retry, error, retry', async ({
         textEditor,
-        koofrApiClient,
+        debugClient,
       }) => {
         await textEditor.editFile();
         await textEditor.changeContent();
-        await koofrApiClient.withDebugQueue(
+        await debugClient.withQueue(
           async (request) => {
             if (/files\/put/.test(request.url)) {
-              await koofrApiClient.debugQueueNext(500);
+              await debugClient.queueNext(500);
 
               return false;
             } else {
-              await koofrApiClient.debugQueueNext();
+              await debugClient.queueNext();
 
               return true;
             }
@@ -128,14 +128,14 @@ test.describe('repoFilesDetails', () => {
           'Try again',
           'Discard changes'
         );
-        await koofrApiClient.withDebugQueue(
+        await debugClient.withQueue(
           async (request) => {
             if (/files\/put/.test(request.url)) {
-              await koofrApiClient.debugQueueNext(500);
+              await debugClient.queueNext(500);
 
               return false;
             } else {
-              await koofrApiClient.debugQueueNext();
+              await debugClient.queueNext();
 
               return true;
             }
@@ -156,18 +156,18 @@ test.describe('repoFilesDetails', () => {
 
       test('Edit, close (logo), upload error, discard changes', async ({
         textEditor,
-        koofrApiClient,
+        debugClient,
       }) => {
         await textEditor.editFile();
         await textEditor.changeContent();
-        await koofrApiClient.withDebugQueue(
+        await debugClient.withQueue(
           async (request) => {
             if (/files\/put/.test(request.url)) {
-              await koofrApiClient.debugQueueNext(500);
+              await debugClient.queueNext(500);
 
               return false;
             } else {
-              await koofrApiClient.debugQueueNext();
+              await debugClient.queueNext();
 
               return true;
             }
@@ -632,8 +632,8 @@ test.describe('repoFilesDetails', () => {
   });
 
   test.describe('PDF viewer', () => {
-    test('open PDF viewer', async ({ page, koofrApiClient }) => {
-      await createRepo(koofrApiClient);
+    test('open PDF viewer', async ({ page, debugClient }) => {
+      await createRepo(debugClient);
       await openApp(page);
       await unlockRepo(page);
 
