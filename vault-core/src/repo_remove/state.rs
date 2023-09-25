@@ -19,3 +19,12 @@ pub struct RepoRemovesState {
     pub removes: HashMap<u32, RepoRemove>,
     pub next_id: NextId,
 }
+
+impl RepoRemovesState {
+    pub fn reset(&mut self) {
+        *self = Self {
+            next_id: self.next_id.clone(),
+            ..Default::default()
+        };
+    }
+}

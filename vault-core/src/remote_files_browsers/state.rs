@@ -121,3 +121,12 @@ pub struct RemoteFilesBrowsersState {
     pub browsers: HashMap<u32, RemoteFilesBrowser>,
     pub next_id: NextId,
 }
+
+impl RemoteFilesBrowsersState {
+    pub fn reset(&mut self) {
+        *self = Self {
+            next_id: self.next_id.clone(),
+            ..Default::default()
+        };
+    }
+}

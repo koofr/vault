@@ -16,3 +16,9 @@ pub struct UserState {
     pub status: Status<RemoteError>,
     pub user: Option<User>,
 }
+
+impl UserState {
+    pub fn reset(&mut self) {
+        *self = Default::default();
+    }
+}

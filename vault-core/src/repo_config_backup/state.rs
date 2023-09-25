@@ -24,3 +24,12 @@ pub struct RepoConfigBackupsState {
     pub backups: HashMap<u32, RepoConfigBackup>,
     pub next_id: NextId,
 }
+
+impl RepoConfigBackupsState {
+    pub fn reset(&mut self) {
+        *self = Self {
+            next_id: self.next_id.clone(),
+            ..Default::default()
+        };
+    }
+}

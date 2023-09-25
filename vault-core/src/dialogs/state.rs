@@ -67,3 +67,12 @@ pub struct DialogsState {
     pub dialogs: HashMap<u32, Dialog>,
     pub next_id: NextId,
 }
+
+impl DialogsState {
+    pub fn reset(&mut self) {
+        *self = Self {
+            next_id: self.next_id.clone(),
+            ..Default::default()
+        };
+    }
+}

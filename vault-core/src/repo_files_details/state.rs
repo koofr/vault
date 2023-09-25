@@ -90,6 +90,15 @@ pub struct RepoFilesDetailsState {
     pub next_id: NextId,
 }
 
+impl RepoFilesDetailsState {
+    pub fn reset(&mut self) {
+        *self = Self {
+            next_id: self.next_id.clone(),
+            ..Default::default()
+        };
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum SaveInitiator {
     User,

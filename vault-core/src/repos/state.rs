@@ -80,3 +80,9 @@ pub struct ReposState {
     pub repo_ids_by_remote_file_id: HashMap<String, String>,
     pub mount_repo_trees: HashMap<String, RepoTree>,
 }
+
+impl ReposState {
+    pub fn reset(&mut self) {
+        *self = Default::default();
+    }
+}

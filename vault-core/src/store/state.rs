@@ -36,9 +36,25 @@ pub struct State {
 
 impl State {
     pub fn reset(&mut self) {
-        *self = State {
-            config: self.config.clone(),
-            ..Default::default()
-        };
+        // config is kept
+        // notifications are kept so that any errors are displayed after logout
+        self.dialogs.reset();
+        self.oauth2.reset();
+        self.user.reset();
+        self.remote_files.reset();
+        self.remote_files_browsers.reset();
+        self.repos.reset();
+        self.repo_creates.reset();
+        self.repo_unlocks.reset();
+        self.repo_removes.reset();
+        self.repo_config_backups.reset();
+        self.repo_space_usages.reset();
+        self.repo_files.reset();
+        self.repo_files_browsers.reset();
+        self.repo_files_details.reset();
+        self.repo_files_move = None;
+        self.transfers.reset();
+        self.dir_pickers.reset();
+        self.space_usage.reset();
     }
 }

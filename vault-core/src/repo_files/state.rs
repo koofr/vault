@@ -205,6 +205,12 @@ pub struct RepoFilesState {
     pub loaded_roots: HashSet<String>,
 }
 
+impl RepoFilesState {
+    pub fn reset(&mut self) {
+        *self = Default::default();
+    }
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct RepoFilesMutationState {
     pub removed_files: Vec<(String, String)>,

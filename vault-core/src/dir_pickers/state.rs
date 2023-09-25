@@ -50,3 +50,12 @@ pub struct DirPickersState {
     pub pickers: HashMap<u32, DirPicker>,
     pub next_id: NextId,
 }
+
+impl DirPickersState {
+    pub fn reset(&mut self) {
+        *self = Self {
+            next_id: self.next_id.clone(),
+            ..Default::default()
+        };
+    }
+}

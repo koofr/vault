@@ -22,3 +22,12 @@ pub struct RepoSpaceUsagesState {
     pub usages: HashMap<u32, RepoSpaceUsage>,
     pub next_id: NextId,
 }
+
+impl RepoSpaceUsagesState {
+    pub fn reset(&mut self) {
+        *self = Self {
+            next_id: self.next_id.clone(),
+            ..Default::default()
+        };
+    }
+}

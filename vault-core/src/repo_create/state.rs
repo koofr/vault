@@ -32,3 +32,12 @@ pub struct RepoCreatesState {
     pub creates: HashMap<u32, RepoCreate>,
     pub next_id: NextId,
 }
+
+impl RepoCreatesState {
+    pub fn reset(&mut self) {
+        *self = Self {
+            next_id: self.next_id.clone(),
+            ..Default::default()
+        };
+    }
+}

@@ -261,6 +261,12 @@ pub struct RemoteFilesState {
     pub shared_file_ids: Vec<String>,
 }
 
+impl RemoteFilesState {
+    pub fn reset(&mut self) {
+        *self = Default::default();
+    }
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct RemoteFilesMutationState {
     pub loaded_roots: Vec<(String, String)>,

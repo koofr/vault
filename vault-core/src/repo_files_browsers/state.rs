@@ -61,3 +61,12 @@ pub struct RepoFilesBrowsersState {
     pub browsers: HashMap<u32, RepoFilesBrowser>,
     pub next_id: NextId,
 }
+
+impl RepoFilesBrowsersState {
+    pub fn reset(&mut self) {
+        *self = Self {
+            next_id: self.next_id.clone(),
+            ..Default::default()
+        };
+    }
+}

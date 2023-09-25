@@ -23,6 +23,12 @@ pub struct OAuth2State {
     pub token: Option<OAuth2Token>,
 }
 
+impl OAuth2State {
+    pub fn reset(&mut self) {
+        *self = Default::default();
+    }
+}
+
 impl Default for OAuth2State {
     fn default() -> Self {
         Self {

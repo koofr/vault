@@ -29,3 +29,12 @@ pub struct RepoUnlocksState {
     pub unlocks: HashMap<u32, RepoUnlock>,
     pub next_id: NextId,
 }
+
+impl RepoUnlocksState {
+    pub fn reset(&mut self) {
+        *self = Self {
+            next_id: self.next_id.clone(),
+            ..Default::default()
+        };
+    }
+}

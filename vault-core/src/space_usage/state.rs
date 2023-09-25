@@ -20,3 +20,9 @@ pub struct SpaceUsageState {
     pub status: Status<RemoteError>,
     pub space_usage: Option<SpaceUsage>,
 }
+
+impl SpaceUsageState {
+    pub fn reset(&mut self) {
+        *self = Default::default();
+    }
+}
