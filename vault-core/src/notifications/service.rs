@@ -15,6 +15,8 @@ impl NotificationsService {
     }
 
     pub fn show(&self, message: String) {
+        log::debug!("NotificationsService show: {}", message);
+
         self.store.mutate(|state, notify, _, _| {
             notify(store::Event::Notifications);
 
