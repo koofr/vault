@@ -26,6 +26,7 @@ pub const STATE_STORAGE_KEY: &str = "vaultOAuth2State";
 
 pub struct OAuth2Config {
     pub base_url: String,
+    pub auth_base_url: String,
     pub client_id: String,
     pub client_secret: String,
     pub redirect_uri: String,
@@ -287,7 +288,8 @@ impl OAuth2Service {
         params.insert("response_type", "code");
         params.insert("scope", "public");
 
-        let mut auth_url = Url::parse(&format!("{}/oauth2/auth", &self.config.base_url)).unwrap();
+        let mut auth_url =
+            Url::parse(&format!("{}/oauth2/auth", &self.config.auth_base_url)).unwrap();
         auth_url.query_pairs_mut().extend_pairs(&params);
 
         auth_url.to_string()

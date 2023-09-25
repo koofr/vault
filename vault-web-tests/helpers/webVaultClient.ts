@@ -76,6 +76,7 @@ export class WebVaultClient {
 
     this.webVault = new WebVault(
       baseUrl,
+      baseUrl,
       oauth2ClientId,
       oauth2ClientSecret,
       oauth2RedirectUri,

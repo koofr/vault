@@ -193,6 +193,7 @@ impl WebVault {
     #[wasm_bindgen(constructor)]
     pub fn new(
         base_url: String,
+        oauth2_auth_base_url: String,
         oauth2_client_id: String,
         oauth2_client_secret: String,
         oauth2_redirect_uri: String,
@@ -202,6 +203,7 @@ impl WebVault {
     ) -> Self {
         let oauth2_config = vault_core::oauth2::OAuth2Config {
             base_url: base_url.clone(),
+            auth_base_url: oauth2_auth_base_url.clone(),
             client_id: oauth2_client_id,
             client_secret: oauth2_client_secret,
             redirect_uri: oauth2_redirect_uri,

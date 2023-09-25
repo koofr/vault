@@ -28,6 +28,7 @@ impl VaultFixture {
     ) -> Arc<Self> {
         let oauth2_config = OAuth2Config {
             base_url: fake_remote_fixture.base_url.clone(),
+            auth_base_url: fake_remote_fixture.base_url.clone(),
             client_id: "7ZEK2BNCEVYEJIZC5OR3TR6PQDUJ4NP3".into(),
             client_secret: "VWTMENEWUYWH6G523CEV5CWOCHH7FMECW36PPQENOASYYZOQJOSGQXSR2Y62N3HB"
                 .into(),
