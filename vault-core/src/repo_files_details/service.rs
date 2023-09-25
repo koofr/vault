@@ -28,6 +28,7 @@ use crate::{
     },
     repos::selectors as repos_selectors,
     runtime, store,
+    user_error::UserError,
     utils::{
         on_end_reader::OnEndReader,
         path_utils::{self, normalize_path},
@@ -200,19 +201,41 @@ impl RepoFilesDetailsService {
     }
 
     pub async fn destroy(self: Arc<Self>, details_id: u32) -> Result<(), SaveError> {
-        self.clone().edit_cancel(details_id).await?;
+        loop {
+            match self.clone().edit_cancel(details_id).await {
+                Ok(()) => {}
+                Err(err) => {
+                    let message = format!("File could not be saved ({}). Do you want to Try again or Discard the changes?", err.user_error());
 
-        let repo_files_subscription_id = self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoFilesDetails);
+                    match self
+                        .dialogs_service
+                        .show(DialogShowOptions {
+                            title: String::from("File could not be saved"),
+                            message: Some(message),
+                            confirm_button_text: String::from("Try again"),
+                            cancel_button_text: Some(String::from("Discard changes")),
+                            ..self.dialogs_service.build_confirm()
+                        })
+                        .await
+                    {
+                        Some(_) => continue,
+                        None => {}
+                    }
+                }
+            }
 
-            mutations::destroy(state, details_id)
-        });
+            let repo_files_subscription_id = self.store.mutate(|state, notify, _, _| {
+                notify(store::Event::RepoFilesDetails);
 
-        if let Some(repo_files_subscription_id) = repo_files_subscription_id {
-            self.store.remove_listener(repo_files_subscription_id);
+                mutations::destroy(state, details_id)
+            });
+
+            if let Some(repo_files_subscription_id) = repo_files_subscription_id {
+                self.store.remove_listener(repo_files_subscription_id);
+            }
+
+            return Ok(());
         }
-
-        Ok(())
     }
 
     pub async fn load_file(&self, details_id: u32) -> Result<(), LoadDetailsError> {
@@ -366,7 +389,6 @@ impl RepoFilesDetailsService {
     pub async fn edit_cancel(self: Arc<Self>, details_id: u32) -> Result<(), SaveError> {
         self.autosave_abort(details_id);
 
-        // TODO retry until ok or discarded
         let is_discarded = match self
             .clone()
             .save_if_dirty(details_id, SaveInitiator::Cancel)

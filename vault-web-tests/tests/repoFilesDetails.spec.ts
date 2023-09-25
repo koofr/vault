@@ -10,6 +10,7 @@ import {
   pdfViewerLocator,
   textEditorTest,
 } from '../helpers/reposFilesDetails';
+import { sleep } from '../helpers/time';
 
 test.describe('repoFilesDetails', () => {
   test.describe('text editor', () => {
@@ -97,6 +98,95 @@ test.describe('repoFilesDetails', () => {
         await textEditor.clickLogo();
         await textEditor.expectServerContentMatch();
         await textEditor.expectFilesRootOpen();
+      });
+
+      test('Edit, close (logo), upload error, retry, error, retry', async ({
+        textEditor,
+        koofrApiClient,
+      }) => {
+        await textEditor.editFile();
+        await textEditor.changeContent();
+        await koofrApiClient.withDebugQueue(
+          async (request) => {
+            if (/files\/put/.test(request.url)) {
+              await koofrApiClient.debugQueueNext(500);
+
+              return false;
+            } else {
+              await koofrApiClient.debugQueueNext();
+
+              return true;
+            }
+          },
+          async () => {
+            await textEditor.clickLogo();
+          }
+        );
+        await textEditor.dialogs.waitForDialog(
+          'File could not be saved',
+          /File could not be saved \(.*\)\. Do you want to Try again or Discard the changes\?/,
+          'Try again',
+          'Discard changes'
+        );
+        await koofrApiClient.withDebugQueue(
+          async (request) => {
+            if (/files\/put/.test(request.url)) {
+              await koofrApiClient.debugQueueNext(500);
+
+              return false;
+            } else {
+              await koofrApiClient.debugQueueNext();
+
+              return true;
+            }
+          },
+          async () => {
+            await textEditor.dialogs.clickButtonWait('Try again');
+          }
+        );
+        await textEditor.dialogs.waitForDialog(
+          'File could not be saved',
+          /File could not be saved \(.*\)\. Do you want to Try again or Discard the changes\?/,
+          'Try again',
+          'Discard changes'
+        );
+        await textEditor.dialogs.clickButtonWait('Try again');
+        await textEditor.expectServerContentMatch();
+      });
+
+      test('Edit, close (logo), upload error, discard changes', async ({
+        textEditor,
+        koofrApiClient,
+      }) => {
+        await textEditor.editFile();
+        await textEditor.changeContent();
+        await koofrApiClient.withDebugQueue(
+          async (request) => {
+            if (/files\/put/.test(request.url)) {
+              await koofrApiClient.debugQueueNext(500);
+
+              return false;
+            } else {
+              await koofrApiClient.debugQueueNext();
+
+              return true;
+            }
+          },
+          async () => {
+            await textEditor.clickLogo();
+          }
+        );
+        await textEditor.dialogs.waitForDialog(
+          'File could not be saved',
+          /File could not be saved \(.*\)\. Do you want to Try again or Discard the changes\?/,
+          'Try again',
+          'Discard changes'
+        );
+        await textEditor.dialogs.clickButtonWait('Discard changes');
+        await sleep(200);
+        await textEditor.dialogs.waitForHidden();
+        textEditor.currentContent = 'editorcontent';
+        await textEditor.expectServerContentMatch();
       });
 
       test('Edit, change, go back', async ({ textEditor }) => {
