@@ -53,8 +53,10 @@ impl LifecycleService {
 
         remote.set_logout(Box::new(move || {
             if let Some(lifecycle_service) = remote_logout_lifecycle_service.upgrade() {
-                if let Err(err) = lifecycle_service.logout() {
-                    notifications_service.show(format!("logout error: {:?}", err));
+                match lifecycle_service.logout() {
+                    Ok(()) => notifications_service
+                        .show("You've been logged out. Please log in again.".into()),
+                    Err(err) => notifications_service.show(format!("logout error: {:?}", err)),
                 }
             }
         }));
