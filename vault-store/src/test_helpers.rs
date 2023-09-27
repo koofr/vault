@@ -155,4 +155,20 @@ impl<TransformedState: Send + 'static> StateRecorder<TransformedState> {
     pub fn collect_enumerated(self) -> Vec<(usize, TransformedState)> {
         self.collect().into_iter().enumerate().collect()
     }
+
+    pub fn check_recorded(
+        self,
+        check_len: impl FnOnce(usize),
+        check_entry: impl Fn(usize, TransformedState),
+    ) {
+        let entries = self.collect_enumerated();
+        let entries_len = entries.len();
+
+        for (i, entry) in entries {
+            check_entry(i, entry);
+        }
+
+        // check len at the end so that we get more useful asserts of what is different
+        check_len(entries_len);
+    }
 }

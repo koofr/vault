@@ -295,22 +295,6 @@ pub fn transfers_recorder(vault: &Vault) -> StateRecorder<TransfersState> {
     })
 }
 
-pub fn check_recorded(
-    recorder: StateRecorder<TransfersState>,
-    check_len: impl FnOnce(usize),
-    check_transfers: impl Fn(usize, TransfersState),
-) {
-    let entries = recorder.collect_enumerated();
-    let entries_len = entries.len();
-
-    for (i, transfers) in entries {
-        check_transfers(i, transfers);
-    }
-
-    // check len at the end so that we get more useful asserts of what is different
-    check_len(entries_len);
-}
-
 pub fn transfer_do_when<
     Filter: Fn(&Transfer) -> bool + Send + Sync + 'static,
     Action: Fn(&Vault) + Send + Sync + 'static,

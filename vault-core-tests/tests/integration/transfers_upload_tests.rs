@@ -20,8 +20,8 @@ use vault_core::{
     },
 };
 use vault_core_tests::helpers::transfers::{
-    capture_upload_uri, check_recorded, patch_transfer, transfer_abort_when, transfer_do_when,
-    transfers_recorder, uploaded_server_error, with_transfers, TestUploadable,
+    capture_upload_uri, patch_transfer, transfer_abort_when, transfer_do_when, transfers_recorder,
+    uploaded_server_error, with_transfers, TestUploadable,
 };
 use vault_fake_remote::fake_remote::interceptor::InterceptorResult;
 use vault_store::test_helpers::StoreWatcher;
@@ -54,8 +54,7 @@ fn test_upload() {
                 .unwrap()
                 .contains("&size=52"));
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 6),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -111,8 +110,7 @@ fn test_upload_name_path() {
                 t.name = "path/to/file.txt".into();
             };
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 6),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -198,8 +196,7 @@ fn test_upload_name_path_autorename() {
                 t.name = "path/to/file (1).txt".into();
             };
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 6),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -282,8 +279,7 @@ fn test_upload_size_estimate() {
                 t.size = SizeInfo::Estimate(4);
             };
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 6),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -366,8 +362,7 @@ fn test_upload_size_unknown() {
                 t.size = SizeInfo::Unknown;
             };
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 6),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -462,8 +457,7 @@ fn test_upload_size_unknown_to_estimate() {
                 .unwrap()
                 .contains("&size="));
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 6),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -552,8 +546,7 @@ fn test_upload_size_unknown_to_exact() {
                 .unwrap()
                 .contains("&size=52"));
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 6),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -634,8 +627,7 @@ fn test_upload_size_estimate_to_exact() {
                 .unwrap()
                 .contains("&size=52"));
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 6),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -811,8 +803,7 @@ fn test_upload_load_root_error() {
                 t.name = "path/to/file.txt".into();
             };
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 8),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -892,8 +883,7 @@ fn test_upload_size_error() {
             matches!(create_future.await, Err(TransferError::LocalFileError(err)) if err == "size error")
         );
 
-        check_recorded(
-            recorder,
+        recorder.check_recorded(
             |len| assert_eq!(len, 1),
             |i, transfers| match i {
                 0 => assert_eq!(transfers, TransfersState::default()),
@@ -930,8 +920,7 @@ fn test_upload_is_retriable_error() {
             matches!(create_future.await, Err(TransferError::LocalFileError(err)) if err == "is retriable error")
         );
 
-        check_recorded(
-            recorder,
+        recorder.check_recorded(
             |len| assert_eq!(len, 1),
             |i, transfers| match i {
                 0 => assert_eq!(transfers, TransfersState::default()),
@@ -980,8 +969,7 @@ fn test_upload_reader_error_retriable() {
             let res = future.await.unwrap();
             assert_eq!(res.name, "file.txt");
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 8),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -1031,8 +1019,7 @@ fn test_upload_abort_immediately() {
 
             assert!(matches!(create_future.await, Err(TransferError::Aborted)));
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 1),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -1068,8 +1055,7 @@ fn test_upload_abort_waiting() {
 
             drop(watcher);
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 3),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -1107,8 +1093,7 @@ fn test_upload_abort_processing() {
 
             drop(watcher);
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 4),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -1150,8 +1135,7 @@ fn test_upload_abort_transferring() {
 
             drop(watcher);
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 5),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -1234,8 +1218,7 @@ fn test_upload_abort_all() {
 
             drop(watcher);
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 6),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -1539,8 +1522,7 @@ fn test_upload_fail_autoretry_succeed() {
             let res = future.await.unwrap();
             assert_eq!(res.name, "file.txt");
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 9),
                 |i, transfers| {
                     match i {
@@ -1621,8 +1603,7 @@ fn test_upload_fail_autoretry_fail() {
 
             drop(watcher);
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 19),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -1746,8 +1727,7 @@ fn test_upload_fail_autoretry_retry() {
 
             drop(watcher);
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 22),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -1891,8 +1871,7 @@ fn test_upload_fail_autoretry_not_retriable() {
 
             drop(watcher);
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 9),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),

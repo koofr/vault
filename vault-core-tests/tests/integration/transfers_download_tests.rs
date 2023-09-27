@@ -23,8 +23,8 @@ use vault_core::{
     utils::memory_writer::MemoryWriter,
 };
 use vault_core_tests::helpers::transfers::{
-    check_recorded, download_delay_response_body, download_string, patch_transfer,
-    transfer_abort_when, transfer_do_when, transfers_recorder, with_transfers, TestDownloadable,
+    download_delay_response_body, download_string, patch_transfer, transfer_abort_when,
+    transfer_do_when, transfers_recorder, with_transfers, TestDownloadable,
 };
 use vault_fake_remote::fake_remote::interceptor::InterceptorResult;
 
@@ -43,8 +43,7 @@ fn test_download() {
             assert!(matches!(future.await.unwrap(), ()));
             assert_eq!(content_future.await.unwrap(), "test");
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 6),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -94,8 +93,7 @@ fn test_download_change_name() {
             assert!(matches!(future.await.unwrap(), ()));
             assert_eq!(content_future.await.unwrap(), "test");
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 6),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -163,8 +161,7 @@ fn test_download_change_name_writer() {
             assert!(matches!(future.await.unwrap(), ()));
             assert_eq!(content_future.await.unwrap(), "test");
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 6),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -232,8 +229,7 @@ fn test_download_already_exists() {
                 Err(TransferError::AlreadyExists)
             ));
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 1),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -278,8 +274,7 @@ fn test_download_already_exists_error() {
                 Err(TransferError::LocalFileError(err)) if err == "io error"
             ));
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 1),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -325,8 +320,7 @@ fn test_download_already_exists_done_error() {
                 Err(TransferError::LocalFileError(err)) if err == "done error"
             ));
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 1),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -374,8 +368,7 @@ fn test_download_reader_error() {
 
             drop(watcher);
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 13),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -449,8 +442,7 @@ fn test_download_downloadable_writer_error() {
 
         drop(watcher);
 
-        check_recorded(
-            recorder,
+        recorder.check_recorded(
             |len| assert_eq!(len, 13),
             |i, transfers| match i {
                 0 => assert_eq!(transfers, TransfersState::default()),
@@ -546,8 +538,7 @@ fn test_download_downloadable_close_error() {
 
         drop(watcher);
 
-        check_recorded(
-            recorder,
+        recorder.check_recorded(
             |len| assert_eq!(len, 19),
             |i, transfers| match i {
                 0 => assert_eq!(transfers, TransfersState::default()),
@@ -629,8 +620,7 @@ fn test_download_downloadable_done_error() {
 
         drop(watcher);
 
-        check_recorded(
-            recorder,
+        recorder.check_recorded(
             |len| assert_eq!(len, 19),
             |i, transfers| match i {
                 0 => assert_eq!(transfers, TransfersState::default()),
@@ -685,8 +675,7 @@ fn test_download_abort_immediately() {
             assert!(matches!(create_future.await, Err(TransferError::Aborted)));
             assert!(matches!(content_future.await, None));
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 1),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -719,8 +708,7 @@ fn test_download_abort_waiting() {
 
             drop(watcher);
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 3),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -755,8 +743,7 @@ fn test_download_abort_processing() {
 
             drop(watcher);
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 4),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -794,8 +781,7 @@ fn test_download_abort_transferring() {
 
             drop(watcher);
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 5),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -843,8 +829,7 @@ fn test_download_fail_autoretry_succeed() {
             assert!(matches!(future.await.unwrap(), ()));
             assert_eq!(content_future.await.unwrap(), "test");
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 9),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -900,8 +885,7 @@ fn test_download_fail_autoretry_fail() {
 
             drop(watcher);
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 18),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -971,8 +955,7 @@ fn test_download_fail_autoretry_retry() {
 
             drop(watcher);
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 22),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -1050,8 +1033,7 @@ fn test_download_openable() {
                 t.is_openable = true;
             };
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 7),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),

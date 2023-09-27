@@ -10,7 +10,7 @@ use vault_core::{
     transfers::state::{Transfer, TransferState, TransferType, TransfersState},
 };
 use vault_core_tests::helpers::transfers::{
-    check_recorded, transfer_abort_when, transfers_recorder, with_transfers,
+    transfer_abort_when, transfers_recorder, with_transfers,
 };
 use vault_fake_remote::fake_remote::interceptor::InterceptorResult;
 
@@ -38,8 +38,7 @@ fn test_download_reader() {
 
             assert_eq!(content, "test");
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 4),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -89,8 +88,7 @@ fn test_download_reader_fail() {
             let res = reader.reader.read_to_string(&mut content).await;
             assert!(matches!(res, Err(std::io::Error { .. })));
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 3),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
@@ -142,8 +140,7 @@ fn test_download_reader_abort() {
 
             drop(watcher);
 
-            check_recorded(
-                recorder,
+            recorder.check_recorded(
                 |len| assert_eq!(len, 3),
                 |i, transfers| match i {
                     0 => assert_eq!(transfers, TransfersState::default()),
