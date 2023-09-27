@@ -1,13 +1,21 @@
 use std::{
+    cell::RefCell,
     collections::HashMap,
     fmt::Debug,
     hash::Hash,
+    rc::Rc,
     sync::{Arc, Mutex},
 };
 
+pub type SideEffect = Box<dyn FnOnce()>;
+
+pub type AddSideEffect = Box<dyn Fn(SideEffect)>;
+
+pub type OnCallback<MutationState> = Box<dyn Fn(&MutationState, &AddSideEffect) + Send + Sync>;
+
 struct Listener<MutationState> {
     id: u32,
-    callback: Box<dyn Fn(&MutationState) + Send + Sync>,
+    callback: OnCallback<MutationState>,
 }
 
 pub struct EventEmitter<Event, MutationState> {
@@ -25,12 +33,7 @@ where
         }
     }
 
-    pub fn on(
-        &self,
-        id: u32,
-        events: &[Event],
-        callback: Box<dyn Fn(&MutationState) + Send + Sync>,
-    ) {
+    pub fn on(&self, id: u32, events: &[Event], callback: OnCallback<MutationState>) {
         let listener = Arc::new(Listener { id, callback });
 
         let mut listeners = self.listeners.lock().unwrap();
@@ -54,8 +57,23 @@ where
         let event_listeners = self.listeners.lock().unwrap().get(event).cloned();
 
         if let Some(event_listeners) = event_listeners {
+            let side_effects: Rc<RefCell<Vec<SideEffect>>> = Rc::new(RefCell::new(Vec::new()));
+
+            let add_side_effect_side_effects = side_effects.clone();
+            let add_side_effect: Rc<AddSideEffect> =
+                Rc::new(Box::new(move |side_effect: SideEffect| {
+                    let side_effects = add_side_effect_side_effects.clone();
+                    let mut side_effects = side_effects.borrow_mut();
+
+                    side_effects.push(side_effect);
+                }));
+
             for listener in event_listeners {
-                (listener.callback)(mutation_state);
+                (listener.callback)(mutation_state, add_side_effect.clone().as_ref());
+            }
+
+            for side_effect in side_effects.take() {
+                side_effect();
             }
         }
     }

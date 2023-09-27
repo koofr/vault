@@ -64,7 +64,7 @@ impl<E: Send + Sync + 'static> DirPickersHelper<E> {
         self.store.on(
             listener_id,
             events,
-            Box::new(move |_| {
+            Box::new(move |_, _| {
                 update_items_self.generate_items(picker_id);
             }),
         );

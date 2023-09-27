@@ -10,13 +10,13 @@ pub mod test_helpers;
 pub mod wait;
 
 pub use self::{
-    event_emitter::EventEmitter,
+    event_emitter::{AddSideEffect, EventEmitter, OnCallback, SideEffect},
     mutation_event_emitter::MutationEventEmitter,
     mutation_notify::MutationNotify,
     next_id::NextId,
     notify::Notify,
     remove_listener::RemoveListener,
-    store::Store,
+    store::{OnMutationCallback, Store},
     subscription::{update_if, Subscription},
     wait::wait_for,
 };

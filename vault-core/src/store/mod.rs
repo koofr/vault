@@ -6,7 +6,7 @@ pub mod test_helpers;
 
 use std::sync::Arc;
 
-pub use vault_store::{update_if, NextId};
+pub use vault_store::{update_if, AddSideEffect, NextId, SideEffect};
 
 pub use self::{
     event::Event, mutation_event::MutationEvent, mutation_state::MutationState, state::State,
@@ -20,6 +20,8 @@ pub type MutationEventEmitter =
 pub type Notify = vault_store::Notify<Event>;
 
 pub type MutationNotify = vault_store::MutationNotify<MutationEvent, State, MutationState>;
+
+pub type OnCallback = vault_store::OnCallback<MutationState>;
 
 pub type Store = vault_store::Store<State, Event, MutationState, MutationEvent>;
 

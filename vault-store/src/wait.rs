@@ -59,7 +59,7 @@ where
     store.on(
         subscription_id,
         events,
-        Box::new(move |_| {
+        Box::new(move |_, _| {
             let subscription_f = subscription_f.clone();
 
             if let Some(res) = subscription_f() {

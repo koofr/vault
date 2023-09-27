@@ -73,7 +73,7 @@ where
         self.store.on(
             id,
             events,
-            Box::new(move |_| {
+            Box::new(move |_, _| {
                 let callback_subscription_data = callback_subscription_data.clone();
                 let mut subscription_data = callback_subscription_data.lock().unwrap();
                 let changed = callback_generate_data(subscription_data.entry(id));

@@ -6,12 +6,12 @@ use std::{
     sync::{Arc, Mutex, RwLock},
 };
 
+use crate::event_emitter::OnCallback;
+
 use super::{
     event_emitter::EventEmitter, mutation_event_emitter::MutationEventEmitter, next_id::NextId,
     MutationNotify, Notify,
 };
-
-pub type OnCallback<MutationState> = Box<dyn Fn(&MutationState) + Send + Sync>;
 
 pub type OnMutationCallback<State, Event, MutationState, MutationEvent> = Box<
     dyn Fn(

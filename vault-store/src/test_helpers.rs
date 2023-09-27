@@ -63,7 +63,7 @@ impl StoreWatcher {
         store.clone().on(
             id,
             events,
-            Box::new(move |_| {
+            Box::new(move |_, _| {
                 let i = callback_counter.fetch_add(1, Ordering::SeqCst);
 
                 callback_callback(&callback_store, i);

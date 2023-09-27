@@ -123,7 +123,7 @@ impl RepoFilesDetailsService {
         self.store.on(
             repo_files_subscription_id,
             &[store::Event::RepoFiles, store::Event::RepoFilesDetails],
-            Box::new(move |mutation_state| {
+            Box::new(move |mutation_state, add_side_effect| {
                 let (was_removed, should_reload) =
                     repo_files_subscription_self.store.with_state(|state| {
                         let was_removed =
@@ -140,24 +140,24 @@ impl RepoFilesDetailsService {
                     });
 
                 if was_removed {
-                    let file_removed_self = repo_files_subscription_self.clone();
+                    let side_effect_self = repo_files_subscription_self.clone();
 
-                    repo_files_subscription_self
-                        .runtime
-                        .spawn(Box::pin(async move {
-                            file_removed_self.file_removed(details_id).await;
+                    add_side_effect(Box::new(move || {
+                        side_effect_self.clone().runtime.spawn(Box::pin(async move {
+                            side_effect_self.file_removed(details_id).await;
                         }));
+                    }));
                 }
 
                 if should_reload {
-                    let reload_content_self = repo_files_subscription_self.clone();
+                    let side_effect_self = repo_files_subscription_self.clone();
 
-                    repo_files_subscription_self
-                        .runtime
-                        .spawn(Box::pin(async move {
+                    add_side_effect(Box::new(move || {
+                        side_effect_self.clone().runtime.spawn(Box::pin(async move {
                             // errors will be stored in the store
-                            let _ = reload_content_self.load_content(details_id).await;
+                            let _ = side_effect_self.load_content(details_id).await;
                         }));
+                    }))
                 }
             }),
         );
