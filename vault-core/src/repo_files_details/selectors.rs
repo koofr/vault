@@ -412,6 +412,19 @@ pub fn select_was_removed(
             .unwrap_or(false)
 }
 
+pub fn select_should_reload_content(
+    state: &store::State,
+    mutation_state: &store::MutationState,
+    details_id: u32,
+) -> bool {
+    select_is_content_stale(state, details_id)
+        && !select_is_dirty(state, details_id)
+        && !select_is_saving(state, details_id)
+        && !select_is_content_loading(state, details_id)
+        && !select_is_content_loaded_error(state, details_id)
+        && !select_was_removed(state, mutation_state, details_id)
+}
+
 pub fn select_should_wait_for_loaded(state: &store::State, details_id: u32) -> Option<()> {
     match select_details(state, details_id) {
         Some(details) => match &details.status {

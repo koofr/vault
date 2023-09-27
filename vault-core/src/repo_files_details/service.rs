@@ -124,17 +124,14 @@ impl RepoFilesDetailsService {
             Box::new(move |mutation_state, add_side_effect| {
                 let (was_removed, should_reload) =
                     repo_files_subscription_self.store.with_state(|state| {
-                        let was_removed =
-                            selectors::select_was_removed(state, mutation_state, details_id);
-
-                        let should_reload = !selectors::select_is_dirty(state, details_id)
-                            && !selectors::select_is_saving(state, details_id)
-                            && !selectors::select_is_content_loading(state, details_id)
-                            && !selectors::select_is_content_loaded_error(state, details_id)
-                            && selectors::select_is_content_stale(state, details_id)
-                            && !was_removed;
-
-                        (was_removed, should_reload)
+                        (
+                            selectors::select_was_removed(state, mutation_state, details_id),
+                            selectors::select_should_reload_content(
+                                state,
+                                mutation_state,
+                                details_id,
+                            ),
+                        )
                     });
 
                 if was_removed {
