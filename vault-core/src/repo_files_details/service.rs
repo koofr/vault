@@ -98,9 +98,7 @@ impl RepoFilesDetailsService {
         let repo_files_subscription_id = self.store.get_next_id();
 
         let details_id = self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoFilesDetails);
-
-            mutations::create(state, options, location, repo_files_subscription_id)
+            mutations::create(state, notify, options, location, repo_files_subscription_id)
         });
 
         let load_self = self.clone();
@@ -223,12 +221,9 @@ impl RepoFilesDetailsService {
                     }
                 }
             }
-
-            let repo_files_subscription_id = self.store.mutate(|state, notify, _, _| {
-                notify(store::Event::RepoFilesDetails);
-
-                mutations::destroy(state, details_id)
-            });
+            let repo_files_subscription_id = self
+                .store
+                .mutate(|state, notify, _, _| mutations::destroy(state, notify, details_id));
 
             if let Some(repo_files_subscription_id) = repo_files_subscription_id {
                 self.store.remove_listener(repo_files_subscription_id);
@@ -246,9 +241,14 @@ impl RepoFilesDetailsService {
             let res = self.repo_files_service.load_files(&repo_id, &path).await;
 
             self.store.mutate(|state, notify, _, _| {
-                notify(store::Event::RepoFilesDetails);
-
-                mutations::loaded(state, details_id, &repo_id, &path, res.as_ref().err());
+                mutations::loaded(
+                    state,
+                    notify,
+                    details_id,
+                    &repo_id,
+                    &path,
+                    res.as_ref().err(),
+                );
             });
 
             res?;
@@ -380,9 +380,7 @@ impl RepoFilesDetailsService {
 
     pub fn edit(&self, details_id: u32) {
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoFilesDetails);
-
-            mutations::edit(state, details_id);
+            mutations::edit(state, notify, details_id);
         });
     }
 

@@ -48,10 +48,13 @@ pub fn create_location(
 
 pub fn create(
     state: &mut store::State,
+    notify: &store::Notify,
     options: RepoFilesDetailsOptions,
     location: Result<RepoFilesDetailsLocation, LoadFilesError>,
     repo_files_subscription_id: u32,
 ) -> u32 {
+    notify(store::Event::RepoFilesDetails);
+
     let details_id = state.repo_files_details.next_id.next();
 
     let status = match &location {
@@ -80,7 +83,9 @@ pub fn create(
     details_id
 }
 
-pub fn destroy(state: &mut store::State, details_id: u32) -> Option<u32> {
+pub fn destroy(state: &mut store::State, notify: &store::Notify, details_id: u32) -> Option<u32> {
+    notify(store::Event::RepoFilesDetails);
+
     let repo_files_subscription_id = state
         .repo_files_details
         .details
@@ -94,6 +99,7 @@ pub fn destroy(state: &mut store::State, details_id: u32) -> Option<u32> {
 
 pub fn loaded(
     state: &mut store::State,
+    notify: &store::Notify,
     details_id: u32,
     repo_id: &str,
     path: &str,
@@ -110,6 +116,8 @@ pub fn loaded(
         .filter(|loc| loc.repo_id == repo_id && loc.path == path)
         .is_some()
     {
+        notify(store::Event::RepoFilesDetails);
+
         details.status = match error {
             Some(error) => Status::Error {
                 error: error.clone(),
@@ -236,11 +244,13 @@ pub fn content_loaded(
     }
 }
 
-pub fn edit(state: &mut store::State, details_id: u32) {
+pub fn edit(state: &mut store::State, notify: &store::Notify, details_id: u32) {
     let location = match selectors::select_details_location_mut(state, details_id) {
         Some(location) => location,
         _ => return,
     };
+
+    notify(store::Event::RepoFilesDetails);
 
     location.is_editing = true;
 }
