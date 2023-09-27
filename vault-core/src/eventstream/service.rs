@@ -31,6 +31,12 @@ impl std::fmt::Debug for MountSubscription {
     }
 }
 
+impl PartialEq for MountSubscription {
+    fn eq(&self, other: &Self) -> bool {
+        self.file_id == other.file_id && self.listener_id == other.listener_id
+    }
+}
+
 impl Drop for MountSubscription {
     fn drop(&mut self) {
         self.eventstream_service

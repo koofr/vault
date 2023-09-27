@@ -10,11 +10,156 @@ use axum::{http::StatusCode, response::IntoResponse};
 use futures::FutureExt;
 use similar_asserts::assert_eq;
 use vault_core::{
+    common::state::Status,
     files::{file_category::FileCategory, files_filter::FilesFilter},
-    repo_files_details::state::RepoFilesDetailsOptions,
+    remote_files,
+    repo_files_details::state::{
+        RepoFilesDetails, RepoFilesDetailsContent, RepoFilesDetailsContentData,
+        RepoFilesDetailsContentLoading, RepoFilesDetailsLocation, RepoFilesDetailsOptions,
+        RepoFilesDetailsState,
+    },
+    store,
 };
-use vault_core_tests::helpers::with_repo;
+use vault_core_tests::{
+    fixtures::repo_fixture::RepoFixture,
+    helpers::{
+        repo_files_details::{details_wait, details_wait_content_loaded},
+        with_repo,
+    },
+};
 use vault_fake_remote::fake_remote::interceptor::InterceptorResult;
+use vault_store::{test_helpers::StateRecorder, NextId};
+
+#[test]
+fn test_content() {
+    with_repo(|fixture| {
+        async move {
+            let (upload_result, _) = fixture.upload_file("/file.txt", "test").await;
+
+            fixture
+                .vault
+                .store
+                .mutate(|state, _, mutation_state, mutation_notify| {
+                    // remove file from state so that it is loaded before content is loaded to prevent flaky tests
+                    remote_files::mutations::file_removed(
+                        state,
+                        mutation_state,
+                        mutation_notify,
+                        &upload_result.remote_file.mount_id,
+                        &upload_result.remote_file.path,
+                    );
+                });
+
+            let recorder = StateRecorder::record(
+                fixture.vault.store.clone(),
+                &[store::Event::RepoFilesDetails],
+                |state| state.repo_files_details.clone(),
+            );
+
+            let (details_id, load_future) = fixture.vault.repo_files_details_create(
+                &fixture.repo_id,
+                "/file.txt",
+                false,
+                RepoFilesDetailsOptions {
+                    autosave_interval: Duration::from_secs(20),
+                    load_content: FilesFilter {
+                        categories: vec![FileCategory::Text],
+                        exts: vec![],
+                    },
+                },
+            );
+            load_future.await.unwrap();
+
+            details_wait_content_loaded(fixture.vault.store.clone(), 1).await;
+
+            fixture
+                .vault
+                .repo_files_details_destroy(details_id)
+                .await
+                .unwrap();
+
+            recorder.check_recorded(
+                |len| assert_eq!(len, 6),
+                |i, state| match i {
+                    0 => assert_eq!(state, RepoFilesDetailsState::default()),
+                    1 => assert_eq!(
+                        state,
+                        expected_details_state(&fixture, &state, |details| {
+                            details
+                                .options
+                                .load_content
+                                .categories
+                                .push(FileCategory::Text);
+                            details.status = Status::Loading { loaded: false };
+                        })
+                    ),
+                    2 => assert_eq!(
+                        state,
+                        expected_details_state(&fixture, &state, |details| {
+                            details
+                                .options
+                                .load_content
+                                .categories
+                                .push(FileCategory::Text);
+                            details.status = Status::Loaded;
+                        })
+                    ),
+                    3 => assert_eq!(
+                        state,
+                        expected_details_state(&fixture, &state, |details| {
+                            details
+                                .options
+                                .load_content
+                                .categories
+                                .push(FileCategory::Text);
+                            details.status = Status::Loaded;
+
+                            if let Some(location) = details.location.as_mut() {
+                                location.content.status = Status::Loading { loaded: false };
+                                location.content.loading = Some(RepoFilesDetailsContentLoading {
+                                    remote_size: upload_result.remote_file.size,
+                                    remote_modified: upload_result.remote_file.modified,
+                                    remote_hash: upload_result.remote_file.hash.clone(),
+                                });
+                            }
+                        })
+                    ),
+                    4 => assert_eq!(
+                        state,
+                        expected_details_state(&fixture, &state, |details| {
+                            details
+                                .options
+                                .load_content
+                                .categories
+                                .push(FileCategory::Text);
+                            details.status = Status::Loaded;
+
+                            if let Some(location) = details.location.as_mut() {
+                                location.content.status = Status::Loaded;
+                                location.content.data = Some(RepoFilesDetailsContentData {
+                                    bytes: "test".as_bytes().to_owned(),
+                                    remote_size: upload_result.remote_file.size,
+                                    remote_modified: upload_result.remote_file.modified,
+                                    remote_hash: upload_result.remote_file.hash.clone(),
+                                });
+                                location.content.version = 1;
+                            }
+                        })
+                    ),
+                    5 => assert_eq!(
+                        state,
+                        RepoFilesDetailsState {
+                            next_id: NextId(2),
+                            ..Default::default()
+                        }
+                    ),
+                    _ => {}
+                },
+            );
+        }
+        .boxed()
+    });
+}
 
 #[test]
 fn test_content_loaded_error() {
@@ -34,7 +179,7 @@ fn test_content_loaded_error() {
                 }
             }));
 
-            fixture.upload_file("/file.txt", "text").await;
+            fixture.upload_file("/file.txt", "test").await;
 
             let (_, load_future) = fixture.vault.repo_files_details_create(
                 &fixture.repo_id,
@@ -50,11 +195,66 @@ fn test_content_loaded_error() {
             );
             load_future.await.unwrap();
 
-            tokio::time::sleep(Duration::from_millis(100)).await;
+            details_wait(fixture.vault.store.clone(), 1, |details| {
+                matches!(
+                    details.location.as_ref().unwrap().content.status,
+                    Status::Error { .. }
+                )
+            })
+            .await;
 
             // one retry on server errors in http client
             assert_eq!(download_counter.load(Ordering::SeqCst), 2);
         }
         .boxed()
     });
+}
+
+fn expected_details_state(
+    fixture: &RepoFixture,
+    state: &RepoFilesDetailsState,
+    mut patch: impl FnMut(&mut RepoFilesDetails),
+) -> RepoFilesDetailsState {
+    let mut details = RepoFilesDetails {
+        options: RepoFilesDetailsOptions {
+            autosave_interval: Duration::from_secs(20),
+            load_content: FilesFilter {
+                categories: vec![],
+                exts: vec![],
+            },
+        },
+        location: Some(RepoFilesDetailsLocation {
+            repo_id: fixture.repo_id.clone(),
+            path: "/file.txt".into(),
+            eventstream_mount_subscription: state
+                .details
+                .get(&1)
+                .unwrap()
+                .location
+                .as_ref()
+                .unwrap()
+                .eventstream_mount_subscription
+                .clone(),
+            content: RepoFilesDetailsContent {
+                status: Status::Initial,
+                data: None,
+                loading: None,
+                version: 0,
+            },
+            is_editing: false,
+            is_dirty: false,
+            save_status: Status::Initial,
+            delete_status: Status::Initial,
+            should_destroy: false,
+        }),
+        status: Status::Initial,
+        repo_files_subscription_id: state.details.get(&1).unwrap().repo_files_subscription_id,
+    };
+
+    patch(&mut details);
+
+    RepoFilesDetailsState {
+        details: [(1, details)].into(),
+        next_id: NextId(2),
+    }
 }

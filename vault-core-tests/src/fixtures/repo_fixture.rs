@@ -2,8 +2,11 @@ use std::sync::Arc;
 
 use futures::io::Cursor;
 use vault_core::{
-    remote::models, repo_files::state::RepoFilesUploadConflictResolution,
-    repos::state::RepoUnlockMode, utils::path_utils, Vault,
+    remote::models,
+    repo_files::state::{RepoFile, RepoFilesUploadConflictResolution, RepoFilesUploadResult},
+    repos::state::RepoUnlockMode,
+    utils::path_utils,
+    Vault,
 };
 use vault_fake_remote::fake_remote::{context::Context, files};
 
@@ -87,14 +90,19 @@ impl RepoFixture {
             .unwrap();
     }
 
-    pub async fn upload_file(&self, path: &str, content: &str) {
+    pub async fn upload_file(
+        &self,
+        path: &str,
+        content: &str,
+    ) -> (RepoFilesUploadResult, RepoFile) {
         let (parent_path, name) = path_utils::split_parent_name(path).unwrap();
 
         let bytes = content.as_bytes().to_vec();
         let size = bytes.len();
         let reader = Box::pin(Cursor::new(bytes));
 
-        self.vault
+        let result = self
+            .vault
             .repo_files_service
             .clone()
             .upload_file_reader(
@@ -108,5 +116,16 @@ impl RepoFixture {
             )
             .await
             .unwrap();
+
+        let repo_file = self.vault.with_state(|state| {
+            state
+                .repo_files
+                .files
+                .get(&result.file_id)
+                .cloned()
+                .unwrap()
+        });
+
+        (result, repo_file)
     }
 }

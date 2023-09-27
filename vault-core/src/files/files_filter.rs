@@ -1,6 +1,6 @@
 use super::file_category::FileCategory;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct FilesFilter {
     pub categories: Vec<FileCategory>,
     pub exts: Vec<String>,
