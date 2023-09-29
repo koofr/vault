@@ -2,13 +2,12 @@ use std::sync::Arc;
 
 use futures::io::Cursor;
 use vault_core::{
-    remote::models,
     repo_files::state::{RepoFile, RepoFilesUploadConflictResolution, RepoFilesUploadResult},
     repos::state::RepoUnlockMode,
     utils::path_utils,
     Vault,
 };
-use vault_fake_remote::fake_remote::{context::Context, files};
+use vault_fake_remote::fake_remote::context::Context;
 
 use crate::{fake_remote::FakeRemote, fixtures::user_fixture::UserFixture};
 
@@ -27,38 +26,19 @@ impl RepoFixture {
         let fake_remote = user_fixture.fake_remote.clone();
         let vault = user_fixture.vault.clone();
 
-        let user_id = user_fixture.user_id.clone();
-        let mount_id = user_fixture.mount_id.clone();
-        let path = String::from("/My safe box");
-
-        let context = Context {
-            user_id,
-            user_agent: None,
-        };
-
-        fake_remote
+        let repo = fake_remote
             .app_state
-            .files_service
-            .create_dir(
-                &context,
-                &mount_id,
-                &files::Path::root(),
-                files::Name("My safe box".into()),
-            )
+            .vault_repos_create_service
+            .create_test_vault_repo(&Context {
+                user_id: user_fixture.user_id.clone(),
+                user_agent: None,
+            })
             .await
             .unwrap();
 
-        let repo_id = fake_remote.app_state.vault_repos_create_service.create_vault_repo(
-                &context,
-                models::VaultRepoCreate {
-                    mount_id: mount_id.clone(),
-                    path: path.clone(),
-                    salt: Some("salt".into()),
-                    password_validator: "ad3238a5-5fc7-4b8f-9575-88c69c0c91cd".into(),
-                    password_validator_encrypted: "v2:UkNMT05FAABVyJmka7FKh8CKL2AtIZc1xiZk-SO5GeuZPnHvw0ehM1dENa4iBCyPEf50da9V2XvL5CjpZlUle1lifEHtaRy9YHoFLHtiq1PCAqYY".into(),
-                },
-            )
-            .unwrap().id;
+        let repo_id = repo.id;
+        let mount_id = repo.mount_id;
+        let path = repo.path;
 
         Arc::new(Self {
             user_fixture,
