@@ -1,4 +1,5 @@
 mod oauth2_tests;
+mod repo_create_tests;
 mod repo_files_details_tests;
 mod transfers_download_reader_tests;
 mod transfers_download_tests;

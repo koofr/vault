@@ -52,7 +52,7 @@ pub struct RepoInfo<'a> {
     pub repo: Option<&'a Repo>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct RepoConfig {
     pub name: String,
     pub location: RemoteFilesLocation,
@@ -67,7 +67,7 @@ pub enum RepoUnlockMode {
     Verify,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct RepoCreated {
     pub repo_id: String,
     pub config: RepoConfig,

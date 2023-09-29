@@ -102,6 +102,9 @@ pub fn set_location(
     notify(store::Event::RepoCreate);
 
     form.location = Some(location);
+
+    // hide the error when a new location is selected
+    form.create_repo_status = Status::Initial
 }
 
 pub fn location_dir_picker_show(
@@ -130,13 +133,16 @@ pub fn location_dir_picker_cancel(
         _ => return None,
     };
 
-    notify(store::Event::RepoCreate);
+    match form.location_dir_picker_id {
+        Some(location_dir_picker_id) => {
+            notify(store::Event::RepoCreate);
 
-    let location_dir_picker_id = form.location_dir_picker_id;
+            form.location_dir_picker_id = None;
 
-    form.location_dir_picker_id = None;
-
-    location_dir_picker_id
+            Some(location_dir_picker_id)
+        }
+        None => None,
+    }
 }
 
 pub fn set_password(

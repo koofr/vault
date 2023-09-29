@@ -9,7 +9,7 @@ use crate::{
     store::NextId,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct RepoCreateForm {
     pub create_load_status: Status<RemoteError>,
     pub primary_mount_id: Option<String>,
@@ -21,13 +21,29 @@ pub struct RepoCreateForm {
     pub create_repo_status: Status<CreateRepoError>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum RepoCreate {
     Form(RepoCreateForm),
     Created(RepoCreated),
 }
 
-#[derive(Debug, Clone, Default)]
+impl RepoCreate {
+    pub fn form(&self) -> Option<&RepoCreateForm> {
+        match self {
+            Self::Form(form) => Some(form),
+            Self::Created(_) => None,
+        }
+    }
+
+    pub fn created(&self) -> Option<&RepoCreated> {
+        match self {
+            Self::Created(created) => Some(created),
+            Self::Form(_) => None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct RepoCreatesState {
     pub creates: HashMap<u32, RepoCreate>,
     pub next_id: NextId,
