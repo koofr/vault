@@ -15,6 +15,17 @@ pub fn can_open(transfer: &Transfer) -> bool {
     matches!(transfer.state, TransferState::Done { .. }) && transfer.is_openable
 }
 
+pub fn get_percentage(done_bytes: i64, total_bytes: i64) -> u8 {
+    if total_bytes > 0 {
+        min(
+            ((done_bytes as f64 * 100.0) / total_bytes as f64).floor() as u8,
+            100,
+        )
+    } else {
+        0
+    }
+}
+
 pub fn transfer_duration(transfer: &Transfer, now: i64) -> Option<Duration> {
     transfer.started.map(|started| match now - started {
         x if x < 0 => Duration::ZERO,
@@ -30,6 +41,13 @@ pub fn transfers_duration(transfers: &TransfersState, now: i64) -> Duration {
         },
         None => Duration::ZERO,
     }
+}
+
+pub fn transfer_percentage(transfer: &Transfer) -> Option<u8> {
+    transfer
+        .size
+        .exact_or_estimate()
+        .map(|size| get_percentage(transfer.transferred_bytes, size))
 }
 
 pub fn select_config(state: &store::State) -> &TransfersConfig {
@@ -119,15 +137,7 @@ pub fn select_remaining_time(state: &store::State, now: i64) -> RemainingTime {
 }
 
 pub fn select_percentage(state: &store::State) -> u8 {
-    if state.transfers.total_bytes > 0 {
-        min(
-            ((state.transfers.done_bytes as f64 * 100.0) / state.transfers.total_bytes as f64)
-                .floor() as u8,
-            100,
-        )
-    } else {
-        0
-    }
+    get_percentage(state.transfers.done_bytes, state.transfers.total_bytes)
 }
 
 pub fn select_next_transfer<'a>(state: &'a store::State) -> Option<&'a Transfer> {
