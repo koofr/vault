@@ -1,7 +1,11 @@
 use std::sync::Arc;
 
+use futures::io::Cursor;
 use vault_core::{
     oauth2::{service::TOKEN_STORAGE_KEY, state::OAuth2Token},
+    remote::RemoteFileUploadConflictResolution,
+    remote_files::state::RemoteFile,
+    utils::path_utils,
     Vault,
 };
 use vault_fake_remote::fake_remote::{context::Context, utils::now_ms};
@@ -77,5 +81,31 @@ impl UserFixture {
 
     pub async fn load(&self) {
         self.vault_fixture.vault.load().await.unwrap();
+    }
+
+    pub async fn upload_remote_file(&self, path: &str, content: &str) -> RemoteFile {
+        let (parent_path, name) = path_utils::split_parent_name(path).unwrap();
+
+        let bytes = content.as_bytes().to_vec();
+        let size = bytes.len();
+        let reader = Box::pin(Cursor::new(bytes));
+
+        let (_, remote_file) = self
+            .vault
+            .remote_files_service
+            .clone()
+            .upload_file_reader(
+                &self.mount_id,
+                parent_path,
+                name,
+                reader,
+                Some(size as i64),
+                RemoteFileUploadConflictResolution::Error,
+                None,
+            )
+            .await
+            .unwrap();
+
+        remote_file
     }
 }

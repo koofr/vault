@@ -10,6 +10,7 @@ use crate::{
     },
     repo_files_read::errors::GetFilesReaderError,
     store,
+    transfers::errors::TransferError,
 };
 
 use super::{
@@ -37,6 +38,7 @@ pub fn create_location(
             data: None,
             loading: None,
             version: 0,
+            transfer_id: None,
         },
         is_editing,
         is_dirty: false,
@@ -83,7 +85,11 @@ pub fn create(
     details_id
 }
 
-pub fn destroy(state: &mut store::State, notify: &store::Notify, details_id: u32) -> Option<u32> {
+pub fn destroy(
+    state: &mut store::State,
+    notify: &store::Notify,
+    details_id: u32,
+) -> (Option<u32>, Option<u32>) {
     notify(store::Event::RepoFilesDetails);
 
     let repo_files_subscription_id = state
@@ -92,9 +98,16 @@ pub fn destroy(state: &mut store::State, notify: &store::Notify, details_id: u32
         .get(&details_id)
         .map(|details| details.repo_files_subscription_id);
 
+    let transfer_id = state
+        .repo_files_details
+        .details
+        .get(&details_id)
+        .and_then(|details| details.location.as_ref())
+        .and_then(|location| location.content.transfer_id);
+
     state.repo_files_details.details.remove(&details_id);
 
-    repo_files_subscription_id
+    (repo_files_subscription_id, transfer_id)
 }
 
 pub fn loaded(
@@ -177,7 +190,7 @@ pub fn file_reader_loading(
     state: &mut store::State,
     notify: &store::Notify,
     details_id: u32,
-    file: RepoFile,
+    file: &RepoFile,
 ) -> Result<(), GetFilesReaderError> {
     let loading = repo_files_selectors::select_remote_file(state, &file).map(|remote_file| {
         RepoFilesDetailsContentLoading {
@@ -192,12 +205,12 @@ pub fn file_reader_loading(
         _ => return Err(GetFilesReaderError::FileNotFound),
     };
 
+    notify(store::Event::RepoFilesDetails);
+
     location.content.status = Status::Loading {
         loaded: location.content.status.loaded(),
     };
     location.content.loading = loading;
-
-    notify(store::Event::RepoFilesDetails);
 
     Ok(())
 }
@@ -206,9 +219,9 @@ pub fn content_loaded(
     state: &mut store::State,
     notify: &store::Notify,
     details_id: u32,
-    repo_id: String,
-    path: String,
-    res: Result<Option<RepoFilesDetailsContentData>, GetFilesReaderError>,
+    repo_id: &str,
+    path: &str,
+    res: Result<Option<RepoFilesDetailsContentData>, TransferError>,
 ) {
     let location = match selectors::select_details_location_mut(state, details_id) {
         Some(location) => location,
@@ -240,6 +253,69 @@ pub fn content_loaded(
                     loaded: location.content.status.loaded(),
                 };
             }
+        }
+    }
+}
+
+pub fn content_error(
+    state: &mut store::State,
+    notify: &store::Notify,
+    details_id: u32,
+    err: TransferError,
+) {
+    let location = match selectors::select_details_location_mut(state, details_id) {
+        Some(location) => location,
+        _ => return,
+    };
+
+    notify(store::Event::RepoFilesDetails);
+
+    location.content.status = Status::Error {
+        error: err,
+        loaded: location.content.status.loaded(),
+    };
+}
+
+pub fn content_transfer_created(
+    state: &mut store::State,
+    notify: &store::Notify,
+    details_id: u32,
+    file: &RepoFile,
+    transfer_id: u32,
+) -> Result<Option<u32>, GetFilesReaderError> {
+    file_reader_loading(state, notify, details_id, file)?;
+
+    let location = match selectors::select_details_location_mut(state, details_id) {
+        Some(location) => location,
+        _ => return Ok(None),
+    };
+
+    notify(store::Event::RepoFilesDetails);
+
+    Ok(location.content.transfer_id.replace(transfer_id))
+}
+
+pub fn content_transfer_removed(
+    state: &mut store::State,
+    notify: &store::Notify,
+    details_id: u32,
+    repo_id: &str,
+    path: &str,
+    transfer_id: u32,
+    res: Result<(), TransferError>,
+) {
+    content_loaded(state, notify, details_id, repo_id, path, res.map(|_| None));
+
+    let location = match selectors::select_details_location_mut(state, details_id) {
+        Some(location) => location,
+        _ => return,
+    };
+
+    if let Some(current_transfer_id) = location.content.transfer_id {
+        if transfer_id == current_transfer_id {
+            notify(store::Event::RepoFilesDetails);
+
+            location.content.transfer_id = None;
         }
     }
 }

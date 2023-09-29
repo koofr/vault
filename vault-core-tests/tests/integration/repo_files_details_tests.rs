@@ -1,4 +1,5 @@
 use std::{
+    future,
     sync::{
         atomic::{AtomicUsize, Ordering},
         Arc,
@@ -10,6 +11,7 @@ use axum::{http::StatusCode, response::IntoResponse};
 use futures::FutureExt;
 use similar_asserts::assert_eq;
 use vault_core::{
+    cipher::errors::DecryptSizeError,
     common::state::Status,
     files::{file_category::FileCategory, files_filter::FilesFilter},
     remote_files,
@@ -19,11 +21,13 @@ use vault_core::{
         RepoFilesDetailsState,
     },
     store,
+    transfers::errors::{DownloadableError, TransferError},
 };
 use vault_core_tests::{
     fixtures::repo_fixture::RepoFixture,
     helpers::{
         repo_files_details::{details_wait, details_wait_content_loaded},
+        transfers::TestDownloadable,
         with_repo,
     },
 };
@@ -36,11 +40,11 @@ fn test_content() {
         async move {
             let (upload_result, _) = fixture.upload_file("/file.txt", "test").await;
 
+            // remove file from state so that it is loaded before the content is loaded to prevent flaky tests
             fixture
                 .vault
                 .store
                 .mutate(|state, _, mutation_state, mutation_notify| {
-                    // remove file from state so that it is loaded before content is loaded to prevent flaky tests
                     remote_files::mutations::file_removed(
                         state,
                         mutation_state,
@@ -153,7 +157,7 @@ fn test_content() {
                             ..Default::default()
                         }
                     ),
-                    _ => {}
+                    _ => panic!("unexpected state: {:#?}", state),
                 },
             );
         }
@@ -210,6 +214,310 @@ fn test_content_loaded_error() {
     });
 }
 
+#[test]
+fn test_download() {
+    with_repo(|fixture| {
+        async move {
+            let (upload_result, _) = fixture.upload_file("/file.txt", "test").await;
+
+            let recorder = StateRecorder::record(
+                fixture.vault.store.clone(),
+                &[store::Event::RepoFilesDetails],
+                |state| state.repo_files_details.clone(),
+            );
+
+            let (details_id, load_future) = fixture.vault.repo_files_details_create(
+                &fixture.repo_id,
+                "/file.txt",
+                false,
+                RepoFilesDetailsOptions {
+                    autosave_interval: Duration::from_secs(20),
+                    load_content: FilesFilter {
+                        categories: vec![],
+                        exts: vec![],
+                    },
+                },
+            );
+            load_future.await.unwrap();
+
+            let (downloadable, content_future) = TestDownloadable::string();
+
+            fixture
+                .vault
+                .repo_files_details_download(details_id, Box::new(downloadable))
+                .await
+                .unwrap();
+
+            assert_eq!(content_future.await.unwrap(), "test");
+
+            fixture
+                .vault
+                .repo_files_details_destroy(details_id)
+                .await
+                .unwrap();
+
+            recorder.check_recorded(
+                |len| assert_eq!(len, 6),
+                |i, state| match i {
+                    0 => assert_eq!(state, RepoFilesDetailsState::default()),
+                    1 => assert_eq!(
+                        state,
+                        expected_details_state(&fixture, &state, |details| {
+                            details.status = Status::Loading { loaded: true };
+                        })
+                    ),
+                    2 => assert_eq!(
+                        state,
+                        expected_details_state(&fixture, &state, |details| {
+                            details.status = Status::Loaded;
+                        })
+                    ),
+                    3 => assert_eq!(
+                        state,
+                        expected_details_state(&fixture, &state, |details| {
+                            details.status = Status::Loaded;
+
+                            if let Some(location) = details.location.as_mut() {
+                                location.content.status = Status::Loading { loaded: false };
+                                location.content.loading = Some(RepoFilesDetailsContentLoading {
+                                    remote_size: upload_result.remote_file.size,
+                                    remote_modified: upload_result.remote_file.modified,
+                                    remote_hash: upload_result.remote_file.hash.clone(),
+                                });
+                                location.content.transfer_id = Some(1);
+                            }
+                        })
+                    ),
+                    4 => assert_eq!(
+                        state,
+                        expected_details_state(&fixture, &state, |details| {
+                            details.status = Status::Loaded;
+
+                            if let Some(location) = details.location.as_mut() {
+                                location.content.status = Status::Loaded;
+                                location.content.version = 1;
+                            }
+                        })
+                    ),
+                    5 => assert_eq!(
+                        state,
+                        RepoFilesDetailsState {
+                            next_id: NextId(2),
+                            ..Default::default()
+                        }
+                    ),
+                    _ => panic!("unexpected state: {:#?}", state),
+                },
+            );
+        }
+        .boxed()
+    });
+}
+
+#[test]
+fn test_download_size_decryption_error() {
+    with_repo(|fixture| {
+        async move {
+            let encrypted_path = format!(
+                "/My safe box/{}",
+                fixture
+                    .vault
+                    .repo_files_service
+                    .encrypt_filename(&fixture.repo_id, "file.txt")
+                    .unwrap()
+            );
+
+            fixture
+                .user_fixture
+                .upload_remote_file(&encrypted_path, "test")
+                .await;
+
+            let recorder = StateRecorder::record(
+                fixture.vault.store.clone(),
+                &[store::Event::RepoFilesDetails],
+                |state| state.repo_files_details.clone(),
+            );
+
+            let (details_id, load_future) = fixture.vault.repo_files_details_create(
+                &fixture.repo_id,
+                "/file.txt",
+                false,
+                RepoFilesDetailsOptions {
+                    autosave_interval: Duration::from_secs(20),
+                    load_content: FilesFilter {
+                        categories: vec![],
+                        exts: vec![],
+                    },
+                },
+            );
+            load_future.await.unwrap();
+
+            let (downloadable, content_future) = TestDownloadable::string();
+
+            let res = fixture
+                .vault
+                .repo_files_details_download(details_id, Box::new(downloadable))
+                .await;
+            assert_eq!(
+                res,
+                Err(TransferError::DecryptSizeError(
+                    DecryptSizeError::EncryptedFileTooShort
+                ))
+            );
+
+            assert!(content_future.await.is_none());
+
+            fixture
+                .vault
+                .repo_files_details_destroy(details_id)
+                .await
+                .unwrap();
+
+            recorder.check_recorded(
+                |len| assert_eq!(len, 5),
+                |i, state| match i {
+                    0 => assert_eq!(state, RepoFilesDetailsState::default()),
+                    1 => assert_eq!(
+                        state,
+                        expected_details_state(&fixture, &state, |details| {
+                            details.status = Status::Loading { loaded: true };
+                        })
+                    ),
+                    2 => assert_eq!(
+                        state,
+                        expected_details_state(&fixture, &state, |details| {
+                            details.status = Status::Loaded;
+                        })
+                    ),
+                    3 => assert_eq!(
+                        state,
+                        expected_details_state(&fixture, &state, |details| {
+                            details.status = Status::Loaded;
+
+                            if let Some(location) = details.location.as_mut() {
+                                location.content.status = Status::Error {
+                                    error: TransferError::DecryptSizeError(
+                                        DecryptSizeError::EncryptedFileTooShort,
+                                    ),
+                                    loaded: false,
+                                };
+                            }
+                        })
+                    ),
+                    4 => assert_eq!(
+                        state,
+                        RepoFilesDetailsState {
+                            next_id: NextId(2),
+                            ..Default::default()
+                        }
+                    ),
+                    _ => panic!("unexpected state: {:#?}", state),
+                },
+            );
+        }
+        .boxed()
+    });
+}
+
+#[test]
+fn test_download_downloadable_error() {
+    with_repo(|fixture| {
+        async move {
+            let _ = fixture.upload_file("/file.txt", "test").await;
+
+            let recorder = StateRecorder::record(
+                fixture.vault.store.clone(),
+                &[store::Event::RepoFilesDetails],
+                |state| state.repo_files_details.clone(),
+            );
+
+            let (details_id, load_future) = fixture.vault.repo_files_details_create(
+                &fixture.repo_id,
+                "/file.txt",
+                false,
+                RepoFilesDetailsOptions {
+                    autosave_interval: Duration::from_secs(20),
+                    load_content: FilesFilter {
+                        categories: vec![],
+                        exts: vec![],
+                    },
+                },
+            );
+            load_future.await.unwrap();
+
+            let (mut downloadable, content_future) = TestDownloadable::string();
+            downloadable.exists_fn = Box::new(|_, _| {
+                future::ready(Err(DownloadableError::LocalFileError(
+                    "downloadable exists error".into(),
+                )))
+                .boxed()
+            });
+
+            let res = fixture
+                .vault
+                .repo_files_details_download(details_id, Box::new(downloadable))
+                .await;
+            assert_eq!(
+                res,
+                Err(TransferError::LocalFileError(
+                    "downloadable exists error".into()
+                ))
+            );
+
+            assert!(content_future.await.is_none());
+
+            fixture
+                .vault
+                .repo_files_details_destroy(details_id)
+                .await
+                .unwrap();
+
+            recorder.check_recorded(
+                |len| assert_eq!(len, 5),
+                |i, state| match i {
+                    0 => assert_eq!(state, RepoFilesDetailsState::default()),
+                    1 => assert_eq!(
+                        state,
+                        expected_details_state(&fixture, &state, |details| {
+                            details.status = Status::Loading { loaded: true };
+                        })
+                    ),
+                    2 => assert_eq!(
+                        state,
+                        expected_details_state(&fixture, &state, |details| {
+                            details.status = Status::Loaded;
+                        })
+                    ),
+                    3 => assert_eq!(
+                        state,
+                        expected_details_state(&fixture, &state, |details| {
+                            details.status = Status::Loaded;
+
+                            if let Some(location) = details.location.as_mut() {
+                                location.content.status = Status::Error {
+                                    error: TransferError::LocalFileError(
+                                        "downloadable exists error".into(),
+                                    ),
+                                    loaded: false,
+                                };
+                            }
+                        })
+                    ),
+                    4 => assert_eq!(
+                        state,
+                        RepoFilesDetailsState {
+                            next_id: NextId(2),
+                            ..Default::default()
+                        }
+                    ),
+                    _ => panic!("unexpected state: {:#?}", state),
+                },
+            );
+        }
+        .boxed()
+    });
+}
+
 fn expected_details_state(
     fixture: &RepoFixture,
     state: &RepoFilesDetailsState,
@@ -240,6 +548,7 @@ fn expected_details_state(
                 data: None,
                 loading: None,
                 version: 0,
+                transfer_id: None,
             },
             is_editing: false,
             is_dirty: false,

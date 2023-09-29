@@ -13,6 +13,7 @@ use crate::{
         state::{Repo, RepoState},
     },
     store,
+    transfers::errors::TransferError,
     user_error::UserError,
     utils::path_utils,
 };
@@ -77,6 +78,12 @@ pub fn select_repo_state<'a>(state: &'a store::State, details_id: u32) -> Option
 pub fn select_is_unlocked<'a>(state: &'a store::State, details_id: u32) -> bool {
     select_repo_state(state, details_id)
         .map(|repo_state| repo_state.is_unlocked())
+        .unwrap_or(false)
+}
+
+pub fn select_is_status_any_loaded(state: &store::State, details_id: u32) -> bool {
+    select_details(state, details_id)
+        .map(|details| details.status.loaded())
         .unwrap_or(false)
 }
 
@@ -160,10 +167,10 @@ pub fn get_load_error(status: &Status<LoadFilesError>) -> Option<String> {
     }
 }
 
-pub fn get_content_error(status: &Status<GetFilesReaderError>) -> Option<String> {
+pub fn get_content_error(status: &Status<TransferError>) -> Option<String> {
     match status {
         Status::Error { error, .. } => match error {
-            GetFilesReaderError::RemoteError(error) if error.is_api_error_code(ApiErrorCode::NotFound) => Some(String::from("This file is no longer accessible. Probably it was deleted or you no longer have access to it.")),
+            TransferError::RemoteError(error) if error.is_api_error_code(ApiErrorCode::NotFound) => Some(String::from("This file is no longer accessible. Probably it was deleted or you no longer have access to it.")),
             _ => Some(error.user_error()),
         },
         _ => None,
@@ -225,6 +232,7 @@ pub fn select_info<'a>(state: &'a store::State, details_id: u32) -> Option<RepoF
         let content_status = location
             .map(|location| location.content.status.clone())
             .unwrap_or(Status::Initial);
+        let transfer_id = location.and_then(|location| location.content.transfer_id);
         let save_status = location
             .map(|location| location.save_status.clone())
             .unwrap_or(Status::Initial);
@@ -254,6 +262,7 @@ pub fn select_info<'a>(state: &'a store::State, details_id: u32) -> Option<RepoF
             file_modified,
             file_exists,
             content_status,
+            transfer_id,
             save_status,
             error,
             is_editing,
@@ -417,7 +426,8 @@ pub fn select_should_reload_content(
     mutation_state: &store::MutationState,
     details_id: u32,
 ) -> bool {
-    select_is_content_stale(state, details_id)
+    select_is_status_any_loaded(state, details_id)
+        && select_is_content_stale(state, details_id)
         && !select_is_dirty(state, details_id)
         && !select_is_saving(state, details_id)
         && !select_is_content_loading(state, details_id)

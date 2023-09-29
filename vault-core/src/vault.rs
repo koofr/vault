@@ -7,7 +7,8 @@ use crate::{
     relative_time, remote, remote_files, remote_files_browsers, remote_files_dir_pickers,
     repo_config_backup, repo_create, repo_files, repo_files_browsers, repo_files_details,
     repo_files_dir_pickers, repo_files_list, repo_files_move, repo_files_read, repo_remove,
-    repo_space_usage, repo_unlock, repos, runtime, secure_storage, space_usage, store, transfers,
+    repo_space_usage, repo_unlock, repos, runtime, secure_storage, space_usage, store,
+    transfers::{self, downloadable::BoxDownloadable},
     user,
 };
 
@@ -183,6 +184,7 @@ impl Vault {
                 repo_files_read_service.clone(),
                 eventstream_service.clone(),
                 dialogs_service.clone(),
+                transfers_service.clone(),
                 store.clone(),
                 runtime.clone(),
             ));
@@ -845,6 +847,17 @@ impl Vault {
         self.repo_files_details_service
             .clone()
             .get_file_reader(details_id)
+            .await
+    }
+
+    pub async fn repo_files_details_download(
+        &self,
+        details_id: u32,
+        downloadable: BoxDownloadable,
+    ) -> Result<(), transfers::errors::TransferError> {
+        self.repo_files_details_service
+            .clone()
+            .download(details_id, downloadable)
             .await
     }
 

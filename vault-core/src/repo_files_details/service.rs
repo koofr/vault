@@ -28,6 +28,7 @@ use crate::{
     },
     repos::selectors as repos_selectors,
     runtime, store,
+    transfers::{downloadable::BoxDownloadable, errors::TransferError, TransfersService},
     user_error::UserError,
     utils::{
         on_end_reader::OnEndReader,
@@ -49,6 +50,7 @@ pub struct RepoFilesDetailsService {
     repo_files_read_service: Arc<RepoFilesReadService>,
     eventstream_service: Arc<eventstream::EventStreamService>,
     dialogs_service: Arc<dialogs::DialogsService>,
+    transfers_service: Arc<TransfersService>,
     store: Arc<store::Store>,
     runtime: Arc<runtime::BoxRuntime>,
     autosave_abort_handles: Arc<Mutex<HashMap<u32, AbortHandle>>>,
@@ -61,6 +63,7 @@ impl RepoFilesDetailsService {
         repo_files_read_service: Arc<RepoFilesReadService>,
         eventstream_service: Arc<eventstream::EventStreamService>,
         dialogs_service: Arc<dialogs::DialogsService>,
+        transfers_service: Arc<TransfersService>,
         store: Arc<store::Store>,
         runtime: Arc<runtime::BoxRuntime>,
     ) -> Self {
@@ -79,7 +82,8 @@ impl RepoFilesDetailsService {
             repo_files_read_service,
             eventstream_service,
             dialogs_service,
-            store: store.clone(),
+            transfers_service,
+            store,
             runtime,
             autosave_abort_handles: Arc::new(Mutex::new(HashMap::new())),
             repo_files_mutation_subscription_id,
@@ -218,12 +222,17 @@ impl RepoFilesDetailsService {
                     }
                 }
             }
-            let repo_files_subscription_id = self
+
+            let (repo_files_subscription_id, transfer_id) = self
                 .store
                 .mutate(|state, notify, _, _| mutations::destroy(state, notify, details_id));
 
             if let Some(repo_files_subscription_id) = repo_files_subscription_id {
                 self.store.remove_listener(repo_files_subscription_id);
+            }
+
+            if let Some(transfer_id) = transfer_id {
+                self.transfers_service.clone().abort(transfer_id);
             }
 
             return Ok(());
@@ -284,37 +293,41 @@ impl RepoFilesDetailsService {
                             remote_hash: remote_file.hash,
                         }))
                     }
-                    Err(err) => Err(GetFilesReaderError::RemoteError(RemoteError::HttpError(
+                    Err(err) => Err(TransferError::RemoteError(RemoteError::HttpError(
                         HttpError::ResponseError(err.to_string()),
                     ))),
                 }
             }
-            Err(err) => Err(err),
+            Err(err) => Err(err.into()),
         };
 
         let res_err = res.as_ref().map(|_| ()).map_err(|err| err.clone().into());
 
         self.store.mutate(|state, notify, _, _| {
-            mutations::content_loaded(state, notify, details_id, repo_id, path, res);
+            mutations::content_loaded(state, notify, details_id, &repo_id, &path, res.into());
         });
 
         res_err
     }
 
-    pub async fn get_file_reader(
-        self: Arc<Self>,
-        details_id: u32,
-    ) -> Result<RepoFileReaderProvider, GetFilesReaderError> {
+    async fn get_file(self: Arc<Self>, details_id: u32) -> Result<RepoFile, GetFilesReaderError> {
         let file_store = self.store.clone();
 
-        let file = store::wait_for(
+        store::wait_for(
             self.store.clone(),
             &[store::Event::RepoFilesDetails],
             move || -> Option<Result<RepoFile, GetFilesReaderError>> {
                 file_store.with_state(|state| selectors::select_file_reader_file(state, details_id))
             },
         )
-        .await?;
+        .await
+    }
+
+    pub async fn get_file_reader(
+        self: Arc<Self>,
+        details_id: u32,
+    ) -> Result<RepoFileReaderProvider, GetFilesReaderError> {
+        let file = self.clone().get_file(details_id).await?;
 
         let reader_builder_file = file.clone();
         let reader_builder_self = self.clone();
@@ -349,7 +362,7 @@ impl RepoFilesDetailsService {
         let path = file.path.decrypted_path()?.to_owned();
 
         self.store.mutate(|state, notify, _, _| {
-            mutations::file_reader_loading(state, notify, details_id, file)
+            mutations::file_reader_loading(state, notify, details_id, &file)
         })?;
 
         let reader = reader_builder().await?;
@@ -365,14 +378,87 @@ impl RepoFilesDetailsService {
                             state,
                             notify,
                             details_id,
-                            repo_id,
-                            path,
+                            &repo_id,
+                            &path,
                             res.map(|_| None).map_err(Into::into),
                         );
                     });
                 }),
             ))
         }))
+    }
+
+    pub async fn download(
+        self: Arc<Self>,
+        details_id: u32,
+        downloadable: BoxDownloadable,
+    ) -> Result<(), TransferError> {
+        let file = self.clone().get_file(details_id).await?;
+        let repo_id = &file.repo_id;
+        let path = file
+            .path
+            .decrypted_path()
+            .map_err(GetFilesReaderError::from)?;
+
+        let reader_provider = match self
+            .repo_files_read_service
+            .clone()
+            .get_files_reader(vec![file.clone()])
+        {
+            Ok(reader_provider) => reader_provider,
+            Err(err) => {
+                let err = TransferError::from(err);
+
+                self.store.mutate(|state, notify, _, _| {
+                    mutations::content_error(state, notify, details_id, err.clone());
+                });
+
+                return Err(err);
+            }
+        };
+
+        let (transfer_id, create_future) = self
+            .transfers_service
+            .clone()
+            .download(reader_provider, downloadable);
+
+        let future = match create_future.await {
+            Ok(future) => future,
+            Err(err) if matches!(err, TransferError::AlreadyExists) => {
+                return Ok(());
+            }
+            Err(err) => {
+                let err = TransferError::from(err);
+
+                self.store.mutate(|state, notify, _, _| {
+                    mutations::content_error(state, notify, details_id, err.clone());
+                });
+
+                return Err(err);
+            }
+        };
+
+        if let Some(old_transfer_id) = self.store.mutate(|state, notify, _, _| {
+            mutations::content_transfer_created(state, notify, details_id, &file, transfer_id)
+        })? {
+            self.transfers_service.clone().abort(old_transfer_id);
+        }
+
+        let res = future.await;
+
+        self.store.mutate(|state, notify, _, _| {
+            mutations::content_transfer_removed(
+                state,
+                notify,
+                details_id,
+                repo_id,
+                path,
+                transfer_id,
+                res,
+            );
+        });
+
+        Ok(())
     }
 
     pub fn edit(&self, details_id: u32) {

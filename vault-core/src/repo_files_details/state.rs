@@ -5,8 +5,8 @@ use crate::{
     eventstream::service::MountSubscription,
     files::{file_category::FileCategory, files_filter::FilesFilter},
     repo_files::errors::{DeleteFileError, LoadFilesError},
-    repo_files_read::errors::GetFilesReaderError,
     store::NextId,
+    transfers::errors::TransferError,
 };
 
 use super::errors::SaveError;
@@ -21,7 +21,8 @@ pub struct RepoFilesDetailsInfo<'a> {
     pub file_category: Option<FileCategory>,
     pub file_modified: Option<i64>,
     pub file_exists: bool,
-    pub content_status: Status<GetFilesReaderError>,
+    pub content_status: Status<TransferError>,
+    pub transfer_id: Option<u32>,
     pub save_status: Status<SaveError>,
     pub error: Option<String>,
     pub is_editing: bool,
@@ -51,10 +52,11 @@ pub struct RepoFilesDetailsContentLoading {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct RepoFilesDetailsContent {
-    pub status: Status<GetFilesReaderError>,
+    pub status: Status<TransferError>,
     pub data: Option<RepoFilesDetailsContentData>,
     pub loading: Option<RepoFilesDetailsContentLoading>,
     pub version: u32,
+    pub transfer_id: Option<u32>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
