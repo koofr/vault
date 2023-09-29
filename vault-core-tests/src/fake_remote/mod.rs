@@ -9,8 +9,7 @@ use vault_fake_remote::fake_remote::{
     errors::FakeRemoteServerStartError,
     interceptor::{Interceptor, InterceptorResult},
     router::build_router,
-    server::FakeRemoteServer,
-    server::FakeRemoteServerListener,
+    server::{FakeRemoteServer, FakeRemoteServerListener},
 };
 
 struct InterceptorContainer {
