@@ -2519,7 +2519,9 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "axum",
+ "env_logger",
  "futures",
+ "log",
  "reqwest",
  "serde",
  "serde_json",
