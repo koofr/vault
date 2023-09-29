@@ -23,6 +23,13 @@ impl<E: std::error::Error + Clone + PartialEq> Status<E> {
             Self::Error { loaded, .. } => *loaded,
         }
     }
+
+    pub fn error(&self) -> Option<&E> {
+        match self {
+            Self::Error { error, .. } => Some(error),
+            _ => None,
+        }
+    }
 }
 
 impl<E: std::error::Error + Clone + PartialEq> Default for Status<E> {
