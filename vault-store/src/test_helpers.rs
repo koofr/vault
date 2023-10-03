@@ -102,16 +102,6 @@ impl StoreWatcher {
     }
 }
 
-struct FnDrop(Option<Box<dyn Fn() + Send + Sync + 'static>>);
-
-impl Drop for FnDrop {
-    fn drop(&mut self) {
-        if let Some(f) = self.0.take() {
-            f();
-        }
-    }
-}
-
 pub struct StateRecorder<T> {
     watcher: StoreWatcher,
     entries: Arc<Mutex<Vec<T>>>,
