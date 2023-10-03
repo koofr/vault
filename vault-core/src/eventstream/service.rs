@@ -39,6 +39,7 @@ impl PartialEq for MountSubscription {
 
 impl Drop for MountSubscription {
     fn drop(&mut self) {
+        // this can be called from within a store mutation
         self.eventstream_service
             .remove_mount_subscription(&self.file_id, self.listener_id);
     }
@@ -57,12 +58,14 @@ enum ConnectionState {
     Disconnected,
 }
 
+#[derive(Debug, Clone)]
 enum MountListenerState {
     Unregistered,
     Registering,
     Registered { listener_id: i64 },
 }
 
+#[derive(Debug, Clone)]
 struct MountListener {
     id: u32,
     mount_id: String,
@@ -226,9 +229,28 @@ impl EventStreamService {
                 }
                 Message::Deregistered { .. } => {}
                 Message::Event { listener_id, event } => {
-                    let connection_state = self.connection_state.lock().unwrap();
+                    // event handler can cause a MountSubscription to get
+                    // dropped which calls remove_mount_subscription and could
+                    // cause a deadlock. we must not hold any locks when
+                    // handle_event is called.
+                    let mount_listener = match &*self.connection_state.lock().unwrap() {
+                        ConnectionState::Connected {
+                            next_request_id: _,
+                            request_id_to_mount_listener_id: _,
+                            listener_id_to_mount_listener_id,
+                        } => listener_id_to_mount_listener_id.get(&listener_id).and_then(
+                            |mount_listener_id| {
+                                let mount_listeners = self.mount_listeners.lock().unwrap();
 
-                    self.handle_event(&connection_state, listener_id, event);
+                                mount_listeners.get(&mount_listener_id).cloned()
+                            },
+                        ),
+                        _ => None,
+                    };
+
+                    if let Some(mount_listener) = mount_listener {
+                        self.handle_event(mount_listener, event);
+                    }
                 }
                 Message::Unknown => {}
             },
@@ -385,6 +407,7 @@ impl EventStreamService {
         }
     }
 
+    /// This can be called from within a store mutation (MountSubscription::drop).
     pub(self) fn remove_mount_subscription(&self, file_id: &str, listener_id: u32) {
         self.mount_subscriptions.lock().unwrap().remove(file_id);
 
@@ -418,65 +441,49 @@ impl EventStreamService {
         }
     }
 
-    fn handle_event(&self, connection_state: &ConnectionState, listener_id: i64, event: Event) {
-        match connection_state {
-            ConnectionState::Connected {
-                next_request_id: _,
-                request_id_to_mount_listener_id: _,
-                listener_id_to_mount_listener_id,
+    fn handle_event(&self, mount_listener: MountListener, event: Event) {
+        match event {
+            Event::FileCreatedEvent {
+                mount_id,
+                path,
+                file,
+                ..
             } => {
-                let mount_listeners = self.mount_listeners.lock().unwrap();
-
-                if let Some(mount_listener) = listener_id_to_mount_listener_id
-                    .get(&listener_id)
-                    .and_then(|mount_listener_id| mount_listeners.get(&mount_listener_id))
-                {
-                    match event {
-                        Event::FileCreatedEvent {
-                            mount_id,
-                            path,
-                            file,
-                            ..
-                        } => {
-                            self.remote_files_service.file_created(
-                                &mount_id,
-                                &join_paths(&mount_listener.path, &path),
-                                file,
-                            );
-                        }
-                        Event::FileRemovedEvent { mount_id, path, .. } => {
-                            self.remote_files_service
-                                .file_removed(&mount_id, &join_paths(&mount_listener.path, &path));
-                        }
-                        Event::FileCopiedEvent {
-                            mount_id,
-                            new_path,
-                            file,
-                            ..
-                        } => {
-                            self.remote_files_service.file_copied(
-                                &mount_id,
-                                &join_paths(&mount_listener.path, &new_path),
-                                file,
-                            );
-                        }
-                        Event::FileMovedEvent {
-                            mount_id,
-                            path,
-                            new_path,
-                            file,
-                            ..
-                        } => {
-                            self.remote_files_service.file_moved(
-                                &mount_id,
-                                &join_paths(&mount_listener.path, &path),
-                                &join_paths(&mount_listener.path, &new_path),
-                                file,
-                            );
-                        }
-                        _ => {}
-                    }
-                }
+                self.remote_files_service.file_created(
+                    &mount_id,
+                    &join_paths(&mount_listener.path, &path),
+                    file,
+                );
+            }
+            Event::FileRemovedEvent { mount_id, path, .. } => {
+                self.remote_files_service
+                    .file_removed(&mount_id, &join_paths(&mount_listener.path, &path));
+            }
+            Event::FileCopiedEvent {
+                mount_id,
+                new_path,
+                file,
+                ..
+            } => {
+                self.remote_files_service.file_copied(
+                    &mount_id,
+                    &join_paths(&mount_listener.path, &new_path),
+                    file,
+                );
+            }
+            Event::FileMovedEvent {
+                mount_id,
+                path,
+                new_path,
+                file,
+                ..
+            } => {
+                self.remote_files_service.file_moved(
+                    &mount_id,
+                    &join_paths(&mount_listener.path, &path),
+                    &join_paths(&mount_listener.path, &new_path),
+                    file,
+                );
             }
             _ => {}
         }
