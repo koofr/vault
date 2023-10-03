@@ -67,21 +67,21 @@ where
 
         let generate_data = Arc::new(generate_data);
 
+        let callback = Arc::new(callback);
         let callback_subscription_data = subscription_data.clone();
         let callback_generate_data = generate_data.clone();
 
         self.store.on(
             id,
             events,
-            Box::new(move |_, _| {
-                let callback_subscription_data = callback_subscription_data.clone();
-                let mut subscription_data = callback_subscription_data.lock().unwrap();
-                let changed = callback_generate_data(subscription_data.entry(id));
-
-                drop(subscription_data);
+            Box::new(move |_, add_side_effect| {
+                let changed =
+                    callback_generate_data(callback_subscription_data.lock().unwrap().entry(id));
 
                 if changed {
-                    callback();
+                    let side_effect_callback = callback.clone();
+
+                    add_side_effect(Box::new(move || side_effect_callback()));
                 }
             }),
         );
