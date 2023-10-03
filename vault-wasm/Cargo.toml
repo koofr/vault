@@ -10,25 +10,25 @@ crate-type = ["cdylib"]
 default = ["console_error_panic_hook"]
 
 [dependencies]
-async-trait = "0.1.68"
+async-trait = "0.1.71"
 console_error_panic_hook = { version = "0.1.7", optional = true }
 console_log = "1.0.0"
 futures = "0.3.28"
-getrandom = { version = "0.2.9", features = ["js"] }
-gloo-timers = { version = "0.2.6", features = ["futures"] }
+getrandom = { version = "0.2.10", features = ["js"] }
+gloo-timers = { version = "0.3.0", features = ["futures"] }
 http = "0.2.9"
-js-sys = "0.3.63"
-log = "0.4.17"
-serde = { version = "1.0.163", features = ["derive"] }
-serde-wasm-bindgen = "0.5.0"
-thiserror = "1.0.40"
-tsify = { version = "0.4.4", features = ["js"] }
+js-sys = "0.3.64"
+log = "0.4.20"
+serde = { version = "1.0.188", features = ["derive"] }
+serde-wasm-bindgen = "0.6.0"
+thiserror = "1.0.49"
+tsify = { version = "0.4.5", features = ["js"] }
 vault-core = { path = "../vault-core" }
 vault-file-icon = { path = "../vault-file-icon", default-features = false }
-wasm-bindgen = "0.2.86"
-wasm-bindgen-futures = "0.4.36"
+wasm-bindgen = "0.2.87"
+wasm-bindgen-futures = "0.4.37"
 wasm-streams = { git = "https://github.com/MattiasBuelens/wasm-streams", rev = "c0b3ee7677a7aa75c9500fd4f24a52219e808762" }
-web-sys = { version = "0.3.63", features = [
+web-sys = { version = "0.3.64", features = [
   'AbortController',
   'AbortSignal',
   'Blob',
