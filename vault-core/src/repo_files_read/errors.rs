@@ -7,7 +7,7 @@ use crate::{
     user_error::UserError,
 };
 
-#[derive(Error, Debug, Clone, PartialEq, UserError)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum GetFilesReaderError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -27,6 +27,12 @@ pub enum GetFilesReaderError {
     IOError(String),
     #[error("aborted")]
     Aborted,
+}
+
+impl UserError for GetFilesReaderError {
+    fn user_error(&self) -> String {
+        self.to_string()
+    }
 }
 
 impl From<&std::io::Error> for GetFilesReaderError {

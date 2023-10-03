@@ -9,7 +9,7 @@ use crate::{
     user_error::UserError,
 };
 
-#[derive(Error, Debug, Clone, PartialEq, UserError)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum LoadDetailsError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -17,6 +17,12 @@ pub enum LoadDetailsError {
     RepoLocked(#[from] RepoLockedError),
     #[error("{0}")]
     RemoteError(#[from] RemoteError),
+}
+
+impl UserError for LoadDetailsError {
+    fn user_error(&self) -> String {
+        self.to_string()
+    }
 }
 
 impl From<LoadFilesError> for LoadDetailsError {
@@ -29,7 +35,7 @@ impl From<LoadFilesError> for LoadDetailsError {
     }
 }
 
-#[derive(Error, Debug, Clone, PartialEq, UserError)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum LoadContentError {
     #[error("{0}")]
     TransferError(#[from] TransferError),
@@ -43,7 +49,13 @@ pub enum LoadContentError {
     LoadFilterMismatch,
 }
 
-#[derive(Error, Debug, Clone, PartialEq, UserError)]
+impl UserError for LoadContentError {
+    fn user_error(&self) -> String {
+        self.to_string()
+    }
+}
+
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum SaveError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -67,6 +79,12 @@ pub enum SaveError {
     CannotSaveRoot,
     #[error("{0}")]
     RemoteError(#[from] RemoteError),
+}
+
+impl UserError for SaveError {
+    fn user_error(&self) -> String {
+        self.to_string()
+    }
 }
 
 impl From<LoadFilesError> for SaveError {

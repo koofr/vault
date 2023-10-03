@@ -57,7 +57,7 @@ impl Into<String> for ApiErrorCode {
     }
 }
 
-#[derive(Error, Debug, Clone, PartialEq, UserError)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum RemoteError {
     #[error("{message}")]
     ApiError {
@@ -111,5 +111,11 @@ impl RemoteError {
             Self::ApiError { code, .. } => code == &expected_code,
             _ => false,
         }
+    }
+}
+
+impl UserError for RemoteError {
+    fn user_error(&self) -> String {
+        self.to_string()
     }
 }

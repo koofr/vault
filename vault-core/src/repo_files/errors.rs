@@ -43,7 +43,7 @@ pub enum GetRepoMountPathError {
     RepoLocked(#[from] RepoLockedError),
 }
 
-#[derive(Error, Debug, Clone, PartialEq, UserError)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum LoadFilesError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -51,6 +51,12 @@ pub enum LoadFilesError {
     RepoLocked(#[from] RepoLockedError),
     #[error("{0}")]
     RemoteError(#[from] RemoteError),
+}
+
+impl UserError for LoadFilesError {
+    fn user_error(&self) -> String {
+        self.to_string()
+    }
 }
 
 #[derive(Error, Debug, Clone, PartialEq)]
@@ -63,12 +69,18 @@ pub enum LoadFileError {
     RemoteError(#[from] RemoteError),
 }
 
-#[derive(Error, Debug, Clone, PartialEq, UserError)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum FileNameError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
     #[error("{0}")]
     DecryptFilenameError(#[from] DecryptFilenameError),
+}
+
+impl UserError for FileNameError {
+    fn user_error(&self) -> String {
+        self.to_string()
+    }
 }
 
 #[derive(Error, Debug, Clone, PartialEq)]
@@ -81,7 +93,7 @@ pub enum DecryptFilesError {
     DecryptFilenameError(#[from] DecryptFilenameError),
 }
 
-#[derive(Error, Debug, Clone, PartialEq, UserError)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum UploadFileReaderError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -93,6 +105,12 @@ pub enum UploadFileReaderError {
     Canceled,
     #[error("{0}")]
     RemoteError(#[from] RemoteError),
+}
+
+impl UserError for UploadFileReaderError {
+    fn user_error(&self) -> String {
+        self.to_string()
+    }
 }
 
 impl From<EnsureDirError> for UploadFileReaderError {
@@ -107,7 +125,7 @@ impl From<EnsureDirError> for UploadFileReaderError {
     }
 }
 
-#[derive(Error, Debug, Clone, PartialEq, UserError)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum DeleteFileError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -117,6 +135,12 @@ pub enum DeleteFileError {
     Canceled,
     #[error("{0}")]
     RemoteError(#[from] RemoteError),
+}
+
+impl UserError for DeleteFileError {
+    fn user_error(&self) -> String {
+        self.to_string()
+    }
 }
 
 #[derive(Error, Debug, Clone, PartialEq)]
@@ -229,7 +253,7 @@ impl From<LoadFileError> for EnsureDirError {
     }
 }
 
-#[derive(Error, Debug, Clone, PartialEq, UserError)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum RenameFileError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -243,7 +267,13 @@ pub enum RenameFileError {
     RemoteError(#[from] RemoteError),
 }
 
-#[derive(Error, Debug, Clone, PartialEq, UserError)]
+impl UserError for RenameFileError {
+    fn user_error(&self) -> String {
+        self.to_string()
+    }
+}
+
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum CopyFileError {
     #[error("invalid path")]
     InvalidPath,
@@ -257,7 +287,13 @@ pub enum CopyFileError {
     RemoteError(#[from] RemoteError),
 }
 
-#[derive(Error, Debug, Clone, PartialEq, UserError)]
+impl UserError for CopyFileError {
+    fn user_error(&self) -> String {
+        self.to_string()
+    }
+}
+
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum MoveFileError {
     #[error("invalid path")]
     InvalidPath,
@@ -271,6 +307,12 @@ pub enum MoveFileError {
     MoveRoot,
     #[error("{0}")]
     RemoteError(#[from] RemoteError),
+}
+
+impl UserError for MoveFileError {
+    fn user_error(&self) -> String {
+        self.to_string()
+    }
 }
 
 impl From<CopyFileError> for MoveFileError {

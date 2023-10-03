@@ -9,12 +9,18 @@ use crate::{
     user_error::UserError,
 };
 
-#[derive(Error, Debug, Clone, PartialEq, UserError)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum UploadableError {
     #[error("{0}")]
     LocalFileError(String),
     #[error("upload not retriable")]
     NotRetriable,
+}
+
+impl UserError for UploadableError {
+    fn user_error(&self) -> String {
+        self.to_string()
+    }
 }
 
 impl From<std::io::Error> for UploadableError {
@@ -23,7 +29,7 @@ impl From<std::io::Error> for UploadableError {
     }
 }
 
-#[derive(Error, Debug, Clone, PartialEq, UserError)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum DownloadableError {
     #[error("{0}")]
     LocalFileError(String),
@@ -33,13 +39,19 @@ pub enum DownloadableError {
     NotRetriable,
 }
 
+impl UserError for DownloadableError {
+    fn user_error(&self) -> String {
+        self.to_string()
+    }
+}
+
 impl From<std::io::Error> for DownloadableError {
     fn from(err: std::io::Error) -> Self {
         DownloadableError::LocalFileError(err.to_string())
     }
 }
 
-#[derive(Error, Debug, Clone, PartialEq, UserError)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum TransferError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -69,6 +81,12 @@ pub enum TransferError {
     IOError(String),
     #[error("aborted")]
     Aborted,
+}
+
+impl UserError for TransferError {
+    fn user_error(&self) -> String {
+        self.to_string()
+    }
 }
 
 impl From<UploadFileReaderError> for TransferError {

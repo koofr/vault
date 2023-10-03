@@ -2,9 +2,15 @@ use thiserror::Error;
 
 use crate::{remote, user_error::UserError};
 
-#[derive(Error, Debug, Clone, PartialEq, UserError)]
+#[derive(Error, Debug, Clone, PartialEq)]
 #[error("repo not found")]
 pub struct RepoNotFoundError;
+
+impl UserError for RepoNotFoundError {
+    fn user_error(&self) -> String {
+        self.to_string()
+    }
+}
 
 #[derive(Error, Debug, Clone, PartialEq)]
 #[error("repo locked")]

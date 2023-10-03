@@ -8,7 +8,7 @@ use crate::{
     user_error::UserError,
 };
 
-#[derive(Error, Debug, Clone, PartialEq, UserError)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum ShowError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -18,6 +18,12 @@ pub enum ShowError {
     RemoteError(#[from] RemoteError),
     #[error("files empty")]
     FilesEmpty,
+}
+
+impl UserError for ShowError {
+    fn user_error(&self) -> String {
+        self.to_string()
+    }
 }
 
 impl From<LoadFilesError> for ShowError {
@@ -30,7 +36,7 @@ impl From<LoadFilesError> for ShowError {
     }
 }
 
-#[derive(Error, Debug, Clone, PartialEq, UserError)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum DirPickerClickError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -40,6 +46,12 @@ pub enum DirPickerClickError {
     DecryptFilenameError(#[from] DecryptFilenameError),
     #[error("{0}")]
     RemoteError(#[from] RemoteError),
+}
+
+impl UserError for DirPickerClickError {
+    fn user_error(&self) -> String {
+        self.to_string()
+    }
 }
 
 impl From<LoadFilesError> for DirPickerClickError {

@@ -2,7 +2,7 @@ use thiserror::Error;
 
 use crate::{http, secure_storage::errors::SecureStorageError, user_error::UserError};
 
-#[derive(Error, Debug, Clone, PartialEq, UserError)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum OAuth2Error {
     #[error("invalid oauth2 token: {0}")]
     InvalidOAuth2Token(String),
@@ -16,4 +16,10 @@ pub enum OAuth2Error {
     StorageError(#[from] SecureStorageError),
     #[error("{0}")]
     Unknown(String),
+}
+
+impl UserError for OAuth2Error {
+    fn user_error(&self) -> String {
+        self.to_string()
+    }
 }
