@@ -72,7 +72,7 @@ struct MountListener {
 
 pub struct EventStreamService {
     base_url: String,
-    websocket_client: Box<dyn WebSocketClient + Send + Sync>,
+    websocket_client: Arc<Box<dyn WebSocketClient + Send + Sync>>,
     auth_provider: Arc<Box<dyn auth::AuthProvider + Send + Sync>>,
     remote_files_service: Arc<RemoteFilesService>,
     runtime: Arc<runtime::BoxRuntime>,
@@ -93,6 +93,8 @@ impl EventStreamService {
         remote_files_service: Arc<RemoteFilesService>,
         runtime: Arc<runtime::BoxRuntime>,
     ) -> EventStreamService {
+        let websocket_client = Arc::new(websocket_client);
+
         EventStreamService {
             base_url,
             websocket_client,
@@ -128,17 +130,29 @@ impl EventStreamService {
 
         let url = format!("{}/events?wsauth=true", base_ws_url);
 
-        let on_open_self = self.clone();
-        let on_message_self = self.clone();
-        let on_close_self = self.clone();
+        let on_open_self = Arc::downgrade(&self);
+        let on_message_self = Arc::downgrade(&self);
+        let on_close_self = Arc::downgrade(&self);
 
         *self.connection_state.lock().unwrap() = ConnectionState::Connecting;
 
         self.websocket_client.open(
             url,
-            Box::new(move || on_open_self.clone().websocket_on_open()),
-            Box::new(move |data: String| on_message_self.clone().websocket_on_message(data)),
-            Box::new(move || on_close_self.clone().websocket_on_close()),
+            Box::new(move || {
+                if let Some(on_open_self) = on_open_self.upgrade() {
+                    on_open_self.websocket_on_open()
+                }
+            }),
+            Box::new(move |data: String| {
+                if let Some(on_message_self) = on_message_self.upgrade() {
+                    on_message_self.websocket_on_message(data)
+                }
+            }),
+            Box::new(move || {
+                if let Some(on_close_self) = on_close_self.upgrade() {
+                    on_close_self.websocket_on_close()
+                }
+            }),
         );
     }
 
@@ -471,10 +485,10 @@ impl EventStreamService {
     fn start_pinger(self: Arc<Self>) {
         let ping_alive = Arc::new(());
         let ping_alive_weak = Arc::downgrade(&ping_alive);
-
         *self.ping_alive.lock().unwrap() = Some(ping_alive);
 
-        let pinger_self = self.clone();
+        let pinger_runtime = Arc::downgrade(&self.runtime);
+        let pinger_websocket_client = Arc::downgrade(&self.websocket_client);
 
         self.runtime.spawn(Box::pin(async move {
             loop {
@@ -482,15 +496,22 @@ impl EventStreamService {
                     break;
                 }
 
-                pinger_self.runtime.sleep(PING_INTERVAL).await;
+                (match pinger_runtime.upgrade() {
+                    Some(runtime) => runtime.sleep(PING_INTERVAL),
+                    None => return,
+                })
+                .await;
 
                 if ping_alive_weak.upgrade().is_none() {
-                    break;
+                    return;
                 }
 
-                pinger_self
-                    .websocket_client
-                    .send(serde_json::to_string(&Request::Ping).unwrap());
+                match pinger_websocket_client.upgrade() {
+                    Some(websocket_client) => {
+                        websocket_client.send(serde_json::to_string(&Request::Ping).unwrap())
+                    }
+                    None => return,
+                }
             }
         }));
     }
@@ -498,15 +519,23 @@ impl EventStreamService {
     fn start_reconnecter(self: Arc<Self>) {
         let reconnect_alive = Arc::new(());
         let reconnect_alive_weak = Arc::downgrade(&reconnect_alive);
-
         *self.reconnect_alive.lock().unwrap() = Some(reconnect_alive);
 
-        let reconnecter_self = self.clone();
+        let reconnecter_runtime = Arc::downgrade(&self.runtime);
+        let reconnecter_self = Arc::downgrade(&self);
 
         self.runtime.spawn(Box::pin(async move {
-            reconnecter_self.runtime.sleep(RECONNECT_DURATION).await;
+            (match reconnecter_runtime.upgrade() {
+                Some(runtime) => runtime.sleep(RECONNECT_DURATION),
+                None => return,
+            })
+            .await;
 
-            if reconnect_alive_weak.upgrade().is_some() {
+            if reconnect_alive_weak.upgrade().is_none() {
+                return;
+            }
+
+            if let Some(reconnecter_self) = reconnecter_self.upgrade() {
                 reconnecter_self.connect();
             }
         }));

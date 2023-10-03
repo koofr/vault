@@ -48,7 +48,7 @@ impl RepoFilesBrowsersService {
         store.mutation_on(
             repo_files_mutation_subscription_id,
             &[store::MutationEvent::RepoFiles],
-            Box::new(move |state, notify, _, _| {
+            Box::new(|state, notify, _, _| {
                 mutations::handle_repo_files_mutation(state, notify);
             }),
         );
@@ -327,6 +327,6 @@ impl RepoFilesBrowsersService {
 impl Drop for RepoFilesBrowsersService {
     fn drop(&mut self) {
         self.store
-            .remove_listener(self.repo_files_mutation_subscription_id)
+            .mutation_remove_listener(self.repo_files_mutation_subscription_id)
     }
 }

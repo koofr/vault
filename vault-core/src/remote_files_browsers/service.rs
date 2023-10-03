@@ -40,7 +40,7 @@ impl RemoteFilesBrowsersService {
         store.mutation_on(
             remote_files_mutation_subscription_id,
             &[store::MutationEvent::RemoteFiles],
-            Box::new(move |state, notify, _, _| {
+            Box::new(|state, notify, _, _| {
                 mutations::handle_remote_files_mutation(state, notify);
             }),
         );
@@ -217,6 +217,6 @@ impl RemoteFilesBrowsersService {
 impl Drop for RemoteFilesBrowsersService {
     fn drop(&mut self) {
         self.store
-            .remove_listener(self.remote_files_mutation_subscription_id)
+            .mutation_remove_listener(self.remote_files_mutation_subscription_id)
     }
 }

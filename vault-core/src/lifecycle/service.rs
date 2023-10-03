@@ -133,3 +133,9 @@ impl LifecycleService {
         Ok(())
     }
 }
+
+impl Drop for LifecycleService {
+    fn drop(&mut self) {
+        self.eventstream_service.disconnect();
+    }
+}

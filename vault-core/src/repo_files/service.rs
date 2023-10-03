@@ -53,10 +53,11 @@ impl RepoFilesService {
         repo_files_read_service: Arc<RepoFilesReadService>,
         dialogs_service: Arc<dialogs::DialogsService>,
         store: Arc<store::Store>,
-    ) -> Arc<Self> {
+    ) -> Self {
         let remote_files_mutation_subscription_id = store.get_next_id();
+        let remote_files_mutation_repos_service = repos_service.clone();
 
-        let repo_files_service = Arc::new(Self {
+        let repo_files_service = Self {
             repos_service,
             remote_files_service,
             repo_files_read_service,
@@ -64,9 +65,7 @@ impl RepoFilesService {
             store: store.clone(),
             ensure_dirs_futures: Arc::new(Mutex::new(HashMap::new())),
             remote_files_mutation_subscription_id,
-        });
-
-        let remote_files_mutation_self = repo_files_service.clone();
+        };
 
         store.mutation_on(
             remote_files_mutation_subscription_id,
@@ -77,7 +76,7 @@ impl RepoFilesService {
                     notify,
                     mutation_state,
                     mutation_notify,
-                    &remote_files_mutation_self.repos_service.get_ciphers(),
+                    &remote_files_mutation_repos_service.get_ciphers(),
                 );
             }),
         );
@@ -636,6 +635,6 @@ impl RepoFilesService {
 impl Drop for RepoFilesService {
     fn drop(&mut self) {
         self.store
-            .remove_listener(self.remote_files_mutation_subscription_id)
+            .mutation_remove_listener(self.remote_files_mutation_subscription_id)
     }
 }

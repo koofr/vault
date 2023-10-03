@@ -185,7 +185,7 @@ fn test_content_loaded_error() {
 
             fixture.upload_file("/file.txt", "test").await;
 
-            let (_, load_future) = fixture.vault.repo_files_details_create(
+            let (details_id, load_future) = fixture.vault.repo_files_details_create(
                 &fixture.repo_id,
                 "/file.txt",
                 false,
@@ -209,6 +209,12 @@ fn test_content_loaded_error() {
 
             // one retry on server errors in http client
             assert_eq!(download_counter.load(Ordering::SeqCst), 2);
+
+            fixture
+                .vault
+                .repo_files_details_destroy(details_id)
+                .await
+                .unwrap();
         }
         .boxed()
     });

@@ -142,13 +142,13 @@ impl Vault {
             store.clone(),
             runtime.clone(),
         ));
-        let repo_files_service = repo_files::RepoFilesService::new(
+        let repo_files_service = Arc::new(repo_files::RepoFilesService::new(
             repos_service.clone(),
             remote_files_service.clone(),
             repo_files_read_service.clone(),
             dialogs_service.clone(),
             store.clone(),
-        );
+        ));
         let repo_create_service = Arc::new(repo_create::RepoCreateService::new(
             repos_service.clone(),
             remote_files_service.clone(),

@@ -27,12 +27,24 @@ pub fn with_tokio_runtime(
 ) {
     with_base(|| {
         let tokio_runtime = Arc::new(tokio::runtime::Runtime::new().unwrap());
+        let tokio_runtime_weak = Arc::downgrade(&tokio_runtime);
 
-        tokio_runtime.clone().block_on(
+        let f_tokio_runtime = tokio_runtime.clone();
+
+        tokio_runtime.block_on(
             async move {
-                f(tokio_runtime).await;
+                f(f_tokio_runtime).await;
             }
             .boxed(),
+        );
+
+        // explicit drop arc so that the tokio runtime is not dropped from
+        // within the asynchronous context
+        drop(tokio_runtime);
+
+        assert!(
+            wait_for_sync(500, move || tokio_runtime_weak.strong_count() == 0),
+            "Tokio runtime not dropped in 500 ms"
         );
     });
 }
@@ -57,7 +69,20 @@ pub fn with_vault(
         async move {
             let vault_fixture = VaultFixture::create(fake_remote_fixture);
 
+            let store_weak = Arc::downgrade(&vault_fixture.vault.store);
+            let runtime_weak = Arc::downgrade(&vault_fixture.vault.runtime);
+
             f(vault_fixture).await;
+
+            assert!(
+                wait_for_async(500, move || store_weak.strong_count() == 0).await,
+                "Store not dropped in 500 ms"
+            );
+
+            assert!(
+                wait_for_async(500, move || runtime_weak.strong_count() == 0).await,
+                "Runtime not dropped in 500 ms"
+            );
         }
         .boxed()
     });
@@ -93,4 +118,28 @@ pub fn with_repo(
         }
         .boxed()
     });
+}
+
+pub async fn wait_for_async(duration_ms: usize, f: impl Fn() -> bool + Send + Sync) -> bool {
+    for _ in 0..duration_ms * 10 {
+        if f() {
+            return true;
+        }
+
+        tokio::time::sleep(std::time::Duration::from_micros(100)).await;
+    }
+
+    false
+}
+
+pub fn wait_for_sync(duration_ms: usize, f: impl Fn() -> bool) -> bool {
+    for _ in 0..duration_ms * 10 {
+        if f() {
+            return true;
+        }
+
+        std::thread::sleep(std::time::Duration::from_micros(100));
+    }
+
+    false
 }

@@ -72,7 +72,7 @@ impl RepoFilesDetailsService {
         store.mutation_on(
             repo_files_mutation_subscription_id,
             &[store::MutationEvent::RepoFiles],
-            Box::new(move |state, notify, mutation_state, _| {
+            Box::new(|state, notify, mutation_state, _| {
                 mutations::handle_repo_files_mutation(state, notify, mutation_state);
             }),
         );
@@ -901,6 +901,6 @@ impl RepoFilesDetailsService {
 impl Drop for RepoFilesDetailsService {
     fn drop(&mut self) {
         self.store
-            .remove_listener(self.repo_files_mutation_subscription_id)
+            .mutation_remove_listener(self.repo_files_mutation_subscription_id)
     }
 }

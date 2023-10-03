@@ -169,7 +169,7 @@ impl<E: Send + Sync + 'static> DirPickersHelper<E> {
             picker.open_ids.insert(item_id.clone());
         });
 
-        (async move {
+        async move {
             self.set_loading(picker_id, &item_id, true);
 
             let res = (self.on_expand)(picker_id, item).await;
@@ -177,7 +177,7 @@ impl<E: Send + Sync + 'static> DirPickersHelper<E> {
             self.set_loading(picker_id, &item_id, false);
 
             res
-        })
+        }
         .boxed()
     }
 
