@@ -145,7 +145,7 @@ export const RepoInfo = memo<{ repoId: string }>(({ repoId }) => {
   const [info] = useSubscribe(
     (v, cb) => v.reposRepoSubscribe(repoId, cb),
     (v) => v.reposRepoData,
-    [repoId]
+    [repoId],
   );
 
   if (info.status.type === 'Error') {

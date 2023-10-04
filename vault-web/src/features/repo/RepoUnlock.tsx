@@ -15,7 +15,7 @@ export const RepoUnlock = memo<{ repoId: string }>(({ repoId }) => {
       webVault.repoUnlockCreate(repoId, {
         mode: 'Unlock',
       }),
-    [webVault, repoId]
+    [webVault, repoId],
   );
   useEffect(() => {
     return () => {
@@ -25,13 +25,13 @@ export const RepoUnlock = memo<{ repoId: string }>(({ repoId }) => {
   const [info] = useSubscribe(
     (v, cb) => v.repoUnlockInfoSubscribe(unlockId, cb),
     (v) => v.repoUnlockInfoData,
-    [unlockId]
+    [unlockId],
   );
   const onUnlock = useCallback(
     (password: string) => {
       webVault.repoUnlockUnlock(unlockId, password);
     },
-    [webVault, unlockId]
+    [webVault, unlockId],
   );
   const navbarHeader = useSingleNavbarBreadcrumb(info?.repoName ?? '');
   useDocumentTitle(info?.repoName);

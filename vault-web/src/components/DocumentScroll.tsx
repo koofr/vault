@@ -19,7 +19,7 @@ export function getDocumentScroll(): DocumentScrollInfo {
 }
 
 export const DocumentScrollContext = createContext<DocumentScrollInfo>(
-  undefined as any
+  undefined as any,
 );
 
 export const DocumentScrollProvider: React.FC<PropsWithChildren<{}>> = ({

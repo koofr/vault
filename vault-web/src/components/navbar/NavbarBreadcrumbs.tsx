@@ -8,11 +8,11 @@ export interface NavbarBreadcrumbsProps {
   breadcrumbs: NavbarBreadcrumbInfo[];
   onClick?: (
     event: React.MouseEvent<any>,
-    breadcrumb: NavbarBreadcrumbInfo
+    breadcrumb: NavbarBreadcrumbInfo,
   ) => void;
   onCaretClick?: (
     event: React.MouseEvent<any>,
-    breadcrumb: NavbarBreadcrumbInfo
+    breadcrumb: NavbarBreadcrumbInfo,
   ) => void;
 }
 
@@ -20,7 +20,7 @@ export const NavbarBreadcrumbs = memo<NavbarBreadcrumbsProps>(
   ({ breadcrumbs, onClick, onCaretClick }) => {
     const breadcrumbsHead = breadcrumbs.slice(0, breadcrumbs.length - 2);
     const breadcrumbsTail = breadcrumbs.slice(
-      Math.max(breadcrumbs.length - 2, 0)
+      Math.max(breadcrumbs.length - 2, 0),
     );
     const hasTail = breadcrumbs.length > 2;
 
@@ -87,5 +87,5 @@ export const NavbarBreadcrumbs = memo<NavbarBreadcrumbsProps>(
         </div>
       </div>
     );
-  }
+  },
 );

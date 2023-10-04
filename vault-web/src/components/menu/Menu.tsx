@@ -63,7 +63,7 @@ export const MenuItem = memo<
                 div:hover > * > * > & {
                   display: none;
                 }
-              `
+              `,
           )}
         >
           {icon}
@@ -98,7 +98,7 @@ export const MenuItem = memo<
             white-space: nowrap;
             overflow: hidden;
           `,
-          textClassName
+          textClassName,
         )}
       >
         {children}
@@ -121,7 +121,7 @@ export const MenuItem = memo<
     icon !== undefined &&
       css`
         padding-left: 10px;
-      `
+      `,
   );
 
   const buttonEl = (
@@ -166,12 +166,12 @@ export const Menu = memo(
             : css`
                 display: none;
               `,
-          className
+          className,
         )}
         {...props}
       >
         {children}
       </div>
     );
-  })
+  }),
 );

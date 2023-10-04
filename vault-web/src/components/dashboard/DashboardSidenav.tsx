@@ -27,7 +27,7 @@ export const DashboardSidenav = memo<{ className?: string }>(
                 margin: 0 50px 0 0;
                 overflow: hidden;
               `,
-          className
+          className,
         )}
       >
         <Repos />
@@ -35,5 +35,5 @@ export const DashboardSidenav = memo<{ className?: string }>(
         <DashboardSidenavLinks />
       </div>
     );
-  }
+  },
 );

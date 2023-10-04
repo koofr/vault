@@ -6,7 +6,7 @@ export function useDetails(
   repoId: string,
   path: string,
   isEditing: boolean,
-  autosaveIntervalMs?: number
+  autosaveIntervalMs?: number,
 ): number {
   const webVault = useWebVault();
 
@@ -27,7 +27,7 @@ export function useDetails(
       webVault,
       // repoId, path and autosaveIntervalMs will never change, isEditing must
       // not be a dependency
-    ]
+    ],
   );
   useEffect(() => {
     return () => {

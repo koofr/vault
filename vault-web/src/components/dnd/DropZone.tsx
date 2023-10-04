@@ -31,7 +31,7 @@ export const DropZone = memo(
               `
             : css`
                 background-color: ${theme.colors.destructive};
-              `)
+              `),
       );
 
       return (
@@ -51,7 +51,7 @@ export const DropZone = memo(
                 left: 5px;
                 right: 0;
                 height: 5px;
-              `
+              `,
             )}
           />
           <div
@@ -62,7 +62,7 @@ export const DropZone = memo(
                 bottom: 0;
                 right: 0;
                 width: 5px;
-              `
+              `,
             )}
           />
           <div
@@ -73,7 +73,7 @@ export const DropZone = memo(
                 left: 0;
                 right: 5px;
                 height: 5px;
-              `
+              `,
             )}
           />
           <div
@@ -84,11 +84,11 @@ export const DropZone = memo(
                 bottom: 5px;
                 left: 0;
                 width: 5px;
-              `
+              `,
             )}
           />
         </div>
       );
-    }
-  )
+    },
+  ),
 );

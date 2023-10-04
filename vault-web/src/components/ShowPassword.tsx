@@ -1,10 +1,10 @@
 import { css, cx } from '@emotion/css';
 import { memo } from 'react';
 
-import { ReactComponent as HidePasswordHoverIcon } from '../assets/images/hide-password-hover.svg';
-import { ReactComponent as HidePasswordIcon } from '../assets/images/hide-password.svg';
-import { ReactComponent as ShowPasswordHoverIcon } from '../assets/images/show-password-hover.svg';
-import { ReactComponent as ShowPasswordIcon } from '../assets/images/show-password.svg';
+import HidePasswordHoverIcon from '../assets/images/hide-password-hover.svg?react';
+import HidePasswordIcon from '../assets/images/hide-password.svg?react';
+import ShowPasswordHoverIcon from '../assets/images/show-password-hover.svg?react';
+import ShowPasswordIcon from '../assets/images/show-password.svg?react';
 import { buttonReset } from '../styles/mixins/buttons';
 
 export const ShowPassword = memo<{
@@ -49,7 +49,7 @@ export const ShowPassword = memo<{
                   button:hover > div > & {
                     display: none;
                   }
-                `
+                `,
           )}
           role="img"
         />
@@ -65,7 +65,7 @@ export const ShowPassword = memo<{
                   button:hover > div > & {
                     display: block;
                   }
-                `
+                `,
           )}
           role="img"
         />
@@ -81,7 +81,7 @@ export const ShowPassword = memo<{
                   button:hover > div > & {
                     display: none;
                   }
-                `
+                `,
           )}
           role="img"
         />
@@ -97,7 +97,7 @@ export const ShowPassword = memo<{
                   button:hover > div > & {
                     display: block;
                   }
-                `
+                `,
           )}
           role="img"
         />

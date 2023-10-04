@@ -13,5 +13,5 @@ export const RepoError = memo<{ error: string; onRetry?: () => void }>(
         <ErrorComponent error={error} onRetry={onRetry} />
       </DashboardLayout>
     );
-  }
+  },
 );

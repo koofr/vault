@@ -9,7 +9,7 @@ export const TransfersList = memo(() => {
   const [transfers] = useSubscribe(
     (v, cb) => v.transfersListSubscribe(cb),
     (v) => v.transfersListData,
-    []
+    [],
   );
 
   return (

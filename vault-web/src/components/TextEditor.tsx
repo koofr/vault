@@ -27,7 +27,7 @@ export const TextEditor = memo<TextEditorProps>(
 
         editor.focus();
       },
-      []
+      [],
     );
 
     useEffect(() => {
@@ -68,7 +68,7 @@ export const TextEditor = memo<TextEditorProps>(
               & .monaco-editor .scroll-decoration {
                 display: none;
               }
-            `
+            `,
         )}
         style={{
           width: `${width}px`,
@@ -89,7 +89,7 @@ export const TextEditor = memo<TextEditorProps>(
               css`
                 padding-top: 15px;
                 box-shadow: 0 0px 4px 3px #d4d6d7;
-              `
+              `,
           )}
         >
           {text === undefined ? (
@@ -121,5 +121,5 @@ export const TextEditor = memo<TextEditorProps>(
         </div>
       </div>
     );
-  }
+  },
 );

@@ -14,20 +14,20 @@ export const Notifications = memo<{}>(() => {
   const [notifications] = useSubscribe(
     (v, cb) => v.notificationsSubscribe(cb),
     (v) => v.notificationsData,
-    []
+    [],
   );
   const hasRemoveAll = notifications.length > 1;
   const remove = useCallback(
     (id: number) => {
       webVault.notificationsRemove(id);
     },
-    [webVault]
+    [webVault],
   );
   const removeAfter = useCallback(
     (id: number, durationMs: number) => {
       webVault.notificationsRemoveAfter(id, durationMs);
     },
-    [webVault]
+    [webVault],
   );
   const removeAll = useCallback(() => {
     webVault.notificationsRemoveAll();

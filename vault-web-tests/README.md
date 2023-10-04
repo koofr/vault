@@ -2,6 +2,13 @@
 
 Playwright tests for `vault-web`.
 
+## Install dependencies
+
+```sh
+npm install
+npx playwright install
+```
+
 ## vault-wasm-nodejs
 
 You need to generate `vault-wasm-nodejs` to run the tests. See section `vault-wasm-nodejs` in [`vault-wasm`
@@ -21,6 +28,15 @@ scripts/use-fake-remote.sh ../vault-web/dist/config.json
 ```
 
 ## Run tests
+
+Before running tests you need to make sure `vite` is running in `vault-web`:
+
+```sh
+cd ../vault-web
+vite
+```
+
+Run tests:
 
 ```sh
 # Runs the end-to-end tests (headless).

@@ -6,7 +6,7 @@ import type { IntroModalProps } from './IntroModal';
 
 const IntroModalLazyLoadingComponent = lazyLoadingComponent<IntroModalProps>(
   () => import('./IntroModal').then((mod) => mod.IntroModal),
-  false
+  false,
 );
 
 export const IntroModalLazy = memo<IntroModalProps>(({ isVisible, hide }) => {

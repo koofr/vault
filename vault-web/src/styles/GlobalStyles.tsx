@@ -24,7 +24,8 @@ export const GlobalStyles = memo(() => {
           font-family: 'Open Sans';
           font-style: normal;
           font-weight: 300;
-          src: local(''),
+          src:
+            local(''),
             /* Chrome 26+, Opera 23+, Firefox 39+ */
               url(${openSansV34LatinExtLatin300Woff2}) format('woff2'),
             /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
@@ -35,7 +36,8 @@ export const GlobalStyles = memo(() => {
           font-family: 'Open Sans';
           font-style: normal;
           font-weight: 400;
-          src: local(''),
+          src:
+            local(''),
             /* Chrome 26+, Opera 23+, Firefox 39+ */
               url(${openSansV34LatinExtLatinRegularWoff2}) format('woff2'),
             /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
@@ -46,7 +48,8 @@ export const GlobalStyles = memo(() => {
           font-family: 'Open Sans';
           font-style: normal;
           font-weight: 600;
-          src: local(''),
+          src:
+            local(''),
             /* Chrome 26+, Opera 23+, Firefox 39+ */
               url(${openSansV34LatinExtLatin600Woff2}) format('woff2'),
             /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
@@ -57,7 +60,8 @@ export const GlobalStyles = memo(() => {
           font-family: 'Open Sans';
           font-style: normal;
           font-weight: 700;
-          src: local(''),
+          src:
+            local(''),
             /* Chrome 26+, Opera 23+, Firefox 39+ */
               url(${openSansV34LatinExtLatin700Woff2}) format('woff2'),
             /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
@@ -68,7 +72,8 @@ export const GlobalStyles = memo(() => {
           font-family: 'Open Sans';
           font-style: normal;
           font-weight: 800;
-          src: local(''),
+          src:
+            local(''),
             /* Chrome 26+, Opera 23+, Firefox 39+ */
               url(${openSansV34LatinExtLatin800Woff2}) format('woff2'),
             /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */

@@ -50,7 +50,7 @@ export const NavbarMain = memo<{
               box-shadow: none;
               border-bottom: 1px solid ${theme.colors.borderLight};
             `
-          : undefined
+          : undefined,
       )}
       aria-label="Navbar"
     >
@@ -75,14 +75,12 @@ export const NavbarMain = memo<{
         `}
       ></div>
       <div
-        className={cx(
-          css`
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-            overflow-x: auto;
-          `
-        )}
+        className={cx(css`
+          flex-grow: 1;
+          display: flex;
+          align-items: center;
+          overflow-x: auto;
+        `)}
       >
         <div
           className={css`
@@ -173,14 +171,14 @@ export const NavbarExtra = memo<PropsWithChildren<{ isSticky: boolean }>>(
               ? css`
                   overflow-x: auto;
                 `
-              : css``
+              : css``,
           )}
         >
           {children}
         </div>
       </>
     );
-  }
+  },
 );
 
 export const Navbar = memo<{
@@ -198,7 +196,7 @@ export const Navbar = memo<{
     : NAVBAR_STICKY_SCROLL;
   const isSticky = useMemo(
     () => scrollInfo.y >= stickyScroll,
-    [scrollInfo.y, stickyScroll]
+    [scrollInfo.y, stickyScroll],
   );
 
   return (

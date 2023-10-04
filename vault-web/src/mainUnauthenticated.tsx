@@ -23,6 +23,6 @@ export const mainUnauthenticated = (child = <LandingPage />) => {
           </DynamicThemeProvider>
         </DocumentScrollProvider>
       </DocumentSizeProvider>
-    </CacheProvider>
+    </CacheProvider>,
   );
 };

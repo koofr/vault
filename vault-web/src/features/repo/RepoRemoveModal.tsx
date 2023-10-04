@@ -23,7 +23,7 @@ export const RepoRemoveModalContent = memo<{
   const navigate = useNavigate();
   const removeId = useMemo(
     () => webVault.repoRemoveCreate(repoId),
-    [webVault, repoId]
+    [webVault, repoId],
   );
   useEffect(() => {
     return () => {
@@ -33,7 +33,7 @@ export const RepoRemoveModalContent = memo<{
   const [info] = useSubscribe(
     (v, cb) => v.repoRemoveInfoSubscribe(removeId, cb),
     (v) => v.repoRemoveInfoData,
-    [removeId]
+    [removeId],
   );
   const [password, setPassword] = useState('');
   const onSubmit = useCallback(
@@ -48,7 +48,7 @@ export const RepoRemoveModalContent = memo<{
         }
       })();
     },
-    [webVault, removeId, password, navigate]
+    [webVault, removeId, password, navigate],
   );
 
   if (info === undefined) {

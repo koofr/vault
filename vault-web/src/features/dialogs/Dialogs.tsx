@@ -8,7 +8,7 @@ export const Dialogs = memo<{}>(() => {
   const [dialogIds] = useSubscribe(
     (v, cb) => v.dialogsSubscribe(cb),
     (v) => v.dialogsData,
-    []
+    [],
   );
 
   if (dialogIds.length === 0) {

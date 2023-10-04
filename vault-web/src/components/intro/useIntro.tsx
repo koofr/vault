@@ -15,7 +15,7 @@ export const useIntro = (): {
   const [repos] = useSubscribe(
     (v, cb) => v.reposSubscribe(cb),
     (v) => v.reposData,
-    []
+    [],
   );
 
   useEffect(() => {

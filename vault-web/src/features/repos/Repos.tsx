@@ -3,14 +3,14 @@ import { useTheme } from '@emotion/react';
 import { memo, useCallback } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 
-import { ReactComponent as CreateHoverIcon } from '../../assets/images/create-hover.svg';
-import { ReactComponent as CreateIcon } from '../../assets/images/create.svg';
-import { ReactComponent as InfoHoverIcon } from '../../assets/images/info-hover.svg';
-import { ReactComponent as InfoIcon } from '../../assets/images/info.svg';
-import { ReactComponent as LockedHoverIcon } from '../../assets/images/locked-hover.svg';
-import { ReactComponent as LockedIcon } from '../../assets/images/locked.svg';
-import { ReactComponent as UnlockedHoverIcon } from '../../assets/images/unlocked-hover.svg';
-import { ReactComponent as UnlockedIcon } from '../../assets/images/unlocked.svg';
+import CreateHoverIcon from '../../assets/images/create-hover.svg?react';
+import CreateIcon from '../../assets/images/create.svg?react';
+import InfoHoverIcon from '../../assets/images/info-hover.svg?react';
+import InfoIcon from '../../assets/images/info.svg?react';
+import LockedHoverIcon from '../../assets/images/locked-hover.svg?react';
+import LockedIcon from '../../assets/images/locked.svg?react';
+import UnlockedHoverIcon from '../../assets/images/unlocked-hover.svg?react';
+import UnlockedIcon from '../../assets/images/unlocked.svg?react';
 import { buttonReset } from '../../styles/mixins/buttons';
 import { allStates } from '../../styles/mixins/hover';
 import { Repo } from '../../vault-wasm/vault-wasm';
@@ -25,7 +25,7 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
       (repo: Repo) => {
         webVault.reposLockRepo(repo.id);
       },
-      [webVault]
+      [webVault],
     );
 
     return (
@@ -45,7 +45,7 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
             isActive &&
               css`
                 background-color: ${theme.colors.hover};
-              `
+              `,
           )}
         >
           {repo.state === 'Locked' ? (
@@ -143,7 +143,7 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
               isActive &&
                 css`
                   font-weight: 600;
-                `
+                `,
             )}
           >
             <span
@@ -190,7 +190,7 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
         </div>
       </li>
     );
-  }
+  },
 );
 
 export const RepoCreateItem = memo<{ isActive: boolean }>(({ isActive }) => {
@@ -219,7 +219,7 @@ export const RepoCreateItem = memo<{ isActive: boolean }>(({ isActive }) => {
           isActive &&
             css`
               background-color: ${theme.colors.hover};
-            `
+            `,
         )}
       >
         <div
@@ -266,7 +266,7 @@ export const RepoCreateItem = memo<{ isActive: boolean }>(({ isActive }) => {
             isActive &&
               css`
                 font-weight: 600;
-              `
+              `,
           )}
         >
           Create new
@@ -283,7 +283,7 @@ export const Repos = memo(() => {
   const [repos] = useSubscribe(
     (v, cb) => v.reposSubscribe(cb),
     (v) => v.reposData,
-    []
+    [],
   );
 
   return (

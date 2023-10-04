@@ -68,5 +68,5 @@ export const RepoCreateCreatedComponent = memo<{ created: RepoCreated }>(
         </Button>
       </div>
     );
-  }
+  },
 );

@@ -5,7 +5,7 @@ export const downloadFile = async (
   webVault: WebVault,
   repoId: string,
   path: string,
-  isMobile: boolean
+  isMobile: boolean,
 ) => {
   const forceBlob = isMobile;
   const stream = await webVault.repoFilesGetFileStream(repoId, path, forceBlob);
@@ -20,12 +20,12 @@ export const downloadFile = async (
 export const downloadSelected = async (
   webVault: WebVault,
   browserId: number,
-  isMobile: boolean
+  isMobile: boolean,
 ) => {
   const forceBlob = isMobile;
   const stream = await webVault.repoFilesBrowsersGetSelectedStream(
     browserId,
-    forceBlob
+    forceBlob,
   );
 
   if (stream === undefined) {

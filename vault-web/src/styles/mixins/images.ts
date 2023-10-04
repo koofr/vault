@@ -4,7 +4,7 @@ export const imgRetinaBase = (
   file1x: string,
   file2x: string,
   width: number,
-  height: number
+  height: number,
 ) => {
   return css`
     background-image: url(${file1x});
@@ -22,7 +22,7 @@ export const imgRetina = (
   file1x: string,
   file2x: string,
   width: number,
-  height: number
+  height: number,
 ) => {
   return css`
     ${imgRetinaBase(file1x, file2x, width, height)}

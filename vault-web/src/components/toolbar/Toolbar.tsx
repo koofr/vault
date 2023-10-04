@@ -50,7 +50,7 @@ export function ToolbarItem<T extends React.ElementType = typeof Button>({
             opacity: 0.7;
           }
         `,
-        className
+        className,
       )}
       {...props}
     >
@@ -75,7 +75,7 @@ export function ToolbarItem<T extends React.ElementType = typeof Button>({
                   *:hover > * > & {
                     display: none;
                   }
-                `
+                `,
             )}
           >
             {icon}
@@ -105,7 +105,7 @@ export function ToolbarItem<T extends React.ElementType = typeof Button>({
               font-weight: 600;
               color: ${theme.colors.text};
             `,
-            textClassName
+            textClassName,
           )}
         >
           {children}
@@ -125,12 +125,12 @@ export const ToolbarCancelItem = memo<React.ComponentProps<typeof ToolbarItem>>(
           css`
             color: ${theme.colors.destructive};
           `,
-          textClassName
+          textClassName,
         )}
         {...props}
       >
         Cancel
       </ToolbarItem>
     );
-  }
+  },
 );

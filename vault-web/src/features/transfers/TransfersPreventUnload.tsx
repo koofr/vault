@@ -7,7 +7,7 @@ export const TransfersPreventUnload = memo(() => {
   const [isActive] = useSubscribe(
     (v, cb) => v.transfersIsActiveSubscribe(cb),
     (v) => v.transfersIsActiveData,
-    []
+    [],
   );
   usePreventUnload(isActive);
 

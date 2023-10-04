@@ -7,7 +7,7 @@ import { useRepoFilesBrowserId } from '../repo-files/RepoFilesBrowserId';
 import { UploadsHelper } from './UploadsHelper';
 
 export function useUploadFiles(): (
-  files: File[] | DataTransferItem[]
+  files: File[] | DataTransferItem[],
 ) => Promise<void>[] {
   const webVault = useWebVault();
   const browserId = useRepoFilesBrowserId();
@@ -38,7 +38,7 @@ export function useUploadFiles(): (
 
       return helper.uploadFiles(files);
     },
-    [webVault, browserId]
+    [webVault, browserId],
   );
 
   return uploadFiles;

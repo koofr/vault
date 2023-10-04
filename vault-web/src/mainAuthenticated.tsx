@@ -30,7 +30,7 @@ interface Config {
 
 export const mainAuthenticated = async () => {
   const configPromise = fetch('/config.json').then(
-    (res) => res.json() as Promise<Config>
+    (res) => res.json() as Promise<Config>,
   );
 
   await init();
@@ -54,7 +54,7 @@ export const mainAuthenticated = async () => {
     oauth2RedirectUri,
     new BrowserHttpClientDelegateImpl(),
     new BrowserEventstreamWebSocketDelegateImpl(),
-    localStorage
+    localStorage,
   );
 
   (window as any).webVault = webVault;
@@ -96,6 +96,6 @@ export const mainAuthenticated = async () => {
           </DocumentScrollProvider>
         </DocumentSizeProvider>
       </CacheProvider>
-    </WebVaultContext.Provider>
+    </WebVaultContext.Provider>,
   );
 };

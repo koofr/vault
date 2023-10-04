@@ -10,7 +10,7 @@ export class BrowserHttpClientDelegateImpl
   xhr(
     request: Request,
     blob: Blob,
-    onRequestProgress: (n: number) => void
+    onRequestProgress: (n: number) => void,
   ): Promise<Response> {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
@@ -57,7 +57,7 @@ export class BrowserHttpClientDelegateImpl
           new Response(xhr.response, {
             status: xhr.status,
             headers: headers,
-          })
+          }),
         );
       };
 

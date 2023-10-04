@@ -1,5 +1,10 @@
 {
   "compilerOptions": {
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ESNext"
+    ],
     "esModuleInterop": true,
     "moduleResolution": "node",
     "noEmit": true,

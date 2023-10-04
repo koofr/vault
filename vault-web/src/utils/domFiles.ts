@@ -38,7 +38,7 @@ export function webkitFilesToEntries(files: File[]): Entry[] {
   const createFileEntry = (file: File): FileEntry => {
     const fileFn = (
       successCallback: (file: File) => void,
-      errorCallback?: (err: Error) => void
+      errorCallback?: (err: Error) => void,
     ): void => {
       successCallback(file);
     };
@@ -53,14 +53,14 @@ export function webkitFilesToEntries(files: File[]): Entry[] {
 
   const createDirectoryEntry = (
     name: String,
-    children: Entry[]
+    children: Entry[],
   ): DirectoryEntry => {
     const createReader = (): DirectoryReader => {
       let readDone = false;
 
       const readEntries = (
         successCallback: (entries: Entry[]) => void,
-        errorCallback?: (err: Error) => void
+        errorCallback?: (err: Error) => void,
       ): void => {
         if (readDone) {
           successCallback([]);

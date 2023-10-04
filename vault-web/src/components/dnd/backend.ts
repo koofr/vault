@@ -8,7 +8,7 @@ import { HTML5BackendImpl } from 'react-dnd-html5-backend/dist/HTML5BackendImpl'
 export function FolderAwareHTML5Backend(
   manager: DragDropManager,
   context?: HTML5BackendContext,
-  options?: HTML5BackendOptions
+  options?: HTML5BackendOptions,
 ) {
   const backend = new HTML5BackendImpl(manager, context, options);
 

@@ -10,7 +10,7 @@ export interface FileIconCache {
 }
 
 export const FileIconCacheContext = createContext<FileIconCache>(
-  undefined as any
+  undefined as any,
 );
 
 export const FileIconCacheProvider: React.FC<PropsWithChildren<{}>> = ({

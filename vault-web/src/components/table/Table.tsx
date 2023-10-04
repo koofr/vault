@@ -24,7 +24,7 @@ import { calculateColumnWidths } from './columnWidths';
 export type SortBy = 'Hidden' | 'Asc' | 'Desc';
 
 export const sortByToAriaSort = (
-  sortBy: SortBy | undefined
+  sortBy: SortBy | undefined,
 ): 'ascending' | 'descending' | 'none' | undefined => {
   switch (sortBy) {
     case undefined:
@@ -89,7 +89,7 @@ export const TableSortLabel = styled.button<{ sortBy?: SortBy }>`
               left: 7px;
               bottom: 2px;
             }
-          `
+          `,
         )
       : undefined}
 `;
@@ -145,7 +145,9 @@ export const BaseTableRow = memo<PropsWithChildren<BaseTableRowProps>>(
             border-right: 1px solid transparent;
             overflow: hidden;
             position: relative;
-            transition: height 0.3s ease-out, border 0.1s ease-out,
+            transition:
+              height 0.3s ease-out,
+              border 0.1s ease-out,
               box-shadow 0.1s ease-out;
           `,
           index === 0
@@ -191,7 +193,7 @@ export const BaseTableRow = memo<PropsWithChildren<BaseTableRowProps>>(
                 border-bottom-color: ${theme.colors.border};
                 z-index: 1;
               `
-            : undefined
+            : undefined,
         )}
         style={{ height: `${height + 1}px` }}
         onClick={onClick}
@@ -204,7 +206,7 @@ export const BaseTableRow = memo<PropsWithChildren<BaseTableRowProps>>(
         {children}
       </div>
     );
-  }
+  },
 );
 
 export const TableCells = styled.div`
@@ -244,12 +246,12 @@ export interface TableContextType {
   columns: ComputedColumn[];
   onRowCheckboxClick: (
     event: React.MouseEvent<HTMLElement>,
-    index: number
+    index: number,
   ) => void;
   onRowClick: (event: React.MouseEvent<HTMLElement>, index: number) => void;
   onRowContextMenu: (
     event: React.MouseEvent<HTMLElement>,
-    index: number
+    index: number,
   ) => void;
 }
 
@@ -268,12 +270,12 @@ export interface TableProps<T = any> {
   onSortByClick?: (event: MouseEvent, columnName: string) => void;
   onRowCheckboxClick: (
     event: React.MouseEvent<HTMLElement>,
-    index: number
+    index: number,
   ) => void;
   onRowClick: (event: React.MouseEvent<HTMLElement>, index: number) => void;
   onRowContextMenu: (
     event: React.MouseEvent<HTMLElement>,
-    index: number
+    index: number,
   ) => void;
 }
 
@@ -314,7 +316,7 @@ export const Table = memo<TableProps>(
         allColumns.map((column) => ({
           width: column.width,
           minWidth: column.minWidth,
-        }))
+        })),
       );
 
       return allColumns.map(
@@ -323,7 +325,7 @@ export const Table = memo<TableProps>(
           label: column.label,
           width: columnWidths[i],
           sortBy: column.sortBy,
-        })
+        }),
       );
     }, [columns, containerWidth]);
 
@@ -334,7 +336,7 @@ export const Table = memo<TableProps>(
         onRowClick,
         onRowContextMenu,
       }),
-      [computedColumns, onRowCheckboxClick, onRowClick, onRowContextMenu]
+      [computedColumns, onRowCheckboxClick, onRowClick, onRowContextMenu],
     );
 
     const indexes = useMemo(() => range(0, length), [length]);
@@ -390,7 +392,7 @@ export const Table = memo<TableProps>(
                         column.label
                       )}
                     </TableHeadCell>
-                  )
+                  ),
                 )}
               </TableHead>
             </div>
@@ -403,7 +405,7 @@ export const Table = memo<TableProps>(
         ) : null}
       </StyledTable>
     );
-  }
+  },
 );
 
 export interface TableRowProps {
@@ -426,19 +428,19 @@ export const TableRow = memo<TableRowProps>(
       (event: React.MouseEvent<HTMLElement>) => {
         onRowCheckboxClickOrig(event, index);
       },
-      [onRowCheckboxClickOrig, index]
+      [onRowCheckboxClickOrig, index],
     );
     const onRowClick = useCallback(
       (event: React.MouseEvent<HTMLElement>) => {
         onRowClickOrig(event, index);
       },
-      [onRowClickOrig, index]
+      [onRowClickOrig, index],
     );
     const onRowContextMenu = useCallback(
       (event: React.MouseEvent<HTMLElement>) => {
         onRowContextMenuOrig(event, index);
       },
-      [onRowContextMenuOrig, index]
+      [onRowContextMenuOrig, index],
     );
 
     return (
@@ -475,10 +477,10 @@ export const TableRow = memo<TableRowProps>(
               >
                 {row[column.name]}
               </TableCell>
-            )
+            ),
           )}
         </TableCells>
       </BaseTableRow>
     );
-  }
+  },
 );

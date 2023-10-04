@@ -14,7 +14,7 @@ export function useSingleNavbarBreadcrumb(name: string): ReactNode {
         isLast: true,
       },
     ],
-    [name]
+    [name],
   );
 
   return <NavbarBreadcrumbs breadcrumbs={breadcrumbs} />;

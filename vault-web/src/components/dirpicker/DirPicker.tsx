@@ -3,7 +3,7 @@ import { useTheme } from '@emotion/react';
 import range from 'lodash/range';
 import { memo, useMemo, useRef } from 'react';
 
-import { ReactComponent as LoadingIcon } from '../../assets/images/loading.svg';
+import LoadingIcon from '../../assets/images/loading.svg?react';
 import { useSubscribe } from '../../webVault/useSubscribe';
 
 import { useIsMobile } from '../useIsMobile';
@@ -24,7 +24,7 @@ export const DirPicker = memo<{
   onClick: (
     pickerId: number,
     itemId: string,
-    isArrow: boolean
+    isArrow: boolean,
   ) => Promise<void>;
 }>(({ pickerId, onClick }) => {
   const isMobile = useIsMobile();
@@ -32,7 +32,7 @@ export const DirPicker = memo<{
   const [items] = useSubscribe(
     (v, cb) => v.dirPickersItemsSubscribe(pickerId, cb),
     (v) => v.dirPickersItemsData,
-    [pickerId]
+    [pickerId],
   );
   const selectedItemId = items.find((item) => item.isSelected)?.id;
   const nextScrollToItemId = useRef<string>();
@@ -67,7 +67,7 @@ export const DirPicker = memo<{
               css`
                 background-color: #f4f5f5;
               `,
-            item.isSelected && 'is-selected'
+            item.isSelected && 'is-selected',
           )}
           onClick={() => onClick(pickerId, item.id, false)}
           ref={(el) => {

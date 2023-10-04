@@ -1,19 +1,19 @@
 import { useSubscribe } from '../../../webVault/useSubscribe';
 
 export function useRepoFilesDetailsBytes(
-  detailsId: number
+  detailsId: number,
 ): ArrayBuffer | undefined {
   const [arrayBuffer] = useSubscribe(
     (v, cb) => v.repoFilesDetailsContentBytesSubscribe(detailsId, cb),
     (v) => v.repoFilesDetailsContentBytesData,
-    [detailsId]
+    [detailsId],
   );
 
   return arrayBuffer;
 }
 
 export function useRepoFilesDetailsString(
-  detailsId: number
+  detailsId: number,
 ): string | undefined {
   const arrayBuffer = useRepoFilesDetailsBytes(detailsId);
 

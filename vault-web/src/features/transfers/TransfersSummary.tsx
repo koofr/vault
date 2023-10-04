@@ -2,8 +2,8 @@ import { css, cx } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { memo, MouseEvent, useCallback, useState } from 'react';
 
-import { ReactComponent as TransfersFailedIcon } from '../../assets/images/transfers-failed.svg';
-import { ReactComponent as TransfersIcon } from '../../assets/images/transfers.svg';
+import TransfersFailedIcon from '../../assets/images/transfers-failed.svg?react';
+import TransfersIcon from '../../assets/images/transfers.svg?react';
 import { Button } from '../../components/Button';
 import { Progress } from '../../components/Progress';
 import { useSubscribe } from '../../webVault/useSubscribe';
@@ -33,7 +33,7 @@ export const TransfersSummary = memo<{
   ] = useSubscribe(
     (v, cb) => v.transfersSummarySubscribe(cb),
     (v) => v.transfersSummaryData,
-    []
+    [],
   );
   let [isSizeVisible, setSizeVisible] = useState(false);
   let [isSpeedVisible, setSpeedVisible] = useState(false);
@@ -42,14 +42,14 @@ export const TransfersSummary = memo<{
       event.stopPropagation();
       webVault.transfersAbortAll();
     },
-    [webVault]
+    [webVault],
   );
   const onRetryAllClick = useCallback(
     (event: MouseEvent<HTMLElement>) => {
       event.stopPropagation();
       webVault.transfersRetryAll();
     },
-    [webVault]
+    [webVault],
   );
   const onCountClick = useCallback((event: MouseEvent<HTMLElement>) => {
     event.stopPropagation();
@@ -79,7 +79,7 @@ export const TransfersSummary = memo<{
         areDetailsVisible &&
           css`
             box-shadow: ${theme.boxShadow};
-          `
+          `,
       )}
       onClick={toggleDetailsVisible}
     >
@@ -95,7 +95,7 @@ export const TransfersSummary = memo<{
               `
             : css`
                 display: flex;
-              `
+              `,
         )}
       ></div>
       <div
@@ -120,7 +120,7 @@ export const TransfersSummary = memo<{
                 `
               : css`
                   width: 160px;
-                `
+                `,
           )}
         >
           <div
@@ -197,7 +197,7 @@ export const TransfersSummary = memo<{
                 `
               : css`
                   width: 160px;
-                `
+                `,
           )}
         >
           {isTransferring ? (
@@ -253,7 +253,7 @@ export const TransfersSummary = memo<{
             : css`
                 flex-grow: 1;
                 flex-basis: 0;
-              `
+              `,
         )}
       >
         {canRetryAll ? (

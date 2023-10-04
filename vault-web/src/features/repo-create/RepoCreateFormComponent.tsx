@@ -47,7 +47,7 @@ export const RepoCreateFormComponent = memo<{
   const locationDirPickerOnClick = useCallback(
     (_: number, itemId: string, isArrow: boolean) =>
       webVault.repoCreateLocationDirPickerClick(createId, itemId, isArrow),
-    [webVault, createId]
+    [webVault, createId],
   );
   const locationDirPickerSelect = useCallback(() => {
     webVault.repoCreateLocationDirPickerSelect(createId);
@@ -64,7 +64,7 @@ export const RepoCreateFormComponent = memo<{
 
       webVault.repoCreateCreateRepo(createId);
     },
-    [webVault, createId]
+    [webVault, createId],
   );
   const canSubmit = form.canCreate && form.createRepoStatus.type !== 'Loading';
 
@@ -106,7 +106,7 @@ export const RepoCreateFormComponent = memo<{
                 `
               : css`
                   flex-direction: row;
-                `
+                `,
           )}
         >
           <div
@@ -121,7 +121,7 @@ export const RepoCreateFormComponent = memo<{
                 : css`
                     width: 370px;
                     margin-right: 70px;
-                  `
+                  `,
             )}
           >
             {form.createRepoStatus.type === 'Error' ? (
@@ -221,7 +221,7 @@ export const RepoCreateFormComponent = memo<{
                       createId,
                       event.currentTarget.value.length > 0
                         ? event.currentTarget.value.trim()
-                        : undefined
+                        : undefined,
                     )
                   }
                 />
@@ -371,7 +371,7 @@ export const RepoCreateFormComponent = memo<{
                 onClick={() => {
                   webVault.repoCreateFillFromRcloneConfig(
                     createId,
-                    rcloneConfig
+                    rcloneConfig,
                   );
                 }}
               >

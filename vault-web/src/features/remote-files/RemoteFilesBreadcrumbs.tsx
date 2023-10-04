@@ -18,7 +18,7 @@ export const RemoteFilesBreadcrumbs = memo<{
           isLast: i === breadcrumbs.length - 1,
         };
       }),
-    [breadcrumbs]
+    [breadcrumbs],
   );
 
   return <NavbarBreadcrumbs breadcrumbs={navbarBreadcrumbs} />;

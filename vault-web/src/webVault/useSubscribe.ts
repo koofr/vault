@@ -7,7 +7,7 @@ import { useWebVault } from './useWebVault';
 export function useSubscribe<T>(
   subscribe: (webVault: WebVault, callback: () => void) => number,
   getDataFunc: (webVault: WebVault) => (subscriptionId: number) => T,
-  deps: DependencyList
+  deps: DependencyList,
 ): [T, { current: T }] {
   const webVault = useWebVault();
 
@@ -39,7 +39,7 @@ export function useSubscribe<T>(
       data.current = initialData;
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [webVault, ...deps]
+    [webVault, ...deps],
   );
 
   useEffect(() => {

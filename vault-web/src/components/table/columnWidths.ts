@@ -20,7 +20,7 @@ interface Col {
 
 export function calculateColumnWidths(
   availableWidth: number,
-  columns: ColumnWidth[]
+  columns: ColumnWidth[],
 ): number[] {
   let knownWidth = 0;
   let unknownCount = 0;
@@ -40,7 +40,7 @@ export function calculateColumnWidths(
       if (isString(column.width)) {
         if (column.width[column.width.length - 1] !== '%') {
           throw new Error(
-            `Column width must be a number or percentage: ${column.width}`
+            `Column width must be a number or percentage: ${column.width}`,
           );
         }
 
@@ -54,7 +54,7 @@ export function calculateColumnWidths(
       } else {
         if (column.minWidth !== undefined) {
           throw new Error(
-            `Column cannot have both width number and minWidth: ${column.width}, ${column.minWidth}`
+            `Column cannot have both width number and minWidth: ${column.width}, ${column.minWidth}`,
           );
         }
 
@@ -75,7 +75,7 @@ export function calculateColumnWidths(
   if (unknownCount > 0) {
     if (relWidthsSum === 1) {
       throw new Error(
-        'Columns relative widths cannot equal 100% if there are unknown widths'
+        'Columns relative widths cannot equal 100% if there are unknown widths',
       );
     }
 
@@ -103,7 +103,7 @@ export function calculateColumnWidths(
     if (col.type === ColumnType.RELATIVE && col.minWidth !== undefined) {
       const width = Math.min(
         Math.max(remainingWidth * (col.relWidth as number), col.minWidth),
-        currentRemainingWidth
+        currentRemainingWidth,
       );
 
       currentRemainingWidth -= width;
@@ -117,7 +117,7 @@ export function calculateColumnWidths(
     if (col.type === ColumnType.RELATIVE) {
       const width = Math.min(
         Math.max(remainingWidth * (col.relWidth as number), 0),
-        currentRemainingWidth
+        currentRemainingWidth,
       );
 
       currentRemainingWidth -= width;

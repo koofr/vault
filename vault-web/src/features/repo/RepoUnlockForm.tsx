@@ -18,7 +18,7 @@ export const RepoUnlockForm = memo<{
 
       onUnlock(password);
     },
-    [onUnlock, password]
+    [onUnlock, password],
   );
 
   return (
@@ -40,7 +40,7 @@ export const RepoUnlockForm = memo<{
               @media (max-width: 1024px) {
                 padding: 50px 0 0;
               }
-            `
+            `,
       )}
     >
       <h1

@@ -44,7 +44,7 @@ export const RepoFilesMoveModalContent = memo<{
     const dirPickerOnClick = useCallback(
       (_: number, itemId: string, isArrow: boolean) =>
         webVault.repoFilesMoveDirPickerClick(itemId, isArrow),
-      [webVault]
+      [webVault],
     );
     const createDir = useCallback(() => {
       webVault.repoFilesMoveCreateDir();
@@ -103,7 +103,7 @@ export const RepoFilesMoveModalContent = memo<{
                   `
                 : css`
                     height: 300px;
-                  `
+                  `,
             )}
           >
             <DirPicker pickerId={dirPickerId} onClick={dirPickerOnClick} />
@@ -135,7 +135,7 @@ export const RepoFilesMoveModalContent = memo<{
         </ModalFooter>
       </>
     );
-  }
+  },
 );
 
 export const RepoFilesMoveModal = memo(() => {
@@ -143,7 +143,7 @@ export const RepoFilesMoveModal = memo(() => {
   const [info] = useSubscribe(
     (v, cb) => v.repoFilesMoveInfoSubscribe(cb),
     (v) => v.repoFilesMoveInfoData,
-    []
+    [],
   );
   const cancel = useCallback(() => webVault.repoFilesMoveCancel(), [webVault]);
 

@@ -13,7 +13,7 @@ interface Flags {
 interface DirectoryReader {
   readEntries(
     successCallback: (entries: Entry[]) => void,
-    errorCallback?: (err: Error) => void
+    errorCallback?: (err: Error) => void,
   ): void;
 }
 
@@ -24,25 +24,25 @@ interface Entry {
   readonly fullPath: string;
   getMetadata(
     successCallback: (metadata: Metadata) => void,
-    errorCallback?: (err: Error) => void
+    errorCallback?: (err: Error) => void,
   );
   moveTo(
     parent: DirectoryEntry,
     newName?: string,
     successCallback?: (entry: Entry) => void,
-    errorCallback?: (err: Error) => void
+    errorCallback?: (err: Error) => void,
   ): void;
   copyTo(
     parent: DirectoryEntry,
     newName?: string,
     successCallback?: (entry: Entry) => void,
-    errorCallback?: (err: Error) => void
+    errorCallback?: (err: Error) => void,
   ): void;
   toURL(): string;
   remove(successCallback: () => void, errorCallback?: (err: Error) => void);
   getParent(
     successCallback: (entry: Entry) => void,
-    errorCallback?: (err: Error) => void
+    errorCallback?: (err: Error) => void,
   );
 }
 
@@ -54,17 +54,17 @@ interface DirectoryEntry extends Entry {
     path: string,
     options?: Flags,
     successCallback?: (entry: Entry) => void,
-    errorCallback?: (err: Error) => void
+    errorCallback?: (err: Error) => void,
   );
   getDirectory(
     path: string,
     options?: Flags,
     successCallback?: (entry: Entry) => void,
-    errorCallback?: (err: Error) => void
+    errorCallback?: (err: Error) => void,
   );
   removeRecursively(
     successCallback: () => void,
-    errorCallback?: (err: Error) => void
+    errorCallback?: (err: Error) => void,
   );
 }
 
@@ -73,7 +73,7 @@ interface FileEntry extends Entry {
   isDirectory: false;
   file(
     successCallback: (file: File) => void,
-    errorCallback?: (err: Error) => void
+    errorCallback?: (err: Error) => void,
   ): void;
 }
 

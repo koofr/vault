@@ -115,5 +115,5 @@ export const TransfersListTransfer = memo<{ transfer: Transfer }>(
         </div>
       </div>
     );
-  }
+  },
 );

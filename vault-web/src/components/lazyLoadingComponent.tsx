@@ -10,7 +10,7 @@ const onImportError = (err: any) => {
 
 export function lazyLoadingComponent<P>(
   load: () => Promise<React.ComponentType<P>>,
-  loadingCircle = true
+  loadingCircle = true,
 ) {
   let isLoaded = false;
   let isLoading = false;

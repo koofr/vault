@@ -24,10 +24,10 @@ export const RepoFilesDetailsTextEditor = memo<{
     (newValue: string) => {
       webVault.repoFilesDetailsSetContent(
         detailsId,
-        new TextEncoder().encode(newValue)
+        new TextEncoder().encode(newValue),
       );
     },
-    [webVault, detailsId]
+    [webVault, detailsId],
   );
 
   return contentStatus.type === 'Error' && !contentStatus.loaded ? (

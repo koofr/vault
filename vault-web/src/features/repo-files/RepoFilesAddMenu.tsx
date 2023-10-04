@@ -46,7 +46,7 @@ export const CreateDirItem = memo<{
   const browserId = useRepoFilesBrowserId();
   const createDir = useCallback(
     () => webVault.repoFilesBrowsersCreateDir(browserId),
-    [webVault, browserId]
+    [webVault, browserId],
   );
 
   return (

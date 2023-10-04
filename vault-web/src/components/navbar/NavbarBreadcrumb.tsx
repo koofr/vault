@@ -21,11 +21,11 @@ export const NavbarBreadcrumb = memo<{
   separator: boolean;
   onClick?: (
     event: React.MouseEvent<any>,
-    breadcrumb: NavbarBreadcrumbInfo
+    breadcrumb: NavbarBreadcrumbInfo,
   ) => void;
   onCaretClick?: (
     event: React.MouseEvent<any>,
-    breadcrumb: NavbarBreadcrumbInfo
+    breadcrumb: NavbarBreadcrumbInfo,
   ) => void;
 }>(
   ({
@@ -46,7 +46,7 @@ export const NavbarBreadcrumb = memo<{
           onClickFn(event, breadcrumb);
         }
       },
-      [link, onClickFn, isClickable, breadcrumb]
+      [link, onClickFn, isClickable, breadcrumb],
     );
     const onCaretClick = useCallback(
       (event: React.MouseEvent<any>) => {
@@ -54,7 +54,7 @@ export const NavbarBreadcrumb = memo<{
           onCaretClickFn(event, breadcrumb);
         }
       },
-      [onCaretClickFn, breadcrumb]
+      [onCaretClickFn, breadcrumb],
     );
     const linkClassName = css`
       text-overflow: ellipsis;
@@ -83,7 +83,7 @@ export const NavbarBreadcrumb = memo<{
             isLast &&
               css`
                 font-weight: 600;
-              `
+              `,
           )}
         >
           {link !== undefined ? (
@@ -135,5 +135,5 @@ export const NavbarBreadcrumb = memo<{
         {separator ? <NavbarBreadcrumbsSeparator /> : null}
       </>
     );
-  }
+  },
 );

@@ -31,7 +31,7 @@ export const RepoFilesDropZoneComponent = memo(() => {
         Promise.all(uploadFiles(files));
       },
     }),
-    [uploadFiles]
+    [uploadFiles],
   );
   useEffect(() => {
     drop(document.body);

@@ -12,7 +12,7 @@ export class BrowserEventstreamWebSocketDelegateImpl
     url: string,
     onOpen: () => void,
     onMessage: (data: string) => void,
-    onClose: () => void
+    onClose: () => void,
   ): void => {
     this.onOpen = onOpen;
     this.onMessage = onMessage;

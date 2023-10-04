@@ -53,7 +53,7 @@ export const DashboardLayout = memo<
                   flex-grow: 1;
                   padding: 30px 25px 75px 0;
                 `,
-            className
+            className,
           )}
         >
           <DashboardSidenav className={sidenavClassName} />
@@ -71,7 +71,7 @@ export const DashboardLayout = memo<
                   `
                 : css`
                     margin: 0 32px 0 0;
-                  `
+                  `,
             )}
           >
             {children}
@@ -82,5 +82,5 @@ export const DashboardLayout = memo<
         <SpaceUsage />
       </>
     );
-  }
+  },
 );

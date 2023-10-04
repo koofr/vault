@@ -32,7 +32,7 @@ const DialogInner = memo<{
 
       webVault.dialogsSetInputValue(dialogId, value);
     },
-    [webVault, dialogId]
+    [webVault, dialogId],
   );
   const inputRef = useCallback(
     (el: HTMLInputElement | null) => {
@@ -47,7 +47,7 @@ const DialogInner = memo<{
         }
       }
     },
-    [dialogRef]
+    [dialogRef],
   );
   const {
     typ,
@@ -127,7 +127,7 @@ export const Dialog = memo<{ dialogId: number }>(({ dialogId }) => {
   const [dialog, dialogRef] = useSubscribe(
     (v, cb) => v.dialogsDialogSubscribe(dialogId, cb),
     (v) => v.dialogsDialogData,
-    [dialogId]
+    [dialogId],
   );
 
   if (dialog === undefined || dialogRef.current === undefined) {

@@ -20,7 +20,7 @@ export const getContentEl = (
   fileCategory: FileCategory | undefined,
   contentStatus: Status,
   isEditing: boolean,
-  documentSize: DocumentSizeInfo
+  documentSize: DocumentSizeInfo,
 ): React.ReactElement | undefined => {
   const isMobile = isDocumentSizeMobile(documentSize);
   const width = documentSize.width;

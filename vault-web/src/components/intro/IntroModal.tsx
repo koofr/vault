@@ -57,7 +57,7 @@ const introButtonStyle = buttonStyle(
   '#ffffff',
   introButtonColorHover,
   introButtonColorHover,
-  '#ffffff'
+  '#ffffff',
 );
 
 const introButtonInlineStyle = cx(
@@ -67,12 +67,12 @@ const introButtonInlineStyle = cx(
     introButtonColor,
     'transparent',
     'transparent',
-    introButtonColorHover
+    introButtonColorHover,
   ),
   css`
     padding-left: 0;
     padding-right: 0;
-  `
+  `,
 );
 
 const bp = {
@@ -469,7 +469,7 @@ const IntroModalContent = memo<{ hide: () => void }>(({ hide }) => {
                   i === step &&
                     css`
                       background-color: #676f73;
-                    `
+                    `,
                 )}
               ></div>
             ))}

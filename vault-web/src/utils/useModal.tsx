@@ -12,11 +12,11 @@ export function useModal<Payload = void>(): {
   }>({ isVisible: false, payload: undefined });
   const show = useCallback(
     (payload: Payload) => setState({ isVisible: true, payload }),
-    []
+    [],
   );
   const hide = useCallback(
     () => setState({ isVisible: false, payload: undefined }),
-    []
+    [],
   );
 
   return { isVisible: state.isVisible, payload: state.payload, show, hide };

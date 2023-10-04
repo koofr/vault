@@ -45,7 +45,7 @@ export type ButtonVariant =
 
 export function buttonVariantStyle(
   variant: ButtonVariant | undefined,
-  theme: Theme
+  theme: Theme,
 ): string | undefined {
   switch (variant) {
     case 'primary':
@@ -55,7 +55,7 @@ export function buttonVariantStyle(
         theme.colors.textInverse,
         theme.colors.primaryHover,
         theme.colors.primaryHover,
-        theme.colors.textInverse
+        theme.colors.textInverse,
       );
     case 'primary-inline':
       return buttonInlineStyle(theme.colors.primary, theme.colors.primaryHover);
@@ -66,12 +66,12 @@ export function buttonVariantStyle(
         theme.colors.textInverse,
         theme.colors.destructiveHover,
         theme.colors.destructiveHover,
-        theme.colors.textInverse
+        theme.colors.textInverse,
       );
     case 'destructive-inline':
       return buttonInlineStyle(
         theme.colors.destructive,
-        theme.colors.destructiveHover
+        theme.colors.destructiveHover,
       );
     case 'disabled':
       return cx(
@@ -81,11 +81,11 @@ export function buttonVariantStyle(
           theme.colors.textInverse,
           theme.colors.disabled,
           theme.colors.disabled,
-          theme.colors.textInverse
+          theme.colors.textInverse,
         ),
         css`
           cursor: default;
-        `
+        `,
       );
     case 'disabled-inline':
       return buttonInlineStyle(theme.colors.disabled, theme.colors.disabled);
@@ -96,7 +96,7 @@ export function buttonVariantStyle(
         theme.colors.text,
         'transparent',
         theme.colors.text,
-        theme.colors.text
+        theme.colors.text,
       );
   }
 }

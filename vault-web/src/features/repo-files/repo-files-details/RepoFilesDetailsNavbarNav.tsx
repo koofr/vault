@@ -1,14 +1,14 @@
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
 
-import { ReactComponent as FilesEditHoverIcon } from '../../../assets/images/files-edit-hover.svg';
-import { ReactComponent as FilesEditIcon } from '../../../assets/images/files-edit.svg';
-import { ReactComponent as FilesRenameHoverIcon } from '../../../assets/images/files-rename-hover.svg';
-import { ReactComponent as FilesRenameIcon } from '../../../assets/images/files-rename.svg';
-import { ReactComponent as FilesToolbarDeleteHoverIcon } from '../../../assets/images/files-toolbar-delete-hover.svg';
-import { ReactComponent as FilesToolbarDeleteIcon } from '../../../assets/images/files-toolbar-delete.svg';
-import { ReactComponent as FilesToolbarDownloadHoverIcon } from '../../../assets/images/files-toolbar-download-hover.svg';
-import { ReactComponent as FilesToolbarDownloadIcon } from '../../../assets/images/files-toolbar-download.svg';
+import FilesEditHoverIcon from '../../../assets/images/files-edit-hover.svg?react';
+import FilesEditIcon from '../../../assets/images/files-edit.svg?react';
+import FilesRenameHoverIcon from '../../../assets/images/files-rename-hover.svg?react';
+import FilesRenameIcon from '../../../assets/images/files-rename.svg?react';
+import FilesToolbarDeleteHoverIcon from '../../../assets/images/files-toolbar-delete-hover.svg?react';
+import FilesToolbarDeleteIcon from '../../../assets/images/files-toolbar-delete.svg?react';
+import FilesToolbarDownloadHoverIcon from '../../../assets/images/files-toolbar-download-hover.svg?react';
+import FilesToolbarDownloadIcon from '../../../assets/images/files-toolbar-download.svg?react';
 import {
   NavbarNavToolbar,
   NavbarNavToolbarItem,

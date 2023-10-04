@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 
 export const RepoFilesBrowserIdContext = createContext<number>(
-  undefined as any
+  undefined as any,
 );
 
 export function useRepoFilesBrowserId() {

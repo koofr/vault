@@ -116,7 +116,7 @@ export class UploadsHelper {
 
   private async handleEntryDir(
     entry: DirectoryEntry,
-    parentPath: RelPath
+    parentPath: RelPath,
   ): Promise<RelPath> {
     const name = normalizeFilename(entry.name);
     const path = joinPath(parentPath, name);
@@ -129,9 +129,9 @@ export class UploadsHelper {
     await Promise.all(
       entries.map((entry) =>
         this.handleEntry(entry as DirectoryEntry | FileEntry, path).then(
-          () => {}
-        )
-      )
+          () => {},
+        ),
+      ),
     );
 
     return path;
@@ -139,7 +139,7 @@ export class UploadsHelper {
 
   private async handleEntryFile(
     fileEntry: FileEntry,
-    parentPath: RelPath
+    parentPath: RelPath,
   ): Promise<void> {
     const file = await entryFile(fileEntry);
 
@@ -154,7 +154,7 @@ export class UploadsHelper {
 
   private async handleEntry(
     entry: DirectoryEntry | FileEntry,
-    parentPath: RelPath
+    parentPath: RelPath,
   ): Promise<void> {
     if (entryIsDirectory(entry)) {
       await this.handleEntryDir(entry, parentPath);
@@ -175,7 +175,7 @@ export class UploadsHelper {
   // Upload using file input files or folders (Chrome Desktop, Firefox, Safari macOS, Safari iOS, Chrome iOS, Edge)
   private uploadWebkitFilesAsEntries(files: File[]): Promise<void>[] {
     return webkitFilesToEntries(files).map((entry) =>
-      this.handleEntry(entry as DirectoryEntry | FileEntry, '/')
+      this.handleEntry(entry as DirectoryEntry | FileEntry, '/'),
     );
   }
 
@@ -186,7 +186,7 @@ export class UploadsHelper {
         parentPath: '/',
         name: this.getFileName(file),
         file: file,
-      }))
+      })),
     );
   }
 

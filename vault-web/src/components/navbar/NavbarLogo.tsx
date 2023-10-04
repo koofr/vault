@@ -2,7 +2,7 @@ import { css } from '@emotion/css';
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
 
-import { ReactComponent as VaultLogoIcon } from '../../assets/images/vault-logo.svg';
+import VaultLogoIcon from '../../assets/images/vault-logo.svg?react';
 
 export const NavbarLogo = memo(() => {
   return (

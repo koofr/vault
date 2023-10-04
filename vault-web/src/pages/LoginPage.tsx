@@ -11,7 +11,7 @@ export const LoginPage: React.FC<{}> = () => {
   const [oauth2Status] = useSubscribe(
     (v, cb) => v.oauth2StatusSubscribe(cb),
     (v) => v.oauth2StatusData,
-    []
+    [],
   );
 
   useEffect(() => {

@@ -5,7 +5,7 @@ import { FileCategory, RepoFile } from '../../vault-wasm/vault-wasm';
 export const repoFilesLink = (
   repoId: string,
   path?: string,
-  name?: string
+  name?: string,
 ): To => {
   const search = new URLSearchParams();
 
@@ -27,7 +27,7 @@ export const repoFilesDetailsLink = (
   repoId: string,
   path: string,
   isEditing?: boolean,
-  autosaveIntervalMs?: number
+  autosaveIntervalMs?: number,
 ): To => {
   const search = new URLSearchParams({
     path,
@@ -51,7 +51,7 @@ export const fileHasPdfViewer = (ext: string | undefined): boolean =>
   ext === 'pdf';
 
 export const fileHasTextEditor = (
-  category: FileCategory | undefined
+  category: FileCategory | undefined,
 ): boolean => category === 'Text' || category === 'Code';
 
 export const fileHasImageViewer = (ext: string | undefined): boolean =>
@@ -68,7 +68,7 @@ export const fileHasDetails = (file: RepoFile): boolean =>
     fileHasImageViewer(file.ext));
 
 export const fileCategoryHasDetailsEdit = (
-  category: FileCategory | undefined
+  category: FileCategory | undefined,
 ): boolean => fileHasTextEditor(category);
 
 export const fileHasDetailsEdit = (file: RepoFile): boolean =>

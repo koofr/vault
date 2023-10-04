@@ -21,7 +21,7 @@ export const buttonStyle = (
   textColor: string,
   hoverBgColor: string,
   hoverBorderColor: string,
-  hoverTextColor: string
+  hoverTextColor: string,
 ) => css`
   background-color: ${bgColor};
   border-color: ${borderColor};
@@ -40,7 +40,7 @@ export const buttonStyle = (
 
 export const buttonInlineStyle = (
   textColor: string,
-  hoverTextColor: string
+  hoverTextColor: string,
 ) => css`
   background: none;
   border: none;

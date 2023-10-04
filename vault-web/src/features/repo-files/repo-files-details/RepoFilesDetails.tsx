@@ -34,7 +34,7 @@ const RepoFilesDetailsInner = memo<{
   const [info, infoRef] = useSubscribe(
     (v, cb) => v.repoFilesDetailsInfoSubscribe(detailsId, cb),
     (v) => v.repoFilesDetailsInfoData,
-    [detailsId]
+    [detailsId],
   );
 
   useDocumentTitle(info?.fileName);
@@ -48,7 +48,7 @@ const RepoFilesDetailsInner = memo<{
       if (info.shouldDestroy) {
         // TODO navigate to parent and select the file
         navigate(
-          repoFilesLink(info.repoId, info.parentPath ?? '/', info.fileName)
+          repoFilesLink(info.repoId, info.parentPath ?? '/', info.fileName),
         );
       } else if (info.path !== path) {
         expectedNewPath.current = info.path;
@@ -58,9 +58,9 @@ const RepoFilesDetailsInner = memo<{
             info.repoId,
             info.path,
             info.isEditing,
-            autosaveIntervalMs
+            autosaveIntervalMs,
           ),
-          { replace: true }
+          { replace: true },
         );
       }
     }
@@ -83,7 +83,7 @@ const RepoFilesDetailsInner = memo<{
     info.fileCategory,
     info.contentStatus,
     info.isEditing,
-    documentSize
+    documentSize,
   );
 
   return (
@@ -117,7 +117,7 @@ const RepoFilesDetailsInner = memo<{
 });
 
 function getAutosaveIntervalMs(
-  searchParams: URLSearchParams
+  searchParams: URLSearchParams,
 ): number | undefined {
   const raw = searchParams.get('autosave');
   if (raw === null || raw === '') {

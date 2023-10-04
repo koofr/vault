@@ -16,7 +16,7 @@ export const RepoGuard: React.FC<{
   const [info] = useSubscribe(
     (v, cb) => v.reposRepoSubscribe(repoId, cb),
     (v) => v.reposRepoData,
-    [repoId]
+    [repoId],
   );
 
   if (info.repo !== undefined) {

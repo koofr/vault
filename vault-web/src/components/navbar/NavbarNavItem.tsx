@@ -44,7 +44,7 @@ export const NavbarNavItem = memo(
                 &:last-of-type {
                   margin-right: 0;
                 }
-              `
+              `,
         )}
         {...props}
         ref={ref}
@@ -71,7 +71,7 @@ export const NavbarNavItem = memo(
                 css`
                   margin-bottom: 3px;
                 `,
-              backgroundClassName
+              backgroundClassName,
             )}
           >
             {icon}
@@ -93,5 +93,5 @@ export const NavbarNavItem = memo(
         </div>
       </Button>
     );
-  })
+  }),
 );

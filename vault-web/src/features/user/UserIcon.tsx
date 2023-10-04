@@ -52,7 +52,7 @@ const UserIconUser = memo<{ user: User }>(({ user }) => {
   const [profilePictureLoaded] = useSubscribe(
     (v, cb) => v.userProfilePictureLoadedSubscribe(cb),
     (v) => v.userProfilePictureLoadedData,
-    []
+    [],
   );
   const profilePictureUrl = useMemo(() => {
     if (profilePictureLoaded) {
@@ -91,7 +91,7 @@ export const UserIcon = memo(() => {
   const [user] = useSubscribe(
     (v, cb) => v.userSubscribe(cb),
     (v) => v.userData,
-    []
+    [],
   );
 
   return user !== undefined ? (

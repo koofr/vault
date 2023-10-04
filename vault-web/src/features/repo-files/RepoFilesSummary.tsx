@@ -45,5 +45,5 @@ export const RepoFilesSummary = memo<{ info: RepoFilesBrowserInfo }>(
         )}
       </div>
     );
-  }
+  },
 );

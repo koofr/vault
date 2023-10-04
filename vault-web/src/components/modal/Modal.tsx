@@ -16,8 +16,8 @@ import {
   useRef,
 } from 'react';
 
-import { ReactComponent as ModalCloseHoverIcon } from '../../assets/images/modal-close-hover.svg';
-import { ReactComponent as ModalCloseIcon } from '../../assets/images/modal-close.svg';
+import ModalCloseHoverIcon from '../../assets/images/modal-close-hover.svg?react';
+import ModalCloseIcon from '../../assets/images/modal-close.svg?react';
 import { buttonReset } from '../../styles/mixins/buttons';
 
 import { Button } from '../Button';
@@ -89,7 +89,7 @@ export const Modal = memo<ModalProps & React.RefAttributes<ModalHandle>>(
             justify-content: space-around;
             align-items: center;
           `,
-          className
+          className,
         )}
         {...props}
       >
@@ -109,7 +109,7 @@ export const Modal = memo<ModalProps & React.RefAttributes<ModalHandle>>(
                 `
               : css`
                   padding: 15px;
-                `
+                `,
           )}
         >
           <ModalCloseContext.Provider value={props.onHide ?? noopModalClose}>
@@ -118,7 +118,7 @@ export const Modal = memo<ModalProps & React.RefAttributes<ModalHandle>>(
         </div>
       </RestartUIModal>
     );
-  }
+  },
 );
 
 const ModalContent = memo<PropsWithChildren<{ isTopModal: boolean }>>(
@@ -160,13 +160,13 @@ const ModalContent = memo<PropsWithChildren<{ isTopModal: boolean }>>(
                 border: 1px solid rgba(0, 0, 0, 0.2);
                 border-radius: 3px;
                 box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-              `
+              `,
         )}
       >
         {children}
       </div>
     );
-  }
+  },
 );
 
 export const ModalClose = memo(() => {
@@ -227,7 +227,7 @@ export const ModalHeader = memo<ComponentProps<typeof StyledModalHeader>>(
       {children}
       <ModalClose />
     </StyledModalHeader>
-  )
+  ),
 );
 
 export const ModalTitle = styled.h5`

@@ -2,7 +2,7 @@ import { css, cx } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { memo } from 'react';
 
-import { ReactComponent as SpaceUsageIcon } from '../../assets/images/space-usage.svg';
+import SpaceUsageIcon from '../../assets/images/space-usage.svg?react';
 import { Progress } from '../../components/Progress';
 import { useIsMobile } from '../../components/useIsMobile';
 import { useSubscribe } from '../../webVault/useSubscribe';
@@ -15,12 +15,12 @@ export const SpaceUsage = memo(() => {
   const [spaceUsage] = useSubscribe(
     (v, cb) => v.spaceUsageSubscribe(cb),
     (v) => v.spaceUsageData,
-    []
+    [],
   );
   const [transfersIsActive] = useSubscribe(
     (v, cb) => v.transfersIsActiveSubscribe(cb),
     (v) => v.transfersIsActiveData,
-    []
+    [],
   );
   const bottom = transfersIsActive ? TRANSFERS_SUMMARY_HEIGHT : 0;
 
@@ -48,7 +48,7 @@ export const SpaceUsage = memo(() => {
             `
           : css`
               width: 225px;
-            `
+            `,
       )}
       style={{ bottom: `${bottom}px` }}
     >

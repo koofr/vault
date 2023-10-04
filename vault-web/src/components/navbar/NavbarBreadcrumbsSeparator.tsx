@@ -1,7 +1,7 @@
 import { css } from '@emotion/css';
 import { memo } from 'react';
 
-import { ReactComponent as BreadcrumbsSeparatorIcon } from '../../assets/images/breadcrumbs-separator.svg';
+import BreadcrumbsSeparatorIcon from '../../assets/images/breadcrumbs-separator.svg?react';
 
 export const NavbarBreadcrumbsSeparator = memo(() => (
   <div

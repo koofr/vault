@@ -11,7 +11,7 @@ export const HomePage = memo(() => {
   const [repos] = useSubscribe(
     (v, cb) => v.reposSubscribe(cb),
     (v) => v.reposData,
-    []
+    [],
   );
 
   useEffect(() => {

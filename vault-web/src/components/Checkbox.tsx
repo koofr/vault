@@ -2,8 +2,8 @@ import { css, cx } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { memo, MouseEvent } from 'react';
 
-import { ReactComponent as CheckboxCheck } from '../assets/images/checkbox-check.svg';
-import { ReactComponent as CheckboxIndeterminate } from '../assets/images/checkbox-indeterminate.svg';
+import CheckboxCheck from '../assets/images/checkbox-check.svg?react';
+import CheckboxIndeterminate from '../assets/images/checkbox-indeterminate.svg?react';
 import { buttonReset } from '../styles/mixins/buttons';
 
 export type CheckboxValue = 'unchecked' | 'checked' | 'indeterminate';
@@ -42,7 +42,7 @@ export const Checkbox = memo<{
               &:hover {
                 color: ${theme.colors.text};
               }
-            `
+            `,
       )}
       onClick={onClick}
     >
@@ -84,7 +84,7 @@ export const Checkbox = memo<{
               value === 'checked' &&
                 css`
                   opacity: 1;
-                `
+                `,
             )}
           >
             <CheckboxCheck />
@@ -106,7 +106,7 @@ export const Checkbox = memo<{
               value === 'indeterminate' &&
                 css`
                   opacity: 1;
-                `
+                `,
             )}
           >
             <CheckboxIndeterminate />

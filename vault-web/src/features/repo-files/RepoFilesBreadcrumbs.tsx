@@ -16,14 +16,14 @@ export const RepoFilesBreadcrumbs = memo(() => {
   const [allBreadcrumbs] = useSubscribe(
     (v, cb) => v.repoFilesBrowsersBreadcrumbsSubscribe(browserId, cb),
     (v) => v.repoFilesBrowsersBreadcrumbsData,
-    [browserId]
+    [browserId],
   );
   const breadcrumbs = useMemo(
     () =>
       isMobile
         ? allBreadcrumbs.slice(allBreadcrumbs.length - 1)
         : allBreadcrumbs,
-    [allBreadcrumbs, isMobile]
+    [allBreadcrumbs, isMobile],
   );
   const navbarBreadcrumbs = useMemo(
     () =>
@@ -37,7 +37,7 @@ export const RepoFilesBreadcrumbs = memo(() => {
           isLast: i === breadcrumbs.length - 1,
         };
       }),
-    [breadcrumbs]
+    [breadcrumbs],
   );
   const onClick = useCallback(
     (event: React.MouseEvent<any>, breadcrumb: NavbarBreadcrumbInfo) => {
@@ -45,7 +45,7 @@ export const RepoFilesBreadcrumbs = memo(() => {
         webVault.repoFilesBrowsersLoadFiles(browserId);
       }
     },
-    [webVault, browserId]
+    [webVault, browserId],
   );
 
   return (

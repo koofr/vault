@@ -12,7 +12,7 @@ export const NavbarNavToolbar = styled.nav`
 `;
 
 export function NavbarNavToolbarItem<
-  T extends React.ElementType = typeof Button
+  T extends React.ElementType = typeof Button,
 >({ ...props }: ToolbarItemProps<T>) {
   return (
     <ToolbarItem
@@ -21,13 +21,13 @@ export function NavbarNavToolbarItem<
         css`
           font-size: 12px;
         `,
-        props.textClassName
+        props.textClassName,
       )}
       className={cx(
         css`
           margin: 0;
         `,
-        props.className
+        props.className,
       )}
     />
   );

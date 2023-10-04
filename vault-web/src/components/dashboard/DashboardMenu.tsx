@@ -3,10 +3,10 @@ import { useTheme } from '@emotion/react';
 import { useDropdownMenu } from '@restart/ui/DropdownMenu';
 import { memo, useCallback } from 'react';
 
-import { ReactComponent as DirPickerItemHostedHoverIcon } from '../../assets/images/dir-picker-item-hosted-hover.svg';
-import { ReactComponent as DirPickerItemHostedIcon } from '../../assets/images/dir-picker-item-hosted.svg';
-import { ReactComponent as LogoutHoverIcon } from '../../assets/images/logout-hover.svg';
-import { ReactComponent as LogoutIcon } from '../../assets/images/logout.svg';
+import DirPickerItemHostedHoverIcon from '../../assets/images/dir-picker-item-hosted-hover.svg?react';
+import DirPickerItemHostedIcon from '../../assets/images/dir-picker-item-hosted.svg?react';
+import LogoutHoverIcon from '../../assets/images/logout-hover.svg?react';
+import LogoutIcon from '../../assets/images/logout.svg?react';
 import { UserIcon } from '../../features/user/UserIcon';
 import { allStates } from '../../styles/mixins/hover';
 import { useSubscribe } from '../../webVault/useSubscribe';
@@ -22,7 +22,7 @@ export const DashboardMenuUserInfoItem = memo(() => {
   const [user] = useSubscribe(
     (v, cb) => v.userSubscribe(cb),
     (v) => v.userData,
-    []
+    [],
   );
 
   if (user === undefined) {

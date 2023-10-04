@@ -21,7 +21,7 @@ export function getDocumentSize(): DocumentSizeInfo {
 }
 
 export const DocumentSizeContext = createContext<DocumentSizeInfo>(
-  undefined as any
+  undefined as any,
 );
 
 export const DocumentSizeProvider: React.FC<PropsWithChildren<{}>> = ({

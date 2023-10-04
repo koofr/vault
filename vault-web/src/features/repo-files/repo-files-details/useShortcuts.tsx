@@ -7,7 +7,7 @@ import { useWebVault } from '../../../webVault/useWebVault';
 
 export function useShortcuts(
   detailsId: number,
-  infoRef: { current: RepoFilesDetailsInfo | undefined }
+  infoRef: { current: RepoFilesDetailsInfo | undefined },
 ) {
   const webVault = useWebVault();
 

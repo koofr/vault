@@ -4,7 +4,7 @@ import { useWebVault } from '../../../webVault/useWebVault';
 import { useSubscribe } from '../../../webVault/useSubscribe';
 
 export function useRepoFilesDetailsBlobUrl(
-  detailsId: number
+  detailsId: number,
 ): string | undefined {
   const webVault = useWebVault();
 
@@ -41,7 +41,7 @@ export function useRepoFilesDetailsBlobUrl(
     const stream = await webVault.repoFilesDetailsGetFileStream(
       detailsId,
       true,
-      abortController.signal
+      abortController.signal,
     );
 
     const blobUrl =
@@ -65,7 +65,7 @@ export function useRepoFilesDetailsBlobUrl(
         loadFile();
       }
     },
-    [detailsId, loadFile]
+    [detailsId, loadFile],
   );
 
   return blobUrl;

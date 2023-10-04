@@ -12,12 +12,12 @@ export const Transfers = memo(() => {
   const [areDetailsVisible, setDetailsVisible] = useState(false);
   const toggleDetailsVisible = useCallback(
     () => setDetailsVisible((visible) => !visible),
-    []
+    [],
   );
   const [isActive] = useSubscribe(
     (v, cb) => v.transfersIsActiveSubscribe(cb),
     (v) => v.transfersIsActiveData,
-    []
+    [],
   );
 
   if (!isActive) {
@@ -52,7 +52,7 @@ export const Transfers = memo(() => {
             css`
               height: 191px;
               overflow-y: auto;
-            `
+            `,
         )}
       >
         {areDetailsVisible ? <TransfersList /> : null}

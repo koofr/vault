@@ -22,7 +22,7 @@ export const RemoteFilesDirPickerModalContent = memo<{
   onClick: (
     pickerId: number,
     itemId: string,
-    isArrow: boolean
+    isArrow: boolean,
   ) => Promise<void>;
   canSelect: boolean;
   select: () => void;
@@ -67,7 +67,7 @@ export const RemoteFilesDirPickerModalContent = memo<{
                   `
                 : css`
                     height: 300px;
-                  `
+                  `,
             )}
           >
             <DirPicker pickerId={dirPickerId} onClick={onClick} />
@@ -99,7 +99,7 @@ export const RemoteFilesDirPickerModalContent = memo<{
         </ModalFooter>
       </>
     );
-  }
+  },
 );
 
 export const RemoteFilesDirPickerModal = memo<{
@@ -107,7 +107,7 @@ export const RemoteFilesDirPickerModal = memo<{
   onClick: (
     pickerId: number,
     itemId: string,
-    isArrow: boolean
+    isArrow: boolean,
   ) => Promise<void>;
   canSelect: boolean;
   select: () => void;
@@ -141,5 +141,5 @@ export const RemoteFilesDirPickerModal = memo<{
         )}
       </Modal>
     );
-  }
+  },
 );

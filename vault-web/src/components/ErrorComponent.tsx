@@ -44,5 +44,5 @@ export const ErrorComponent = memo<{ error: string; onRetry?: () => void }>(
         ) : null}
       </div>
     );
-  }
+  },
 );

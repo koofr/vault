@@ -15,7 +15,7 @@ import graphic3Image from '../assets/images/landing/graphic-3.png';
 import graphic32xImage from '../assets/images/landing/graphic-3@2x.png';
 import graphic4Image from '../assets/images/landing/graphic-4.png';
 import graphic42xImage from '../assets/images/landing/graphic-4@2x.png';
-import { ReactComponent as LogoImage } from '../assets/images/landing/logo.svg';
+import LogoImage from '../assets/images/landing/logo.svg?react';
 import mainGraphicImage from '../assets/images/landing/main-graphic.png';
 import mainGraphic2xImage from '../assets/images/landing/main-graphic@2x.png';
 import openSourceImage from '../assets/images/landing/open-source.png';
@@ -44,7 +44,7 @@ const landingButtonStyle = buttonStyle(
   '#ffffff',
   '#0576f1',
   '#0576f1',
-  '#ffffff'
+  '#ffffff',
 );
 
 const bpDim = {
@@ -173,7 +173,7 @@ export const LandingPageOfficial = memo(() => {
                 ${bp.md} {
                   line-height: 12px;
                 }
-              `
+              `,
             )}
           >
             Get started
@@ -299,7 +299,7 @@ export const LandingPageOfficial = memo(() => {
                 ${bp.lgxl} {
                   width: 500px;
                 }
-              `
+              `,
             )}
           >
             Get started
@@ -1275,7 +1275,7 @@ export const LandingPageOfficial = memo(() => {
                 font-size: 18px;
                 padding: 9px 21px;
                 font-weight: 700;
-              `
+              `,
             )}
           >
             Get started

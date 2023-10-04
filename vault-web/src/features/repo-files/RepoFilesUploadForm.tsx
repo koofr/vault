@@ -15,7 +15,7 @@ export interface RepoFilesUploadApi {
 }
 
 export const RepoFilesUploadApiContext = createContext<RepoFilesUploadApi>(
-  undefined as any
+  undefined as any,
 );
 
 export function useRepoFilesUploadApi() {
@@ -36,7 +36,7 @@ export const RepoFilesUploadForm = memo(() => {
         uploadApi.uploadFile = () => el.click();
       }
     },
-    [uploadApi]
+    [uploadApi],
   );
   const uploadDirInputRef = useCallback(
     (el: HTMLInputElement | null) => {
@@ -46,7 +46,7 @@ export const RepoFilesUploadForm = memo(() => {
         uploadApi.uploadDir = () => el.click();
       }
     },
-    [uploadApi]
+    [uploadApi],
   );
   const onUploadFileChange = useCallback(
     async (event: FormEvent<HTMLInputElement>) => {
@@ -55,7 +55,7 @@ export const RepoFilesUploadForm = memo(() => {
         Promise.all(uploadFiles(files));
       }
     },
-    [uploadFiles]
+    [uploadFiles],
   );
 
   return (

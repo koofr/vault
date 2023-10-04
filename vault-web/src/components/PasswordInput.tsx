@@ -31,7 +31,7 @@ export const PasswordInput = memo<PasswordInputProps>(
     const [isPasswordVisible, setPasswordVisible] = useState(false);
     const togglePasswordVisible = useCallback(
       () => setPasswordVisible((value) => !value),
-      []
+      [],
     );
 
     return (
@@ -43,7 +43,7 @@ export const PasswordInput = memo<PasswordInputProps>(
             position: relative;
             align-items: center;
           `,
-          className
+          className,
         )}
       >
         <TextInput
@@ -60,7 +60,7 @@ export const PasswordInput = memo<PasswordInputProps>(
               width: 250px;
               padding-right: 38px;
             `,
-            inputClassName
+            inputClassName,
           )}
           aria-label={inputAriaLabel}
         />
@@ -70,7 +70,7 @@ export const PasswordInput = memo<PasswordInputProps>(
         />
       </div>
     );
-  }
+  },
 );
 
 export const AutoFocusPasswordInput = memo<

@@ -21,7 +21,7 @@ export const RepoConfigBackupRepo = memo<{ repo: Repo }>(({ repo }) => {
   const webVault = useWebVault();
   let backupId = useMemo(
     () => webVault.repoConfigBackupCreate(repoId),
-    [webVault, repoId]
+    [webVault, repoId],
   );
   useEffect(() => {
     return () => {
@@ -31,13 +31,13 @@ export const RepoConfigBackupRepo = memo<{ repo: Repo }>(({ repo }) => {
   const [info] = useSubscribe(
     (v, cb) => v.repoConfigBackupInfoSubscribe(backupId, cb),
     (v) => v.repoConfigBackupInfoData,
-    [backupId]
+    [backupId],
   );
   const onUnlock = useCallback(
     (password: string) => {
       webVault.repoConfigBackupGenerate(backupId, password);
     },
-    [webVault, backupId]
+    [webVault, backupId],
   );
   const breadcrumbs = useMemo(
     (): NavbarBreadcrumbInfo[] => [
@@ -57,7 +57,7 @@ export const RepoConfigBackupRepo = memo<{ repo: Repo }>(({ repo }) => {
         isLast: true,
       },
     ],
-    [repo]
+    [repo],
   );
   useDocumentTitle('Backup config');
 
@@ -100,7 +100,7 @@ export const RepoConfigBackup = memo<{ repoId: string }>(({ repoId }) => {
   const [info] = useSubscribe(
     (v, cb) => v.reposRepoSubscribe(repoId, cb),
     (v) => v.reposRepoData,
-    [repoId]
+    [repoId],
   );
 
   if (info.status.type === 'Error') {

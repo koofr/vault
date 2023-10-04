@@ -2,7 +2,7 @@
 import { css, cx } from '@emotion/css';
 import { memo } from 'react';
 
-import { ReactComponent as LogoImage } from '../assets/images/landing/logo.svg';
+import LogoImage from '../assets/images/landing/logo.svg?react';
 import { BaseAnchorButton } from '../components/Button';
 import { GitRelease } from '../components/GitRelease';
 import { GitRevision } from '../components/GitRevision';
@@ -16,7 +16,7 @@ const landingButtonStyle = buttonStyle(
   '#ffffff',
   '#0576f1',
   '#0576f1',
-  '#ffffff'
+  '#ffffff',
 );
 
 const bpDim = {
@@ -147,7 +147,7 @@ export const LandingPageUnofficial = memo(() => {
                 font-size: 18px;
                 padding: 9px 21px;
                 font-weight: 700;
-              `
+              `,
             )}
           >
             Get started

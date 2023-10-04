@@ -3,8 +3,8 @@ import { useTheme } from '@emotion/react';
 import { memo, MouseEvent, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
-import { ReactComponent as FilesRenameHoverIcon } from '../../assets/images/files-rename-hover.svg';
-import { ReactComponent as FilesRenameIcon } from '../../assets/images/files-rename.svg';
+import FilesRenameHoverIcon from '../../assets/images/files-rename-hover.svg?react';
+import FilesRenameIcon from '../../assets/images/files-rename.svg?react';
 import { Since } from '../../components/Since';
 import { FileIcon } from '../../components/file-icon/FileIcon';
 import {
@@ -78,7 +78,7 @@ const FileName = memo<{ file: RepoFile }>(({ file }) => {
           file.nameError &&
             css`
               color: ${theme.colors.destructive};
-            `
+            `,
         )}
       >
         {file.path != null ? (
@@ -209,7 +209,7 @@ const RepoFilesTableRow = memo<RowProps<TableData>>(({ index, data }) => {
   const [file] = useSubscribe(
     (v, cb) => v.repoFilesFileSubscribe(item.fileId, cb),
     (v) => v.repoFilesFileData,
-    [item.fileId]
+    [item.fileId],
   );
   const isSelected = item.isSelected;
   const isFirstSelected =
@@ -257,13 +257,13 @@ export const RepoFilesTable = memo<{
   const [items] = useSubscribe(
     (v, cb) => v.repoFilesBrowsersItemsSubscribe(browserId, cb),
     (v) => v.repoFilesBrowsersItemsData,
-    [browserId]
+    [browserId],
   );
   const data = useMemo(
     (): TableData => ({
       items,
     }),
-    [items]
+    [items],
   );
   const sort = info.sort;
   const columns = useMemo(
@@ -288,7 +288,7 @@ export const RepoFilesTable = memo<{
         sortBy: sort.field === 'Modified' ? sort.direction : 'Hidden',
       },
     ],
-    [isMobile, sort]
+    [isMobile, sort],
   );
   const onHeadCheckboxClick = useCallback(() => {
     if (info.selectionSummary === 'All') {
@@ -303,24 +303,24 @@ export const RepoFilesTable = memo<{
         case 'name':
           webVault.repoFilesBrowsersSortBy(
             browserId,
-            RepoFilesSortFieldArg.Name
+            RepoFilesSortFieldArg.Name,
           );
           break;
         case 'size':
           webVault.repoFilesBrowsersSortBy(
             browserId,
-            RepoFilesSortFieldArg.Size
+            RepoFilesSortFieldArg.Size,
           );
           break;
         case 'modified':
           webVault.repoFilesBrowsersSortBy(
             browserId,
-            RepoFilesSortFieldArg.Modified
+            RepoFilesSortFieldArg.Modified,
           );
           break;
       }
     },
-    [webVault, browserId]
+    [webVault, browserId],
   );
   const onRowCheckboxClick = useCallback(
     (event: MouseEvent<HTMLElement>, index: number) => {
@@ -330,10 +330,10 @@ export const RepoFilesTable = memo<{
         items[index].fileId,
         true,
         isRange(event),
-        false
+        false,
       );
     },
-    [webVault, browserId, items]
+    [webVault, browserId, items],
   );
   const onRowClick = useCallback(
     (event: MouseEvent<HTMLElement>, index: number) => {
@@ -342,14 +342,14 @@ export const RepoFilesTable = memo<{
         items[index].fileId,
         isExtend(event),
         isRange(event),
-        false
+        false,
       );
     },
-    [webVault, browserId, items]
+    [webVault, browserId, items],
   );
   const onRowContextMenu = useCallback(
     (event: MouseEvent<HTMLElement>, index: number) => {},
-    []
+    [],
   );
 
   return (

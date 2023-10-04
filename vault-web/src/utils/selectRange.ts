@@ -1,7 +1,7 @@
 export function selectRange(
   el: HTMLInputElement,
   start: number,
-  end: number
+  end: number,
 ): void {
   if (el.setSelectionRange) {
     el.focus();
@@ -17,7 +17,7 @@ export function selectRange(
 
 export function selectFilenameRange(
   el: HTMLInputElement,
-  isDir: boolean
+  isDir: boolean,
 ): void {
   const name = el.value;
   const nameParts = name.split('.');

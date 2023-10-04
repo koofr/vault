@@ -16,7 +16,7 @@ export const RepoCreate = memo(() => {
   const [info] = useSubscribe(
     (v, cb) => v.repoCreateInfoSubscribe(createId, cb),
     (v) => v.repoCreateInfoData,
-    []
+    [],
   );
   useEffect(() => {
     return () => {

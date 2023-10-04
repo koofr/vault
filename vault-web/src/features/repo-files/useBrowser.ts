@@ -5,7 +5,7 @@ import { useWebVault } from '../../webVault/useWebVault';
 export function useBrowser(
   repoId: string,
   path: string,
-  selectName: string | undefined
+  selectName: string | undefined,
 ): number {
   const webVault = useWebVault();
 
@@ -19,7 +19,7 @@ export function useBrowser(
     },
     // ignore selectName changes, ignore navigate changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [webVault]
+    [webVault],
   );
 
   useEffect(() => {

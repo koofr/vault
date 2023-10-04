@@ -12,15 +12,13 @@ export const ImageViewer = memo<ImageViewerProps>(
   ({ fileName, blobUrl, width, height }) => {
     return (
       <div
-        className={cx(
-          css`
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: center;
-            padding: 25px;
-          `
-        )}
+        className={cx(css`
+          display: flex;
+          flex-direction: row;
+          justify-content: center;
+          align-items: center;
+          padding: 25px;
+        `)}
         style={{
           width: `${width}px`,
           height: `${height}px`,
@@ -37,5 +35,5 @@ export const ImageViewer = memo<ImageViewerProps>(
         />
       </div>
     );
-  }
+  },
 );

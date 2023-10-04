@@ -14,7 +14,7 @@ export const RepoFilesNavbarLeft = memo(() => {
   const [breadcrumbs] = useSubscribe(
     (v, cb) => v.repoFilesBrowsersBreadcrumbsSubscribe(browserId, cb),
     (v) => v.repoFilesBrowsersBreadcrumbsData,
-    [browserId]
+    [browserId],
   );
 
   if (isMobile && breadcrumbs.length > 1) {

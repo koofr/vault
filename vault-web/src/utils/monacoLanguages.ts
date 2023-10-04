@@ -184,7 +184,7 @@ export const monacoLanguages = new Map<string, string | undefined>([
 ]);
 
 export const monacoLanguageForFileName = (
-  fileName: string
+  fileName: string,
 ): string | undefined => {
   const ext = fileNameExtension(fileName);
 

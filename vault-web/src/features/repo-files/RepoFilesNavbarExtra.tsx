@@ -28,9 +28,9 @@ export const RepoFilesNavbarExtra = memo<{
               flex-direction: row;
               align-items: center;
               overflow: hidden;
-            `
+            `,
       )}
-      >
+    >
       {/* TODO searchbox */}
       {/* <div
         className={cx(
@@ -65,7 +65,7 @@ export const RepoFilesNavbarExtra = memo<{
               ? css``
               : css`
                   margin-right: 50px;
-                `
+                `,
           )}
         >
           <RepoFilesSummary info={info} />

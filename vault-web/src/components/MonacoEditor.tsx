@@ -6,7 +6,7 @@ self.MonacoEnvironment = {
   getWorker(_, label) {
     if (label === 'css' || label === 'scss' || label === 'sass') {
       return import('monaco-editor/esm/vs/language/css/css.worker?worker').then(
-        (mod) => new mod.default()
+        (mod) => new mod.default(),
       );
     }
     if (label === 'html' || label === 'handlebars' || label === 'razor') {
@@ -25,7 +25,7 @@ self.MonacoEnvironment = {
       ).then((mod) => new mod.default());
     }
     return import('monaco-editor/esm/vs/editor/editor.worker?worker').then(
-      (mod) => new mod.default()
+      (mod) => new mod.default(),
     );
   },
 };

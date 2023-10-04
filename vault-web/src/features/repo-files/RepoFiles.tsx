@@ -37,17 +37,17 @@ export const RepoFiles = memo<{ repo: Repo }>(({ repo }) => {
   const [info] = useSubscribe(
     (v, cb) => v.repoFilesBrowsersInfoSubscribe(browserId, cb),
     (v) => v.repoFilesBrowsersInfoData,
-    [browserId]
+    [browserId],
   );
 
   const [breadcrumbs] = useSubscribe(
     (v, cb) => v.repoFilesBrowsersBreadcrumbsSubscribe(browserId, cb),
     (v) => v.repoFilesBrowsersBreadcrumbsData,
-    [browserId]
+    [browserId],
   );
   const documentTitle = useMemo(
     () => breadcrumbs.map((bc) => bc.name).join(' › '),
-    [breadcrumbs]
+    [breadcrumbs],
   );
   useDocumentTitle(documentTitle);
 

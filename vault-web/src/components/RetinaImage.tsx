@@ -28,10 +28,10 @@ export const RetinaImage = memo<
           classNameForSize !== undefined
             ? classNameForSize(width, height)
             : undefined,
-          className
+          className,
         )}
         {...props}
       />
     );
-  }
+  },
 );

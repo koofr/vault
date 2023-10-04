@@ -101,7 +101,7 @@ export const RepoFilesDetailsNavbarHeader = memo<{
               isDirty &&
                 css`
                   background-color: ${theme.colors.warning};
-                `
+                `,
             )}
             aria-label={isDirty ? 'File modified' : 'File unchanged'}
           ></span>

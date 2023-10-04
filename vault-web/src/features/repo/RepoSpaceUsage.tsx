@@ -9,7 +9,7 @@ export const RepoSpaceUsage = memo<{ repoId: string }>(({ repoId }) => {
   const webVault = useWebVault();
   const usageId = useMemo(
     () => webVault.repoSpaceUsageCreate(repoId),
-    [webVault, repoId]
+    [webVault, repoId],
   );
   useEffect(() => {
     return () => {
@@ -19,7 +19,7 @@ export const RepoSpaceUsage = memo<{ repoId: string }>(({ repoId }) => {
   const [info] = useSubscribe(
     (v, cb) => v.repoSpaceUsageInfoSubscribe(usageId, cb),
     (v) => v.repoSpaceUsageInfoData,
-    [usageId]
+    [usageId],
   );
   const onCalculate = useCallback(
     (event: React.FormEvent) => {
@@ -27,7 +27,7 @@ export const RepoSpaceUsage = memo<{ repoId: string }>(({ repoId }) => {
 
       webVault.repoSpaceUsageCalculate(usageId);
     },
-    [webVault, usageId]
+    [webVault, usageId],
   );
 
   if (info === undefined) {
