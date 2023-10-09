@@ -1,18 +1,17 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, ops::RangeInclusive};
 
 use axum::{
-    body::Body,
+    body::StreamBody,
     extract::{BodyStream, Path, Query},
     http::StatusCode,
     response::{IntoResponse, Response},
     Form, Json,
 };
 use futures::TryStreamExt;
-use http::{header, HeaderName, HeaderValue};
+use http::{header, HeaderMap, HeaderName, HeaderValue};
 use serde::{Deserialize, Serialize};
-use tower_http::services::ServeFile;
 use urlencoding::encode;
-use vault_core::remote::models;
+use vault_core::{remote::models, utils::reader_stream::ReaderStream};
 
 use super::{
     context::Context,
@@ -303,6 +302,7 @@ pub async fn files_folder_new(
             StatusCode::BAD_REQUEST,
             ApiErrorCode::BadRequest,
             "Invalid name".into(),
+            None,
         )
     })?;
 
@@ -369,6 +369,7 @@ pub async fn files_rename(
             StatusCode::BAD_REQUEST,
             ApiErrorCode::BadRequest,
             "Invalid name".into(),
+            None,
         )
     })?;
 
@@ -415,6 +416,7 @@ pub async fn files_copy(
             StatusCode::BAD_REQUEST,
             ApiErrorCode::BadRequest,
             "Invalid path".into(),
+            None,
         )
     })?;
 
@@ -463,6 +465,7 @@ pub async fn files_move(
             StatusCode::BAD_REQUEST,
             ApiErrorCode::BadRequest,
             "Invalid path".into(),
+            None,
         )
     })?;
 
@@ -492,6 +495,16 @@ pub struct FilesGetQuery {
     path: files::Path,
 }
 
+fn try_parse_range(
+    maybe_range_ref: Option<&str>,
+    file_size: u64,
+) -> Option<Result<Vec<RangeInclusive<u64>>, http_range_header::RangeUnsatisfiableError>> {
+    maybe_range_ref.map(|header_value| {
+        http_range_header::parse_range_header(header_value)
+            .and_then(|first_pass| first_pass.validate(file_size))
+    })
+}
+
 pub async fn content_files_get(
     ExtractState(state): ExtractState,
     ExtractFilesService(files_service): ExtractFilesService,
@@ -506,25 +519,80 @@ pub async fn content_files_get(
         resolve_mount_id(&context, &state, mountable)
     };
 
-    let (local_path, file) = files_service.get_file_local_path(&mount_id, &query.path)?;
+    let range_header: Option<String> = req
+        .headers
+        .get(header::RANGE)
+        .and_then(|value| value.to_str().ok())
+        .map(|s| s.to_owned());
 
-    let mut res = ServeFile::new_with_mime(local_path, &file.content_type.parse().unwrap())
-        .try_call(http::request::Request::from_parts(req, Body::empty()))
-        .await
-        .map_err(|err| {
-            FakeRemoteError::ApiError(
-                StatusCode::INTERNAL_SERVER_ERROR,
+    let (file, object_id) = files_service.get_file(&mount_id, &query.path)?;
+
+    let file_size = file.size as u64;
+
+    let range = match try_parse_range(range_header.as_deref(), file_size) {
+        Some(Ok(ranges)) => {
+            if ranges.len() == 1 {
+                Some(ranges.into_iter().next().unwrap())
+            } else {
+                return Err(FakeRemoteError::ApiError(
+                    StatusCode::RANGE_NOT_SATISFIABLE,
+                    ApiErrorCode::Other,
+                    "Cannot serve multipart range requests".into(),
+                    Some([(header::CONTENT_RANGE, format!("bytes */{}", file_size))].into()),
+                ));
+            }
+        }
+        Some(Err(_)) => {
+            return Err(FakeRemoteError::ApiError(
+                StatusCode::RANGE_NOT_SATISFIABLE,
                 ApiErrorCode::Other,
-                format!("Failed to open local file: {:?}", err),
-            )
-        })?;
+                "Invalid range".into(),
+                Some([(header::CONTENT_RANGE, format!("bytes */{}", file_size))].into()),
+            ))
+        }
+        None => None,
+    };
 
-    res.headers_mut().insert(
+    let reader = files_service
+        .get_object_reader(object_id, range.clone())
+        .await?;
+
+    let stream = ReaderStream::new(reader, 64 * 1024);
+    let body = StreamBody::new(stream);
+
+    let mut headers = HeaderMap::new();
+
+    headers.insert(
+        header::CONTENT_TYPE,
+        file.content_type.clone().try_into().unwrap(),
+    );
+    headers.insert(header::ACCEPT_RANGES, "bytes".try_into().unwrap());
+    headers.insert(
         HeaderName::from_lowercase(b"x-file-info").unwrap(),
-        HeaderValue::from_bytes(&serde_json::to_vec(&file).unwrap()).unwrap(),
+        serde_json::to_vec(&file).unwrap().try_into().unwrap(),
     );
 
-    Ok(res.into_response())
+    match range {
+        Some(range) => {
+            headers.insert(
+                header::CONTENT_RANGE,
+                format!("bytes {}-{}/{}", range.start(), range.end(), file.size)
+                    .try_into()
+                    .unwrap(),
+            );
+            headers.insert(
+                header::CONTENT_LENGTH,
+                (range.end() - range.start() + 1).try_into().unwrap(),
+            );
+
+            Ok((StatusCode::PARTIAL_CONTENT, headers, body).into_response())
+        }
+        None => {
+            headers.insert(header::CONTENT_LENGTH, file.size.try_into().unwrap());
+
+            Ok((StatusCode::OK, headers, body).into_response())
+        }
+    }
 }
 
 #[derive(Deserialize)]

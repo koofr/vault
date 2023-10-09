@@ -1,5 +1,6 @@
 pub mod filesystem;
 pub mod name;
+pub mod objects;
 pub mod path;
 pub mod service;
 

@@ -103,6 +103,7 @@ impl EventstreamHandler {
                                 StatusCode::INTERNAL_SERVER_ERROR,
                                 ApiErrorCode::Other,
                                 err.to_string(),
+                                None,
                             )
                         })?;
                     }
@@ -134,6 +135,7 @@ impl EventstreamHandler {
                         StatusCode::INTERNAL_SERVER_ERROR,
                         ApiErrorCode::Other,
                         err.to_string(),
+                        None,
                     )
                 })?;
         }
@@ -168,6 +170,7 @@ impl EventstreamHandler {
                         StatusCode::INTERNAL_SERVER_ERROR,
                         ApiErrorCode::Other,
                         err.to_string(),
+                        None,
                     )
                 })?;
 
@@ -200,6 +203,7 @@ impl EventstreamHandler {
                 StatusCode::INTERNAL_SERVER_ERROR,
                 ApiErrorCode::Other,
                 "Unknown message".into(),
+                None,
             )),
         }
     }

@@ -7,6 +7,9 @@ use vault_fake_remote::fake_remote::{
     self,
     app_state::AppState,
     errors::FakeRemoteServerStartError,
+    files::objects::{
+        memory_object_provider::MemoryObjectProvider, object_provider::BoxObjectProvider,
+    },
     interceptor::{Interceptor, InterceptorResult},
     router::build_router,
     server::{FakeRemoteServer, FakeRemoteServerListener},
@@ -27,14 +30,10 @@ pub struct FakeRemote {
 
 impl FakeRemote {
     pub fn new(tokio_runtime: Arc<tokio::runtime::Runtime>) -> Self {
-        let data_path = std::env::temp_dir().join(format!(
-            "vault-core-tests-fake-remote-data-{}",
-            &uuid::Uuid::new_v4().to_string()[..8]
-        ));
+        let object_provider: Arc<BoxObjectProvider> =
+            Arc::new(Box::new(MemoryObjectProvider::new()));
 
-        std::fs::create_dir_all(&data_path).unwrap();
-
-        let mut app_state = AppState::new(data_path.clone());
+        let mut app_state = AppState::new(object_provider);
 
         let interceptor_container = Arc::new(InterceptorContainer {
             interceptor: Arc::new(Mutex::new(None)),
@@ -94,8 +93,6 @@ impl Drop for FakeRemote {
         let server = self.server.clone();
 
         self.tokio_runtime.spawn(async move { server.stop().await });
-
-        std::fs::remove_dir_all(self.app_state.data_path.as_ref()).unwrap();
     }
 }
 

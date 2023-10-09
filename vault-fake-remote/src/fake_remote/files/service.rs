@@ -1,13 +1,13 @@
 use std::{
     collections::HashMap,
+    ops::RangeInclusive,
     pin::Pin,
     sync::{Arc, RwLock},
 };
 
-use futures::{AsyncRead, AsyncWriteExt};
+use futures::AsyncRead;
 use http::StatusCode;
-use tokio_util::compat::TokioAsyncWriteCompatExt;
-use vault_core::{remote::models, utils::md5_reader};
+use vault_core::remote::models;
 
 use crate::fake_remote::{
     context::Context,
@@ -20,6 +20,7 @@ use crate::fake_remote::{
 
 use super::{
     filesystem::{CreateFileConflictResolution, MoveFileConditions},
+    objects::object_provider::{BoxObjectProvider, ObjectProviderError},
     Filesystem, FilesystemFile, Name, NormalizedPath, Path,
 };
 
@@ -27,7 +28,7 @@ pub struct FilesService {
     state: Arc<RwLock<FakeRemoteState>>,
     vault_repos_remove_service: Arc<VaultReposRemoveService>,
     eventstream_listeners: Arc<eventstream::Listeners>,
-    data_path: std::path::PathBuf,
+    object_provider: Arc<BoxObjectProvider>,
 }
 
 impl FilesService {
@@ -35,13 +36,13 @@ impl FilesService {
         state: Arc<RwLock<FakeRemoteState>>,
         vault_repos_remove_service: Arc<VaultReposRemoveService>,
         eventstream_listeners: Arc<eventstream::Listeners>,
-        data_path: std::path::PathBuf,
+        object_provider: Arc<BoxObjectProvider>,
     ) -> Self {
         Self {
             state,
             vault_repos_remove_service,
             eventstream_listeners,
-            data_path,
+            object_provider,
         }
     }
 
@@ -57,6 +58,7 @@ impl FilesService {
                 StatusCode::NOT_FOUND,
                 ApiErrorCode::NotFound,
                 "Mount not found".into(),
+                None,
             ))
     }
 
@@ -72,6 +74,7 @@ impl FilesService {
                 StatusCode::NOT_FOUND,
                 ApiErrorCode::NotFound,
                 "Mount not found".into(),
+                None,
             ))
     }
 
@@ -96,10 +99,6 @@ impl FilesService {
             .into(),
             objects: HashMap::new(),
         }
-    }
-
-    pub fn get_local_path(&self, object_id: &str) -> std::path::PathBuf {
-        self.data_path.join(&object_id)
     }
 
     pub fn bundle(&self, mount_id: &str, path: &Path) -> Result<models::Bundle, FakeRemoteError> {
@@ -157,7 +156,7 @@ impl FilesService {
         name: Name,
         modified: Option<i64>,
         conflict_resolution: &CreateFileConflictResolution,
-        reader: Pin<Box<dyn AsyncRead + Send + Sync>>,
+        reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
     ) -> Result<models::FilesFile, FakeRemoteError> {
         let mount_id = {
             let mut state = self.state.write().unwrap();
@@ -171,42 +170,7 @@ impl FilesService {
 
         let object_id = uuid::Uuid::new_v4().to_string();
 
-        let local_path = self.get_local_path(&object_id);
-
-        let mut local_file = tokio::fs::File::create(local_path)
-            .await
-            .map_err(|err| {
-                FakeRemoteError::ApiError(
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    ApiErrorCode::Other,
-                    format!("Failed to create file: {:?}", err),
-                )
-            })?
-            .compat_write();
-
-        let mut md5_reader = md5_reader::MD5Reader::new(reader);
-
-        let size = futures::io::copy(&mut md5_reader, &mut local_file)
-            .await
-            .map_err(|err| {
-                FakeRemoteError::ApiError(
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    ApiErrorCode::Other,
-                    format!("Failed to copy file: {:?}", err),
-                )
-            })?;
-
-        local_file.flush().await.map_err(|err| {
-            FakeRemoteError::ApiError(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                ApiErrorCode::Other,
-                format!("Failed to flush local file: {:?}", err),
-            )
-        })?;
-
-        drop(local_file);
-
-        let hash = md5_reader.hex_digest();
+        let (size, hash) = self.object_provider.put(object_id.clone(), reader).await?;
 
         let file = {
             let mut state = self.state.write().unwrap();
@@ -239,28 +203,35 @@ impl FilesService {
         Ok(file)
     }
 
-    pub fn get_file_local_path(
+    pub fn get_file(
         &self,
         mount_id: &str,
         path: &Path,
-    ) -> Result<(std::path::PathBuf, models::FilesFile), FakeRemoteError> {
+    ) -> Result<(models::FilesFile, String), FakeRemoteError> {
         let state = self.state.read().unwrap();
 
         let fs = self.get_filesystem(&state, &mount_id)?;
 
         let file = fs.get_file(&path.normalize())?;
 
-        let object_id = file.object_id.as_ref().ok_or_else(|| {
+        let object_id = file.object_id.clone().ok_or_else(|| {
             FakeRemoteError::ApiError(
                 StatusCode::BAD_REQUEST,
                 ApiErrorCode::NotFile,
                 "Not a file".into(),
+                None,
             )
         })?;
 
-        let local_path = self.data_path.join(&object_id);
+        Ok((file.file.clone(), object_id))
+    }
 
-        Ok((local_path, file.file.clone()))
+    pub async fn get_object_reader(
+        &self,
+        object_id: String,
+        range: Option<RangeInclusive<u64>>,
+    ) -> Result<Pin<Box<dyn AsyncRead + Send + Sync + 'static>>, FakeRemoteError> {
+        Ok(self.object_provider.get(object_id, range).await?)
     }
 
     pub async fn create_dir(
@@ -354,6 +325,7 @@ impl FilesService {
                 StatusCode::BAD_REQUEST,
                 ApiErrorCode::NotDir,
                 "Directory expected".into(),
+                None,
             ));
         }
 
@@ -446,6 +418,7 @@ impl FilesService {
                 StatusCode::BAD_REQUEST,
                 ApiErrorCode::NotDir,
                 "Directory expected".into(),
+                None,
             ));
         }
 
@@ -480,10 +453,8 @@ impl FilesService {
         }
     }
 
-    pub async fn delete_object_file(&self, object_id: &str) -> std::io::Result<()> {
-        let local_path = self.get_local_path(object_id);
-
-        tokio::fs::remove_file(&local_path).await
+    pub async fn delete_object_file(&self, object_id: String) -> Result<(), ObjectProviderError> {
+        self.object_provider.delete(object_id).await
     }
 
     pub async fn cleanup_objects(&self, mount_id: &str) -> Result<(), FakeRemoteError> {
@@ -506,13 +477,15 @@ impl FilesService {
         let mut deleted_object_ids = vec![];
 
         for object_id in object_ids {
-            match self.delete_object_file(&object_id).await {
+            match self.delete_object_file(object_id.clone()).await {
                 Ok(()) => {
                     log::debug!("Deleted local file: {}", object_id);
 
                     deleted_object_ids.push(object_id)
                 }
-                Err(err) if err.kind() == std::io::ErrorKind::NotFound => {
+                Err(ObjectProviderError::IOError(err))
+                    if err.kind() == std::io::ErrorKind::NotFound =>
+                {
                     log::warn!("Failed to delete local file: {:?}", err);
 
                     // object does not exist anymore, remove it from state

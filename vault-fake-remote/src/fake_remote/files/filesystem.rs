@@ -89,6 +89,7 @@ impl Filesystem {
             StatusCode::NOT_FOUND,
             ApiErrorCode::NotFound,
             "File not found".into(),
+            None,
         ))
     }
 
@@ -100,6 +101,7 @@ impl Filesystem {
             StatusCode::NOT_FOUND,
             ApiErrorCode::NotFound,
             "File not found".into(),
+            None,
         ))
     }
 
@@ -135,6 +137,7 @@ impl Filesystem {
                                 StatusCode::CONFLICT,
                                 ApiErrorCode::Conflict,
                                 "Overwrite if modified does not match".into(),
+                                None,
                             ));
                         }
                     }
@@ -144,6 +147,7 @@ impl Filesystem {
                                 StatusCode::CONFLICT,
                                 ApiErrorCode::Conflict,
                                 "Overwrite if size does not match".into(),
+                                None,
                             ));
                         }
                     }
@@ -153,6 +157,7 @@ impl Filesystem {
                                 StatusCode::CONFLICT,
                                 ApiErrorCode::Conflict,
                                 "Overwrite if hash does not match".into(),
+                                None,
                             ));
                         }
                     }
@@ -161,6 +166,7 @@ impl Filesystem {
                             StatusCode::BAD_REQUEST,
                             ApiErrorCode::NotFile,
                             "Not a file".into(),
+                            None,
                         ));
                     }
                 }
@@ -172,6 +178,7 @@ impl Filesystem {
                             StatusCode::CONFLICT,
                             ApiErrorCode::Conflict,
                             "Overwrite file not found".into(),
+                            None,
                         ));
                     }
                 }
@@ -183,6 +190,7 @@ impl Filesystem {
                         StatusCode::CONFLICT,
                         ApiErrorCode::Conflict,
                         "File already exists".into(),
+                        None,
                     ));
                 }
             }
@@ -276,6 +284,7 @@ impl Filesystem {
                 StatusCode::CONFLICT,
                 ApiErrorCode::AlreadyExists,
                 "File already exists".into(),
+                None,
             ));
         }
 
@@ -315,6 +324,7 @@ impl Filesystem {
                 StatusCode::BAD_REQUEST,
                 ApiErrorCode::NotDir,
                 "Directory expected".into(),
+                None,
             ));
         }
 
@@ -327,6 +337,7 @@ impl Filesystem {
                 StatusCode::CONFLICT,
                 ApiErrorCode::Conflict,
                 "Conflict".into(),
+                None,
             ));
         }
 
@@ -367,6 +378,7 @@ impl Filesystem {
                 StatusCode::BAD_REQUEST,
                 ApiErrorCode::CopyIntoSelf,
                 "Cannot copy into itself".into(),
+                None,
             ));
         }
 
@@ -375,6 +387,7 @@ impl Filesystem {
                 StatusCode::CONFLICT,
                 ApiErrorCode::AlreadyExists,
                 "File already exists".into(),
+                None,
             ));
         }
 
@@ -438,6 +451,7 @@ impl Filesystem {
                 StatusCode::BAD_REQUEST,
                 ApiErrorCode::MoveIntoSelf,
                 "Cannot move into itself".into(),
+                None,
             ));
         }
 
@@ -446,6 +460,7 @@ impl Filesystem {
                 StatusCode::CONFLICT,
                 ApiErrorCode::AlreadyExists,
                 "File already exists".into(),
+                None,
             ));
         }
 
@@ -457,6 +472,7 @@ impl Filesystem {
                     StatusCode::CONFLICT,
                     ApiErrorCode::Conflict,
                     "Overwrite if modified does not match".into(),
+                    None,
                 ));
             }
         }
@@ -466,6 +482,7 @@ impl Filesystem {
                     StatusCode::CONFLICT,
                     ApiErrorCode::Conflict,
                     "Overwrite if size does not match".into(),
+                    None,
                 ));
             }
         }
@@ -475,6 +492,7 @@ impl Filesystem {
                     StatusCode::CONFLICT,
                     ApiErrorCode::Conflict,
                     "Overwrite if hash does not match".into(),
+                    None,
                 ));
             }
         }

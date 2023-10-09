@@ -1,4 +1,4 @@
-use std::{net::SocketAddr, path::PathBuf, sync::Arc};
+use std::{net::SocketAddr, sync::Arc};
 
 use futures::FutureExt;
 
@@ -7,6 +7,7 @@ use super::{
     context::Context,
     debug_interceptor::get_debug_interceptor,
     errors::FakeRemoteServerStartError,
+    files::objects::object_provider::BoxObjectProvider,
     router::build_router,
     server::{FakeRemoteServer, FakeRemoteServerListener},
     CERT_PEM, KEY_PEM,
@@ -16,7 +17,7 @@ use super::{
 pub struct FakeRemoteAppConfig {
     pub http_addr: SocketAddr,
     pub https_addr: SocketAddr,
-    pub data_path: PathBuf,
+    pub object_provider: Arc<BoxObjectProvider>,
     pub user_id: String,
     pub mount_id: String,
     pub oauth2_access_token: String,
@@ -35,7 +36,7 @@ impl FakeRemoteApp {
         config: FakeRemoteAppConfig,
         tokio_runtime: Arc<tokio::runtime::Runtime>,
     ) -> Self {
-        let mut app_state = AppState::new(config.data_path.clone());
+        let mut app_state = AppState::new(config.object_provider.clone());
 
         init_state(&app_state, config.clone()).await;
 

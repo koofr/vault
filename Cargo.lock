@@ -980,6 +980,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "add0ab9360ddbd88cfeb3bd9574a1d85cfdfa14db10b3e21d3700dbc4328758f"
 
 [[package]]
+name = "http-range-header"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3ce4ef31cda248bbdb6e6820603b82dfcd9e833db65a43e997a0ccec777d11fe"
+
+[[package]]
 name = "httparse"
 version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2216,7 +2222,7 @@ dependencies = [
  "futures-util",
  "http",
  "http-body",
- "http-range-header",
+ "http-range-header 0.3.1",
  "httpdate",
  "mime",
  "mime_guess",
@@ -2525,6 +2531,7 @@ dependencies = [
  "futures",
  "hex",
  "http",
+ "http-range-header 0.4.0",
  "log",
  "mime",
  "reqwest",

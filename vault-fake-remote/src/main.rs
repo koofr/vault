@@ -2,7 +2,13 @@ use std::{net::SocketAddr, path::PathBuf, sync::Arc};
 
 use clap::Parser;
 use tokio::signal;
-use vault_fake_remote::fake_remote::app::{FakeRemoteApp, FakeRemoteAppConfig};
+use vault_fake_remote::fake_remote::{
+    app::{FakeRemoteApp, FakeRemoteAppConfig},
+    files::objects::{
+        fs_object_provider::FsObjectProvider, memory_object_provider::MemoryObjectProvider,
+        object_provider::BoxObjectProvider,
+    },
+};
 
 #[derive(Parser, Debug, Clone)]
 #[command(author, version, about, long_about = None)]
@@ -15,7 +21,7 @@ struct Args {
     #[arg(long, default_value = "127.0.0.1:3443")]
     https_addr: SocketAddr,
 
-    /// Data path
+    /// Data path (default empty, in-memory)
     #[arg(long)]
     data_path: Option<PathBuf>,
 
@@ -50,19 +56,25 @@ fn main() {
 
     let tokio_runtime = Arc::new(tokio::runtime::Runtime::new().unwrap());
 
-    let data_path = args
-        .data_path
-        .clone()
-        .unwrap_or_else(|| std::env::temp_dir().join("vault-fake-remote-data"));
+    let object_provider: Arc<BoxObjectProvider> = match args.data_path.clone() {
+        Some(data_path) => {
+            std::fs::create_dir_all(&data_path).unwrap();
 
-    std::fs::create_dir_all(&data_path).unwrap();
+            log::info!("Data path: {:?}", data_path);
 
-    log::info!("Data path: {:?}", data_path);
+            Arc::new(Box::new(FsObjectProvider::new(data_path)))
+        }
+        None => {
+            log::info!("Data in memory");
+
+            Arc::new(Box::new(MemoryObjectProvider::new()))
+        }
+    };
 
     let config = FakeRemoteAppConfig {
         http_addr: args.http_addr,
         https_addr: args.https_addr,
-        data_path,
+        object_provider,
         user_id: args.user_id,
         mount_id: args.mount_id,
         oauth2_access_token: args.oauth2_access_token,

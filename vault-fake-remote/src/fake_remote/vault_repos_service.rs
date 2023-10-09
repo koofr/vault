@@ -42,6 +42,7 @@ impl VaultReposCreateService {
                     StatusCode::NOT_FOUND,
                     ApiErrorCode::NotFound,
                     "Mount not found".into(),
+                    None,
                 )
             })?;
 
@@ -50,16 +51,18 @@ impl VaultReposCreateService {
                 StatusCode::BAD_REQUEST,
                 ApiErrorCode::BadRequest,
                 "Invalid path".into(),
+                None,
             )
         })?;
 
         match self.files_service.info(&mount_id, &path) {
             Ok(_) => {}
-            Err(FakeRemoteError::ApiError(_, code, _)) if code == ApiErrorCode::NotFound => {
+            Err(FakeRemoteError::ApiError(_, code, _, _)) if code == ApiErrorCode::NotFound => {
                 return Err(FakeRemoteError::ApiError(
                     StatusCode::NOT_FOUND,
                     ApiErrorCode::VaultReposLocationNotFound,
                     "Vault repo location not found.".into(),
+                    None,
                 ))
             }
             Err(err) => return Err(err),
@@ -81,6 +84,7 @@ impl VaultReposCreateService {
                 StatusCode::CONFLICT,
                 ApiErrorCode::VaultReposAlreadyExists,
                 "Vault repo already exists for this path.".into(),
+                None,
             ));
         }
 
@@ -173,6 +177,7 @@ impl VaultReposRemoveService {
                 StatusCode::NOT_FOUND,
                 ApiErrorCode::NotFound,
                 "Vault repo not found".into(),
+                None,
             ));
         }
 
