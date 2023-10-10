@@ -3,13 +3,13 @@ import { expect } from '@playwright/test';
 import { openApp } from '../helpers/app';
 import { test } from '../helpers/base';
 import { filesTableClickFile, uploadFile } from '../helpers/repoFiles';
-import { createRepo, unlockRepo } from '../helpers/repos';
 import {
   fileDetailsNameLocator,
   pdfViewerBodyLocator,
   pdfViewerLocator,
   textEditorTest,
-} from '../helpers/reposFilesDetails';
+} from '../helpers/repoFilesDetails';
+import { createRepo, unlockRepo } from '../helpers/repos';
 import { sleep } from '../helpers/time';
 
 test.describe('repoFilesDetails', () => {
