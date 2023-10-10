@@ -38,14 +38,14 @@ pub fn with_tokio_runtime(
             .boxed(),
         );
 
+        assert!(
+            wait_for_sync(500, move || tokio_runtime_weak.strong_count() == 1),
+            "Tokio runtime not dropped in 500 ms"
+        );
+
         // explicit drop arc so that the tokio runtime is not dropped from
         // within the asynchronous context
         drop(tokio_runtime);
-
-        assert!(
-            wait_for_sync(500, move || tokio_runtime_weak.strong_count() == 0),
-            "Tokio runtime not dropped in 500 ms"
-        );
     });
 }
 
