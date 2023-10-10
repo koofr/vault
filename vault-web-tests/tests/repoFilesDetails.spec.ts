@@ -44,7 +44,7 @@ test.describe('repoFilesDetails', () => {
       test('View non-existent', async ({ textEditor }) => {
         await textEditor.viewNonexistentFile();
         await textEditor.expectHeaderError(
-          'This file is no longer accessible. Probably it was deleted or you no longer have access to it.'
+          'This file is no longer accessible. Probably it was deleted or you no longer have access to it.',
         );
         await textEditor.expectEmptyNavbarNav();
       });
@@ -77,7 +77,7 @@ test.describe('repoFilesDetails', () => {
       test('Edit non-existent', async ({ textEditor }) => {
         await textEditor.viewNonexistentFile();
         await textEditor.expectHeaderError(
-          'This file is no longer accessible. Probably it was deleted or you no longer have access to it.'
+          'This file is no longer accessible. Probably it was deleted or you no longer have access to it.',
         );
         await textEditor.expectEmptyNavbarNav();
       });
@@ -120,13 +120,13 @@ test.describe('repoFilesDetails', () => {
           },
           async () => {
             await textEditor.clickLogo();
-          }
+          },
         );
         await textEditor.dialogs.waitForDialog(
           'File could not be saved',
           /File could not be saved \(.*\)\. Do you want to Try again or Discard the changes\?/,
           'Try again',
-          'Discard changes'
+          'Discard changes',
         );
         await debugClient.withQueue(
           async (request) => {
@@ -142,13 +142,13 @@ test.describe('repoFilesDetails', () => {
           },
           async () => {
             await textEditor.dialogs.clickButtonWait('Try again');
-          }
+          },
         );
         await textEditor.dialogs.waitForDialog(
           'File could not be saved',
           /File could not be saved \(.*\)\. Do you want to Try again or Discard the changes\?/,
           'Try again',
-          'Discard changes'
+          'Discard changes',
         );
         await textEditor.dialogs.clickButtonWait('Try again');
         await textEditor.expectServerContentMatch();
@@ -174,13 +174,13 @@ test.describe('repoFilesDetails', () => {
           },
           async () => {
             await textEditor.clickLogo();
-          }
+          },
         );
         await textEditor.dialogs.waitForDialog(
           'File could not be saved',
           /File could not be saved \(.*\)\. Do you want to Try again or Discard the changes\?/,
           'Try again',
-          'Discard changes'
+          'Discard changes',
         );
         await textEditor.dialogs.clickButtonWait('Discard changes');
         await sleep(200);
@@ -271,7 +271,7 @@ test.describe('repoFilesDetails', () => {
         await textEditor.changeContent();
         await textEditor.changeContentOnServer();
         await textEditor.expectHeaderError(
-          'File was changed by someone else since your last save. Automatic saving is disabled.'
+          'File was changed by someone else since your last save. Automatic saving is disabled.',
         );
       });
 
@@ -282,18 +282,18 @@ test.describe('repoFilesDetails', () => {
         await textEditor.changeContent();
         await textEditor.changeContentOnServer();
         await textEditor.expectHeaderError(
-          'File was changed by someone else since your last save. Automatic saving is disabled.'
+          'File was changed by someone else since your last save. Automatic saving is disabled.',
         );
         await textEditor.clickSave();
         await textEditor.dialogs.waitForDialog(
           'File was changed by someone else since your last save',
           'Saving into the existing file is not possible. Do you want to Save your changes as a new file?',
           'Save as a new file',
-          'Cancel'
+          'Cancel',
         );
         await textEditor.dialogs.clickButtonWait('Cancel');
         await textEditor.expectHeaderErrorStays(
-          'File was changed by someone else since your last save. Automatic saving is disabled.'
+          'File was changed by someone else since your last save. Automatic saving is disabled.',
         );
       });
 
@@ -304,14 +304,14 @@ test.describe('repoFilesDetails', () => {
         await textEditor.changeContent();
         await textEditor.changeContentOnServer();
         await textEditor.expectHeaderError(
-          'File was changed by someone else since your last save. Automatic saving is disabled.'
+          'File was changed by someone else since your last save. Automatic saving is disabled.',
         );
         await textEditor.clickSave();
         await textEditor.dialogs.waitForDialog(
           'File was changed by someone else since your last save',
           'Saving into the existing file is not possible. Do you want to Save your changes as a new file?',
           'Save as a new file',
-          'Cancel'
+          'Cancel',
         );
         await textEditor.dialogs.clickButtonWait('Save as a new file');
         textEditor.autorenamed();
@@ -331,14 +331,14 @@ test.describe('repoFilesDetails', () => {
         await textEditor.changeContent();
         await textEditor.changeContentOnServer();
         await textEditor.expectHeaderError(
-          'File was changed by someone else since your last save. Automatic saving is disabled.'
+          'File was changed by someone else since your last save. Automatic saving is disabled.',
         );
         await textEditor.clickX();
         await textEditor.dialogs.waitForDialog(
           'File was changed by someone else since your last save',
           'Saving into the existing file is not possible. Do you want to Save your changes as a new file or Discard them?',
           'Save as a new file',
-          'Discard changes'
+          'Discard changes',
         );
         await textEditor.dialogs.clickButtonWait('Discard changes');
         await textEditor.expectViewerOpen();
@@ -352,14 +352,14 @@ test.describe('repoFilesDetails', () => {
         await textEditor.changeContent();
         await textEditor.changeContentOnServer();
         await textEditor.expectHeaderError(
-          'File was changed by someone else since your last save. Automatic saving is disabled.'
+          'File was changed by someone else since your last save. Automatic saving is disabled.',
         );
         await textEditor.clickX();
         await textEditor.dialogs.waitForDialog(
           'File was changed by someone else since your last save',
           'Saving into the existing file is not possible. Do you want to Save your changes as a new file or Discard them?',
           'Save as a new file',
-          'Discard changes'
+          'Discard changes',
         );
         await textEditor.dialogs.clickButtonWait('Save as a new file');
         textEditor.autorenamed();
@@ -376,14 +376,14 @@ test.describe('repoFilesDetails', () => {
         await textEditor.changeContent();
         await textEditor.changeContentOnServer();
         await textEditor.expectHeaderError(
-          'File was changed by someone else since your last save. Automatic saving is disabled.'
+          'File was changed by someone else since your last save. Automatic saving is disabled.',
         );
         await textEditor.clickLogo();
         await textEditor.dialogs.waitForDialog(
           'File was changed by someone else since your last save',
           'Saving into the existing file is not possible. Do you want to Save your changes as a new file or Discard them?',
           'Save as a new file',
-          'Discard changes'
+          'Discard changes',
         );
       });
 
@@ -394,14 +394,14 @@ test.describe('repoFilesDetails', () => {
         await textEditor.changeContent();
         await textEditor.changeContentOnServer();
         await textEditor.expectHeaderError(
-          'File was changed by someone else since your last save. Automatic saving is disabled.'
+          'File was changed by someone else since your last save. Automatic saving is disabled.',
         );
         await textEditor.clickLogo();
         await textEditor.dialogs.waitForDialog(
           'File was changed by someone else since your last save',
           'Saving into the existing file is not possible. Do you want to Save your changes as a new file or Discard them?',
           'Save as a new file',
-          'Discard changes'
+          'Discard changes',
         );
         await textEditor.dialogs.clickButtonWait('Discard changes');
         await textEditor.expectFilesRootOpen();
@@ -414,14 +414,14 @@ test.describe('repoFilesDetails', () => {
         await textEditor.changeContent();
         await textEditor.changeContentOnServer();
         await textEditor.expectHeaderError(
-          'File was changed by someone else since your last save. Automatic saving is disabled.'
+          'File was changed by someone else since your last save. Automatic saving is disabled.',
         );
         await textEditor.clickLogo();
         await textEditor.dialogs.waitForDialog(
           'File was changed by someone else since your last save',
           'Saving into the existing file is not possible. Do you want to Save your changes as a new file or Discard them?',
           'Save as a new file',
-          'Discard changes'
+          'Discard changes',
         );
         await textEditor.dialogs.clickButtonWait('Save as a new file');
         textEditor.autorenamed();
@@ -433,7 +433,7 @@ test.describe('repoFilesDetails', () => {
         await textEditor.changeContent();
         await textEditor.changeContentOnServer();
         await textEditor.expectHeaderError(
-          'File was changed by someone else since your last save. Automatic saving is disabled.'
+          'File was changed by someone else since your last save. Automatic saving is disabled.',
         );
         await textEditor.expectHasOnBeforeLeave();
         await textEditor.clearOnBeforeLeave();
@@ -487,7 +487,7 @@ test.describe('repoFilesDetails', () => {
           'Delete files',
           'Do you really want to delete 1 item?',
           'Delete',
-          'Cancel'
+          'Cancel',
         );
         await textEditor.dialogs.clickButtonWait('Cancel');
       });
@@ -499,7 +499,7 @@ test.describe('repoFilesDetails', () => {
           'Delete files',
           'Do you really want to delete 1 item?',
           'Delete',
-          'Cancel'
+          'Cancel',
         );
         await textEditor.dialogs.clickButtonWait('Delete');
         await textEditor.expectEmptyFolder();
@@ -515,11 +515,11 @@ test.describe('repoFilesDetails', () => {
         await textEditor.dialogs.waitForDialog(
           'File not accessible',
           `File ${textEditor.currentName} is no longer accessible. Probably it was deleted or you no longer have access to it.`,
-          'Ok'
+          'Ok',
         );
         await textEditor.dialogs.clickButtonWait('Ok');
         await textEditor.expectHeaderError(
-          'This file is no longer accessible. Probably it was deleted or you no longer have access to it.'
+          'This file is no longer accessible. Probably it was deleted or you no longer have access to it.',
         );
       });
 
@@ -530,22 +530,22 @@ test.describe('repoFilesDetails', () => {
         await textEditor.dialogs.waitForDialog(
           'File not accessible',
           `File ${textEditor.currentName} is no longer accessible. Probably it was deleted or you no longer have access to it.`,
-          'Ok'
+          'Ok',
         );
         await textEditor.dialogs.clickButtonWait('Ok');
         await textEditor.expectHeaderError(
-          'This file is no longer accessible. Probably it was deleted or you no longer have access to it.'
+          'This file is no longer accessible. Probably it was deleted or you no longer have access to it.',
         );
         await textEditor.clickSave();
         await textEditor.dialogs.waitForDialog(
           'File not accessible',
           `File ${textEditor.currentName} is no longer accessible. Probably it was deleted or you no longer have access to it. Do you want to Save the file to a new location?`,
           'Save to a new location',
-          'Cancel'
+          'Cancel',
         );
         await textEditor.dialogs.clickButtonWait('Cancel');
         await textEditor.expectHeaderErrorStays(
-          'This file is no longer accessible. Probably it was deleted or you no longer have access to it.'
+          'This file is no longer accessible. Probably it was deleted or you no longer have access to it.',
         );
       });
 
@@ -558,24 +558,24 @@ test.describe('repoFilesDetails', () => {
         await textEditor.dialogs.waitForDialog(
           'File not accessible',
           `File ${textEditor.currentName} is no longer accessible. Probably it was deleted or you no longer have access to it.`,
-          'Ok'
+          'Ok',
         );
         await textEditor.dialogs.clickButtonWait('Ok');
         await textEditor.expectHeaderError(
-          'This file is no longer accessible. Probably it was deleted or you no longer have access to it.'
+          'This file is no longer accessible. Probably it was deleted or you no longer have access to it.',
         );
         await textEditor.clickSave();
         await textEditor.dialogs.waitForDialog(
           'File not accessible',
           `File ${textEditor.currentName} is no longer accessible. Probably it was deleted or you no longer have access to it. Do you want to Save the file to a new location?`,
           'Save to a new location',
-          'Cancel'
+          'Cancel',
         );
         await textEditor.dialogs.clickButtonWait('Save to a new location');
         await textEditor.dialogs.waitForDialog(
           'File location changed',
           `File ${textEditor.currentName} was saved here because it could not be saved in its original location.`,
-          'Ok'
+          'Ok',
         );
         await textEditor.dialogs.clickButtonWait('Ok');
         await textEditor.expectFilesRootOpen();
@@ -591,18 +591,18 @@ test.describe('repoFilesDetails', () => {
         await textEditor.dialogs.waitForDialog(
           'File not accessible',
           `File ${textEditor.currentName} is no longer accessible. Probably it was deleted or you no longer have access to it.`,
-          'Ok'
+          'Ok',
         );
         await textEditor.dialogs.clickButtonWait('Ok');
         await textEditor.expectHeaderError(
-          'This file is no longer accessible. Probably it was deleted or you no longer have access to it.'
+          'This file is no longer accessible. Probably it was deleted or you no longer have access to it.',
         );
         await textEditor.clickX();
         await textEditor.dialogs.waitForDialog(
           'File not accessible',
           `File ${textEditor.currentName} is no longer accessible. Probably it was deleted or you no longer have access to it. Do you want to Save the file to a new location or Discard the changes?`,
           'Save to a new location',
-          'Discard changes'
+          'Discard changes',
         );
         await textEditor.dialogs.clickButtonWait('Discard changes');
         // it opens parent folder not viewer, because it would just show the same error again
@@ -618,11 +618,11 @@ test.describe('repoFilesDetails', () => {
         await textEditor.dialogs.waitForDialog(
           'File not accessible',
           `File ${textEditor.currentName} is no longer accessible. Probably it was deleted or you no longer have access to it.`,
-          'Ok'
+          'Ok',
         );
         await textEditor.dialogs.clickButtonWait('Ok');
         await textEditor.expectHeaderError(
-          'This file is no longer accessible. Probably it was deleted or you no longer have access to it.'
+          'This file is no longer accessible. Probably it was deleted or you no longer have access to it.',
         );
         await textEditor.expectHasOnBeforeLeave();
         await textEditor.clearOnBeforeLeave();
@@ -647,7 +647,7 @@ test.describe('repoFilesDetails', () => {
 
       await expect(await pdfViewerBodyLocator(page)).toHaveText(
         /Example PDF file/,
-        { timeout: 30000 }
+        { timeout: 30000 },
       );
     });
   });

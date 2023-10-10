@@ -25,6 +25,6 @@ test('create a new safe box', async ({ page }) => {
   await unlockRepo(page);
 
   await expect(
-    filesTableRowNameLocator(page, 'Dir', 'My private documents')
+    filesTableRowNameLocator(page, 'Dir', 'My private documents'),
   ).toBeVisible();
 });

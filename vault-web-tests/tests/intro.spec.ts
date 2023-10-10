@@ -17,7 +17,7 @@ test('intro', async ({ page }) => {
   await expect(dialog.getByText('Safe Key', { exact: true })).toBeVisible();
   await dialog.getByRole('button', { name: 'Next' }).click();
   await expect(
-    dialog.getByText('Start using Vault', { exact: true })
+    dialog.getByText('Start using Vault', { exact: true }),
   ).toBeVisible();
   await dialog.getByRole('button', { name: 'Done' }).click();
   await expect(dialog).not.toBeVisible();
