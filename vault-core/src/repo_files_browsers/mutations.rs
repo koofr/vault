@@ -257,20 +257,27 @@ pub fn set_selection(state: &mut store::State, browser_id: u32, selection: Vec<S
     selection_mutations::set_selection(&mut browser.selection, selection);
 }
 
-pub fn sort_by(state: &mut store::State, browser_id: u32, field: RepoFilesSortField) {
+pub fn sort_by(
+    state: &mut store::State,
+    browser_id: u32,
+    field: RepoFilesSortField,
+    direction: Option<SortDirection>,
+) {
     let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
         _ => return,
     };
 
-    let direction = if browser.sort.field == field {
-        browser.sort.direction.clone().reverse()
-    } else {
-        match field {
-            RepoFilesSortField::Size | RepoFilesSortField::Modified => SortDirection::Desc,
-            _ => SortDirection::Asc,
+    let direction = direction.unwrap_or_else(|| {
+        if browser.sort.field == field {
+            browser.sort.direction.clone().reverse()
+        } else {
+            match field {
+                RepoFilesSortField::Size | RepoFilesSortField::Modified => SortDirection::Desc,
+                _ => SortDirection::Asc,
+            }
         }
-    };
+    });
 
     browser.sort.field = field;
     browser.sort.direction = direction;

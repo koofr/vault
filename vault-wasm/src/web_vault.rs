@@ -1353,7 +1353,7 @@ impl WebVault {
     #[wasm_bindgen(js_name = repoFilesBrowsersSortBy)]
     pub fn repo_files_browsers_sort_by(&self, browser_id: u32, field: dto::RepoFilesSortFieldArg) {
         self.vault
-            .repo_files_browsers_sort_by(browser_id, field.into())
+            .repo_files_browsers_sort_by(browser_id, field.into(), None)
     }
 
     #[wasm_bindgen(js_name = repoFilesBrowsersGetSelectedStream)]

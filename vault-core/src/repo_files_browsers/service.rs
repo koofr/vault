@@ -17,6 +17,7 @@ use crate::{
         errors::GetFilesReaderError, state::RepoFileReaderProvider, RepoFilesReadService,
     },
     repos::selectors as repos_selectors,
+    sort::state::SortDirection,
     store,
     utils::path_utils::normalize_path,
 };
@@ -214,11 +215,16 @@ impl RepoFilesBrowsersService {
         });
     }
 
-    pub fn sort_by(&self, browser_id: u32, field: RepoFilesSortField) {
+    pub fn sort_by(
+        &self,
+        browser_id: u32,
+        field: RepoFilesSortField,
+        direction: Option<SortDirection>,
+    ) {
         self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoFilesBrowsers);
 
-            mutations::sort_by(state, browser_id, field);
+            mutations::sort_by(state, browser_id, field, direction);
         });
     }
 

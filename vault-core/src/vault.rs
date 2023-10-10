@@ -7,7 +7,7 @@ use crate::{
     relative_time, remote, remote_files, remote_files_browsers, remote_files_dir_pickers,
     repo_config_backup, repo_create, repo_files, repo_files_browsers, repo_files_details,
     repo_files_dir_pickers, repo_files_list, repo_files_move, repo_files_read, repo_remove,
-    repo_space_usage, repo_unlock, repos, runtime, secure_storage, space_usage, store,
+    repo_space_usage, repo_unlock, repos, runtime, secure_storage, sort, space_usage, store,
     transfers::{self, downloadable::BoxDownloadable},
     user,
 };
@@ -402,9 +402,10 @@ impl Vault {
         &self,
         browser_id: u32,
         field: remote_files::state::RemoteFilesSortField,
+        direction: Option<sort::state::SortDirection>,
     ) {
         self.remote_files_browsers_service
-            .sort_by(browser_id, field)
+            .sort_by(browser_id, field, direction)
     }
 
     pub async fn remote_files_browsers_create_dir(
@@ -739,8 +740,10 @@ impl Vault {
         &self,
         browser_id: u32,
         field: repo_files::state::RepoFilesSortField,
+        direction: Option<sort::state::SortDirection>,
     ) {
-        self.repo_files_browsers_service.sort_by(browser_id, field)
+        self.repo_files_browsers_service
+            .sort_by(browser_id, field, direction)
     }
 
     pub fn repo_files_browsers_get_selected_reader(

@@ -252,6 +252,7 @@ pub fn sort_by(
     notify: &store::Notify,
     browser_id: u32,
     field: RemoteFilesSortField,
+    direction: Option<SortDirection>,
 ) {
     let browser = match state.remote_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
@@ -260,14 +261,16 @@ pub fn sort_by(
 
     notify(store::Event::RemoteFilesBrowsers);
 
-    let direction = if browser.sort.field == field {
-        browser.sort.direction.clone().reverse()
-    } else {
-        match field {
-            RemoteFilesSortField::Size | RemoteFilesSortField::Modified => SortDirection::Desc,
-            _ => SortDirection::Asc,
+    let direction = direction.unwrap_or_else(|| {
+        if browser.sort.field == field {
+            browser.sort.direction.clone().reverse()
+        } else {
+            match field {
+                RemoteFilesSortField::Size | RemoteFilesSortField::Modified => SortDirection::Desc,
+                _ => SortDirection::Asc,
+            }
         }
-    };
+    });
 
     browser.sort.field = field;
     browser.sort.direction = direction;

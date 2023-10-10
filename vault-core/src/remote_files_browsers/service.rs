@@ -12,6 +12,7 @@ use crate::{
         state::RemoteFilesSortField,
         RemoteFilesService,
     },
+    sort::state::SortDirection,
     store,
 };
 
@@ -183,9 +184,14 @@ impl RemoteFilesBrowsersService {
         });
     }
 
-    pub fn sort_by(&self, browser_id: u32, field: RemoteFilesSortField) {
+    pub fn sort_by(
+        &self,
+        browser_id: u32,
+        field: RemoteFilesSortField,
+        direction: Option<SortDirection>,
+    ) {
         self.store.mutate(|state, notify, _, _| {
-            mutations::sort_by(state, notify, browser_id, field);
+            mutations::sort_by(state, notify, browser_id, field, direction);
         });
     }
 
