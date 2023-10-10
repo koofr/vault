@@ -44,6 +44,7 @@ pub struct RepoFilesService {
     ensure_dirs_futures:
         Arc<Mutex<HashMap<String, Shared<BoxFuture<'static, Result<(), EnsureDirError>>>>>>,
     remote_files_mutation_subscription_id: u32,
+    repos_mutation_subscription_id: u32,
 }
 
 impl RepoFilesService {
@@ -57,6 +58,9 @@ impl RepoFilesService {
         let remote_files_mutation_subscription_id = store.get_next_id();
         let remote_files_mutation_repos_service = repos_service.clone();
 
+        let repos_mutation_subscription_id = store.get_next_id();
+        let repos_mutation_repos_service = repos_service.clone();
+
         let repo_files_service = Self {
             repos_service,
             remote_files_service,
@@ -65,6 +69,7 @@ impl RepoFilesService {
             store: store.clone(),
             ensure_dirs_futures: Arc::new(Mutex::new(HashMap::new())),
             remote_files_mutation_subscription_id,
+            repos_mutation_subscription_id,
         };
 
         store.mutation_on(
@@ -77,6 +82,20 @@ impl RepoFilesService {
                     mutation_state,
                     mutation_notify,
                     &remote_files_mutation_repos_service.get_ciphers(),
+                );
+            }),
+        );
+
+        store.mutation_on(
+            repos_mutation_subscription_id,
+            &[store::MutationEvent::Repos],
+            Box::new(move |state, notify, mutation_state, mutation_notify| {
+                mutations::handle_repos_mutation(
+                    state,
+                    notify,
+                    mutation_state,
+                    mutation_notify,
+                    &repos_mutation_repos_service.get_ciphers(),
                 );
             }),
         );
@@ -635,6 +654,8 @@ impl RepoFilesService {
 impl Drop for RepoFilesService {
     fn drop(&mut self) {
         self.store
-            .mutation_remove_listener(self.remote_files_mutation_subscription_id)
+            .mutation_remove_listener(self.remote_files_mutation_subscription_id);
+        self.store
+            .mutation_remove_listener(self.repos_mutation_subscription_id);
     }
 }

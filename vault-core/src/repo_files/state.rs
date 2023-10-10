@@ -198,7 +198,7 @@ impl RepoFile {
     }
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct RepoFilesState {
     pub files: HashMap<String, RepoFile>,
     pub children: HashMap<String, Vec<String>>,
@@ -264,7 +264,7 @@ impl Default for RepoFilesSortField {
     }
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct RepoFilesSort {
     pub field: RepoFilesSortField,
     pub direction: SortDirection,

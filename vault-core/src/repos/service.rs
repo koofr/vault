@@ -56,20 +56,17 @@ impl ReposService {
 
     pub async fn load_repos(&self) -> Result<(), remote::RemoteError> {
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::Repos);
-
-            mutations::repos_loading(state);
+            mutations::repos_loading(state, notify);
         });
 
         let res = self.remote.get_vault_repos().await.map(|res| res.repos);
 
         let res_err = res.as_ref().map(|_| ()).map_err(|err| err.clone());
 
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::Repos);
-
-            mutations::repos_loaded(state, res);
-        });
+        self.store
+            .mutate(|state, notify, mutation_state, mutation_notify| {
+                mutations::repos_loaded(state, notify, mutation_state, mutation_notify, res);
+            });
 
         res_err
     }
@@ -77,11 +74,10 @@ impl ReposService {
     pub fn lock_repo(&self, repo_id: &str) -> Result<(), RepoNotFoundError> {
         self.ciphers.write().unwrap().remove(repo_id);
 
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::Repos);
-
-            mutations::lock_repo(state, repo_id)
-        })
+        self.store
+            .mutate(|state, notify, mutation_state, mutation_notify| {
+                mutations::lock_repo(state, notify, mutation_state, mutation_notify, repo_id)
+            })
     }
 
     pub async fn build_cipher(
@@ -125,11 +121,10 @@ impl ReposService {
                 .unwrap()
                 .insert(repo_id.to_owned(), Arc::new(cipher));
 
-            self.store.mutate(|state, notify, _, _| {
-                notify(store::Event::Repos);
-
-                mutations::unlock_repo(state, repo_id)
-            })?;
+            self.store
+                .mutate(|state, notify, mutation_state, mutation_notify| {
+                    mutations::unlock_repo(state, notify, mutation_state, mutation_notify, repo_id)
+                })?;
         }
 
         Ok(())
@@ -189,9 +184,7 @@ impl ReposService {
         }
 
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::Repos);
-
-            mutations::repo_loaded(state, repo);
+            mutations::repo_loaded(state, notify, repo);
         });
 
         let config = self.get_repo_config(&repo_id, &password).await.unwrap();
@@ -215,11 +208,16 @@ impl ReposService {
 
         self.ciphers.write().unwrap().remove(repo_id);
 
-        self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::Repos);
-
-            mutations::remove_repo(state, repo_id)
-        });
+        self.store
+            .mutate(|state, notify, mutation_state, mutation_notify| {
+                mutations::remove_repos(
+                    state,
+                    notify,
+                    mutation_state,
+                    mutation_notify,
+                    &[repo_id.to_owned()],
+                )
+            });
 
         Ok(())
     }

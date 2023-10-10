@@ -968,7 +968,7 @@ impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFile
             path: info.path.map(str::to_string),
             selection_summary: (&info.selection_summary).into(),
             sort: (&info.sort).into(),
-            status: info.status.into(),
+            status: (&info.status).into(),
             total_count: info.total_count,
             total_size_display: size_display(info.total_size),
             selected_count: info.selected_count,

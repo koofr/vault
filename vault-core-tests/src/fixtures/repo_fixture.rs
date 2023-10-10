@@ -2,7 +2,10 @@ use std::sync::Arc;
 
 use futures::io::Cursor;
 use vault_core::{
-    repo_files::state::{RepoFile, RepoFilesUploadConflictResolution, RepoFilesUploadResult},
+    repo_files::{
+        self,
+        state::{RepoFile, RepoFilesUploadConflictResolution, RepoFilesUploadResult},
+    },
     repos::state::RepoUnlockMode,
     utils::path_utils,
     Vault,
@@ -59,7 +62,19 @@ impl RepoFixture {
             .unwrap();
     }
 
-    pub async fn create_dir(&self, path: &str) {
+    pub fn lock(&self) {
+        self.vault.repos_service.lock_repo(&self.repo_id).unwrap();
+    }
+
+    pub async fn remove(&self) {
+        self.vault
+            .repos_service
+            .remove_repo(&self.repo_id, "password")
+            .await
+            .unwrap();
+    }
+
+    pub async fn create_dir(&self, path: &str) -> RepoFile {
         let (parent_path, name) = path_utils::split_parent_name(path).unwrap();
 
         self.vault
@@ -68,6 +83,15 @@ impl RepoFixture {
             .create_dir_name(&self.repo_id, parent_path, name)
             .await
             .unwrap();
+
+        self.vault.with_state(|state| {
+            state
+                .repo_files
+                .files
+                .get(&repo_files::selectors::get_file_id(&self.repo_id, path))
+                .cloned()
+                .unwrap()
+        })
     }
 
     pub async fn upload_file(

@@ -223,6 +223,114 @@ pub fn handle_remote_files_mutation(
     }
 }
 
+pub fn handle_repos_mutation(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
+    mutation_notify: &store::MutationNotify,
+    ciphers: &HashMap<String, Arc<Cipher>>,
+) {
+    let mut repo_files_dirty = false;
+
+    for repo_id in mutation_state
+        .repos
+        .locked_repos
+        .iter()
+        .chain(mutation_state.repos.removed_repos.iter())
+    {
+        let file_id_prefix = selectors::get_file_id(&repo_id, "");
+
+        state
+            .repo_files
+            .files
+            .retain(|key, _| !key.starts_with(&file_id_prefix));
+
+        state
+            .repo_files
+            .children
+            .retain(|key, _| !key.starts_with(&file_id_prefix));
+
+        state
+            .repo_files
+            .loaded_roots
+            .retain(|key| !key.starts_with(&file_id_prefix));
+
+        repo_files_dirty = true;
+    }
+
+    let mut files_to_decrypt = Vec::new();
+
+    fn handle_path(
+        state: &store::State,
+        files_to_decrypt: &mut Vec<(String, String, String, String)>,
+        mount_id: &str,
+        remote_path: &str,
+        repo_id: &str,
+        repo_path_len: usize,
+    ) {
+        for file in remote_files_selectors::select_files(state, &mount_id, remote_path) {
+            files_to_decrypt.push((
+                file.mount_id.clone(),
+                file.path.clone(),
+                repo_id.to_owned(),
+                file.path[repo_path_len..].to_owned(),
+            ));
+
+            if matches!(file.typ, RemoteFileType::Dir) {
+                handle_path(
+                    state,
+                    files_to_decrypt,
+                    &file.mount_id,
+                    &file.path,
+                    repo_id,
+                    repo_path_len,
+                )
+            }
+        }
+    }
+
+    for repo_id in mutation_state.repos.unlocked_repos.iter() {
+        if let Some(repo) = state.repos.repos_by_id.get(repo_id) {
+            files_to_decrypt.push((
+                repo.mount_id.clone(),
+                repo.path.clone(),
+                repo.id.clone(),
+                "/".to_owned(),
+            ));
+
+            handle_path(
+                state,
+                &mut files_to_decrypt,
+                &repo.mount_id,
+                &repo.path,
+                &repo_id,
+                repo.path.len(),
+            );
+        }
+    }
+
+    for (mount_id, remote_path, repo_id, path) in files_to_decrypt {
+        if let Some(cipher) = ciphers.get(&repo_id) {
+            let _ = decrypt_files(
+                state,
+                &mount_id,
+                &remote_path,
+                &repo_id,
+                &path,
+                cipher.as_ref(),
+            );
+
+            repo_files_dirty = true;
+        }
+    }
+
+    if repo_files_dirty {
+        notify(store::Event::RepoFiles);
+
+        mutation_notify(store::MutationEvent::RepoFiles, state, mutation_state);
+    }
+}
+
 pub fn decrypt_files(
     state: &mut store::State,
     mount_id: &str,

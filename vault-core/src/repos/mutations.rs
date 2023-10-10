@@ -6,7 +6,6 @@ use crate::{
     common::state::Status,
     remote::{models, RemoteError},
     remote_files::selectors as remote_files_selectors,
-    repo_files::selectors as repo_files_selectors,
     store,
 };
 
@@ -49,7 +48,9 @@ fn vault_repo_to_repo(repo: models::VaultRepo, base_url: &str) -> Repo {
     }
 }
 
-pub fn repo_loaded(state: &mut store::State, repo: models::VaultRepo) {
+pub fn repo_loaded(state: &mut store::State, notify: &store::Notify, repo: models::VaultRepo) {
+    notify(store::Event::Repos);
+
     let mut repo = vault_repo_to_repo(repo, &state.config.base_url);
 
     if let Some(existing) = state.repos.repos_by_id.get(&repo.id) {
@@ -72,13 +73,23 @@ pub fn repo_loaded(state: &mut store::State, repo: models::VaultRepo) {
     state.repos.repos_by_id.insert(repo.id.clone(), repo);
 }
 
-pub fn repos_loading(state: &mut store::State) {
+pub fn repos_loading(state: &mut store::State, notify: &store::Notify) {
+    notify(store::Event::Repos);
+
     state.repos.status = Status::Loading {
         loaded: state.repos.status.loaded(),
     };
 }
 
-pub fn repos_loaded(state: &mut store::State, res: Result<Vec<models::VaultRepo>, RemoteError>) {
+pub fn repos_loaded(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
+    mutation_notify: &store::MutationNotify,
+    res: Result<Vec<models::VaultRepo>, RemoteError>,
+) {
+    notify(store::Event::Repos);
+
     match res {
         Ok(repos) => {
             state.repos.status = Status::Loaded;
@@ -101,12 +112,16 @@ pub fn repos_loaded(state: &mut store::State, res: Result<Vec<models::VaultRepo>
             };
 
             for repo in repos {
-                repo_loaded(state, repo);
+                repo_loaded(state, notify, repo);
             }
 
-            for repo_id in remove_repo_ids {
-                remove_repo(state, &repo_id);
-            }
+            remove_repos(
+                state,
+                notify,
+                mutation_state,
+                mutation_notify,
+                &remove_repo_ids,
+            );
         }
         Err(err) => {
             state.repos.status = Status::Error {
@@ -117,52 +132,86 @@ pub fn repos_loaded(state: &mut store::State, res: Result<Vec<models::VaultRepo>
     }
 }
 
-pub fn lock_repo(state: &mut store::State, repo_id: &str) -> Result<(), RepoNotFoundError> {
-    let file_id_prefix = repo_files_selectors::get_file_id(repo_id, "");
+pub fn lock_repo(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
+    mutation_notify: &store::MutationNotify,
+    repo_id: &str,
+) -> Result<(), RepoNotFoundError> {
+    let repo = state
+        .repos
+        .repos_by_id
+        .get_mut(repo_id)
+        .ok_or(RepoNotFoundError)?;
 
-    state
-        .repo_files
-        .files
-        .retain(|key, _| !key.starts_with(&file_id_prefix));
+    notify(store::Event::Repos);
 
-    state
-        .repo_files
-        .children
-        .retain(|key, _| !key.starts_with(&file_id_prefix));
+    repo.state = RepoState::Locked;
 
-    match state.repos.repos_by_id.get_mut(repo_id) {
-        Some(repo) => {
-            repo.state = RepoState::Locked;
+    mutation_state.repos.locked_repos.push(repo_id.to_owned());
 
-            Ok(())
-        }
-        None => Err(RepoNotFoundError),
-    }
+    mutation_notify(store::MutationEvent::Repos, state, mutation_state);
+
+    Ok(())
 }
 
-pub fn unlock_repo(state: &mut store::State, repo_id: &str) -> Result<(), RepoNotFoundError> {
-    match state.repos.repos_by_id.get_mut(repo_id) {
-        Some(repo) => {
-            repo.state = RepoState::Unlocked;
+pub fn unlock_repo(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
+    mutation_notify: &store::MutationNotify,
+    repo_id: &str,
+) -> Result<(), RepoNotFoundError> {
+    let repo = state
+        .repos
+        .repos_by_id
+        .get_mut(repo_id)
+        .ok_or(RepoNotFoundError)?;
 
-            Ok(())
-        }
-        None => Err(RepoNotFoundError),
-    }
+    notify(store::Event::Repos);
+
+    repo.state = RepoState::Unlocked;
+
+    mutation_state.repos.unlocked_repos.push(repo_id.to_owned());
+
+    mutation_notify(store::MutationEvent::Repos, state, mutation_state);
+
+    Ok(())
 }
 
-pub fn remove_repo(state: &mut store::State, repo_id: &str) {
-    if let Some(repo) = state.repos.repos_by_id.remove(repo_id) {
-        state
-            .repos
-            .repo_ids_by_remote_file_id
-            .remove(&remote_files_selectors::get_file_id(
-                &repo.mount_id,
-                &repo.path,
-            ));
+pub fn remove_repos(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
+    mutation_notify: &store::MutationNotify,
+    repo_ids: &[String],
+) {
+    let mut removed = false;
 
-        if let Some(repo_tree) = state.repos.mount_repo_trees.get_mut(&repo.mount_id) {
-            repo_tree.remove(&repo.path);
+    for repo_id in repo_ids {
+        if let Some(repo) = state.repos.repos_by_id.remove(repo_id) {
+            state
+                .repos
+                .repo_ids_by_remote_file_id
+                .remove(&remote_files_selectors::get_file_id(
+                    &repo.mount_id,
+                    &repo.path,
+                ));
+
+            if let Some(repo_tree) = state.repos.mount_repo_trees.get_mut(&repo.mount_id) {
+                repo_tree.remove(&repo.path);
+            }
+
+            mutation_state.repos.removed_repos.push(repo_id.to_owned());
+
+            removed = true;
         }
+    }
+
+    if removed {
+        notify(store::Event::Repos);
+
+        mutation_notify(store::MutationEvent::Repos, state, mutation_state);
     }
 }

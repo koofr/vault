@@ -11,17 +11,19 @@ use crate::{
     store::NextId,
 };
 
+#[derive(Debug, PartialEq)]
 pub struct RepoFilesBrowserItem<'a> {
     pub file: &'a RepoFile,
     pub is_selected: bool,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct RepoFilesBrowserInfo<'a> {
     pub repo_id: Option<&'a str>,
     pub path: Option<&'a str>,
     pub selection_summary: SelectionSummary,
     pub sort: RepoFilesSort,
-    pub status: &'a Status<LoadFilesError>,
+    pub status: Status<LoadFilesError>,
     pub title: Option<String>,
     pub total_count: usize,
     pub total_size: i64,

@@ -86,3 +86,10 @@ impl ReposState {
         *self = Default::default();
     }
 }
+
+#[derive(Debug, Clone, Default)]
+pub struct ReposMutationState {
+    pub locked_repos: Vec<String>,
+    pub unlocked_repos: Vec<String>,
+    pub removed_repos: Vec<String>,
+}

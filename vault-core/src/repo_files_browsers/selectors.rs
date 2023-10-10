@@ -1,9 +1,12 @@
 use crate::{
+    common::state::Status,
     repo_files::{
+        errors::LoadFilesError,
         selectors as repo_files_selectors,
         state::{RepoFile, RepoFileSize, RepoFilesBreadcrumb},
     },
     repos::{
+        errors::RepoLockedError,
         selectors as repo_selectors,
         state::{Repo, RepoState},
     },
@@ -121,9 +124,35 @@ pub fn select_selected_paths(state: &store::State, browser_id: u32) -> Vec<Strin
         .collect()
 }
 
+pub fn select_status<'a>(
+    state: &store::State,
+    browser: &RepoFilesBrowser,
+) -> Status<LoadFilesError> {
+    match &browser.location {
+        Some(location) => match repo_selectors::select_repo(state, &location.repo_id) {
+            Ok(repo) => {
+                if matches!(repo.state, RepoState::Locked) {
+                    Status::Error {
+                        error: LoadFilesError::RepoLocked(RepoLockedError),
+                        loaded: false,
+                    }
+                } else {
+                    browser.status.clone()
+                }
+            }
+            Err(err) => Status::Error {
+                error: LoadFilesError::RepoNotFound(err.clone()),
+                loaded: false,
+            },
+        },
+        None => browser.status.clone(),
+    }
+}
+
 pub fn select_info<'a>(state: &'a store::State, browser_id: u32) -> Option<RepoFilesBrowserInfo> {
     select_browser(state, browser_id).map(|browser| {
         let items = select_items(state, browser_id);
+        let status = select_status(state, browser);
         let title = browser.location.as_ref().and_then(|loc| {
             repo_files_selectors::select_breadcrumbs(state, &loc.repo_id, &loc.path)
                 .last()
@@ -163,7 +192,7 @@ pub fn select_info<'a>(state: &'a store::State, browser_id: u32) -> Option<RepoF
             path: browser.location.as_ref().map(|loc| loc.path.as_str()),
             selection_summary: select_selection_summary(state, browser_id),
             sort: browser.sort.clone(),
-            status: &browser.status,
+            status,
             title,
             total_count,
             total_size,
