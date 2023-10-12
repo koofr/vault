@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use futures::{
     future::{self, BoxFuture},
-    FutureExt,
+    join, FutureExt,
 };
 
 use crate::{
@@ -129,9 +129,11 @@ impl RemoteFilesBrowsersService {
                     self.remote_files_service.load_shared().boxed()
                 };
 
-                let load_places_res = load_places_future.await;
-                let load_bookmarks_res = load_bookmarks_future.await;
-                let load_shared_res = load_shared_future.await;
+                let (load_places_res, load_bookmarks_res, load_shared_res) = join!(
+                    load_places_future,
+                    load_bookmarks_future,
+                    load_shared_future
+                );
 
                 load_places_res.or(load_bookmarks_res).or(load_shared_res)
             }
