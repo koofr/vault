@@ -72,11 +72,9 @@ impl RepoFilesBrowsersService {
     ) -> (u32, BoxFuture<'static, Result<(), LoadFilesError>>) {
         let location = self.clone().get_location(repo_id, path);
 
-        let browser_id = self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoFilesBrowsers);
-
-            mutations::create(state, options, location)
-        });
+        let browser_id = self
+            .store
+            .mutate(|state, notify, _, _| mutations::create(state, notify, options, location));
 
         let load_self = self.clone();
 
@@ -127,9 +125,7 @@ impl RepoFilesBrowsersService {
 
     pub fn destroy(&self, browser_id: u32) {
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoFilesBrowsers);
-
-            mutations::destroy(state, browser_id);
+            mutations::destroy(state, notify, browser_id);
         });
     }
 
@@ -142,9 +138,7 @@ impl RepoFilesBrowsersService {
         let location = self.clone().get_location(repo_id, path);
 
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoFilesBrowsers);
-
-            mutations::set_location(state, browser_id, location);
+            mutations::set_location(state, notify, browser_id, location);
         });
 
         if self
@@ -162,12 +156,21 @@ impl RepoFilesBrowsersService {
             .store
             .with_state(|state| selectors::select_repo_id_path_owned(state, browser_id))
         {
+            self.store.mutate(|state, notify, _, _| {
+                mutations::loading(state, notify, browser_id);
+            });
+
             let res = self.repo_files_service.load_files(&repo_id, &path).await;
 
             self.store.mutate(|state, notify, _, _| {
-                notify(store::Event::RepoFilesBrowsers);
-
-                mutations::loaded(state, browser_id, &repo_id, &path, res.as_ref().err());
+                mutations::loaded(
+                    state,
+                    notify,
+                    browser_id,
+                    &repo_id,
+                    &path,
+                    res.as_ref().err(),
+                );
             });
 
             res?;
@@ -185,33 +188,25 @@ impl RepoFilesBrowsersService {
         force: bool,
     ) {
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoFilesBrowsers);
-
-            mutations::select_file(state, browser_id, file_id, extend, range, force);
+            mutations::select_file(state, notify, browser_id, file_id, extend, range, force);
         });
     }
 
     pub fn select_all(&self, browser_id: u32) {
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoFilesBrowsers);
-
-            mutations::select_all(state, browser_id);
+            mutations::select_all(state, notify, browser_id);
         });
     }
 
     pub fn clear_selection(&self, browser_id: u32) {
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoFilesBrowsers);
-
-            mutations::clear_selection(state, browser_id);
+            mutations::clear_selection(state, notify, browser_id);
         });
     }
 
     pub fn set_selection(&self, browser_id: u32, selection: Vec<String>) {
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoFilesBrowsers);
-
-            mutations::set_selection(state, browser_id, selection);
+            mutations::set_selection(state, notify, browser_id, selection);
         });
     }
 
@@ -222,9 +217,7 @@ impl RepoFilesBrowsersService {
         direction: Option<SortDirection>,
     ) {
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::RepoFilesBrowsers);
-
-            mutations::sort_by(state, browser_id, field, direction);
+            mutations::sort_by(state, notify, browser_id, field, direction);
         });
     }
 

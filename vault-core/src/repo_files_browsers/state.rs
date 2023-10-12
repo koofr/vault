@@ -36,19 +36,19 @@ pub struct RepoFilesBrowserInfo<'a> {
     pub can_delete_selected: bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct RepoFilesBrowserLocation {
     pub repo_id: String,
     pub path: String,
     pub eventstream_mount_subscription: Option<Arc<MountSubscription>>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct RepoFilesBrowserOptions {
     pub select_name: Option<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct RepoFilesBrowser {
     pub options: RepoFilesBrowserOptions,
     pub location: Option<RepoFilesBrowserLocation>,
@@ -58,7 +58,7 @@ pub struct RepoFilesBrowser {
     pub sort: RepoFilesSort,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct RepoFilesBrowsersState {
     pub browsers: HashMap<u32, RepoFilesBrowser>,
     pub next_id: NextId,

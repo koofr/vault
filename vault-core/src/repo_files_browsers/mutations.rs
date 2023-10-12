@@ -37,9 +37,12 @@ fn get_initial_status(
 
 pub fn create(
     state: &mut store::State,
+    notify: &store::Notify,
     options: RepoFilesBrowserOptions,
     location: Result<RepoFilesBrowserLocation, LoadFilesError>,
 ) -> u32 {
+    notify(store::Event::RepoFilesBrowsers);
+
     let browser_id = state.repo_files_browsers.next_id.next();
 
     let status = get_initial_status(state, location.as_ref());
@@ -58,17 +61,20 @@ pub fn create(
         .browsers
         .insert(browser_id, browser);
 
-    update_files(state, browser_id);
+    update_files(state, notify, browser_id);
 
     browser_id
 }
 
-pub fn destroy(state: &mut store::State, browser_id: u32) {
+pub fn destroy(state: &mut store::State, notify: &store::Notify, browser_id: u32) {
+    notify(store::Event::RepoFilesBrowsers);
+
     state.repo_files_browsers.browsers.remove(&browser_id);
 }
 
 pub fn set_location(
     state: &mut store::State,
+    notify: &store::Notify,
     browser_id: u32,
     location: Result<RepoFilesBrowserLocation, LoadFilesError>,
 ) {
@@ -83,11 +89,29 @@ pub fn set_location(
     browser.status = status;
     browser.selection = Selection::default();
 
-    update_files(state, browser_id);
+    update_files(state, notify, browser_id);
+}
+
+pub fn loading(state: &mut store::State, notify: &store::Notify, browser_id: u32) {
+    let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
+        Some(browser) => browser,
+        _ => return,
+    };
+
+    let new_status = Status::Loading {
+        loaded: browser.status.loaded(),
+    };
+
+    if browser.status != new_status {
+        notify(store::Event::RepoFilesBrowsers);
+
+        browser.status = new_status;
+    }
 }
 
 pub fn loaded(
     state: &mut store::State,
+    notify: &store::Notify,
     browser_id: u32,
     repo_id: &str,
     path: &str,
@@ -104,6 +128,8 @@ pub fn loaded(
         .filter(|loc| loc.repo_id == repo_id && loc.path == path)
         .is_some()
     {
+        notify(store::Event::RepoFilesBrowsers);
+
         match error {
             Some(error) => {
                 browser.status = Status::Error {
@@ -115,13 +141,13 @@ pub fn loaded(
         }
     }
 
-    update_files(state, browser_id);
+    update_files(state, notify, browser_id);
 }
 
-pub fn update_files(state: &mut store::State, browser_id: u32) -> bool {
+pub fn update_files(state: &mut store::State, notify: &store::Notify, browser_id: u32) {
     let browser = match state.repo_files_browsers.browsers.get(&browser_id) {
         Some(browser) => browser,
-        _ => return false,
+        _ => return,
     };
 
     let file_ids: Vec<String> = browser
@@ -140,7 +166,7 @@ pub fn update_files(state: &mut store::State, browser_id: u32) -> bool {
 
     let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
-        _ => return false,
+        _ => return,
     };
 
     let mut dirty = false;
@@ -176,16 +202,19 @@ pub fn update_files(state: &mut store::State, browser_id: u32) -> bool {
     }
 
     if let Some(file_id) = select_file_id {
-        select_file(state, browser_id, &file_id, false, false, true);
+        select_file(state, notify, browser_id, &file_id, false, false, true);
 
         dirty = true;
     }
 
-    dirty
+    if dirty {
+        notify(store::Event::RepoFilesBrowsers);
+    }
 }
 
 pub fn select_file(
     state: &mut store::State,
+    notify: &store::Notify,
     browser_id: u32,
     file_id: &str,
     extend: bool,
@@ -212,10 +241,12 @@ pub fn select_file(
         _ => return,
     };
 
+    notify(store::Event::RepoFilesBrowsers);
+
     selection_mutations::select_item(&mut browser.selection, items, file_id, extend, range, force)
 }
 
-pub fn select_all(state: &mut store::State, browser_id: u32) {
+pub fn select_all(state: &mut store::State, notify: &store::Notify, browser_id: u32) {
     let browser = match state.repo_files_browsers.browsers.get(&browser_id) {
         Some(browser) => browser,
         _ => return,
@@ -236,29 +267,41 @@ pub fn select_all(state: &mut store::State, browser_id: u32) {
         _ => return,
     };
 
+    notify(store::Event::RepoFilesBrowsers);
+
     selection_mutations::set_selection(&mut browser.selection, items);
 }
 
-pub fn clear_selection(state: &mut store::State, browser_id: u32) {
+pub fn clear_selection(state: &mut store::State, notify: &store::Notify, browser_id: u32) {
     let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
         _ => return,
     };
+
+    notify(store::Event::RepoFilesBrowsers);
 
     selection_mutations::clear_selection(&mut browser.selection);
 }
 
-pub fn set_selection(state: &mut store::State, browser_id: u32, selection: Vec<String>) {
+pub fn set_selection(
+    state: &mut store::State,
+    notify: &store::Notify,
+    browser_id: u32,
+    selection: Vec<String>,
+) {
     let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
         _ => return,
     };
+
+    notify(store::Event::RepoFilesBrowsers);
 
     selection_mutations::set_selection(&mut browser.selection, selection);
 }
 
 pub fn sort_by(
     state: &mut store::State,
+    notify: &store::Notify,
     browser_id: u32,
     field: RepoFilesSortField,
     direction: Option<SortDirection>,
@@ -267,6 +310,8 @@ pub fn sort_by(
         Some(browser) => browser,
         _ => return,
     };
+
+    notify(store::Event::RepoFilesBrowsers);
 
     let direction = direction.unwrap_or_else(|| {
         if browser.sort.field == field {
@@ -282,7 +327,7 @@ pub fn sort_by(
     browser.sort.field = field;
     browser.sort.direction = direction;
 
-    update_files(state, browser_id);
+    update_files(state, notify, browser_id);
 }
 
 pub fn handle_repo_files_mutation(state: &mut store::State, notify: &store::Notify) {
@@ -293,8 +338,6 @@ pub fn handle_repo_files_mutation(state: &mut store::State, notify: &store::Noti
         .cloned()
         .collect::<Vec<_>>()
     {
-        if update_files(state, browser_id) {
-            notify(store::Event::RepoFilesBrowsers);
-        }
+        update_files(state, notify, browser_id)
     }
 }

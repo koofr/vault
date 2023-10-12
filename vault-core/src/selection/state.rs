@@ -7,7 +7,7 @@ pub enum SelectionSummary {
     All,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct Selection {
     pub selection: HashSet<String>,
     pub last_selected: Option<String>,
