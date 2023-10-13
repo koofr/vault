@@ -1,11 +1,13 @@
 import { useCallback, useState } from 'react';
 
-export function useModal<Payload = void>(): {
+export interface UseModal<Payload = void> {
   isVisible: boolean;
   payload: Payload | undefined;
   show: (payload: Payload) => void;
   hide: () => void;
-} {
+}
+
+export function useModal<Payload = void>(): UseModal<Payload> {
   const [state, setState] = useState<{
     isVisible: boolean;
     payload: Payload | undefined;

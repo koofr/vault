@@ -9,7 +9,8 @@ import { RepoFilesToolbar } from './RepoFilesToolbar';
 
 export const RepoFilesNavbarExtra = memo<{
   info?: RepoFilesBrowserInfo;
-}>(({ info }) => {
+  onInfoClick: () => void;
+}>(({ info, onInfoClick }) => {
   const isMobile = useIsMobile();
 
   return (
@@ -69,7 +70,7 @@ export const RepoFilesNavbarExtra = memo<{
           )}
         >
           <RepoFilesSummary info={info} />
-          <RepoFilesToolbar info={info} />
+          <RepoFilesToolbar info={info} onInfoClick={onInfoClick} />
         </div>
       ) : null}
     </div>

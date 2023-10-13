@@ -8,6 +8,8 @@ import { useDocumentTitle } from '../../utils/useDocumentTitle';
 import { Repo } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
 
+import { RepoFileInfoModal } from './RepoFileInfoModal';
+import { RepoFileInfoSheet } from './RepoFileInfoSheet';
 import { RepoFilesBreadcrumbs } from './RepoFilesBreadcrumbs';
 import { RepoFilesBrowserIdContext } from './RepoFilesBrowserId';
 import { RepoFilesContent } from './RepoFilesContent';
@@ -22,6 +24,7 @@ import {
   RepoFilesUploadForm,
 } from './RepoFilesUploadForm';
 import { useBrowser } from './useBrowser';
+import { useRepoFileInfo } from './useRepoFileInfo';
 import { useSelectName } from './useSelectName';
 
 export const RepoFiles = memo<{ repo: Repo }>(({ repo }) => {
@@ -51,6 +54,9 @@ export const RepoFiles = memo<{ repo: Repo }>(({ repo }) => {
   );
   useDocumentTitle(documentTitle);
 
+  const { onInfoClick, infoSheetVisible, infoSheetHide, infoModal } =
+    useRepoFileInfo(info);
+
   const uploadApi: RepoFilesUploadApi = useMemo(() => ({}), []);
 
   return (
@@ -60,7 +66,9 @@ export const RepoFiles = memo<{ repo: Repo }>(({ repo }) => {
           navbarLeft={<RepoFilesNavbarLeft />}
           navbarHeader={<RepoFilesBreadcrumbs />}
           navbarNav={<RepoFilesNav />}
-          navbarExtra={<RepoFilesNavbarExtra info={info} />}
+          navbarExtra={
+            <RepoFilesNavbarExtra info={info} onInfoClick={onInfoClick} />
+          }
           className={
             isMobile
               ? css`
@@ -83,6 +91,11 @@ export const RepoFiles = memo<{ repo: Repo }>(({ repo }) => {
           <RepoFilesMoveModal />
           <RepoFilesDropZoneComponent />
           <RepoFilesUploadForm />
+          <RepoFileInfoSheet
+            file={infoSheetVisible ? info?.selectedFile : undefined}
+            hide={infoSheetHide}
+          />
+          <RepoFileInfoModal file={infoModal.payload} hide={infoModal.hide} />
         </DashboardLayout>
       </RepoFilesUploadApiContext.Provider>
     </RepoFilesBrowserIdContext.Provider>
