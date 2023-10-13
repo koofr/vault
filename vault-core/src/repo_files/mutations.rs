@@ -11,7 +11,7 @@ use crate::{
         state::{RemoteFile, RemoteFileType},
     },
     store,
-    utils::path_utils,
+    utils::{name_utils, path_utils},
 };
 
 use super::{
@@ -425,11 +425,18 @@ pub fn decrypt_file(
     cipher: &Cipher,
 ) -> RepoFile {
     let name = match cipher.decrypt_filename(&remote_file.name) {
-        Ok(name) => {
-            let name_lower = name.to_lowercase();
+        Ok(name) => match name_utils::validate_name(&name) {
+            Ok(()) => {
+                let name_lower = name.to_lowercase();
 
-            RepoFileName::Decrypted { name, name_lower }
-        }
+                RepoFileName::Decrypted { name, name_lower }
+            }
+            Err(err) => RepoFileName::DecryptError {
+                encrypted_name: err.escaped_name.clone(),
+                encrypted_name_lower: err.escaped_name.to_lowercase(),
+                error: err.into(),
+            },
+        },
         Err(err) => RepoFileName::DecryptError {
             encrypted_name: remote_file.name.clone(),
             encrypted_name_lower: remote_file.name_lower.clone(),

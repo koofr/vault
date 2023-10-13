@@ -3,6 +3,8 @@ use std::sync::Arc;
 use rand_core;
 use thiserror::Error;
 
+use crate::common::errors::InvalidNameError;
+
 #[derive(Error, Debug, Clone)]
 #[error("generate nonce error: {0:?}")]
 pub struct GenerateNonceError(pub Arc<rand_core::Error>);
@@ -57,4 +59,6 @@ pub enum DecryptFilenameError {
     DecryptError,
     #[error("unicode error: {0}")]
     UnicodeError(String),
+    #[error("{0}")]
+    InvalidName(#[from] InvalidNameError),
 }

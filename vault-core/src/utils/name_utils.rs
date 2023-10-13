@@ -1,4 +1,4 @@
-use crate::common::errors::InvalidPathError;
+use crate::common::errors::InvalidNameError;
 
 pub fn split_name_ext<'a>(name: &'a str) -> (&'a str, Option<&'a str>) {
     name.rfind('.')
@@ -38,23 +38,21 @@ where
     }
 }
 
-pub fn validate_name(name: &str) -> Result<(), InvalidPathError> {
-    // empty
+pub fn validate_name(name: &str) -> Result<(), InvalidNameError> {
     if name.is_empty() {
-        return Err(InvalidPathError);
+        return Err(InvalidNameError::new(name));
     }
 
-    // . or ..
     if name == "." || name == ".." {
-        return Err(InvalidPathError);
+        return Err(InvalidNameError::new(name));
     }
 
-    // slash, backslash, DEL or anything < 0x20 (control characters)
+    // contains slash, backslash, DEL or anything < 0x20 (control characters)
     if name
         .chars()
         .any(|c| c == '/' || c == '\\' || c == '\x7f' || c < '\x20')
     {
-        return Err(InvalidPathError);
+        return Err(InvalidNameError::new(name));
     }
 
     Ok(())
@@ -117,6 +115,24 @@ mod tests {
 
     #[test]
     fn test_validate_name() {
+        assert!(validate_name("file.txt").is_ok());
+        assert!(validate_name("").is_err());
+        assert!(validate_name(".").is_err());
+        assert!(validate_name("..").is_err());
+        assert!(validate_name("...").is_ok());
+        assert!(validate_name("/").is_err());
+        assert!(validate_name("foo/").is_err());
+        assert!(validate_name("\\").is_err());
+        assert!(validate_name("foo\\").is_err());
+        assert!(validate_name("\x7f").is_err());
+        assert!(validate_name("a\x7f").is_err());
+        assert!(validate_name("\x00").is_err());
+        assert!(validate_name("\x1F").is_err());
+        assert!(validate_name("\x20").is_ok());
+    }
+
+    #[test]
+    fn test_escape_name() {
         assert!(validate_name("file.txt").is_ok());
         assert!(validate_name("").is_err());
         assert!(validate_name(".").is_err());

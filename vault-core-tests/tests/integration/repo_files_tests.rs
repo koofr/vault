@@ -1,9 +1,12 @@
-use futures::FutureExt;
+use futures::{io::Cursor, FutureExt};
 use similar_asserts::assert_eq;
 use vault_core::{
+    cipher::errors::DecryptFilenameError,
+    common::errors::InvalidNameError,
     files::file_category::FileCategory,
     repo_files::state::{
         RepoFile, RepoFileName, RepoFilePath, RepoFileSize, RepoFileType, RepoFilesState,
+        RepoFilesUploadConflictResolution,
     },
 };
 use vault_core_tests::helpers::with_repo;
@@ -200,6 +203,79 @@ fn test_encrypted_decrypted_same_name() {
                         category: FileCategory::Text,
                     },
                 ]
+            );
+        }
+        .boxed()
+    });
+}
+
+#[test]
+fn test_invalid_name() {
+    with_repo(|fixture| {
+        async move {
+            fixture
+                .vault
+                .repo_files_service
+                .clone()
+                .upload_file_reader(
+                    &fixture.repo_id,
+                    "/",
+                    "A\n/\n",
+                    Box::pin(Cursor::new("text".as_bytes().to_vec())),
+                    Some(4),
+                    RepoFilesUploadConflictResolution::Error,
+                    None,
+                )
+                .await
+                .unwrap();
+
+            fixture
+                .vault
+                .repo_files_service
+                .load_files(&fixture.repo_id, "/")
+                .await
+                .unwrap();
+
+            let file = fixture.vault.with_state(|state| {
+                vault_core::repo_files::selectors::select_files(state, &fixture.repo_id, "/")
+                    .next()
+                    .cloned()
+                    .unwrap()
+            });
+
+            assert_eq!(
+                file,
+                RepoFile {
+                    id: format!("err:{}:/A\\n/\\n", fixture.repo_id),
+                    mount_id: fixture.mount_id.clone(),
+                    remote_path: format!(
+                        "/My safe box/{}",
+                        fixture
+                            .vault
+                            .repo_files_service
+                            .encrypt_filename(&fixture.repo_id, "A\n/\n")
+                            .unwrap()
+                    ),
+                    repo_id: fixture.repo_id.clone(),
+                    path: RepoFilePath::DecryptError {
+                        parent_path: "/".into(),
+                        encrypted_name: "A\\n/\\n".into(),
+                        error: DecryptFilenameError::InvalidName(InvalidNameError::new("A\n/\n")),
+                    },
+                    name: RepoFileName::DecryptError {
+                        encrypted_name: "A\\n/\\n".into(),
+                        encrypted_name_lower: "a\\n/\\n".into(),
+                        error: DecryptFilenameError::InvalidName(InvalidNameError::new("A\n/\n")),
+                    },
+                    ext: None,
+                    content_type: None,
+                    typ: RepoFileType::File,
+                    size: Some(file.size.clone().unwrap()),
+                    modified: Some(file.modified.unwrap()),
+                    unique_name: file.unique_name.clone(),
+                    remote_hash: Some(file.remote_hash.clone().unwrap()),
+                    category: FileCategory::Generic,
+                }
             );
         }
         .boxed()

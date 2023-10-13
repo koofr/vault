@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use serde::de;
-use vault_core::{common::errors::InvalidPathError, utils::name_utils};
+use vault_core::{common::errors::InvalidNameError, utils::name_utils};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Name(pub String);
@@ -13,10 +13,9 @@ impl Name {
 }
 
 impl FromStr for Name {
-    type Err = InvalidPathError;
+    type Err = InvalidNameError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        // validate
         name_utils::validate_name(s)?;
 
         Ok(Self(s.to_owned()))
