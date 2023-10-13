@@ -31,7 +31,10 @@ pub enum GetFilesReaderError {
 
 impl UserError for GetFilesReaderError {
     fn user_error(&self) -> String {
-        self.to_string()
+        match self {
+            Self::DecryptFilenameError(err) => err.user_error(),
+            _ => self.to_string(),
+        }
     }
 }
 

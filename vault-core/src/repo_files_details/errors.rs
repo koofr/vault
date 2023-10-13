@@ -51,7 +51,10 @@ pub enum LoadContentError {
 
 impl UserError for LoadContentError {
     fn user_error(&self) -> String {
-        self.to_string()
+        match self {
+            Self::DecryptFilenameError(err) => err.user_error(),
+            _ => self.to_string(),
+        }
     }
 }
 
@@ -83,7 +86,10 @@ pub enum SaveError {
 
 impl UserError for SaveError {
     fn user_error(&self) -> String {
-        self.to_string()
+        match self {
+            Self::DecryptFilenameError(err) => err.user_error(),
+            _ => self.to_string(),
+        }
     }
 }
 

@@ -792,7 +792,7 @@ impl From<&repo_files_state::RepoFile> for RepoFile {
             name_error: match &file.name {
                 repo_files_state::RepoFileName::Decrypted { .. } => None,
                 repo_files_state::RepoFileName::DecryptError { error, .. } => {
-                    Some(error.to_string())
+                    Some(error.user_error())
                 }
             },
             ext: file.ext.clone(),

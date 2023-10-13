@@ -3,7 +3,7 @@ use std::sync::Arc;
 use rand_core;
 use thiserror::Error;
 
-use crate::common::errors::InvalidNameError;
+use crate::{common::errors::InvalidNameError, user_error::UserError};
 
 #[derive(Error, Debug, Clone)]
 #[error("generate nonce error: {0:?}")]
@@ -61,4 +61,15 @@ pub enum DecryptFilenameError {
     UnicodeError(String),
     #[error("{0}")]
     InvalidName(#[from] InvalidNameError),
+}
+
+impl UserError for DecryptFilenameError {
+    fn user_error(&self) -> String {
+        match self {
+            Self::DecodeError(_) => "Failed to decode file name".into(),
+            Self::DecryptError => "Failed to decrypt file name. Vault files can only be uploaded using Vault apps or rclone. If all your files have errors please check that you've used the correct salt.".into(),
+            Self::UnicodeError(_) => "File name is not a valid Unicode text".into(),
+            Self::InvalidName(_) => "File name contains invalid characters".into(),
+        }
+    }
 }

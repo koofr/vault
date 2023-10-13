@@ -79,7 +79,10 @@ pub enum FileNameError {
 
 impl UserError for FileNameError {
     fn user_error(&self) -> String {
-        self.to_string()
+        match self {
+            Self::DecryptFilenameError(err) => err.user_error(),
+            _ => self.to_string(),
+        }
     }
 }
 
@@ -109,7 +112,10 @@ pub enum UploadFileReaderError {
 
 impl UserError for UploadFileReaderError {
     fn user_error(&self) -> String {
-        self.to_string()
+        match self {
+            Self::DecryptFilenameError(err) => err.user_error(),
+            _ => self.to_string(),
+        }
     }
 }
 
@@ -160,6 +166,7 @@ pub enum CreateDirError {
 impl UserError for CreateDirError {
     fn user_error(&self) -> String {
         match self {
+            Self::DecryptFilenameError(err) => err.user_error(),
             Self::RemoteError(RemoteError::ApiError {
                 code: ApiErrorCode::AlreadyExists,
                 ..
@@ -196,6 +203,7 @@ pub enum CreateFileError {
 impl UserError for CreateFileError {
     fn user_error(&self) -> String {
         match self {
+            Self::DecryptFilenameError(err) => err.user_error(),
             Self::RemoteError(RemoteError::ApiError {
                 code: ApiErrorCode::AlreadyExists,
                 ..
@@ -269,7 +277,10 @@ pub enum RenameFileError {
 
 impl UserError for RenameFileError {
     fn user_error(&self) -> String {
-        self.to_string()
+        match self {
+            Self::DecryptFilenameError(err) => err.user_error(),
+            _ => self.to_string(),
+        }
     }
 }
 
@@ -289,7 +300,10 @@ pub enum CopyFileError {
 
 impl UserError for CopyFileError {
     fn user_error(&self) -> String {
-        self.to_string()
+        match self {
+            Self::DecryptFilenameError(err) => err.user_error(),
+            _ => self.to_string(),
+        }
     }
 }
 
@@ -311,7 +325,10 @@ pub enum MoveFileError {
 
 impl UserError for MoveFileError {
     fn user_error(&self) -> String {
-        self.to_string()
+        match self {
+            Self::DecryptFilenameError(err) => err.user_error(),
+            _ => self.to_string(),
+        }
     }
 }
 

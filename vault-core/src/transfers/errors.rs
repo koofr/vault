@@ -85,7 +85,11 @@ pub enum TransferError {
 
 impl UserError for TransferError {
     fn user_error(&self) -> String {
-        self.to_string()
+        match self {
+            Self::DecryptFilenameError(err) => err.user_error(),
+            Self::Aborted => "Transfer has been aborted.".into(),
+            _ => self.to_string(),
+        }
     }
 }
 
