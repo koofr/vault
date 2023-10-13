@@ -20,7 +20,6 @@ pub struct DialogShowOptions {
     pub title: String,
     pub message: Option<String>,
     pub input_value: String,
-    pub input_value_validator: Option<Box<dyn Fn(&str) -> bool + Send + Sync + 'static>>,
     pub input_value_selected: Option<String>,
     pub input_placeholder: Option<String>,
     pub confirm_button_text: String,

@@ -15,7 +15,7 @@ use super::{
 pub struct DialogsService {
     store: Arc<store::Store>,
     input_value_validators:
-        Arc<RwLock<HashMap<u32, Box<dyn Fn(&str) -> bool + Send + Sync + 'static>>>>,
+        Arc<RwLock<HashMap<u32, Box<dyn Fn(String) -> bool + Send + Sync + 'static>>>>,
     results: Arc<RwLock<HashMap<u32, oneshot::Sender<Option<String>>>>>,
 }
 
@@ -34,7 +34,6 @@ impl DialogsService {
             title,
             message: None,
             input_value: String::from(""),
-            input_value_validator: None,
             input_value_selected: None,
             input_placeholder: None,
             confirm_button_text: String::from("Ok"),
@@ -49,7 +48,6 @@ impl DialogsService {
             title: String::from("Are you sure?"),
             message: None,
             input_value: String::from(""),
-            input_value_validator: None,
             input_value_selected: None,
             input_placeholder: None,
             confirm_button_text: String::from("Yes"),
@@ -64,7 +62,6 @@ impl DialogsService {
             title,
             message: None,
             input_value: String::from(""),
-            input_value_validator: None,
             input_value_selected: None,
             input_placeholder: None,
             confirm_button_text: String::from("Ok"),
@@ -74,28 +71,57 @@ impl DialogsService {
     }
 
     pub async fn show(&self, options: DialogShowOptions) -> Option<String> {
-        let mut options = options;
-
-        let input_value_validator = options.input_value_validator.take();
-
         let dialog_id = self.store.mutate(|state, notify, _, _| {
             notify(store::Event::Dialogs);
 
             mutations::get_next_id(state)
         });
 
-        let is_input_value_valid = match input_value_validator {
-            Some(input_value_validator) => {
-                let is_input_value_valid = input_value_validator(&options.input_value);
+        let (result_sender, result_receiver) = oneshot::channel();
 
-                self.input_value_validators
-                    .write()
-                    .unwrap()
-                    .insert(dialog_id, input_value_validator);
+        self.results
+            .write()
+            .unwrap()
+            .insert(dialog_id, result_sender);
 
-                is_input_value_valid
-            }
-            None => true,
+        self.store.mutate(|state, notify, _, _| {
+            notify(store::Event::Dialogs);
+
+            mutations::show(state, dialog_id, options, true)
+        });
+
+        result_receiver.await.unwrap()
+    }
+
+    pub async fn show_validator<Error, Validator>(
+        &self,
+        options: DialogShowOptions,
+        input_value_validator: Validator,
+    ) -> Option<Result<String, Error>>
+    where
+        Error: std::error::Error,
+        Validator: Fn(String) -> Result<String, Error> + Send + Sync + 'static,
+    {
+        let dialog_id = self.store.mutate(|state, notify, _, _| {
+            notify(store::Event::Dialogs);
+
+            mutations::get_next_id(state)
+        });
+
+        let input_value_validator = Arc::new(input_value_validator);
+
+        let is_input_value_valid = {
+            let validator = input_value_validator.clone();
+            let validator = Box::new(move |value| (validator.as_ref())(value).is_ok());
+
+            let is_input_value_valid = validator(options.input_value.clone());
+
+            self.input_value_validators
+                .write()
+                .unwrap()
+                .insert(dialog_id, validator);
+
+            is_input_value_valid
         };
 
         let (result_sender, result_receiver) = oneshot::channel();
@@ -111,7 +137,10 @@ impl DialogsService {
             mutations::show(state, dialog_id, options, is_input_value_valid)
         });
 
-        result_receiver.await.unwrap()
+        result_receiver
+            .await
+            .unwrap()
+            .map(|value| (input_value_validator.as_ref())(value))
     }
 
     pub fn remove(&self, dialog_id: u32) {
@@ -128,7 +157,6 @@ impl DialogsService {
     }
 
     pub fn confirm(&self, dialog_id: u32) {
-        // TODO check confirm_button_enabled and is_input_value_valid
         let value = match self.store.with_state(|state| {
             selectors::select_dialog(state, dialog_id).map(|dialog| dialog.input_value.clone())
         }) {
@@ -152,12 +180,14 @@ impl DialogsService {
     }
 
     pub fn set_input_value(&self, dialog_id: u32, value: String) {
-        let input_value_validators = self.input_value_validators.read().unwrap();
-        let input_value_validator = input_value_validators.get(&dialog_id);
-        let is_valid = input_value_validator
-            .map(|validator| validator(&value))
-            .unwrap_or(true);
-        drop(input_value_validators);
+        let is_valid = {
+            let input_value_validators = self.input_value_validators.read().unwrap();
+            let input_value_validator = input_value_validators.get(&dialog_id);
+
+            input_value_validator
+                .map(|validator| validator(value.clone()))
+                .unwrap_or(true)
+        };
 
         self.store.mutate(|state, notify, _, _| {
             notify(store::Event::Dialogs);

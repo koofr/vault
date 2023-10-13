@@ -1,7 +1,8 @@
-use futures::FutureExt;
+use futures::{join, FutureExt};
 use similar_asserts::assert_eq;
 use vault_core::{
     common::state::Status,
+    dialogs,
     repo_files::{
         errors::LoadFilesError,
         state::{RepoFilesSort, RepoFilesSortField},
@@ -390,4 +391,103 @@ fn expected_browsers_state(
         browsers: [(1, browser)].into(),
         next_id: NextId(2),
     }
+}
+
+#[test]
+fn test_create_dir() {
+    with_repo(|fixture| {
+        async move {
+            let (browser_id, load_future) = fixture.vault.repo_files_browsers_create(
+                &fixture.repo_id,
+                "/",
+                RepoFilesBrowserOptions { select_name: None },
+            );
+            load_future.await.unwrap();
+
+            let create_dir_future = fixture.vault.repo_files_browsers_create_dir(browser_id);
+
+            let dialog_vault = fixture.vault.clone();
+            let dialog_future = fixture.fake_remote.tokio_runtime.spawn(async move {
+                let wait_store = dialog_vault.store.clone();
+                let dialog_id =
+                    store::wait_for(wait_store.clone(), &[store::Event::Dialogs], move || {
+                        wait_store.with_state(|state| {
+                            dialogs::selectors::select_dialogs(state)
+                                .iter()
+                                .next()
+                                .map(|dialog| dialog.id.clone())
+                        })
+                    })
+                    .await;
+
+                dialog_vault.dialogs_set_input_value(dialog_id, "dir".into());
+
+                dialog_vault.dialogs_confirm(dialog_id);
+            });
+
+            let (create_dir_res, _) = join!(create_dir_future, dialog_future);
+            let (name, path) = create_dir_res.unwrap();
+
+            assert_eq!(name, "dir");
+            assert_eq!(path, "/dir");
+
+            fixture.vault.repo_files_browsers_destroy(browser_id);
+        }
+        .boxed()
+    });
+}
+
+#[test]
+fn test_create_dir_validation() {
+    with_repo(|fixture| {
+        async move {
+            let (browser_id, load_future) = fixture.vault.repo_files_browsers_create(
+                &fixture.repo_id,
+                "/",
+                RepoFilesBrowserOptions { select_name: None },
+            );
+            load_future.await.unwrap();
+
+            let create_dir_future = fixture.vault.repo_files_browsers_create_dir(browser_id);
+
+            let dialog_vault = fixture.vault.clone();
+            let dialog_future = fixture.fake_remote.tokio_runtime.spawn(async move {
+                let wait_store = dialog_vault.store.clone();
+                let dialog_id =
+                    store::wait_for(wait_store.clone(), &[store::Event::Dialogs], move || {
+                        wait_store.with_state(|state| {
+                            dialogs::selectors::select_dialogs(state)
+                                .iter()
+                                .next()
+                                .map(|dialog| dialog.id.clone())
+                        })
+                    })
+                    .await;
+
+                dialog_vault.dialogs_set_input_value(dialog_id, "/".into());
+
+                assert!(!dialog_vault.store.with_state(|state| {
+                    dialogs::selectors::select_dialog(state, dialog_id)
+                        .unwrap()
+                        .is_input_value_valid
+                }));
+
+                dialog_vault.dialogs_confirm(dialog_id);
+
+                assert!(dialog_vault.store.with_state(|state| {
+                    dialogs::selectors::select_dialog(state, dialog_id).is_none()
+                }));
+            });
+
+            let (create_dir_res, _) = join!(create_dir_future, dialog_future);
+
+            assert_eq!(
+                create_dir_res.unwrap_err().to_string(),
+                "Invalid name or path"
+            );
+
+            fixture.vault.repo_files_browsers_destroy(browser_id);
+        }
+        .boxed()
+    });
 }

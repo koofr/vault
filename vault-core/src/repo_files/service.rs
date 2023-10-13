@@ -303,28 +303,29 @@ impl RepoFilesService {
 
         let name = match self
             .dialogs_service
-            .show(dialogs::state::DialogShowOptions {
-                input_value_validator: Some(Box::new(move |value| {
-                    input_value_validator_store
-                        .with_state(|state| {
-                            selectors::select_check_new_name_valid(
-                                state,
-                                &input_value_validator_repo_id,
-                                &input_value_validator_parent_path,
-                                value,
-                            )
-                        })
-                        .is_ok()
-                })),
-                input_placeholder: Some(String::from("Folder name")),
-                confirm_button_text: String::from("Create folder"),
-                ..self
-                    .dialogs_service
-                    .build_prompt(String::from("Enter new folder name"))
-            })
+            .show_validator(
+                dialogs::state::DialogShowOptions {
+                    input_placeholder: Some(String::from("Folder name")),
+                    confirm_button_text: String::from("Create folder"),
+                    ..self
+                        .dialogs_service
+                        .build_prompt(String::from("Enter new folder name"))
+                },
+                move |value| {
+                    input_value_validator_store.with_state(|state| {
+                        selectors::select_check_new_name_valid(
+                            state,
+                            &input_value_validator_repo_id,
+                            &input_value_validator_parent_path,
+                            &value,
+                        )
+                        .map(|_| value)
+                    })
+                },
+            )
             .await
         {
-            Some(name) => name,
+            Some(name) => name?,
             None => return Err(CreateDirError::Canceled),
         };
 
@@ -464,30 +465,31 @@ impl RepoFilesService {
 
         let name = match self
             .dialogs_service
-            .show(dialogs::state::DialogShowOptions {
-                input_value: name.to_owned(),
-                input_value_validator: Some(Box::new(move |value| {
-                    input_value_validator_store
-                        .with_state(|state| {
-                            selectors::select_check_new_name_valid(
-                                state,
-                                &input_value_validator_repo_id,
-                                &input_value_validator_parent_path,
-                                value,
-                            )
-                        })
-                        .is_ok()
-                })),
-                input_value_selected,
-                input_placeholder: Some(String::from("File name")),
-                confirm_button_text: String::from("Create file"),
-                ..self
-                    .dialogs_service
-                    .build_prompt(String::from("Enter new file name"))
-            })
+            .show_validator(
+                dialogs::state::DialogShowOptions {
+                    input_value: name.to_owned(),
+                    input_value_selected,
+                    input_placeholder: Some(String::from("File name")),
+                    confirm_button_text: String::from("Create file"),
+                    ..self
+                        .dialogs_service
+                        .build_prompt(String::from("Enter new file name"))
+                },
+                move |value| {
+                    input_value_validator_store.with_state(|state| {
+                        selectors::select_check_new_name_valid(
+                            state,
+                            &input_value_validator_repo_id,
+                            &input_value_validator_parent_path,
+                            &value,
+                        )
+                        .map(|_| value)
+                    })
+                },
+            )
             .await
         {
-            Some(name) => name,
+            Some(name) => name?,
             None => return Err(CreateFileError::Canceled),
         };
 
@@ -546,30 +548,31 @@ impl RepoFilesService {
 
         if let Some(name) = self
             .dialogs_service
-            .show(dialogs::state::DialogShowOptions {
-                input_value,
-                input_value_validator: Some(Box::new(move |value| {
-                    input_value_validator_store
-                        .with_state(|state| {
-                            selectors::select_check_rename_file(
-                                state,
-                                &input_value_validator_repo_id,
-                                &input_value_validator_path,
-                                value,
-                            )
-                        })
-                        .is_ok()
-                })),
-                input_value_selected,
-                input_placeholder: Some(String::from("New name")),
-                confirm_button_text: String::from("Rename"),
-                ..self
-                    .dialogs_service
-                    .build_prompt(format!("Enter new name for '{}'", original_name))
-            })
+            .show_validator(
+                dialogs::state::DialogShowOptions {
+                    input_value,
+                    input_value_selected,
+                    input_placeholder: Some(String::from("New name")),
+                    confirm_button_text: String::from("Rename"),
+                    ..self
+                        .dialogs_service
+                        .build_prompt(format!("Enter new name for '{}'", original_name))
+                },
+                move |value| {
+                    input_value_validator_store.with_state(|state| {
+                        selectors::select_check_rename_file(
+                            state,
+                            &input_value_validator_repo_id,
+                            &input_value_validator_path,
+                            &value,
+                        )
+                        .map(|_| value)
+                    })
+                },
+            )
             .await
         {
-            let encrypted_name = self.encrypt_filename(&repo_id, &name)?;
+            let encrypted_name = self.encrypt_filename(&repo_id, &name?)?;
 
             self.remote_files_service
                 .rename_file(&mount_id, &remote_path, &encrypted_name)
