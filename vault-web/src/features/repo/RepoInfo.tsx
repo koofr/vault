@@ -1,7 +1,6 @@
 import { css } from '@emotion/css';
 import format from 'date-fns/format';
 import { memo, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 
 import { Button, LinkButton } from '../../components/Button';
 import { DashboardLayout } from '../../components/dashboard/DashboardLayout';

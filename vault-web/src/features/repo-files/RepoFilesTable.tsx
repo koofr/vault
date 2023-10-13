@@ -75,7 +75,7 @@ const FileName = memo<{ file: RepoFile }>(({ file }) => {
             text-overflow: ellipsis;
             overflow: hidden;
           `,
-          file.nameError &&
+          file.nameError !== undefined &&
             css`
               color: ${theme.colors.destructive};
             `,
@@ -126,7 +126,7 @@ const FileName = memo<{ file: RepoFile }>(({ file }) => {
         ) : (
           file.name
         )}
-        {file.nameError ? ' (ERROR)' : null}
+        {file.nameError !== undefined ? ' (ERROR)' : null}
       </span>
       {!isMobile ? (
         <button

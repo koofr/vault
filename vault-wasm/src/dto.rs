@@ -754,7 +754,7 @@ pub struct RepoFile {
     pub path: Option<String>,
     pub name: String,
     #[serde(rename = "nameError")]
-    pub name_error: bool,
+    pub name_error: Option<String>,
     pub ext: Option<String>,
     #[serde(rename = "contentType")]
     pub content_type: Option<String>,
@@ -790,8 +790,10 @@ impl From<&repo_files_state::RepoFile> for RepoFile {
                 }
             },
             name_error: match &file.name {
-                repo_files_state::RepoFileName::Decrypted { .. } => false,
-                repo_files_state::RepoFileName::DecryptError { .. } => true,
+                repo_files_state::RepoFileName::Decrypted { .. } => None,
+                repo_files_state::RepoFileName::DecryptError { error, .. } => {
+                    Some(error.to_string())
+                }
             },
             ext: file.ext.clone(),
             content_type: file.content_type.clone(),

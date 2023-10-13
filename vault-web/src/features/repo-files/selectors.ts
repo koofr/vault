@@ -62,7 +62,7 @@ export const fileHasImageViewer = (ext: string | undefined): boolean =>
   ext === 'svg';
 
 export const fileHasDetails = (file: RepoFile): boolean =>
-  !file.nameError &&
+  file.nameError === undefined &&
   (fileHasPdfViewer(file.ext) ||
     fileHasTextEditor(file.category) ||
     fileHasImageViewer(file.ext));
@@ -72,4 +72,4 @@ export const fileCategoryHasDetailsEdit = (
 ): boolean => fileHasTextEditor(category);
 
 export const fileHasDetailsEdit = (file: RepoFile): boolean =>
-  !file.nameError && fileCategoryHasDetailsEdit(file.category);
+  file.nameError === undefined && fileCategoryHasDetailsEdit(file.category);
