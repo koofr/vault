@@ -22,6 +22,10 @@ pub fn get_file_id(repo_id: &str, path: &str) -> String {
     format!("{}:{}", repo_id, path)
 }
 
+pub fn get_error_file_id(repo_id: &str, path: &str) -> String {
+    format!("err:{}:{}", repo_id, path)
+}
+
 pub fn get_file_unique_name(remote_file_unique_id: &str, ext: Option<&str>) -> String {
     match ext {
         Some(ext) => format!("{}.{}", remote_file_unique_id, ext),

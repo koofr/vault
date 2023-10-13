@@ -177,7 +177,7 @@ mod tests {
                     "non-zero trailing bits at 1"
                 ))),
                 file: RepoFile {
-                    id: String::from("r1:/D1"),
+                    id: String::from("err:r1:/D1"),
                     mount_id: String::from("m1"),
                     remote_path: String::from("/Vault/D1"),
                     repo_id: String::from("r1"),
@@ -305,7 +305,7 @@ mod tests {
                     "non-zero trailing bits at 1"
                 ))),
                 file: RepoFile {
-                    id: String::from("r1:/F1"),
+                    id: String::from("err:r1:/F1"),
                     mount_id: String::from("m1"),
                     remote_path: String::from("/Vault/F1"),
                     repo_id: String::from("r1"),

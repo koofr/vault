@@ -448,7 +448,7 @@ pub fn decrypt_file(
             error,
             ..
         } => {
-            let id = selectors::get_file_id(
+            let id = selectors::get_error_file_id(
                 repo_id,
                 &path_utils::join_path_name(parent_path, &encrypted_name),
             );
@@ -635,7 +635,7 @@ mod tests {
         assert_eq!(
             decrypt_file("r1", "/", &remote_file, &cipher),
             RepoFile {
-                id: String::from("r1:/D1"),
+                id: String::from("err:r1:/D1"),
                 mount_id: remote_file.mount_id.clone(),
                 remote_path: remote_file.path.clone(),
                 repo_id: String::from("r1",),
@@ -708,7 +708,7 @@ mod tests {
         assert_eq!(
             decrypt_file("r1", "/", &remote_file, &cipher),
             RepoFile {
-                id: String::from("r1:/F1"),
+                id: String::from("err:r1:/F1"),
                 mount_id: remote_file.mount_id.clone(),
                 remote_path: remote_file.path.clone(),
                 repo_id: String::from("r1",),
