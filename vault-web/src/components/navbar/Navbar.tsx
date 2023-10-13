@@ -1,16 +1,12 @@
 import { css, cx } from '@emotion/css';
 import { useTheme } from '@emotion/react';
-import { memo, PropsWithChildren, ReactNode, useMemo } from 'react';
-
-import { useDocumentScroll } from '../DocumentScroll';
-import { useIsMobile } from '../useIsMobile';
+import { memo, PropsWithChildren, ReactNode } from 'react';
 
 import { NavbarLogo } from './NavbarLogo';
+import { useNavbarSticky } from './NavbarSticky';
 
 export const NAVBAR_HEIGHT = 70;
 export const NAVBAR_HEIGHT_MOBILE = 60;
-export const NAVBAR_STICKY_SCROLL = 25;
-export const NAVBAR_STICKY_SCROLL_MOBILE = 1;
 
 export const getNavbarHeight = (isMobile: boolean) =>
   isMobile ? NAVBAR_HEIGHT_MOBILE : NAVBAR_HEIGHT;
@@ -189,15 +185,7 @@ export const Navbar = memo<{
   extra?: ReactNode;
   noShadow?: boolean;
 }>(({ extra, ...props }) => {
-  const isMobile = useIsMobile();
-  const scrollInfo = useDocumentScroll();
-  const stickyScroll = isMobile
-    ? NAVBAR_STICKY_SCROLL_MOBILE
-    : NAVBAR_STICKY_SCROLL;
-  const isSticky = useMemo(
-    () => scrollInfo.y >= stickyScroll,
-    [scrollInfo.y, stickyScroll],
-  );
+  const isSticky = useNavbarSticky();
 
   return (
     <>

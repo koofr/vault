@@ -10,6 +10,7 @@ import { DocumentSizeProvider } from './components/DocumentSize';
 import { FolderAwareHTML5Backend } from './components/dnd/backend';
 import { FileIconCacheProvider } from './components/file-icon/FileIcon';
 import { ModalsProvider } from './components/modal/Modals';
+import { NavbarStickyProvider } from './components/navbar/NavbarSticky';
 import { Dialogs } from './features/dialogs/Dialogs';
 import { Notifications } from './features/notifications/Notifications';
 import { TransfersPreventUnload } from './features/transfers/TransfersPreventUnload';
@@ -73,26 +74,28 @@ export const mainAuthenticated = async () => {
       <CacheProvider value={emotionCache}>
         <DocumentSizeProvider>
           <DocumentScrollProvider>
-            <DynamicThemeProvider>
-              <DndProvider backend={FolderAwareHTML5Backend}>
-                <FileIconCacheProvider>
-                  <>
-                    <GlobalStyles />
+            <NavbarStickyProvider>
+              <DynamicThemeProvider>
+                <DndProvider backend={FolderAwareHTML5Backend}>
+                  <FileIconCacheProvider>
+                    <>
+                      <GlobalStyles />
 
-                    <RemoveAppLoading />
+                      <RemoveAppLoading />
 
-                    <ModalsProvider>
-                      <RouterProvider router={router} />
+                      <ModalsProvider>
+                        <RouterProvider router={router} />
 
-                      <Dialogs />
-                    </ModalsProvider>
+                        <Dialogs />
+                      </ModalsProvider>
 
-                    <Notifications />
-                    <TransfersPreventUnload />
-                  </>
-                </FileIconCacheProvider>
-              </DndProvider>
-            </DynamicThemeProvider>
+                      <Notifications />
+                      <TransfersPreventUnload />
+                    </>
+                  </FileIconCacheProvider>
+                </DndProvider>
+              </DynamicThemeProvider>
+            </NavbarStickyProvider>
           </DocumentScrollProvider>
         </DocumentSizeProvider>
       </CacheProvider>
