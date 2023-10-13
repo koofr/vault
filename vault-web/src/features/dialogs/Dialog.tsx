@@ -103,7 +103,7 @@ const DialogInner = memo<{
               </ModalFooterButton>
             ) : null}
             <ModalFooterButton
-              type="button"
+              type="submit"
               variant={
                 confirmButtonEnabled
                   ? confirmButtonStyle === 'Destructive'
