@@ -1,8 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{common::state::Status, store::NextId};
-
-use super::errors::DialogError;
+use crate::store::NextId;
 
 #[derive(Debug, Clone)]
 pub enum DialogType {
@@ -32,7 +30,6 @@ pub struct DialogShowOptions {
 
 pub struct DialogInfo<'a> {
     pub id: u32,
-    pub status: &'a Status<DialogError>,
     pub typ: &'a DialogType,
     pub title: &'a String,
     pub message: Option<&'a String>,
@@ -49,7 +46,6 @@ pub struct DialogInfo<'a> {
 #[derive(Debug, Clone)]
 pub struct Dialog {
     pub id: u32,
-    pub status: Status<DialogError>,
     pub typ: DialogType,
     pub title: String,
     pub message: Option<String>,

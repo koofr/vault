@@ -24,7 +24,6 @@ pub fn select_dialog_mut<'a>(
 pub fn select_dialog_info<'a>(state: &'a store::State, dialog_id: u32) -> Option<DialogInfo<'a>> {
     select_dialog(state, dialog_id).map(|dialog| DialogInfo {
         id: dialog.id,
-        status: &dialog.status,
         typ: &dialog.typ,
         title: &dialog.title,
         message: dialog.message.as_ref(),

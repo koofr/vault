@@ -352,7 +352,6 @@ impl From<&dialogs_state::DialogButtonStyle> for DialogButtonStyle {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub struct Dialog {
     pub id: u32,
-    pub status: Status,
     pub typ: DialogType,
     pub title: String,
     pub message: Option<String>,
@@ -378,7 +377,6 @@ impl<'a> From<dialogs_state::DialogInfo<'a>> for Dialog {
     fn from(dialog: dialogs_state::DialogInfo<'a>) -> Self {
         Self {
             id: dialog.id,
-            status: dialog.status.into(),
             typ: dialog.typ.into(),
             title: dialog.title.clone(),
             message: dialog.message.cloned(),

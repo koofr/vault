@@ -1,4 +1,4 @@
-use crate::{common::state::Status, store};
+use crate::store;
 
 use super::{
     selectors,
@@ -17,7 +17,6 @@ pub fn show(
 ) {
     let dialog = Dialog {
         id: dialog_id,
-        status: Status::Initial,
         typ: options.typ,
         title: options.title,
         message: options.message,
