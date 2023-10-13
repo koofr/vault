@@ -2,18 +2,17 @@ import { css } from '@emotion/css';
 import { MutableRefObject, memo, useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { useDocumentSize } from '../../../components/DocumentSize';
-import { ErrorComponent } from '../../../components/ErrorComponent';
-import { LoadingCircle } from '../../../components/LoadingCircle';
-import { useDocumentTitle } from '../../../utils/useDocumentTitle';
-import { usePreventUnload } from '../../../utils/usePreventUnload';
-import { Repo } from '../../../vault-wasm/vault-wasm';
-import { useSubscribe } from '../../../webVault/useSubscribe';
-import { useWebVault } from '../../../webVault/useWebVault';
+import { useDocumentSize } from '../../components/DocumentSize';
+import { ErrorComponent } from '../../components/ErrorComponent';
+import { LoadingCircle } from '../../components/LoadingCircle';
+import { useDocumentTitle } from '../../utils/useDocumentTitle';
+import { usePreventUnload } from '../../utils/usePreventUnload';
+import { Repo } from '../../vault-wasm/vault-wasm';
+import { useSubscribe } from '../../webVault/useSubscribe';
+import { useWebVault } from '../../webVault/useWebVault';
 
-import { Transfers } from '../../transfers/Transfers';
-
-import { repoFilesDetailsLink, repoFilesLink } from '../selectors';
+import { repoFilesDetailsLink, repoFilesLink } from '../repo-files/selectors';
+import { Transfers } from '../transfers/Transfers';
 
 import { getContentEl } from './RepoFilesDetailsContent';
 import { RepoFilesDetailsNavbar } from './RepoFilesDetailsNavbar';

@@ -1,24 +1,27 @@
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
 
-import FilesEditHoverIcon from '../../../assets/images/files-edit-hover.svg?react';
-import FilesEditIcon from '../../../assets/images/files-edit.svg?react';
-import FilesRenameHoverIcon from '../../../assets/images/files-rename-hover.svg?react';
-import FilesRenameIcon from '../../../assets/images/files-rename.svg?react';
-import FilesToolbarDeleteHoverIcon from '../../../assets/images/files-toolbar-delete-hover.svg?react';
-import FilesToolbarDeleteIcon from '../../../assets/images/files-toolbar-delete.svg?react';
-import FilesToolbarDownloadHoverIcon from '../../../assets/images/files-toolbar-download-hover.svg?react';
-import FilesToolbarDownloadIcon from '../../../assets/images/files-toolbar-download.svg?react';
+import FilesEditHoverIcon from '../../assets/images/files-edit-hover.svg?react';
+import FilesEditIcon from '../../assets/images/files-edit.svg?react';
+import FilesRenameHoverIcon from '../../assets/images/files-rename-hover.svg?react';
+import FilesRenameIcon from '../../assets/images/files-rename.svg?react';
+import FilesToolbarDeleteHoverIcon from '../../assets/images/files-toolbar-delete-hover.svg?react';
+import FilesToolbarDeleteIcon from '../../assets/images/files-toolbar-delete.svg?react';
+import FilesToolbarDownloadHoverIcon from '../../assets/images/files-toolbar-download-hover.svg?react';
+import FilesToolbarDownloadIcon from '../../assets/images/files-toolbar-download.svg?react';
 import {
   NavbarNavToolbar,
   NavbarNavToolbarItem,
-} from '../../../components/navbar/NavbarNavToolbar';
-import { useIsMobile } from '../../../components/useIsMobile';
-import { RepoFilesDetailsInfo } from '../../../vault-wasm/vault-wasm';
-import { useWebVault } from '../../../webVault/useWebVault';
+} from '../../components/navbar/NavbarNavToolbar';
+import { useIsMobile } from '../../components/useIsMobile';
+import { RepoFilesDetailsInfo } from '../../vault-wasm/vault-wasm';
+import { useWebVault } from '../../webVault/useWebVault';
 
-import { downloadFile } from '../repoFilesActions';
-import { fileCategoryHasDetailsEdit, repoFilesDetailsLink } from '../selectors';
+import { downloadFile } from '../repo-files/repoFilesActions';
+import {
+  fileCategoryHasDetailsEdit,
+  repoFilesDetailsLink,
+} from '../repo-files/selectors';
 
 export const RepoFilesDetailsNavbarNav = memo<{
   detailsId: number;

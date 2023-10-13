@@ -1,8 +1,8 @@
 import { memo } from 'react';
 
-import { ImageViewer } from '../../../components/ImageViewer';
-import { LoadingCircle } from '../../../components/LoadingCircle';
-import { Status } from '../../../vault-wasm/vault-wasm';
+import { ImageViewer } from '../../components/ImageViewer';
+import { LoadingCircle } from '../../components/LoadingCircle';
+import { Status } from '../../vault-wasm/vault-wasm';
 
 import { useRepoFilesDetailsBlobUrl } from './useRepoFilesDetailsBlobUrl';
 

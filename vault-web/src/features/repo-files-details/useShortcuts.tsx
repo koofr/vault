@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 
-import { isMacOS } from '../../../utils/browser';
-import { isEventKeys } from '../../../utils/keyboardEvents';
-import { RepoFilesDetailsInfo } from '../../../vault-wasm/vault-wasm';
-import { useWebVault } from '../../../webVault/useWebVault';
+import { isMacOS } from '../../utils/browser';
+import { isEventKeys } from '../../utils/keyboardEvents';
+import { RepoFilesDetailsInfo } from '../../vault-wasm/vault-wasm';
+import { useWebVault } from '../../webVault/useWebVault';
 
 export function useShortcuts(
   detailsId: number,

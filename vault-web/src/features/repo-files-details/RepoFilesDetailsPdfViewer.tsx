@@ -1,7 +1,7 @@
 import { memo } from 'react';
 
-import { LoadingCircle } from '../../../components/LoadingCircle';
-import { PdfViewer } from '../../../components/PdfViewer';
+import { LoadingCircle } from '../../components/LoadingCircle';
+import { PdfViewer } from '../../components/PdfViewer';
 
 import { useRepoFilesDetailsBlobUrl } from './useRepoFilesDetailsBlobUrl';
 

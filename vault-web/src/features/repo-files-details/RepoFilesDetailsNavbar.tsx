@@ -1,11 +1,11 @@
 import { memo } from 'react';
 import { To } from 'react-router-dom';
 
-import { DashboardNavbar } from '../../../components/dashboard/DashboardNavbar';
-import { NavbarClose } from '../../../components/navbar/NavbarClose';
-import { RepoFilesDetailsInfo } from '../../../vault-wasm/vault-wasm';
+import { DashboardNavbar } from '../../components/dashboard/DashboardNavbar';
+import { NavbarClose } from '../../components/navbar/NavbarClose';
+import { RepoFilesDetailsInfo } from '../../vault-wasm/vault-wasm';
 
-import { repoFilesDetailsLink, repoFilesLink } from '../selectors';
+import { repoFilesDetailsLink, repoFilesLink } from '../repo-files/selectors';
 
 import { RepoFilesDetailsNavbarHeader } from './RepoFilesDetailsNavbarHeader';
 import { RepoFilesDetailsNavbarNav } from './RepoFilesDetailsNavbarNav';

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 
-import { useWebVault } from '../../../webVault/useWebVault';
+import { useWebVault } from '../../webVault/useWebVault';
 
 export function useDetails(
   repoId: string,

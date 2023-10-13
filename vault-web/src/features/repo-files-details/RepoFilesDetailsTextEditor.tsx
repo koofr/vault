@@ -1,10 +1,10 @@
 import { memo, useCallback } from 'react';
 
-import { ErrorComponent } from '../../../components/ErrorComponent';
-import { LoadingCircle } from '../../../components/LoadingCircle';
-import { TextEditorLazy } from '../../../components/TextEditorLazy';
-import { Status } from '../../../vault-wasm/vault-wasm';
-import { useWebVault } from '../../../webVault/useWebVault';
+import { ErrorComponent } from '../../components/ErrorComponent';
+import { LoadingCircle } from '../../components/LoadingCircle';
+import { TextEditorLazy } from '../../components/TextEditorLazy';
+import { Status } from '../../vault-wasm/vault-wasm';
+import { useWebVault } from '../../webVault/useWebVault';
 
 import { useRepoFilesDetailsString } from './useRepoFilesDetailsBytes';
 

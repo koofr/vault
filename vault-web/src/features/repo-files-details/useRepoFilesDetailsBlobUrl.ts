@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useWebVault } from '../../../webVault/useWebVault';
-import { useSubscribe } from '../../../webVault/useSubscribe';
+import { useSubscribe } from '../../webVault/useSubscribe';
+import { useWebVault } from '../../webVault/useWebVault';
 
 export function useRepoFilesDetailsBlobUrl(
   detailsId: number,

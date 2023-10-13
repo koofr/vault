@@ -1,4 +1,4 @@
-import { useSubscribe } from '../../../webVault/useSubscribe';
+import { useSubscribe } from '../../webVault/useSubscribe';
 
 export function useRepoFilesDetailsBytes(
   detailsId: number,

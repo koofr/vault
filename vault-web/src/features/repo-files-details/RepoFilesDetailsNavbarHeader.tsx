@@ -2,8 +2,8 @@ import { css, cx } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { memo } from 'react';
 
-import { Since } from '../../../components/Since';
-import { RepoFilesDetailsInfo } from '../../../vault-wasm/vault-wasm';
+import { Since } from '../../components/Since';
+import { RepoFilesDetailsInfo } from '../../vault-wasm/vault-wasm';
 
 export const RepoFilesDetailsNavbarHeader = memo<{
   info: RepoFilesDetailsInfo;

@@ -1,13 +1,13 @@
-import { DocumentSizeInfo } from '../../../components/DocumentSize';
-import { getNavbarHeight } from '../../../components/navbar/Navbar';
-import { isDocumentSizeMobile } from '../../../components/useIsMobile';
-import { FileCategory, Status } from '../../../vault-wasm/vault-wasm';
+import { DocumentSizeInfo } from '../../components/DocumentSize';
+import { getNavbarHeight } from '../../components/navbar/Navbar';
+import { isDocumentSizeMobile } from '../../components/useIsMobile';
+import { FileCategory, Status } from '../../vault-wasm/vault-wasm';
 
 import {
   fileHasImageViewer,
   fileHasPdfViewer,
   fileHasTextEditor,
-} from '../selectors';
+} from '../repo-files/selectors';
 
 import { RepoFilesDetailsImageViewer } from './RepoFilesDetailsImageViewer';
 import { RepoFilesDetailsPdfViewer } from './RepoFilesDetailsPdfViewer';

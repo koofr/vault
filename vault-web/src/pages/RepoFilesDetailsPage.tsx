@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { RepoFilesDetails } from '../features/repo-files/repo-files-details/RepoFilesDetails';
+import { RepoFilesDetails } from '../features/repo-files-details/RepoFilesDetails';
 import { RepoGuard } from '../features/repo/RepoGuard';
 
 export const RepoFilesDetailsPage = memo(() => {
