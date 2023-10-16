@@ -53,22 +53,24 @@ impl RepoCreateService {
         (create_id, load_future)
     }
 
-    async fn create_load(&self, create_id: u32) -> Result<(), remote::RemoteError> {
+    pub async fn create_load(&self, create_id: u32) -> Result<(), remote::RemoteError> {
+        let load_repos_res = self.repos_service.load_repos().await;
+
         let load_mount_res = self.remote_files_service.load_mount("primary").await;
 
-        let load_mount_res_err = load_mount_res
+        let load_mount_res: Result<String, remote::RemoteError> =
+            load_repos_res.and_then(|_| load_mount_res);
+
+        let res = load_mount_res
             .as_ref()
             .map(|_| ())
             .map_err(|err| err.to_owned());
-
-        // ignore the error
-        let _ = self.repos_service.load_repos().await;
 
         self.store.mutate(|state, notify, _, _| {
             mutations::create_loaded(state, notify, create_id, load_mount_res);
         });
 
-        load_mount_res_err
+        res
     }
 
     pub fn set_location(&self, create_id: u32, location: RemoteFilesLocation) {

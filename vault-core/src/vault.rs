@@ -433,6 +433,13 @@ impl Vault {
         self.repo_create_service.clone().create()
     }
 
+    pub async fn repo_create_create_load(&self, create_id: u32) -> Result<(), remote::RemoteError> {
+        self.repo_create_service
+            .clone()
+            .create_load(create_id)
+            .await
+    }
+
     pub fn repo_create_set_location(
         &self,
         create_id: u32,
