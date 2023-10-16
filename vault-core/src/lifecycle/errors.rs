@@ -12,6 +12,9 @@ pub enum LoadError {
 
 impl UserError for LoadError {
     fn user_error(&self) -> String {
-        self.to_string()
+        match self {
+            Self::OAuth2Error(err) => err.user_error(),
+            Self::RemoteError(err) => err.user_error(),
+        }
     }
 }

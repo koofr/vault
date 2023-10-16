@@ -20,6 +20,13 @@ pub enum OAuth2Error {
 
 impl UserError for OAuth2Error {
     fn user_error(&self) -> String {
-        self.to_string()
+        match self {
+            Self::InvalidOAuth2Token(err) => format!("Invalid OAuth 2 token: {}", err),
+            Self::InvalidOAuth2State => "Invalid authentication state. Please try again.".into(),
+            Self::InvalidGrant(err) => format!("Invalid authentication permissions: {}", err),
+            Self::HttpError(err) => err.user_error(),
+            Self::StorageError(err) => format!("Storage error: {}", err),
+            Self::Unknown(err) => format!("Unknown error: {}", err),
+        }
     }
 }

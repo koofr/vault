@@ -21,7 +21,11 @@ pub enum LoadDetailsError {
 
 impl UserError for LoadDetailsError {
     fn user_error(&self) -> String {
-        self.to_string()
+        match self {
+            Self::RepoNotFound(err) => err.user_error(),
+            Self::RepoLocked(err) => err.user_error(),
+            Self::RemoteError(err) => err.user_error(),
+        }
     }
 }
 
@@ -52,8 +56,11 @@ pub enum LoadContentError {
 impl UserError for LoadContentError {
     fn user_error(&self) -> String {
         match self {
+            Self::TransferError(err) => err.user_error(),
+            Self::FileNotFound => "File not found".into(),
             Self::DecryptFilenameError(err) => err.user_error(),
-            _ => self.to_string(),
+            Self::AlreadyLoading => self.to_string(),
+            Self::LoadFilterMismatch => self.to_string(),
         }
     }
 }
@@ -87,8 +94,17 @@ pub enum SaveError {
 impl UserError for SaveError {
     fn user_error(&self) -> String {
         match self {
+            Self::RepoNotFound(err) => err.user_error(),
+            Self::RepoLocked(err) => err.user_error(),
             Self::DecryptFilenameError(err) => err.user_error(),
-            _ => self.to_string(),
+            Self::AlreadySaving => self.to_string(),
+            Self::NotDirty => self.to_string(),
+            Self::InvalidState => self.to_string(),
+            Self::AutosaveNotPossible => self.to_string(),
+            Self::DiscardChanges { .. } => self.to_string(),
+            Self::Canceled => self.to_string(),
+            Self::CannotSaveRoot => self.to_string(),
+            Self::RemoteError(err) => err.user_error(),
         }
     }
 }

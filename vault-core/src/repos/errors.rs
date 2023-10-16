@@ -8,13 +8,19 @@ pub struct RepoNotFoundError;
 
 impl UserError for RepoNotFoundError {
     fn user_error(&self) -> String {
-        self.to_string()
+        return "Safe Box not found".into();
     }
 }
 
 #[derive(Error, Debug, Clone, PartialEq)]
 #[error("repo locked")]
 pub struct RepoLockedError;
+
+impl UserError for RepoLockedError {
+    fn user_error(&self) -> String {
+        return "Safe Box is locked".into();
+    }
+}
 
 #[derive(Error, Debug, Clone, PartialEq)]
 #[error("invalid password")]

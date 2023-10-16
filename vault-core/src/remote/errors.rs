@@ -116,6 +116,13 @@ impl RemoteError {
 
 impl UserError for RemoteError {
     fn user_error(&self) -> String {
-        self.to_string()
+        match self {
+            Self::ApiError { message, .. } => format!("API error: {}", message),
+            Self::UnexpectedStatus {
+                status_code,
+                message,
+            } => format!("unexpected HTTP status: {}: {}", status_code, message),
+            Self::HttpError(err) => err.user_error(),
+        }
     }
 }

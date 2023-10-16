@@ -19,7 +19,10 @@ pub enum UploadableError {
 
 impl UserError for UploadableError {
     fn user_error(&self) -> String {
-        self.to_string()
+        match self {
+            Self::LocalFileError(_) => self.to_string(),
+            Self::NotRetriable => self.to_string(),
+        }
     }
 }
 
@@ -41,7 +44,11 @@ pub enum DownloadableError {
 
 impl UserError for DownloadableError {
     fn user_error(&self) -> String {
-        self.to_string()
+        match self {
+            Self::LocalFileError(_) => self.to_string(),
+            Self::NotOpenable => self.to_string(),
+            Self::NotRetriable => self.to_string(),
+        }
     }
 }
 

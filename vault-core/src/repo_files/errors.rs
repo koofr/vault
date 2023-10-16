@@ -55,7 +55,11 @@ pub enum LoadFilesError {
 
 impl UserError for LoadFilesError {
     fn user_error(&self) -> String {
-        self.to_string()
+        match self {
+            Self::RepoNotFound(err) => err.user_error(),
+            Self::RepoLocked(err) => err.user_error(),
+            Self::RemoteError(err) => err.user_error(),
+        }
     }
 }
 
@@ -80,8 +84,8 @@ pub enum FileNameError {
 impl UserError for FileNameError {
     fn user_error(&self) -> String {
         match self {
+            Self::RepoNotFound(err) => err.user_error(),
             Self::DecryptFilenameError(err) => err.user_error(),
-            _ => self.to_string(),
         }
     }
 }
@@ -113,8 +117,11 @@ pub enum UploadFileReaderError {
 impl UserError for UploadFileReaderError {
     fn user_error(&self) -> String {
         match self {
+            Self::RepoNotFound(err) => err.user_error(),
+            Self::RepoLocked(err) => err.user_error(),
             Self::DecryptFilenameError(err) => err.user_error(),
-            _ => self.to_string(),
+            Self::Canceled => self.to_string(),
+            Self::RemoteError(err) => err.user_error(),
         }
     }
 }
@@ -145,7 +152,12 @@ pub enum DeleteFileError {
 
 impl UserError for DeleteFileError {
     fn user_error(&self) -> String {
-        self.to_string()
+        match self {
+            Self::RepoNotFound(err) => err.user_error(),
+            Self::RepoLocked(err) => err.user_error(),
+            Self::Canceled => self.to_string(),
+            Self::RemoteError(err) => err.user_error(),
+        }
     }
 }
 
@@ -166,12 +178,15 @@ pub enum CreateDirError {
 impl UserError for CreateDirError {
     fn user_error(&self) -> String {
         match self {
+            Self::RepoNotFound(err) => err.user_error(),
+            Self::RepoLocked(err) => err.user_error(),
             Self::DecryptFilenameError(err) => err.user_error(),
+            Self::Canceled => self.to_string(),
             Self::RemoteError(RemoteError::ApiError {
                 code: ApiErrorCode::AlreadyExists,
                 ..
             }) => String::from("Folder with this name already exists."),
-            _ => self.to_string(),
+            Self::RemoteError(err) => err.user_error(),
         }
     }
 }
@@ -203,12 +218,15 @@ pub enum CreateFileError {
 impl UserError for CreateFileError {
     fn user_error(&self) -> String {
         match self {
+            Self::RepoNotFound(err) => err.user_error(),
+            Self::RepoLocked(err) => err.user_error(),
             Self::DecryptFilenameError(err) => err.user_error(),
+            Self::Canceled => self.to_string(),
             Self::RemoteError(RemoteError::ApiError {
                 code: ApiErrorCode::AlreadyExists,
                 ..
             }) => String::from("File with this name already exists."),
-            _ => self.to_string(),
+            Self::RemoteError(err) => err.user_error(),
         }
     }
 }
@@ -278,8 +296,11 @@ pub enum RenameFileError {
 impl UserError for RenameFileError {
     fn user_error(&self) -> String {
         match self {
+            Self::RepoNotFound(err) => err.user_error(),
+            Self::RepoLocked(err) => err.user_error(),
             Self::DecryptFilenameError(err) => err.user_error(),
-            _ => self.to_string(),
+            Self::RenameRoot => "Cannot rename root folder".into(),
+            Self::RemoteError(err) => err.user_error(),
         }
     }
 }
@@ -301,8 +322,11 @@ pub enum CopyFileError {
 impl UserError for CopyFileError {
     fn user_error(&self) -> String {
         match self {
+            Self::InvalidPath => self.to_string(),
+            Self::RepoNotFound(err) => err.user_error(),
+            Self::RepoLocked(err) => err.user_error(),
             Self::DecryptFilenameError(err) => err.user_error(),
-            _ => self.to_string(),
+            Self::RemoteError(err) => err.user_error(),
         }
     }
 }
@@ -326,8 +350,12 @@ pub enum MoveFileError {
 impl UserError for MoveFileError {
     fn user_error(&self) -> String {
         match self {
+            Self::InvalidPath => self.to_string(),
+            Self::RepoNotFound(err) => err.user_error(),
+            Self::RepoLocked(err) => err.user_error(),
             Self::DecryptFilenameError(err) => err.user_error(),
-            _ => self.to_string(),
+            Self::MoveRoot => "Cannot move root folder".into(),
+            Self::RemoteError(err) => err.user_error(),
         }
     }
 }

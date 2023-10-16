@@ -22,7 +22,12 @@ pub enum ShowError {
 
 impl UserError for ShowError {
     fn user_error(&self) -> String {
-        self.to_string()
+        match self {
+            Self::RepoNotFound(err) => err.user_error(),
+            Self::RepoLocked(err) => err.user_error(),
+            Self::RemoteError(err) => err.user_error(),
+            Self::FilesEmpty => self.to_string(),
+        }
     }
 }
 

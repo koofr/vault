@@ -12,6 +12,9 @@ pub enum RepoSpaceUsageError {
 
 impl UserError for RepoSpaceUsageError {
     fn user_error(&self) -> String {
-        self.to_string()
+        match self {
+            Self::RepoNotFound(err) => err.user_error(),
+            Self::RemoteError(err) => err.user_error(),
+        }
     }
 }

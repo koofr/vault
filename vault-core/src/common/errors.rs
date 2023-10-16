@@ -8,7 +8,7 @@ pub struct InvalidPathError;
 
 impl UserError for InvalidPathError {
     fn user_error(&self) -> String {
-        self.to_string()
+        "Path is not valid".into()
     }
 }
 
@@ -39,20 +39,18 @@ impl InvalidNameError {
 
 impl UserError for InvalidNameError {
     fn user_error(&self) -> String {
-        self.to_string()
+        "Name is not valid".into()
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::user_error::UserError;
-
     use super::InvalidNameError;
 
     #[test]
     pub fn test_invalid_name_error() {
         assert_eq!(
-            InvalidNameError::new("Hello world\0").user_error(),
+            InvalidNameError::new("Hello world\0").to_string(),
             "invalid name: Hello world\\x00"
         )
     }
