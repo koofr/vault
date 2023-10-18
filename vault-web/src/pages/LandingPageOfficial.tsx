@@ -7,6 +7,10 @@ import arrowDownImage from '../assets/images/landing/arrow-down.png';
 import arrowDown2xImage from '../assets/images/landing/arrow-down@2x.png';
 import arrowRightImage from '../assets/images/landing/arrow-right.png';
 import arrowRight2xImage from '../assets/images/landing/arrow-right@2x.png';
+import googlePlayImage from '../assets/images/apps/google-play.png';
+import googlePlay2xImage from '../assets/images/apps/google-play@2x.png';
+import appStoreImage from '../assets/images/apps/app-store.png';
+import appStore2xImage from '../assets/images/apps/app-store@2x.png';
 import graphic1Image from '../assets/images/landing/graphic-1.png';
 import graphic12xImage from '../assets/images/landing/graphic-1@2x.png';
 import graphic2Image from '../assets/images/landing/graphic-2.png';
@@ -37,6 +41,7 @@ import { RetinaImage } from '../components/RetinaImage';
 import { buttonStyle } from '../styles/mixins/buttons';
 import { allStates } from '../styles/mixins/hover';
 import { useDocumentTitle } from '../utils/useDocumentTitle';
+import { useConfig } from '../config';
 
 const landingButtonStyle = buttonStyle(
   '#1683fb',
@@ -102,6 +107,8 @@ const TypingText = memo(() => {
 
 export const LandingPageOfficial = memo(() => {
   useDocumentTitle();
+
+  const config = useConfig();
 
   return (
     <div
@@ -305,6 +312,46 @@ export const LandingPageOfficial = memo(() => {
           >
             Get started
           </BaseAnchorButton>
+
+          {config.appStoreUrl !== undefined ||
+          config.googlePlayUrl !== undefined ? (
+            <div
+              className={css`
+                display: flex;
+                flex-direction: row;
+                margin-top: 32px;
+              `}
+            >
+              {config.appStoreUrl !== undefined ? (
+                <a
+                  href={config.appStoreUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={css`
+                    margin-right: 20px;
+                  `}
+                >
+                  <RetinaImage
+                    image={googlePlayImage}
+                    image2x={googlePlay2xImage}
+                    width={122}
+                    height={36}
+                  />
+                </a>
+              ) : null}
+
+              {config.googlePlayUrl !== undefined ? (
+                <a href={config.googlePlayUrl} target="_blank" rel="noreferrer">
+                  <RetinaImage
+                    image={appStoreImage}
+                    image2x={appStore2xImage}
+                    width={117}
+                    height={36}
+                  />
+                </a>
+              ) : null}
+            </div>
+          ) : null}
         </div>
 
         <div

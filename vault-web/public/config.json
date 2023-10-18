@@ -1,5 +1,7 @@
 {
   "baseUrl": "https://app.koofr.net",
   "oauth2ClientId": "7ZEK2BNCEVYEJIZC5OR3TR6PQDUJ4NP3",
-  "oauth2ClientSecret": "VWTMENEWUYWH6G523CEV5CWOCHH7FMECW36PPQENOASYYZOQJOSGQXSR2Y62N3HB"
+  "oauth2ClientSecret": "VWTMENEWUYWH6G523CEV5CWOCHH7FMECW36PPQENOASYYZOQJOSGQXSR2Y62N3HB",
+  "appStoreUrl": "https://apps.apple.com/app/koofr-vault/id6468869124",
+  "googlePlayUrl": "https://play.google.com/store/apps/details?id=net.koofr.vault"
 }

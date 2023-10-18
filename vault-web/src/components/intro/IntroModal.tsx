@@ -13,6 +13,10 @@ import {
 import intro01Image from '../../assets/images/intro/intro-01.png';
 import intro012xImage from '../../assets/images/intro/intro-01@2x.png';
 import intro02Image from '../../assets/images/intro/intro-02.png';
+import googlePlayImage from '../../assets/images/apps/google-play.png';
+import googlePlay2xImage from '../../assets/images/apps/google-play@2x.png';
+import appStoreImage from '../../assets/images/apps/app-store.png';
+import appStore2xImage from '../../assets/images/apps/app-store@2x.png';
 import intro022xImage from '../../assets/images/intro/intro-02@2x.png';
 import intro03Image from '../../assets/images/intro/intro-03.png';
 import intro032xImage from '../../assets/images/intro/intro-03@2x.png';
@@ -47,6 +51,7 @@ import {
   ModalHeader,
   ModalTitle,
 } from '../modal/Modal';
+import { useConfig } from '../../config';
 
 const introButtonColor = '#2286f7';
 const introButtonColorHover = '#0870e6';
@@ -260,16 +265,20 @@ const IntroStep4 = memo(() => {
 });
 
 const IntroStep5 = memo(() => {
+  const config = useConfig();
+
   return (
     <div
       className={css`
+        display: flex;
+        flex-direction: column;
         padding: 0;
         ${imgRetinaBase(introEndImage, introEnd2xImage, 252, 203)}
 
         ${bp.small} {
           background-position: bottom 15px center;
           width: 100%;
-          height: 300px;
+          height: 335px;
         }
 
         ${bp.normal} {
@@ -279,29 +288,88 @@ const IntroStep5 = memo(() => {
         }
       `}
     >
-      <p
+      <div
         className={css`
-          font-weight: normal;
-          color: #011722;
-
-          ${bp.small} {
-            width: 245px;
-            margin: 0 auto;
-            padding: 10px 0 0 0;
-            text-align: center;
-            font-size: 16px;
-          }
-
           ${bp.normal} {
-            width: 245px;
-            margin: 0;
-            padding: 140px 0 0 34px;
-            font-size: 18px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            flex-grow: 1;
           }
         `}
       >
-        Get started with Vault by creating your first Safe Box.
-      </p>
+        <p
+          className={css`
+            font-weight: normal;
+            color: #011722;
+
+            ${bp.small} {
+              width: 245px;
+              margin: 0 auto;
+              padding: 10px 0 0 0;
+              text-align: center;
+              font-size: 16px;
+            }
+
+            ${bp.normal} {
+              width: 200px;
+              margin-left: 34px;
+              font-size: 18px;
+            }
+          `}
+        >
+          Get started with Vault by creating your first Safe Box.
+        </p>
+      </div>
+      {config.appStoreUrl !== undefined ||
+      config.googlePlayUrl !== undefined ? (
+        <div
+          className={css`
+            ${bp.small} {
+              display: flex;
+              flex-direction: row;
+              justify-content: center;
+              margin-top: 20px;
+            }
+
+            ${bp.normal} {
+              display: flex;
+              flex-direction: row;
+              flex-shrink: 0;
+              margin-left: 34px;
+            }
+          `}
+        >
+          {config.appStoreUrl !== undefined ? (
+            <a
+              href={config.appStoreUrl}
+              target="_blank"
+              rel="noreferrer"
+              className={css`
+                margin-right: 20px;
+              `}
+            >
+              <RetinaImage
+                image={googlePlayImage}
+                image2x={googlePlay2xImage}
+                width={122}
+                height={36}
+              />
+            </a>
+          ) : null}
+
+          {config.googlePlayUrl !== undefined ? (
+            <a href={config.googlePlayUrl} target="_blank" rel="noreferrer">
+              <RetinaImage
+                image={appStoreImage}
+                image2x={appStore2xImage}
+                width={117}
+                height={36}
+              />
+            </a>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 });
