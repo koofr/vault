@@ -302,7 +302,7 @@ impl OAuth2Service {
         params.insert("state", state);
 
         let mut logout_url =
-            Url::parse(&format!("{}/oauth2/logout", &self.config.base_url)).unwrap();
+            Url::parse(&format!("{}/oauth2/logout", &self.config.auth_base_url)).unwrap();
         logout_url.query_pairs_mut().extend_pairs(&params);
 
         logout_url.to_string()
