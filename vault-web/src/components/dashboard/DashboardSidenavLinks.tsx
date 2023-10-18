@@ -1,6 +1,7 @@
 import { css } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { memo } from 'react';
+import { Link } from 'react-router-dom';
 
 import { buttonReset } from '../../styles/mixins/buttons';
 import { allStates } from '../../styles/mixins/hover';
@@ -70,6 +71,17 @@ export const DashboardSidenavLinks = memo(() => {
           >
             Legal
           </a>
+          <br />
+          <Link
+            to="/landing"
+            className={css`
+              ${allStates} {
+                color: ${theme.colors.text};
+              }
+            `}
+          >
+            Landing page
+          </Link>
         </div>
 
         <div

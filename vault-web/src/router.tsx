@@ -10,6 +10,7 @@ import { RepoCreatePageLazy } from './pages/RepoCreatePageLazy';
 import { RepoFilesDetailsPageLazy } from './pages/RepoFilesDetailsPageLazy';
 import { RepoFilesPageLazy } from './pages/RepoFilesPageLazy';
 import { RepoInfoPageLazy } from './pages/RepoInfoPageLazy';
+import { LandingPageLazy } from './pages/LandingPageLazy';
 
 export const createRouter = () => {
   return createBrowserRouter([
@@ -50,6 +51,10 @@ export const createRouter = () => {
     {
       path: '/login',
       element: <LoginPageLazy />,
+    },
+    {
+      path: '/landing',
+      element: <LandingPageLazy />,
     },
     {
       path: '*',
