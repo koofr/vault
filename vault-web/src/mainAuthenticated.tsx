@@ -11,6 +11,7 @@ import { FolderAwareHTML5Backend } from './components/dnd/backend';
 import { FileIconCacheProvider } from './components/file-icon/FileIcon';
 import { ModalsProvider } from './components/modal/Modals';
 import { NavbarStickyProvider } from './components/navbar/NavbarSticky';
+import { Config, ConfigContext } from './config';
 import { Dialogs } from './features/dialogs/Dialogs';
 import { Notifications } from './features/notifications/Notifications';
 import { TransfersPreventUnload } from './features/transfers/TransfersPreventUnload';
@@ -22,12 +23,6 @@ import init, { WebVault, initConsole } from './vault-wasm/vault-wasm';
 import { BrowserEventstreamWebSocketDelegateImpl } from './webVault/BrowserEventstreamWebSocketDelegateImpl';
 import { BrowserHttpClientDelegateImpl } from './webVault/BrowserHttpClientDelegateImpl';
 import { WebVaultContext } from './webVault/webVaultContext';
-
-interface Config {
-  baseUrl: string;
-  oauth2ClientId: string;
-  oauth2ClientSecret: string;
-}
 
 export const mainAuthenticated = async () => {
   const configPromise = fetch('/config.json').then(
@@ -70,35 +65,37 @@ export const mainAuthenticated = async () => {
   (window as any).router = router;
 
   ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-    <WebVaultContext.Provider value={webVault}>
-      <CacheProvider value={emotionCache}>
-        <DocumentSizeProvider>
-          <DocumentScrollProvider>
-            <NavbarStickyProvider>
-              <DynamicThemeProvider>
-                <DndProvider backend={FolderAwareHTML5Backend}>
-                  <FileIconCacheProvider>
-                    <>
-                      <GlobalStyles />
+    <ConfigContext.Provider value={config}>
+      <WebVaultContext.Provider value={webVault}>
+        <CacheProvider value={emotionCache}>
+          <DocumentSizeProvider>
+            <DocumentScrollProvider>
+              <NavbarStickyProvider>
+                <DynamicThemeProvider>
+                  <DndProvider backend={FolderAwareHTML5Backend}>
+                    <FileIconCacheProvider>
+                      <>
+                        <GlobalStyles />
 
-                      <RemoveAppLoading />
+                        <RemoveAppLoading />
 
-                      <ModalsProvider>
-                        <RouterProvider router={router} />
+                        <ModalsProvider>
+                          <RouterProvider router={router} />
 
-                        <Dialogs />
-                      </ModalsProvider>
+                          <Dialogs />
+                        </ModalsProvider>
 
-                      <Notifications />
-                      <TransfersPreventUnload />
-                    </>
-                  </FileIconCacheProvider>
-                </DndProvider>
-              </DynamicThemeProvider>
-            </NavbarStickyProvider>
-          </DocumentScrollProvider>
-        </DocumentSizeProvider>
-      </CacheProvider>
-    </WebVaultContext.Provider>,
+                        <Notifications />
+                        <TransfersPreventUnload />
+                      </>
+                    </FileIconCacheProvider>
+                  </DndProvider>
+                </DynamicThemeProvider>
+              </NavbarStickyProvider>
+            </DocumentScrollProvider>
+          </DocumentSizeProvider>
+        </CacheProvider>
+      </WebVaultContext.Provider>
+    </ConfigContext.Provider>,
   );
 };
