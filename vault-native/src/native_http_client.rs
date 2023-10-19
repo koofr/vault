@@ -2,7 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use async_trait::async_trait;
 use futures::stream::{AbortHandle, StreamExt};
-use http::HeaderMap;
+use http::{header, HeaderMap, HeaderValue};
 use reqwest;
 
 use vault_core::{
@@ -25,11 +25,14 @@ pub fn get_reqwest_client(accept_invalid_certs: bool) -> reqwest::Client {
 
 pub struct NativeHttpClient {
     client: Arc<reqwest::Client>,
+    user_agent: HeaderValue,
 }
 
 impl NativeHttpClient {
-    pub fn new(client: Arc<reqwest::Client>) -> Self {
-        Self { client }
+    pub fn new(client: Arc<reqwest::Client>, user_agent: String) -> Self {
+        let user_agent = HeaderValue::from_str(&user_agent).unwrap();
+
+        Self { client, user_agent }
     }
 }
 
@@ -40,10 +43,14 @@ impl HttpClient for NativeHttpClient {
 
         let method = reqwest::Method::from_bytes(http_request.method.as_bytes()).unwrap();
 
+        let mut headers = http_request.headers;
+
+        headers.insert(header::USER_AGENT, self.user_agent.clone());
+
         let mut req = self
             .client
             .request(method, http_request.url)
-            .headers(http_request.headers);
+            .headers(headers);
 
         let (abort_handle, _) = AbortHandle::new_pair();
         let drop_abort = DropAbort(abort_handle.clone());

@@ -26,6 +26,7 @@ impl VaultFixture {
         fake_remote_fixture: Arc<FakeRemoteFixture>,
         secure_storage: Box<dyn SecureStorage + Send + Sync>,
     ) -> Arc<Self> {
+        let user_agent = "vault-core-tests".into();
         let oauth2_config = OAuth2Config {
             base_url: fake_remote_fixture.base_url.clone(),
             auth_base_url: fake_remote_fixture.base_url.clone(),
@@ -37,6 +38,7 @@ impl VaultFixture {
 
         let (vault, _, _) = build_vault(
             fake_remote_fixture.base_url.clone(),
+            user_agent,
             oauth2_config,
             secure_storage,
             fake_remote_fixture.tokio_runtime.clone(),

@@ -18,6 +18,7 @@ pub fn accept_invalid_certs(base_url: &str) -> bool {
 
 pub fn build_vault(
     base_url: String,
+    user_agent: String,
     oauth2_config: OAuth2Config,
     secure_storage: Box<dyn SecureStorage + Send + Sync>,
     tokio_runtime: Arc<tokio::runtime::Runtime>,
@@ -29,7 +30,7 @@ pub fn build_vault(
     let accept_invalid_certs = accept_invalid_certs(&base_url);
 
     let reqwest_client = Arc::new(get_reqwest_client(accept_invalid_certs));
-    let http_client = Box::new(NativeHttpClient::new(reqwest_client.clone()));
+    let http_client = Box::new(NativeHttpClient::new(reqwest_client.clone(), user_agent));
 
     let tokio_tungstenite_connector = get_tokio_tungstenite_connector(accept_invalid_certs);
     let eventstream_websocket_client = Box::new(NativeEventstreamWebSocketClient::new(
