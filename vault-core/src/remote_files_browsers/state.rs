@@ -55,6 +55,7 @@ pub struct RemoteFilesBrowserInfo<'a> {
     pub selected_size: i64,
     pub selected_item: Option<&'a RemoteFilesBrowserItem>,
     pub can_create_dir: bool,
+    pub items: Vec<RemoteFilesBrowserItemInfo<'a>>,
 }
 
 #[derive(Debug, Clone)]

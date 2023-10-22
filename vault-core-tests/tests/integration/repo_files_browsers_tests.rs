@@ -62,20 +62,17 @@ fn test_repo_lock_unlock_remove() {
                     can_copy_selected: false,
                     can_move_selected: false,
                     can_delete_selected: false,
+                    items: vec![
+                        RepoFilesBrowserItem {
+                            file: &dir,
+                            is_selected: false,
+                        },
+                        RepoFilesBrowserItem {
+                            file: &file,
+                            is_selected: false,
+                        }
+                    ]
                 }
-            );
-            assert_eq!(
-                select_items(&state_before_lock),
-                vec![
-                    RepoFilesBrowserItem {
-                        file: &dir,
-                        is_selected: false,
-                    },
-                    RepoFilesBrowserItem {
-                        file: &file,
-                        is_selected: false,
-                    }
-                ]
             );
 
             fixture.lock();
@@ -105,9 +102,9 @@ fn test_repo_lock_unlock_remove() {
                     can_copy_selected: false,
                     can_move_selected: false,
                     can_delete_selected: false,
+                    items: vec![],
                 }
             );
-            assert_eq!(select_items(&state_after_lock), vec![]);
 
             fixture.unlock().await;
 
@@ -148,9 +145,9 @@ fn test_repo_lock_unlock_remove() {
                     can_copy_selected: false,
                     can_move_selected: false,
                     can_delete_selected: false,
+                    items: vec![]
                 }
             );
-            assert_eq!(select_items(&state_after_remove), vec![]);
 
             fixture.vault.repo_files_browsers_destroy(browser_id);
         }

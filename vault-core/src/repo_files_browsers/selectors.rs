@@ -203,6 +203,7 @@ pub fn select_info<'a>(state: &'a store::State, browser_id: u32) -> Option<RepoF
             can_copy_selected,
             can_move_selected,
             can_delete_selected,
+            items,
         }
     })
 }

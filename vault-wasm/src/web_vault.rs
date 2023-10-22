@@ -170,7 +170,6 @@ struct SubscriptionData {
     transfers_list: Data<dto::TransfersList>,
     dir_pickers_items: Data<Vec<dto::DirPickerItem>>,
     repo_files_browsers_info: Data<Option<dto::RepoFilesBrowserInfo>>,
-    repo_files_browsers_items: Data<Vec<dto::RepoFilesBrowserItem>>,
     repo_files_browsers_breadcrumbs: Data<Vec<dto::RepoFilesBreadcrumb>>,
     repo_files_details_info: Data<Option<dto::RepoFilesDetailsInfo>>,
     repo_files_details_file: Data<Option<dto::RepoFile>>,
@@ -1245,32 +1244,6 @@ impl WebVault {
     #[wasm_bindgen(js_name = repoFilesBrowsersInfoData)]
     pub fn repo_files_browsers_info_data(&self, id: u32) -> RepoFilesBrowserInfoOption {
         self.get_data_js(id, self.subscription_data.repo_files_browsers_info.clone())
-    }
-
-    #[wasm_bindgen(js_name = repoFilesBrowsersItemsSubscribe)]
-    pub fn repo_files_browsers_items_subscribe(
-        &self,
-        browser_id: u32,
-        cb: js_sys::Function,
-    ) -> u32 {
-        self.subscribe(
-            &[Event::RepoFilesBrowsers, Event::RepoFiles],
-            cb,
-            self.subscription_data.repo_files_browsers_items.clone(),
-            move |vault| {
-                vault.with_state(|state| {
-                    vault_core::repo_files_browsers::selectors::select_items(state, browser_id)
-                        .iter()
-                        .map(|item| item.into())
-                        .collect()
-                })
-            },
-        )
-    }
-
-    #[wasm_bindgen(js_name = repoFilesBrowsersItemsData)]
-    pub fn repo_files_browsers_items_data(&self, id: u32) -> RepoFilesBrowserItemVec {
-        self.get_data_js(id, self.subscription_data.repo_files_browsers_items.clone())
     }
 
     #[wasm_bindgen(js_name = repoFilesBrowsersBreadcrumbsSubscribe)]

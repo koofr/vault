@@ -15,7 +15,7 @@ async function main() {
     oauth2ClientId,
     oauth2ClientSecret,
     oauth2RedirectUri,
-    ignoreHTTPSErrors
+    ignoreHTTPSErrors,
   );
 
   await client.webVault.load();
@@ -25,7 +25,7 @@ async function main() {
   const user = await client.waitFor(
     (v, cb) => v.userSubscribe(cb),
     (v) => v.userData,
-    (user) => user !== undefined
+    (user) => user !== undefined,
   );
 
   console.log('User', user);
@@ -33,7 +33,7 @@ async function main() {
   const repos = await client.waitFor(
     (v, cb) => v.reposSubscribe(cb),
     (v) => v.reposData,
-    (repos) => repos.status.type === 'Loaded'
+    (repos) => repos.status.type === 'Loaded',
   );
 
   console.log('Repos', repos);
@@ -61,23 +61,23 @@ async function main() {
     (v) => v.repoFilesBrowsersInfoData,
     (info) => {
       return info.status.type === 'Loaded';
-    }
+    },
   );
 
-  let items = await client.waitFor(
-    (v, cb) => v.repoFilesBrowsersItemsSubscribe(browserId, cb),
-    (v) => v.repoFilesBrowsersItemsData,
-    () => true
+  let info = await client.waitFor(
+    (v, cb) => v.repoFilesBrowsersInfoSubscribe(browserId, cb),
+    (v) => v.repoFilesBrowsersInfoData,
+    () => true,
   );
 
-  console.log('Files', items);
+  console.log('Files', info.items);
 
   const transfersUnsubscribe = client.subscribe(
     (v, cb) => v.transfersSummarySubscribe(cb),
     (v) => v.transfersSummaryData,
     (data) => {
       console.log('Transfers summary', data);
-    }
+    },
   );
 
   const fileName = `${(Math.random() * 1000000000) >> 0}.txt`;
@@ -91,20 +91,21 @@ async function main() {
 
   transfersUnsubscribe();
 
-  items = await client.waitFor(
-    (v, cb) => v.repoFilesBrowsersItemsSubscribe(browserId, cb),
-    (v) => v.repoFilesBrowsersItemsData,
-    (items) =>
-      items.find((item) => item.fileId.endsWith(`/${fileName}`)) !== undefined
+  info = await client.waitFor(
+    (v, cb) => v.repoFilesBrowsersInfoSubscribe(browserId, cb),
+    (v) => v.repoFilesBrowsersInfoData,
+    (info) =>
+      info.items.find((item) => item.fileId.endsWith(`/${fileName}`)) !==
+      undefined,
   );
 
-  const fileId = items.find((item) =>
-    item.fileId.endsWith(`/${fileName}`)
+  const fileId = info.items.find((item) =>
+    item.fileId.endsWith(`/${fileName}`),
   ).fileId;
   const file = await client.waitFor(
     (v, cb) => v.repoFilesFileSubscribe(fileId, cb),
     (v) => v.repoFilesFileData,
-    () => true
+    () => true,
   );
 
   console.log('Uploaded file', file);
@@ -114,7 +115,7 @@ async function main() {
   const downloadStream = await client.webVault.repoFilesGetFileStream(
     file.repoId,
     file.path,
-    false
+    false,
   );
 
   console.log('Download done');

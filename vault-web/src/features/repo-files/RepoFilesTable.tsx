@@ -254,11 +254,7 @@ export const RepoFilesTable = memo<{
   const isMobile = useIsMobile();
   const webVault = useWebVault();
   const browserId = useRepoFilesBrowserId();
-  const [items] = useSubscribe(
-    (v, cb) => v.repoFilesBrowsersItemsSubscribe(browserId, cb),
-    (v) => v.repoFilesBrowsersItemsData,
-    [browserId],
-  );
+  const items = info.items;
   const data = useMemo(
     (): TableData => ({
       items,

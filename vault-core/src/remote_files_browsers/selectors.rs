@@ -285,26 +285,12 @@ pub fn select_selection_summary(state: &store::State, browser_id: u32) -> Select
         .unwrap_or(SelectionSummary::None)
 }
 
-pub fn select_selected_items<'a>(
-    state: &'a store::State,
-    browser_id: u32,
-) -> Vec<&RemoteFilesBrowserItem> {
-    select_browser(state, browser_id)
-        .map(|browser| {
-            browser
-                .items
-                .iter()
-                .filter(|item| browser.selection.selection.contains(&item.id))
-                .collect()
-        })
-        .unwrap_or_else(|| vec![])
-}
-
 pub fn select_info<'a>(state: &'a store::State, browser_id: u32) -> Option<RemoteFilesBrowserInfo> {
     select_browser(state, browser_id).map(|browser| {
         let breadcrumbs = select_breadcrumbs(state, browser_id);
-        let last_breadcrumb = breadcrumbs.last();
-        let selected_items = select_selected_items(state, browser_id);
+        let last_breadcrumb: Option<&RemoteFilesBrowserBreadcrumb> = breadcrumbs.last();
+        let items = select_items_infos(state, browser_id);
+        let get_selected_items = || items.iter().filter(|item| item.is_selected);
 
         let mount_id = last_breadcrumb.and_then(|breadcrumb| breadcrumb.mount_id.clone());
         let path = last_breadcrumb.and_then(|breadcrumb| breadcrumb.path.clone());
@@ -317,15 +303,14 @@ pub fn select_info<'a>(state: &'a store::State, browser_id: u32) -> Option<Remot
             .map(|item| item.size.unwrap_or(0))
             .sum();
 
-        let selected_count = selected_items.len();
-        let selected_size = selected_items
-            .iter()
-            .map(|item| item.size.unwrap_or(0))
+        let selected_count = get_selected_items().count();
+        let selected_size = get_selected_items()
+            .map(|info| info.item.size.unwrap_or(0))
             .sum();
-        let selected_item = selected_items
-            .first()
+        let selected_item = get_selected_items()
+            .next()
             .filter(|_| selected_count == 1)
-            .cloned();
+            .map(|info| info.item);
         let can_create_dir = mount_id.is_some() && path.is_some();
 
         RemoteFilesBrowserInfo {
@@ -341,6 +326,7 @@ pub fn select_info<'a>(state: &'a store::State, browser_id: u32) -> Option<Remot
             selected_size,
             selected_item,
             can_create_dir,
+            items,
         }
     })
 }

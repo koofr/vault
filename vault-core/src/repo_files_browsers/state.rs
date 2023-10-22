@@ -34,6 +34,7 @@ pub struct RepoFilesBrowserInfo<'a> {
     pub can_copy_selected: bool,
     pub can_move_selected: bool,
     pub can_delete_selected: bool,
+    pub items: Vec<RepoFilesBrowserItem<'a>>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
