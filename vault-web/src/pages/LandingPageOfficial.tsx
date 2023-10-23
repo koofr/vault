@@ -279,8 +279,9 @@ export const LandingPageOfficial = memo(() => {
               }
             `}
           >
-            Powerful, open source client-side encryption. Unlock enhanced
-            security for your most sensitive files with Koofr Vault.
+            Powerful, open source, client-side, zero-knowledge encryption.
+            Unlock enhanced security for your most sensitive files with Koofr
+            Vault.
           </p>
 
           <BaseAnchorButton
@@ -409,12 +410,13 @@ export const LandingPageOfficial = memo(() => {
             }
           `}
         >
-          Koofr Vault is a client-side encrypted folder in your{' '}
+          Koofr Vault is an open source, client-side, zero-knowledge encrypted
+          storage application by{' '}
           <a href="https://koofr.eu" target="_blank" rel="noopener">
             Koofr cloud storage
           </a>
           . It's like having a box with a unique lock in your trunk: an extra
-          layer of security to protect your most sensitive files.
+          layer of security to protect your files.
         </p>
 
         <div
@@ -745,8 +747,8 @@ export const LandingPageOfficial = memo(() => {
               }
             `}
           >
-            Neither your Safe key nor any other unencrypted file data is sent to
-            or stored by{' '}
+            Neither your Safe key nor any other unencrypted file data or
+            metadata is sent to or stored by{' '}
             <a href="https://koofr.eu" target="_blank" rel="noopener">
               Koofr
             </a>
