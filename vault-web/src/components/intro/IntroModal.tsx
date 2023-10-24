@@ -340,9 +340,9 @@ const IntroStep5 = memo(() => {
             }
           `}
         >
-          {config.appStoreUrl !== undefined ? (
+          {config.googlePlayUrl !== undefined ? (
             <a
-              href={config.appStoreUrl}
+              href={config.googlePlayUrl}
               target="_blank"
               rel="noreferrer"
               className={css`
@@ -358,8 +358,8 @@ const IntroStep5 = memo(() => {
             </a>
           ) : null}
 
-          {config.googlePlayUrl !== undefined ? (
-            <a href={config.googlePlayUrl} target="_blank" rel="noreferrer">
+          {config.appStoreUrl !== undefined ? (
+            <a href={config.appStoreUrl} target="_blank" rel="noreferrer">
               <RetinaImage
                 image={appStoreImage}
                 image2x={appStore2xImage}

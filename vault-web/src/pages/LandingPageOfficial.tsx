@@ -322,9 +322,9 @@ export const LandingPageOfficial = memo(() => {
                 margin-top: 32px;
               `}
             >
-              {config.appStoreUrl !== undefined ? (
+              {config.googlePlayUrl !== undefined ? (
                 <a
-                  href={config.appStoreUrl}
+                  href={config.googlePlayUrl}
                   target="_blank"
                   rel="noreferrer"
                   className={css`
@@ -340,8 +340,8 @@ export const LandingPageOfficial = memo(() => {
                 </a>
               ) : null}
 
-              {config.googlePlayUrl !== undefined ? (
-                <a href={config.googlePlayUrl} target="_blank" rel="noreferrer">
+              {config.appStoreUrl !== undefined ? (
+                <a href={config.appStoreUrl} target="_blank" rel="noreferrer">
                   <RetinaImage
                     image={appStoreImage}
                     image2x={appStore2xImage}
