@@ -94,12 +94,12 @@ class MobileVaultHelper {
         return await subscriptionWait(
             mobileVault: mobileVault,
             subscribe: { v, cb in
-                v.repoFilesBrowsersItemsSubscribe(browserId: browserId, cb: cb)
+                v.repoFilesBrowsersInfoSubscribe(browserId: browserId, cb: cb)
             },
             getData: { v, id in
-                let data = v.repoFilesBrowsersItemsData(id: id)
-                if let items = data {
-                    return items.first(where: { $0.file.name == name }).map { $0.file }
+                let data = v.repoFilesBrowsersInfoData(id: id)
+                if let info = data {
+                    return info.items.first(where: { $0.file.name == name }).map { $0.file }
                 } else {
                     return nil
                 }
