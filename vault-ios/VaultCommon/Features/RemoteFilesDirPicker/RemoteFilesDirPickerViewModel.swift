@@ -18,6 +18,6 @@ public class RemoteFilesDirPickerViewModel: ObservableObject {
         self.onSelect = onSelect
         self.onCancel = onCancel
 
-        self.navController = NavController(rootRoute: .dirPicker(location: ""))
+        self.navController = RemoteFilesDirPickerNavController(rootRoute: .dirPicker(location: ""))
     }
 }

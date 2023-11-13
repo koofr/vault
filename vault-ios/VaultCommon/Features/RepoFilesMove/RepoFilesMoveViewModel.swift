@@ -12,7 +12,7 @@ public class RepoFilesMoveViewModel: ObservableObject {
     public init(container: Container, repoId: String, initialPathChain: [String]) {
         self.container = container
 
-        navController = NavController(rootRoute: .repoFiles(repoId: repoId, path: "/"))
+        navController = RepoFilesMoveNavController(rootRoute: .repoFiles(repoId: repoId, path: "/"))
 
         pathChangedCancellable = navController.$state.sink(receiveValue: { state in
             switch state.activeRoute {

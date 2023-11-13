@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUINavController
 
 public enum MainRoute: Hashable {
     case repos

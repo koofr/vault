@@ -61,8 +61,6 @@
 		A191B2DB2AB0106D00EC5465 /* OpenDownloadsFolderActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A191B2DA2AB0106D00EC5465 /* OpenDownloadsFolderActivity.swift */; };
 		A191B2DD2AB010AA00EC5465 /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A191B2DC2AB010AA00EC5465 /* ActivityView.swift */; };
 		A191B2DF2AB0B42100EC5465 /* DownloadHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A191B2DE2AB0B42100EC5465 /* DownloadHelper.swift */; };
-		A197F9322A7D4BD30000EA27 /* NavControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A197F9312A7D4BD30000EA27 /* NavControllerTests.swift */; };
-		A197F9342A7D60280000EA27 /* NavController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18AB2C12A77CCDA0037156B /* NavController.swift */; };
 		A198035C2A84F5A90047CA6B /* ZoomableScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A198035B2A84F5A90047CA6B /* ZoomableScrollView.swift */; };
 		A19CE5C82A839AE40079E924 /* RemoteFilesDirPickerScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A19CE5C72A839AE40079E924 /* RemoteFilesDirPickerScreen.swift */; };
 		A19CE5CC2A839CCB0079E924 /* RemoteFilesDirPickerListRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A19CE5CB2A839CCB0079E924 /* RemoteFilesDirPickerListRow.swift */; };
@@ -79,13 +77,6 @@
 		A1A77FAE2A842DD5001F6CF2 /* RepoFilesImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A77FAD2A842DD5001F6CF2 /* RepoFilesImagePicker.swift */; };
 		A1A90B812ADEFBD50061C286 /* EmptyFolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A90B802ADEFBD50061C286 /* EmptyFolderView.swift */; };
 		A1AD92E02A828283006172BF /* VaultCommon.h in Headers */ = {isa = PBXBuildFile; fileRef = A1AD92DF2A828283006172BF /* VaultCommon.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A1AD92EB2A82833A006172BF /* NavController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18AB2C12A77CCDA0037156B /* NavController.swift */; };
-		A1AD92EC2A82833F006172BF /* NavControllerViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A197F8E02A7C37830000EA27 /* NavControllerViewExtensions.swift */; };
-		A1AD92ED2A828342006172BF /* Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A197F8E62A7CD6AE0000EA27 /* Navigation.swift */; };
-		A1AD92EE2A828345006172BF /* NavigationStackInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1228E812A7C04C400AC1148 /* NavigationStackInfo.swift */; };
-		A1AD92EF2A828348006172BF /* NavView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A16070B02A78F04A00BDE0CE /* NavView.swift */; };
-		A1AD92F02A82834E006172BF /* UINavigationControllerDelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = A197F8DE2A7C1FC80000EA27 /* UINavigationControllerDelegateProxy.m */; };
-		A1AD92F12A8283A4006172BF /* UINavigationControllerDelegateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = A197F8DD2A7C1FC80000EA27 /* UINavigationControllerDelegateProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A1AD92F42A8285A7006172BF /* CommonAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1AD92F32A8285A7006172BF /* CommonAssets.xcassets */; };
 		A1AD92F62A82861D006172BF /* KeychainRepoPasswordStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B6D00C2941DA4600CBF5FC /* KeychainRepoPasswordStorage.swift */; };
 		A1AD92F72A82861D006172BF /* Container.swift in Sources */ = {isa = PBXBuildFile; fileRef = A16070B62A794CF000BDE0CE /* Container.swift */; };
@@ -156,6 +147,7 @@
 		A1D296A82A851E9D005ED3B5 /* GIFImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1D296A72A851E9D005ED3B5 /* GIFImage.swift */; };
 		A1DBAE4F2AC1993900D036C3 /* BlockOn.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1DBAE4E2AC1993900D036C3 /* BlockOn.swift */; };
 		A1DEA2F22ABF763A00F43BBA /* Callbacks.swift in Sources */ = {isa = PBXBuildFile; fileRef = A114176C2A751B9A007E4837 /* Callbacks.swift */; };
+		A1FA15192B05199000F95F2E /* SwiftUINavController in Frameworks */ = {isa = PBXBuildFile; productRef = A1FA15182B05199000F95F2E /* SwiftUINavController */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -263,7 +255,6 @@
 		A1228E782A7BE92C00AC1148 /* RepoFilesMoveListRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesMoveListRow.swift; sourceTree = "<group>"; };
 		A1228E7A2A7BE97800AC1148 /* RepoFilesMoveViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesMoveViewModel.swift; sourceTree = "<group>"; };
 		A1228E7F2A7C035800AC1148 /* RepoFilesMoveRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesMoveRoute.swift; sourceTree = "<group>"; };
-		A1228E812A7C04C400AC1148 /* NavigationStackInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationStackInfo.swift; sourceTree = "<group>"; };
 		A1265C992AA1E2A700CEAA5C /* SheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetView.swift; sourceTree = "<group>"; };
 		A1265C9B2AA1E2B800CEAA5C /* SheetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetsView.swift; sourceTree = "<group>"; };
 		A1265C9D2AA1E2C900CEAA5C /* Sheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sheet.swift; sourceTree = "<group>"; };
@@ -289,7 +280,6 @@
 		A12D80F62AB8A59B009424D2 /* StorageHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageHelper.swift; sourceTree = "<group>"; };
 		A12D80F82AB99B8D009424D2 /* InfoSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoSheet.swift; sourceTree = "<group>"; };
 		A14A53D52AD7EEA300AE65B0 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
-		A16070B02A78F04A00BDE0CE /* NavView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavView.swift; sourceTree = "<group>"; };
 		A16070B22A792E9900BDE0CE /* RepoUnlockForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoUnlockForm.swift; sourceTree = "<group>"; };
 		A16070B42A7937DA00BDE0CE /* RepoSetupBiometricUnlockSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoSetupBiometricUnlockSheet.swift; sourceTree = "<group>"; };
 		A16070B62A794CF000BDE0CE /* Container.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Container.swift; sourceTree = "<group>"; };
@@ -331,20 +321,14 @@
 		A18A8CFF2917C58000B8F8B9 /* FileIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileIcon.swift; sourceTree = "<group>"; };
 		A18AB2BD2A77B0EF0037156B /* NotificationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsView.swift; sourceTree = "<group>"; };
 		A18AB2BF2A77B6780037156B /* AuthHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthHelper.swift; sourceTree = "<group>"; };
-		A18AB2C12A77CCDA0037156B /* NavController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavController.swift; sourceTree = "<group>"; };
 		A18AB2C32A77D0940037156B /* MainNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainNavigation.swift; sourceTree = "<group>"; };
 		A18AB2D32A77E3480037156B /* MainRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainRoute.swift; sourceTree = "<group>"; };
 		A18B59F62A3C60EE00CD1CFD /* FileIconCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileIconCache.swift; sourceTree = "<group>"; };
 		A191B2DA2AB0106D00EC5465 /* OpenDownloadsFolderActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenDownloadsFolderActivity.swift; sourceTree = "<group>"; };
 		A191B2DC2AB010AA00EC5465 /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
 		A191B2DE2AB0B42100EC5465 /* DownloadHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadHelper.swift; sourceTree = "<group>"; };
-		A197F8DD2A7C1FC80000EA27 /* UINavigationControllerDelegateProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UINavigationControllerDelegateProxy.h; sourceTree = "<group>"; };
-		A197F8DE2A7C1FC80000EA27 /* UINavigationControllerDelegateProxy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UINavigationControllerDelegateProxy.m; sourceTree = "<group>"; };
-		A197F8E02A7C37830000EA27 /* NavControllerViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavControllerViewExtensions.swift; sourceTree = "<group>"; };
-		A197F8E62A7CD6AE0000EA27 /* Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigation.swift; sourceTree = "<group>"; };
 		A197F8E82A7CDB760000EA27 /* RepoFilesMoveNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesMoveNavigation.swift; sourceTree = "<group>"; };
 		A197F9262A7D4B8C0000EA27 /* VaultTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VaultTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		A197F9312A7D4BD30000EA27 /* NavControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavControllerTests.swift; sourceTree = "<group>"; };
 		A198035B2A84F5A90047CA6B /* ZoomableScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomableScrollView.swift; sourceTree = "<group>"; };
 		A19CE5C72A839AE40079E924 /* RemoteFilesDirPickerScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteFilesDirPickerScreen.swift; sourceTree = "<group>"; };
 		A19CE5CB2A839CCB0079E924 /* RemoteFilesDirPickerListRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteFilesDirPickerListRow.swift; sourceTree = "<group>"; };
@@ -437,6 +421,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1FA15192B05199000F95F2E /* SwiftUINavController in Frameworks */,
 				A1CF9ABB2ACFF65400D006AA /* VaultMobile.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -491,20 +476,6 @@
 				A1228E7A2A7BE97800AC1148 /* RepoFilesMoveViewModel.swift */,
 			);
 			path = RepoFilesMove;
-			sourceTree = "<group>";
-		};
-		A1228E7C2A7BE9C100AC1148 /* Navigation */ = {
-			isa = PBXGroup;
-			children = (
-				A18AB2C12A77CCDA0037156B /* NavController.swift */,
-				A197F8E02A7C37830000EA27 /* NavControllerViewExtensions.swift */,
-				A197F8E62A7CD6AE0000EA27 /* Navigation.swift */,
-				A1228E812A7C04C400AC1148 /* NavigationStackInfo.swift */,
-				A16070B02A78F04A00BDE0CE /* NavView.swift */,
-				A197F8DD2A7C1FC80000EA27 /* UINavigationControllerDelegateProxy.h */,
-				A197F8DE2A7C1FC80000EA27 /* UINavigationControllerDelegateProxy.m */,
-			);
-			path = Navigation;
 			sourceTree = "<group>";
 		};
 		A1228E7D2A7BE9DA00AC1148 /* MainNavigation */ = {
@@ -704,7 +675,6 @@
 				A19CE5D82A83A2540079E924 /* Keychain */,
 				A18AB2C92A77DECE0037156B /* Landing */,
 				A1228E7D2A7BE9DA00AC1148 /* MainNavigation */,
-				A1228E7C2A7BE9C100AC1148 /* Navigation */,
 				A18AB2CA2A77DEEC0037156B /* Notifications */,
 				A1265CA52AAD8E0300CEAA5C /* Overlays */,
 				A16D933A2A7A787900FB3249 /* RelativeTime */,
@@ -866,25 +836,8 @@
 		A197F9272A7D4B8C0000EA27 /* VaultTests */ = {
 			isa = PBXGroup;
 			children = (
-				A197F92F2A7D4BA30000EA27 /* Features */,
 			);
 			path = VaultTests;
-			sourceTree = "<group>";
-		};
-		A197F92F2A7D4BA30000EA27 /* Features */ = {
-			isa = PBXGroup;
-			children = (
-				A197F9302A7D4BA80000EA27 /* Navigation */,
-			);
-			path = Features;
-			sourceTree = "<group>";
-		};
-		A197F9302A7D4BA80000EA27 /* Navigation */ = {
-			isa = PBXGroup;
-			children = (
-				A197F9312A7D4BD30000EA27 /* NavControllerTests.swift */,
-			);
-			path = Navigation;
 			sourceTree = "<group>";
 		};
 		A19CE5C62A839AA30079E924 /* RemoteFilesDirPicker */ = {
@@ -986,7 +939,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1AD92E02A828283006172BF /* VaultCommon.h in Headers */,
-				A1AD92F12A8283A4006172BF /* UINavigationControllerDelegateProxy.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1087,6 +1039,9 @@
 				A182698C2AA0E8F20072F531 /* PBXTargetDependency */,
 			);
 			name = VaultCommon;
+			packageProductDependencies = (
+				A1FA15182B05199000F95F2E /* SwiftUINavController */,
+			);
 			productName = VaultCommon;
 			productReference = A1AD92DD2A828283006172BF /* VaultCommon.framework */;
 			productType = "com.apple.product-type.framework";
@@ -1149,6 +1104,9 @@
 				Base,
 			);
 			mainGroup = A18A8CDD2917988100B8F8B9;
+			packageReferences = (
+				A1FA15172B05199000F95F2E /* XCRemoteSwiftPackageReference "SwiftUINavController" */,
+			);
 			productRefGroup = A18A8CE72917988100B8F8B9 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -1293,8 +1251,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A197F9322A7D4BD30000EA27 /* NavControllerTests.swift in Sources */,
-				A197F9342A7D60280000EA27 /* NavController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1303,7 +1259,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1AD93362A828724006172BF /* RepoPasswordField.swift in Sources */,
-				A1AD92F02A82834E006172BF /* UINavigationControllerDelegateProxy.m in Sources */,
 				A1AEB7DE2ABA07AE00B50AB1 /* UIColorRGB.swift in Sources */,
 				A1C8654E2ABF721F0032F64B /* WindowUtils.swift in Sources */,
 				A1CC129E2A8AA0EA00C0E1A0 /* ImageData.swift in Sources */,
@@ -1311,7 +1266,6 @@
 				A1AD93022A82863D006172BF /* FileRow.swift in Sources */,
 				A1265CB42AAF258E00CEAA5C /* RepoCreateScreenViewModel.swift in Sources */,
 				A1AD93192A828686006172BF /* RepoFilesMoveScreen.swift in Sources */,
-				A1AD92EF2A828348006172BF /* NavView.swift in Sources */,
 				A10A8C852ADCE9C0005A081D /* RepoGuard.swift in Sources */,
 				A1265CA22AA1E46500CEAA5C /* ShareTargetFilesSheet.swift in Sources */,
 				A1AD93072A828650006172BF /* NotificationView.swift in Sources */,
@@ -1349,7 +1303,6 @@
 				A1AD93002A828637006172BF /* FileIcon.swift in Sources */,
 				A103E9832ACAF74100883DA8 /* RepoFilesScreenViewModel.swift in Sources */,
 				A1265CAC2AAE3FCF00CEAA5C /* ErrorView.swift in Sources */,
-				A1AD92EE2A828345006172BF /* NavigationStackInfo.swift in Sources */,
 				A1AD93232A8286A7006172BF /* ShareTargetNavigation.swift in Sources */,
 				A12D80F72AB8A59B009424D2 /* StorageHelper.swift in Sources */,
 				A198035C2A84F5A90047CA6B /* ZoomableScrollView.swift in Sources */,
@@ -1377,7 +1330,6 @@
 				A1A77FAC2A842164001F6CF2 /* ShareExtScreenViewModel.swift in Sources */,
 				A10A8C892ADD1B4B005A081D /* RepoFilesDetailsScreenContent.swift in Sources */,
 				A168FA062AE520C50041418F /* FullSizeListItem.swift in Sources */,
-				A1AD92EC2A82833F006172BF /* NavControllerViewExtensions.swift in Sources */,
 				A1062B9C2A83945800DAAB5C /* RemoteFilesBrowserItemRow.swift in Sources */,
 				A1265CAE2AAEFE8900CEAA5C /* ViewIf.swift in Sources */,
 				A1AD92F82A82861D006172BF /* KeychainSecureStorage.swift in Sources */,
@@ -1385,7 +1337,6 @@
 				A191B2DB2AB0106D00EC5465 /* OpenDownloadsFolderActivity.swift in Sources */,
 				A1AD93202A82869E006172BF /* SettingsSheet.swift in Sources */,
 				A176762F2ABC2F230080D098 /* RepoFileInfoSheet.swift in Sources */,
-				A1AD92EB2A82833A006172BF /* NavController.swift in Sources */,
 				A1699AA32AC56E0C00D58F6B /* TransferInfoView.swift in Sources */,
 				A14A53D62AD7EEA300AE65B0 /* LoadingView.swift in Sources */,
 				A1AD92FC2A82861D006172BF /* PreviewsData.swift in Sources */,
@@ -1398,7 +1349,6 @@
 				A12D0A572AB473580010CF38 /* RepoConfigInfo.swift in Sources */,
 				A1AD931E2A828697006172BF /* RepoUnlockForm.swift in Sources */,
 				A1AD92FD2A82862C006172BF /* AuthHelper.swift in Sources */,
-				A1AD92ED2A828342006172BF /* Navigation.swift in Sources */,
 				A10A8C8B2ADD1B8C005A081D /* RepoFilesDetailsScreenViewModel.swift in Sources */,
 				A1AD930B2A82865E006172BF /* RepoFileMenu.swift in Sources */,
 				A1287A4D2A83855500855708 /* RepoCreateRow.swift in Sources */,
@@ -2041,6 +1991,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A1FA15172B05199000F95F2E /* XCRemoteSwiftPackageReference "SwiftUINavController" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/bancek/SwiftUINavController";
+			requirement = {
+				branch = v0.1.1;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A1FA15182B05199000F95F2E /* SwiftUINavController */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1FA15172B05199000F95F2E /* XCRemoteSwiftPackageReference "SwiftUINavController" */;
+			productName = SwiftUINavController;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A18A8CDE2917988100B8F8B9 /* Project object */;
 }

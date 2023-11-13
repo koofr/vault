@@ -23,7 +23,7 @@ public class ShareTargetViewModel: ObservableObject {
         self.onUpload = onUpload
         self.onCancel = onCancel
 
-        self.navController = NavController(rootRoute: .repos)
+        self.navController = ShareTargetNavController(rootRoute: .repos)
     }
 
     public func cancel() {

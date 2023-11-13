@@ -1,7 +1,5 @@
 #import <Foundation/Foundation.h>
 
-#import <VaultCommon/UINavigationControllerDelegateProxy.h>
-
 //! Project version number for VaultCommon.
 FOUNDATION_EXPORT double VaultCommonVersionNumber;
 

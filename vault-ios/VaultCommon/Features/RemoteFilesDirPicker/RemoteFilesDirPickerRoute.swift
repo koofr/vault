@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUINavController
 import VaultMobile
 
 public enum RemoteFilesDirPickerRoute: Hashable {
