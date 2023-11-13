@@ -69,5 +69,10 @@ public struct MainNavigation: View {
                 }
             }
         }
+        .onOpenURL { url in
+            if let match = url.path().firstMatch(of: /^\/mobile\/repos\/([\w-]+)$/) {
+                navController.replace([.repoFiles(repoId: String(match.1), path: "/")])
+            }
+        }
     }
 }
