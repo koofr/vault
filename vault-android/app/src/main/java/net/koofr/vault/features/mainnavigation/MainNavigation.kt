@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import net.koofr.vault.features.navigation.LocalNavController
 import net.koofr.vault.features.remotefilesdirpicker.RemoteFilesDirPickerScreen
 import net.koofr.vault.features.repo.RepoGuard
@@ -78,6 +79,9 @@ fun MainNavigation() {
 
             composable(
                 "repos/{repoId}/files?path={path}",
+                deepLinks = listOf(navDeepLink {
+                    uriPattern = "https://vault.koofr.net/mobile/repos/{repoId}"
+                }),
                 arguments = listOf(
                     navArgument("repoId") {
                         type = NavType.StringType
