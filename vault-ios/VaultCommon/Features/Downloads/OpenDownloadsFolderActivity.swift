@@ -1,4 +1,4 @@
-import Foundation
+import UIKit
 
 extension UIActivity.ActivityType {
     public static let openDownloadsFolderActivityType = UIActivity.ActivityType(

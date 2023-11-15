@@ -1,6 +1,6 @@
 // based on https://github.com/globulus/swiftui-gif/blob/89af6b7e04b0dc0bf97a721d27fc87c4db8e3829/Sources/SwiftUIGIF/SwiftUIGIF.swift
 
-import Foundation
+import UIKit
 
 public func gifImage(data: Data) -> UIImage? {
     guard let source = CGImageSourceCreateWithData(data as CFData, nil)
