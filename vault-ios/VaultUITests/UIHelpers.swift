@@ -307,11 +307,23 @@ extension XCUIApplication {
         return false
     }
 
-    // popovers
+    // share popover
 
-    func dismissPopover() {
+    func sharePopoverDismiss() {
+        XCTAssertTrue(collectionViews.cells["Copy"].waitForExistence(timeout: 2))
+
         // otherElements["PopoverDismissRegion"].tap() does not work
         navigationBars.element(boundBy: 0).coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0))
             .withOffset(CGVector(dx: 5, dy: 5)).tap()
+    }
+
+    // save password
+
+    func savePasswordDismiss() {
+        let element = scrollViews.otherElements.buttons["Not Now"]
+
+        if element.waitForExistence(timeout: 5) {
+            element.tap()
+        }
     }
 }

@@ -111,10 +111,10 @@ test-web-tests: build-wasm-web build-wasm-web-tests
 	cd vault-web-tests && npx playwright test --headed --project=chromium
 
 test-ios-unit:
-	cd vault-ios && xcodebuild test -scheme Vault -testPlan VaultTests -destination "platform=iOS Simulator,name=iPhone 14 Pro"
+	cd vault-ios && xcodebuild test -scheme Vault -testPlan VaultTests -destination "platform=iOS Simulator,name=iPhone 15 Pro"
 
 test-ios-ui:
-	cd vault-ios && xcodebuild test -scheme Vault -testPlan VaultUITests -destination "platform=iOS Simulator,name=iPhone 14 Pro"
+	cd vault-ios && xcodebuild test -scheme Vault -testPlan VaultUITests -destination "platform=iOS Simulator,name=iPhone 15 Pro"
 
 test-android-unit: check-android-env build-android-bindings
 	cd vault-android && ./gradlew test

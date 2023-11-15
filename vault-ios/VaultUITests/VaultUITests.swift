@@ -27,6 +27,9 @@ final class VaultUITests: XCTestCase {
 
             app.repoCreateLocationTap()
 
+            // wait for notifications to disappear
+            sleep(3)
+
             app.landingGetStartedTap()
 
             app.authContinueTap()
@@ -65,12 +68,13 @@ final class VaultUITests: XCTestCase {
             app.repoCreateSaltFill()
 
             app.repoCreateCreateTap()
+            app.savePasswordDismiss()
 
             app.repoCreateCreatedSwipeUp()
 
             app.repoCreateCreatedShareTap()
 
-            app.dismissPopover()
+            app.sharePopoverDismiss()
 
             app.repoCreateCreatedContinueTap()
 
