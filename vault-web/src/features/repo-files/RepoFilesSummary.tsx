@@ -16,7 +16,7 @@ export const RepoFilesSummary = memo<{ info: RepoFilesBrowserInfo }>(
     } = info;
 
     if (
-      status.type === 'Loading' ||
+      (status.type === 'Loading' && !status.loaded) ||
       status.type === 'Error' ||
       totalCount === 0
     ) {
