@@ -403,6 +403,7 @@ fn expected_browsers_state(
     RepoFilesBrowsersState {
         browsers: [(1, browser)].into(),
         next_id: NextId(2),
+        last_sort: Default::default(),
     }
 }
 

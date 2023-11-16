@@ -64,6 +64,7 @@ pub struct RepoFilesBrowser {
 pub struct RepoFilesBrowsersState {
     pub browsers: HashMap<u32, RepoFilesBrowser>,
     pub next_id: NextId,
+    pub last_sort: RepoFilesSort,
 }
 
 impl RepoFilesBrowsersState {

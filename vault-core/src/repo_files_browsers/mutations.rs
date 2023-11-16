@@ -53,7 +53,7 @@ pub fn create(
         status,
         file_ids: Vec::new(),
         selection: Selection::default(),
-        sort: Default::default(),
+        sort: state.repo_files_browsers.last_sort.clone(),
     };
 
     state
@@ -326,6 +326,8 @@ pub fn sort_by(
 
     browser.sort.field = field;
     browser.sort.direction = direction;
+
+    state.repo_files_browsers.last_sort = browser.sort.clone();
 
     update_files(state, notify, browser_id);
 }
