@@ -5,7 +5,7 @@ use crate::{
     eventstream::service::MountSubscription,
     repo_files::{
         errors::LoadFilesError,
-        state::{RepoFile, RepoFilesSort},
+        state::{RepoFile, RepoFilesBreadcrumb, RepoFilesSort},
     },
     selection::state::{Selection, SelectionSummary},
     store::NextId,
@@ -35,6 +35,7 @@ pub struct RepoFilesBrowserInfo<'a> {
     pub can_move_selected: bool,
     pub can_delete_selected: bool,
     pub items: Vec<RepoFilesBrowserItem<'a>>,
+    pub breadcrumbs: Vec<RepoFilesBreadcrumb>,
 }
 
 #[derive(Debug, Clone, PartialEq)]

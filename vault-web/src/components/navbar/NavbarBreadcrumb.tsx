@@ -19,12 +19,9 @@ export interface NavbarBreadcrumbInfo {
 export const NavbarBreadcrumb = memo<{
   breadcrumb: NavbarBreadcrumbInfo;
   separator: boolean;
-  onClick?: (
-    event: React.MouseEvent<any>,
-    breadcrumb: NavbarBreadcrumbInfo,
-  ) => void;
+  onClick?: (event: React.MouseEvent, breadcrumb: NavbarBreadcrumbInfo) => void;
   onCaretClick?: (
-    event: React.MouseEvent<any>,
+    event: React.MouseEvent,
     breadcrumb: NavbarBreadcrumbInfo,
   ) => void;
 }>(
@@ -37,7 +34,7 @@ export const NavbarBreadcrumb = memo<{
     const { name, link, isClickable, hasCaret, isLast } = breadcrumb;
     const theme = useTheme();
     const onClick = useCallback(
-      (event: React.MouseEvent<any>) => {
+      (event: React.MouseEvent) => {
         if (link === undefined) {
           event.preventDefault();
         }
@@ -49,7 +46,7 @@ export const NavbarBreadcrumb = memo<{
       [link, onClickFn, isClickable, breadcrumb],
     );
     const onCaretClick = useCallback(
-      (event: React.MouseEvent<any>) => {
+      (event: React.MouseEvent) => {
         if (onCaretClickFn !== undefined) {
           onCaretClickFn(event, breadcrumb);
         }

@@ -3,44 +3,38 @@ import { memo, useCallback, useMemo } from 'react';
 import { NavbarBreadcrumbInfo } from '../../components/navbar/NavbarBreadcrumb';
 import { NavbarBreadcrumbs } from '../../components/navbar/NavbarBreadcrumbs';
 import { useIsMobile } from '../../components/useIsMobile';
-import { useSubscribe } from '../../webVault/useSubscribe';
+import { RepoFilesBreadcrumb } from '../../vault-wasm/vault-wasm';
 import { useWebVault } from '../../webVault/useWebVault';
 
 import { useRepoFilesBrowserId } from './RepoFilesBrowserId';
 import { repoFilesLink } from './selectors';
 
-export const RepoFilesBreadcrumbs = memo(() => {
+export const RepoFilesBreadcrumbs = memo<{
+  breadcrumbs: RepoFilesBreadcrumb[];
+}>(({ breadcrumbs }) => {
   const isMobile = useIsMobile();
   const webVault = useWebVault();
   const browserId = useRepoFilesBrowserId();
-  const [allBreadcrumbs] = useSubscribe(
-    (v, cb) => v.repoFilesBrowsersBreadcrumbsSubscribe(browserId, cb),
-    (v) => v.repoFilesBrowsersBreadcrumbsData,
-    [browserId],
-  );
-  const breadcrumbs = useMemo(
-    () =>
-      isMobile
-        ? allBreadcrumbs.slice(allBreadcrumbs.length - 1)
-        : allBreadcrumbs,
-    [allBreadcrumbs, isMobile],
+  const visibleBreadcrumbs = useMemo(
+    () => (isMobile ? breadcrumbs.slice(breadcrumbs.length - 1) : breadcrumbs),
+    [breadcrumbs, isMobile],
   );
   const navbarBreadcrumbs = useMemo(
     () =>
-      breadcrumbs.map((breadcrumb, i): NavbarBreadcrumbInfo => {
+      visibleBreadcrumbs.map((breadcrumb, i): NavbarBreadcrumbInfo => {
         return {
           id: breadcrumb.id,
           name: breadcrumb.name,
           link: repoFilesLink(breadcrumb.repoId, breadcrumb.path),
           isClickable: true,
           hasCaret: false,
-          isLast: i === breadcrumbs.length - 1,
+          isLast: i === visibleBreadcrumbs.length - 1,
         };
       }),
-    [breadcrumbs],
+    [visibleBreadcrumbs],
   );
   const onClick = useCallback(
-    (event: React.MouseEvent<any>, breadcrumb: NavbarBreadcrumbInfo) => {
+    (event: React.MouseEvent, breadcrumb: NavbarBreadcrumbInfo) => {
       if (breadcrumb.isLast) {
         webVault.repoFilesBrowsersLoadFiles(browserId);
       }

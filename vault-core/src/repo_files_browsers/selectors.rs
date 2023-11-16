@@ -152,12 +152,9 @@ pub fn select_status<'a>(
 pub fn select_info<'a>(state: &'a store::State, browser_id: u32) -> Option<RepoFilesBrowserInfo> {
     select_browser(state, browser_id).map(|browser| {
         let items = select_items(state, browser_id);
+        let breadcrumbs = select_breadcrumbs(state, browser_id);
         let status = select_status(state, browser);
-        let title = browser.location.as_ref().and_then(|loc| {
-            repo_files_selectors::select_breadcrumbs(state, &loc.repo_id, &loc.path)
-                .last()
-                .map(|x| x.name.clone())
-        });
+        let title = breadcrumbs.last().map(|x| x.name.clone());
         let total_count = items.len();
         let total_size = items
             .iter()
@@ -204,6 +201,7 @@ pub fn select_info<'a>(state: &'a store::State, browser_id: u32) -> Option<RepoF
             can_move_selected,
             can_delete_selected,
             items,
+            breadcrumbs,
         }
     })
 }

@@ -960,6 +960,7 @@ pub struct RepoFilesBrowserInfo {
     #[serde(rename = "canDeleteSelected")]
     pub can_delete_selected: bool,
     pub items: Vec<RepoFilesBrowserItem>,
+    pub breadcrumbs: Vec<RepoFilesBreadcrumb>,
 }
 
 impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFilesBrowserInfo {
@@ -980,6 +981,7 @@ impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFile
             can_move_selected: info.can_move_selected,
             can_delete_selected: info.can_delete_selected,
             items: info.items.iter().map(|item| item.into()).collect(),
+            breadcrumbs: info.breadcrumbs.iter().map(Into::into).collect(),
         }
     }
 }

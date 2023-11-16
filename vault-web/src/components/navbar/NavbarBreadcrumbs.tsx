@@ -6,12 +6,9 @@ import { NavbarBreadcrumbsSeparator } from './NavbarBreadcrumbsSeparator';
 
 export interface NavbarBreadcrumbsProps {
   breadcrumbs: NavbarBreadcrumbInfo[];
-  onClick?: (
-    event: React.MouseEvent<any>,
-    breadcrumb: NavbarBreadcrumbInfo,
-  ) => void;
+  onClick?: (event: React.MouseEvent, breadcrumb: NavbarBreadcrumbInfo) => void;
   onCaretClick?: (
-    event: React.MouseEvent<any>,
+    event: React.MouseEvent,
     breadcrumb: NavbarBreadcrumbInfo,
   ) => void;
 }

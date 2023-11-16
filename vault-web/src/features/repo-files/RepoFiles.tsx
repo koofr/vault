@@ -43,14 +43,12 @@ export const RepoFiles = memo<{ repo: Repo }>(({ repo }) => {
     [browserId],
   );
 
-  const [breadcrumbs] = useSubscribe(
-    (v, cb) => v.repoFilesBrowsersBreadcrumbsSubscribe(browserId, cb),
-    (v) => v.repoFilesBrowsersBreadcrumbsData,
-    [browserId],
-  );
   const documentTitle = useMemo(
-    () => breadcrumbs.map((bc) => bc.name).join(' › '),
-    [breadcrumbs],
+    () =>
+      info !== undefined
+        ? info.breadcrumbs.map((bc) => bc.name).join(' › ')
+        : '',
+    [info],
   );
   useDocumentTitle(documentTitle);
 
@@ -63,8 +61,16 @@ export const RepoFiles = memo<{ repo: Repo }>(({ repo }) => {
     <RepoFilesBrowserIdContext.Provider value={browserId}>
       <RepoFilesUploadApiContext.Provider value={uploadApi}>
         <DashboardLayout
-          navbarLeft={<RepoFilesNavbarLeft />}
-          navbarHeader={<RepoFilesBreadcrumbs />}
+          navbarLeft={
+            info !== undefined ? (
+              <RepoFilesNavbarLeft breadcrumbs={info.breadcrumbs} />
+            ) : undefined
+          }
+          navbarHeader={
+            info !== undefined ? (
+              <RepoFilesBreadcrumbs breadcrumbs={info.breadcrumbs} />
+            ) : undefined
+          }
           navbarNav={<RepoFilesNav />}
           navbarExtra={
             <RepoFilesNavbarExtra info={info} onInfoClick={onInfoClick} />

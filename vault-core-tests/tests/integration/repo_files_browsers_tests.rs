@@ -5,7 +5,7 @@ use vault_core::{
     dialogs,
     repo_files::{
         errors::LoadFilesError,
-        state::{RepoFilesSort, RepoFilesSortField},
+        state::{RepoFilesBreadcrumb, RepoFilesSort, RepoFilesSortField},
     },
     repo_files_browsers::state::{
         RepoFilesBrowser, RepoFilesBrowserInfo, RepoFilesBrowserItem, RepoFilesBrowserLocation,
@@ -37,6 +37,7 @@ fn test_repo_lock_unlock_remove() {
             let select_items =
                 |state| vault_core::repo_files_browsers::selectors::select_items(state, browser_id);
 
+            let root_id = vault_core::repo_files::selectors::get_file_id(&fixture.repo_id, "/");
             let (_, file) = fixture.upload_file("/file.txt", "test").await;
             let dir = fixture.create_dir("/dir").await;
 
@@ -71,7 +72,14 @@ fn test_repo_lock_unlock_remove() {
                             file: &file,
                             is_selected: false,
                         }
-                    ]
+                    ],
+                    breadcrumbs: vec![RepoFilesBreadcrumb {
+                        id: root_id.clone(),
+                        repo_id: fixture.repo_id.clone(),
+                        path: "/".into(),
+                        name: "My safe box".into(),
+                        last: true
+                    }],
                 }
             );
 
@@ -103,6 +111,13 @@ fn test_repo_lock_unlock_remove() {
                     can_move_selected: false,
                     can_delete_selected: false,
                     items: vec![],
+                    breadcrumbs: vec![RepoFilesBreadcrumb {
+                        id: root_id.clone(),
+                        repo_id: fixture.repo_id.clone(),
+                        path: "/".into(),
+                        name: "My safe box".into(),
+                        last: true
+                    }],
                 }
             );
 
@@ -145,7 +160,8 @@ fn test_repo_lock_unlock_remove() {
                     can_copy_selected: false,
                     can_move_selected: false,
                     can_delete_selected: false,
-                    items: vec![]
+                    items: vec![],
+                    breadcrumbs: vec![]
                 }
             );
 

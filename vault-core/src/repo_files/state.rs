@@ -8,7 +8,7 @@ use crate::{
     sort::state::SortDirection,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct RepoFilesBreadcrumb {
     pub id: String,
     pub repo_id: String,
