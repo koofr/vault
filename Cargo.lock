@@ -2808,7 +2808,6 @@ dependencies = [
  "rust-ini",
  "scrypt",
  "serde",
- "serde_derive",
  "serde_json",
  "serde_urlencoded",
  "similar-asserts",
