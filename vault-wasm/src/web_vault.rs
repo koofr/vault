@@ -1245,20 +1245,6 @@ impl WebVault {
         self.get_data_js(id, self.subscription_data.repo_files_browsers_info.clone())
     }
 
-    #[wasm_bindgen(js_name = repoFilesBrowsersSetLocation)]
-    pub async fn repo_files_browsers_set_location(
-        &self,
-        browser_id: u32,
-        repo_id: &str,
-        path: &str,
-    ) {
-        self.handle_result(
-            self.vault
-                .repo_files_browsers_set_location(browser_id, repo_id, path)
-                .await,
-        )
-    }
-
     #[wasm_bindgen(js_name = repoFilesBrowsersLoadFiles)]
     pub async fn repo_files_browsers_load_files(&self, browser_id: u32) {
         self.handle_result(self.vault.repo_files_browsers_load_files(browser_id).await)

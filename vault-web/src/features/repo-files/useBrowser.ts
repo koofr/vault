@@ -9,34 +9,38 @@ export function useBrowser(
 ): number {
   const webVault = useWebVault();
 
-  const browserId = useMemo(
-    () => {
-      // we create a new browser with repoId and path and then use setLocation
-      // to update path
-      return webVault.repoFilesBrowsersCreate(repoId, path, {
-        selectName: selectName !== '' ? selectName : undefined,
-      });
-    },
-    // ignore selectName changes, ignore navigate changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [webVault],
-  );
+  const lastRepoId = useRef<string>(repoId);
+  const lastPath = useRef<string>(path);
+  const lastBrowserId = useRef<number>();
+
+  const browserId = useMemo(() => {
+    if (
+      lastBrowserId.current !== undefined &&
+      repoId === lastRepoId.current &&
+      path === lastPath.current &&
+      selectName === undefined
+    ) {
+      // if selectName was set and then changed to undefined, use the same
+      // browserId
+      return lastBrowserId.current;
+    }
+
+    const browserId = webVault.repoFilesBrowsersCreate(repoId, path, {
+      selectName,
+    });
+
+    lastRepoId.current = repoId;
+    lastPath.current = path;
+    lastBrowserId.current = browserId;
+
+    return browserId;
+  }, [webVault, repoId, path, selectName]);
 
   useEffect(() => {
     return () => {
       webVault.repoFilesBrowsersDestroy(browserId);
     };
   }, [webVault, browserId]);
-
-  const setLocationCount = useRef(0);
-
-  useEffect(() => {
-    if (setLocationCount.current > 0) {
-      webVault.repoFilesBrowsersSetLocation(browserId, repoId, path);
-    }
-
-    setLocationCount.current += 1;
-  }, [webVault, browserId, repoId, path]);
 
   return browserId;
 }

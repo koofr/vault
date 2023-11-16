@@ -795,8 +795,6 @@ interface MobileVault {
   u32 repo_files_browsers_info_subscribe(u32 browser_id, SubscriptionCallback cb);
   RepoFilesBrowserInfo? repo_files_browsers_info_data(u32 id);
   [Self=ByArc]
-  void repo_files_browsers_set_location(u32 browser_id, string repo_id, string path);
-  [Self=ByArc]
   void repo_files_browsers_load_files(u32 browser_id);
   void repo_files_browsers_select_file(u32 browser_id, string file_id, boolean extend, boolean range, boolean force);
   void repo_files_browsers_select_all(u32 browser_id);

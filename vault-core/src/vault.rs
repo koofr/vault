@@ -698,17 +698,6 @@ impl Vault {
         self.repo_files_browsers_service.destroy(browser_id)
     }
 
-    pub async fn repo_files_browsers_set_location(
-        &self,
-        browser_id: u32,
-        repo_id: &str,
-        path: &str,
-    ) -> Result<(), repo_files::errors::LoadFilesError> {
-        self.repo_files_browsers_service
-            .set_location(browser_id, repo_id, path)
-            .await
-    }
-
     pub async fn repo_files_browsers_load_files(
         &self,
         browser_id: u32,

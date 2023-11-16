@@ -129,28 +129,6 @@ impl RepoFilesBrowsersService {
         });
     }
 
-    pub async fn set_location(
-        &self,
-        browser_id: u32,
-        repo_id: &str,
-        path: &str,
-    ) -> Result<(), LoadFilesError> {
-        let location = self.clone().get_location(repo_id, path);
-
-        self.store.mutate(|state, notify, _, _| {
-            mutations::set_location(state, notify, browser_id, location);
-        });
-
-        if self
-            .store
-            .with_state(|state| selectors::select_is_unlocked(state, browser_id))
-        {
-            self.load_files(browser_id).await?;
-        }
-
-        Ok(())
-    }
-
     pub async fn load_files(&self, browser_id: u32) -> Result<(), LoadFilesError> {
         if let Some((repo_id, path)) = self
             .store

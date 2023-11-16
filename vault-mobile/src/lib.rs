@@ -2878,19 +2878,6 @@ impl MobileVault {
         )
     }
 
-    pub fn repo_files_browsers_set_location(
-        self: Arc<Self>,
-        browser_id: u32,
-        repo_id: String,
-        path: String,
-    ) {
-        self.clone().spawn_result(async move {
-            self.vault
-                .repo_files_browsers_set_location(browser_id, &repo_id, &path)
-                .await
-        })
-    }
-
     pub fn repo_files_browsers_load_files(self: Arc<Self>, browser_id: u32) {
         self.clone().spawn_result(async move {
             self.vault.repo_files_browsers_load_files(browser_id).await

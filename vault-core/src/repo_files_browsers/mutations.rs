@@ -72,26 +72,6 @@ pub fn destroy(state: &mut store::State, notify: &store::Notify, browser_id: u32
     state.repo_files_browsers.browsers.remove(&browser_id);
 }
 
-pub fn set_location(
-    state: &mut store::State,
-    notify: &store::Notify,
-    browser_id: u32,
-    location: Result<RepoFilesBrowserLocation, LoadFilesError>,
-) {
-    let status = get_initial_status(state, location.as_ref());
-
-    let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
-        Some(browser) => browser,
-        _ => return,
-    };
-
-    browser.location = location.ok();
-    browser.status = status;
-    browser.selection = Selection::default();
-
-    update_files(state, notify, browser_id);
-}
-
 pub fn loading(state: &mut store::State, notify: &store::Notify, browser_id: u32) {
     let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
