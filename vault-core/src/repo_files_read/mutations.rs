@@ -294,7 +294,7 @@ mod tests {
             "m1",
             &format!("/Vault/{}", cipher.encrypt_filename("F1")),
         );
-        let file = decrypt_file("r1", "/", &remote_file, &cipher);
+        let file = decrypt_file("r1", "/", "/", &remote_file, &cipher);
         assert_eq!(
             file_to_remote_zip_entry(&file).unwrap(),
             RemoteZipEntry {
@@ -313,7 +313,7 @@ mod tests {
     fn test_file_to_remote_zip_entry_decrypt_error() {
         let cipher = cipher_test_helpers::create_cipher();
         let remote_file = remote_files_test_helpers::create_file("m1", "/Vault/F1");
-        let file = decrypt_file("r1", "/", &remote_file, &cipher);
+        let file = decrypt_file("r1", "/", "/", &remote_file, &cipher);
         assert!(matches!(
             file_to_remote_zip_entry(&file).unwrap_err(),
             GetFilesReaderError::DecryptFilenameError(_)

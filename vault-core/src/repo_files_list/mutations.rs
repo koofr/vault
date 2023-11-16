@@ -12,6 +12,7 @@ pub fn decrypt_files_list_recursive_item(
     mount_id: &str,
     root_remote_path: &str,
     repo_id: &str,
+    encrypted_root_path: &str,
     root_path: &str,
     item: models::FilesListRecursiveItem,
     cipher: &Cipher,
@@ -48,10 +49,13 @@ pub fn decrypt_files_list_recursive_item(
                                 }
                             }
                         };
+                    let encrypted_parent_path =
+                        path_utils::join_paths(encrypted_root_path, encrypted_item_parent_path);
                     let parent_path =
                         path_utils::join_paths(root_path, &decrypted_item_parent_path);
                     let repo_file = repo_files_mutations::decrypt_file(
                         repo_id,
+                        &encrypted_parent_path,
                         &parent_path,
                         &remote_file,
                         &cipher,
@@ -100,14 +104,15 @@ mod tests {
         let item = remote_test_helpers::create_files_list_recursive_item_dir("/", "");
 
         assert_eq!(
-            decrypt_files_list_recursive_item("m1", "/Vault", "r1", "/", item, &cipher),
+            decrypt_files_list_recursive_item("m1", "/Vault", "r1", "/", "/", item, &cipher),
             RepoFilesListRecursiveItem::File {
                 relative_repo_path: Ok(String::from("/")),
                 file: RepoFile {
                     id: String::from("r1:/"),
                     mount_id: String::from("m1"),
                     remote_path: String::from("/Vault"),
-                    repo_id: String::from("r1",),
+                    repo_id: String::from("r1"),
+                    encrypted_path: String::from("/"),
                     path: RepoFilePath::Decrypted {
                         path: String::from("/")
                     },
@@ -137,7 +142,7 @@ mod tests {
         );
 
         assert_eq!(
-            decrypt_files_list_recursive_item("m1", "/Vault", "r1", "/", item, &cipher),
+            decrypt_files_list_recursive_item("m1", "/Vault", "r1", "/", "/", item, &cipher),
             RepoFilesListRecursiveItem::File {
                 relative_repo_path: Ok(String::from("/D1")),
                 file: RepoFile {
@@ -145,6 +150,7 @@ mod tests {
                     mount_id: String::from("m1"),
                     remote_path: format!("/Vault/{}", cipher.encrypt_filename("D1")),
                     repo_id: String::from("r1"),
+                    encrypted_path: format!("/{}", cipher.encrypt_filename("D1")),
                     path: RepoFilePath::Decrypted {
                         path: String::from("/D1")
                     },
@@ -171,7 +177,7 @@ mod tests {
         let item = remote_test_helpers::create_files_list_recursive_item_dir("/D1", "D1");
 
         assert_eq!(
-            decrypt_files_list_recursive_item("m1", "/Vault", "r1", "/", item, &cipher),
+            decrypt_files_list_recursive_item("m1", "/Vault", "r1", "/", "/", item, &cipher),
             RepoFilesListRecursiveItem::File {
                 relative_repo_path: Err(DecryptFilenameError::DecodeError(String::from(
                     "non-zero trailing bits at 1"
@@ -181,6 +187,7 @@ mod tests {
                     mount_id: String::from("m1"),
                     remote_path: String::from("/Vault/D1"),
                     repo_id: String::from("r1"),
+                    encrypted_path: String::from("/D1"),
                     path: RepoFilePath::DecryptError {
                         parent_path: String::from("/"),
                         encrypted_name: String::from("D1"),
@@ -217,7 +224,7 @@ mod tests {
         );
 
         assert_eq!(
-            decrypt_files_list_recursive_item("m1", "/Vault", "r1", "/", item, &cipher),
+            decrypt_files_list_recursive_item("m1", "/Vault", "r1", "/", "/", item, &cipher),
             RepoFilesListRecursiveItem::File {
                 relative_repo_path: Ok(String::from("/F1")),
                 file: RepoFile {
@@ -225,6 +232,7 @@ mod tests {
                     mount_id: String::from("m1"),
                     remote_path: format!("/Vault/{}", cipher.encrypt_filename("F1")),
                     repo_id: String::from("r1"),
+                    encrypted_path: format!("/{}", cipher.encrypt_filename("F1")),
                     path: RepoFilePath::Decrypted {
                         path: String::from("/F1")
                     },
@@ -258,6 +266,7 @@ mod tests {
                 "m1",
                 &format!("/Vault/{}", cipher.encrypt_filename("D1")),
                 "r1",
+                &format!("/{}", cipher.encrypt_filename("D1")),
                 "/D1",
                 item,
                 &cipher
@@ -273,6 +282,11 @@ mod tests {
                         cipher.encrypt_filename("F1")
                     ),
                     repo_id: String::from("r1"),
+                    encrypted_path: format!(
+                        "/{}/{}",
+                        cipher.encrypt_filename("D1"),
+                        cipher.encrypt_filename("F1")
+                    ),
                     path: RepoFilePath::Decrypted {
                         path: String::from("/D1/F1")
                     },
@@ -299,7 +313,7 @@ mod tests {
         let item = remote_test_helpers::create_files_list_recursive_item_file("/F1", "F1");
 
         assert_eq!(
-            decrypt_files_list_recursive_item("m1", "/Vault", "r1", "/", item, &cipher),
+            decrypt_files_list_recursive_item("m1", "/Vault", "r1", "/", "/", item, &cipher),
             RepoFilesListRecursiveItem::File {
                 relative_repo_path: Err(DecryptFilenameError::DecodeError(String::from(
                     "non-zero trailing bits at 1"
@@ -309,6 +323,7 @@ mod tests {
                     mount_id: String::from("m1"),
                     remote_path: String::from("/Vault/F1"),
                     repo_id: String::from("r1"),
+                    encrypted_path: String::from("/F1"),
                     path: RepoFilePath::DecryptError {
                         parent_path: String::from("/"),
                         encrypted_name: String::from("F1"),
@@ -342,7 +357,7 @@ mod tests {
         let item = remote_test_helpers::create_files_list_recursive_item_file("/D1/F1", "F1");
 
         assert_eq!(
-            decrypt_files_list_recursive_item("m1", "/Vault", "r1", "/", item, &cipher),
+            decrypt_files_list_recursive_item("m1", "/Vault", "r1", "/", "/", item, &cipher),
             RepoFilesListRecursiveItem::Error {
                 mount_id: String::from("m1"),
                 remote_path: Some(String::from("/Vault/D1/F1")),

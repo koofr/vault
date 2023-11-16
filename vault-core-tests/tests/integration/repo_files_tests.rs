@@ -96,6 +96,7 @@ fn test_name_decryption_error() {
                     mount_id: fixture.mount_id.clone(),
                     remote_path: "/My safe box/Plain.txt".into(),
                     repo_id: fixture.repo_id.clone(),
+                    encrypted_path: "/Plain.txt".into(),
                     path: RepoFilePath::DecryptError {
                         parent_path: "/".into(),
                         encrypted_name: "Plain.txt".into(),
@@ -155,6 +156,7 @@ fn test_encrypted_decrypted_same_name() {
                         mount_id: fixture.mount_id.clone(),
                         remote_path: "/My safe box/Plain.txt".into(),
                         repo_id: fixture.repo_id.clone(),
+                        encrypted_path: "/Plain.txt".into(),
                         path: RepoFilePath::DecryptError {
                             parent_path: "/".into(),
                             encrypted_name: "Plain.txt".into(),
@@ -186,6 +188,14 @@ fn test_encrypted_decrypted_same_name() {
                                 .unwrap()
                         ),
                         repo_id: fixture.repo_id.clone(),
+                        encrypted_path: format!(
+                            "/{}",
+                            fixture
+                                .vault
+                                .repo_files_service
+                                .encrypt_filename(&fixture.repo_id, "Plain.txt")
+                                .unwrap()
+                        ),
                         path: RepoFilePath::Decrypted {
                             path: "/Plain.txt".into()
                         },
@@ -257,6 +267,14 @@ fn test_invalid_name() {
                             .unwrap()
                     ),
                     repo_id: fixture.repo_id.clone(),
+                    encrypted_path: format!(
+                        "/{}",
+                        fixture
+                            .vault
+                            .repo_files_service
+                            .encrypt_filename(&fixture.repo_id, "A\n/\n")
+                            .unwrap()
+                    ),
                     path: RepoFilePath::DecryptError {
                         parent_path: "/".into(),
                         encrypted_name: "A\\n/\\n".into(),

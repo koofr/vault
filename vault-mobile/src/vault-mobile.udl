@@ -436,6 +436,7 @@ enum RepoFileType {
 dictionary RepoFile {
   string id;
   string repo_id;
+  string encrypted_path;
   string? path;
   string name;
   string? name_error;

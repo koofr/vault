@@ -35,6 +35,7 @@ impl RepoFilesListService {
         let mount_id = file.mount_id.clone();
         let root_remote_path = file.remote_path.clone();
         let repo_id = file.repo_id.clone();
+        let encrypted_root_path = file.encrypted_path.clone();
         let root_path = file.decrypted_path()?.to_owned();
 
         let cipher = self
@@ -53,6 +54,7 @@ impl RepoFilesListService {
                     &mount_id,
                     &root_remote_path,
                     &repo_id,
+                    &encrypted_root_path,
                     &root_path,
                     item,
                     &cipher,

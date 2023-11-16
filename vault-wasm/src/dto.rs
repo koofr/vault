@@ -751,6 +751,8 @@ pub struct RepoFile {
     pub id: String,
     #[serde(rename = "repoId")]
     pub repo_id: String,
+    #[serde(rename = "encryptedPath")]
+    pub encrypted_path: String,
     pub path: Option<String>,
     pub name: String,
     #[serde(rename = "nameError")]
@@ -775,6 +777,7 @@ impl From<&repo_files_state::RepoFile> for RepoFile {
         Self {
             id: file.id.clone(),
             repo_id: file.repo_id.clone(),
+            encrypted_path: file.encrypted_path.clone(),
             path: match &file.path {
                 repo_files_state::RepoFilePath::Decrypted { path } => Some(path.clone()),
                 repo_files_state::RepoFilePath::DecryptError {

@@ -344,12 +344,17 @@ pub fn decrypt_files(
     if let Some(root_remote_file) = state.remote_files.files.get(&root_remote_file_id) {
         let root_repo_file = match encrypted_path {
             "/" => get_root_file(repo_id, root_remote_file),
-            _ => decrypt_file(
-                repo_id,
-                &cipher.decrypt_path(path_utils::parent_path(&encrypted_path).unwrap())?,
-                root_remote_file,
-                &cipher,
-            ),
+            _ => {
+                let encrypted_parent_path = path_utils::parent_path(&encrypted_path).unwrap();
+
+                decrypt_file(
+                    repo_id,
+                    encrypted_parent_path,
+                    &cipher.decrypt_path(encrypted_parent_path)?,
+                    root_remote_file,
+                    &cipher,
+                )
+            }
         };
         let root_repo_file_id = root_repo_file.id.clone();
 
@@ -367,7 +372,8 @@ pub fn decrypt_files(
                 .iter()
                 .filter_map(|id| state.remote_files.files.get(id))
             {
-                let repo_child = decrypt_file(repo_id, &path, remote_child, &cipher);
+                let repo_child =
+                    decrypt_file(repo_id, encrypted_path, &path, remote_child, &cipher);
 
                 children.push(repo_child.id.clone());
 
@@ -420,10 +426,12 @@ pub fn decrypt_files(
 
 pub fn decrypt_file(
     repo_id: &str,
+    encrypted_parent_path: &str,
     parent_path: &str,
     remote_file: &RemoteFile,
     cipher: &Cipher,
 ) -> RepoFile {
+    let encrypted_path = path_utils::join_path_name(encrypted_parent_path, &remote_file.name);
     let name = match cipher.decrypt_filename(&remote_file.name) {
         Ok(name) => match name_utils::validate_name(&name) {
             Ok(()) => {
@@ -493,6 +501,7 @@ pub fn decrypt_file(
         mount_id: remote_file.mount_id.clone(),
         remote_path: remote_file.path.clone(),
         repo_id: repo_id.to_owned(),
+        encrypted_path,
         path,
         name,
         ext,
@@ -514,6 +523,7 @@ pub fn get_root_file(repo_id: &str, remote_file: &RemoteFile) -> RepoFile {
         mount_id: remote_file.mount_id.clone(),
         remote_path: remote_file.path.clone(),
         repo_id: repo_id.to_owned(),
+        encrypted_path: String::from("/"),
         path: RepoFilePath::Decrypted {
             path: String::from("/"),
         },
@@ -580,7 +590,8 @@ mod tests {
                 id: String::from("r1:/"),
                 mount_id: remote_file.mount_id.clone(),
                 remote_path: remote_file.path.clone(),
-                repo_id: String::from("r1",),
+                repo_id: String::from("r1"),
+                encrypted_path: String::from("/"),
                 path: RepoFilePath::Decrypted {
                     path: String::from("/")
                 },
@@ -609,12 +620,13 @@ mod tests {
         );
 
         assert_eq!(
-            decrypt_file("r1", "/", &remote_file, &cipher),
+            decrypt_file("r1", "/", "/", &remote_file, &cipher),
             RepoFile {
                 id: String::from("r1:/D1"),
                 mount_id: remote_file.mount_id.clone(),
                 remote_path: remote_file.path.clone(),
-                repo_id: String::from("r1",),
+                repo_id: String::from("r1"),
+                encrypted_path: format!("/{}", cipher.encrypt_filename("D1")),
                 path: RepoFilePath::Decrypted {
                     path: String::from("/D1")
                 },
@@ -640,12 +652,13 @@ mod tests {
         let remote_file = remote_files_test_helpers::create_dir("m1", "/Vault/D1");
 
         assert_eq!(
-            decrypt_file("r1", "/", &remote_file, &cipher),
+            decrypt_file("r1", "/", "/", &remote_file, &cipher),
             RepoFile {
                 id: String::from("err:r1:/D1"),
                 mount_id: remote_file.mount_id.clone(),
                 remote_path: remote_file.path.clone(),
-                repo_id: String::from("r1",),
+                repo_id: String::from("r1"),
+                encrypted_path: format!("/{}", remote_file.name),
                 path: RepoFilePath::DecryptError {
                     parent_path: String::from("/"),
                     encrypted_name: String::from("D1"),
@@ -681,12 +694,13 @@ mod tests {
         );
 
         assert_eq!(
-            decrypt_file("r1", "/", &remote_file, &cipher),
+            decrypt_file("r1", "/", "/", &remote_file, &cipher),
             RepoFile {
                 id: String::from("r1:/Image.JPG"),
                 mount_id: remote_file.mount_id.clone(),
                 remote_path: remote_file.path.clone(),
-                repo_id: String::from("r1",),
+                repo_id: String::from("r1"),
+                encrypted_path: format!("/{}", remote_file.name),
                 path: RepoFilePath::Decrypted {
                     path: String::from("/Image.JPG")
                 },
@@ -713,12 +727,13 @@ mod tests {
         remote_file.size = Some(10);
 
         assert_eq!(
-            decrypt_file("r1", "/", &remote_file, &cipher),
+            decrypt_file("r1", "/", "/", &remote_file, &cipher),
             RepoFile {
                 id: String::from("err:r1:/F1"),
                 mount_id: remote_file.mount_id.clone(),
                 remote_path: remote_file.path.clone(),
-                repo_id: String::from("r1",),
+                repo_id: String::from("r1"),
+                encrypted_path: format!("/{}", remote_file.name),
                 path: RepoFilePath::DecryptError {
                     parent_path: String::from("/"),
                     encrypted_name: String::from("F1"),

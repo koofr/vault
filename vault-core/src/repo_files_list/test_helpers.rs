@@ -10,6 +10,7 @@ pub fn create_list_recursive_item_dir(
     item_path: &str,
     cipher: &Cipher,
 ) -> RepoFilesListRecursiveItem {
+    let encrypted_root_path = cipher.encrypt_path(root_path);
     let encrypted_item_path = cipher.encrypt_path(item_path);
     let encrypted_item_name = path_utils::split_parent_name(&encrypted_item_path)
         .map(|(_, name)| name)
@@ -22,6 +23,7 @@ pub fn create_list_recursive_item_dir(
         mount_id,
         &path_utils::join_paths(remote_repo_path, &cipher.encrypt_path(root_path)),
         repo_id,
+        &encrypted_root_path,
         root_path,
         remote_item,
         &cipher,
@@ -36,6 +38,7 @@ pub fn create_list_recursive_item_file(
     item_path: &str,
     cipher: &Cipher,
 ) -> RepoFilesListRecursiveItem {
+    let encrypted_root_path = cipher.encrypt_path(root_path);
     let encrypted_item_path = cipher.encrypt_path(item_path);
     let encrypted_item_name = path_utils::split_parent_name(&encrypted_item_path)
         .map(|(_, name)| name)
@@ -48,6 +51,7 @@ pub fn create_list_recursive_item_file(
         mount_id,
         &path_utils::join_paths(remote_repo_path, &cipher.encrypt_path(root_path)),
         repo_id,
+        &encrypted_root_path,
         root_path,
         remote_item,
         &cipher,

@@ -134,6 +134,7 @@ pub struct RepoFile {
     pub mount_id: String,
     pub remote_path: String,
     pub repo_id: String,
+    pub encrypted_path: String,
     pub path: RepoFilePath,
     pub name: RepoFileName,
     pub ext: Option<String>,
