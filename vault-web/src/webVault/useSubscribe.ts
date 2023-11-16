@@ -11,6 +11,7 @@ export function useSubscribe<T>(
 ): [T, { current: T }] {
   const webVault = useWebVault();
 
+  const depsVersion = useRef(0);
   const currentSubscriptionId = useRef<number>();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setVersion] = useState(0);
@@ -18,6 +19,11 @@ export function useSubscribe<T>(
 
   useMemo(
     () => {
+      // if the deps have changed, increase the version so that we can ignore
+      // stale subscribe callbacks
+      const lastDepsVersion = depsVersion.current + 1;
+      depsVersion.current = lastDepsVersion;
+
       if (currentSubscriptionId.current !== undefined) {
         webVault.unsubscribe(currentSubscriptionId.current);
       }
@@ -27,6 +33,13 @@ export function useSubscribe<T>(
       const getData = getDataFunc(webVault);
 
       subscriptionId = subscribe(webVault, () => {
+        if (lastDepsVersion !== depsVersion.current) {
+          // lastDepsVersion !== depsVersion.current, the deps have changed and
+          // we have unsubscribed the last subscription so getData would return
+          // undefined
+          return;
+        }
+
         data.current = getData.call(webVault, subscriptionId!);
         setVersion((version) => version + 1);
       });
