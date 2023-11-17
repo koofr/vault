@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use http::StatusCode;
-use vault_core::{remote::models, utils::name_utils};
+use vault_core::{remote::models, types::RemoteName, utils::name_utils};
 
 use crate::fake_remote::errors::{ApiErrorCode, FakeRemoteError};
 
@@ -248,7 +248,7 @@ impl Filesystem {
         parent_file.children.push(full_path.normalize());
 
         let file = models::FilesFile {
-            name: name.0,
+            name: RemoteName(name.0),
             typ: "file".into(),
             modified,
             size,
@@ -293,7 +293,7 @@ impl Filesystem {
         parent_file.children.push(full_path.normalize());
 
         let file = models::FilesFile {
-            name: name.0,
+            name: RemoteName(name.0),
             typ: "dir".into(),
             modified,
             size: 0,
@@ -394,7 +394,7 @@ impl Filesystem {
         let file = self.get_file(&path.normalize())?.clone();
 
         let to_file = models::FilesFile {
-            name: to_path.name().unwrap().0,
+            name: RemoteName(to_path.name().unwrap().0),
             ..file.file.clone()
         };
 
@@ -418,7 +418,7 @@ impl Filesystem {
 
         for child_path in file.children.clone() {
             if let Some(child_file) = self.files.get(&child_path) {
-                let to_child_path = to_path.join_name(&Name(child_file.file.name.clone()));
+                let to_child_path = to_path.join_name(&Name(child_file.file.name.0.clone()));
 
                 let to_child_file = FilesystemFile {
                     children: vec![],
@@ -498,7 +498,7 @@ impl Filesystem {
         }
 
         let to_file = models::FilesFile {
-            name: to_path.name().unwrap().0,
+            name: RemoteName(to_path.name().unwrap().0),
             ..file.file.clone()
         };
 

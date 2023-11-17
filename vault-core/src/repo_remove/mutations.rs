@@ -2,17 +2,18 @@ use crate::{
     common::state::Status,
     repos::errors::{RemoveRepoError, RepoNotFoundError},
     store,
+    types::RepoId,
 };
 
 use super::state::RepoRemove;
 
-pub fn create(state: &mut store::State, notify: &store::Notify, repo_id: &str) -> u32 {
+pub fn create(state: &mut store::State, notify: &store::Notify, repo_id: RepoId) -> u32 {
     notify(store::Event::RepoRemove);
 
     let remove_id = state.repo_removes.next_id.next();
 
     let remove = RepoRemove {
-        repo_id: repo_id.to_owned(),
+        repo_id,
         status: Status::Initial,
     };
 
@@ -25,7 +26,7 @@ pub fn removing(
     state: &mut store::State,
     notify: &store::Notify,
     remove_id: u32,
-) -> Result<String, RemoveRepoError> {
+) -> Result<RepoId, RemoveRepoError> {
     let remove = match state.repo_removes.removes.get_mut(&remove_id) {
         Some(remove) => remove,
         None => return Err(RemoveRepoError::RepoNotFound(RepoNotFoundError)),

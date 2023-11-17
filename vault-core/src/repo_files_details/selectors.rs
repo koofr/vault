@@ -14,8 +14,9 @@ use crate::{
     },
     store,
     transfers::errors::TransferError,
+    types::{DecryptedName, DecryptedPath, RepoFileId, RepoId},
     user_error::UserError,
-    utils::path_utils,
+    utils::repo_path_utils,
 };
 
 use super::{
@@ -54,14 +55,14 @@ pub fn select_details_location_mut<'a>(
     select_details_mut(state, details_id).and_then(|details| details.location.as_mut())
 }
 
-pub fn select_repo_id<'a>(state: &'a store::State, details_id: u32) -> Option<&'a str> {
-    select_details_location(state, details_id).map(|loc| loc.repo_id.as_str())
+pub fn select_repo_id<'a>(state: &'a store::State, details_id: u32) -> Option<&'a RepoId> {
+    select_details_location(state, details_id).map(|loc| &loc.repo_id)
 }
 
 pub fn select_repo_id_path_owned(
     state: &store::State,
     details_id: u32,
-) -> Option<(String, String)> {
+) -> Option<(RepoId, DecryptedPath)> {
     select_details_location(state, details_id).map(|loc| (loc.repo_id.clone(), loc.path.clone()))
 }
 
@@ -198,30 +199,34 @@ pub fn content_loading_matches_remote_file(
 pub fn select_info<'a>(state: &'a store::State, details_id: u32) -> Option<RepoFilesDetailsInfo> {
     select_details(state, details_id).map(|details| {
         let location = details.location.as_ref();
-        let repo_id = location.map(|loc| loc.repo_id.as_str());
-        let parent_path = location.and_then(|loc| path_utils::parent_path(&loc.path));
-        let path = location.map(|loc| loc.path.as_str());
+        let repo_id = location.map(|loc| &loc.repo_id);
+        let parent_path = location.and_then(|loc| repo_path_utils::parent_path(&loc.path));
+        let path = location.map(|loc| &loc.path);
         let file_id =
             location.map(|loc| repo_files_selectors::get_file_id(&loc.repo_id, &loc.path));
         let file = file_id.and_then(|file_id| repo_files_selectors::select_file(state, &file_id));
         let (file_name, file_ext, file_category) = {
             file.map(|file| {
                 (
-                    repo_files_selectors::select_file_name(state, file).ok(),
+                    repo_files_selectors::select_file_name(state, file)
+                        .ok()
+                        .map(ToOwned::to_owned),
                     file.ext.clone(),
                     Some(file.category.clone()),
                 )
             })
-            .unwrap_or_else(move || match path.and_then(path_utils::path_to_name) {
-                Some(name) => {
-                    let (ext, _, category) =
-                        repo_files_selectors::get_file_ext_content_type_category(
-                            &name.to_lowercase(),
-                        );
+            .unwrap_or_else(move || {
+                match path.and_then(repo_path_utils::path_to_name) {
+                    Some(name) => {
+                        let (ext, _, category) =
+                            repo_files_selectors::get_file_ext_content_type_category(
+                                &name.to_lowercase().0,
+                            );
 
-                    (Some(name), ext, Some(category))
+                        (Some(name), ext, Some(category))
+                    }
+                    None => (None, None, None),
                 }
-                None => (None, None, None),
             })
         };
         let file_modified = file.and_then(|file| file.modified);
@@ -277,7 +282,7 @@ pub fn select_info<'a>(state: &'a store::State, details_id: u32) -> Option<RepoF
     })
 }
 
-pub fn select_file_id(state: &store::State, details_id: u32) -> Option<String> {
+pub fn select_file_id(state: &store::State, details_id: u32) -> Option<RepoFileId> {
     select_details_location(state, details_id)
         .map(|loc| repo_files_selectors::get_file_id(&loc.repo_id, &loc.path))
 }
@@ -287,13 +292,17 @@ pub fn select_file<'a>(state: &'a store::State, details_id: u32) -> Option<&'a R
         .and_then(|file_id| repo_files_selectors::select_file(state, &file_id))
 }
 
-pub fn select_file_name<'a>(state: &'a store::State, details_id: u32) -> Option<&'a str> {
+pub fn select_file_name<'a>(state: &'a store::State, details_id: u32) -> Option<DecryptedName> {
     select_file(state, details_id)
-        .and_then(|file| repo_files_selectors::select_file_name(state, file).ok())
+        .and_then(|file| {
+            repo_files_selectors::select_file_name(state, file)
+                .ok()
+                .map(ToOwned::to_owned)
+        })
         .or_else(|| {
             select_details_location(state, details_id)
-                .map(|loc| loc.path.as_str())
-                .and_then(path_utils::path_to_name)
+                .map(|loc| &loc.path)
+                .and_then(repo_path_utils::path_to_name)
         })
 }
 

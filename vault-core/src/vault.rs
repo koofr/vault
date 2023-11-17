@@ -3,12 +3,13 @@ use std::{sync::Arc, time::Duration};
 use futures::future::BoxFuture;
 
 use crate::{
-    auth, config, dialogs, eventstream, http, lifecycle, notifications, oauth2, rclone,
-    relative_time, remote, remote_files, remote_files_browsers, remote_files_dir_pickers,
+    auth, config, dialogs, dir_pickers, eventstream, http, lifecycle, notifications, oauth2,
+    rclone, relative_time, remote, remote_files, remote_files_browsers, remote_files_dir_pickers,
     repo_config_backup, repo_create, repo_files, repo_files_browsers, repo_files_details,
     repo_files_dir_pickers, repo_files_list, repo_files_move, repo_files_read, repo_remove,
     repo_space_usage, repo_unlock, repos, runtime, secure_storage, sort, space_usage, store,
     transfers::{self, downloadable::BoxDownloadable},
+    types::{DecryptedName, DecryptedPath, RepoFileId, RepoId},
     user,
 };
 
@@ -353,7 +354,7 @@ impl Vault {
 
     pub fn remote_files_browsers_create(
         &self,
-        location: &str,
+        location: &remote_files_browsers::state::RemoteFilesBrowserItemId,
         options: remote_files_browsers::state::RemoteFilesBrowserOptions,
     ) -> (u32, BoxFuture<'static, Result<(), remote::RemoteError>>) {
         self.remote_files_browsers_service
@@ -375,7 +376,7 @@ impl Vault {
     pub fn remote_files_browsers_select_item(
         &self,
         browser_id: u32,
-        item_id: &str,
+        item_id: remote_files_browsers::state::RemoteFilesBrowserItemId,
         extend: bool,
         range: bool,
         force: bool,
@@ -393,7 +394,11 @@ impl Vault {
             .clear_selection(browser_id)
     }
 
-    pub fn remote_files_browsers_set_selection(&self, browser_id: u32, selection: Vec<String>) {
+    pub fn remote_files_browsers_set_selection(
+        &self,
+        browser_id: u32,
+        selection: Vec<remote_files_browsers::state::RemoteFilesBrowserItemId>,
+    ) {
         self.remote_files_browsers_service
             .set_selection(browser_id, selection)
     }
@@ -411,7 +416,10 @@ impl Vault {
     pub async fn remote_files_browsers_create_dir(
         &self,
         browser_id: u32,
-    ) -> Result<String, remote_files::errors::CreateDirError> {
+    ) -> Result<
+        remote_files_browsers::state::RemoteFilesBrowserItemId,
+        remote_files::errors::CreateDirError,
+    > {
         self.remote_files_browsers_service
             .create_dir(browser_id)
             .await
@@ -423,7 +431,10 @@ impl Vault {
         self.repos_service.load_repos().await
     }
 
-    pub fn repos_lock_repo(&self, repo_id: &str) -> Result<(), repos::errors::RepoNotFoundError> {
+    pub fn repos_lock_repo(
+        &self,
+        repo_id: &RepoId,
+    ) -> Result<(), repos::errors::RepoNotFoundError> {
         self.repos_service.lock_repo(repo_id)
     }
 
@@ -477,7 +488,7 @@ impl Vault {
     pub async fn repo_create_location_dir_picker_click(
         &self,
         create_id: u32,
-        item_id: &str,
+        item_id: &dir_pickers::state::DirPickerItemId,
         is_arrow: bool,
     ) -> Result<(), remote::RemoteError> {
         self.repo_create_service
@@ -516,7 +527,7 @@ impl Vault {
 
     pub fn repo_unlock_create(
         &self,
-        repo_id: &str,
+        repo_id: RepoId,
         options: repo_unlock::state::RepoUnlockOptions,
     ) -> u32 {
         self.repo_unlock_service.create(repo_id, options)
@@ -536,7 +547,7 @@ impl Vault {
 
     // repo_remove
 
-    pub fn repo_remove_create(&self, repo_id: &str) -> u32 {
+    pub fn repo_remove_create(&self, repo_id: RepoId) -> u32 {
         self.repo_remove_service.create(repo_id)
     }
 
@@ -554,7 +565,7 @@ impl Vault {
 
     // repo_config_backup
 
-    pub fn repo_config_backup_create(&self, repo_id: &str) -> u32 {
+    pub fn repo_config_backup_create(&self, repo_id: RepoId) -> u32 {
         self.repo_config_backup_service.create(repo_id)
     }
 
@@ -574,7 +585,7 @@ impl Vault {
 
     // repo_space_usage
 
-    pub fn repo_space_usage_create(&self, repo_id: &str) -> u32 {
+    pub fn repo_space_usage_create(&self, repo_id: RepoId) -> u32 {
         self.repo_space_usage_service.create(repo_id)
     }
 
@@ -593,16 +604,16 @@ impl Vault {
 
     pub async fn repo_files_load_files(
         &self,
-        repo_id: &str,
-        path: &str,
+        repo_id: &RepoId,
+        path: &DecryptedPath,
     ) -> Result<(), repo_files::errors::LoadFilesError> {
         self.repo_files_service.load_files(repo_id, path).await
     }
 
     pub fn repo_files_get_file_reader(
         &self,
-        repo_id: &str,
-        path: &str,
+        repo_id: &RepoId,
+        path: &DecryptedPath,
     ) -> Result<
         repo_files_read::state::RepoFileReaderProvider,
         repo_files_read::errors::GetFilesReaderError,
@@ -614,15 +625,15 @@ impl Vault {
 
     pub async fn repo_files_delete_files(
         &self,
-        files: &[(String, String)],
+        files: &[(RepoId, DecryptedPath)],
     ) -> Result<(), repo_files::errors::DeleteFileError> {
         self.repo_files_service.delete_files(files, None).await
     }
 
     pub async fn repo_files_rename_file(
         &self,
-        repo_id: &str,
-        path: &str,
+        repo_id: &RepoId,
+        path: &DecryptedPath,
     ) -> Result<(), repo_files::errors::RenameFileError> {
         self.repo_files_service.rename_file(repo_id, path).await
     }
@@ -631,8 +642,8 @@ impl Vault {
 
     pub fn transfers_upload(
         &self,
-        repo_id: String,
-        parent_path: String,
+        repo_id: RepoId,
+        parent_path: DecryptedPath,
         name: String,
         uploadable: transfers::uploadable::BoxUploadable,
     ) -> (u32, transfers::state::CreateUploadResultFuture) {
@@ -682,8 +693,8 @@ impl Vault {
 
     pub fn repo_files_browsers_create(
         &self,
-        repo_id: &str,
-        path: &str,
+        repo_id: &RepoId,
+        path: &DecryptedPath,
         options: repo_files_browsers::state::RepoFilesBrowserOptions,
     ) -> (
         u32,
@@ -710,7 +721,7 @@ impl Vault {
     pub fn repo_files_browsers_select_file(
         &self,
         browser_id: u32,
-        file_id: &str,
+        file_id: RepoFileId,
         extend: bool,
         range: bool,
         force: bool,
@@ -727,7 +738,7 @@ impl Vault {
         self.repo_files_browsers_service.clear_selection(browser_id)
     }
 
-    pub fn repo_files_browsers_set_selection(&self, browser_id: u32, selection: Vec<String>) {
+    pub fn repo_files_browsers_set_selection(&self, browser_id: u32, selection: Vec<RepoFileId>) {
         self.repo_files_browsers_service
             .set_selection(browser_id, selection)
     }
@@ -757,7 +768,7 @@ impl Vault {
     pub async fn repo_files_browsers_create_dir(
         &self,
         browser_id: u32,
-    ) -> Result<(String, String), repo_files::errors::CreateDirError> {
+    ) -> Result<(DecryptedName, DecryptedPath), repo_files::errors::CreateDirError> {
         self.repo_files_browsers_service
             .create_dir(browser_id)
             .await
@@ -767,7 +778,7 @@ impl Vault {
         &self,
         browser_id: u32,
         name: &str,
-    ) -> Result<(String, String), repo_files::errors::CreateFileError> {
+    ) -> Result<(DecryptedName, DecryptedPath), repo_files::errors::CreateFileError> {
         self.repo_files_browsers_service
             .create_file(browser_id, name)
             .await
@@ -796,8 +807,8 @@ impl Vault {
 
     pub fn repo_files_details_create(
         &self,
-        repo_id: &str,
-        path: &str,
+        repo_id: RepoId,
+        path: &DecryptedPath,
         is_editing: bool,
         options: repo_files_details::state::RepoFilesDetailsOptions,
     ) -> (
@@ -901,8 +912,8 @@ impl Vault {
 
     pub async fn repo_files_move_move_file(
         &self,
-        repo_id: String,
-        path: String,
+        repo_id: RepoId,
+        path: DecryptedPath,
         mode: repo_files_move::state::RepoFilesMoveMode,
     ) -> Result<(), repo_files_move::errors::ShowError> {
         self.repo_files_move_service
@@ -912,7 +923,7 @@ impl Vault {
 
     pub async fn repo_files_move_dir_picker_click(
         &self,
-        item_id: &str,
+        item_id: &dir_pickers::state::DirPickerItemId,
         is_arrow: bool,
     ) -> Result<(), repo_files_move::errors::DirPickerClickError> {
         self.repo_files_move_service
@@ -920,7 +931,7 @@ impl Vault {
             .await
     }
 
-    pub fn repo_files_move_set_dest_path(&self, dest_path: String) {
+    pub fn repo_files_move_set_dest_path(&self, dest_path: DecryptedPath) {
         self.repo_files_move_service.set_dest_path(dest_path)
     }
 

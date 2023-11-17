@@ -3,13 +3,16 @@ use std::{
     sync::{Arc, RwLock, RwLockReadGuard},
 };
 
+use lazy_static::lazy_static;
+
 use crate::{
     cipher::Cipher,
     rclone,
     remote::{self, models},
     remote_files::RemoteFilesService,
     store,
-    utils::path_utils,
+    types::{DecryptedName, MountId, RemoteName, RemotePath, RepoId},
+    utils::remote_path_utils,
 };
 
 use super::{
@@ -23,17 +26,19 @@ use super::{
     state::{RepoConfig, RepoCreated, RepoUnlockMode},
 };
 
-const DEFAULT_DIR_NAMES: &'static [&'static str] = &[
-    "My private documents",
-    "My private pictures",
-    "My private videos",
-];
+lazy_static! {
+    pub static ref DEFAULT_DIR_NAMES: Vec<DecryptedName> = vec![
+        DecryptedName("My private documents".into()),
+        DecryptedName("My private pictures".into()),
+        DecryptedName("My private videos".into()),
+    ];
+}
 
 pub struct ReposService {
     remote: Arc<remote::Remote>,
     remote_files_service: Arc<RemoteFilesService>,
     store: Arc<store::Store>,
-    ciphers: Arc<RwLock<HashMap<String, Arc<Cipher>>>>,
+    ciphers: Arc<RwLock<HashMap<RepoId, Arc<Cipher>>>>,
 }
 
 impl ReposService {
@@ -71,7 +76,7 @@ impl ReposService {
         res_err
     }
 
-    pub fn lock_repo(&self, repo_id: &str) -> Result<(), RepoNotFoundError> {
+    pub fn lock_repo(&self, repo_id: &RepoId) -> Result<(), RepoNotFoundError> {
         self.ciphers.write().unwrap().remove(repo_id);
 
         self.store
@@ -82,7 +87,7 @@ impl ReposService {
 
     pub async fn build_cipher(
         &self,
-        repo_id: &str,
+        repo_id: &RepoId,
         password: &str,
     ) -> Result<Cipher, BuildCipherError> {
         let (salt, password_validator, password_validator_encrypted) =
@@ -109,7 +114,7 @@ impl ReposService {
 
     pub async fn unlock_repo(
         &self,
-        repo_id: &str,
+        repo_id: &RepoId,
         password: &str,
         mode: RepoUnlockMode,
     ) -> Result<(), UnlockRepoError> {
@@ -132,17 +137,17 @@ impl ReposService {
 
     pub async fn create_repo(
         &self,
-        mount_id: &str,
-        path: &str,
+        mount_id: &MountId,
+        path: &RemotePath,
         password: &str,
         salt: Option<&str>,
     ) -> Result<RepoCreated, CreateRepoError> {
         let already_exists = match (
-            path_utils::parent_path(&path),
-            path_utils::path_to_name(&path),
+            remote_path_utils::parent_path(&path),
+            remote_path_utils::path_to_name(&path),
         ) {
             (Some(parent_path), Some(name)) => {
-                match self.remote.create_dir(&mount_id, parent_path, name).await {
+                match self.remote.create_dir(&mount_id, &parent_path, name).await {
                     Ok(_) => false,
                     Err(remote::RemoteError::ApiError {
                         code: remote::ApiErrorCode::AlreadyExists,
@@ -174,11 +179,11 @@ impl ReposService {
         let repo_id = repo.id.clone();
 
         if !already_exists {
-            for name in DEFAULT_DIR_NAMES {
+            for name in DEFAULT_DIR_NAMES.iter() {
                 let encrypted_name = cipher.encrypt_filename(name);
 
                 self.remote_files_service
-                    .create_dir_name(&mount_id, &path, &encrypted_name)
+                    .create_dir_name(&mount_id, &path, RemoteName(encrypted_name.0))
                     .await?;
             }
         }
@@ -192,7 +197,11 @@ impl ReposService {
         Ok(RepoCreated { repo_id, config })
     }
 
-    pub async fn remove_repo(&self, repo_id: &str, password: &str) -> Result<(), RemoveRepoError> {
+    pub async fn remove_repo(
+        &self,
+        repo_id: &RepoId,
+        password: &str,
+    ) -> Result<(), RemoveRepoError> {
         let _ = self.build_cipher(repo_id, password).await?;
 
         self.remote
@@ -224,7 +233,7 @@ impl ReposService {
 
     pub async fn get_repo_config(
         &self,
-        repo_id: &str,
+        repo_id: &RepoId,
         password: &str,
     ) -> Result<RepoConfig, UnlockRepoError> {
         self.unlock_repo(repo_id, password, RepoUnlockMode::Verify)
@@ -234,8 +243,8 @@ impl ReposService {
             let repo = selectors::select_repo(state, repo_id)?;
 
             let rclone_config = rclone::config::generate_config(&rclone::config::Config {
-                name: Some(repo.name.clone()),
-                path: repo.path.clone(),
+                name: Some(repo.name.0.clone()),
+                path: repo.path.0.clone(),
                 password: password.to_owned(),
                 salt: repo.salt.clone(),
             });
@@ -250,11 +259,11 @@ impl ReposService {
         })
     }
 
-    pub fn get_ciphers(&self) -> RwLockReadGuard<'_, HashMap<String, Arc<Cipher>>> {
+    pub fn get_ciphers(&self) -> RwLockReadGuard<'_, HashMap<RepoId, Arc<Cipher>>> {
         self.ciphers.read().unwrap()
     }
 
-    pub fn get_cipher(&self, repo_id: &str) -> Result<Arc<Cipher>, RepoLockedError> {
+    pub fn get_cipher(&self, repo_id: &RepoId) -> Result<Arc<Cipher>, RepoLockedError> {
         let ciphers = self.get_ciphers();
         let cipher = ciphers.get(repo_id).ok_or(RepoLockedError)?;
 

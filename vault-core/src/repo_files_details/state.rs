@@ -7,16 +7,17 @@ use crate::{
     repo_files::errors::{DeleteFileError, LoadFilesError},
     store::NextId,
     transfers::errors::TransferError,
+    types::{DecryptedName, DecryptedPath, RepoId},
 };
 
 use super::errors::SaveError;
 
 pub struct RepoFilesDetailsInfo<'a> {
-    pub repo_id: Option<&'a str>,
-    pub parent_path: Option<&'a str>,
-    pub path: Option<&'a str>,
+    pub repo_id: Option<&'a RepoId>,
+    pub parent_path: Option<DecryptedPath>,
+    pub path: Option<&'a DecryptedPath>,
     pub status: Status<LoadFilesError>,
-    pub file_name: Option<&'a str>,
+    pub file_name: Option<DecryptedName>,
     pub file_ext: Option<String>,
     pub file_category: Option<FileCategory>,
     pub file_modified: Option<i64>,
@@ -61,8 +62,8 @@ pub struct RepoFilesDetailsContent {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct RepoFilesDetailsLocation {
-    pub repo_id: String,
-    pub path: String,
+    pub repo_id: RepoId,
+    pub path: DecryptedPath,
     pub eventstream_mount_subscription: Option<Arc<MountSubscription>>,
     pub content: RepoFilesDetailsContent,
     pub is_editing: bool,

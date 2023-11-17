@@ -3,7 +3,11 @@ use std::sync::Arc;
 use futures::{future, future::BoxFuture, FutureExt};
 
 use crate::{
-    dir_pickers::{selectors as dir_pickers_selectors, state::DirPickerItem, DirPickersHelper},
+    dir_pickers::{
+        selectors as dir_pickers_selectors,
+        state::{DirPickerItem, DirPickerItemId},
+        DirPickersHelper,
+    },
     remote::RemoteError,
     remote_files::{
         errors::RemoteFilesErrors,
@@ -12,7 +16,8 @@ use crate::{
         RemoteFilesService,
     },
     store,
-    utils::path_utils,
+    types::{RemoteFileId, RemoteName},
+    utils::remote_path_utils,
 };
 
 use super::{selectors, state::Options};
@@ -85,7 +90,7 @@ impl RemoteFilesDirPickersService {
     pub async fn click(
         &self,
         picker_id: u32,
-        item_id: &str,
+        item_id: &DirPickerItemId,
         is_arrow: bool,
     ) -> Result<(), RemoteError> {
         self.helper.click(picker_id, item_id, is_arrow).await
@@ -101,7 +106,10 @@ impl RemoteFilesDirPickersService {
             .with_state(|state| {
                 remote_files_selectors::select_file(
                     state,
-                    &remote_files_selectors::get_file_id(&location.mount_id, &location.path),
+                    &remote_files_selectors::get_file_id(
+                        &location.mount_id,
+                        &location.path.to_lowercase(),
+                    ),
                 )
                 .and_then(|file| {
                     let mount = remote_files_selectors::select_mount(state, &file.mount_id)?;
@@ -120,7 +128,7 @@ impl RemoteFilesDirPickersService {
         let id_getter = match mount_type {
             MountType::Import | MountType::Export => {
                 self.helper
-                    .expand(picker_id, selectors::SHARED_ITEM_ID, false)
+                    .expand(picker_id, &selectors::SHARED_ITEM_ID, false)
                     .await?;
 
                 selectors::get_shared_id
@@ -128,12 +136,15 @@ impl RemoteFilesDirPickersService {
             _ => selectors::get_places_id,
         };
 
-        let paths_chain = path_utils::paths_chain(&path);
+        let paths_chain = remote_path_utils::paths_chain(&path);
 
         let mut expand_futures = Vec::<BoxFuture<Result<(), RemoteError>>>::new();
 
         for (idx, path) in paths_chain.iter().enumerate() {
-            let item_id = id_getter(&remote_files_selectors::get_file_id(&mount_id, &path));
+            let item_id = id_getter(&remote_files_selectors::get_file_id(
+                &mount_id,
+                &path.to_lowercase(),
+            ));
 
             if idx == paths_chain.len() - 1 {
                 self.helper.set_selected(picker_id, &item_id);
@@ -149,11 +160,11 @@ impl RemoteFilesDirPickersService {
         Ok(())
     }
 
-    pub async fn create_dir(&self, picker_id: u32, name: &str) -> Result<(), RemoteError> {
+    pub async fn create_dir(&self, picker_id: u32, name: RemoteName) -> Result<(), RemoteError> {
         let (mount_id, parent_path) =
             self.store
                 .with_state::<_, Result<_, RemoteError>>(|state| {
-                    selectors::select_check_create_dir(state, picker_id, name)?;
+                    selectors::select_check_create_dir(state, picker_id, &name.to_lowercase())?;
 
                     let parent_file = selectors::select_selected_file(state, picker_id)
                         .ok_or_else(RemoteFilesErrors::not_found)?;
@@ -161,11 +172,11 @@ impl RemoteFilesDirPickersService {
                     Ok((parent_file.mount_id.clone(), parent_file.path.clone()))
                 })?;
 
+        let new_path = remote_path_utils::join_path_name(&parent_path, &name);
+
         self.remote_files_service
             .create_dir_name(&mount_id, &parent_path, name)
             .await?;
-
-        let new_path = path_utils::join_path_name(&parent_path, name);
 
         self.select_file(
             picker_id,
@@ -185,13 +196,13 @@ pub async fn on_expand(
     remote_files_service: Arc<RemoteFilesService>,
     store: Arc<store::Store>,
 ) -> Result<(), RemoteError> {
-    if item.id == selectors::BOOKMARKS_ITEM_ID {
+    if item.id == *selectors::BOOKMARKS_ITEM_ID {
         remote_files_service.load_bookmarks().await?;
-    } else if item.id == selectors::SHARED_ITEM_ID {
+    } else if item.id == *selectors::SHARED_ITEM_ID {
         remote_files_service.load_shared().await?;
     } else if let Some(file_id) = &item.file_id {
         if let Some((mount_id, path)) = store.with_state(|state| {
-            remote_files_selectors::select_file(state, file_id)
+            remote_files_selectors::select_file(state, &RemoteFileId(file_id.0.to_owned()))
                 .map(|file| (file.mount_id.clone(), file.path.clone()))
         }) {
             remote_files_service.load_files(&mount_id, &path).await?;

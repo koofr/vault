@@ -1,6 +1,6 @@
 use std::{cmp, sync::Arc};
 
-use crate::{common::state::Status, remote, store};
+use crate::{common::state::Status, remote, store, types::MountId};
 
 use super::state::{SpaceUsage, SpaceUsageSeverity};
 
@@ -23,7 +23,7 @@ impl SpaceUsageService {
             };
         });
 
-        let mount = match self.remote.get_mount("primary").await {
+        let mount = match self.remote.get_mount(&MountId("primary".into())).await {
             Ok(mount) => mount,
             Err(err) => {
                 self.store.mutate(|state, notify, _, _| {

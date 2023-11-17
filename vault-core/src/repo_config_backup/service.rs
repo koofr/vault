@@ -3,6 +3,7 @@ use std::sync::Arc;
 use crate::{
     repos::{errors::UnlockRepoError, ReposService},
     store,
+    types::RepoId,
 };
 
 use super::mutations;
@@ -20,7 +21,7 @@ impl RepoConfigBackupService {
         }
     }
 
-    pub fn create(&self, repo_id: &str) -> u32 {
+    pub fn create(&self, repo_id: RepoId) -> u32 {
         self.store
             .mutate(|state, notify, _, _| mutations::create(state, notify, repo_id))
     }

@@ -19,6 +19,7 @@ use crate::{
     },
     repo_files_read::state::{RepoFileReader, RepoFileReaderProvider},
     runtime, store,
+    types::{DecryptedName, DecryptedPath, RepoId},
     utils::{
         abort_reader::AbortReader, on_end_reader::OnEndReader, progress_reader::ProgressReader,
     },
@@ -95,8 +96,8 @@ impl TransfersService {
 
     pub fn upload(
         self: Arc<Self>,
-        repo_id: String,
-        parent_path: String,
+        repo_id: RepoId,
+        parent_path: DecryptedPath,
         name: String,
         uploadable: BoxUploadable,
     ) -> (u32, CreateUploadResultFuture) {
@@ -119,8 +120,8 @@ impl TransfersService {
 
     async fn create_upload(
         self: Arc<Self>,
-        repo_id: String,
-        parent_path: String,
+        repo_id: RepoId,
+        parent_path: DecryptedPath,
         name: String,
         uploadable: BoxUploadable,
         id: u32,
@@ -201,7 +202,7 @@ impl TransfersService {
         mut downloadable: BoxDownloadable,
         id: u32,
     ) -> CreateDownloadResult {
-        let name = reader_provider.name.clone();
+        let name = reader_provider.name.0.clone();
         let size = reader_provider.size;
 
         if let Some(unique_name) = &reader_provider.unique_name {
@@ -290,7 +291,7 @@ impl TransfersService {
                 state,
                 notify,
                 id,
-                reader.name.clone(),
+                reader.name.0.clone(),
                 reader.size,
                 self.runtime.now_ms(),
             )
@@ -544,7 +545,7 @@ impl TransfersService {
             .upload_file_reader(
                 &upload_transfer.repo_id,
                 &upload_transfer.parent_path,
-                &name,
+                &DecryptedName(name),
                 reader,
                 size,
                 RepoFilesUploadConflictResolution::Error,
@@ -603,7 +604,7 @@ impl TransfersService {
         let progress_reader =
             ProgressReader::new(reader.reader, self.clone().get_transfer_on_progress(id));
 
-        let name = reader.name.clone();
+        let name = reader.name.0.clone();
         let unique_name = reader.unique_name.clone();
 
         let (mut writer, name) = downloadable

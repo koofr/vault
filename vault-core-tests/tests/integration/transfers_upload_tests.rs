@@ -18,6 +18,7 @@ use vault_core::{
         errors::{TransferError, UploadableError},
         state::{Transfer, TransferState, TransferType, TransfersState, UploadTransfer},
     },
+    types::{DecryptedPath, RepoId},
 };
 use vault_core_tests::helpers::transfers::{
     capture_upload_uri, patch_transfer, transfer_abort_when, transfer_do_when, transfers_recorder,
@@ -38,14 +39,14 @@ fn test_upload() {
 
             let (_, create_future) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file.txt".into(),
                 TestUploadable::string("test"),
             );
             let future = create_future.await.unwrap();
 
             let res = future.await.unwrap();
-            assert_eq!(res.name, "file.txt");
+            assert_eq!(res.name.0, "file.txt");
 
             assert!(upload_uri_receiver
                 .await
@@ -90,19 +91,19 @@ fn test_upload_name_path() {
 
             let (_, create_future) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "path/to/file.txt".into(),
                 TestUploadable::string("test"),
             );
             let future = create_future.await.unwrap();
 
             let res = future.await.unwrap();
-            assert_eq!(res.name, "file.txt");
+            assert_eq!(res.name.0, "file.txt");
 
             let patch = |t: &mut Transfer| {
                 t.typ = TransferType::Upload(UploadTransfer {
                     repo_id: repo_id.clone(),
-                    parent_path: "/path/to".into(),
+                    parent_path: DecryptedPath("/path/to".into()),
                     name_rel_path: Some("path/to".into()),
                     original_name: "file.txt".into(),
                     name: "file.txt".into(),
@@ -165,19 +166,19 @@ fn test_upload_name_path_autorename() {
 
             let (_, create_future) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "path/to/file.txt".into(),
                 TestUploadable::string("test"),
             );
             let future = create_future.await.unwrap();
 
             let res = future.await.unwrap();
-            assert_eq!(res.name, "file (1).txt");
+            assert_eq!(res.name.0, "file (1).txt");
 
             let patch = |t: &mut Transfer| {
                 t.typ = TransferType::Upload(UploadTransfer {
                     repo_id: repo_id.clone(),
-                    parent_path: "/path/to".into(),
+                    parent_path: DecryptedPath("/path/to".into()),
                     name_rel_path: Some("path/to".into()),
                     original_name: "file.txt".into(),
                     name: "file.txt".into(),
@@ -188,7 +189,7 @@ fn test_upload_name_path_autorename() {
             let patch_processed = |t: &mut Transfer| {
                 t.typ = TransferType::Upload(UploadTransfer {
                     repo_id: repo_id.clone(),
-                    parent_path: "/path/to".into(),
+                    parent_path: DecryptedPath("/path/to".into()),
                     name_rel_path: Some("path/to".into()),
                     original_name: "file.txt".into(),
                     name: "file (1).txt".into(),
@@ -249,7 +250,7 @@ fn test_upload_size_estimate() {
 
             let (_, create_future) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file.txt".into(),
                 Box::new(TestUploadable {
                     size_fn: Box::new(move || future::ready(Ok(SizeInfo::Estimate(4))).boxed()),
@@ -266,7 +267,7 @@ fn test_upload_size_estimate() {
             let future = create_future.await.unwrap();
 
             let res = future.await.unwrap();
-            assert_eq!(res.name, "file.txt");
+            assert_eq!(res.name.0, "file.txt");
 
             assert!(!upload_uri_receiver
                 .await
@@ -332,7 +333,7 @@ fn test_upload_size_unknown() {
 
             let (_, create_future) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file.txt".into(),
                 Box::new(TestUploadable {
                     size_fn: Box::new(move || future::ready(Ok(SizeInfo::Unknown)).boxed()),
@@ -349,7 +350,7 @@ fn test_upload_size_unknown() {
             let future = create_future.await.unwrap();
 
             let res = future.await.unwrap();
-            assert_eq!(res.name, "file.txt");
+            assert_eq!(res.name.0, "file.txt");
 
             assert!(!upload_uri_receiver
                 .await
@@ -431,7 +432,7 @@ fn test_upload_size_unknown_to_estimate() {
 
             let (_, create_future) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file.txt".into(),
                 Box::new(TestUploadable {
                     size_fn: Box::new(move || future::ready(Ok(SizeInfo::Unknown)).boxed()),
@@ -448,7 +449,7 @@ fn test_upload_size_unknown_to_estimate() {
             let future = create_future.await.unwrap();
 
             let res = future.await.unwrap();
-            assert_eq!(res.name, "file.txt");
+            assert_eq!(res.name.0, "file.txt");
 
             assert!(!upload_uri_receiver
                 .await
@@ -520,7 +521,7 @@ fn test_upload_size_unknown_to_exact() {
 
             let (_, create_future) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file.txt".into(),
                 Box::new(TestUploadable {
                     size_fn: Box::new(move || future::ready(Ok(SizeInfo::Unknown)).boxed()),
@@ -537,7 +538,7 @@ fn test_upload_size_unknown_to_exact() {
             let future = create_future.await.unwrap();
 
             let res = future.await.unwrap();
-            assert_eq!(res.name, "file.txt");
+            assert_eq!(res.name.0, "file.txt");
 
             assert!(upload_uri_receiver
                 .await
@@ -601,7 +602,7 @@ fn test_upload_size_estimate_to_exact() {
 
             let (_, create_future) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file.txt".into(),
                 Box::new(TestUploadable {
                     size_fn: Box::new(move || future::ready(Ok(SizeInfo::Estimate(5))).boxed()),
@@ -618,7 +619,7 @@ fn test_upload_size_estimate_to_exact() {
             let future = create_future.await.unwrap();
 
             let res = future.await.unwrap();
-            assert_eq!(res.name, "file.txt");
+            assert_eq!(res.name.0, "file.txt");
 
             assert!(upload_uri_receiver
                 .await
@@ -676,7 +677,7 @@ fn test_upload_concurrency() {
         async move {
             let (_, create_future_1) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file1.txt".into(),
                 Box::new(TestUploadable {
                     size_fn: Box::new(move || future::ready(Ok(SizeInfo::Exact(4))).boxed()),
@@ -688,7 +689,7 @@ fn test_upload_concurrency() {
 
             let (_, create_future_2) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file2.txt".into(),
                 Box::new(TestUploadable {
                     size_fn: Box::new(move || future::ready(Ok(SizeInfo::Exact(5))).boxed()),
@@ -700,7 +701,7 @@ fn test_upload_concurrency() {
 
             let (transfer_id_3, create_future_3) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file3.txt".into(),
                 Box::new(TestUploadable {
                     size_fn: Box::new(move || future::ready(Ok(SizeInfo::Exact(5))).boxed()),
@@ -712,7 +713,7 @@ fn test_upload_concurrency() {
 
             let (transfer_id_4, create_future_4) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file4.txt".into(),
                 TestUploadable::string("test"),
             );
@@ -783,19 +784,19 @@ fn test_upload_load_root_error() {
 
             let (_, create_future) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "path/to/file.txt".into(),
                 TestUploadable::string("test"),
             );
             let future = create_future.await.unwrap();
 
             let res = future.await.unwrap();
-            assert_eq!(res.name, "file.txt");
+            assert_eq!(res.name.0, "file.txt");
 
             let patch = |t: &mut Transfer| {
                 t.typ = TransferType::Upload(UploadTransfer {
                     repo_id: repo_id.clone(),
-                    parent_path: "/path/to".into(),
+                    parent_path: DecryptedPath("/path/to".into()),
                     name_rel_path: Some("path/to".into()),
                     original_name: "file.txt".into(),
                     name: "file.txt".into(),
@@ -868,7 +869,7 @@ fn test_upload_size_error() {
 
         let (_, create_future) = fixture.vault.transfers_upload(
             fixture.repo_id.clone(),
-            "/".into(),
+            DecryptedPath("/".into()),
             "file.txt".into(),
             Box::new(TestUploadable {
                 size_fn: Box::new(|| {
@@ -902,7 +903,7 @@ fn test_upload_is_retriable_error() {
 
         let (_, create_future) = fixture.vault.transfers_upload(
             fixture.repo_id.clone(),
-            "/".into(),
+            DecryptedPath("/".into()),
             "file.txt".into(),
             Box::new(TestUploadable {
                 size_fn: Box::new(|| future::ready(Ok(SizeInfo::Exact(4))).boxed()),
@@ -943,7 +944,7 @@ fn test_upload_reader_error_retriable() {
 
             let (_, create_future) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file.txt".into(),
                 Box::new(TestUploadable {
                     size_fn: Box::new(|| future::ready(Ok(SizeInfo::Exact(4))).boxed()),
@@ -967,7 +968,7 @@ fn test_upload_reader_error_retriable() {
             let future = create_future.await.unwrap();
 
             let res = future.await.unwrap();
-            assert_eq!(res.name, "file.txt");
+            assert_eq!(res.name.0, "file.txt");
 
             recorder.check_recorded(
                 |len| assert_eq!(len, 8),
@@ -1011,7 +1012,7 @@ fn test_upload_abort_immediately() {
 
             let (transfer_id, create_future) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file.txt".into(),
                 TestUploadable::string("test"),
             );
@@ -1045,7 +1046,7 @@ fn test_upload_abort_waiting() {
 
             let (_, create_future) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file.txt".into(),
                 TestUploadable::string("test"),
             );
@@ -1083,7 +1084,7 @@ fn test_upload_abort_processing() {
 
             let (_, create_future) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file.txt".into(),
                 TestUploadable::string("test"),
             );
@@ -1125,7 +1126,7 @@ fn test_upload_abort_transferring() {
 
             let (_, create_future) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file.txt".into(),
                 TestUploadable::string("test"),
             );
@@ -1191,7 +1192,7 @@ fn test_upload_abort_all() {
 
             let (_, create_future_1) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file1.txt".into(),
                 Box::new(TestUploadable {
                     size_fn: Box::new(move || future::ready(Ok(SizeInfo::Exact(4))).boxed()),
@@ -1203,7 +1204,7 @@ fn test_upload_abort_all() {
 
             let (_, create_future_2) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file2.txt".into(),
                 Box::new(TestUploadable {
                     size_fn: Box::new(move || future::ready(Ok(SizeInfo::Exact(5))).boxed()),
@@ -1231,7 +1232,7 @@ fn test_upload_abort_all() {
                                     id: 1,
                                     typ: TransferType::Upload(UploadTransfer {
                                         repo_id: repo_id.to_owned(),
-                                        parent_path: "/".into(),
+                                        parent_path: DecryptedPath("/".into()),
                                         name_rel_path: None,
                                         original_name: "file1.txt".into(),
                                         name: "file1.txt".into(),
@@ -1274,7 +1275,7 @@ fn test_upload_abort_all() {
                                     id: 1,
                                     typ: TransferType::Upload(UploadTransfer {
                                         repo_id: repo_id.to_owned(),
-                                        parent_path: "/".into(),
+                                        parent_path: DecryptedPath("/".into()),
                                         name_rel_path: None,
                                         original_name: "file1.txt".into(),
                                         name: "file1.txt".into(),
@@ -1324,7 +1325,7 @@ fn test_upload_abort_all() {
                                         id: 1,
                                         typ: TransferType::Upload(UploadTransfer {
                                             repo_id: repo_id.to_owned(),
-                                            parent_path: "/".into(),
+                                            parent_path: DecryptedPath("/".into()),
                                             name_rel_path: None,
                                             original_name: "file1.txt".into(),
                                             name: "file1.txt".into(),
@@ -1354,7 +1355,7 @@ fn test_upload_abort_all() {
                                         id: 2,
                                         typ: TransferType::Upload(UploadTransfer {
                                             repo_id: repo_id.to_owned(),
-                                            parent_path: "/".into(),
+                                            parent_path: DecryptedPath("/".into()),
                                             name_rel_path: None,
                                             original_name: "file2.txt".into(),
                                             name: "file2.txt".into(),
@@ -1399,7 +1400,7 @@ fn test_upload_abort_all() {
                                         id: 1,
                                         typ: TransferType::Upload(UploadTransfer {
                                             repo_id: repo_id.to_owned(),
-                                            parent_path: "/".into(),
+                                            parent_path: DecryptedPath("/".into()),
                                             name_rel_path: None,
                                             original_name: "file1.txt".into(),
                                             name: "file1.txt".into(),
@@ -1429,7 +1430,7 @@ fn test_upload_abort_all() {
                                         id: 2,
                                         typ: TransferType::Upload(UploadTransfer {
                                             repo_id: repo_id.to_owned(),
-                                            parent_path: "/".into(),
+                                            parent_path: DecryptedPath("/".into()),
                                             name_rel_path: None,
                                             original_name: "file2.txt".into(),
                                             name: "file2.txt".into(),
@@ -1513,14 +1514,14 @@ fn test_upload_fail_autoretry_succeed() {
 
             let (_, create_future) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file.txt".into(),
                 TestUploadable::string("test"),
             );
             let future = create_future.await.unwrap();
 
             let res = future.await.unwrap();
-            assert_eq!(res.name, "file.txt");
+            assert_eq!(res.name.0, "file.txt");
 
             recorder.check_recorded(
                 |len| assert_eq!(len, 9),
@@ -1591,7 +1592,7 @@ fn test_upload_fail_autoretry_fail() {
 
             let (_, create_future) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file.txt".into(),
                 TestUploadable::string("test"),
             );
@@ -1716,14 +1717,14 @@ fn test_upload_fail_autoretry_retry() {
 
             let (_, create_future) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file.txt".into(),
                 TestUploadable::string("test"),
             );
             let future = create_future.await.unwrap();
 
             let res = future.await.unwrap();
-            assert_eq!(res.name, "file.txt");
+            assert_eq!(res.name.0, "file.txt");
 
             drop(watcher);
 
@@ -1845,7 +1846,7 @@ fn test_upload_fail_autoretry_not_retriable() {
 
             let (_, create_future) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file.txt".into(),
                 Box::new(TestUploadable {
                     size_fn: Box::new(|| future::ready(Ok(SizeInfo::Exact(4))).boxed()),
@@ -1949,7 +1950,7 @@ fn test_upload_retry_all() {
             let fail_1 = fail.clone();
             let (_, create_future_1) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file1.txt".into(),
                 Box::new(TestUploadable {
                     size_fn: Box::new(move || future::ready(Ok(SizeInfo::Exact(4))).boxed()),
@@ -1975,7 +1976,7 @@ fn test_upload_retry_all() {
             let fail_2 = fail.clone();
             let (_, create_future_2) = fixture.vault.transfers_upload(
                 fixture.repo_id.clone(),
-                "/".into(),
+                DecryptedPath("/".into()),
                 "file2.txt".into(),
                 Box::new(TestUploadable {
                     size_fn: Box::new(move || future::ready(Ok(SizeInfo::Exact(5))).boxed()),
@@ -1999,10 +2000,10 @@ fn test_upload_retry_all() {
             let future_2 = create_future_2.await.unwrap();
 
             let res_1 = future_1.await.unwrap();
-            assert_eq!(res_1.name, "file1.txt");
+            assert_eq!(res_1.name.0, "file1.txt");
 
             let res_2 = future_2.await.unwrap();
-            assert_eq!(res_2.name, "file2.txt");
+            assert_eq!(res_2.name.0, "file2.txt");
 
             drop(watcher);
         }
@@ -2010,7 +2011,7 @@ fn test_upload_retry_all() {
     });
 }
 
-fn expected_transfers_waiting(repo_id: &str, transfers: &TransfersState) -> TransfersState {
+fn expected_transfers_waiting(repo_id: &RepoId, transfers: &TransfersState) -> TransfersState {
     TransfersState {
         transfers: [(
             1,
@@ -2018,7 +2019,7 @@ fn expected_transfers_waiting(repo_id: &str, transfers: &TransfersState) -> Tran
                 id: 1,
                 typ: TransferType::Upload(UploadTransfer {
                     repo_id: repo_id.to_owned(),
-                    parent_path: "/".into(),
+                    parent_path: DecryptedPath("/".into()),
                     name_rel_path: None,
                     original_name: "file.txt".into(),
                     name: "file.txt".into(),
@@ -2054,7 +2055,7 @@ fn expected_transfers_waiting(repo_id: &str, transfers: &TransfersState) -> Tran
 }
 
 fn expected_transfers_processing(
-    repo_id: &str,
+    repo_id: &RepoId,
     transfers: &TransfersState,
     attempts: usize,
 ) -> TransfersState {
@@ -2065,7 +2066,7 @@ fn expected_transfers_processing(
                 id: 1,
                 typ: TransferType::Upload(UploadTransfer {
                     repo_id: repo_id.to_owned(),
-                    parent_path: "/".into(),
+                    parent_path: DecryptedPath("/".into()),
                     name_rel_path: None,
                     original_name: "file.txt".into(),
                     name: "file.txt".into(),
@@ -2107,7 +2108,7 @@ fn expected_transfers_processing(
 }
 
 fn expected_transfers_transferring(
-    repo_id: &str,
+    repo_id: &RepoId,
     transfers: &TransfersState,
     attempts: usize,
 ) -> TransfersState {
@@ -2118,7 +2119,7 @@ fn expected_transfers_transferring(
                 id: 1,
                 typ: TransferType::Upload(UploadTransfer {
                     repo_id: repo_id.to_owned(),
-                    parent_path: "/".into(),
+                    parent_path: DecryptedPath("/".into()),
                     name_rel_path: None,
                     original_name: "file.txt".into(),
                     name: "file.txt".into(),
@@ -2160,7 +2161,7 @@ fn expected_transfers_transferring(
 }
 
 fn expected_transfers_transferring_progress(
-    repo_id: &str,
+    repo_id: &RepoId,
     transfers: &TransfersState,
     attempts: usize,
 ) -> TransfersState {
@@ -2171,7 +2172,7 @@ fn expected_transfers_transferring_progress(
                 id: 1,
                 typ: TransferType::Upload(UploadTransfer {
                     repo_id: repo_id.to_owned(),
-                    parent_path: "/".into(),
+                    parent_path: DecryptedPath("/".into()),
                     name_rel_path: None,
                     original_name: "file.txt".into(),
                     name: "file.txt".into(),
@@ -2213,7 +2214,7 @@ fn expected_transfers_transferring_progress(
 }
 
 fn expected_transfers_waiting_failed(
-    repo_id: &str,
+    repo_id: &RepoId,
     transfers: &TransfersState,
     attempts: usize,
 ) -> TransfersState {
@@ -2224,7 +2225,7 @@ fn expected_transfers_waiting_failed(
                 id: 1,
                 typ: TransferType::Upload(UploadTransfer {
                     repo_id: repo_id.to_owned(),
-                    parent_path: "/".into(),
+                    parent_path: DecryptedPath("/".into()),
                     name_rel_path: None,
                     original_name: "file.txt".into(),
                     name: "file.txt".into(),
@@ -2260,7 +2261,7 @@ fn expected_transfers_waiting_failed(
 }
 
 fn expected_transfers_failed(
-    repo_id: &str,
+    repo_id: &RepoId,
     transfers: &TransfersState,
     attempts: usize,
 ) -> TransfersState {
@@ -2271,7 +2272,7 @@ fn expected_transfers_failed(
                 id: 1,
                 typ: TransferType::Upload(UploadTransfer {
                     repo_id: repo_id.to_owned(),
-                    parent_path: "/".into(),
+                    parent_path: DecryptedPath("/".into()),
                     name_rel_path: None,
                     original_name: "file.txt".into(),
                     name: "file.txt".into(),

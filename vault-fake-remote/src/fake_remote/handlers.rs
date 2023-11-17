@@ -11,7 +11,11 @@ use futures::TryStreamExt;
 use http::{header, HeaderMap, HeaderName, HeaderValue};
 use serde::{Deserialize, Serialize};
 use urlencoding::encode;
-use vault_core::{remote::models, utils::reader_stream::ReaderStream};
+use vault_core::{
+    remote::models,
+    types::{MountId, RemoteName},
+    utils::reader_stream::ReaderStream,
+};
 
 use super::{
     context::Context,
@@ -297,7 +301,7 @@ pub async fn files_folder_new(
     Query(query): Query<FilesFolderNewQuery>,
     Json(data): Json<models::FilesFolderCreate>,
 ) -> Result<StatusCode, FakeRemoteError> {
-    let name: files::Name = data.name.parse().map_err(|_| {
+    let name: files::Name = data.name.0.parse().map_err(|_| {
         FakeRemoteError::ApiError(
             StatusCode::BAD_REQUEST,
             ApiErrorCode::BadRequest,
@@ -364,7 +368,7 @@ pub async fn files_rename(
     Query(query): Query<FilesRenameQuery>,
     Json(data): Json<models::FilesRename>,
 ) -> Result<StatusCode, FakeRemoteError> {
-    let name: files::Name = data.name.parse().map_err(|_| {
+    let name: files::Name = data.name.0.parse().map_err(|_| {
         FakeRemoteError::ApiError(
             StatusCode::BAD_REQUEST,
             ApiErrorCode::BadRequest,
@@ -404,14 +408,14 @@ pub async fn files_copy(
 
         let mount_id = resolve_mount_id(&context, &state, mountable);
 
-        let to_mount_id = resolve_mount_id(&context, &state, data.to_mount_id);
+        let to_mount_id = resolve_mount_id(&context, &state, data.to_mount_id.0);
 
         (mount_id, to_mount_id)
     };
 
     let path = query.path;
 
-    let to_path: files::Path = data.to_path.parse().map_err(|_| {
+    let to_path: files::Path = data.to_path.0.parse().map_err(|_| {
         FakeRemoteError::ApiError(
             StatusCode::BAD_REQUEST,
             ApiErrorCode::BadRequest,
@@ -453,14 +457,14 @@ pub async fn files_move(
 
         let mount_id = resolve_mount_id(&context, &state, mountable);
 
-        let to_mount_id = resolve_mount_id(&context, &state, data.to_mount_id);
+        let to_mount_id = resolve_mount_id(&context, &state, data.to_mount_id.0);
 
         (mount_id, to_mount_id)
     };
 
     let path = query.path;
 
-    let to_path: files::Path = data.to_path.parse().map_err(|_| {
+    let to_path: files::Path = data.to_path.0.parse().map_err(|_| {
         FakeRemoteError::ApiError(
             StatusCode::BAD_REQUEST,
             ApiErrorCode::BadRequest,
@@ -487,7 +491,9 @@ pub async fn files_move(
         .move_file(&context, &mount_id, &path, to_path, &conditions)
         .await?;
 
-    Ok(Json(models::FilesMoveResult { name: to_name }))
+    Ok(Json(models::FilesMoveResult {
+        name: RemoteName(to_name),
+    }))
 }
 
 #[derive(Deserialize)]
@@ -720,7 +726,7 @@ pub async fn vault_repos_all(
         .collect();
     let mounts: HashMap<_, _> = repos
         .iter()
-        .filter_map(|repo| state.mounts.get(&repo.mount_id))
+        .filter_map(|repo| state.mounts.get(&repo.mount_id.0))
         .map(|mount| (mount.id.clone(), mount.clone()))
         .collect();
 
@@ -736,7 +742,11 @@ pub async fn vault_repos_create(
     Json(create): Json<models::VaultRepoCreate>,
 ) -> Result<(StatusCode, Json<models::VaultRepo>), FakeRemoteError> {
     let create = models::VaultRepoCreate {
-        mount_id: resolve_mount_id(&context, &state.read().unwrap(), create.mount_id),
+        mount_id: MountId(resolve_mount_id(
+            &context,
+            &state.read().unwrap(),
+            create.mount_id.0,
+        )),
         ..create
     };
 

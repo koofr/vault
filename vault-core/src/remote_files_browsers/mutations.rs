@@ -1,19 +1,15 @@
 use std::collections::HashSet;
 
 use crate::{
-    common::state::Status,
-    remote,
-    remote_files::state::RemoteFilesSortField,
-    selection::{mutations as selection_mutations, state::Selection},
-    sort::state::SortDirection,
-    store,
+    common::state::Status, remote, remote_files::state::RemoteFilesSortField,
+    selection::mutations as selection_mutations, sort::state::SortDirection, store,
 };
 
 use super::{
     selectors,
     state::{
-        RemoteFilesBrowser, RemoteFilesBrowserItem, RemoteFilesBrowserLocation,
-        RemoteFilesBrowserOptions,
+        RemoteFilesBrowser, RemoteFilesBrowserItem, RemoteFilesBrowserItemId,
+        RemoteFilesBrowserLocation, RemoteFilesBrowserOptions,
     },
 };
 
@@ -49,7 +45,7 @@ pub fn create(
         location: location.ok(),
         status,
         items: Vec::new(),
-        selection: Selection::default(),
+        selection: Default::default(),
         sort: Default::default(),
     };
 
@@ -129,7 +125,7 @@ pub fn update_items(state: &mut store::State, notify: &store::Notify, browser_id
         })
         .unwrap_or(vec![]);
 
-    let item_ids_set: HashSet<String> = items.iter().map(|item| item.id.clone()).collect();
+    let item_ids_set: HashSet<_> = items.iter().map(|item| item.id.clone()).collect();
 
     let browser = match state.remote_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
@@ -165,7 +161,7 @@ pub fn update_items(state: &mut store::State, notify: &store::Notify, browser_id
     }
 
     if let Some(item_id) = select_item_id {
-        select_item(state, notify, browser_id, &item_id, false, false, true);
+        select_item(state, notify, browser_id, item_id, false, false, true);
     }
 }
 
@@ -173,7 +169,7 @@ pub fn select_item(
     state: &mut store::State,
     notify: &store::Notify,
     browser_id: u32,
-    item_id: &str,
+    item_id: RemoteFilesBrowserItemId,
     extend: bool,
     range: bool,
     force: bool,
@@ -235,7 +231,7 @@ pub fn set_selection(
     state: &mut store::State,
     notify: &store::Notify,
     browser_id: u32,
-    selection: Vec<String>,
+    selection: Vec<RemoteFilesBrowserItemId>,
 ) {
     let browser = match state.remote_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,

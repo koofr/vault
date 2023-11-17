@@ -2799,6 +2799,7 @@ dependencies = [
  "futures-test",
  "http",
  "http-body",
+ "lazy_static",
  "log",
  "md5",
  "phf",

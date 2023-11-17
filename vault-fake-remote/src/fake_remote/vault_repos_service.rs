@@ -1,7 +1,11 @@
 use std::sync::{Arc, RwLock};
 
 use http::StatusCode;
-use vault_core::{remote::models, utils::path_utils};
+use vault_core::{
+    remote::models,
+    types::{MountId, RemotePath, RepoId},
+    utils::path_utils,
+};
 
 use super::{
     context::Context,
@@ -35,7 +39,7 @@ impl VaultReposCreateService {
             .read()
             .unwrap()
             .mounts
-            .get(&mount_id)
+            .get(&mount_id.0)
             .map(|mount| mount.name.clone())
             .ok_or_else(|| {
                 FakeRemoteError::ApiError(
@@ -46,7 +50,7 @@ impl VaultReposCreateService {
                 )
             })?;
 
-        let path: Path = create.path.parse().map_err(|_| {
+        let path: Path = create.path.0.parse().map_err(|_| {
             FakeRemoteError::ApiError(
                 StatusCode::BAD_REQUEST,
                 ApiErrorCode::BadRequest,
@@ -55,7 +59,7 @@ impl VaultReposCreateService {
             )
         })?;
 
-        match self.files_service.info(&mount_id, &path) {
+        match self.files_service.info(&mount_id.0, &path) {
             Ok(_) => {}
             Err(FakeRemoteError::ApiError(_, code, _, _)) if code == ApiErrorCode::NotFound => {
                 return Err(FakeRemoteError::ApiError(
@@ -74,7 +78,7 @@ impl VaultReposCreateService {
             .unwrap()
             .vault_repos
             .values()
-            .find(|repo| match Path(repo.path.clone()).relative_to(&path) {
+            .find(|repo| match Path(repo.path.0.clone()).relative_to(&path) {
                 Some(path) => path.0 == "/",
                 _ => false,
             })
@@ -89,12 +93,12 @@ impl VaultReposCreateService {
         }
 
         let repo = models::VaultRepo {
-            id: uuid::Uuid::new_v4().to_string(),
+            id: RepoId(uuid::Uuid::new_v4().to_string()),
             name: path_utils::path_to_name(&path.0)
-                .unwrap_or(&mount_name)
+                .unwrap_or(&mount_name.0)
                 .to_owned(),
             mount_id,
-            path: path.0,
+            path: RemotePath(path.0),
             salt: create.salt,
             password_validator: create.password_validator,
             password_validator_encrypted: create.password_validator_encrypted,
@@ -104,14 +108,14 @@ impl VaultReposCreateService {
         {
             let mut state = self.state.write().unwrap();
 
-            state.vault_repos.insert(repo.id.clone(), repo.clone());
+            state.vault_repos.insert(repo.id.0.clone(), repo.clone());
 
             state
                 .users
                 .get_mut(&context.user_id)
                 .unwrap()
                 .user_vault_repos
-                .push(repo.id.clone());
+                .push(repo.id.0.clone());
         }
 
         Ok(repo)
@@ -146,8 +150,8 @@ impl VaultReposCreateService {
         self.create_vault_repo(
             &context,
             models::VaultRepoCreate {
-                mount_id,
-                path: "/My safe box".into(),
+                mount_id: MountId(mount_id),
+                path: RemotePath("/My safe box".into()),
                 salt: Some("salt".into()),
                 password_validator: "ad3238a5-5fc7-4b8f-9575-88c69c0c91cd".into(),
                 password_validator_encrypted: "v2:UkNMT05FAABVyJmka7FKh8CKL2AtIZc1xiZk-SO5GeuZPnHvw0ehM1dENa4iBCyPEf50da9V2XvL5CjpZlUle1lifEHtaRy9YHoFLHtiq1PCAqYY".into(),

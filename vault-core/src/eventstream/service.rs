@@ -8,7 +8,8 @@ use crate::{
     auth,
     remote_files::{selectors::get_file_id, RemoteFilesService},
     runtime,
-    utils::path_utils::join_paths,
+    types::{MountId, RemoteFileId, RemotePath},
+    utils::remote_path_utils,
 };
 
 use super::{Event, Message, Request, WebSocketClient};
@@ -17,7 +18,7 @@ const RECONNECT_DURATION: Duration = Duration::from_secs(3);
 const PING_INTERVAL: Duration = Duration::from_secs(30);
 
 pub struct MountSubscription {
-    pub(self) file_id: String,
+    pub(self) file_id: RemoteFileId,
     pub(self) listener_id: u32,
     pub(self) eventstream_service: Arc<EventStreamService>,
 }
@@ -68,8 +69,8 @@ enum MountListenerState {
 #[derive(Debug, Clone)]
 struct MountListener {
     id: u32,
-    mount_id: String,
-    path: String,
+    mount_id: MountId,
+    path: RemotePath,
     state: MountListenerState,
 }
 
@@ -83,7 +84,7 @@ pub struct EventStreamService {
     connection_state: Arc<Mutex<ConnectionState>>,
     next_mount_listener_id: Arc<Mutex<u32>>,
     mount_listeners: Arc<Mutex<HashMap<u32, MountListener>>>,
-    mount_subscriptions: Arc<Mutex<HashMap<String, Weak<MountSubscription>>>>,
+    mount_subscriptions: Arc<Mutex<HashMap<RemoteFileId, Weak<MountSubscription>>>>,
     ping_alive: Arc<Mutex<Option<Arc<()>>>>,
     reconnect_alive: Arc<Mutex<Option<Arc<()>>>>,
 }
@@ -190,7 +191,7 @@ impl EventStreamService {
 
             on_open_self.websocket_client.send(
                 serde_json::to_string(&Request::Auth {
-                    authorization: &authorization,
+                    authorization: authorization,
                 })
                 .unwrap(),
             );
@@ -285,10 +286,10 @@ impl EventStreamService {
 
     pub fn get_mount_subscription(
         self: Arc<Self>,
-        mount_id: &str,
-        path: &str,
+        mount_id: &MountId,
+        path: &RemotePath,
     ) -> Arc<MountSubscription> {
-        let file_id = get_file_id(mount_id, path);
+        let file_id = get_file_id(mount_id, &path.to_lowercase());
 
         let mut mount_subscriptions = self.mount_subscriptions.lock().unwrap();
 
@@ -311,7 +312,7 @@ impl EventStreamService {
         mount_subscription
     }
 
-    fn create_mount_subscription(&self, mount_id: &str, path: &str) -> u32 {
+    fn create_mount_subscription(&self, mount_id: &MountId, path: &RemotePath) -> u32 {
         let mount_listener_id = {
             let mut next_mount_listener_id = self.next_mount_listener_id.lock().unwrap();
             let mount_listener_id = *next_mount_listener_id;
@@ -360,8 +361,8 @@ impl EventStreamService {
                     self.websocket_client.send(
                         serde_json::to_string(&Request::Register {
                             request_id: Some(request_id),
-                            mount_id: &mount_listener.mount_id,
-                            path: &mount_listener.path,
+                            mount_id: mount_listener.mount_id.clone(),
+                            path: mount_listener.path.clone(),
                         })
                         .unwrap(),
                     );
@@ -408,7 +409,7 @@ impl EventStreamService {
     }
 
     /// This can be called from within a store mutation (MountSubscription::drop).
-    pub(self) fn remove_mount_subscription(&self, file_id: &str, listener_id: u32) {
+    pub(self) fn remove_mount_subscription(&self, file_id: &RemoteFileId, listener_id: u32) {
         self.mount_subscriptions.lock().unwrap().remove(file_id);
 
         if let Some(mount_listener) = self.mount_listeners.lock().unwrap().remove(&listener_id) {
@@ -451,13 +452,15 @@ impl EventStreamService {
             } => {
                 self.remote_files_service.file_created(
                     &mount_id,
-                    &join_paths(&mount_listener.path, &path),
+                    &remote_path_utils::join_paths(&mount_listener.path, &path),
                     file,
                 );
             }
             Event::FileRemovedEvent { mount_id, path, .. } => {
-                self.remote_files_service
-                    .file_removed(&mount_id, &join_paths(&mount_listener.path, &path));
+                self.remote_files_service.file_removed(
+                    &mount_id,
+                    &remote_path_utils::join_paths(&mount_listener.path, &path),
+                );
             }
             Event::FileCopiedEvent {
                 mount_id,
@@ -467,7 +470,7 @@ impl EventStreamService {
             } => {
                 self.remote_files_service.file_copied(
                     &mount_id,
-                    &join_paths(&mount_listener.path, &new_path),
+                    &remote_path_utils::join_paths(&mount_listener.path, &new_path),
                     file,
                 );
             }
@@ -480,8 +483,8 @@ impl EventStreamService {
             } => {
                 self.remote_files_service.file_moved(
                     &mount_id,
-                    &join_paths(&mount_listener.path, &path),
-                    &join_paths(&mount_listener.path, &new_path),
+                    &remote_path_utils::join_paths(&mount_listener.path, &path),
+                    &remote_path_utils::join_paths(&mount_listener.path, &new_path),
                     file,
                 );
             }

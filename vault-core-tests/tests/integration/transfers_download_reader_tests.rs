@@ -8,6 +8,7 @@ use vault_core::{
     files::file_category::FileCategory,
     store::NextId,
     transfers::state::{Transfer, TransferState, TransferType, TransfersState},
+    types::DecryptedPath,
 };
 use vault_core_tests::helpers::transfers::{
     transfer_abort_when, transfers_recorder, with_transfers,
@@ -24,7 +25,7 @@ fn test_download_reader() {
 
             let reader = fixture
                 .vault
-                .repo_files_get_file_reader(&fixture.repo_id, "/file.txt")
+                .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
                 .unwrap()
                 .reader()
                 .await
@@ -76,7 +77,7 @@ fn test_download_reader_fail() {
 
             let reader = fixture
                 .vault
-                .repo_files_get_file_reader(&fixture.repo_id, "/file.txt")
+                .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
                 .unwrap()
                 .reader()
                 .await
@@ -126,7 +127,7 @@ fn test_download_reader_abort() {
 
             let reader = fixture
                 .vault
-                .repo_files_get_file_reader(&fixture.repo_id, "/file.txt")
+                .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
                 .unwrap()
                 .reader()
                 .await

@@ -5,10 +5,14 @@ use crate::{
     eventstream::service::MountSubscription,
     files::file_icon::FileIconAttrs,
     remote,
-    remote_files::state::{MountOrigin, RemoteFileType, RemoteFilesBreadcrumb, RemoteFilesSort},
+    remote_files::state::{MountOrigin, RemoteFileType, RemoteFilesSort},
     selection::state::{Selection, SelectionSummary},
     store::NextId,
+    types::{MountId, RemoteName, RemoteNameLower, RemotePath},
 };
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+pub struct RemoteFilesBrowserItemId(pub String);
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum RemoteFilesBrowserItemType {
@@ -17,7 +21,7 @@ pub enum RemoteFilesBrowserItemType {
         origin: MountOrigin,
     },
     File {
-        item_id_prefix: String,
+        item_id_prefix: RemoteFilesBrowserItemId,
         typ: RemoteFileType,
         file_icon_attrs: FileIconAttrs,
     },
@@ -26,11 +30,11 @@ pub enum RemoteFilesBrowserItemType {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct RemoteFilesBrowserItem {
-    pub id: String,
-    pub mount_id: Option<String>,
-    pub path: Option<String>,
-    pub name: String,
-    pub name_lower: String,
+    pub id: RemoteFilesBrowserItemId,
+    pub mount_id: Option<MountId>,
+    pub path: Option<RemotePath>,
+    pub name: RemoteName,
+    pub name_lower: RemoteNameLower,
     pub typ: RemoteFilesBrowserItemType,
     pub size: Option<i64>,
     pub modified: Option<i64>,
@@ -43,12 +47,12 @@ pub struct RemoteFilesBrowserItemInfo<'a> {
 }
 
 pub struct RemoteFilesBrowserInfo<'a> {
-    pub mount_id: Option<String>,
-    pub path: Option<String>,
+    pub mount_id: Option<MountId>,
+    pub path: Option<RemotePath>,
     pub selection_summary: SelectionSummary,
     pub sort: RemoteFilesSort,
     pub status: &'a Status<remote::RemoteError>,
-    pub title: Option<String>,
+    pub title: Option<RemoteName>,
     pub total_count: usize,
     pub total_size: i64,
     pub selected_count: usize,
@@ -60,9 +64,9 @@ pub struct RemoteFilesBrowserInfo<'a> {
 
 #[derive(Debug, Clone)]
 pub struct RemoteFilesBrowserLocationFiles {
-    pub item_id_prefix: String,
-    pub mount_id: String,
-    pub path: String,
+    pub item_id_prefix: RemoteFilesBrowserItemId,
+    pub mount_id: MountId,
+    pub path: RemotePath,
     pub eventstream_mount_subscription: Arc<MountSubscription>,
 }
 
@@ -82,7 +86,7 @@ pub enum RemoteFilesBrowserLocation {
 
 #[derive(Debug, Clone)]
 pub struct RemoteFilesBrowserOptions {
-    pub select_name: Option<String>,
+    pub select_name: Option<RemoteName>,
     pub only_hosted_devices: bool,
 }
 
@@ -92,29 +96,17 @@ pub struct RemoteFilesBrowser {
     pub location: Option<RemoteFilesBrowserLocation>,
     pub status: Status<remote::RemoteError>,
     pub items: Vec<RemoteFilesBrowserItem>,
-    pub selection: Selection,
+    pub selection: Selection<RemoteFilesBrowserItemId>,
     pub sort: RemoteFilesSort,
 }
 
 #[derive(Debug, Clone)]
 pub struct RemoteFilesBrowserBreadcrumb {
-    pub id: String,
-    pub mount_id: Option<String>,
-    pub path: Option<String>,
-    pub name: String,
+    pub id: RemoteFilesBrowserItemId,
+    pub mount_id: Option<MountId>,
+    pub path: Option<RemotePath>,
+    pub name: RemoteName,
     pub last: bool,
-}
-
-impl From<RemoteFilesBreadcrumb> for RemoteFilesBrowserBreadcrumb {
-    fn from(breadcrumb: RemoteFilesBreadcrumb) -> Self {
-        Self {
-            id: breadcrumb.id,
-            mount_id: Some(breadcrumb.mount_id),
-            path: Some(breadcrumb.path),
-            name: breadcrumb.name,
-            last: breadcrumb.last,
-        }
-    }
 }
 
 #[derive(Debug, Clone, Default)]

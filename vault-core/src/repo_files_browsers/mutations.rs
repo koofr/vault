@@ -8,7 +8,8 @@ use crate::{
     selection::{mutations as selection_mutations, state::Selection},
     sort::state::SortDirection,
     store,
-    utils::path_utils,
+    types::{DecryptedPath, RepoFileId, RepoId},
+    utils::repo_path_utils,
 };
 
 use super::{
@@ -93,8 +94,8 @@ pub fn loaded(
     state: &mut store::State,
     notify: &store::Notify,
     browser_id: u32,
-    repo_id: &str,
-    path: &str,
+    repo_id: &RepoId,
+    path: &DecryptedPath,
     error: Option<&LoadFilesError>,
 ) {
     let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
@@ -105,7 +106,7 @@ pub fn loaded(
     if browser
         .location
         .as_ref()
-        .filter(|loc| loc.repo_id == repo_id && loc.path == path)
+        .filter(|loc| &loc.repo_id == repo_id && &loc.path == path)
         .is_some()
     {
         notify(store::Event::RepoFilesBrowsers);
@@ -130,19 +131,20 @@ pub fn update_files(state: &mut store::State, notify: &store::Notify, browser_id
         _ => return,
     };
 
-    let file_ids: Vec<String> = browser
+    let file_ids: Vec<RepoFileId> = browser
         .location
         .as_ref()
         .map(|loc| {
-            let file_ids: Vec<String> = selectors::select_file_ids(state, &loc.repo_id, &loc.path)
-                .map(str::to_string)
-                .collect();
+            let file_ids: Vec<RepoFileId> =
+                selectors::select_file_ids(state, &loc.repo_id, &loc.path)
+                    .map(ToOwned::to_owned)
+                    .collect();
 
             repo_files_selectors::select_sorted_files(state, &file_ids, &browser.sort)
         })
         .unwrap_or(Default::default());
 
-    let file_ids_set: HashSet<String> = file_ids.iter().cloned().collect();
+    let file_ids_set: HashSet<RepoFileId> = file_ids.iter().cloned().collect();
 
     let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
@@ -163,7 +165,7 @@ pub fn update_files(state: &mut store::State, notify: &store::Notify, browser_id
             .map(|loc| {
                 repo_files_selectors::get_file_id(
                     &loc.repo_id,
-                    &path_utils::join_path_name(&loc.path, &name),
+                    &repo_path_utils::join_path_name(&loc.path, &name),
                 )
             })
             .filter(|file_id| file_ids_set.contains(file_id));
@@ -182,7 +184,7 @@ pub fn update_files(state: &mut store::State, notify: &store::Notify, browser_id
     }
 
     if let Some(file_id) = select_file_id {
-        select_file(state, notify, browser_id, &file_id, false, false, true);
+        select_file(state, notify, browser_id, file_id, false, false, true);
 
         dirty = true;
     }
@@ -196,7 +198,7 @@ pub fn select_file(
     state: &mut store::State,
     notify: &store::Notify,
     browser_id: u32,
-    file_id: &str,
+    file_id: RepoFileId,
     extend: bool,
     range: bool,
     force: bool,
@@ -211,7 +213,7 @@ pub fn select_file(
         .as_ref()
         .map(|loc| {
             selectors::select_file_ids(state, &loc.repo_id, &loc.path)
-                .map(str::to_string)
+                .map(ToOwned::to_owned)
                 .collect()
         })
         .unwrap_or(Vec::new());
@@ -237,7 +239,7 @@ pub fn select_all(state: &mut store::State, notify: &store::Notify, browser_id: 
         .as_ref()
         .map(|loc| {
             selectors::select_file_ids(state, &loc.repo_id, &loc.path)
-                .map(str::to_string)
+                .map(ToOwned::to_owned)
                 .collect()
         })
         .unwrap_or(Vec::new());
@@ -267,7 +269,7 @@ pub fn set_selection(
     state: &mut store::State,
     notify: &store::Notify,
     browser_id: u32,
-    selection: Vec<String>,
+    selection: Vec<RepoFileId>,
 ) {
     let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,

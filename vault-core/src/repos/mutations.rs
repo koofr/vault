@@ -7,6 +7,7 @@ use crate::{
     remote::{models, RemoteError},
     remote_files::selectors as remote_files_selectors,
     store,
+    types::{DecryptedName, RepoId},
 };
 
 use super::{
@@ -30,13 +31,13 @@ fn vault_repo_to_repo(repo: models::VaultRepo, base_url: &str) -> Repo {
     let web_url = format!(
         "{}/app/storage/{}?path={}",
         base_url,
-        &mount_id,
-        encode(&path)
+        &mount_id.0,
+        encode(&path.0)
     );
 
     Repo {
         id,
-        name,
+        name: DecryptedName(name),
         mount_id,
         path,
         salt,
@@ -58,7 +59,7 @@ pub fn repo_loaded(state: &mut store::State, notify: &store::Notify, repo: model
     }
 
     state.repos.repo_ids_by_remote_file_id.insert(
-        remote_files_selectors::get_file_id(&repo.mount_id, &repo.path),
+        remote_files_selectors::get_file_id(&repo.mount_id, &repo.path.to_lowercase()),
         repo.id.clone(),
     );
 
@@ -137,7 +138,7 @@ pub fn lock_repo(
     notify: &store::Notify,
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
-    repo_id: &str,
+    repo_id: &RepoId,
 ) -> Result<(), RepoNotFoundError> {
     let repo = state
         .repos
@@ -161,7 +162,7 @@ pub fn unlock_repo(
     notify: &store::Notify,
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
-    repo_id: &str,
+    repo_id: &RepoId,
 ) -> Result<(), RepoNotFoundError> {
     let repo = state
         .repos
@@ -185,7 +186,7 @@ pub fn remove_repos(
     notify: &store::Notify,
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
-    repo_ids: &[String],
+    repo_ids: &[RepoId],
 ) {
     let mut removed = false;
 
@@ -196,7 +197,7 @@ pub fn remove_repos(
                 .repo_ids_by_remote_file_id
                 .remove(&remote_files_selectors::get_file_id(
                     &repo.mount_id,
-                    &repo.path,
+                    &repo.path.to_lowercase(),
                 ));
 
             if let Some(repo_tree) = state.repos.mount_repo_trees.get_mut(&repo.mount_id) {

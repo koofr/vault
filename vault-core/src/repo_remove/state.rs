@@ -1,16 +1,21 @@
 use std::collections::HashMap;
 
-use crate::{common::state::Status, repos::errors::RemoveRepoError, store::NextId};
+use crate::{
+    common::state::Status,
+    repos::errors::RemoveRepoError,
+    store::NextId,
+    types::{DecryptedName, RepoId},
+};
 
 pub struct RepoRemoveInfo<'a> {
-    pub repo_id: &'a str,
+    pub repo_id: &'a RepoId,
     pub status: &'a Status<RemoveRepoError>,
-    pub repo_name: Option<&'a str>,
+    pub repo_name: Option<&'a DecryptedName>,
 }
 
 #[derive(Debug, Clone)]
 pub struct RepoRemove {
-    pub repo_id: String,
+    pub repo_id: RepoId,
     pub status: Status<RemoveRepoError>,
 }
 

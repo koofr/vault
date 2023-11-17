@@ -1,13 +1,14 @@
 use crate::{
     dir_pickers::{
         selectors as dir_pickers_selectors,
-        state::{DirPicker, DirPickerItem, DirPickerItemType},
+        state::{DirPicker, DirPickerFileId, DirPickerItem, DirPickerItemId, DirPickerItemType},
     },
     repo_files::{
         selectors as repo_files_selectors,
         state::{RepoFile, RepoFileType},
     },
     store,
+    types::{RepoFileId, RepoId, DECRYPTED_PATH_ROOT},
 };
 
 use super::state::Options;
@@ -16,7 +17,7 @@ pub fn select_options(state: &store::State, picker_id: u32) -> Option<Options> {
     dir_pickers_selectors::select_options(state, picker_id)
 }
 
-pub fn select_repo_id(state: &store::State, picker_id: u32) -> Option<String> {
+pub fn select_repo_id(state: &store::State, picker_id: u32) -> Option<RepoId> {
     select_options(state, picker_id).map(|options| options.repo_id)
 }
 
@@ -24,7 +25,7 @@ pub fn select_items(state: &store::State, picker: &DirPicker) -> Vec<DirPickerIt
     let mut items: Vec<DirPickerItem> = Vec::new();
 
     if let Some(repo_id) = select_repo_id(state, picker.id) {
-        let root_file_id = repo_files_selectors::get_file_id(&repo_id, "/");
+        let root_file_id = repo_files_selectors::get_file_id(&repo_id, &DECRYPTED_PATH_ROOT);
 
         if let Some(root_file) = repo_files_selectors::select_file(state, &root_file_id) {
             select_items_visit_file(state, picker, &mut items, root_file, 0);
@@ -34,7 +35,10 @@ pub fn select_items(state: &store::State, picker: &DirPicker) -> Vec<DirPickerIt
     items
 }
 
-fn select_items_children<'a>(state: &'a store::State, file_id: &str) -> Option<Vec<&'a RepoFile>> {
+fn select_items_children<'a>(
+    state: &'a store::State,
+    file_id: &RepoFileId,
+) -> Option<Vec<&'a RepoFile>> {
     repo_files_selectors::select_children(state, file_id).map(|ids| {
         ids.iter()
             .filter_map(|id| repo_files_selectors::select_file(state, id))
@@ -52,9 +56,9 @@ fn select_items_visit_file(
 ) {
     let children = select_items_children(state, &file.id);
 
-    let id = file.id.clone();
+    let id = DirPickerItemId(file.id.0.clone());
     let is_root = match file.decrypted_path() {
-        Ok("/") => true,
+        Ok(path) if path.is_root() => true,
         _ => false,
     };
     let name = match repo_files_selectors::select_file_name(state, file) {
@@ -69,7 +73,7 @@ fn select_items_visit_file(
         DirPickerItemType::Folder
     };
     let is_open = picker.open_ids.contains(&id);
-    let is_selected = picker.selected_id.as_deref() == Some(&id);
+    let is_selected = picker.selected_id.as_ref() == Some(&id);
     let is_loading = picker.loading_ids.contains(&id);
     let has_arrow = depth > 0
         && match &children {
@@ -80,7 +84,7 @@ fn select_items_visit_file(
 
     items.push(DirPickerItem {
         id,
-        file_id: Some(file.id.clone()),
+        file_id: Some(DirPickerFileId(file.id.0.clone())),
         typ,
         is_open,
         is_selected,
@@ -88,7 +92,7 @@ fn select_items_visit_file(
         is_loading,
         spaces,
         has_arrow,
-        text: name.to_owned(),
+        text: name.0.to_owned(),
     });
 
     if is_open {

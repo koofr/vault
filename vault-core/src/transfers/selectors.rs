@@ -2,7 +2,7 @@ use std::{cmp::min, time::Duration};
 
 use crate::{
     common::state::RemainingTime, config::state::TransfersConfig,
-    repo_files::selectors as repo_files_selectors, store,
+    repo_files::selectors as repo_files_selectors, store, types::DecryptedName,
 };
 
 use super::state::{Transfer, TransferState, TransferType, TransfersState, UploadTransfer};
@@ -195,12 +195,16 @@ pub fn select_unused_name(
                     && upload_t.parent_id() == parent_id
                     && matches!(t.state, TransferState::Transferring)
                 {
-                    used_names.insert(upload_t.name.to_lowercase());
+                    used_names.insert(DecryptedName(upload_t.name.to_owned()).to_lowercase());
                 }
             }
             _ => {}
         }
     }
 
-    repo_files_selectors::get_unused_name(used_names, &upload_transfer.name)
+    repo_files_selectors::get_unused_name(
+        used_names,
+        &DecryptedName(upload_transfer.name.to_owned()),
+    )
+    .0
 }

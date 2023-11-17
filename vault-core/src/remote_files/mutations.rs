@@ -1,25 +1,38 @@
-use crate::{files::file_category::FileCategory, remote::models, store, utils::path_utils};
+use crate::{
+    files::file_category::FileCategory,
+    remote::models,
+    store,
+    types::{
+        MountId, RemoteFileId, RemoteName, RemoteNameLower, RemotePath, REMOTE_PATH_LOWER_ROOT,
+    },
+    utils::remote_path_utils,
+};
 
 use super::{
     selectors,
     state::{Mount, MountType, RemoteFile, RemoteFileType},
 };
 
-pub fn mount_to_remote_file(id: String, mount_id: String) -> RemoteFile {
-    let path = String::from("/");
+pub fn mount_to_remote_file(id: RemoteFileId, mount_id: MountId) -> RemoteFile {
+    let path = RemotePath("/".into());
     let size = None;
     let modified = None;
     let hash = None;
-    let unique_id =
-        selectors::get_file_unique_id(&mount_id, &path, size, modified, hash.as_deref());
+    let unique_id = selectors::get_file_unique_id(
+        &mount_id,
+        &path.to_lowercase(),
+        size,
+        modified,
+        hash.as_deref(),
+    );
     let category = FileCategory::Folder;
 
     RemoteFile {
         id,
         mount_id,
         path,
-        name: String::from(""),
-        name_lower: String::from(""),
+        name: RemoteName("".into()),
+        name_lower: RemoteNameLower("".into()),
         ext: None,
         typ: RemoteFileType::Dir,
         size,
@@ -31,9 +44,9 @@ pub fn mount_to_remote_file(id: String, mount_id: String) -> RemoteFile {
 }
 
 pub fn files_file_to_remote_file(
-    id: String,
-    mount_id: String,
-    path: String,
+    id: RemoteFileId,
+    mount_id: MountId,
+    path: RemotePath,
     file: models::FilesFile,
 ) -> RemoteFile {
     let name_lower = file.name.to_lowercase();
@@ -46,8 +59,13 @@ pub fn files_file_to_remote_file(
         RemoteFileType::Dir => (None, None),
         RemoteFileType::File => (Some(file.size), Some(file.modified)),
     };
-    let unique_id =
-        selectors::get_file_unique_id(&mount_id, &path, size, modified, file.hash.as_deref());
+    let unique_id = selectors::get_file_unique_id(
+        &mount_id,
+        &path.to_lowercase(),
+        size,
+        modified,
+        file.hash.as_deref(),
+    );
 
     RemoteFile {
         id,
@@ -66,9 +84,9 @@ pub fn files_file_to_remote_file(
 }
 
 pub fn bundle_file_to_remote_file(
-    id: String,
-    mount_id: String,
-    path: String,
+    id: RemoteFileId,
+    mount_id: MountId,
+    path: RemotePath,
     file: models::BundleFile,
 ) -> RemoteFile {
     let name_lower = file.name.to_lowercase();
@@ -81,8 +99,13 @@ pub fn bundle_file_to_remote_file(
         RemoteFileType::Dir => (None, None),
         RemoteFileType::File => (Some(file.size), Some(file.modified)),
     };
-    let unique_id =
-        selectors::get_file_unique_id(&mount_id, &path, size, modified, file.hash.as_deref());
+    let unique_id = selectors::get_file_unique_id(
+        &mount_id,
+        &path.to_lowercase(),
+        size,
+        modified,
+        file.hash.as_deref(),
+    );
 
     RemoteFile {
         id,
@@ -100,14 +123,14 @@ pub fn bundle_file_to_remote_file(
     }
 }
 
-fn bookmark_to_remote_file(id: String, bookmark: models::Bookmark) -> RemoteFile {
+fn bookmark_to_remote_file(id: RemoteFileId, bookmark: models::Bookmark) -> RemoteFile {
     let name_lower = bookmark.name.to_lowercase();
     let size = None;
     let modified = None;
     let hash = None;
     let unique_id = selectors::get_file_unique_id(
         &bookmark.mount_id,
-        &bookmark.path,
+        &bookmark.path.to_lowercase(),
         size,
         modified,
         hash.as_deref(),
@@ -130,8 +153,8 @@ fn bookmark_to_remote_file(id: String, bookmark: models::Bookmark) -> RemoteFile
     }
 }
 
-fn shared_file_to_remote_file(id: String, shared_file: models::SharedFile) -> RemoteFile {
-    let path = String::from("/");
+fn shared_file_to_remote_file(id: RemoteFileId, shared_file: models::SharedFile) -> RemoteFile {
+    let path = RemotePath("/".into());
     let name_lower = shared_file.name.to_lowercase();
     let typ = shared_file.typ.as_str().into();
     let (ext, category) = match &typ {
@@ -145,7 +168,7 @@ fn shared_file_to_remote_file(id: String, shared_file: models::SharedFile) -> Re
     let hash = None;
     let unique_id = selectors::get_file_unique_id(
         &shared_file.mount.id,
-        &path,
+        &path.to_lowercase(),
         size,
         modified,
         hash.as_deref(),
@@ -167,16 +190,21 @@ fn shared_file_to_remote_file(id: String, shared_file: models::SharedFile) -> Re
     }
 }
 
-fn dir_to_remote_file(id: String, mount_id: String, path: String) -> RemoteFile {
-    let name = path_utils::path_to_name(&path)
+fn dir_to_remote_file(id: RemoteFileId, mount_id: MountId, path: RemotePath) -> RemoteFile {
+    let name = remote_path_utils::path_to_name(&path)
         .map(|name| name.to_owned())
-        .unwrap_or(String::from(""));
+        .unwrap_or(RemoteName("".into()));
     let name_lower = name.to_lowercase();
     let size = None;
     let modified = None;
     let hash = None;
-    let unique_id =
-        selectors::get_file_unique_id(&mount_id, &path, size, modified, hash.as_deref());
+    let unique_id = selectors::get_file_unique_id(
+        &mount_id,
+        &path.to_lowercase(),
+        size,
+        modified,
+        hash.as_deref(),
+    );
     let category = FileCategory::Folder;
 
     RemoteFile {
@@ -203,7 +231,7 @@ pub fn mount_loaded(state: &mut store::State, mount: models::Mount) {
 }
 
 pub fn place_loaded(state: &mut store::State, mount: models::Mount) {
-    let file_id = selectors::get_file_id(&mount.id, "/");
+    let file_id = selectors::get_file_id(&mount.id, &REMOTE_PATH_LOWER_ROOT);
 
     state.remote_files.files.insert(
         file_id.clone(),
@@ -244,7 +272,7 @@ pub fn places_loaded(state: &mut store::State, mounts: Vec<models::Mount>) {
 }
 
 pub fn bookmark_loaded(state: &mut store::State, bookmark: models::Bookmark) {
-    let file_id = selectors::get_file_id(&bookmark.mount_id, &bookmark.path);
+    let file_id = selectors::get_file_id(&bookmark.mount_id, &bookmark.path.to_lowercase());
 
     state.remote_files.files.insert(
         file_id.clone(),
@@ -265,7 +293,7 @@ pub fn bookmarks_loaded(state: &mut store::State, bookmarks: Vec<models::Bookmar
 }
 
 pub fn shared_file_loaded(state: &mut store::State, shared_file: models::SharedFile) {
-    let file_id = selectors::get_file_id(&shared_file.mount.id, "/");
+    let file_id = selectors::get_file_id(&shared_file.mount.id, &REMOTE_PATH_LOWER_ROOT);
 
     mount_loaded(state, shared_file.mount.clone());
 
@@ -287,7 +315,7 @@ pub fn shared_files_loaded(state: &mut store::State, shared_files: Vec<models::S
     state.remote_files.shared_files_loaded = true;
 }
 
-pub fn sort_children(state: &mut store::State, file_id: &str) {
+pub fn sort_children(state: &mut store::State, file_id: &RemoteFileId) {
     if let Some(children_ids) = state.remote_files.children.get(file_id) {
         let mut children: Vec<&RemoteFile> = children_ids
             .iter()
@@ -298,7 +326,7 @@ pub fn sort_children(state: &mut store::State, file_id: &str) {
             selectors::remote_file_sort_key(x).cmp(&selectors::remote_file_sort_key(y))
         });
 
-        let children_ids: Vec<String> = children.iter().map(|file| file.id.clone()).collect();
+        let children_ids: Vec<RemoteFileId> = children.iter().map(|file| file.id.clone()).collect();
 
         state
             .remote_files
@@ -311,11 +339,11 @@ pub fn bundle_loaded(
     state: &mut store::State,
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
-    mount_id: &str,
-    path: &str,
+    mount_id: &MountId,
+    path: &RemotePath,
     bundle: models::Bundle,
 ) {
-    let root_file_id = selectors::get_file_id(mount_id, path);
+    let root_file_id = selectors::get_file_id(mount_id, &path.to_lowercase());
 
     let models::Bundle {
         file: bundle_file,
@@ -336,14 +364,10 @@ pub fn bundle_loaded(
         let mut children = Vec::with_capacity(files.len());
 
         for file in files {
-            let file_path = path_utils::join_path_name(path, &file.name);
-            let file_id = selectors::get_file_id(mount_id, &file_path);
-            let remote_file = bundle_file_to_remote_file(
-                file_id.clone(),
-                mount_id.to_owned(),
-                file_path.clone(),
-                file,
-            );
+            let file_path = remote_path_utils::join_path_name(path, &file.name);
+            let file_id = selectors::get_file_id(mount_id, &file_path.to_lowercase());
+            let remote_file =
+                bundle_file_to_remote_file(file_id.clone(), mount_id.to_owned(), file_path, file);
 
             children.push(file_id.clone());
 
@@ -372,26 +396,31 @@ pub fn file_loaded(
     state: &mut store::State,
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
-    mount_id: &str,
-    path: &str,
+    mount_id: &MountId,
+    path: &RemotePath,
     file: models::FilesFile,
 ) {
-    let root_file_id = selectors::get_file_id(mount_id, path);
+    let path_lower = path.to_lowercase();
 
-    let file_id = selectors::get_file_id(mount_id, path);
+    let root_file_id = selectors::get_file_id(mount_id, &path_lower);
 
     state.remote_files.files.insert(
-        file_id.clone(),
-        files_file_to_remote_file(file_id.clone(), mount_id.to_owned(), path.to_owned(), file),
+        root_file_id.clone(),
+        files_file_to_remote_file(
+            root_file_id.clone(),
+            mount_id.to_owned(),
+            path.to_owned(),
+            file,
+        ),
     );
 
-    if let Some(parent_path) = path_utils::parent_path(path) {
-        let parent_id = selectors::get_file_id(mount_id, &parent_path);
+    if let Some(parent_path) = remote_path_utils::parent_path(path) {
+        let parent_id = selectors::get_file_id(mount_id, &parent_path.to_lowercase());
 
-        add_child(state, &parent_id, file_id);
+        add_child(state, &parent_id, root_file_id.clone());
     }
 
-    state.remote_files.loaded_roots.insert(root_file_id.clone());
+    state.remote_files.loaded_roots.insert(root_file_id);
 
     mutation_state
         .remote_files
@@ -401,7 +430,7 @@ pub fn file_loaded(
     mutation_notify(store::MutationEvent::RemoteFiles, state, mutation_state);
 }
 
-pub fn add_child(state: &mut store::State, parent_id: &str, child_id: String) {
+pub fn add_child(state: &mut store::State, parent_id: &RemoteFileId, child_id: RemoteFileId) {
     if let Some(children) = state.remote_files.children.get_mut(parent_id) {
         if !children.contains(&child_id) {
             children.push(child_id);
@@ -415,18 +444,18 @@ pub fn dir_created(
     state: &mut store::State,
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
-    mount_id: &str,
-    path: &str,
+    mount_id: &MountId,
+    path: &RemotePath,
 ) {
-    let file_id = selectors::get_file_id(mount_id, path);
+    let file_id = selectors::get_file_id(mount_id, &path.to_lowercase());
 
     state.remote_files.files.insert(
         file_id.clone(),
         dir_to_remote_file(file_id.clone(), mount_id.to_owned(), path.to_owned()),
     );
 
-    if let Some(parent_path) = path_utils::parent_path(path) {
-        let parent_id = selectors::get_file_id(mount_id, &parent_path);
+    if let Some(parent_path) = remote_path_utils::parent_path(path) {
+        let parent_id = selectors::get_file_id(mount_id, &parent_path.to_lowercase());
 
         add_child(state, &parent_id, file_id);
     }
@@ -443,19 +472,19 @@ pub fn file_created(
     state: &mut store::State,
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
-    mount_id: &str,
-    path: &str,
+    mount_id: &MountId,
+    path: &RemotePath,
     file: models::FilesFile,
 ) {
-    let file_id = selectors::get_file_id(mount_id, path);
+    let file_id = selectors::get_file_id(mount_id, &path.to_lowercase());
 
     state.remote_files.files.insert(
         file_id.clone(),
         files_file_to_remote_file(file_id.clone(), mount_id.to_owned(), path.to_owned(), file),
     );
 
-    if let Some(parent_path) = path_utils::parent_path(path) {
-        let parent_id = selectors::get_file_id(mount_id, &parent_path);
+    if let Some(parent_path) = remote_path_utils::parent_path(path) {
+        let parent_id = selectors::get_file_id(mount_id, &parent_path.to_lowercase());
 
         add_child(state, &parent_id, file_id);
     }
@@ -468,9 +497,9 @@ pub fn file_created(
     mutation_notify(store::MutationEvent::RemoteFiles, state, mutation_state);
 }
 
-pub fn remove_child(state: &mut store::State, parent_id: &str, child_id: &str) {
+pub fn remove_child(state: &mut store::State, parent_id: &RemoteFileId, child_id: &RemoteFileId) {
     if let Some(children) = state.remote_files.children.get_mut(parent_id) {
-        children.retain(|id| id != &child_id);
+        children.retain(|id| &id != &child_id);
     }
 }
 
@@ -478,13 +507,13 @@ pub fn file_removed(
     state: &mut store::State,
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
-    mount_id: &str,
-    path: &str,
+    mount_id: &MountId,
+    path: &RemotePath,
 ) {
-    let file_id = selectors::get_file_id(mount_id, path);
+    let file_id = selectors::get_file_id(mount_id, &path.to_lowercase());
 
-    if let Some(parent_path) = path_utils::parent_path(path) {
-        let parent_id = selectors::get_file_id(mount_id, &parent_path);
+    if let Some(parent_path) = remote_path_utils::parent_path(path) {
+        let parent_id = selectors::get_file_id(mount_id, &parent_path.to_lowercase());
 
         remove_child(state, &parent_id, &file_id);
     }
@@ -499,44 +528,44 @@ pub fn file_removed(
     mutation_notify(store::MutationEvent::RemoteFiles, state, mutation_state);
 }
 
-pub fn cleanup_file(state: &mut store::State, file_id: &str) {
+pub fn cleanup_file(state: &mut store::State, file_id: &RemoteFileId) {
     state.remote_files.files.remove(file_id);
 
-    let file_id_prefix = if file_id.ends_with('/') {
-        file_id.to_owned()
+    let file_id_prefix = if file_id.0.ends_with('/') {
+        file_id.0.to_owned()
     } else {
-        format!("{file_id}/")
+        format!("{}/", file_id.0)
     };
 
     state
         .remote_files
         .files
-        .retain(|file_id, _| !file_id.starts_with(&file_id_prefix));
+        .retain(|file_id, _| !file_id.0.starts_with(&file_id_prefix));
 
     state.remote_files.children.remove(file_id);
 
     state
         .remote_files
         .children
-        .retain(|file_id, _| !file_id.starts_with(&file_id_prefix));
+        .retain(|file_id, _| !file_id.0.starts_with(&file_id_prefix));
 }
 
 pub fn file_copied(
     state: &mut store::State,
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
-    mount_id: &str,
-    new_path: &str,
+    mount_id: &MountId,
+    new_path: &RemotePath,
     new_file: models::FilesFile,
 ) {
-    let new_file_id = selectors::get_file_id(mount_id, new_path);
-    let new_parent_path = match path_utils::parent_path(new_path) {
+    let new_file_id = selectors::get_file_id(mount_id, &new_path.to_lowercase());
+    let new_parent_path = match remote_path_utils::parent_path(new_path) {
         Some(new_parent_path) => new_parent_path,
         None => {
             return;
         }
     };
-    let new_parent_id = selectors::get_file_id(mount_id, new_parent_path);
+    let new_parent_id = selectors::get_file_id(mount_id, &new_parent_path.to_lowercase());
 
     state.remote_files.files.insert(
         new_file_id.clone(),
@@ -562,28 +591,28 @@ pub fn file_moved(
     state: &mut store::State,
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
-    mount_id: &str,
-    old_path: &str,
-    new_path: &str,
+    mount_id: &MountId,
+    old_path: &RemotePath,
+    new_path: &RemotePath,
     new_file: models::FilesFile,
 ) {
-    let old_file_id = selectors::get_file_id(mount_id, old_path);
-    let old_parent_path = match path_utils::parent_path(old_path) {
+    let old_file_id = selectors::get_file_id(mount_id, &old_path.to_lowercase());
+    let old_parent_path = match remote_path_utils::parent_path(old_path) {
         Some(old_parent_path) => old_parent_path,
         None => {
             return;
         }
     };
-    let old_parent_id = selectors::get_file_id(mount_id, old_parent_path);
+    let old_parent_id = selectors::get_file_id(mount_id, &old_parent_path.to_lowercase());
 
-    let new_file_id = selectors::get_file_id(mount_id, new_path);
-    let new_parent_path = match path_utils::parent_path(new_path) {
+    let new_file_id = selectors::get_file_id(mount_id, &new_path.to_lowercase());
+    let new_parent_path = match remote_path_utils::parent_path(new_path) {
         Some(new_parent_path) => new_parent_path,
         None => {
             return;
         }
     };
-    let new_parent_id = selectors::get_file_id(mount_id, new_parent_path);
+    let new_parent_id = selectors::get_file_id(mount_id, &new_parent_path.to_lowercase());
 
     if let Some(_) = state.remote_files.files.remove(&old_file_id) {
         file_children_change_parent_path(state, &old_file_id, new_path);
@@ -616,8 +645,8 @@ pub fn file_moved(
 
 pub fn file_children_change_parent_path(
     state: &mut store::State,
-    file_id: &str,
-    new_parent_path: &str,
+    file_id: &RemoteFileId,
+    new_parent_path: &RemotePath,
 ) {
     if let Some(old_children_ids) = state
         .remote_files
@@ -625,17 +654,19 @@ pub fn file_children_change_parent_path(
         .get(file_id)
         .map(|ids| ids.clone())
     {
-        let new_children_ids: Vec<String> = Vec::with_capacity(old_children_ids.len());
+        let new_children_ids: Vec<RemoteFileId> = Vec::with_capacity(old_children_ids.len());
 
         for old_child_id in &old_children_ids {
             if let Some(mut child) = state.remote_files.files.remove(old_child_id) {
-                let new_child_path = path_utils::join_path_name(new_parent_path, &child.name);
-                let new_child_id = selectors::get_file_id(&child.mount_id, &new_child_path);
+                let new_child_path =
+                    remote_path_utils::join_path_name(new_parent_path, &child.name);
+                let new_child_id =
+                    selectors::get_file_id(&child.mount_id, &new_child_path.to_lowercase());
 
-                file_children_change_parent_path(state, old_child_id, &new_child_path);
+                file_children_change_parent_path(state, old_child_id, &new_child_path); // TODO CHECK THIS
 
                 child.id = new_child_id.clone();
-                child.path = new_child_path.clone();
+                child.path = new_child_path;
 
                 state.remote_files.files.insert(new_child_id.clone(), child);
             }

@@ -22,6 +22,7 @@ use vault_core::{
     },
     store,
     transfers::errors::{DownloadableError, TransferError},
+    types::{DecryptedName, DecryptedPath},
 };
 use vault_core_tests::{
     fixtures::repo_fixture::RepoFixture,
@@ -61,8 +62,8 @@ fn test_content() {
             );
 
             let (details_id, load_future) = fixture.vault.repo_files_details_create(
-                &fixture.repo_id,
-                "/file.txt",
+                fixture.repo_id.clone(),
+                &DecryptedPath("/file.txt".into()),
                 false,
                 RepoFilesDetailsOptions {
                     autosave_interval: Duration::from_secs(20),
@@ -186,8 +187,8 @@ fn test_content_loaded_error() {
             fixture.upload_file("/file.txt", "test").await;
 
             let (details_id, load_future) = fixture.vault.repo_files_details_create(
-                &fixture.repo_id,
-                "/file.txt",
+                fixture.repo_id.clone(),
+                &DecryptedPath("/file.txt".into()),
                 false,
                 RepoFilesDetailsOptions {
                     autosave_interval: Duration::from_secs(20),
@@ -233,8 +234,8 @@ fn test_download() {
             );
 
             let (details_id, load_future) = fixture.vault.repo_files_details_create(
-                &fixture.repo_id,
-                "/file.txt",
+                fixture.repo_id.clone(),
+                &DecryptedPath("/file.txt".into()),
                 false,
                 RepoFilesDetailsOptions {
                     autosave_interval: Duration::from_secs(20),
@@ -329,8 +330,9 @@ fn test_download_size_decryption_error() {
                 fixture
                     .vault
                     .repo_files_service
-                    .encrypt_filename(&fixture.repo_id, "file.txt")
+                    .encrypt_filename(&fixture.repo_id, &DecryptedName("file.txt".into()))
                     .unwrap()
+                    .0
             );
 
             fixture
@@ -345,8 +347,8 @@ fn test_download_size_decryption_error() {
             );
 
             let (details_id, load_future) = fixture.vault.repo_files_details_create(
-                &fixture.repo_id,
-                "/file.txt",
+                fixture.repo_id.clone(),
+                &DecryptedPath("/file.txt".into()),
                 false,
                 RepoFilesDetailsOptions {
                     autosave_interval: Duration::from_secs(20),
@@ -438,8 +440,8 @@ fn test_download_downloadable_error() {
             );
 
             let (details_id, load_future) = fixture.vault.repo_files_details_create(
-                &fixture.repo_id,
-                "/file.txt",
+                fixture.repo_id.clone(),
+                &DecryptedPath("/file.txt".into()),
                 false,
                 RepoFilesDetailsOptions {
                     autosave_interval: Duration::from_secs(20),
@@ -539,7 +541,7 @@ fn expected_details_state(
         },
         location: Some(RepoFilesDetailsLocation {
             repo_id: fixture.repo_id.clone(),
-            path: "/file.txt".into(),
+            path: DecryptedPath("/file.txt".into()),
             eventstream_mount_subscription: state
                 .details
                 .get(&1)

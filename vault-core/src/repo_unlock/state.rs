@@ -4,12 +4,13 @@ use crate::{
     common::state::Status,
     repos::{errors::UnlockRepoError, state::RepoUnlockMode},
     store::NextId,
+    types::{DecryptedName, RepoId},
 };
 
 pub struct RepoUnlockInfo<'a> {
-    pub repo_id: &'a str,
+    pub repo_id: &'a RepoId,
     pub status: &'a Status<UnlockRepoError>,
-    pub repo_name: Option<&'a str>,
+    pub repo_name: Option<&'a DecryptedName>,
 }
 
 #[derive(Debug, Clone)]
@@ -19,7 +20,7 @@ pub struct RepoUnlockOptions {
 
 #[derive(Debug, Clone)]
 pub struct RepoUnlock {
-    pub repo_id: String,
+    pub repo_id: RepoId,
     pub mode: RepoUnlockMode,
     pub status: Status<UnlockRepoError>,
 }

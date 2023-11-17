@@ -4,6 +4,12 @@ use serde_json::Value;
 
 use crate::store::NextId;
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct DirPickerItemId(pub String);
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct DirPickerFileId(pub String);
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DirPickerItemType {
     Folder,
@@ -23,8 +29,8 @@ pub enum DirPickerItemType {
 
 #[derive(Debug, Clone)]
 pub struct DirPickerItem {
-    pub id: String,
-    pub file_id: Option<String>,
+    pub id: DirPickerItemId,
+    pub file_id: Option<DirPickerFileId>,
     pub typ: DirPickerItemType,
     pub is_open: bool,
     pub is_selected: bool,
@@ -40,9 +46,9 @@ pub struct DirPicker {
     pub id: u32,
     pub options: Value,
     pub items: Vec<DirPickerItem>,
-    pub open_ids: HashSet<String>,
-    pub loading_ids: HashSet<String>,
-    pub selected_id: Option<String>,
+    pub open_ids: HashSet<DirPickerItemId>,
+    pub loading_ids: HashSet<DirPickerItemId>,
+    pub selected_id: Option<DirPickerItemId>,
 }
 
 #[derive(Debug, Clone, Default)]

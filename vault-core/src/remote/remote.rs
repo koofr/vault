@@ -14,6 +14,7 @@ use crate::{
     common::state::BoxAsyncRead,
     http::{BoxHttpResponse, HttpClient, HttpError, HttpRequest, HttpRequestBody},
     oauth2::errors::OAuth2Error,
+    types::{MountId, RemoteName, RemotePath, RepoId},
 };
 
 use super::{
@@ -229,11 +230,11 @@ impl Remote {
         res.bytes().await.map_err(RemoteError::HttpError)
     }
 
-    pub async fn get_mount(&self, id: &str) -> Result<models::Mount, RemoteError> {
+    pub async fn get_mount(&self, id: &MountId) -> Result<models::Mount, RemoteError> {
         let res = self
             .request(HttpRequest {
                 method: String::from("GET"),
-                url: format!("/api/v2.1/mounts/{}", encode(id)),
+                url: format!("/api/v2.1/mounts/{}", &id.0),
                 is_retriable: true,
                 ..Default::default()
             })
@@ -287,11 +288,11 @@ impl Remote {
         res_json(res).await
     }
 
-    pub async fn remove_vault_repo(&self, repo_id: &str) -> Result<(), RemoteError> {
+    pub async fn remove_vault_repo(&self, repo_id: &RepoId) -> Result<(), RemoteError> {
         let res = self
             .request(HttpRequest {
                 method: String::from("DELETE"),
-                url: format!("/api/v2.1/vault/repos/{}", repo_id),
+                url: format!("/api/v2.1/vault/repos/{}", repo_id.0),
                 is_retriable: true,
                 ..Default::default()
             })
@@ -363,13 +364,17 @@ impl Remote {
 
     pub async fn get_bundle(
         &self,
-        mount_id: &str,
-        path: &str,
+        mount_id: &MountId,
+        path: &RemotePath,
     ) -> Result<models::Bundle, RemoteError> {
         let res = self
             .request(HttpRequest {
                 method: String::from("GET"),
-                url: format!("/api/v2.1/mounts/{}/bundle?path={}", mount_id, encode(path)),
+                url: format!(
+                    "/api/v2.1/mounts/{}/bundle?path={}",
+                    &mount_id.0,
+                    encode(&path.0)
+                ),
                 is_retriable: true,
                 ..Default::default()
             })
@@ -384,16 +389,16 @@ impl Remote {
 
     pub async fn get_list_recursive(
         &self,
-        mount_id: &str,
-        path: &str,
+        mount_id: &MountId,
+        path: &RemotePath,
     ) -> Result<ListRecursiveItemStream, RemoteError> {
         let res = self
             .request(HttpRequest {
                 method: String::from("GET"),
                 url: format!(
                     "/content/api/v2.1/mounts/{}/files/listrecursive?path={}",
-                    mount_id,
-                    encode(path)
+                    &mount_id.0,
+                    encode(&path.0)
                 ),
                 is_retriable: true,
                 ..Default::default()
@@ -428,16 +433,16 @@ impl Remote {
 
     pub async fn get_file(
         &self,
-        mount_id: &str,
-        path: &str,
+        mount_id: &MountId,
+        path: &RemotePath,
     ) -> Result<models::FilesFile, RemoteError> {
         let res = self
             .request(HttpRequest {
                 method: String::from("GET"),
                 url: format!(
                     "/api/v2.1/mounts/{}/files/info?path={}",
-                    mount_id,
-                    encode(path)
+                    &mount_id.0,
+                    encode(&path.0)
                 ),
                 is_retriable: true,
                 ..Default::default()
@@ -453,16 +458,16 @@ impl Remote {
 
     pub async fn get_file_reader(
         &self,
-        mount_id: &str,
-        path: &str,
+        mount_id: &MountId,
+        path: &RemotePath,
     ) -> Result<RemoteFileReader, RemoteError> {
         let res = self
             .request(HttpRequest {
                 method: String::from("GET"),
                 url: format!(
                     "/content/api/v2.1/mounts/{}/files/get?path={}",
-                    mount_id,
-                    encode(path)
+                    &mount_id.0,
+                    encode(&path.0)
                 ),
                 is_retriable: true,
                 ..Default::default()
@@ -509,9 +514,9 @@ impl Remote {
 
     pub async fn upload_file_reader(
         &self,
-        mount_id: &str,
-        parent_path: &str,
-        name: &str,
+        mount_id: &MountId,
+        parent_path: &RemotePath,
+        name: &RemoteName,
         reader: BoxAsyncRead,
         size: Option<i64>,
         modified: Option<i64>,
@@ -547,9 +552,9 @@ impl Remote {
 
         let mut url = format!(
             "/content/api/v2.1/mounts/{}/files/put?path={}&filename={}&autorename={}&overwrite={}&info=true",
-            mount_id,
-            encode(parent_path),
-            encode(name),
+            &mount_id.0,
+            encode(&parent_path.0),
+            encode(&name.0),
             autorename,
             overwrite,
         );
@@ -594,14 +599,14 @@ impl Remote {
 
     pub async fn delete_file(
         &self,
-        mount_id: &str,
-        path: &str,
+        mount_id: &MountId,
+        path: &RemotePath,
         conditions: RemoteFileRemoveConditions,
     ) -> Result<(), RemoteError> {
         let mut url = format!(
             "/api/v2.1/mounts/{}/files/remove?path={}",
-            mount_id,
-            encode(path)
+            &mount_id.0,
+            encode(&path.0)
         );
 
         if conditions.if_empty {
@@ -626,21 +631,19 @@ impl Remote {
 
     pub async fn create_dir(
         &self,
-        mount_id: &str,
-        parent_path: &str,
-        name: &str,
+        mount_id: &MountId,
+        parent_path: &RemotePath,
+        name: RemoteName,
     ) -> Result<(), RemoteError> {
-        let (req_body, req_headers) = req_json(&models::FilesFolderCreate {
-            name: name.to_owned(),
-        });
+        let (req_body, req_headers) = req_json(&models::FilesFolderCreate { name });
 
         let res = self
             .request(HttpRequest {
                 method: String::from("POST"),
                 url: format!(
                     "/api/v2.1/mounts/{}/files/folder?path={}",
-                    mount_id,
-                    encode(parent_path)
+                    &mount_id.0,
+                    encode(&parent_path.0)
                 ),
                 headers: req_headers,
                 body: req_body,
@@ -658,21 +661,19 @@ impl Remote {
 
     pub async fn rename_file(
         &self,
-        mount_id: &str,
-        path: &str,
-        new_name: &str,
+        mount_id: &MountId,
+        path: &RemotePath,
+        new_name: RemoteName,
     ) -> Result<(), RemoteError> {
-        let (req_body, req_headers) = req_json(&models::FilesRename {
-            name: new_name.to_owned(),
-        });
+        let (req_body, req_headers) = req_json(&models::FilesRename { name: new_name });
 
         let res = self
             .request(HttpRequest {
                 method: String::from("PUT"),
                 url: format!(
                     "/api/v2.1/mounts/{}/files/rename?path={}",
-                    mount_id,
-                    encode(path)
+                    &mount_id.0,
+                    encode(&path.0)
                 ),
                 headers: req_headers,
                 body: req_body,
@@ -690,10 +691,10 @@ impl Remote {
 
     pub async fn copy_file(
         &self,
-        mount_id: &str,
-        path: &str,
-        to_mount_id: &str,
-        to_path: &str,
+        mount_id: &MountId,
+        path: &RemotePath,
+        to_mount_id: &MountId,
+        to_path: &RemotePath,
     ) -> Result<(), RemoteError> {
         let (req_body, req_headers) = req_json(&models::FilesCopy {
             to_mount_id: to_mount_id.to_owned(),
@@ -705,8 +706,8 @@ impl Remote {
                 method: String::from("PUT"),
                 url: format!(
                     "/api/v2.1/mounts/{}/files/copy?path={}",
-                    mount_id,
-                    encode(path)
+                    &mount_id.0,
+                    encode(&path.0)
                 ),
                 headers: req_headers,
                 body: req_body,
@@ -724,10 +725,10 @@ impl Remote {
 
     pub async fn move_file(
         &self,
-        mount_id: &str,
-        path: &str,
-        to_mount_id: &str,
-        to_path: &str,
+        mount_id: &MountId,
+        path: &RemotePath,
+        to_mount_id: &MountId,
+        to_path: &RemotePath,
         conditions: RemoteFileMoveConditions,
     ) -> Result<(), RemoteError> {
         let (req_body, req_headers) = req_json(&models::FilesMove {
@@ -743,8 +744,8 @@ impl Remote {
                 method: String::from("PUT"),
                 url: format!(
                     "/api/v2.1/mounts/{}/files/move?path={}",
-                    mount_id,
-                    encode(path)
+                    &mount_id.0,
+                    encode(&path.0)
                 ),
                 headers: req_headers,
                 body: req_body,
@@ -856,6 +857,7 @@ pub mod tests {
         },
         oauth2::errors::OAuth2Error,
         remote::{models, RemoteError},
+        types::{MountId, RemoteName, RemotePath},
     };
 
     use super::Remote;
@@ -919,16 +921,19 @@ r#"{"type":"file","path":"/","file":{"name":"Vault","type":"dir","modified":1677
 
         block_on(async {
             let mut items_stream = remote
-                .get_list_recursive("86f2d1a7-226e-433e-a9fa-7779392b20fd", "/Vault")
+                .get_list_recursive(
+                    &MountId("86f2d1a7-226e-433e-a9fa-7779392b20fd".into()),
+                    &RemotePath("/Vault".into()),
+                )
                 .await
                 .unwrap();
 
             assert_eq!(
                 items_stream.next().await,
                 Some(Ok(models::FilesListRecursiveItem::File {
-                    path: String::from("/"),
+                    path: RemotePath("/".into()),
                     file: models::FilesFile {
-                        name: String::from("Vault"),
+                        name: RemoteName("Vault".into()),
                         typ: String::from("dir"),
                         modified: 1677861215152,
                         size: 0,
@@ -941,9 +946,9 @@ r#"{"type":"file","path":"/","file":{"name":"Vault","type":"dir","modified":1677
             assert_eq!(
                 items_stream.next().await,
                 Some(Ok(models::FilesListRecursiveItem::File {
-                    path: String::from("/test.txt"),
+                    path: RemotePath("/test.txt".into()),
                     file: models::FilesFile {
-                        name: String::from("test.txt"),
+                        name: RemoteName("test.txt".into()),
                         typ: String::from("file"),
                         modified: 1677861599216,
                         size: 5,
@@ -956,7 +961,7 @@ r#"{"type":"file","path":"/","file":{"name":"Vault","type":"dir","modified":1677
             assert_eq!(
                 items_stream.next().await,
                 Some(Ok(models::FilesListRecursiveItem::Error {
-                    path: Some(String::from("/error")),
+                    path: Some(RemotePath("/error".into())),
                     error: models::ApiErrorDetails {
                         code: String::from("Other"),
                         message: String::from("Internal error"),
@@ -994,16 +999,19 @@ r#"{"type":"file","path":"/","file":{"name":"Vault","type":"dir","modified":1677
 
         block_on(async {
             let mut items_stream = remote
-                .get_list_recursive("86f2d1a7-226e-433e-a9fa-7779392b20fd", "/Vault")
+                .get_list_recursive(
+                    &MountId("86f2d1a7-226e-433e-a9fa-7779392b20fd".into()),
+                    &RemotePath("/Vault".into()),
+                )
                 .await
                 .unwrap();
 
             assert_eq!(
                 items_stream.next().await,
                 Some(Ok(models::FilesListRecursiveItem::File {
-                    path: String::from("/"),
+                    path: RemotePath("/".into()),
                     file: models::FilesFile {
-                        name: String::from("Vault"),
+                        name: RemoteName("Vault".into()),
                         typ: String::from("dir"),
                         modified: 1677861215152,
                         size: 0,

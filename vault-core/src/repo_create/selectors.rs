@@ -2,6 +2,7 @@ use crate::{
     remote_files::state::{RemoteFile, RemoteFilesLocation},
     remote_files_dir_pickers::selectors as remote_files_dir_pickers_selectors,
     store,
+    types::{RemotePath, REMOTE_PATH_LOWER_ROOT},
 };
 
 use super::state::{RepoCreate, RepoCreateForm};
@@ -33,7 +34,7 @@ pub fn select_primary_mount_location(
             .as_ref()
             .map(|mount_id| RemoteFilesLocation {
                 mount_id: mount_id.to_owned(),
-                path: String::from("/"),
+                path: RemotePath("/".into()),
             })
     })
 }
@@ -53,7 +54,7 @@ pub fn select_location_dir_picker_selected_file<'a>(
 
 pub fn select_location_dir_picker_can_select(state: &store::State, create_id: u32) -> bool {
     select_location_dir_picker_selected_file(state, create_id)
-        .filter(|file| file.path != "/")
+        .filter(|file| file.path.0 != REMOTE_PATH_LOWER_ROOT.0)
         .is_some()
 }
 

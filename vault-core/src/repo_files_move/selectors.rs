@@ -5,7 +5,8 @@ use crate::{
         state::RepoFile,
     },
     store,
-    utils::path_utils,
+    types::{DecryptedPath, RepoFileId, RepoId},
+    utils::repo_path_utils,
 };
 
 use super::{errors::DirPickerClickError, state::RepoFilesMoveState};
@@ -14,15 +15,17 @@ pub fn select_dir_picker_id(state: &store::State) -> Option<u32> {
     state.repo_files_move.as_ref().map(|x| x.dir_picker_id)
 }
 
-pub fn select_dest_path<'a>(state: &'a store::State) -> Option<&'a str> {
-    state.repo_files_move.as_ref().map(|x| x.dest_path.as_str())
+pub fn select_dest_path<'a>(state: &'a store::State) -> Option<&'a DecryptedPath> {
+    state.repo_files_move.as_ref().map(|x| &x.dest_path)
 }
 
-pub fn select_repo_id_dest_path<'a>(state: &'a store::State) -> Option<(&'a str, &'a str)> {
+pub fn select_repo_id_dest_path<'a>(
+    state: &'a store::State,
+) -> Option<(&'a RepoId, &'a DecryptedPath)> {
     state
         .repo_files_move
         .as_ref()
-        .map(|x| (x.repo_id.as_str(), x.dest_path.as_str()))
+        .map(|x| (&x.repo_id, &x.dest_path))
 }
 
 pub fn select_dest_file<'a>(state: &'a store::State) -> Option<&'a RepoFile> {
@@ -36,8 +39,8 @@ pub fn select_dest_file<'a>(state: &'a store::State) -> Option<&'a RepoFile> {
 
 pub fn select_dir_picker_click(
     state: &store::State,
-    file_id: &str,
-) -> Result<(u32, String), DirPickerClickError> {
+    file_id: &RepoFileId,
+) -> Result<(u32, DecryptedPath), DirPickerClickError> {
     let dir_picker_id = select_dir_picker_id(state).ok_or_else(RepoFilesErrors::not_found)?;
 
     let file =
@@ -56,7 +59,7 @@ pub fn select_create_dir_enabled(state: &store::State) -> bool {
 
 pub fn select_check_move<'a>(
     state: &'a store::State,
-) -> Result<(&'a RepoFilesMoveState, &'a str), MoveFileError> {
+) -> Result<(&'a RepoFilesMoveState, &'a DecryptedPath), MoveFileError> {
     let files_move_state = state
         .repo_files_move
         .as_ref()
@@ -65,9 +68,9 @@ pub fn select_check_move<'a>(
     let dest_parent_path = select_dest_path(state).ok_or_else(RepoFilesErrors::not_found)?;
 
     for src_path in files_move_state.src_paths.iter() {
-        let (_, src_name) =
-            path_utils::split_parent_name(src_path).ok_or_else(RepoFilesErrors::invalid_path)?;
-        let dest_path = path_utils::join_path_name(dest_parent_path, src_name);
+        let (_, src_name) = repo_path_utils::split_parent_name(src_path)
+            .ok_or_else(RepoFilesErrors::invalid_path)?;
+        let dest_path = repo_path_utils::join_path_name(dest_parent_path, &src_name);
         let dest_file_id = repo_files_selectors::get_file_id(&files_move_state.repo_id, &dest_path);
 
         if src_path == &dest_path {

@@ -6,6 +6,7 @@ use crate::{
     remote::{models::FilesListRecursiveItem, RemoteError},
     remote_files::RemoteFilesService,
     store,
+    types::RepoId,
 };
 
 use super::{errors::RepoSpaceUsageError, mutations};
@@ -23,7 +24,7 @@ impl RepoSpaceUsageService {
         }
     }
 
-    pub fn create(&self, repo_id: &str) -> u32 {
+    pub fn create(&self, repo_id: RepoId) -> u32 {
         self.store
             .mutate(|state, notify, _, _| mutations::create(state, notify, repo_id))
     }

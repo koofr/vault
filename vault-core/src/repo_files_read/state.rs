@@ -6,12 +6,13 @@ use crate::{
     common::state::{BoxAsyncRead, SizeInfo},
     remote_files::state::RemoteFile,
     repo_files::state::RepoFileType,
+    types::{DecryptedName, MountId, RemotePath, RepoId},
 };
 
 use super::errors::GetFilesReaderError;
 
 pub struct RepoFileReader {
-    pub name: String,
+    pub name: DecryptedName,
     pub size: SizeInfo,
     /// content_type is needed in vault-wasm to build Blobs. without correct
     /// content-type, imgs are not displayed
@@ -50,7 +51,7 @@ pub type RepoFileReaderBuilder = Box<
 >;
 
 pub struct RepoFileReaderProvider {
-    pub name: String,
+    pub name: DecryptedName,
     pub size: SizeInfo,
     /// unique_name is used for local file caching. it will not be set for
     /// generated files (e.g. ZIP files of a dir)
@@ -86,9 +87,9 @@ impl RepoFileReaderProvider {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct RemoteZipEntry {
-    pub mount_id: String,
-    pub remote_path: String,
-    pub repo_id: String,
+    pub mount_id: MountId,
+    pub remote_path: RemotePath,
+    pub repo_id: RepoId,
     /// relative path without leading / (dirs end with /)
     pub filename: String,
     pub modified: async_zip_futures::ZipDateTime,

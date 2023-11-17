@@ -63,14 +63,14 @@ pub fn list_recursive_items_to_remote_zip_entries(
                     }
                 };
 
-                if relative_repo_path == "/" {
+                if relative_repo_path.is_root() {
                     // skip root item
                     continue;
                 }
 
                 let filename = match &file.typ {
-                    RepoFileType::Dir => format!("{}/", &relative_repo_path[1..]),
-                    RepoFileType::File => relative_repo_path[1..].to_owned(),
+                    RepoFileType::Dir => format!("{}/", &relative_repo_path.0[1..]),
+                    RepoFileType::File => relative_repo_path.0[1..].to_owned(),
                 };
 
                 let size = match file.decrypted_size() {
@@ -114,7 +114,7 @@ pub fn file_to_remote_zip_entry(file: &RepoFile) -> Result<RemoteZipEntry, GetFi
         mount_id: file.mount_id.clone(),
         remote_path: file.remote_path.clone(),
         repo_id: file.repo_id.clone(),
-        filename: file.decrypted_name().map(str::to_string)?,
+        filename: file.decrypted_name().map(|x| x.0.clone())?,
         modified: zip_date_time_from_millis(file.modified.unwrap_or(0)),
         typ: file.typ.clone(),
         size: file.decrypted_size()?.unwrap_or(0),
@@ -136,6 +136,7 @@ mod tests {
             test_helpers as repo_files_list_test_helpers,
         },
         repo_files_read::{errors::GetFilesReaderError, state::RemoteZipEntry},
+        types::{DecryptedName, DecryptedPath, EncryptedPath, MountId, RemotePath, RepoId},
     };
 
     use super::{
@@ -199,7 +200,7 @@ mod tests {
                 ),
                 file_path_error,
                 RepoFilesListRecursiveItem::Error {
-                    mount_id: String::from("m1"),
+                    mount_id: MountId("m1".into()),
                     remote_path: None,
                     error: FilesListRecursiveItemError::DecryptFilenameError(
                         DecryptFilenameError::DecodeError(String::from(
@@ -220,41 +221,41 @@ mod tests {
             .unwrap(),
             vec![
                 RemoteZipEntry {
-                    mount_id: String::from("m1"),
-                    remote_path: format!(
+                    mount_id: MountId("m1".into()),
+                    remote_path: RemotePath(format!(
                         "/Vault/{}/{}",
-                        cipher.encrypt_filename("D1"),
-                        cipher.encrypt_filename("F1")
-                    ),
+                        cipher.encrypt_filename(&DecryptedName("D1".into())).0,
+                        cipher.encrypt_filename(&DecryptedName("F1".into())).0
+                    )),
                     filename: String::from("F1"),
-                    repo_id: String::from("r1"),
+                    repo_id: RepoId("r1".into()),
                     modified: async_zip_futures::ZipDateTime::default(),
                     typ: RepoFileType::File,
                     size: 52,
                 },
                 RemoteZipEntry {
-                    mount_id: String::from("m1"),
-                    remote_path: format!(
+                    mount_id: MountId("m1".into()),
+                    remote_path: RemotePath(format!(
                         "/Vault/{}/{}",
-                        cipher.encrypt_filename("D1"),
-                        cipher.encrypt_filename("D2")
-                    ),
+                        cipher.encrypt_filename(&DecryptedName("D1".into())).0,
+                        cipher.encrypt_filename(&DecryptedName("D2".into())).0
+                    )),
                     filename: String::from("D2/"),
-                    repo_id: String::from("r1"),
+                    repo_id: RepoId("r1".into()),
                     modified: async_zip_futures::ZipDateTime::default(),
                     typ: RepoFileType::Dir,
                     size: 0,
                 },
                 RemoteZipEntry {
-                    mount_id: String::from("m1"),
-                    remote_path: format!(
+                    mount_id: MountId("m1".into()),
+                    remote_path: RemotePath(format!(
                         "/Vault/{}/{}/{}",
-                        cipher.encrypt_filename("D1"),
-                        cipher.encrypt_filename("D2"),
-                        cipher.encrypt_filename("F2")
-                    ),
+                        cipher.encrypt_filename(&DecryptedName("D1".into())).0,
+                        cipher.encrypt_filename(&DecryptedName("D2".into())).0,
+                        cipher.encrypt_filename(&DecryptedName("F2".into())).0
+                    )),
                     filename: String::from("D2/F2"),
-                    repo_id: String::from("r1"),
+                    repo_id: RepoId("r1".into()),
                     modified: async_zip_futures::ZipDateTime::default(),
                     typ: RepoFileType::File,
                     size: 52,
@@ -275,7 +276,7 @@ mod tests {
                     "m1", "/Vault", "r1", "/D1", "/F1", &cipher,
                 ),
                 RepoFilesListRecursiveItem::Error {
-                    mount_id: String::from("m1"),
+                    mount_id: MountId("m1".into()),
                     remote_path: None,
                     error: FilesListRecursiveItemError::RemoteError(RemoteError::HttpError(
                         HttpError::ResponseError(String::from("invalid json"))
@@ -292,15 +293,27 @@ mod tests {
         let cipher = cipher_test_helpers::create_cipher();
         let remote_file = remote_files_test_helpers::create_file(
             "m1",
-            &format!("/Vault/{}", cipher.encrypt_filename("F1")),
+            &format!(
+                "/Vault/{}",
+                cipher.encrypt_filename(&DecryptedName("F1".into())).0
+            ),
         );
-        let file = decrypt_file("r1", "/", "/", &remote_file, &cipher);
+        let file = decrypt_file(
+            &RepoId("r1".into()),
+            &EncryptedPath("/".into()),
+            &DecryptedPath("/".into()),
+            &remote_file,
+            &cipher,
+        );
         assert_eq!(
             file_to_remote_zip_entry(&file).unwrap(),
             RemoteZipEntry {
-                mount_id: String::from("m1"),
-                remote_path: format!("/Vault/{}", cipher.encrypt_filename("F1")),
-                repo_id: String::from("r1"),
+                mount_id: MountId("m1".into()),
+                remote_path: RemotePath(format!(
+                    "/Vault/{}",
+                    cipher.encrypt_filename(&DecryptedName("F1".into())).0
+                )),
+                repo_id: RepoId("r1".into()),
                 filename: String::from("F1"),
                 modified: async_zip_futures::ZipDateTime::default(),
                 typ: RepoFileType::File,
@@ -313,7 +326,13 @@ mod tests {
     fn test_file_to_remote_zip_entry_decrypt_error() {
         let cipher = cipher_test_helpers::create_cipher();
         let remote_file = remote_files_test_helpers::create_file("m1", "/Vault/F1");
-        let file = decrypt_file("r1", "/", "/", &remote_file, &cipher);
+        let file = decrypt_file(
+            &RepoId("r1".into()),
+            &EncryptedPath("/".into()),
+            &DecryptedPath("/".into()),
+            &remote_file,
+            &cipher,
+        );
         assert!(matches!(
             file_to_remote_zip_entry(&file).unwrap_err(),
             GetFilesReaderError::DecryptFilenameError(_)

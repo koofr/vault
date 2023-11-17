@@ -29,11 +29,9 @@ use crate::{
     repos::selectors as repos_selectors,
     runtime, store,
     transfers::{downloadable::BoxDownloadable, errors::TransferError, TransfersService},
+    types::{DecryptedName, DecryptedPath, RepoId},
     user_error::UserError,
-    utils::{
-        on_end_reader::OnEndReader,
-        path_utils::{self, normalize_path},
-    },
+    utils::{on_end_reader::OnEndReader, path_utils::normalize_path, repo_path_utils},
 };
 
 use super::{
@@ -92,12 +90,12 @@ impl RepoFilesDetailsService {
 
     pub fn create(
         self: Arc<Self>,
-        repo_id: &str,
-        path: &str,
+        repo_id: RepoId,
+        path: &DecryptedPath,
         is_editing: bool,
         options: RepoFilesDetailsOptions,
     ) -> (u32, BoxFuture<'static, Result<(), LoadDetailsError>>) {
-        let location = self.clone().get_location(repo_id, path, is_editing);
+        let location = self.clone().get_location(repo_id.clone(), path, is_editing);
 
         let repo_files_subscription_id = self.store.get_next_id();
 
@@ -166,17 +164,18 @@ impl RepoFilesDetailsService {
 
     fn get_location(
         &self,
-        repo_id: &str,
-        path: &str,
+        repo_id: RepoId,
+        path: &DecryptedPath,
         is_editing: bool,
     ) -> Result<RepoFilesDetailsLocation, LoadFilesError> {
-        normalize_path(path)
+        normalize_path(&path.0)
+            .map(DecryptedPath)
             .map(|path| {
                 let eventstream_mount_subscription =
-                    self.clone().get_eventstream_mount_subscription(repo_id);
+                    self.clone().get_eventstream_mount_subscription(&repo_id);
 
                 mutations::create_location(
-                    repo_id.to_owned(),
+                    repo_id,
                     path,
                     eventstream_mount_subscription,
                     is_editing,
@@ -185,7 +184,10 @@ impl RepoFilesDetailsService {
             .map_err(|_| LoadFilesError::RemoteError(RemoteFilesErrors::invalid_path()))
     }
 
-    fn get_eventstream_mount_subscription(&self, repo_id: &str) -> Option<Arc<MountSubscription>> {
+    fn get_eventstream_mount_subscription(
+        &self,
+        repo_id: &RepoId,
+    ) -> Option<Arc<MountSubscription>> {
         self.store
             .with_state(|state| {
                 repos_selectors::select_repo(state, repo_id)
@@ -527,7 +529,16 @@ impl RepoFilesDetailsService {
         self: Arc<Self>,
         details_id: u32,
         initiator: &SaveInitiator,
-    ) -> Result<(String, String, RepoFilesDetailsContentData, u32, bool), SaveError> {
+    ) -> Result<
+        (
+            RepoId,
+            DecryptedPath,
+            RepoFilesDetailsContentData,
+            u32,
+            bool,
+        ),
+        SaveError,
+    > {
         let saving_store = self.store.clone();
         let initiator = initiator.to_owned();
 
@@ -556,36 +567,36 @@ impl RepoFilesDetailsService {
     async fn save_inner(
         self: Arc<Self>,
         initiator: SaveInitiator,
-        repo_id: String,
-        path: String,
+        repo_id: RepoId,
+        path: DecryptedPath,
         data: RepoFilesDetailsContentData,
         is_deleted: bool,
-    ) -> Result<(String, RepoFilesUploadResult, bool), SaveError> {
+    ) -> Result<(DecryptedPath, RepoFilesUploadResult, bool), SaveError> {
         let mut autorename = false;
 
         loop {
-            let (mut parent_path, original_name) =
-                path_utils::split_parent_name(&path).ok_or_else(|| SaveError::CannotSaveRoot)?;
+            let (mut parent_path, original_name) = repo_path_utils::split_parent_name(&path)
+                .ok_or_else(|| SaveError::CannotSaveRoot)?;
 
             if is_deleted {
-                self.save_deleted_confirm_new_location(&initiator, original_name)
+                self.save_deleted_confirm_new_location(&initiator, &original_name)
                     .await?;
 
-                parent_path = "/";
+                parent_path = DecryptedPath("/".into());
                 autorename = true;
             }
 
             let (name, conflict_resolution) = self
                 .save_name_conflict_resolution(
                     &repo_id,
-                    parent_path,
-                    original_name,
+                    &parent_path,
+                    &original_name,
                     autorename,
                     &data,
                 )
                 .await?;
 
-            let path = path_utils::join_path_name(&parent_path, &name);
+            let path = repo_path_utils::join_path_name(&parent_path, &name);
 
             let size = Some(data.bytes.len() as i64);
             let reader = Box::pin(Cursor::new(data.bytes.clone()));
@@ -595,7 +606,7 @@ impl RepoFilesDetailsService {
                 .clone()
                 .upload_file_reader(
                     &repo_id,
-                    parent_path,
+                    &parent_path,
                     &name,
                     reader,
                     size,
@@ -634,11 +645,11 @@ impl RepoFilesDetailsService {
     async fn save_deleted_confirm_new_location(
         &self,
         initiator: &SaveInitiator,
-        name: &str,
+        name: &DecryptedName,
     ) -> Result<(), SaveError> {
         match &initiator {
             SaveInitiator::User => {
-                let message = format!("File {} is no longer accessible. Probably it was deleted or you no longer have access to it. Do you want to Save the file to a new location?", name);
+                let message = format!("File {} is no longer accessible. Probably it was deleted or you no longer have access to it. Do you want to Save the file to a new location?", name.0);
 
                 match self
                     .dialogs_service
@@ -660,7 +671,7 @@ impl RepoFilesDetailsService {
                 Err(SaveError::Canceled)
             }
             SaveInitiator::Cancel => {
-                let message = format!("File {} is no longer accessible. Probably it was deleted or you no longer have access to it. Do you want to Save the file to a new location or Discard the changes?", name);
+                let message = format!("File {} is no longer accessible. Probably it was deleted or you no longer have access to it. Do you want to Save the file to a new location or Discard the changes?", name.0);
 
                 match self
                     .dialogs_service
@@ -684,12 +695,12 @@ impl RepoFilesDetailsService {
 
     async fn save_name_conflict_resolution(
         &self,
-        repo_id: &str,
-        parent_path: &str,
-        name: &str,
+        repo_id: &RepoId,
+        parent_path: &DecryptedPath,
+        name: &DecryptedName,
         autorename: bool,
         data: &RepoFilesDetailsContentData,
-    ) -> Result<(String, RepoFilesUploadConflictResolution), SaveError> {
+    ) -> Result<(DecryptedName, RepoFilesUploadConflictResolution), SaveError> {
         Ok(if autorename {
             (
                 self.repo_files_service
@@ -757,13 +768,13 @@ impl RepoFilesDetailsService {
         }
     }
 
-    fn save_show_location_changed_alert(self: Arc<Self>, name: String) {
+    fn save_show_location_changed_alert(self: Arc<Self>, name: DecryptedName) {
         let location_changed_alert_self = self.clone();
 
         self.runtime.spawn(Box::pin(async move {
             let message = format!(
                 "File {} was saved here because it could not be saved in its original location.",
-                name
+                name.0
             );
 
             location_changed_alert_self
@@ -824,12 +835,12 @@ impl RepoFilesDetailsService {
     async fn file_removed(&self, details_id: u32) {
         if let Some(file_name) = self.store.with_state(|state| {
             if selectors::select_is_not_deleting_or_deleted(state, details_id) {
-                selectors::select_file_name(state, details_id).map(str::to_owned)
+                selectors::select_file_name(state, details_id)
             } else {
                 None
             }
         }) {
-            let message = format!("File {} is no longer accessible. Probably it was deleted or you no longer have access to it.", file_name);
+            let message = format!("File {} is no longer accessible. Probably it was deleted or you no longer have access to it.", file_name.0);
 
             self.dialogs_service
                 .show(DialogShowOptions {

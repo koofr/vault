@@ -37,6 +37,7 @@ pub mod sort;
 pub mod space_usage;
 pub mod store;
 pub mod transfers;
+pub mod types;
 pub mod user;
 pub mod user_error;
 pub mod utils;

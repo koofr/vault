@@ -6,31 +6,35 @@ use crate::{
     remote::RemoteFileUploadConflictResolution,
     remote_files::state::{RemoteFile, RemoteFileType},
     sort::state::SortDirection,
+    types::{
+        DecryptedName, DecryptedPath, EncryptedName, EncryptedPath, MountId, RemotePath,
+        RepoFileId, RepoId,
+    },
 };
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct RepoFilesBreadcrumb {
-    pub id: String,
-    pub repo_id: String,
-    pub path: String,
-    pub name: String,
+    pub id: RepoFileId,
+    pub repo_id: RepoId,
+    pub path: DecryptedPath,
+    pub name: DecryptedName,
     pub last: bool,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum RepoFilePath {
     Decrypted {
-        path: String,
+        path: DecryptedPath,
     },
     DecryptError {
-        parent_path: String,
-        encrypted_name: String,
+        parent_path: DecryptedPath,
+        encrypted_name: EncryptedName,
         error: DecryptFilenameError,
     },
 }
 
 impl RepoFilePath {
-    pub fn decrypted_path<'a>(&'a self) -> Result<&'a str, DecryptFilenameError> {
+    pub fn decrypted_path<'a>(&'a self) -> Result<&'a DecryptedPath, DecryptFilenameError> {
         match self {
             Self::Decrypted { path } => Ok(path),
             Self::DecryptError { error, .. } => Err(error.clone()),
@@ -41,18 +45,18 @@ impl RepoFilePath {
 #[derive(Debug, Clone, PartialEq)]
 pub enum RepoFileName {
     Decrypted {
-        name: String,
+        name: DecryptedName,
         name_lower: String,
     },
     DecryptError {
-        encrypted_name: String,
+        encrypted_name: EncryptedName,
         encrypted_name_lower: String,
         error: DecryptFilenameError,
     },
 }
 
 impl RepoFileName {
-    pub fn decrypted_name<'a>(&'a self) -> Result<&'a str, DecryptFilenameError> {
+    pub fn decrypted_name<'a>(&'a self) -> Result<&'a DecryptedName, DecryptFilenameError> {
         match self {
             Self::Decrypted { name, .. } => Ok(name),
             Self::DecryptError { error, .. } => Err(error.clone()),
@@ -130,11 +134,11 @@ impl RepoFileSize {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct RepoFile {
-    pub id: String,
-    pub mount_id: String,
-    pub remote_path: String,
-    pub repo_id: String,
-    pub encrypted_path: String,
+    pub id: RepoFileId,
+    pub mount_id: MountId,
+    pub remote_path: RemotePath,
+    pub repo_id: RepoId,
+    pub encrypted_path: EncryptedPath,
     pub path: RepoFilePath,
     pub name: RepoFileName,
     pub ext: Option<String>,
@@ -148,11 +152,11 @@ pub struct RepoFile {
 }
 
 impl RepoFile {
-    pub fn decrypted_path<'a>(&'a self) -> Result<&'a str, DecryptFilenameError> {
+    pub fn decrypted_path<'a>(&'a self) -> Result<&'a DecryptedPath, DecryptFilenameError> {
         self.path.decrypted_path()
     }
 
-    pub fn decrypted_name<'a>(&'a self) -> Result<&'a str, DecryptFilenameError> {
+    pub fn decrypted_name<'a>(&'a self) -> Result<&'a DecryptedName, DecryptFilenameError> {
         self.name.decrypted_name()
     }
 
@@ -201,9 +205,9 @@ impl RepoFile {
 
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct RepoFilesState {
-    pub files: HashMap<String, RepoFile>,
-    pub children: HashMap<String, Vec<String>>,
-    pub loaded_roots: HashSet<String>,
+    pub files: HashMap<RepoFileId, RepoFile>,
+    pub children: HashMap<RepoFileId, Vec<RepoFileId>>,
+    pub loaded_roots: HashSet<RepoFileId>,
 }
 
 impl RepoFilesState {
@@ -214,8 +218,8 @@ impl RepoFilesState {
 
 #[derive(Debug, Clone, Default)]
 pub struct RepoFilesMutationState {
-    pub removed_files: Vec<(String, String)>,
-    pub moved_files: Vec<(String, String, String)>,
+    pub removed_files: Vec<(RepoId, DecryptedPath)>,
+    pub moved_files: Vec<(RepoId, DecryptedPath, DecryptedPath)>,
 }
 
 pub enum RepoFilesUploadConflictResolution {
@@ -247,8 +251,8 @@ impl Into<RemoteFileUploadConflictResolution> for RepoFilesUploadConflictResolut
 
 #[derive(Debug)]
 pub struct RepoFilesUploadResult {
-    pub file_id: String,
-    pub name: String,
+    pub file_id: RepoFileId,
+    pub name: DecryptedName,
     pub remote_file: RemoteFile,
 }
 

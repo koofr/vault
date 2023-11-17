@@ -5,17 +5,18 @@ use crate::{
         state::RepoConfig,
     },
     store,
+    types::RepoId,
 };
 
 use super::state::RepoConfigBackup;
 
-pub fn create(state: &mut store::State, notify: &store::Notify, repo_id: &str) -> u32 {
+pub fn create(state: &mut store::State, notify: &store::Notify, repo_id: RepoId) -> u32 {
     notify(store::Event::RepoConfigBackup);
 
     let backup_id = state.repo_config_backups.next_id.next();
 
     let backup = RepoConfigBackup {
-        repo_id: repo_id.to_owned(),
+        repo_id,
         status: Status::Initial,
         config: None,
     };
@@ -29,7 +30,7 @@ pub fn generating(
     state: &mut store::State,
     notify: &store::Notify,
     backup_id: u32,
-) -> Result<String, UnlockRepoError> {
+) -> Result<RepoId, UnlockRepoError> {
     let backup = match state.repo_config_backups.backups.get_mut(&backup_id) {
         Some(backup) => backup,
         None => return Err(UnlockRepoError::RepoNotFound(RepoNotFoundError)),

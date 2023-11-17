@@ -3,17 +3,18 @@ use crate::{
     remote_files::state::RemoteFilesLocation,
     repos::{errors::RepoNotFoundError, selectors as repos_selectors},
     store,
+    types::RepoId,
 };
 
 use super::{errors::RepoSpaceUsageError, state::RepoSpaceUsage};
 
-pub fn create(state: &mut store::State, notify: &store::Notify, repo_id: &str) -> u32 {
+pub fn create(state: &mut store::State, notify: &store::Notify, repo_id: RepoId) -> u32 {
     notify(store::Event::RepoSpaceUsage);
 
     let usage_id = state.repo_space_usages.next_id.next();
 
     let usage = RepoSpaceUsage {
-        repo_id: repo_id.to_owned(),
+        repo_id,
         status: Status::Initial,
         space_used: None,
     };

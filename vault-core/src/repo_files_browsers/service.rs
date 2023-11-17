@@ -19,6 +19,7 @@ use crate::{
     repos::selectors as repos_selectors,
     sort::state::SortDirection,
     store,
+    types::{DecryptedName, DecryptedPath, RepoFileId, RepoId},
     utils::path_utils::normalize_path,
 };
 
@@ -66,8 +67,8 @@ impl RepoFilesBrowsersService {
 
     pub fn create(
         self: Arc<Self>,
-        repo_id: &str,
-        path: &str,
+        repo_id: &RepoId,
+        path: &DecryptedPath,
         options: RepoFilesBrowserOptions,
     ) -> (u32, BoxFuture<'static, Result<(), LoadFilesError>>) {
         let location = self.clone().get_location(repo_id, path);
@@ -92,10 +93,11 @@ impl RepoFilesBrowsersService {
 
     fn get_location(
         &self,
-        repo_id: &str,
-        path: &str,
+        repo_id: &RepoId,
+        path: &DecryptedPath,
     ) -> Result<RepoFilesBrowserLocation, LoadFilesError> {
-        normalize_path(path)
+        normalize_path(&path.0)
+            .map(DecryptedPath)
             .map(|path| {
                 let eventstream_mount_subscription =
                     self.clone().get_eventstream_mount_subscription(repo_id);
@@ -109,7 +111,10 @@ impl RepoFilesBrowsersService {
             .map_err(|_| LoadFilesError::RemoteError(RemoteFilesErrors::invalid_path()))
     }
 
-    fn get_eventstream_mount_subscription(&self, repo_id: &str) -> Option<Arc<MountSubscription>> {
+    fn get_eventstream_mount_subscription(
+        &self,
+        repo_id: &RepoId,
+    ) -> Option<Arc<MountSubscription>> {
         self.store
             .with_state(|state| {
                 repos_selectors::select_repo(state, repo_id)
@@ -160,7 +165,7 @@ impl RepoFilesBrowsersService {
     pub fn select_file(
         &self,
         browser_id: u32,
-        file_id: &str,
+        file_id: RepoFileId,
         extend: bool,
         range: bool,
         force: bool,
@@ -182,7 +187,7 @@ impl RepoFilesBrowsersService {
         });
     }
 
-    pub fn set_selection(&self, browser_id: u32, selection: Vec<String>) {
+    pub fn set_selection(&self, browser_id: u32, selection: Vec<RepoFileId>) {
         self.store.mutate(|state, notify, _, _| {
             mutations::set_selection(state, notify, browser_id, selection);
         });
@@ -217,7 +222,10 @@ impl RepoFilesBrowsersService {
         self.repo_files_read_service.clone().get_files_reader(files)
     }
 
-    pub async fn create_dir(&self, browser_id: u32) -> Result<(String, String), CreateDirError> {
+    pub async fn create_dir(
+        &self,
+        browser_id: u32,
+    ) -> Result<(DecryptedName, DecryptedPath), CreateDirError> {
         let (repo_id, parent_path) =
             self.store
                 .with_state::<_, Result<_, CreateDirError>>(|state| {
@@ -239,7 +247,7 @@ impl RepoFilesBrowsersService {
         &self,
         browser_id: u32,
         name: &str,
-    ) -> Result<(String, String), CreateFileError> {
+    ) -> Result<(DecryptedName, DecryptedPath), CreateFileError> {
         let (repo_id, parent_path) =
             self.store
                 .with_state::<_, Result<_, CreateFileError>>(|state| {

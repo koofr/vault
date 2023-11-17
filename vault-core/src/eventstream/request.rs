@@ -1,19 +1,21 @@
 use serde::{Deserialize, Serialize};
 
+use crate::types::{MountId, RemotePath};
+
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 #[serde(tag = "action")]
-pub enum Request<'a> {
+pub enum Request {
     #[serde(rename = "auth")]
-    Auth { authorization: &'a str },
+    Auth { authorization: String },
 
     #[serde(rename = "register")]
     Register {
         #[serde(rename = "requestId")]
         request_id: Option<u32>,
         #[serde(rename = "mountId")]
-        mount_id: &'a str,
+        mount_id: MountId,
         #[serde(rename = "path")]
-        path: &'a str,
+        path: RemotePath,
     },
 
     #[serde(rename = "deregister")]

@@ -30,6 +30,7 @@ use vault_core::{
     space_usage::state as space_usage_state,
     store,
     transfers::{selectors as transfers_selectors, state as transfers_state},
+    types::DecryptedName,
     user::state as user_state,
     user_error::UserError,
 };
@@ -447,10 +448,10 @@ pub struct Repo {
 impl From<&repos_state::Repo> for Repo {
     fn from(repo: &repos_state::Repo) -> Self {
         Self {
-            id: repo.id.clone(),
-            name: repo.name.clone(),
-            mount_id: repo.mount_id.clone(),
-            path: repo.path.clone(),
+            id: repo.id.0.clone(),
+            name: repo.name.0.clone(),
+            mount_id: repo.mount_id.0.clone(),
+            path: repo.path.0.clone(),
             state: (&repo.state).into(),
             added: repo.added as f64,
             web_url: repo.web_url.clone(),
@@ -501,8 +502,8 @@ pub struct RemoteFilesLocation {
 impl From<&remote_files_state::RemoteFilesLocation> for RemoteFilesLocation {
     fn from(location: &remote_files_state::RemoteFilesLocation) -> Self {
         Self {
-            mount_id: location.mount_id.clone(),
-            path: location.path.clone(),
+            mount_id: location.mount_id.0.clone(),
+            path: location.path.0.clone(),
         }
     }
 }
@@ -520,7 +521,7 @@ pub struct RepoConfig {
 impl From<&repos_state::RepoConfig> for RepoConfig {
     fn from(config: &repos_state::RepoConfig) -> Self {
         Self {
-            name: config.name.clone(),
+            name: config.name.0.clone(),
             location: (&config.location).into(),
             password: config.password.clone(),
             salt: config.salt.clone(),
@@ -542,10 +543,10 @@ pub struct RemoteFilesBreadcrumb {
 impl From<&remote_files_state::RemoteFilesBreadcrumb> for RemoteFilesBreadcrumb {
     fn from(breadcrumb: &remote_files_state::RemoteFilesBreadcrumb) -> Self {
         Self {
-            id: breadcrumb.id.clone(),
-            mount_id: breadcrumb.mount_id.clone(),
-            path: breadcrumb.path.clone(),
-            name: breadcrumb.name.clone(),
+            id: breadcrumb.id.0.clone(),
+            mount_id: breadcrumb.mount_id.0.clone(),
+            path: breadcrumb.path.0.clone(),
+            name: breadcrumb.name.0.clone(),
             last: breadcrumb.last,
         }
     }
@@ -584,7 +585,7 @@ pub struct RepoCreated {
 impl From<&repos_state::RepoCreated> for RepoCreated {
     fn from(created: &repos_state::RepoCreated) -> Self {
         Self {
-            repo_id: created.repo_id.clone(),
+            repo_id: created.repo_id.0.clone(),
             config: (&created.config).into(),
         }
     }
@@ -636,7 +637,7 @@ impl<'a> From<&repo_unlock_state::RepoUnlockInfo<'a>> for RepoUnlockInfo {
     fn from(info: &repo_unlock_state::RepoUnlockInfo<'a>) -> Self {
         Self {
             status: info.status.into(),
-            repo_name: info.repo_name.map(str::to_string),
+            repo_name: info.repo_name.map(|x| x.0.to_owned()),
         }
     }
 }
@@ -652,7 +653,7 @@ impl<'a> From<&repo_remove_state::RepoRemoveInfo<'a>> for RepoRemoveInfo {
     fn from(info: &repo_remove_state::RepoRemoveInfo<'a>) -> Self {
         Self {
             status: info.status.into(),
-            repo_name: info.repo_name.map(str::to_string),
+            repo_name: info.repo_name.map(|x| x.0.to_owned()),
         }
     }
 }
@@ -720,10 +721,10 @@ pub struct RemoteFile {
 impl From<&remote_files_state::RemoteFile> for RemoteFile {
     fn from(file: &remote_files_state::RemoteFile) -> Self {
         Self {
-            id: file.id.to_owned(),
-            mount_id: file.mount_id.to_owned(),
-            path: file.path.to_owned(),
-            name: file.name.to_owned(),
+            id: file.id.0.to_owned(),
+            mount_id: file.mount_id.0.to_owned(),
+            path: file.path.0.to_owned(),
+            name: file.name.0.to_owned(),
             typ: (&file.typ).into(),
             size: file.size.map(|size| size as f64),
             modified: file.modified.map(|modified| modified as f64),
@@ -775,11 +776,11 @@ pub struct RepoFile {
 impl From<&repo_files_state::RepoFile> for RepoFile {
     fn from(file: &repo_files_state::RepoFile) -> Self {
         Self {
-            id: file.id.clone(),
-            repo_id: file.repo_id.clone(),
-            encrypted_path: file.encrypted_path.clone(),
+            id: file.id.0.clone(),
+            repo_id: file.repo_id.0.clone(),
+            encrypted_path: file.encrypted_path.0.clone(),
             path: match &file.path {
-                repo_files_state::RepoFilePath::Decrypted { path } => Some(path.clone()),
+                repo_files_state::RepoFilePath::Decrypted { path } => Some(path.0.clone()),
                 repo_files_state::RepoFilePath::DecryptError {
                     parent_path: _,
                     encrypted_name: _,
@@ -787,9 +788,9 @@ impl From<&repo_files_state::RepoFile> for RepoFile {
                 } => None,
             },
             name: match &file.name {
-                repo_files_state::RepoFileName::Decrypted { name, .. } => name.clone(),
+                repo_files_state::RepoFileName::Decrypted { name, .. } => name.0.clone(),
                 repo_files_state::RepoFileName::DecryptError { encrypted_name, .. } => {
-                    encrypted_name.clone()
+                    encrypted_name.0.clone()
                 }
             },
             name_error: match &file.name {
@@ -880,10 +881,10 @@ pub struct RepoFilesBreadcrumb {
 impl From<&repo_files_state::RepoFilesBreadcrumb> for RepoFilesBreadcrumb {
     fn from(breadcrumb: &repo_files_state::RepoFilesBreadcrumb) -> Self {
         Self {
-            id: breadcrumb.id.clone(),
-            repo_id: breadcrumb.repo_id.clone(),
-            path: breadcrumb.path.clone(),
-            name: breadcrumb.name.clone(),
+            id: breadcrumb.id.0.clone(),
+            repo_id: breadcrumb.repo_id.0.clone(),
+            path: breadcrumb.path.0.clone(),
+            name: breadcrumb.name.0.clone(),
             last: breadcrumb.last,
         }
     }
@@ -898,8 +899,8 @@ pub struct RepoFilesUploadResult {
 impl From<repo_files_state::RepoFilesUploadResult> for RepoFilesUploadResult {
     fn from(result: repo_files_state::RepoFilesUploadResult) -> Self {
         Self {
-            file_id: result.file_id,
-            name: result.name,
+            file_id: result.file_id.0,
+            name: result.name.0,
         }
     }
 }
@@ -913,7 +914,7 @@ pub struct RepoFilesBrowserOptions {
 impl Into<repo_files_browsers_state::RepoFilesBrowserOptions> for RepoFilesBrowserOptions {
     fn into(self) -> repo_files_browsers_state::RepoFilesBrowserOptions {
         repo_files_browsers_state::RepoFilesBrowserOptions {
-            select_name: self.select_name,
+            select_name: self.select_name.map(DecryptedName),
         }
     }
 }
@@ -929,7 +930,7 @@ pub struct RepoFilesBrowserItem {
 impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserItem<'a>> for RepoFilesBrowserItem {
     fn from(item: &repo_files_browsers_state::RepoFilesBrowserItem<'a>) -> Self {
         Self {
-            file_id: item.file.id.clone(),
+            file_id: item.file.id.0.clone(),
             is_selected: item.is_selected,
         }
     }
@@ -969,8 +970,8 @@ pub struct RepoFilesBrowserInfo {
 impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFilesBrowserInfo {
     fn from(info: &repo_files_browsers_state::RepoFilesBrowserInfo<'a>) -> Self {
         Self {
-            repo_id: info.repo_id.map(str::to_string),
-            path: info.path.map(str::to_string),
+            repo_id: info.repo_id.map(|x| x.0.to_owned()),
+            path: info.path.map(|x| x.0.to_owned()),
             selection_summary: (&info.selection_summary).into(),
             sort: (&info.sort).into(),
             status: (&info.status).into(),
@@ -1050,11 +1051,11 @@ pub struct RepoFilesDetailsInfo {
 impl<'a> From<&repo_files_details_state::RepoFilesDetailsInfo<'a>> for RepoFilesDetailsInfo {
     fn from(info: &repo_files_details_state::RepoFilesDetailsInfo<'a>) -> Self {
         Self {
-            repo_id: info.repo_id.map(str::to_string),
-            parent_path: info.parent_path.map(str::to_string),
-            path: info.path.map(str::to_string),
+            repo_id: info.repo_id.map(|x| x.0.to_owned()),
+            parent_path: info.parent_path.as_ref().map(|x| x.0.to_owned()),
+            path: info.path.map(|x| x.0.to_owned()),
             status: (&info.status).into(),
-            file_name: info.file_name.map(str::to_string),
+            file_name: info.file_name.as_ref().map(|x| x.0.to_owned()),
             file_ext: info.file_ext.clone(),
             file_category: info.file_category.as_ref().map(Into::into),
             file_modified: info.file_modified.map(|x| x as f64),
@@ -1288,8 +1289,8 @@ pub struct DirPickerItem {
 impl From<&dir_pickers_state::DirPickerItem> for DirPickerItem {
     fn from(item: &dir_pickers_state::DirPickerItem) -> Self {
         Self {
-            id: item.id.clone(),
-            file_id: item.file_id.clone(),
+            id: item.id.0.clone(),
+            file_id: item.file_id.as_ref().map(|x| x.0.to_owned()),
             typ: (&item.typ).into(),
             is_open: item.is_open,
             is_selected: item.is_selected,

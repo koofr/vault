@@ -3,6 +3,7 @@ use std::sync::Arc;
 use crate::{
     repos::{errors::UnlockRepoError, ReposService},
     store,
+    types::RepoId,
 };
 
 use super::{mutations, state::RepoUnlockOptions};
@@ -20,7 +21,7 @@ impl RepoUnlockService {
         }
     }
 
-    pub fn create(&self, repo_id: &str, options: RepoUnlockOptions) -> u32 {
+    pub fn create(&self, repo_id: RepoId, options: RepoUnlockOptions) -> u32 {
         self.store.mutate(|state, notify, _, _| {
             notify(store::Event::RepoUnlock);
 

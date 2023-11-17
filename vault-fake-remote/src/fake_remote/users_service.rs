@@ -1,6 +1,9 @@
 use std::sync::{Arc, RwLock};
 
-use vault_core::remote::models;
+use vault_core::{
+    remote::models,
+    types::{MountId, RemoteName},
+};
 
 use super::{
     files::service::FilesService,
@@ -42,8 +45,8 @@ impl UsersService {
         let mount_id = mount_id.unwrap_or(uuid::Uuid::new_v4().to_string());
 
         let mount = models::Mount {
-            id: mount_id.clone(),
-            name: "Koofr".into(),
+            id: MountId(mount_id.clone()),
+            name: RemoteName("Koofr".into()),
             typ: "device".into(),
             origin: "hosted".into(),
             online: true,

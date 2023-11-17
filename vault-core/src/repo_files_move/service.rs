@@ -1,14 +1,15 @@
 use std::sync::Arc;
 
 use crate::{
-    dir_pickers::selectors as dir_pickers_selectors,
+    dir_pickers::{selectors as dir_pickers_selectors, state::DirPickerItemId},
     repo_files::{
         errors::{CreateDirError, MoveFileError, RepoFilesErrors},
         RepoFilesService,
     },
     repo_files_dir_pickers::RepoFilesDirPickersService,
     store,
-    utils::path_utils,
+    types::{DecryptedPath, RepoFileId, RepoId},
+    utils::repo_path_utils,
 };
 
 use super::{
@@ -38,8 +39,8 @@ impl RepoFilesMoveService {
 
     pub async fn move_file(
         &self,
-        repo_id: String,
-        path: String,
+        repo_id: RepoId,
+        path: DecryptedPath,
         mode: RepoFilesMoveMode,
     ) -> Result<(), ShowError> {
         self.show(repo_id, vec![path], mode).await
@@ -47,16 +48,15 @@ impl RepoFilesMoveService {
 
     pub async fn show(
         &self,
-        repo_id: String,
-        src_paths: Vec<String>,
+        repo_id: RepoId,
+        src_paths: Vec<DecryptedPath>,
         mode: RepoFilesMoveMode,
     ) -> Result<(), ShowError> {
         let first_src_path = src_paths.get(0).ok_or(ShowError::FilesEmpty)?;
-        let dest_path = path_utils::parent_path(first_src_path)
-            .map(str::to_string)
-            .ok_or(RepoFilesErrors::move_root())?;
+        let dest_path =
+            repo_path_utils::parent_path(first_src_path).ok_or(RepoFilesErrors::move_root())?;
 
-        let dir_picker_id = self.repo_files_dir_pickers_service.create(&repo_id);
+        let dir_picker_id = self.repo_files_dir_pickers_service.create(repo_id.clone());
 
         self.store.mutate(|state, notify, _, _| {
             mutations::show(
@@ -90,19 +90,19 @@ impl RepoFilesMoveService {
         Ok(())
     }
 
-    pub fn set_dest_path(&self, dest_path: String) {
+    pub fn set_dest_path(&self, dest_path: DecryptedPath) {
         self.store
             .mutate(|state, notify, _, _| mutations::set_dest_path(state, notify, dest_path))
     }
 
     pub async fn dir_picker_click(
         &self,
-        item_id: &str,
+        item_id: &DirPickerItemId,
         is_arrow: bool,
     ) -> Result<(), DirPickerClickError> {
-        let (dir_picker_id, dest_path) = self
-            .store
-            .with_state(|state| selectors::select_dir_picker_click(state, item_id))?;
+        let (dir_picker_id, dest_path) = self.store.with_state(|state| {
+            selectors::select_dir_picker_click(state, &RepoFileId(item_id.0.to_owned()))
+        })?;
 
         self.set_dest_path(dest_path);
 

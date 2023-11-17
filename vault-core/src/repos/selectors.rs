@@ -1,4 +1,8 @@
-use crate::{common::state::Status, store};
+use crate::{
+    common::state::Status,
+    store,
+    types::{DecryptedName, RepoId},
+};
 
 use super::{
     errors::{RepoInfoError, RepoNotFoundError},
@@ -20,7 +24,7 @@ pub fn select_repos<'a>(state: &'a store::State) -> Vec<&'a Repo> {
 
 pub fn select_repo<'a>(
     state: &'a store::State,
-    repo_id: &str,
+    repo_id: &RepoId,
 ) -> Result<&'a Repo, RepoNotFoundError> {
     state
         .repos
@@ -29,7 +33,7 @@ pub fn select_repo<'a>(
         .ok_or(RepoNotFoundError)
 }
 
-pub fn select_repo_info<'a>(state: &'a store::State, repo_id: &str) -> RepoInfo<'a> {
+pub fn select_repo_info<'a>(state: &'a store::State, repo_id: &RepoId) -> RepoInfo<'a> {
     let repo = select_repo(state, repo_id);
 
     let status = match &state.repos.status {
@@ -54,8 +58,9 @@ pub fn select_repo_info<'a>(state: &'a store::State, repo_id: &str) -> RepoInfo<
     }
 }
 
-pub fn select_repo_name<'a>(state: &'a store::State, repo_id: &str) -> Option<&'a str> {
-    select_repo(state, repo_id)
-        .ok()
-        .map(|repo| repo.name.as_str())
+pub fn select_repo_name<'a>(
+    state: &'a store::State,
+    repo_id: &RepoId,
+) -> Option<&'a DecryptedName> {
+    select_repo(state, repo_id).ok().map(|repo| &repo.name)
 }

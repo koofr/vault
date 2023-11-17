@@ -4,7 +4,7 @@ use futures::{future::BoxFuture, FutureExt};
 
 use crate::{
     cipher::random_password::random_password,
-    dir_pickers::selectors as dir_pickers_selectors,
+    dir_pickers::{selectors as dir_pickers_selectors, state::DirPickerItemId},
     rclone, remote,
     remote_files::{
         errors::{CreateDirError, RemoteFilesErrors},
@@ -15,6 +15,7 @@ use crate::{
     remote_files_dir_pickers::{self, RemoteFilesDirPickersService},
     repos::ReposService,
     store,
+    types::{MountId, RemoteFileId},
 };
 
 use super::{mutations, selectors};
@@ -56,9 +57,12 @@ impl RepoCreateService {
     pub async fn create_load(&self, create_id: u32) -> Result<(), remote::RemoteError> {
         let load_repos_res = self.repos_service.load_repos().await;
 
-        let load_mount_res = self.remote_files_service.load_mount("primary").await;
+        let load_mount_res = self
+            .remote_files_service
+            .load_mount(&MountId("primary".into()))
+            .await;
 
-        let load_mount_res: Result<String, remote::RemoteError> =
+        let load_mount_res: Result<MountId, remote::RemoteError> =
             load_repos_res.and_then(|_| load_mount_res);
 
         let res = load_mount_res
@@ -161,7 +165,7 @@ impl RepoCreateService {
     pub async fn location_dir_picker_click(
         &self,
         create_id: u32,
-        item_id: &str,
+        item_id: &DirPickerItemId,
         is_arrow: bool,
     ) -> Result<(), remote::RemoteError> {
         let picker_id = self
@@ -180,7 +184,7 @@ impl RepoCreateService {
                 .and_then(|picker_id| {
                     dir_pickers_selectors::select_selected_file_id(state, picker_id)
                 })
-                .map(str::to_string)
+                .map(|file_id| RemoteFileId(file_id.0.clone()))
         }) {
             if let Some(location) = self.store.with_state(|state| {
                 remote_files_selectors::select_file(state, &location_file_id)

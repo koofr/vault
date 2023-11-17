@@ -11,6 +11,7 @@ use crate::{
     repo_files_read::errors::GetFilesReaderError,
     store,
     transfers::errors::TransferError,
+    types::{DecryptedPath, RepoId},
 };
 
 use super::{
@@ -24,8 +25,8 @@ use super::{
 };
 
 pub fn create_location(
-    repo_id: String,
-    path: String,
+    repo_id: RepoId,
+    path: DecryptedPath,
     eventstream_mount_subscription: Option<Arc<MountSubscription>>,
     is_editing: bool,
 ) -> RepoFilesDetailsLocation {
@@ -114,8 +115,8 @@ pub fn loaded(
     state: &mut store::State,
     notify: &store::Notify,
     details_id: u32,
-    repo_id: &str,
-    path: &str,
+    repo_id: &RepoId,
+    path: &DecryptedPath,
     error: Option<&LoadFilesError>,
 ) {
     let details = match state.repo_files_details.details.get_mut(&details_id) {
@@ -126,7 +127,7 @@ pub fn loaded(
     if details
         .location
         .as_ref()
-        .filter(|loc| loc.repo_id == repo_id && loc.path == path)
+        .filter(|loc| &loc.repo_id == repo_id && &loc.path == path)
         .is_some()
     {
         notify(store::Event::RepoFilesDetails);
@@ -219,8 +220,8 @@ pub fn content_loaded(
     state: &mut store::State,
     notify: &store::Notify,
     details_id: u32,
-    repo_id: &str,
-    path: &str,
+    repo_id: &RepoId,
+    path: &DecryptedPath,
     res: Result<Option<RepoFilesDetailsContentData>, TransferError>,
 ) {
     let location = match selectors::select_details_location_mut(state, details_id) {
@@ -228,7 +229,7 @@ pub fn content_loaded(
         _ => return,
     };
 
-    if location.repo_id != repo_id || location.path != path {
+    if &location.repo_id != repo_id || &location.path != path {
         return;
     }
 
@@ -299,8 +300,8 @@ pub fn content_transfer_removed(
     state: &mut store::State,
     notify: &store::Notify,
     details_id: u32,
-    repo_id: &str,
-    path: &str,
+    repo_id: &RepoId,
+    path: &DecryptedPath,
     transfer_id: u32,
     res: Result<(), TransferError>,
 ) {
@@ -391,7 +392,16 @@ pub fn saving(
     notify: &store::Notify,
     details_id: u32,
     initiator: SaveInitiator,
-) -> Result<(String, String, RepoFilesDetailsContentData, u32, bool), SaveError> {
+) -> Result<
+    (
+        RepoId,
+        DecryptedPath,
+        RepoFilesDetailsContentData,
+        u32,
+        bool,
+    ),
+    SaveError,
+> {
     if !selectors::select_is_dirty(state, details_id) {
         return Err(SaveError::NotDirty);
     }
@@ -445,7 +455,7 @@ pub fn saved(
     notify: &store::Notify,
     details_id: u32,
     saved_version: u32,
-    res: Result<(String, RepoFilesUploadResult, bool), SaveError>,
+    res: Result<(DecryptedPath, RepoFilesUploadResult, bool), SaveError>,
 ) {
     let location = match selectors::select_details_location_mut(state, details_id) {
         Some(location) => location,

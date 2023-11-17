@@ -1,6 +1,11 @@
 use std::collections::HashMap;
 
-use crate::{common::state::Status, remote::RemoteError, remote_files::state::RemoteFilesLocation};
+use crate::{
+    common::state::Status,
+    remote::RemoteError,
+    remote_files::state::RemoteFilesLocation,
+    types::{DecryptedName, MountId, RemoteFileId, RemotePath, RepoId},
+};
 
 use super::{errors::RepoInfoError, repo_tree::RepoTree};
 
@@ -25,10 +30,10 @@ impl RepoState {
 
 #[derive(Debug, Clone)]
 pub struct Repo {
-    pub id: String,
-    pub name: String,
-    pub mount_id: String,
-    pub path: String,
+    pub id: RepoId,
+    pub name: DecryptedName,
+    pub mount_id: MountId,
+    pub path: RemotePath,
     pub salt: Option<String>,
     pub added: i64,
     pub password_validator: String,
@@ -54,7 +59,7 @@ pub struct RepoInfo<'a> {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct RepoConfig {
-    pub name: String,
+    pub name: DecryptedName,
     pub location: RemoteFilesLocation,
     pub password: String,
     pub salt: Option<String>,
@@ -69,16 +74,16 @@ pub enum RepoUnlockMode {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct RepoCreated {
-    pub repo_id: String,
+    pub repo_id: RepoId,
     pub config: RepoConfig,
 }
 
 #[derive(Debug, Clone, Default)]
 pub struct ReposState {
     pub status: Status<RemoteError>,
-    pub repos_by_id: HashMap<String, Repo>,
-    pub repo_ids_by_remote_file_id: HashMap<String, String>,
-    pub mount_repo_trees: HashMap<String, RepoTree>,
+    pub repos_by_id: HashMap<RepoId, Repo>,
+    pub repo_ids_by_remote_file_id: HashMap<RemoteFileId, RepoId>,
+    pub mount_repo_trees: HashMap<MountId, RepoTree>,
 }
 
 impl ReposState {
@@ -89,7 +94,7 @@ impl ReposState {
 
 #[derive(Debug, Clone, Default)]
 pub struct ReposMutationState {
-    pub locked_repos: Vec<String>,
-    pub unlocked_repos: Vec<String>,
-    pub removed_repos: Vec<String>,
+    pub locked_repos: Vec<RepoId>,
+    pub unlocked_repos: Vec<RepoId>,
+    pub removed_repos: Vec<RepoId>,
 }

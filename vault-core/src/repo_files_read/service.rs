@@ -17,7 +17,8 @@ use crate::{
     },
     repos::ReposService,
     runtime, store,
-    utils::{path_utils, sender_writer::SenderWriter},
+    types::{DecryptedName, DecryptedPath, MountId, RemotePath, RepoFileId},
+    utils::{repo_path_utils, sender_writer::SenderWriter},
 };
 
 use super::{
@@ -53,9 +54,9 @@ impl RepoFilesReadService {
 
     async fn get_remote_file_reader(
         &self,
-        mount_id: &str,
-        remote_path: &str,
-        name: &str,
+        mount_id: &MountId,
+        remote_path: &RemotePath,
+        name: DecryptedName,
         content_type: Option<&str>,
         unique_name: Option<&str>,
         cipher: &Cipher,
@@ -71,7 +72,7 @@ impl RepoFilesReadService {
         let decrypt_reader = Box::pin(cipher.decrypt_reader(encrypted_reader.reader));
 
         Ok(RepoFileReader {
-            name: name.to_owned(),
+            name,
             size: SizeInfo::Exact(size),
             content_type: content_type.map(str::to_string),
             remote_file: Some(encrypted_reader.file),
@@ -84,7 +85,7 @@ impl RepoFilesReadService {
         &self,
         file: &RepoFile,
     ) -> Result<RepoFileReader, GetFilesReaderError> {
-        let name = file.decrypted_name()?;
+        let name = file.decrypted_name()?.to_owned();
 
         let cipher = self.repos_service.get_cipher(&file.repo_id)?;
 
@@ -113,7 +114,7 @@ impl RepoFilesReadService {
         let file = Arc::new(file);
 
         Ok(RepoFileReaderProvider {
-            name: name.to_owned(),
+            name,
             size,
             unique_name: Some(file.unique_name.clone()),
             reader_builder: Box::new(move || {
@@ -164,7 +165,7 @@ impl RepoFilesReadService {
                         .get_remote_file_reader(
                             &entry.mount_id,
                             &entry.remote_path,
-                            "",
+                            DecryptedName("".into()),
                             None,
                             None,
                             &cipher,
@@ -222,7 +223,7 @@ impl RepoFilesReadService {
     async fn get_file_remote_zip_entries(
         &self,
         file: &RepoFile,
-        dir_path_prefix: Option<String>,
+        dir_path_prefix: Option<DecryptedPath>,
     ) -> Result<Vec<RemoteZipEntry>, GetFilesReaderError> {
         match file.typ {
             RepoFileType::Dir => {
@@ -255,8 +256,10 @@ impl RepoFilesReadService {
                                 ..
                             } => match relative_repo_path {
                                 Ok(relative_repo_path) => {
-                                    *relative_repo_path =
-                                        path_utils::join_paths(dir_path_prefix, relative_repo_path);
+                                    *relative_repo_path = repo_path_utils::join_paths(
+                                        dir_path_prefix,
+                                        relative_repo_path,
+                                    );
                                 }
                                 _ => {}
                             },
@@ -276,8 +279,8 @@ impl RepoFilesReadService {
     fn get_dir_zip_name_entries(
         self: Arc<Self>,
         file: RepoFile,
-    ) -> Result<(String, GetRemoteZipEntries), GetFilesReaderError> {
-        let zip_name = format!("{}.zip", file.decrypted_name()?);
+    ) -> Result<(DecryptedName, GetRemoteZipEntries), GetFilesReaderError> {
+        let zip_name = DecryptedName(format!("{}.zip", file.decrypted_name()?.0));
 
         let this = self.clone();
         let file = Arc::new(file);
@@ -295,7 +298,7 @@ impl RepoFilesReadService {
     fn get_files_zip_name_entries(
         self: Arc<Self>,
         files: Vec<RepoFile>,
-    ) -> Result<(String, GetRemoteZipEntries), GetFilesReaderError> {
+    ) -> Result<(DecryptedName, GetRemoteZipEntries), GetFilesReaderError> {
         let (zip_name, file_names) = self.store.with_state(|state| {
             let zip_name = selectors::select_files_zip_name(state, &files);
 
@@ -306,7 +309,7 @@ impl RepoFilesReadService {
                         .map(|name| (file.id.clone(), name.to_owned()))
                         .ok()
                 })
-                .collect::<HashMap<String, String>>();
+                .collect::<HashMap<RepoFileId, DecryptedName>>();
 
             (zip_name, file_names)
         });
@@ -329,7 +332,7 @@ impl RepoFilesReadService {
     async fn get_files_zip_entries(
         &self,
         files: &[RepoFile],
-        file_names: &HashMap<String, String>,
+        file_names: &HashMap<RepoFileId, DecryptedName>,
     ) -> Result<Vec<RemoteZipEntry>, GetFilesReaderError> {
         let mut remote_zip_entries = Vec::new();
 
@@ -343,7 +346,7 @@ impl RepoFilesReadService {
             };
 
             let dir_path_prefix = match file.typ {
-                RepoFileType::Dir => Some(format!("/{}", file_name)),
+                RepoFileType::Dir => Some(DecryptedPath(format!("/{}", file_name.0))),
                 RepoFileType::File => None,
             };
 

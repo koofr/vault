@@ -2,9 +2,11 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
+use crate::types::RemoteName;
+
 #[derive(Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct FilesFile {
-    pub name: String,
+    pub name: RemoteName,
     #[serde(rename = "type")]
     pub typ: String,
     pub modified: i64,

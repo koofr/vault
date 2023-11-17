@@ -9,7 +9,11 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::{AbortSignal, Storage};
 
-use vault_core::store::Event;
+use vault_core::{
+    dir_pickers::state::DirPickerItemId,
+    store::Event,
+    types::{DecryptedPath, RepoFileId, RepoId},
+};
 
 use crate::{
     browser_eventstream_websocket_client::{
@@ -566,6 +570,8 @@ impl WebVault {
 
     #[wasm_bindgen(js_name = reposRepoSubscribe)]
     pub fn repos_repo_subscribe(&self, repo_id: String, cb: js_sys::Function) -> u32 {
+        let repo_id = RepoId(repo_id);
+
         self.subscribe(
             &[Event::Repos],
             cb,
@@ -584,8 +590,8 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = reposLockRepo)]
-    pub fn repos_lock_repo(&self, repo_id: &str) {
-        self.handle_result(self.vault.repos_lock_repo(repo_id))
+    pub fn repos_lock_repo(&self, repo_id: String) {
+        self.handle_result(self.vault.repos_lock_repo(&RepoId(repo_id)))
     }
 
     // repo_create
@@ -704,12 +710,16 @@ impl WebVault {
     pub async fn repo_create_location_dir_picker_click(
         &self,
         create_id: u32,
-        item_id: &str,
+        item_id: String,
         is_arrow: bool,
     ) {
         self.handle_result(
             self.vault
-                .repo_create_location_dir_picker_click(create_id, item_id, is_arrow)
+                .repo_create_location_dir_picker_click(
+                    create_id,
+                    &DirPickerItemId(item_id),
+                    is_arrow,
+                )
                 .await,
         )
     }
@@ -752,11 +762,12 @@ impl WebVault {
     // repo_unlock
 
     #[wasm_bindgen(js_name = repoUnlockCreate)]
-    pub fn repo_unlock_create(&self, repo_id: &str, options: RepoUnlockOptions) -> u32 {
+    pub fn repo_unlock_create(&self, repo_id: String, options: RepoUnlockOptions) -> u32 {
         let options: dto::RepoUnlockOptions =
             serde_wasm_bindgen::from_value(options.into()).unwrap();
 
-        self.vault.repo_unlock_create(repo_id, options.into())
+        self.vault
+            .repo_unlock_create(RepoId(repo_id), options.into())
     }
 
     #[wasm_bindgen(js_name = repoUnlockInfoSubscribe)]
@@ -770,7 +781,7 @@ impl WebVault {
                     vault_core::repo_unlock::selectors::select_info(state, unlock_id).map(|info| {
                         dto::RepoUnlockInfo {
                             status: info.status.into(),
-                            repo_name: info.repo_name.map(str::to_string),
+                            repo_name: info.repo_name.map(|x| x.0.clone()),
                         }
                     })
                 })
@@ -796,8 +807,8 @@ impl WebVault {
     // repo_remove
 
     #[wasm_bindgen(js_name = repoRemoveCreate)]
-    pub fn repo_remove_create(&self, repo_id: &str) -> u32 {
-        self.vault.repo_remove_create(repo_id)
+    pub fn repo_remove_create(&self, repo_id: String) -> u32 {
+        self.vault.repo_remove_create(RepoId(repo_id))
     }
 
     #[wasm_bindgen(js_name = repoRemoveInfoSubscribe)]
@@ -837,8 +848,8 @@ impl WebVault {
     // repo_config_backup
 
     #[wasm_bindgen(js_name = repoConfigBackupCreate)]
-    pub fn repo_config_backup_create(&self, repo_id: &str) -> u32 {
-        self.vault.repo_config_backup_create(repo_id)
+    pub fn repo_config_backup_create(&self, repo_id: String) -> u32 {
+        self.vault.repo_config_backup_create(RepoId(repo_id))
     }
 
     #[wasm_bindgen(js_name = repoConfigBackupInfoSubscribe)]
@@ -878,8 +889,8 @@ impl WebVault {
     // repo_space_usage
 
     #[wasm_bindgen(js_name = repoSpaceUsageCreate)]
-    pub fn repo_space_usage_create(&self, repo_id: &str) -> u32 {
-        self.vault.repo_space_usage_create(repo_id)
+    pub fn repo_space_usage_create(&self, repo_id: String) -> u32 {
+        self.vault.repo_space_usage_create(RepoId(repo_id))
     }
 
     #[wasm_bindgen(js_name = repoSpaceUsageInfoSubscribe)]
@@ -917,6 +928,8 @@ impl WebVault {
 
     #[wasm_bindgen(js_name = repoFilesFileSubscribe)]
     pub fn repo_files_file_subscribe(&self, file_id: String, cb: js_sys::Function) -> u32 {
+        let file_id = RepoFileId(file_id);
+
         self.subscribe(
             &[Event::RepoFiles],
             cb,
@@ -935,8 +948,12 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = repoFilesLoadFiles)]
-    pub async fn repo_files_load_files(&self, repo_id: &str, path: &str) {
-        self.handle_result(self.vault.repo_files_load_files(repo_id, path).await)
+    pub async fn repo_files_load_files(&self, repo_id: String, path: String) {
+        self.handle_result(
+            self.vault
+                .repo_files_load_files(&RepoId(repo_id), &DecryptedPath(path))
+                .await,
+        )
     }
 
     async fn repo_file_reader_to_file_stream(
@@ -970,7 +987,7 @@ impl WebVault {
         };
 
         let file_stream = match helpers::reader_to_file_stream(
-            &file_reader.name,
+            &file_reader.name.0,
             reader,
             file_reader.size,
             file_reader.content_type.as_deref(),
@@ -992,12 +1009,16 @@ impl WebVault {
     #[wasm_bindgen(js_name = repoFilesGetFileStream)]
     pub async fn repo_files_get_file_stream(
         &self,
-        repo_id: &str,
-        path: &str,
+        repo_id: String,
+        path: String,
         force_blob: bool,
     ) -> FileStreamOption {
         self.repo_file_reader_to_file_stream(
-            match self.vault.clone().repo_files_get_file_reader(repo_id, path) {
+            match self
+                .vault
+                .clone()
+                .repo_files_get_file_reader(&RepoId(repo_id), &DecryptedPath(path))
+            {
                 Ok(provider) => provider.reader().await,
                 Err(err) => Err(err),
             },
@@ -1008,10 +1029,10 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = repoFilesDeleteFile)]
-    pub async fn repo_files_delete_file(&self, repo_id: &str, path: &str) {
+    pub async fn repo_files_delete_file(&self, repo_id: String, path: String) {
         match self
             .vault
-            .repo_files_delete_files(&[(repo_id.to_owned(), path.to_owned())])
+            .repo_files_delete_files(&[(RepoId(repo_id), DecryptedPath(path))])
             .await
         {
             Ok(()) => {}
@@ -1021,8 +1042,12 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = repoFilesRenameFile)]
-    pub async fn repo_files_rename_file(&self, repo_id: &str, path: &str) {
-        self.handle_result(self.vault.repo_files_rename_file(repo_id, path).await)
+    pub async fn repo_files_rename_file(&self, repo_id: String, path: String) {
+        self.handle_result(
+            self.vault
+                .repo_files_rename_file(&RepoId(repo_id), &DecryptedPath(path))
+                .await,
+        )
     }
 
     // transfers
@@ -1118,9 +1143,12 @@ impl WebVault {
     ) -> RepoFilesUploadResultOption {
         let uploadable = Box::new(BrowserUploadable::from_value(file.into()).unwrap());
 
-        let (_, create_future) =
-            self.vault
-                .transfers_upload(repo_id, parent_path, name, uploadable);
+        let (_, create_future) = self.vault.transfers_upload(
+            RepoId(repo_id),
+            DecryptedPath(parent_path),
+            name,
+            uploadable,
+        );
 
         let future = match create_future.await {
             Ok(future) => future,
@@ -1192,16 +1220,18 @@ impl WebVault {
     #[wasm_bindgen(js_name = repoFilesBrowsersCreate)]
     pub fn repo_files_browsers_create(
         &self,
-        repo_id: &str,
-        path: &str,
+        repo_id: String,
+        path: String,
         options: RepoFilesBrowserOptions,
     ) -> u32 {
         let options: dto::RepoFilesBrowserOptions =
             serde_wasm_bindgen::from_value(options.into()).unwrap();
 
-        let (browser_id, load_future) =
-            self.vault
-                .repo_files_browsers_create(repo_id, path, options.into());
+        let (browser_id, load_future) = self.vault.repo_files_browsers_create(
+            &RepoId(repo_id),
+            &DecryptedPath(path),
+            options.into(),
+        );
 
         let errors = self.errors.clone();
 
@@ -1254,13 +1284,18 @@ impl WebVault {
     pub fn repo_files_browsers_select_file(
         &self,
         browser_id: u32,
-        file_id: &str,
+        file_id: String,
         extend: bool,
         range: bool,
         force: bool,
     ) {
-        self.vault
-            .repo_files_browsers_select_file(browser_id, file_id, extend, range, force)
+        self.vault.repo_files_browsers_select_file(
+            browser_id,
+            RepoFileId(file_id),
+            extend,
+            range,
+            force,
+        )
     }
 
     #[wasm_bindgen(js_name = repoFilesBrowsersSelectAll)]
@@ -1322,7 +1357,7 @@ impl WebVault {
             .repo_files_browsers_create_file(browser_id, name)
             .await
         {
-            Ok((_, path)) => Some(path),
+            Ok((_, path)) => Some(path.0),
             Err(vault_core::repo_files::errors::CreateFileError::Canceled) => None,
             Err(err) => {
                 self.handle_error(err);
@@ -1363,17 +1398,20 @@ impl WebVault {
     #[wasm_bindgen(js_name = repoFilesDetailsCreate)]
     pub fn repo_files_details_create(
         &self,
-        repo_id: &str,
-        path: &str,
+        repo_id: String,
+        path: String,
         is_editing: bool,
         options: RepoFilesDetailsOptions,
     ) -> u32 {
         let options: dto::RepoFilesDetailsOptions =
             serde_wasm_bindgen::from_value(options.into()).unwrap();
 
-        let (details_id, load_future) =
-            self.vault
-                .repo_files_details_create(repo_id, path, is_editing, options.into());
+        let (details_id, load_future) = self.vault.repo_files_details_create(
+            RepoId(repo_id),
+            &DecryptedPath(path),
+            is_editing,
+            options.into(),
+        );
 
         spawn_local(async move {
             // error is displayed in the details component
@@ -1587,7 +1625,7 @@ impl WebVault {
                                         )
                                         .ok()
                                     })
-                                    .map(str::to_string),
+                                    .map(|x| x.0.to_owned()),
                             create_dir_enabled:
                                 vault_core::repo_files_move::selectors::select_create_dir_enabled(
                                     state,
@@ -1608,10 +1646,10 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = repoFilesMoveDirPickerClick)]
-    pub async fn repo_files_move_dir_picker_click(&self, item_id: &str, is_arrow: bool) {
+    pub async fn repo_files_move_dir_picker_click(&self, item_id: String, is_arrow: bool) {
         self.handle_result(
             self.vault
-                .repo_files_move_dir_picker_click(item_id, is_arrow)
+                .repo_files_move_dir_picker_click(&DirPickerItemId(item_id), is_arrow)
                 .await,
         )
     }

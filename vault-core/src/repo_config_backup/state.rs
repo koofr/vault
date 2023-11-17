@@ -5,6 +5,7 @@ use crate::{
     repo_unlock::state::RepoUnlockInfo,
     repos::{errors::UnlockRepoError, state::RepoConfig},
     store::NextId,
+    types::RepoId,
 };
 
 pub struct RepoConfigBackupInfo<'a> {
@@ -14,7 +15,7 @@ pub struct RepoConfigBackupInfo<'a> {
 
 #[derive(Debug, Clone)]
 pub struct RepoConfigBackup {
-    pub repo_id: String,
+    pub repo_id: RepoId,
     pub status: Status<UnlockRepoError>,
     pub config: Option<RepoConfig>,
 }

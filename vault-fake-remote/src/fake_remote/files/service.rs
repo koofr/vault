@@ -7,7 +7,10 @@ use std::{
 
 use futures::AsyncRead;
 use http::StatusCode;
-use vault_core::remote::models;
+use vault_core::{
+    remote::models,
+    types::{MountId, RemoteName, RemotePath},
+};
 
 use crate::fake_remote::{
     context::Context,
@@ -84,7 +87,7 @@ impl FilesService {
                 NormalizedPath::root(),
                 FilesystemFile {
                     file: models::FilesFile {
-                        name: "".into(),
+                        name: RemoteName("".into()),
                         typ: "dir".into(),
                         modified: now_ms(),
                         size: 0,
@@ -193,8 +196,8 @@ impl FilesService {
 
         self.eventstream_listeners
             .process_event(eventstream::Event::FileCreatedEvent {
-                mount_id: mount_id.to_owned(),
-                path: parent_path.join_name(&Name(file.name.clone())).0,
+                mount_id: MountId(mount_id.to_owned()),
+                path: RemotePath(parent_path.join_name(&Name(file.name.0.clone())).0),
                 file: file.clone(),
                 user_agent: context.user_agent.clone(),
             })
@@ -251,8 +254,8 @@ impl FilesService {
 
         self.eventstream_listeners
             .process_event(eventstream::Event::FileCreatedEvent {
-                mount_id: mount_id.to_owned(),
-                path: parent_path.join_name(&name).0,
+                mount_id: MountId(mount_id.to_owned()),
+                path: RemotePath(parent_path.join_name(&name).0),
                 file: file.clone(),
                 user_agent: context.user_agent.clone(),
             })
@@ -280,12 +283,13 @@ impl FilesService {
                     .vault_repos
                     .values()
                     .filter_map(|repo| {
-                        if Path(repo.path.clone()).relative_to(path).is_some() {
+                        if Path(repo.path.0.clone()).relative_to(path).is_some() {
                             Some(repo.id.clone())
                         } else {
                             None
                         }
                     })
+                    .map(|x| x.0)
                     .collect();
 
                 (file, repo_ids)
@@ -303,8 +307,8 @@ impl FilesService {
 
         self.eventstream_listeners
             .process_event(eventstream::Event::FileRemovedEvent {
-                mount_id: mount_id.to_owned(),
-                path: path.to_owned().0,
+                mount_id: MountId(mount_id.to_owned()),
+                path: RemotePath(path.to_owned().0),
                 file: file.clone(),
                 user_agent: context.user_agent.clone(),
             })
@@ -362,9 +366,9 @@ impl FilesService {
 
         self.eventstream_listeners
             .process_event(eventstream::Event::FileCopiedEvent {
-                mount_id: mount_id.to_owned(),
-                path: path.to_owned().0,
-                new_path: to_path.clone().0,
+                mount_id: MountId(mount_id.to_owned()),
+                path: RemotePath(path.to_owned().0),
+                new_path: RemotePath(to_path.clone().0),
                 file: file.clone(),
                 user_agent: context.user_agent.clone(),
             })
@@ -391,9 +395,9 @@ impl FilesService {
 
         self.eventstream_listeners
             .process_event(eventstream::Event::FileMovedEvent {
-                mount_id: mount_id.to_owned(),
-                path: path.to_owned().0,
-                new_path: to_path.clone().0,
+                mount_id: MountId(mount_id.to_owned()),
+                path: RemotePath(path.to_owned().0),
+                new_path: RemotePath(to_path.clone().0),
                 file: file.clone(),
                 user_agent: context.user_agent.clone(),
             })
@@ -437,7 +441,7 @@ impl FilesService {
         file: &FilesystemFile,
     ) {
         files.push(models::FilesListRecursiveItem::File {
-            path: path.0.clone(),
+            path: RemotePath(path.0.clone()),
             file: file.file.clone(),
         });
 
@@ -446,7 +450,7 @@ impl FilesService {
                 self.list_recursive_file(
                     fs,
                     files,
-                    path.join_name(&Name(child.file.name.clone())),
+                    path.join_name(&Name(child.file.name.0.clone())),
                     child,
                 )
             }

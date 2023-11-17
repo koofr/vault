@@ -1,6 +1,8 @@
+use crate::types::{EncryptedPath, RemotePath, RepoId};
+
 #[derive(Debug, Clone)]
 struct RepoTreeNode {
-    repo_id: Option<String>,
+    repo_id: Option<RepoId>,
     /// Vec lookups are faster than HashMap for small amounts of children
     children: Vec<(String, usize)>,
 }
@@ -23,81 +25,70 @@ impl RepoTree {
     }
 
     /// Get returns all (repo_id, repo_path) pairs that for a path.
-    pub fn get<'a, 'b>(&'a self, path: &'b str) -> Vec<(&'a str, &'b str)> {
+    pub fn get<'a>(&'a self, path: &RemotePath) -> Vec<(&'a RepoId, EncryptedPath)> {
         assert_valid_path(path);
 
-        let mut current_path = path;
+        let mut current_path = path.0.as_str();
         let mut node_idx: usize = 0;
 
-        let mut pairs: Vec<(&'a str, &'b str)> = Vec::new();
+        let mut pairs: Vec<(&'a RepoId, EncryptedPath)> = Vec::new();
 
         loop {
             if let Some(repo_id) = &self.nodes[node_idx].repo_id {
-                pairs.push((repo_id, current_path));
+                pairs.push((repo_id, EncryptedPath(current_path.to_owned())));
             }
 
-            match current_path {
-                "/" => break,
-                _ => {
-                    let (key, tail) = path_to_key_tail(current_path);
-
-                    match self.find_child(node_idx, &key) {
-                        Some(idx) => node_idx = idx,
-                        None => break,
-                    }
-
-                    current_path = tail;
-                }
+            if current_path == "/" {
+                break;
             }
+
+            let (key, tail) = path_to_key_tail(current_path);
+
+            match self.find_child(node_idx, &key) {
+                Some(idx) => node_idx = idx,
+                None => break,
+            }
+
+            current_path = tail;
         }
 
         pairs
     }
 
-    pub fn set(&mut self, path: &str, repo_id: String) {
+    pub fn set(&mut self, path: &RemotePath, repo_id: RepoId) {
         assert_valid_path(path);
 
-        let mut current_path = path;
+        let mut current_path = path.0.as_str();
         let mut node_idx: usize = 0;
 
-        loop {
-            match current_path {
-                "/" => break,
-                _ => {
-                    let (key, tail) = path_to_key_tail(current_path);
+        while current_path != "/" {
+            let (key, tail) = path_to_key_tail(current_path);
 
-                    node_idx = self.find_or_add_child(node_idx, key);
+            node_idx = self.find_or_add_child(node_idx, key);
 
-                    current_path = tail;
-                }
-            }
+            current_path = tail;
         }
 
         self.nodes[node_idx].repo_id = Some(repo_id);
     }
 
-    pub fn remove(&mut self, path: &str) -> Option<String> {
+    pub fn remove(&mut self, path: &RemotePath) -> Option<RepoId> {
         assert_valid_path(path);
 
-        let mut current_path = path;
+        let mut current_path = path.0.as_str();
         let mut node_idx: usize = 0;
 
-        loop {
-            match current_path {
-                "/" => break,
-                _ => {
-                    let (key, tail) = path_to_key_tail(current_path);
+        while current_path != "/" {
+            let (key, tail) = path_to_key_tail(current_path);
 
-                    match self.find_child(node_idx, &key) {
-                        Some(idx) => node_idx = idx,
-                        None => {
-                            return None;
-                        }
-                    }
-
-                    current_path = tail;
+            match self.find_child(node_idx, &key) {
+                Some(idx) => node_idx = idx,
+                None => {
+                    return None;
                 }
             }
+
+            current_path = tail;
         }
 
         self.nodes[node_idx].repo_id.take()
@@ -134,9 +125,9 @@ impl RepoTree {
     }
 }
 
-fn assert_valid_path(path: &str) {
-    assert!(path.starts_with('/'), "path does not have / prefix");
-    assert!(!path.contains("//"), "path has //");
+fn assert_valid_path(path: &RemotePath) {
+    assert!(path.0.starts_with('/'), "path does not have / prefix");
+    assert!(!path.0.contains("//"), "path has //");
 }
 
 fn path_to_key_tail<'a>(path: &'a str) -> (String, &'a str) {
@@ -148,58 +139,123 @@ fn path_to_key_tail<'a>(path: &'a str) -> (String, &'a str) {
 
 #[cfg(test)]
 mod tests {
+    use crate::types::{EncryptedPath, RemotePath, RepoId};
+
     use super::{path_to_key_tail, RepoTree};
 
     #[test]
     fn test_repo_tree() {
         let mut t = RepoTree::new();
 
-        assert_eq!(t.get("/"), vec![]);
-        assert_eq!(t.get("/d1"), vec![]);
-        assert_eq!(t.get("/D1"), vec![]);
-        assert_eq!(t.get("/D2"), vec![]);
+        assert_eq!(t.get(&RemotePath("/".into())), vec![]);
+        assert_eq!(t.get(&RemotePath("/d1".into())), vec![]);
+        assert_eq!(t.get(&RemotePath("/D1".into())), vec![]);
+        assert_eq!(t.get(&RemotePath("/D2".into())), vec![]);
 
-        t.set("/", String::from("r1"));
-        assert_eq!(t.get("/"), vec![("r1", "/")]);
-        assert_eq!(t.get("/d1"), vec![("r1", "/d1")]);
-        assert_eq!(t.get("/D1"), vec![("r1", "/D1")]);
-        assert_eq!(t.get("/D2"), vec![("r1", "/D2")]);
+        t.set(&RemotePath("/".into()), RepoId("r1".into()));
+        assert_eq!(
+            t.get(&RemotePath("/".into())),
+            vec![(&RepoId("r1".into()), EncryptedPath("/".into()))]
+        );
+        assert_eq!(
+            t.get(&RemotePath("/d1".into())),
+            vec![(&RepoId("r1".into()), EncryptedPath("/d1".into()))]
+        );
+        assert_eq!(
+            t.get(&RemotePath("/D1".into())),
+            vec![(&RepoId("r1".into()), EncryptedPath("/D1".into()))]
+        );
+        assert_eq!(
+            t.get(&RemotePath("/D2".into())),
+            vec![(&RepoId("r1".into()), EncryptedPath("/D2".into()))]
+        );
 
-        t.set("/D1", String::from("r2"));
-        assert_eq!(t.get("/d1"), vec![("r1", "/d1"), ("r2", "/")]);
-        assert_eq!(t.get("/D1"), vec![("r1", "/D1"), ("r2", "/")]);
-        assert_eq!(t.get("/d1/d11"), vec![("r1", "/d1/d11"), ("r2", "/d11")]);
-        assert_eq!(t.get("/D1/D11"), vec![("r1", "/D1/D11"), ("r2", "/D11")]);
-        assert_eq!(t.get("/D2"), vec![("r1", "/D2")]);
+        t.set(&RemotePath("/D1".into()), RepoId("r2".into()));
+        assert_eq!(
+            t.get(&RemotePath("/d1".into())),
+            vec![
+                (&RepoId("r1".into()), EncryptedPath("/d1".into())),
+                (&RepoId("r2".into()), EncryptedPath("/".into()))
+            ]
+        );
+        assert_eq!(
+            t.get(&RemotePath("/D1".into())),
+            vec![
+                (&RepoId("r1".into()), EncryptedPath("/D1".into())),
+                (&RepoId("r2".into()), EncryptedPath("/".into()))
+            ]
+        );
+        assert_eq!(
+            t.get(&RemotePath("/d1/d11".into())),
+            vec![
+                (&RepoId("r1".into()), EncryptedPath("/d1/d11".into())),
+                (&RepoId("r2".into()), EncryptedPath("/d11".into()))
+            ]
+        );
+        assert_eq!(
+            t.get(&RemotePath("/D1/D11".into())),
+            vec![
+                (&RepoId("r1".into()), EncryptedPath("/D1/D11".into())),
+                (&RepoId("r2".into()), EncryptedPath("/D11".into()))
+            ]
+        );
+        assert_eq!(
+            t.get(&RemotePath("/D2".into())),
+            vec![(&RepoId("r1".into()), EncryptedPath("/D2".into()))]
+        );
 
-        assert_eq!(t.remove("/"), Some(String::from("r1")));
-        assert_eq!(t.get("/"), vec![]);
-        assert_eq!(t.get("/d1"), vec![("r2", "/")]);
-        assert_eq!(t.get("/D1"), vec![("r2", "/")]);
-        assert_eq!(t.get("/d1/d11"), vec![("r2", "/d11")]);
-        assert_eq!(t.get("/D1/D11"), vec![("r2", "/D11")]);
-        assert_eq!(t.get("/D2"), vec![]);
+        assert_eq!(t.remove(&RemotePath("/".into())), Some(RepoId("r1".into())));
+        assert_eq!(t.get(&RemotePath("/".into())), vec![]);
+        assert_eq!(
+            t.get(&RemotePath("/d1".into())),
+            vec![(&RepoId("r2".into()), EncryptedPath("/".into()))]
+        );
+        assert_eq!(
+            t.get(&RemotePath("/D1".into())),
+            vec![(&RepoId("r2".into()), EncryptedPath("/".into()))]
+        );
+        assert_eq!(
+            t.get(&RemotePath("/d1/d11".into())),
+            vec![(&RepoId("r2".into()), EncryptedPath("/d11".into()))]
+        );
+        assert_eq!(
+            t.get(&RemotePath("/D1/D11".into())),
+            vec![(&RepoId("r2".into()), EncryptedPath("/D11".into()))]
+        );
+        assert_eq!(t.get(&RemotePath("/D2".into())), vec![]);
 
-        assert_eq!(t.remove("/D1"), Some(String::from("r2")));
-        assert_eq!(t.get("/"), vec![]);
-        assert_eq!(t.get("/d1"), vec![]);
-        assert_eq!(t.get("/D1"), vec![]);
-        assert_eq!(t.get("/d1/d11"), vec![]);
-        assert_eq!(t.get("/D1/D11"), vec![]);
-        assert_eq!(t.get("/D2"), vec![]);
+        assert_eq!(
+            t.remove(&RemotePath("/D1".into())),
+            Some(RepoId("r2".into()))
+        );
+        assert_eq!(t.get(&RemotePath("/".into())), vec![]);
+        assert_eq!(t.get(&RemotePath("/d1".into())), vec![]);
+        assert_eq!(t.get(&RemotePath("/D1".into())), vec![]);
+        assert_eq!(t.get(&RemotePath("/d1/d11".into())), vec![]);
+        assert_eq!(t.get(&RemotePath("/D1/D11".into())), vec![]);
+        assert_eq!(t.get(&RemotePath("/D2".into())), vec![]);
     }
 
     #[test]
     fn test_repo_tree_child() {
         let mut t = RepoTree::new();
 
-        t.set("/path/to/r1", String::from("r1"));
-        assert_eq!(t.get("/"), vec![]);
-        assert_eq!(t.get("/path"), vec![]);
-        assert_eq!(t.get("/path/to"), vec![]);
-        assert_eq!(t.get("/path/to/r1"), vec![("r1", "/")]);
-        assert_eq!(t.get("/Path/to/r1/d1"), vec![("r1", "/d1")]);
-        assert_eq!(t.get("/Path/to/r1/D1"), vec![("r1", "/D1")]);
+        t.set(&RemotePath("/path/to/r1".into()), RepoId("r1".into()));
+        assert_eq!(t.get(&RemotePath("/".into())), vec![]);
+        assert_eq!(t.get(&RemotePath("/path".into())), vec![]);
+        assert_eq!(t.get(&RemotePath("/path/to".into())), vec![]);
+        assert_eq!(
+            t.get(&RemotePath("/path/to/r1".into())),
+            vec![(&RepoId("r1".into()), EncryptedPath("/".into()))]
+        );
+        assert_eq!(
+            t.get(&RemotePath("/Path/to/r1/d1".into())),
+            vec![(&RepoId("r1".into()), EncryptedPath("/d1".into()))]
+        );
+        assert_eq!(
+            t.get(&RemotePath("/Path/to/r1/D1".into())),
+            vec![(&RepoId("r1".into()), EncryptedPath("/D1".into()))]
+        );
     }
 
     #[test]

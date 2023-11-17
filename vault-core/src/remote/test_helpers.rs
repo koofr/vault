@@ -1,12 +1,15 @@
 use std::collections::HashMap;
 
-use crate::utils::path_utils;
+use crate::{
+    types::{MountId, RemoteName, RemotePath, RepoId},
+    utils::path_utils,
+};
 
 use super::models;
 
 pub fn create_file(name: &str) -> models::FilesFile {
     models::FilesFile {
-        name: name.to_owned(),
+        name: RemoteName(name.to_owned()),
         typ: String::from("file"),
         modified: 1,
         size: 100,
@@ -18,7 +21,7 @@ pub fn create_file(name: &str) -> models::FilesFile {
 
 pub fn create_dir(name: &str) -> models::FilesFile {
     models::FilesFile {
-        name: name.to_owned(),
+        name: RemoteName(name.to_owned()),
         typ: String::from("dir"),
         modified: 1,
         size: 0,
@@ -49,10 +52,10 @@ pub fn create_bundle(root_name: &str, files: Option<Vec<models::FilesFile>>) -> 
 
 pub fn create_repo(repo_id: &str, mount_id: &str, path: &str) -> models::VaultRepo {
     models::VaultRepo {
-        id: repo_id.to_owned(),
+        id: RepoId(repo_id.to_owned()),
         name: path_utils::path_to_name(path).unwrap_or("/").to_owned(),
-        mount_id: mount_id.to_owned(),
-        path: path.to_owned(),
+        mount_id: MountId(mount_id.to_owned()),
+        path: RemotePath(path.to_owned()),
         salt: Some("salt".into()),
         password_validator: String::from("a8668309-60f9-40f1-9a4c-0d1de0ff5852"),
         password_validator_encrypted: String::from("v2:UkNMT05FAADWjQahYq7E1ij2zegBBHbFuDbGIHAvdpym3P4eW2CPQcWhcTuAz4YGLAwRQzj2PoP4vwS2hAEwFwqMlFsWTgLMQ2ONzdNJK4d3kaVw"),
@@ -65,7 +68,7 @@ pub fn create_files_list_recursive_item_file(
     name: &str,
 ) -> models::FilesListRecursiveItem {
     models::FilesListRecursiveItem::File {
-        path: path.to_owned(),
+        path: RemotePath(path.to_owned()),
         file: create_file(name),
     }
 }
@@ -75,7 +78,7 @@ pub fn create_files_list_recursive_item_dir(
     name: &str,
 ) -> models::FilesListRecursiveItem {
     models::FilesListRecursiveItem::File {
-        path: path.to_owned(),
+        path: RemotePath(path.to_owned()),
         file: create_dir(name),
     }
 }
@@ -85,7 +88,7 @@ pub fn create_files_list_recursive_item_error(
     error: models::ApiErrorDetails,
 ) -> models::FilesListRecursiveItem {
     models::FilesListRecursiveItem::Error {
-        path: path.map(|path| path.to_owned()),
+        path: path.map(ToOwned::to_owned).map(RemotePath),
         error,
     }
 }

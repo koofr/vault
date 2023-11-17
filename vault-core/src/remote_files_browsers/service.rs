@@ -19,7 +19,8 @@ use crate::{
 use super::{
     mutations, selectors,
     state::{
-        RemoteFilesBrowserLocation, RemoteFilesBrowserLocationFiles, RemoteFilesBrowserOptions,
+        RemoteFilesBrowserItemId, RemoteFilesBrowserLocation, RemoteFilesBrowserLocationFiles,
+        RemoteFilesBrowserOptions,
     },
 };
 
@@ -56,7 +57,7 @@ impl RemoteFilesBrowsersService {
 
     pub fn create(
         self: Arc<Self>,
-        location: &str,
+        location: &RemoteFilesBrowserItemId,
         options: RemoteFilesBrowserOptions,
     ) -> (u32, BoxFuture<'static, Result<(), remote::RemoteError>>) {
         let location = self.get_location(location);
@@ -74,12 +75,14 @@ impl RemoteFilesBrowsersService {
 
     fn get_location(
         &self,
-        location: &str,
+        location: &RemoteFilesBrowserItemId,
     ) -> Result<RemoteFilesBrowserLocation, remote::RemoteError> {
         match location {
-            selectors::ITEM_ID_HOME => Ok(RemoteFilesBrowserLocation::Home),
-            selectors::ITEM_ID_BOOKMARKS => Ok(RemoteFilesBrowserLocation::Bookmarks),
-            selectors::ITEM_ID_SHARED => Ok(RemoteFilesBrowserLocation::Shared),
+            _ if location == &*selectors::ITEM_ID_HOME => Ok(RemoteFilesBrowserLocation::Home),
+            _ if location == &*selectors::ITEM_ID_BOOKMARKS => {
+                Ok(RemoteFilesBrowserLocation::Bookmarks)
+            }
+            _ if location == &*selectors::ITEM_ID_SHARED => Ok(RemoteFilesBrowserLocation::Shared),
             _ => {
                 if let Some((item_id_prefix, mount_id, path)) =
                     selectors::parse_location_files(location)
@@ -158,7 +161,7 @@ impl RemoteFilesBrowsersService {
     pub fn select_item(
         &self,
         browser_id: u32,
-        item_id: &str,
+        item_id: RemoteFilesBrowserItemId,
         extend: bool,
         range: bool,
         force: bool,
@@ -180,7 +183,7 @@ impl RemoteFilesBrowsersService {
         });
     }
 
-    pub fn set_selection(&self, browser_id: u32, selection: Vec<String>) {
+    pub fn set_selection(&self, browser_id: u32, selection: Vec<RemoteFilesBrowserItemId>) {
         self.store.mutate(|state, notify, _, _| {
             mutations::set_selection(state, notify, browser_id, selection);
         });
@@ -197,7 +200,10 @@ impl RemoteFilesBrowsersService {
         });
     }
 
-    pub async fn create_dir(&self, browser_id: u32) -> Result<String, CreateDirError> {
+    pub async fn create_dir(
+        &self,
+        browser_id: u32,
+    ) -> Result<RemoteFilesBrowserItemId, CreateDirError> {
         let (item_id_prefix, mount_id, parent_path) = self.store.with_state(|state| {
             match selectors::select_browser_location(state, browser_id) {
                 Some(RemoteFilesBrowserLocation::Files(location)) => Ok((

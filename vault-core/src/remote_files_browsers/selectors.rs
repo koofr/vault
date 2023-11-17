@@ -1,3 +1,5 @@
+use lazy_static::lazy_static;
+
 use crate::{
     remote_files::{
         selectors as remote_files_selectors,
@@ -8,50 +10,69 @@ use crate::{
     },
     selection::{selectors as selection_selectors, state::SelectionSummary},
     store,
+    types::{MountId, RemoteFileId, RemoteName, RemoteNameLower, RemotePath},
     utils::path_utils,
 };
 
 use super::state::{
     RemoteFilesBrowser, RemoteFilesBrowserBreadcrumb, RemoteFilesBrowserInfo,
-    RemoteFilesBrowserItem, RemoteFilesBrowserItemInfo, RemoteFilesBrowserItemType,
-    RemoteFilesBrowserLocation, RemoteFilesBrowserLocationFiles, RemoteFilesBrowserOptions,
+    RemoteFilesBrowserItem, RemoteFilesBrowserItemId, RemoteFilesBrowserItemInfo,
+    RemoteFilesBrowserItemType, RemoteFilesBrowserLocation, RemoteFilesBrowserLocationFiles,
+    RemoteFilesBrowserOptions,
 };
 
-pub const ITEM_ID_HOME: &'static str = "";
-pub const ITEM_ID_BOOKMARKS: &'static str = "bookmarks";
-pub const ITEM_ID_SHARED: &'static str = "shared";
-pub const ITEM_ID_PREFIX_BOOKMARKS: &'static str = "bookmarks:";
-pub const ITEM_ID_PREFIX_PLACES: &'static str = "places:";
-pub const ITEM_ID_PREFIX_SHARED: &'static str = "shared:";
-
-pub fn get_file_item_id(item_id_prefix: &str, mount_id: &str, path: &str) -> String {
-    format!("{}{}:{}", item_id_prefix, mount_id, path)
+lazy_static! {
+    pub static ref ITEM_ID_HOME: RemoteFilesBrowserItemId = RemoteFilesBrowserItemId("".into());
+    pub static ref ITEM_ID_BOOKMARKS: RemoteFilesBrowserItemId =
+        RemoteFilesBrowserItemId("bookmarks".into());
+    pub static ref ITEM_ID_SHARED: RemoteFilesBrowserItemId =
+        RemoteFilesBrowserItemId("shared".into());
+    pub static ref ITEM_ID_PREFIX_BOOKMARKS: RemoteFilesBrowserItemId =
+        RemoteFilesBrowserItemId("bookmarks:".into());
+    pub static ref ITEM_ID_PREFIX_PLACES: RemoteFilesBrowserItemId =
+        RemoteFilesBrowserItemId("places:".into());
+    pub static ref ITEM_ID_PREFIX_SHARED: RemoteFilesBrowserItemId =
+        RemoteFilesBrowserItemId("shared:".into());
 }
 
-pub fn parse_location_files_item_id_prefix(location: &str) -> Option<&'static str> {
-    if location.starts_with(ITEM_ID_PREFIX_BOOKMARKS) {
-        Some(ITEM_ID_PREFIX_BOOKMARKS)
-    } else if location.starts_with(ITEM_ID_PREFIX_PLACES) {
-        Some(ITEM_ID_PREFIX_PLACES)
-    } else if location.starts_with(ITEM_ID_PREFIX_SHARED) {
-        Some(ITEM_ID_PREFIX_SHARED)
+pub fn get_file_item_id(
+    item_id_prefix: &RemoteFilesBrowserItemId,
+    mount_id: &MountId,
+    path: &RemotePath,
+) -> RemoteFilesBrowserItemId {
+    RemoteFilesBrowserItemId(format!("{}{}:{}", item_id_prefix.0, mount_id.0, path.0))
+}
+
+pub fn parse_location_files_item_id_prefix(
+    location: &RemoteFilesBrowserItemId,
+) -> Option<&RemoteFilesBrowserItemId> {
+    if location.0.starts_with(&ITEM_ID_PREFIX_BOOKMARKS.0) {
+        Some(&ITEM_ID_PREFIX_BOOKMARKS)
+    } else if location.0.starts_with(&ITEM_ID_PREFIX_PLACES.0) {
+        Some(&ITEM_ID_PREFIX_PLACES)
+    } else if location.0.starts_with(&ITEM_ID_PREFIX_SHARED.0) {
+        Some(&ITEM_ID_PREFIX_SHARED)
     } else {
         None
     }
 }
 
-pub fn parse_location_files(location: &str) -> Option<(String, String, String)> {
+pub fn parse_location_files(
+    location: &RemoteFilesBrowserItemId,
+) -> Option<(RemoteFilesBrowserItemId, MountId, RemotePath)> {
     if let Some(item_id_prefix) = parse_location_files_item_id_prefix(location) {
-        let mut parts = location.splitn(3, ':');
+        let mut parts = location.0.splitn(3, ':');
 
         match (
             parts.next(),
             parts.next(),
             parts.next().map(path_utils::normalize_path),
         ) {
-            (_, Some(mount_id), Some(Ok(path))) if mount_id.len() > 0 => {
-                Some((item_id_prefix.to_owned(), mount_id.to_owned(), path))
-            }
+            (_, Some(mount_id), Some(Ok(path))) if mount_id.len() > 0 => Some((
+                item_id_prefix.to_owned(),
+                MountId(mount_id.to_owned()),
+                RemotePath(path),
+            )),
             _ => None,
         }
     } else {
@@ -64,8 +85,8 @@ pub fn get_bookmarks_item() -> RemoteFilesBrowserItem {
         id: ITEM_ID_BOOKMARKS.to_owned(),
         mount_id: None,
         path: None,
-        name: "Bookmarks".into(),
-        name_lower: "bookmarks".into(),
+        name: RemoteName("Bookmarks".into()),
+        name_lower: RemoteNameLower("bookmarks".into()),
         typ: RemoteFilesBrowserItemType::Bookmarks,
         size: None,
         modified: None,
@@ -74,7 +95,7 @@ pub fn get_bookmarks_item() -> RemoteFilesBrowserItem {
 
 pub fn get_place_item(mount: &Mount, file: &RemoteFile) -> RemoteFilesBrowserItem {
     RemoteFilesBrowserItem {
-        id: get_file_item_id(ITEM_ID_PREFIX_PLACES, &file.mount_id, &file.path),
+        id: get_file_item_id(&ITEM_ID_PREFIX_PLACES, &file.mount_id, &file.path),
         mount_id: Some(file.mount_id.clone()),
         path: Some(file.path.clone()),
         name: mount.name.clone(),
@@ -88,7 +109,7 @@ pub fn get_place_item(mount: &Mount, file: &RemoteFile) -> RemoteFilesBrowserIte
 }
 
 pub fn get_file_item(
-    item_id_prefix: &str,
+    item_id_prefix: &RemoteFilesBrowserItemId,
     file: &RemoteFile,
     mount: Option<&Mount>,
 ) -> RemoteFilesBrowserItem {
@@ -113,8 +134,8 @@ pub fn get_shared_item() -> RemoteFilesBrowserItem {
         id: ITEM_ID_SHARED.to_owned(),
         mount_id: None,
         path: None,
-        name: "Shared".into(),
-        name_lower: "shared".into(),
+        name: RemoteName("Shared".into()),
+        name_lower: RemoteNameLower("shared".into()),
         typ: RemoteFilesBrowserItemType::Shared,
         size: None,
         modified: None,
@@ -155,30 +176,30 @@ pub fn sort_items(
 
 pub fn get_home_breadcrumb() -> RemoteFilesBrowserBreadcrumb {
     RemoteFilesBrowserBreadcrumb {
-        id: ITEM_ID_HOME.to_owned(),
+        id: ITEM_ID_HOME.clone(),
         mount_id: None,
         path: None,
-        name: "Koofr".into(),
+        name: RemoteName("Koofr".into()),
         last: false,
     }
 }
 
 pub fn get_bookmarks_breadcrumb() -> RemoteFilesBrowserBreadcrumb {
     RemoteFilesBrowserBreadcrumb {
-        id: ITEM_ID_BOOKMARKS.to_owned(),
+        id: ITEM_ID_BOOKMARKS.clone(),
         mount_id: None,
         path: None,
-        name: "Bookmarks".into(),
+        name: RemoteName("Bookmarks".into()),
         last: false,
     }
 }
 
 pub fn get_shared_breadcrumb() -> RemoteFilesBrowserBreadcrumb {
     RemoteFilesBrowserBreadcrumb {
-        id: ITEM_ID_SHARED.to_owned(),
+        id: ITEM_ID_SHARED.clone(),
         mount_id: None,
         path: None,
-        name: "Shared".into(),
+        name: RemoteName("Shared".into()),
         last: false,
     }
 }
@@ -235,7 +256,7 @@ pub fn select_home_items(
 pub fn select_bookmarks_items(state: &store::State) -> Vec<RemoteFilesBrowserItem> {
     remote_files_selectors::select_bookmarks_files(state)
         .into_iter()
-        .map(|file| get_file_item(ITEM_ID_PREFIX_BOOKMARKS, file, None))
+        .map(|file| get_file_item(&ITEM_ID_PREFIX_BOOKMARKS, file, None))
         .collect()
 }
 
@@ -243,7 +264,7 @@ pub fn select_files_items(
     state: &store::State,
     location: &RemoteFilesBrowserLocationFiles,
 ) -> Vec<RemoteFilesBrowserItem> {
-    remote_files_selectors::select_files(state, &location.mount_id, &location.path)
+    remote_files_selectors::select_files(state, &location.mount_id, &location.path.to_lowercase())
         .into_iter()
         .map(|file| get_file_item(&location.item_id_prefix, file, None))
         .collect()
@@ -252,7 +273,7 @@ pub fn select_files_items(
 pub fn select_shared_items(state: &store::State) -> Vec<RemoteFilesBrowserItem> {
     remote_files_selectors::select_shared_mount_files(state)
         .into_iter()
-        .map(|(mount, file)| get_file_item(ITEM_ID_PREFIX_SHARED, file, Some(mount)))
+        .map(|(mount, file)| get_file_item(&ITEM_ID_PREFIX_SHARED, file, Some(mount)))
         .collect()
 }
 
@@ -265,13 +286,21 @@ pub fn select_is_root_loaded(state: &store::State, location: &RemoteFilesBrowser
         }
         RemoteFilesBrowserLocation::Bookmarks => state.remote_files.bookmarks_loaded,
         RemoteFilesBrowserLocation::Files(location) => {
-            remote_files_selectors::select_is_root_loaded(state, &location.mount_id, &location.path)
+            remote_files_selectors::select_is_root_loaded(
+                state,
+                &location.mount_id,
+                &location.path.to_lowercase(),
+            )
         }
         RemoteFilesBrowserLocation::Shared => state.remote_files.shared_files_loaded,
     }
 }
 
-pub fn select_is_selected(state: &store::State, browser_id: u32, id: &str) -> bool {
+pub fn select_is_selected(
+    state: &store::State,
+    browser_id: u32,
+    id: &RemoteFilesBrowserItemId,
+) -> bool {
     select_browser(state, browser_id)
         .map(|browser| browser.selection.selection.contains(id))
         .unwrap_or(false)
@@ -359,17 +388,30 @@ pub fn select_breadcrumbs(
         match location {
             RemoteFilesBrowserLocation::Home => {}
             RemoteFilesBrowserLocation::Bookmarks => breadcrumbs.push(get_bookmarks_breadcrumb()),
-            RemoteFilesBrowserLocation::Files(location) => match location.item_id_prefix.as_str() {
-                ITEM_ID_PREFIX_BOOKMARKS | ITEM_ID_PREFIX_PLACES => {
+            RemoteFilesBrowserLocation::Files(location) => match &location.item_id_prefix {
+                prefix
+                    if prefix == &*ITEM_ID_PREFIX_BOOKMARKS
+                        || prefix == &*ITEM_ID_PREFIX_PLACES =>
+                {
                     for breadcrumb in remote_files_selectors::select_breadcrumbs(
                         state,
                         &location.mount_id,
                         &location.path,
                     ) {
-                        breadcrumbs.push(breadcrumb.into());
+                        breadcrumbs.push(RemoteFilesBrowserBreadcrumb {
+                            id: get_file_item_id(
+                                &location.item_id_prefix,
+                                &breadcrumb.mount_id,
+                                &breadcrumb.path,
+                            ),
+                            mount_id: Some(breadcrumb.mount_id),
+                            path: Some(breadcrumb.path),
+                            name: breadcrumb.name,
+                            last: breadcrumb.last,
+                        });
                     }
                 }
-                ITEM_ID_PREFIX_SHARED => {
+                prefix if prefix == &*ITEM_ID_PREFIX_SHARED => {
                     breadcrumbs.push(get_shared_breadcrumb());
                 }
                 _ => {}
@@ -383,11 +425,11 @@ pub fn select_breadcrumbs(
     breadcrumbs
 }
 
-pub fn select_root_file_id(state: &store::State, browser_id: u32) -> Option<String> {
+pub fn select_root_file_id(state: &store::State, browser_id: u32) -> Option<RemoteFileId> {
     select_browser_location(state, browser_id).and_then(|loc| match loc {
         RemoteFilesBrowserLocation::Files(location) => Some(remote_files_selectors::get_file_id(
             &location.mount_id,
-            &location.path,
+            &location.path.to_lowercase(),
         )),
         _ => None,
     })

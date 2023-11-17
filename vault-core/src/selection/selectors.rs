@@ -1,6 +1,11 @@
+use std::{fmt::Debug, hash::Hash};
+
 use super::state::{Selection, SelectionSummary};
 
-pub fn select_selection_summary(state: &Selection, total: usize) -> SelectionSummary {
+pub fn select_selection_summary<Item: Debug + Clone + PartialEq + Eq + Hash>(
+    state: &Selection<Item>,
+    total: usize,
+) -> SelectionSummary {
     let len = state.selection.len();
 
     if len == 0 {

@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::remote::models::FilesFile;
+use crate::{
+    remote::models::FilesFile,
+    types::{MountId, RemotePath},
+};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 #[serde(tag = "type")]
@@ -8,8 +11,8 @@ pub enum Event {
     #[serde(rename = "fileCreated")]
     FileCreatedEvent {
         #[serde(rename = "mountId")]
-        mount_id: String,
-        path: String,
+        mount_id: MountId,
+        path: RemotePath,
         file: FilesFile,
         #[serde(rename = "userAgent")]
         user_agent: Option<String>,
@@ -18,8 +21,8 @@ pub enum Event {
     #[serde(rename = "fileRemoved")]
     FileRemovedEvent {
         #[serde(rename = "mountId")]
-        mount_id: String,
-        path: String,
+        mount_id: MountId,
+        path: RemotePath,
         file: FilesFile,
         #[serde(rename = "userAgent")]
         user_agent: Option<String>,
@@ -28,10 +31,10 @@ pub enum Event {
     #[serde(rename = "fileCopied")]
     FileCopiedEvent {
         #[serde(rename = "mountId")]
-        mount_id: String,
-        path: String,
+        mount_id: MountId,
+        path: RemotePath,
         #[serde(rename = "newPath")]
-        new_path: String,
+        new_path: RemotePath,
         file: FilesFile,
         #[serde(rename = "userAgent")]
         user_agent: Option<String>,
@@ -40,10 +43,10 @@ pub enum Event {
     #[serde(rename = "fileMoved")]
     FileMovedEvent {
         #[serde(rename = "mountId")]
-        mount_id: String,
-        path: String,
+        mount_id: MountId,
+        path: RemotePath,
         #[serde(rename = "newPath")]
-        new_path: String,
+        new_path: RemotePath,
         file: FilesFile,
         #[serde(rename = "userAgent")]
         user_agent: Option<String>,
@@ -52,8 +55,8 @@ pub enum Event {
     #[serde(rename = "fileTagsUpdated")]
     FileTagsUpdatedEvent {
         #[serde(rename = "mountId")]
-        mount_id: String,
-        path: String,
+        mount_id: MountId,
+        path: RemotePath,
         file: FilesFile,
         #[serde(rename = "userAgent")]
         user_agent: Option<String>,
@@ -62,8 +65,8 @@ pub enum Event {
     #[serde(rename = "fileRefreshed")]
     FileRefreshedEvent {
         #[serde(rename = "mountId")]
-        mount_id: String,
-        path: String,
+        mount_id: MountId,
+        path: RemotePath,
         #[serde(rename = "userAgent")]
         user_agent: Option<String>,
     },
@@ -71,8 +74,8 @@ pub enum Event {
     #[serde(rename = "fileSyncDone")]
     FileSyncDoneEvent {
         #[serde(rename = "mountId")]
-        mount_id: String,
-        path: String,
+        mount_id: MountId,
+        path: RemotePath,
         #[serde(rename = "userAgent")]
         user_agent: Option<String>,
     },
@@ -85,7 +88,10 @@ pub enum Event {
 mod tests {
     use std::collections::HashMap;
 
-    use crate::remote::models::FilesFile;
+    use crate::{
+        remote::models::FilesFile,
+        types::{MountId, RemoteName, RemotePath},
+    };
 
     use super::Event;
 
@@ -96,10 +102,10 @@ mod tests {
                 r#"{"type":"fileCreated","mountId":"mid","path":"/","newPath":"","file":{"name":"n","type":"file","modified":1665147222729,"size":1,"contentType":"application/octet-stream","hash":"ad9a9a286a20bb915e16eea9b2405c77","tags":{}},"userAgent":"ua"}"#
             ).unwrap(),
             Event::FileCreatedEvent {
-                mount_id: String::from("mid"),
-                path: String::from("/"),
+                mount_id: MountId("mid".into()),
+                path: RemotePath("/".into()),
                 file: FilesFile {
-                    name: String::from("n"),
+                    name: RemoteName("n".into()),
                     typ: String::from("file"),
                     modified: 1665147222729,
                     size: 1,

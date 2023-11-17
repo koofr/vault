@@ -143,9 +143,9 @@ impl EventstreamHandler {
         Ok(())
     }
 
-    async fn handle_request<'a>(
+    async fn handle_request(
         &mut self,
-        request: &'a Request<'a>,
+        request: &Request,
     ) -> Result<Option<Message>, FakeRemoteError> {
         match request {
             Request::Auth { authorization } => {
@@ -165,7 +165,7 @@ impl EventstreamHandler {
                 mount_id,
                 path,
             } => {
-                let path = Path::from_str(path).map_err(|err| {
+                let path = Path::from_str(&path.0).map_err(|err| {
                     FakeRemoteError::ApiError(
                         StatusCode::INTERNAL_SERVER_ERROR,
                         ApiErrorCode::Other,
@@ -176,7 +176,7 @@ impl EventstreamHandler {
 
                 let listener_id = self.listeners.register(
                     Subject::Mount {
-                        id: mount_id.to_string(),
+                        id: mount_id.0.clone(),
                         path: path.0,
                     },
                     self.sender.clone(),

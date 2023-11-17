@@ -2,7 +2,8 @@ use crate::{
     common::state::SizeInfo,
     files::file_category::{ext_to_file_category, FileCategory},
     store,
-    utils::{name_utils, path_utils},
+    types::{DecryptedName, DecryptedPath, RepoId},
+    utils::{name_utils, path_utils, repo_path_utils},
 };
 
 use super::{
@@ -21,8 +22,8 @@ pub fn get_next_id(state: &mut store::State) -> u32 {
 
 pub enum CreateTransferType {
     Upload {
-        repo_id: String,
-        parent_path: String,
+        repo_id: RepoId,
+        parent_path: DecryptedPath,
         name: String,
     },
     Download {
@@ -70,7 +71,10 @@ pub fn create_transfer(
             };
 
             let parent_path = match &name_rel_path {
-                Some(name_rel_path) => path_utils::join_path_name(&parent_path, name_rel_path),
+                Some(name_rel_path) => repo_path_utils::join_path_name(
+                    &parent_path,
+                    &DecryptedName(name_rel_path.to_owned()),
+                ),
                 None => parent_path,
             };
 
@@ -565,6 +569,7 @@ mod tests {
             mutations::{start_transfer, upload_transfer_processed},
             state::{Transfer, TransferState, TransferType, UploadTransfer},
         },
+        types::DecryptedPath,
     };
 
     use super::{create_transfer, CreateTransferType};
@@ -577,7 +582,7 @@ mod tests {
             repos_test_helpers::create_repo(&mut state, "r1", "m1", "/Vault");
         repo_files_test_helpers::files_loaded(
             &mut state,
-            &repo.id,
+            repo.id.0.as_str(),
             "/",
             ciphers.clone(),
             vec![repo_files_test_helpers::create_file("file.txt", &cipher)],
@@ -590,7 +595,7 @@ mod tests {
             1,
             CreateTransferType::Upload {
                 repo_id: repo.id.clone(),
-                parent_path: "/".into(),
+                parent_path: DecryptedPath("/".into()),
                 name: "file.txt".into(),
             },
             SizeInfo::Exact(10),
@@ -605,7 +610,7 @@ mod tests {
                 id: 1,
                 typ: TransferType::Upload(UploadTransfer {
                     repo_id: repo.id.clone(),
-                    parent_path: "/".into(),
+                    parent_path: DecryptedPath("/".into()),
                     name_rel_path: None,
                     original_name: "file.txt".into(),
                     name: "file.txt".into(),
@@ -633,7 +638,7 @@ mod tests {
                 id: 1,
                 typ: TransferType::Upload(UploadTransfer {
                     repo_id: repo.id.clone(),
-                    parent_path: "/".into(),
+                    parent_path: DecryptedPath("/".into()),
                     name_rel_path: None,
                     original_name: "file.txt".into(),
                     name: "file.txt".into(),
@@ -662,7 +667,7 @@ mod tests {
                 id: 1,
                 typ: TransferType::Upload(UploadTransfer {
                     repo_id: repo.id.clone(),
-                    parent_path: "/".into(),
+                    parent_path: DecryptedPath("/".into()),
                     name_rel_path: None,
                     original_name: "file.txt".into(),
                     name: "file (1).txt".into(),
@@ -690,21 +695,21 @@ mod tests {
             repos_test_helpers::create_repo(&mut state, "r1", "m1", "/Vault");
         repo_files_test_helpers::files_loaded(
             &mut state,
-            &repo.id,
+            repo.id.0.as_str(),
             "/",
             ciphers.clone(),
             vec![repo_files_test_helpers::create_dir("path", &cipher)],
         );
         repo_files_test_helpers::files_loaded(
             &mut state,
-            &repo.id,
+            repo.id.0.as_str(),
             "/path",
             ciphers.clone(),
             vec![repo_files_test_helpers::create_dir("to", &cipher)],
         );
         repo_files_test_helpers::files_loaded(
             &mut state,
-            &repo.id,
+            repo.id.0.as_str(),
             "/path/to",
             ciphers.clone(),
             vec![repo_files_test_helpers::create_file("file.txt", &cipher)],
@@ -717,7 +722,7 @@ mod tests {
             1,
             CreateTransferType::Upload {
                 repo_id: repo.id.clone(),
-                parent_path: "/".into(),
+                parent_path: DecryptedPath("/".into()),
                 name: "path/to/file.txt".into(),
             },
             SizeInfo::Exact(10),
@@ -732,7 +737,7 @@ mod tests {
                 id: 1,
                 typ: TransferType::Upload(UploadTransfer {
                     repo_id: repo.id.clone(),
-                    parent_path: "/path/to".into(),
+                    parent_path: DecryptedPath("/path/to".into()),
                     name_rel_path: Some("path/to".into()),
                     original_name: "file.txt".into(),
                     name: "file.txt".into(),
@@ -760,7 +765,7 @@ mod tests {
                 id: 1,
                 typ: TransferType::Upload(UploadTransfer {
                     repo_id: repo.id.clone(),
-                    parent_path: "/path/to".into(),
+                    parent_path: DecryptedPath("/path/to".into()),
                     name_rel_path: Some("path/to".into()),
                     original_name: "file.txt".into(),
                     name: "file.txt".into(),
@@ -789,7 +794,7 @@ mod tests {
                 id: 1,
                 typ: TransferType::Upload(UploadTransfer {
                     repo_id: repo.id.clone(),
-                    parent_path: "/path/to".into(),
+                    parent_path: DecryptedPath("/path/to".into()),
                     name_rel_path: Some("path/to".into()),
                     original_name: "file.txt".into(),
                     name: "file (1).txt".into(),
@@ -822,7 +827,7 @@ mod tests {
             1,
             CreateTransferType::Upload {
                 repo_id: repo.id.clone(),
-                parent_path: "/".into(),
+                parent_path: DecryptedPath("/".into()),
                 name: "file.txt".into(),
             },
             SizeInfo::Exact(10),
@@ -837,7 +842,7 @@ mod tests {
                 id: 1,
                 typ: TransferType::Upload(UploadTransfer {
                     repo_id: repo.id.clone(),
-                    parent_path: "/".into(),
+                    parent_path: DecryptedPath("/".into()),
                     name_rel_path: None,
                     original_name: "file.txt".into(),
                     name: "file.txt".into(),
@@ -863,7 +868,7 @@ mod tests {
             2,
             CreateTransferType::Upload {
                 repo_id: repo.id.clone(),
-                parent_path: "/".into(),
+                parent_path: DecryptedPath("/".into()),
                 name: "file.txt".into(),
             },
             SizeInfo::Exact(10),
@@ -888,7 +893,7 @@ mod tests {
                 id: 1,
                 typ: TransferType::Upload(UploadTransfer {
                     repo_id: repo.id.clone(),
-                    parent_path: "/".into(),
+                    parent_path: DecryptedPath("/".into()),
                     name_rel_path: None,
                     original_name: "file.txt".into(),
                     name: "file.txt".into(),
@@ -917,7 +922,7 @@ mod tests {
                 id: 1,
                 typ: TransferType::Upload(UploadTransfer {
                     repo_id: repo.id.clone(),
-                    parent_path: "/".into(),
+                    parent_path: DecryptedPath("/".into()),
                     name_rel_path: None,
                     original_name: "file.txt".into(),
                     name: "file (1).txt".into(),

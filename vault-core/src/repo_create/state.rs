@@ -7,12 +7,13 @@ use crate::{
     remote_files::state::RemoteFilesLocation,
     repos::{errors::CreateRepoError, state::RepoCreated},
     store::NextId,
+    types::MountId,
 };
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct RepoCreateForm {
     pub create_load_status: Status<RemoteError>,
-    pub primary_mount_id: Option<String>,
+    pub primary_mount_id: Option<MountId>,
     pub location: Option<RemoteFilesLocation>,
     pub location_dir_picker_id: Option<u32>,
     pub password: String,

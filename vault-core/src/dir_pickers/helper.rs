@@ -8,7 +8,10 @@ use serde::Serialize;
 
 use crate::{dir_pickers::state::DirPicker, store};
 
-use super::{selectors, state::DirPickerItem};
+use super::{
+    selectors,
+    state::{DirPickerItem, DirPickerItemId},
+};
 
 pub struct DirPickersHelper<E> {
     store: Arc<store::Store>,
@@ -104,7 +107,12 @@ impl<E: Send + Sync + 'static> DirPickersHelper<E> {
         self.generate_items(picker_id);
     }
 
-    pub async fn click(&self, picker_id: u32, item_id: &str, is_arrow: bool) -> Result<(), E> {
+    pub async fn click(
+        &self,
+        picker_id: u32,
+        item_id: &DirPickerItemId,
+        is_arrow: bool,
+    ) -> Result<(), E> {
         let item = match self.get_item(picker_id, item_id) {
             Some(item) => item,
             None => return Ok(()),
@@ -125,7 +133,7 @@ impl<E: Send + Sync + 'static> DirPickersHelper<E> {
         Ok(())
     }
 
-    pub fn set_selected(&self, picker_id: u32, item_id: &str) {
+    pub fn set_selected(&self, picker_id: u32, item_id: &DirPickerItemId) {
         let item = match self.get_item(picker_id, item_id) {
             Some(item) => item,
             None => return,
@@ -144,7 +152,12 @@ impl<E: Send + Sync + 'static> DirPickersHelper<E> {
         });
     }
 
-    pub fn expand(&self, picker_id: u32, item_id: &str, force: bool) -> BoxFuture<Result<(), E>> {
+    pub fn expand(
+        &self,
+        picker_id: u32,
+        item_id: &DirPickerItemId,
+        force: bool,
+    ) -> BoxFuture<Result<(), E>> {
         let item = match self.get_item(picker_id, item_id) {
             Some(item) => item,
             None => return futures::future::ready(Ok(())).boxed(),
@@ -181,7 +194,7 @@ impl<E: Send + Sync + 'static> DirPickersHelper<E> {
         .boxed()
     }
 
-    fn set_loading(&self, picker_id: u32, item_id: &str, is_loading: bool) {
+    fn set_loading(&self, picker_id: u32, item_id: &DirPickerItemId, is_loading: bool) {
         self.mutate_picker(picker_id, |picker| {
             if is_loading {
                 picker.loading_ids.insert(item_id.to_owned());
@@ -211,7 +224,7 @@ impl<E: Send + Sync + 'static> DirPickersHelper<E> {
         });
     }
 
-    fn get_item(&self, picker_id: u32, item_id: &str) -> Option<DirPickerItem> {
+    fn get_item(&self, picker_id: u32, item_id: &DirPickerItemId) -> Option<DirPickerItem> {
         self.store
             .with_state(|state| selectors::select_item(state, picker_id, item_id).cloned())
     }

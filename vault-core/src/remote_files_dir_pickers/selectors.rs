@@ -1,7 +1,9 @@
+use lazy_static::lazy_static;
+
 use crate::{
     dir_pickers::{
         selectors as dir_pickers_selectors,
-        state::{DirPicker, DirPickerItem, DirPickerItemType},
+        state::{DirPicker, DirPickerFileId, DirPickerItem, DirPickerItemId, DirPickerItemType},
     },
     remote::RemoteError,
     remote_files::{
@@ -10,28 +12,30 @@ use crate::{
         state::{MountOrigin, MountType, RemoteFile, RemoteFileExtType, RemoteFileType},
     },
     store,
+    types::{RemoteFileId, RemoteNameLower, REMOTE_PATH_LOWER_ROOT},
 };
 
 use super::state::Options;
 
-pub const BOOKMARKS_ITEM_ID: &'static str = "bookmarks";
-pub const PLACES_ITEM_ID: &'static str = "places";
-pub const SHARED_ITEM_ID: &'static str = "shared";
-
-pub const BOOKMARKS_ITEM_ID_PREFIX: &'static str = "bookmarks:";
-pub const PLACES_ITEM_ID_PREFIX: &'static str = "places:";
-pub const SHARED_ITEM_ID_PREFIX: &'static str = "shared:";
-
-pub fn get_bookmark_id(file_id: &str) -> String {
-    format!("{}{}", BOOKMARKS_ITEM_ID_PREFIX, file_id)
+lazy_static! {
+    pub static ref BOOKMARKS_ITEM_ID: DirPickerItemId = DirPickerItemId("bookmarks".into());
+    pub static ref PLACES_ITEM_ID: DirPickerItemId = DirPickerItemId("places".into());
+    pub static ref SHARED_ITEM_ID: DirPickerItemId = DirPickerItemId("shared".into());
+    pub static ref BOOKMARKS_ITEM_ID_PREFIX: DirPickerItemId = DirPickerItemId("bookmarks:".into());
+    pub static ref PLACES_ITEM_ID_PREFIX: DirPickerItemId = DirPickerItemId("places:".into());
+    pub static ref SHARED_ITEM_ID_PREFIX: DirPickerItemId = DirPickerItemId("shared:".into());
 }
 
-pub fn get_places_id(file_id: &str) -> String {
-    format!("{}{}", PLACES_ITEM_ID_PREFIX, file_id)
+pub fn get_bookmark_id(file_id: &str) -> DirPickerItemId {
+    DirPickerItemId(format!("{}{}", BOOKMARKS_ITEM_ID_PREFIX.0, file_id))
 }
 
-pub fn get_shared_id(file_id: &str) -> String {
-    format!("{}{}", SHARED_ITEM_ID_PREFIX, file_id)
+pub fn get_places_id(file_id: &RemoteFileId) -> DirPickerItemId {
+    DirPickerItemId(format!("{}{}", PLACES_ITEM_ID_PREFIX.0, file_id.0))
+}
+
+pub fn get_shared_id(file_id: &RemoteFileId) -> DirPickerItemId {
+    DirPickerItemId(format!("{}{}", SHARED_ITEM_ID_PREFIX.0, file_id.0))
 }
 
 pub fn get_options(picker: &DirPicker) -> Options {
@@ -88,7 +92,7 @@ pub fn select_items_bookmarks(
                     picker,
                     items,
                     bookmark_file,
-                    BOOKMARKS_ITEM_ID_PREFIX,
+                    &BOOKMARKS_ITEM_ID_PREFIX,
                     1,
                     Some(DirPickerItemType::Bookmark),
                     options,
@@ -110,14 +114,14 @@ pub fn select_items_places(
         .iter()
         .filter_map(|mount_id| state.remote_files.mounts.get(mount_id))
     {
-        let file_id = remote_files_selectors::get_file_id(&mount.id, "/");
+        let file_id = remote_files_selectors::get_file_id(&mount.id, &REMOTE_PATH_LOWER_ROOT);
         if let Some(file) = remote_files_selectors::select_file(state, &file_id) {
             select_items_visit_file(
                 state,
                 picker,
                 items,
                 file,
-                PLACES_ITEM_ID_PREFIX,
+                &PLACES_ITEM_ID_PREFIX,
                 0,
                 None,
                 options,
@@ -168,7 +172,7 @@ pub fn select_items_shared(
                     picker,
                     items,
                     shared_file,
-                    SHARED_ITEM_ID_PREFIX,
+                    &SHARED_ITEM_ID_PREFIX,
                     1,
                     None,
                     options,
@@ -183,7 +187,7 @@ fn select_items_visit_file(
     picker: &DirPicker,
     items: &mut Vec<DirPickerItem>,
     file: &RemoteFile,
-    id_prefix: &str,
+    id_prefix: &DirPickerItemId,
     depth: u16,
     override_type: Option<DirPickerItemType>,
     options: &Options,
@@ -196,8 +200,8 @@ fn select_items_visit_file(
                 .collect()
         });
 
-    let id = format!("{}{}", id_prefix, &file.id);
-    let is_root = file.path == "/";
+    let id = DirPickerItemId(format!("{}{}", id_prefix.0, file.id.0));
+    let is_root = file.path.is_root();
     let name = match remote_files_selectors::select_file_name(state, &file) {
         Some(name) => name,
         None => {
@@ -226,7 +230,7 @@ fn select_items_visit_file(
         }
     };
     let is_open = picker.open_ids.contains(&id);
-    let is_selected = picker.selected_id.as_deref() == Some(&id);
+    let is_selected = picker.selected_id.as_ref() == Some(&id);
     let is_loading = picker.loading_ids.contains(&id);
     let has_arrow = depth > 0
         && match &children {
@@ -237,7 +241,7 @@ fn select_items_visit_file(
 
     items.push(DirPickerItem {
         id,
-        file_id: Some(file.id.clone()),
+        file_id: Some(DirPickerFileId(file.id.0.clone())),
         typ,
         is_open,
         is_selected,
@@ -245,7 +249,7 @@ fn select_items_visit_file(
         is_loading,
         spaces,
         has_arrow,
-        text: name.to_owned(),
+        text: name.0.clone(),
     });
 
     if is_open {
@@ -267,8 +271,9 @@ fn select_items_visit_file(
 }
 
 pub fn select_selected_file<'a>(state: &'a store::State, picker_id: u32) -> Option<&'a RemoteFile> {
-    dir_pickers_selectors::select_selected_file_id(state, picker_id)
-        .and_then(|file_id| remote_files_selectors::select_file(state, file_id))
+    dir_pickers_selectors::select_selected_file_id(state, picker_id).and_then(|file_id| {
+        remote_files_selectors::select_file(state, &RemoteFileId(file_id.0.clone()))
+    })
 }
 
 pub fn select_create_dir_enabled(state: &store::State, picker_id: u32) -> bool {
@@ -278,7 +283,7 @@ pub fn select_create_dir_enabled(state: &store::State, picker_id: u32) -> bool {
 pub fn select_check_create_dir(
     state: &store::State,
     picker_id: u32,
-    name: &str,
+    name: &RemoteNameLower,
 ) -> Result<(), RemoteError> {
     let parent_file =
         select_selected_file(state, picker_id).ok_or_else(RemoteFilesErrors::not_found)?;
@@ -286,7 +291,7 @@ pub fn select_check_create_dir(
     remote_files_selectors::select_check_new_name_valid(
         state,
         &parent_file.mount_id,
-        &parent_file.path,
+        &parent_file.path.to_lowercase(),
         name,
     )
 }

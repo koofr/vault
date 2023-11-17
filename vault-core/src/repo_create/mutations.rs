@@ -4,6 +4,7 @@ use crate::{
     remote_files::state::RemoteFilesLocation,
     repos::{errors::CreateRepoError, state::RepoCreated},
     store,
+    types::{MountId, RemotePath},
 };
 
 use super::{
@@ -38,7 +39,7 @@ pub fn create_loaded(
     state: &mut store::State,
     notify: &store::Notify,
     create_id: u32,
-    load_mount_res: Result<String, remote::RemoteError>,
+    load_mount_res: Result<MountId, remote::RemoteError>,
 ) {
     let no_existing_repos = state.repos.repos_by_id.is_empty();
 
@@ -76,7 +77,7 @@ pub fn create_loaded(
         if let Some(primary_mount_id) = &form.primary_mount_id {
             form.location = Some(RemoteFilesLocation {
                 mount_id: primary_mount_id.to_owned(),
-                path: format!("/{}", DEFAULT_REPO_NAME),
+                path: RemotePath(format!("/{}", DEFAULT_REPO_NAME)),
             });
         }
     }
@@ -202,7 +203,7 @@ pub fn fill_from_rclone_config(
             if let Some(primary_mount_id) = &form.primary_mount_id {
                 form.location = Some(RemoteFilesLocation {
                     mount_id: primary_mount_id.to_owned(),
-                    path,
+                    path: RemotePath(path),
                 });
             }
 

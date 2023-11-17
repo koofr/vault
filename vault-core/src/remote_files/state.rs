@@ -9,6 +9,7 @@ use crate::{
     files::{file_category::FileCategory, file_icon::FileIconAttrs},
     remote::models,
     sort::state::SortDirection,
+    types::{MountId, RemoteFileId, RemoteName, RemoteNameLower, RemotePath},
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -124,9 +125,9 @@ impl From<&str> for MountType {
 
 #[derive(Debug, Clone)]
 pub struct Mount {
-    pub id: String,
-    pub name: String,
-    pub name_lower: String,
+    pub id: MountId,
+    pub name: RemoteName,
+    pub name_lower: RemoteNameLower,
     pub typ: MountType,
     pub origin: MountOrigin,
     pub online: bool,
@@ -151,16 +152,16 @@ impl From<models::Mount> for Mount {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RemoteFilesLocation {
-    pub mount_id: String,
-    pub path: String,
+    pub mount_id: MountId,
+    pub path: RemotePath,
 }
 
 #[derive(Debug, Clone)]
 pub struct RemoteFilesBreadcrumb {
-    pub id: String,
-    pub mount_id: String,
-    pub path: String,
-    pub name: String,
+    pub id: RemoteFileId,
+    pub mount_id: MountId,
+    pub path: RemotePath,
+    pub name: RemoteName,
     pub last: bool,
 }
 
@@ -199,11 +200,11 @@ impl From<&str> for RemoteFileType {
 
 #[derive(Debug, Clone)]
 pub struct RemoteFile {
-    pub id: String,
-    pub mount_id: String,
-    pub path: String,
-    pub name: String,
-    pub name_lower: String,
+    pub id: RemoteFileId,
+    pub mount_id: MountId,
+    pub path: RemotePath,
+    pub name: RemoteName,
+    pub name_lower: RemoteNameLower,
     pub ext: Option<String>,
     pub typ: RemoteFileType,
     pub size: Option<i64>,
@@ -248,17 +249,17 @@ pub struct RemoteFilesFileReader {
 
 #[derive(Debug, Clone, Default)]
 pub struct RemoteFilesState {
-    pub mounts: HashMap<String, Mount>,
+    pub mounts: HashMap<MountId, Mount>,
     pub places_loaded: bool,
-    pub place_mount_ids: Vec<String>,
-    pub online_place_mount_ids: Vec<String>,
-    pub files: HashMap<String, RemoteFile>,
-    pub children: HashMap<String, Vec<String>>,
-    pub loaded_roots: HashSet<String>,
+    pub place_mount_ids: Vec<MountId>,
+    pub online_place_mount_ids: Vec<MountId>,
+    pub files: HashMap<RemoteFileId, RemoteFile>,
+    pub children: HashMap<RemoteFileId, Vec<RemoteFileId>>,
+    pub loaded_roots: HashSet<RemoteFileId>,
     pub bookmarks_loaded: bool,
-    pub bookmark_file_ids: Vec<String>,
+    pub bookmark_file_ids: Vec<RemoteFileId>,
     pub shared_files_loaded: bool,
-    pub shared_file_ids: Vec<String>,
+    pub shared_file_ids: Vec<RemoteFileId>,
 }
 
 impl RemoteFilesState {
@@ -269,10 +270,10 @@ impl RemoteFilesState {
 
 #[derive(Debug, Clone, Default)]
 pub struct RemoteFilesMutationState {
-    pub loaded_roots: Vec<(String, String)>,
-    pub created_files: Vec<(String, String)>,
-    pub removed_files: Vec<(String, String)>,
-    pub moved_files: Vec<(String, String, String)>,
+    pub loaded_roots: Vec<(MountId, RemotePath)>,
+    pub created_files: Vec<(MountId, RemotePath)>,
+    pub removed_files: Vec<(MountId, RemotePath)>,
+    pub moved_files: Vec<(MountId, RemotePath, RemotePath)>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

@@ -6,33 +6,37 @@ use crate::{
     remote_files::mutations as remote_files_mutations,
     repos::selectors as repos_selectors,
     store::{self, test_helpers as store_test_helpers},
-    utils::path_utils,
+    types::{DecryptedName, DecryptedPath, RemotePath, RepoId},
+    utils::{path_utils, remote_path_utils},
 };
 
 use super::mutations as repo_files_mutations;
 
 pub fn create_file(name: &str, cipher: &Cipher) -> models::FilesFile {
-    remote_test_helpers::create_file(&cipher.encrypt_filename(name))
+    remote_test_helpers::create_file(&cipher.encrypt_filename(&DecryptedName(name.to_owned())).0)
 }
 
 pub fn create_dir(name: &str, cipher: &Cipher) -> models::FilesFile {
-    remote_test_helpers::create_dir(&cipher.encrypt_filename(name))
+    remote_test_helpers::create_dir(&cipher.encrypt_filename(&DecryptedName(name.to_owned())).0)
 }
 
 pub fn files_loaded(
     state: &mut store::State,
     repo_id: &str,
     path: &str,
-    ciphers: Rc<HashMap<String, Arc<Cipher>>>,
+    ciphers: Rc<HashMap<RepoId, Arc<Cipher>>>,
     files: Vec<models::FilesFile>,
 ) {
-    let repo = repos_selectors::select_repo(state, repo_id)
+    let repo_id = RepoId(repo_id.to_owned());
+    let path = DecryptedPath(path.to_owned());
+
+    let repo = repos_selectors::select_repo(state, &repo_id)
         .unwrap()
         .clone();
 
     let (notify, mut mutation_state, _) = store_test_helpers::mutation();
 
-    let cipher = ciphers.get(repo_id).unwrap().clone();
+    let cipher = ciphers.get(&repo_id).unwrap().clone();
 
     let ciphers1 = ciphers.clone();
 
@@ -48,16 +52,19 @@ pub fn files_loaded(
         );
     });
 
-    let remote_path = &path_utils::join_paths(&repo.path, &cipher.encrypt_path(path));
+    let remote_path = RemotePath(path_utils::join_paths(
+        &repo.path.0,
+        &cipher.encrypt_path(&path).0,
+    ));
 
     remote_files_mutations::bundle_loaded(
         state,
         &mut mutation_state,
         &mutation_notify,
         &repo.mount_id,
-        remote_path,
+        &remote_path,
         remote_test_helpers::create_bundle(
-            path_utils::path_to_name(&remote_path).unwrap(),
+            &remote_path_utils::path_to_name(&remote_path).unwrap().0,
             Some(files),
         ),
     );

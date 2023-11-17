@@ -8,6 +8,7 @@ use crate::{
     repo_files::{selectors as repo_files_selectors, state::RepoFilesUploadResult},
     repo_files_read::state::RepoFileReader,
     store::NextId,
+    types::{DecryptedPath, RepoFileId, RepoId},
 };
 
 use super::errors::TransferError;
@@ -23,15 +24,15 @@ pub enum TransferState {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct UploadTransfer {
-    pub repo_id: String,
-    pub parent_path: String,
+    pub repo_id: RepoId,
+    pub parent_path: DecryptedPath,
     pub name_rel_path: Option<String>,
     pub original_name: String,
     pub name: String,
 }
 
 impl UploadTransfer {
-    pub fn parent_id(&self) -> String {
+    pub fn parent_id(&self) -> RepoFileId {
         repo_files_selectors::get_file_id(&self.repo_id, &self.parent_path)
     }
 }

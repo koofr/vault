@@ -5,6 +5,7 @@ use crate::{
         state::RepoUnlockMode,
     },
     store,
+    types::RepoId,
 };
 
 use super::state::{RepoUnlock, RepoUnlockOptions};
@@ -12,7 +13,7 @@ use super::state::{RepoUnlock, RepoUnlockOptions};
 pub fn create(
     state: &mut store::State,
     notify: &store::Notify,
-    repo_id: &str,
+    repo_id: RepoId,
     options: RepoUnlockOptions,
 ) -> u32 {
     notify(store::Event::RepoUnlock);
@@ -20,7 +21,7 @@ pub fn create(
     let unlock_id = state.repo_unlocks.next_id.next();
 
     let repo_unlock = RepoUnlock {
-        repo_id: repo_id.to_owned(),
+        repo_id,
         mode: options.mode,
         status: Status::Initial,
     };
@@ -34,7 +35,7 @@ pub fn unlocking(
     state: &mut store::State,
     notify: &store::Notify,
     unlock_id: u32,
-) -> Result<(String, RepoUnlockMode), UnlockRepoError> {
+) -> Result<(RepoId, RepoUnlockMode), UnlockRepoError> {
     let repo_unlock = match state.repo_unlocks.unlocks.get_mut(&unlock_id) {
         Some(repo_unlock) => repo_unlock,
         None => return Err(UnlockRepoError::RepoNotFound(RepoNotFoundError)),

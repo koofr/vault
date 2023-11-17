@@ -7,7 +7,8 @@ use vault_core::{
         state::{RepoFile, RepoFilesUploadConflictResolution, RepoFilesUploadResult},
     },
     repos::state::RepoUnlockMode,
-    utils::path_utils,
+    types::{DecryptedPath, MountId, RemotePath, RepoId},
+    utils::repo_path_utils,
     Vault,
 };
 use vault_fake_remote::fake_remote::context::Context;
@@ -19,9 +20,9 @@ pub struct RepoFixture {
 
     pub fake_remote: Arc<FakeRemote>,
     pub vault: Arc<Vault>,
-    pub mount_id: String,
-    pub path: String,
-    pub repo_id: String,
+    pub mount_id: MountId,
+    pub path: RemotePath,
+    pub repo_id: RepoId,
 }
 
 impl RepoFixture {
@@ -75,12 +76,13 @@ impl RepoFixture {
     }
 
     pub async fn create_dir(&self, path: &str) -> RepoFile {
-        let (parent_path, name) = path_utils::split_parent_name(path).unwrap();
+        let path = DecryptedPath(path.to_owned());
+        let (parent_path, name) = repo_path_utils::split_parent_name(&path).unwrap();
 
         self.vault
             .repo_files_service
             .clone()
-            .create_dir_name(&self.repo_id, parent_path, name)
+            .create_dir_name(&self.repo_id, &parent_path, &name)
             .await
             .unwrap();
 
@@ -88,7 +90,7 @@ impl RepoFixture {
             state
                 .repo_files
                 .files
-                .get(&repo_files::selectors::get_file_id(&self.repo_id, path))
+                .get(&repo_files::selectors::get_file_id(&self.repo_id, &path))
                 .cloned()
                 .unwrap()
         })
@@ -99,7 +101,8 @@ impl RepoFixture {
         path: &str,
         content: &str,
     ) -> (RepoFilesUploadResult, RepoFile) {
-        let (parent_path, name) = path_utils::split_parent_name(path).unwrap();
+        let path = DecryptedPath(path.to_owned());
+        let (parent_path, name) = repo_path_utils::split_parent_name(&path).unwrap();
 
         let bytes = content.as_bytes().to_vec();
         let size = bytes.len();
@@ -111,8 +114,8 @@ impl RepoFixture {
             .clone()
             .upload_file_reader(
                 &self.repo_id,
-                parent_path,
-                name,
+                &parent_path,
+                &name,
                 reader,
                 Some(size as i64),
                 RepoFilesUploadConflictResolution::Error,

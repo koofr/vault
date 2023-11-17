@@ -23,6 +23,7 @@ use vault_core::{
         state::{CreateDownloadResultFuture, Transfer, TransferState, TransfersState},
         uploadable::{BoxUploadable, Uploadable},
     },
+    types::{DecryptedPath, RepoId},
     utils::memory_writer::MemoryWriter,
     Vault,
 };
@@ -259,7 +260,9 @@ pub fn download_string(
     CreateDownloadResultFuture,
     BoxFuture<'static, Option<String>>,
 ) {
-    let reader_provider = vault.repo_files_get_file_reader(repo_id, path).unwrap();
+    let reader_provider = vault
+        .repo_files_get_file_reader(&RepoId(repo_id.to_owned()), &DecryptedPath(path.to_owned()))
+        .unwrap();
     let (downloadable, content_future) = TestDownloadable::string();
     let (id, future) = vault.transfers_download(reader_provider, Box::new(downloadable));
 

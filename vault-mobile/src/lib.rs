@@ -28,7 +28,7 @@ use vault_core::{
     oauth2::OAuth2Config,
     relative_time,
     remote_files::state as remote_files_state,
-    remote_files_browsers::state as remote_files_browsers_state,
+    remote_files_browsers::state::{self as remote_files_browsers_state, RemoteFilesBrowserItemId},
     repo_files::state as repo_files_state,
     repo_files_browsers::state as repo_files_browsers_state,
     repo_files_details::state as repo_files_details_state,
@@ -44,6 +44,7 @@ use vault_core::{
         downloadable, errors::TransferError, selectors as transfers_selectors,
         state as transfers_state,
     },
+    types::{DecryptedName, DecryptedPath, MountId, RemoteName, RemotePath, RepoFileId, RepoId},
     user::state as user_state,
     user_error::UserError,
     Vault,
@@ -720,8 +721,8 @@ pub struct RemoteFilesLocation {
 impl From<&remote_files_state::RemoteFilesLocation> for RemoteFilesLocation {
     fn from(location: &remote_files_state::RemoteFilesLocation) -> Self {
         Self {
-            mount_id: location.mount_id.clone(),
-            path: location.path.clone(),
+            mount_id: location.mount_id.0.clone(),
+            path: location.path.0.clone(),
         }
     }
 }
@@ -729,8 +730,8 @@ impl From<&remote_files_state::RemoteFilesLocation> for RemoteFilesLocation {
 impl Into<remote_files_state::RemoteFilesLocation> for RemoteFilesLocation {
     fn into(self) -> remote_files_state::RemoteFilesLocation {
         remote_files_state::RemoteFilesLocation {
-            mount_id: self.mount_id,
-            path: self.path,
+            mount_id: MountId(self.mount_id),
+            path: RemotePath(self.path),
         }
     }
 }
@@ -747,10 +748,10 @@ pub struct RemoteFilesBreadcrumb {
 impl From<&remote_files_state::RemoteFilesBreadcrumb> for RemoteFilesBreadcrumb {
     fn from(breadcrumb: &remote_files_state::RemoteFilesBreadcrumb) -> Self {
         Self {
-            id: breadcrumb.id.clone(),
-            mount_id: breadcrumb.mount_id.clone(),
-            path: breadcrumb.path.clone(),
-            name: breadcrumb.name.clone(),
+            id: breadcrumb.id.0.clone(),
+            mount_id: breadcrumb.mount_id.0.clone(),
+            path: breadcrumb.path.0.clone(),
+            name: breadcrumb.name.0.clone(),
             last: breadcrumb.last,
         }
     }
@@ -767,7 +768,7 @@ pub struct RemoteFilesBrowserOptions {
 impl Into<remote_files_browsers_state::RemoteFilesBrowserOptions> for RemoteFilesBrowserOptions {
     fn into(self) -> remote_files_browsers_state::RemoteFilesBrowserOptions {
         remote_files_browsers_state::RemoteFilesBrowserOptions {
-            select_name: self.select_name,
+            select_name: self.select_name.map(RemoteName),
             only_hosted_devices: self.only_hosted_devices,
         }
     }
@@ -825,10 +826,10 @@ impl<'a> From<&remote_files_browsers_state::RemoteFilesBrowserItemInfo<'a>>
 {
     fn from(info: &remote_files_browsers_state::RemoteFilesBrowserItemInfo<'a>) -> Self {
         Self {
-            id: info.item.id.clone(),
-            mount_id: info.item.mount_id.clone(),
-            path: info.item.path.clone(),
-            name: info.item.name.clone(),
+            id: info.item.id.0.clone(),
+            mount_id: info.item.mount_id.as_ref().map(|x| x.0.clone()),
+            path: info.item.path.as_ref().map(|x| x.0.clone()),
+            name: info.item.name.0.clone(),
             typ: (&info.item.typ).into(),
             size_display: info
                 .item
@@ -860,8 +861,8 @@ pub struct RemoteFilesBrowserInfo {
 impl<'a> From<&remote_files_browsers_state::RemoteFilesBrowserInfo<'a>> for RemoteFilesBrowserInfo {
     fn from(info: &remote_files_browsers_state::RemoteFilesBrowserInfo<'a>) -> Self {
         Self {
-            mount_id: info.mount_id.clone(),
-            path: info.path.clone(),
+            mount_id: info.mount_id.as_ref().map(|x| x.0.clone()),
+            path: info.path.as_ref().map(|x| x.0.clone()),
             selection_summary: (&info.selection_summary).into(),
             sort: (&info.sort).into(),
             status: info.status.into(),
@@ -869,7 +870,7 @@ impl<'a> From<&remote_files_browsers_state::RemoteFilesBrowserInfo<'a>> for Remo
                 common_state::Status::Error { error, .. } => Some(error.user_error()),
                 _ => None,
             },
-            title: info.title.clone(),
+            title: info.title.as_ref().map(|x| x.0.clone()),
             total_count: info.total_count as u32,
             total_size_display: vault_core::files::file_size::size_display(info.total_size),
             selected_count: info.selected_count as u32,
@@ -894,10 +895,10 @@ impl From<&remote_files_browsers_state::RemoteFilesBrowserBreadcrumb>
 {
     fn from(breadcrumb: &remote_files_browsers_state::RemoteFilesBrowserBreadcrumb) -> Self {
         Self {
-            id: breadcrumb.id.clone(),
-            mount_id: breadcrumb.mount_id.clone(),
-            path: breadcrumb.path.clone(),
-            name: breadcrumb.name.clone(),
+            id: breadcrumb.id.0.clone(),
+            mount_id: breadcrumb.mount_id.as_ref().map(|x| x.0.clone()),
+            path: breadcrumb.path.as_ref().map(|x| x.0.clone()),
+            name: breadcrumb.name.0.clone(),
             last: breadcrumb.last,
         }
     }
@@ -938,10 +939,10 @@ pub struct Repo {
 impl From<&repos_state::Repo> for Repo {
     fn from(repo: &repos_state::Repo) -> Self {
         Self {
-            id: repo.id.clone(),
-            name: repo.name.clone(),
-            mount_id: repo.mount_id.clone(),
-            path: repo.path.clone(),
+            id: repo.id.0.clone(),
+            name: repo.name.0.clone(),
+            mount_id: repo.mount_id.0.clone(),
+            path: repo.path.0.clone(),
             state: (&repo.state).into(),
             added: repo.added,
             web_url: repo.web_url.clone(),
@@ -994,7 +995,7 @@ pub struct RepoConfig {
 impl From<&repos_state::RepoConfig> for RepoConfig {
     fn from(config: &repos_state::RepoConfig) -> Self {
         Self {
-            name: config.name.clone(),
+            name: config.name.0.clone(),
             location: (&config.location).into(),
             password: config.password.clone(),
             salt: config.salt.clone(),
@@ -1026,7 +1027,7 @@ pub struct RepoCreated {
 impl From<&repos_state::RepoCreated> for RepoCreated {
     fn from(created: &repos_state::RepoCreated) -> Self {
         Self {
-            repo_id: created.repo_id.clone(),
+            repo_id: created.repo_id.0.clone(),
             config: (&created.config).into(),
         }
     }
@@ -1090,7 +1091,7 @@ impl<'a> From<&repo_remove_state::RepoRemoveInfo<'a>> for RepoRemoveInfo {
     fn from(info: &repo_remove_state::RepoRemoveInfo<'a>) -> Self {
         Self {
             status: info.status.into(),
-            repo_name: info.repo_name.map(str::to_string),
+            repo_name: info.repo_name.map(|x| x.0.clone()),
         }
     }
 }
@@ -1136,11 +1137,11 @@ pub struct RepoFile {
 impl From<&repo_files_state::RepoFile> for RepoFile {
     fn from(file: &repo_files_state::RepoFile) -> Self {
         Self {
-            id: file.id.clone(),
-            repo_id: file.repo_id.clone(),
-            encrypted_path: file.encrypted_path.clone(),
+            id: file.id.0.clone(),
+            repo_id: file.repo_id.0.clone(),
+            encrypted_path: file.encrypted_path.0.clone(),
             path: match &file.path {
-                repo_files_state::RepoFilePath::Decrypted { path } => Some(path.clone()),
+                repo_files_state::RepoFilePath::Decrypted { path } => Some(path.0.clone()),
                 repo_files_state::RepoFilePath::DecryptError {
                     parent_path: _,
                     encrypted_name: _,
@@ -1148,9 +1149,9 @@ impl From<&repo_files_state::RepoFile> for RepoFile {
                 } => None,
             },
             name: match &file.name {
-                repo_files_state::RepoFileName::Decrypted { name, .. } => name.clone(),
+                repo_files_state::RepoFileName::Decrypted { name, .. } => name.0.clone(),
                 repo_files_state::RepoFileName::DecryptError { encrypted_name, .. } => {
-                    encrypted_name.clone()
+                    encrypted_name.0.clone()
                 }
             },
             name_error: match &file.name {
@@ -1233,10 +1234,10 @@ pub struct RepoFilesBreadcrumb {
 impl From<&repo_files_state::RepoFilesBreadcrumb> for RepoFilesBreadcrumb {
     fn from(breadcrumb: &repo_files_state::RepoFilesBreadcrumb) -> Self {
         Self {
-            id: breadcrumb.id.clone(),
-            repo_id: breadcrumb.repo_id.clone(),
-            path: breadcrumb.path.clone(),
-            name: breadcrumb.name.clone(),
+            id: breadcrumb.id.0.clone(),
+            repo_id: breadcrumb.repo_id.0.clone(),
+            path: breadcrumb.path.0.clone(),
+            name: breadcrumb.name.0.clone(),
             last: breadcrumb.last,
         }
     }
@@ -1369,7 +1370,7 @@ pub struct RepoFilesBrowserOptions {
 impl Into<repo_files_browsers_state::RepoFilesBrowserOptions> for RepoFilesBrowserOptions {
     fn into(self) -> repo_files_browsers_state::RepoFilesBrowserOptions {
         repo_files_browsers_state::RepoFilesBrowserOptions {
-            select_name: self.select_name,
+            select_name: self.select_name.map(DecryptedName),
         }
     }
 }
@@ -1408,8 +1409,8 @@ pub struct RepoFilesBrowserInfo {
 impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFilesBrowserInfo {
     fn from(info: &repo_files_browsers_state::RepoFilesBrowserInfo<'a>) -> Self {
         Self {
-            repo_id: info.repo_id.map(str::to_string),
-            path: info.path.map(str::to_string),
+            repo_id: info.repo_id.map(|x| x.0.clone()),
+            path: info.path.map(|x| x.0.clone()),
             selection_summary: (&info.selection_summary).into(),
             sort: (&info.sort).into(),
             status: (&info.status).into(),
@@ -1417,7 +1418,7 @@ impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFile
                 common_state::Status::Error { error, .. } => Some(error.user_error()),
                 _ => None,
             },
-            title: info.title.clone(),
+            title: info.title.as_ref().map(|x| x.0.clone()),
             total_count: info.total_count as u32,
             total_size_display: vault_core::files::file_size::size_display(info.total_size),
             selected_count: info.selected_count as u32,
@@ -1476,11 +1477,11 @@ pub struct RepoFilesDetailsInfo {
 impl<'a> From<&repo_files_details_state::RepoFilesDetailsInfo<'a>> for RepoFilesDetailsInfo {
     fn from(info: &repo_files_details_state::RepoFilesDetailsInfo<'a>) -> Self {
         Self {
-            repo_id: info.repo_id.map(str::to_string),
-            parent_path: info.parent_path.map(str::to_string),
-            path: info.path.map(str::to_string),
+            repo_id: info.repo_id.map(|x| x.0.clone()),
+            parent_path: info.parent_path.as_ref().map(|x| x.0.clone()),
+            path: info.path.map(|x| x.0.clone()),
             status: (&info.status).into(),
-            file_name: info.file_name.map(str::to_string),
+            file_name: info.file_name.as_ref().map(|x| x.0.clone()),
             file_ext: info.file_ext.clone(),
             file_category: info.file_category.as_ref().map(Into::into),
             file_modified: info.file_modified,
@@ -2027,7 +2028,7 @@ impl MobileVault {
     ) -> u32 {
         let (browser_id, load_future) = self
             .vault
-            .remote_files_browsers_create(&location, options.into());
+            .remote_files_browsers_create(&RemoteFilesBrowserItemId(location), options.into());
 
         self.clone().spawn_result(async move { load_future.await });
 
@@ -2114,8 +2115,13 @@ impl MobileVault {
         range: bool,
         force: bool,
     ) {
-        self.vault
-            .remote_files_browsers_select_item(browser_id, &item_id, extend, range, force)
+        self.vault.remote_files_browsers_select_item(
+            browser_id,
+            RemoteFilesBrowserItemId(item_id),
+            extend,
+            range,
+            force,
+        )
     }
 
     pub fn remote_files_browsers_select_all(&self, browser_id: u32) {
@@ -2127,8 +2133,13 @@ impl MobileVault {
     }
 
     pub fn remote_files_browsers_set_selection(&self, browser_id: u32, selection: Vec<String>) {
-        self.vault
-            .remote_files_browsers_set_selection(browser_id, selection)
+        self.vault.remote_files_browsers_set_selection(
+            browser_id,
+            selection
+                .into_iter()
+                .map(RemoteFilesBrowserItemId)
+                .collect(),
+        )
     }
 
     pub fn remote_files_browsers_sort_by(
@@ -2156,7 +2167,7 @@ impl MobileVault {
                 .await
             {
                 Ok(location) => {
-                    cb.on_created(location);
+                    cb.on_created(location.0);
 
                     Ok(())
                 }
@@ -2187,6 +2198,8 @@ impl MobileVault {
     }
 
     pub fn repos_repo_subscribe(&self, repo_id: String, cb: Box<dyn SubscriptionCallback>) -> u32 {
+        let repo_id = RepoId(repo_id);
+
         self.subscribe(
             &[Event::Repos],
             cb,
@@ -2205,7 +2218,7 @@ impl MobileVault {
 
     pub fn repos_lock_repo(&self, repo_id: String) {
         self.errors
-            .handle_result(self.vault.repos_lock_repo(&repo_id));
+            .handle_result(self.vault.repos_lock_repo(&RepoId(repo_id)));
     }
 
     // repo_create
@@ -2348,7 +2361,7 @@ impl MobileVault {
                     vault_core::repo_unlock::selectors::select_info(state, repo_id).map(|info| {
                         RepoUnlockInfo {
                             status: info.status.into(),
-                            repo_name: info.repo_name.map(str::to_string),
+                            repo_name: info.repo_name.map(|x| x.0.clone()),
                         }
                     })
                 })
@@ -2362,7 +2375,8 @@ impl MobileVault {
     }
 
     pub fn repo_unlock_create(&self, repo_id: String, options: RepoUnlockOptions) -> u32 {
-        self.vault.repo_unlock_create(&repo_id, options.into())
+        self.vault
+            .repo_unlock_create(RepoId(repo_id), options.into())
     }
 
     pub fn repo_unlock_unlock(
@@ -2393,7 +2407,7 @@ impl MobileVault {
     // repo_remove
 
     pub fn repo_remove_create(&self, repo_id: String) -> u32 {
-        self.vault.repo_remove_create(&repo_id)
+        self.vault.repo_remove_create(RepoId(repo_id))
     }
 
     pub fn repo_remove_info_subscribe(
@@ -2449,6 +2463,8 @@ impl MobileVault {
         file_id: String,
         cb: Box<dyn SubscriptionCallback>,
     ) -> u32 {
+        let file_id = RepoFileId(file_id);
+
         self.subscribe(
             &[Event::RepoFiles],
             cb,
@@ -2468,7 +2484,11 @@ impl MobileVault {
 
     pub fn repo_files_delete_file(self: Arc<Self>, repo_id: String, path: String) {
         self.clone().spawn_result(async move {
-            match self.vault.repo_files_delete_files(&[(repo_id, path)]).await {
+            match self
+                .vault
+                .repo_files_delete_files(&[(RepoId(repo_id), DecryptedPath(path))])
+                .await
+            {
                 Ok(()) => Ok(()),
                 Err(vault_core::repo_files::errors::DeleteFileError::Canceled) => Ok(()),
                 Err(err) => Err(err),
@@ -2477,8 +2497,11 @@ impl MobileVault {
     }
 
     pub fn repo_files_rename_file(self: Arc<Self>, repo_id: String, path: String) {
-        self.clone()
-            .spawn_result(async move { self.vault.repo_files_rename_file(&repo_id, &path).await })
+        self.clone().spawn_result(async move {
+            self.vault
+                .repo_files_rename_file(&RepoId(repo_id), &DecryptedPath(path))
+                .await
+        })
     }
 
     pub fn repo_files_move_file(
@@ -2489,7 +2512,7 @@ impl MobileVault {
     ) {
         self.clone().spawn_result(async move {
             self.vault
-                .repo_files_move_move_file(repo_id, path, mode.into())
+                .repo_files_move_move_file(RepoId(repo_id), DecryptedPath(path), mode.into())
                 .await
         })
     }
@@ -2649,9 +2672,12 @@ impl MobileVault {
         uploadable: vault_core::transfers::uploadable::BoxUploadable,
     ) {
         self.clone().spawn(async move {
-            let (_, create_future) =
-                self.vault
-                    .transfers_upload(repo_id, parent_path, name, uploadable);
+            let (_, create_future) = self.vault.transfers_upload(
+                RepoId(repo_id),
+                DecryptedPath(parent_path),
+                name,
+                uploadable,
+            );
 
             let future = match create_future.await {
                 Ok(future) => future,
@@ -2737,7 +2763,10 @@ impl MobileVault {
         downloadable: downloadable::BoxDownloadable,
     ) {
         self.clone().spawn(async move {
-            let reader_provider = match self.vault.repo_files_get_file_reader(&repo_id, &path) {
+            let reader_provider = match self
+                .vault
+                .repo_files_get_file_reader(&RepoId(repo_id), &DecryptedPath(path))
+            {
                 Ok(reader_provider) => reader_provider,
                 Err(err) => {
                     self.errors.handle_error(err);
@@ -2807,9 +2836,11 @@ impl MobileVault {
         path: String,
         options: RepoFilesBrowserOptions,
     ) -> u32 {
-        let (browser_id, load_future) =
-            self.vault
-                .repo_files_browsers_create(&repo_id, &path, options.into());
+        let (browser_id, load_future) = self.vault.repo_files_browsers_create(
+            &RepoId(repo_id),
+            &DecryptedPath(path),
+            options.into(),
+        );
 
         self.clone().spawn_result(async move { load_future.await });
 
@@ -2894,8 +2925,13 @@ impl MobileVault {
         range: bool,
         force: bool,
     ) {
-        self.vault
-            .repo_files_browsers_select_file(browser_id, &file_id, extend, range, force)
+        self.vault.repo_files_browsers_select_file(
+            browser_id,
+            RepoFileId(file_id),
+            extend,
+            range,
+            force,
+        )
     }
 
     pub fn repo_files_browsers_select_all(&self, browser_id: u32) {
@@ -2907,8 +2943,10 @@ impl MobileVault {
     }
 
     pub fn repo_files_browsers_set_selection(&self, browser_id: u32, selection: Vec<String>) {
-        self.vault
-            .repo_files_browsers_set_selection(browser_id, selection)
+        self.vault.repo_files_browsers_set_selection(
+            browser_id,
+            selection.into_iter().map(RepoFileId).collect(),
+        )
     }
 
     pub fn repo_files_browsers_sort_by(
@@ -2994,7 +3032,7 @@ impl MobileVault {
         self.clone().spawn_result(async move {
             match self.vault.repo_files_browsers_create_dir(browser_id).await {
                 Ok((_, path)) => {
-                    cb.on_created(path);
+                    cb.on_created(path.0);
 
                     Ok(())
                 }
@@ -3039,9 +3077,12 @@ impl MobileVault {
         is_editing: bool,
         options: RepoFilesDetailsOptions,
     ) -> u32 {
-        let (details_id, load_future) =
-            self.vault
-                .repo_files_details_create(&repo_id, &path, is_editing, options.into());
+        let (details_id, load_future) = self.vault.repo_files_details_create(
+            RepoId(repo_id),
+            &DecryptedPath(path),
+            is_editing,
+            options.into(),
+        );
 
         self.clone().spawn(async move {
             // error is displayed in the details component
@@ -3241,11 +3282,11 @@ impl MobileVault {
                         .repo_files_move
                         .as_ref()
                         .map(|files_move| RepoFilesMoveInfo {
-                            repo_id: (&files_move.repo_id).into(),
+                            repo_id: files_move.repo_id.0.clone(),
                             src_files_count: files_move.src_paths.len() as u32,
                             mode: (&files_move.mode).into(),
                             dest_path_chain: vault_core::utils::path_utils::paths_chain(
-                                &files_move.dest_path,
+                                &files_move.dest_path.0,
                             ),
                             can_move: vault_core::repo_files_move::selectors::select_check_move(
                                 state,
@@ -3263,7 +3304,8 @@ impl MobileVault {
     }
 
     pub fn repo_files_move_set_dest_path(&self, dest_path: String) {
-        self.vault.repo_files_move_set_dest_path(dest_path)
+        self.vault
+            .repo_files_move_set_dest_path(DecryptedPath(dest_path))
     }
 
     pub fn repo_files_move_move_files(self: Arc<Self>) {

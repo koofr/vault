@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, fmt::Debug, hash::Hash};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SelectionSummary {
@@ -8,8 +8,8 @@ pub enum SelectionSummary {
 }
 
 #[derive(Debug, Clone, PartialEq, Default)]
-pub struct Selection {
-    pub selection: HashSet<String>,
-    pub last_selected: Option<String>,
-    pub range_anchor: Option<String>,
+pub struct Selection<Item: Debug + Clone + PartialEq + Eq + Hash> {
+    pub selection: HashSet<Item>,
+    pub last_selected: Option<Item>,
+    pub range_anchor: Option<Item>,
 }

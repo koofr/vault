@@ -1,14 +1,17 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, fmt::Debug, hash::Hash};
 
 use super::state::Selection;
 
-pub fn clear_selection(state: &mut Selection) {
+pub fn clear_selection<Item: Debug + Clone + PartialEq + Eq + Hash>(state: &mut Selection<Item>) {
     state.selection.clear();
     state.last_selected = None;
     state.range_anchor = None;
 }
 
-pub fn set_selection(state: &mut Selection, items: Vec<String>) {
+pub fn set_selection<Item: Debug + Clone + PartialEq + Eq + Hash>(
+    state: &mut Selection<Item>,
+    items: Vec<Item>,
+) {
     clear_selection(state);
 
     for item in items {
@@ -16,7 +19,10 @@ pub fn set_selection(state: &mut Selection, items: Vec<String>) {
     }
 }
 
-pub fn update_selection(state: &mut Selection, items: HashSet<String>) -> bool {
+pub fn update_selection<Item: Debug + Clone + PartialEq + Eq + Hash>(
+    state: &mut Selection<Item>,
+    items: HashSet<Item>,
+) -> bool {
     let mut dirty = false;
 
     let old_len = state.selection.len();
@@ -46,10 +52,10 @@ pub fn update_selection(state: &mut Selection, items: HashSet<String>) -> bool {
 
 /// extend: ctrl_key || checkbox
 /// range: shift_key
-pub fn select_item(
-    state: &mut Selection,
-    items: Vec<String>,
-    item: &str,
+pub fn select_item<Item: Debug + Clone + PartialEq + Eq + Hash>(
+    state: &mut Selection<Item>,
+    items: Vec<Item>,
+    item: Item,
     extend: bool,
     range: bool,
     force: bool,
@@ -57,54 +63,54 @@ pub fn select_item(
     let selected_count = state.selection.len();
     let was_empty = selected_count == 0;
     let was_single_selection = selected_count == 1;
-    let was_selected = state.selection.contains(item);
+    let was_selected = state.selection.contains(&item);
 
     if !range || (range && was_empty) || state.last_selected.is_none() {
         state.last_selected = None;
         state.range_anchor = None;
 
         if was_empty {
-            state.selection.insert(item.to_owned());
-            state.last_selected = Some(item.to_owned());
+            state.selection.insert(item.clone());
+            state.last_selected = Some(item);
         } else if was_single_selection {
             if was_selected {
                 if force {
-                    state.last_selected = Some(item.to_owned());
+                    state.last_selected = Some(item);
                 } else {
                     state.selection.clear();
                 }
             } else {
                 if extend {
-                    state.selection.insert(item.to_owned());
-                    state.last_selected = Some(item.to_owned());
+                    state.selection.insert(item.clone());
+                    state.last_selected = Some(item);
                 } else {
                     state.selection.clear();
-                    state.selection.insert(item.to_owned());
-                    state.last_selected = Some(item.to_owned());
+                    state.selection.insert(item.clone());
+                    state.last_selected = Some(item);
                 }
             }
         } else {
             if was_selected {
                 if force {
-                    state.last_selected = Some(item.to_owned());
+                    state.last_selected = Some(item);
                 } else {
                     if extend {
-                        state.selection.remove(item);
-                        state.last_selected = Some(item.to_owned());
+                        state.selection.remove(&item);
+                        state.last_selected = Some(item);
                     } else {
                         state.selection.clear();
-                        state.selection.insert(item.to_owned());
-                        state.last_selected = Some(item.to_owned());
+                        state.selection.insert(item.clone());
+                        state.last_selected = Some(item);
                     }
                 }
             } else {
                 if extend {
-                    state.selection.insert(item.to_owned());
-                    state.last_selected = Some(item.to_owned());
+                    state.selection.insert(item.clone());
+                    state.last_selected = Some(item);
                 } else {
                     state.selection.clear();
-                    state.selection.insert(item.to_owned());
-                    state.last_selected = Some(item.to_owned());
+                    state.selection.insert(item.clone());
+                    state.last_selected = Some(item);
                 }
             }
         }
@@ -127,7 +133,7 @@ pub fn select_item(
                 }
 
                 for idx in range_start..range_end {
-                    state.selection.insert(items[idx].to_owned());
+                    state.selection.insert(items[idx].clone());
                 }
             }
         }

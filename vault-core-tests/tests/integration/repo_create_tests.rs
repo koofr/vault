@@ -12,6 +12,7 @@ use vault_core::{
         state::{RepoConfig, RepoCreated, RepoUnlockMode},
     },
     store,
+    types::{DecryptedName, DecryptedPath, RemotePath},
 };
 use vault_core_tests::{
     fixtures::user_fixture::UserFixture,
@@ -59,21 +60,25 @@ fn test_create() {
             fixture
                 .vault
                 .repo_files_service
-                .load_files(&repo_id, "/")
+                .load_files(&repo_id, &DecryptedPath("/".into()))
                 .await
                 .unwrap();
             let file_names = fixture.vault.with_state(|state| {
-                vault_core::repo_files::selectors::select_files(state, &repo_id, "/")
-                    .map(|file| file.decrypted_name().unwrap().to_owned())
-                    .collect::<HashSet<_>>()
+                vault_core::repo_files::selectors::select_files(
+                    state,
+                    &repo_id,
+                    &DecryptedPath("/".into()),
+                )
+                .map(|file| file.decrypted_name().unwrap().to_owned())
+                .collect::<HashSet<_>>()
             });
 
             assert_eq!(
                 file_names,
                 HashSet::from([
-                    "My private documents".to_owned(),
-                    "My private pictures".to_owned(),
-                    "My private videos".to_owned(),
+                    DecryptedName("My private documents".into()),
+                    DecryptedName("My private pictures".into()),
+                    DecryptedName("My private videos".into()),
                 ])
             );
 
@@ -201,7 +206,7 @@ fn test_create_custom_location() {
                 create_id,
                 RemoteFilesLocation {
                     mount_id: fixture.mount_id.clone(),
-                    path: "/custom".into(),
+                    path: RemotePath("/custom".into()),
                 },
             );
             fixture
@@ -222,7 +227,7 @@ fn test_create_custom_location() {
                             patch_create_form_loaded(&fixture, form);
                             form.location = Some(RemoteFilesLocation {
                                 mount_id: fixture.mount_id.clone(),
-                                path: "/custom".into(),
+                                path: RemotePath("/custom".into()),
                             });
                         })
                     ),
@@ -232,7 +237,7 @@ fn test_create_custom_location() {
                             patch_create_form_loaded(&fixture, form);
                             form.location = Some(RemoteFilesLocation {
                                 mount_id: fixture.mount_id.clone(),
-                                path: "/custom".into(),
+                                path: RemotePath("/custom".into()),
                             });
                             form.password = "password".into();
                         })
@@ -243,7 +248,7 @@ fn test_create_custom_location() {
                             patch_create_form_loaded(&fixture, form);
                             form.location = Some(RemoteFilesLocation {
                                 mount_id: fixture.mount_id.clone(),
-                                path: "/custom".into(),
+                                path: RemotePath("/custom".into()),
                             });
                             form.password = "password".into();
                             form.create_repo_status = Status::Loading { loaded: false };
@@ -252,10 +257,10 @@ fn test_create_custom_location() {
                     6 => assert_eq!(
                         state,
                         expected_create_created(&fixture, &state, |created| {
-                            created.config.name = "custom".into();
+                            created.config.name = DecryptedName("custom".into());
                             created.config.location = RemoteFilesLocation {
                                 mount_id: fixture.mount_id.clone(),
-                                path: "/custom".into(),
+                                path: RemotePath("/custom".into()),
                             };
                         })
                     ),
@@ -290,7 +295,7 @@ fn test_create_location_error() {
                 create_id,
                 RemoteFilesLocation {
                     mount_id: fixture.mount_id.clone(),
-                    path: "/My safe box".into(),
+                    path: RemotePath("/My safe box".into()),
                 },
             );
             fixture
@@ -301,7 +306,7 @@ fn test_create_location_error() {
                 create_id,
                 RemoteFilesLocation {
                     mount_id: fixture.mount_id.clone(),
-                    path: "/custom".into(),
+                    path: RemotePath("/custom".into()),
                 },
             );
             fixture.vault.repo_create_create_repo(create_id).await;
@@ -363,7 +368,7 @@ fn test_create_location_error() {
                             patch_create_form_loaded(&fixture.user_fixture, form);
                             form.location = Some(RemoteFilesLocation {
                                 mount_id: fixture.mount_id.clone(),
-                                path: "/custom".into(),
+                                path: RemotePath("/custom".into()),
                             });
                             form.password = "password".into();
                         })
@@ -374,7 +379,7 @@ fn test_create_location_error() {
                             patch_create_form_loaded(&fixture.user_fixture, form);
                             form.location = Some(RemoteFilesLocation {
                                 mount_id: fixture.mount_id.clone(),
-                                path: "/custom".into(),
+                                path: RemotePath("/custom".into()),
                             });
                             form.password = "password".into();
                             form.create_repo_status = Status::Loading { loaded: false };
@@ -383,10 +388,10 @@ fn test_create_location_error() {
                     9 => assert_eq!(
                         state,
                         expected_create_created(&fixture.user_fixture, &state, |created| {
-                            created.config.name = "custom".into();
+                            created.config.name = DecryptedName("custom".into());
                             created.config.location = RemoteFilesLocation {
                                 mount_id: fixture.mount_id.clone(),
-                                path: "/custom".into(),
+                                path: RemotePath("/custom".into()),
                             };
                         })
                     ),
@@ -450,7 +455,7 @@ fn patch_create_form_loaded(fixture: &UserFixture, form: &mut RepoCreateForm) {
     form.primary_mount_id = Some(fixture.mount_id.clone());
     form.location = Some(RemoteFilesLocation {
         mount_id: fixture.mount_id.clone(),
-        path: "/My safe box".into(),
+        path: RemotePath("/My safe box".into()),
     });
 }
 
@@ -492,10 +497,10 @@ fn expected_create_created(
     let mut created = RepoCreated {
         repo_id: state_created.repo_id.clone(),
         config: RepoConfig {
-            name: "My safe box".into(),
+            name: DecryptedName("My safe box".into()),
             location: RemoteFilesLocation {
                 mount_id: fixture.mount_id.clone(),
-                path: "/My safe box".into(),
+                path: RemotePath("/My safe box".into()),
             },
             password: "password".into(),
             salt: state_created.config.salt.clone(),

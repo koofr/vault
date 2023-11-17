@@ -5,7 +5,8 @@ use vault_core::{
     oauth2::{service::TOKEN_STORAGE_KEY, state::OAuth2Token},
     remote::RemoteFileUploadConflictResolution,
     remote_files::state::RemoteFile,
-    utils::path_utils,
+    types::{MountId, RemotePath},
+    utils::remote_path_utils,
     Vault,
 };
 use vault_fake_remote::fake_remote::{context::Context, utils::now_ms};
@@ -20,7 +21,7 @@ pub struct UserFixture {
     pub fake_remote: Arc<FakeRemote>,
     pub vault: Arc<Vault>,
     pub user_id: String,
-    pub mount_id: String,
+    pub mount_id: MountId,
     pub oauth2_access_token: String,
     pub oauth2_refresh_token: String,
     pub context: Context,
@@ -58,7 +59,7 @@ impl UserFixture {
             fake_remote,
             vault,
             user_id,
-            mount_id,
+            mount_id: MountId(mount_id),
             oauth2_access_token,
             oauth2_refresh_token,
             context,
@@ -84,7 +85,8 @@ impl UserFixture {
     }
 
     pub async fn upload_remote_file(&self, path: &str, content: &str) -> RemoteFile {
-        let (parent_path, name) = path_utils::split_parent_name(path).unwrap();
+        let path = RemotePath(path.to_owned());
+        let (parent_path, name) = remote_path_utils::split_parent_name(&path).unwrap();
 
         let bytes = content.as_bytes().to_vec();
         let size = bytes.len();
@@ -96,8 +98,8 @@ impl UserFixture {
             .clone()
             .upload_file_reader(
                 &self.mount_id,
-                parent_path,
-                name,
+                &parent_path,
+                &name,
                 reader,
                 Some(size as i64),
                 RemoteFileUploadConflictResolution::Error,

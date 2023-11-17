@@ -20,6 +20,7 @@ use vault_core::{
         errors::{DownloadableError, TransferError},
         state::{DownloadTransfer, Transfer, TransferState, TransferType, TransfersState},
     },
+    types::{DecryptedName, DecryptedPath},
     utils::memory_writer::MemoryWriter,
 };
 use vault_core_tests::helpers::transfers::{
@@ -37,7 +38,7 @@ fn test_download() {
             let recorder = transfers_recorder(&fixture.vault);
 
             let (_, create_future, content_future) =
-                download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
+                download_string(&fixture.vault, &fixture.repo_id.0, "/file.txt");
             let future = create_future.await.unwrap();
 
             assert!(matches!(future.await.unwrap(), ()));
@@ -73,12 +74,12 @@ fn test_download_change_name() {
 
             let reader_provider = fixture
                 .vault
-                .repo_files_get_file_reader(&fixture.repo_id, "/file.txt")
+                .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
                 .unwrap()
                 .wrap_reader_builder(|reader_builder| {
                     async move {
                         reader_builder().await.map(|mut reader| {
-                            reader.name = "file renamed.txt".into();
+                            reader.name = DecryptedName("file renamed.txt".into());
                             reader
                         })
                     }
@@ -140,7 +141,7 @@ fn test_download_change_name_writer() {
 
             let reader_provider = fixture
                 .vault
-                .repo_files_get_file_reader(&fixture.repo_id, "/file.txt")
+                .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
                 .unwrap();
             let (mut downloadable, content_future) = TestDownloadable::string();
             let writer_data = downloadable.data.clone();
@@ -208,7 +209,7 @@ fn test_download_already_exists() {
 
             let reader_provider = fixture
                 .vault
-                .repo_files_get_file_reader(&fixture.repo_id, "/file.txt")
+                .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
                 .unwrap();
             let downloadable = Box::new(TestDownloadable {
                 is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
@@ -251,7 +252,7 @@ fn test_download_already_exists_error() {
 
             let reader_provider = fixture
                 .vault
-                .repo_files_get_file_reader(&fixture.repo_id, "/file.txt")
+                .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
                 .unwrap();
             let downloadable = Box::new(TestDownloadable {
                 is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
@@ -296,7 +297,7 @@ fn test_download_already_exists_done_error() {
 
             let reader_provider = fixture
                 .vault
-                .repo_files_get_file_reader(&fixture.repo_id, "/file.txt")
+                .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
                 .unwrap();
             let downloadable = Box::new(TestDownloadable {
                 is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
@@ -345,7 +346,7 @@ fn test_download_reader_error() {
             });
 
             let reader_provider = RepoFileReaderProvider {
-                name: "file.txt".into(),
+                name: DecryptedName("file.txt".into()),
                 size: SizeInfo::Exact(4),
                 unique_name: None,
                 reader_builder: Box::new(|| {
@@ -416,7 +417,7 @@ fn test_download_downloadable_writer_error() {
 
         let reader_provider = fixture
             .vault
-            .repo_files_get_file_reader(&fixture.repo_id, "/file.txt")
+            .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
             .unwrap();
         let downloadable = Box::new(TestDownloadable {
             is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
@@ -487,7 +488,7 @@ fn test_download_downloadable_close_error() {
 
         let reader_provider = fixture
             .vault
-            .repo_files_get_file_reader(&fixture.repo_id, "/file.txt")
+            .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
             .unwrap();
 
         use futures::AsyncWrite;
@@ -592,7 +593,7 @@ fn test_download_downloadable_done_error() {
 
         let reader_provider = fixture
             .vault
-            .repo_files_get_file_reader(&fixture.repo_id, "/file.txt")
+            .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
             .unwrap();
         let downloadable = Box::new(TestDownloadable {
             is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
@@ -669,7 +670,7 @@ fn test_download_abort_immediately() {
             let recorder = transfers_recorder(&fixture.vault);
 
             let (transfer_id, create_future, content_future) =
-                download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
+                download_string(&fixture.vault, &fixture.repo_id.0, "/file.txt");
             fixture.vault.transfers_abort(transfer_id);
 
             assert!(matches!(create_future.await, Err(TransferError::Aborted)));
@@ -700,7 +701,7 @@ fn test_download_abort_waiting() {
             });
 
             let (_, create_future, content_future) =
-                download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
+                download_string(&fixture.vault, &fixture.repo_id.0, "/file.txt");
             let future = create_future.await.unwrap();
 
             assert!(matches!(future.await, Err(TransferError::Aborted)));
@@ -735,7 +736,7 @@ fn test_download_abort_processing() {
             });
 
             let (_, create_future, content_future) =
-                download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
+                download_string(&fixture.vault, &fixture.repo_id.0, "/file.txt");
             let future = create_future.await.unwrap();
 
             assert!(matches!(future.await, Err(TransferError::Aborted)));
@@ -773,7 +774,7 @@ fn test_download_abort_transferring() {
             });
 
             let (_, create_future, content_future) =
-                download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
+                download_string(&fixture.vault, &fixture.repo_id.0, "/file.txt");
             let future = create_future.await.unwrap();
 
             assert!(matches!(future.await, Err(TransferError::Aborted)));
@@ -823,7 +824,7 @@ fn test_download_fail_autoretry_succeed() {
             let recorder = transfers_recorder(&fixture.vault);
 
             let (_, create_future, content_future) =
-                download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
+                download_string(&fixture.vault, &fixture.repo_id.0, "/file.txt");
             let future = create_future.await.unwrap();
 
             assert!(matches!(future.await.unwrap(), ()));
@@ -875,7 +876,7 @@ fn test_download_fail_autoretry_fail() {
             });
 
             let (_, create_future, content_future) =
-                download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
+                download_string(&fixture.vault, &fixture.repo_id.0, "/file.txt");
             let future = create_future.await.unwrap();
 
             let res = future.await;
@@ -947,7 +948,7 @@ fn test_download_fail_autoretry_retry() {
             );
 
             let (_, create_future, content_future) =
-                download_string(&fixture.vault, &fixture.repo_id, "/file.txt");
+                download_string(&fixture.vault, &fixture.repo_id.0, "/file.txt");
             let future = create_future.await.unwrap();
 
             assert!(matches!(future.await.unwrap(), ()));
@@ -1001,7 +1002,7 @@ fn test_download_openable() {
 
             let reader_provider = fixture
                 .vault
-                .repo_files_get_file_reader(&fixture.repo_id, "/file.txt")
+                .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
                 .unwrap();
             let (mut downloadable, content_future) = TestDownloadable::string();
             downloadable.is_openable_fn = Box::new(|| future::ready(Ok(true)).boxed());
