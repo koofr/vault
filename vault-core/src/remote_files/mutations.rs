@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{
     files::file_category::FileCategory,
     remote::models,
@@ -612,6 +614,15 @@ pub fn file_moved(
             return;
         }
     };
+
+    ensure_dirs(
+        state,
+        mutation_state,
+        mutation_notify,
+        mount_id,
+        &new_parent_path,
+    );
+
     let new_parent_id = selectors::get_file_id(mount_id, &new_parent_path.to_lowercase());
 
     if let Some(_) = state.remote_files.files.remove(&old_file_id) {
@@ -630,8 +641,6 @@ pub fn file_moved(
 
     remove_child(state, &old_parent_id, &old_file_id);
 
-    // TODO ensure new parent path
-
     add_child(state, &new_parent_id, new_file_id.clone());
 
     mutation_state.remote_files.moved_files.push((
@@ -643,15 +652,63 @@ pub fn file_moved(
     mutation_notify(store::MutationEvent::RemoteFiles, state, mutation_state);
 }
 
+pub fn ensure_dirs(
+    state: &mut store::State,
+    mutation_state: &mut store::MutationState,
+    mutation_notify: &store::MutationNotify,
+    mount_id: &MountId,
+    path: &RemotePath,
+) {
+    for path in remote_path_utils::paths_chain(path) {
+        ensure_dir(state, mutation_state, mutation_notify, mount_id, &path);
+    }
+}
+
+pub fn ensure_dir(
+    state: &mut store::State,
+    mutation_state: &mut store::MutationState,
+    mutation_notify: &store::MutationNotify,
+    mount_id: &MountId,
+    path: &RemotePath,
+) {
+    let file_id = selectors::get_file_id(mount_id, &path.to_lowercase());
+
+    if state.remote_files.files.contains_key(&file_id) {
+        return;
+    }
+
+    let name = match remote_path_utils::path_to_name(path) {
+        Some(name) => name,
+        None => return,
+    };
+
+    file_created(
+        state,
+        mutation_state,
+        mutation_notify,
+        mount_id,
+        &path,
+        models::FilesFile {
+            name,
+            typ: "dir".into(),
+            modified: 0,
+            size: 0,
+            content_type: "".into(),
+            hash: None,
+            tags: HashMap::new(),
+        },
+    );
+}
+
 pub fn file_children_change_parent_path(
     state: &mut store::State,
-    file_id: &RemoteFileId,
+    parent_file_id: &RemoteFileId,
     new_parent_path: &RemotePath,
 ) {
     if let Some(old_children_ids) = state
         .remote_files
         .children
-        .get(file_id)
+        .get(parent_file_id)
         .map(|ids| ids.clone())
     {
         let new_children_ids: Vec<RemoteFileId> = Vec::with_capacity(old_children_ids.len());
@@ -663,7 +720,7 @@ pub fn file_children_change_parent_path(
                 let new_child_id =
                     selectors::get_file_id(&child.mount_id, &new_child_path.to_lowercase());
 
-                file_children_change_parent_path(state, old_child_id, &new_child_path); // TODO CHECK THIS
+                file_children_change_parent_path(state, old_child_id, &new_child_path);
 
                 child.id = new_child_id.clone();
                 child.path = new_child_path;
@@ -675,6 +732,6 @@ pub fn file_children_change_parent_path(
         state
             .remote_files
             .children
-            .insert(file_id.to_owned(), new_children_ids);
+            .insert(parent_file_id.to_owned(), new_children_ids);
     }
 }

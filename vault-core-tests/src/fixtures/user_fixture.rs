@@ -4,7 +4,7 @@ use futures::io::Cursor;
 use vault_core::{
     oauth2::{service::TOKEN_STORAGE_KEY, state::OAuth2Token},
     remote::RemoteFileUploadConflictResolution,
-    remote_files::state::RemoteFile,
+    remote_files::{self, state::RemoteFile},
     types::{MountId, RemotePath},
     utils::remote_path_utils,
     Vault,
@@ -80,8 +80,36 @@ impl UserFixture {
             .unwrap();
     }
 
+    pub fn logout(&self) {
+        self.vault.logout().unwrap();
+    }
+
     pub async fn load(&self) {
-        self.vault_fixture.vault.load().await.unwrap();
+        self.vault.load().await.unwrap();
+    }
+
+    pub async fn create_remote_dir(&self, path: &str) -> RemoteFile {
+        let path = RemotePath(path.to_owned());
+        let (parent_path, name) = remote_path_utils::split_parent_name(&path).unwrap();
+
+        self.vault
+            .remote_files_service
+            .clone()
+            .create_dir_name(&self.mount_id, &parent_path, name)
+            .await
+            .unwrap();
+
+        self.vault.with_state(|state| {
+            state
+                .remote_files
+                .files
+                .get(&remote_files::selectors::get_file_id(
+                    &self.mount_id,
+                    &path.to_lowercase(),
+                ))
+                .cloned()
+                .unwrap()
+        })
     }
 
     pub async fn upload_remote_file(&self, path: &str, content: &str) -> RemoteFile {
