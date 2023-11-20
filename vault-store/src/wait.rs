@@ -33,14 +33,14 @@ pub async fn wait_for<F, R, State, Event, MutationState, MutationEvent>(
     f: F,
 ) -> R
 where
-    F: Fn() -> Option<R> + Send + Sync + 'static,
+    F: Fn(Option<&MutationState>) -> Option<R> + Send + Sync + 'static,
     R: Send + 'static,
     State: Debug + Clone + Send + Sync + 'static,
     Event: Debug + Clone + PartialEq + Eq + Hash + Send + 'static,
     MutationState: Debug + Clone + Default + 'static,
     MutationEvent: Debug + Clone + PartialEq + Eq + Hash + Send + 'static,
 {
-    if let Some(res) = f() {
+    if let Some(res) = f(None) {
         return res;
     }
 
@@ -59,10 +59,10 @@ where
     store.on(
         subscription_id,
         events,
-        Box::new(move |_, _| {
+        Box::new(move |mutation_state, _| {
             let subscription_f = subscription_f.clone();
 
-            if let Some(res) = subscription_f() {
+            if let Some(res) = subscription_f(Some(mutation_state)) {
                 let sender = subscription_sender.lock().unwrap().take();
 
                 subscription_store.remove_listener(subscription_id);
@@ -75,7 +75,7 @@ where
     );
 
     // try again in case state changed between the first check and subscribe
-    if let Some(res) = f() {
+    if let Some(res) = f(None) {
         store.remove_listener(subscription_id);
 
         return res;

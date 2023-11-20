@@ -428,7 +428,7 @@ fn test_create_dir() {
             let dialog_future = fixture.fake_remote.tokio_runtime.spawn(async move {
                 let wait_store = dialog_vault.store.clone();
                 let dialog_id =
-                    store::wait_for(wait_store.clone(), &[store::Event::Dialogs], move || {
+                    store::wait_for(wait_store.clone(), &[store::Event::Dialogs], move |_| {
                         wait_store.with_state(|state| {
                             dialogs::selectors::select_dialogs(state)
                                 .iter()
@@ -472,7 +472,7 @@ fn test_create_dir_validation() {
             let dialog_future = fixture.fake_remote.tokio_runtime.spawn(async move {
                 let wait_store = dialog_vault.store.clone();
                 let dialog_id =
-                    store::wait_for(wait_store.clone(), &[store::Event::Dialogs], move || {
+                    store::wait_for(wait_store.clone(), &[store::Event::Dialogs], move |_| {
                         wait_store.with_state(|state| {
                             dialogs::selectors::select_dialogs(state)
                                 .iter()

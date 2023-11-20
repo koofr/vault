@@ -342,7 +342,7 @@ pub async fn transfer_wait<Filter: Fn(&Transfer) -> bool + Send + Sync + 'static
     transfer_id: u32,
     filter: Filter,
 ) {
-    store::wait_for(store.clone(), &[store::Event::Transfers], move || {
+    store::wait_for(store.clone(), &[store::Event::Transfers], move |_| {
         store.with_state(|state| {
             state
                 .transfers

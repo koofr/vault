@@ -318,7 +318,7 @@ impl RepoFilesDetailsService {
         store::wait_for(
             self.store.clone(),
             &[store::Event::RepoFilesDetails],
-            move || -> Option<Result<RepoFile, GetFilesReaderError>> {
+            move |_| -> Option<Result<RepoFile, GetFilesReaderError>> {
                 file_store.with_state(|state| selectors::select_file_reader_file(state, details_id))
             },
         )
@@ -545,7 +545,7 @@ impl RepoFilesDetailsService {
         store::wait_for(
             self.store.clone(),
             &[store::Event::RepoFilesDetails],
-            move || {
+            move |_| {
                 saving_store.mutate(|state, notify, _, _| {
                     // wait for not saving
                     if selectors::select_is_saving(state, details_id) {

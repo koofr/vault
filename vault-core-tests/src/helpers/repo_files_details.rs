@@ -10,7 +10,7 @@ pub async fn details_wait<Filter: Fn(&RepoFilesDetails) -> bool + Send + Sync + 
     store::wait_for(
         store.clone(),
         &[store::Event::RepoFilesDetails],
-        move || {
+        move |_| {
             store.with_state(|state| {
                 state
                     .repo_files_details
