@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
+    eventstream,
     files::file_category::FileCategory,
     remote::models,
     store,
@@ -184,39 +185,6 @@ fn shared_file_to_remote_file(id: RemoteFileId, shared_file: models::SharedFile)
         name_lower,
         ext,
         typ,
-        size,
-        modified,
-        hash,
-        unique_id,
-        category,
-    }
-}
-
-fn dir_to_remote_file(id: RemoteFileId, mount_id: MountId, path: RemotePath) -> RemoteFile {
-    let name = remote_path_utils::path_to_name(&path)
-        .map(|name| name.to_owned())
-        .unwrap_or(RemoteName("".into()));
-    let name_lower = name.to_lowercase();
-    let size = None;
-    let modified = None;
-    let hash = None;
-    let unique_id = selectors::get_file_unique_id(
-        &mount_id,
-        &path.to_lowercase(),
-        size,
-        modified,
-        hash.as_deref(),
-    );
-    let category = FileCategory::Folder;
-
-    RemoteFile {
-        id,
-        mount_id,
-        path,
-        name,
-        name_lower,
-        ext: None,
-        typ: RemoteFileType::Dir,
         size,
         modified,
         hash,
@@ -442,42 +410,94 @@ pub fn add_child(state: &mut store::State, parent_id: &RemoteFileId, child_id: R
     }
 }
 
-pub fn dir_created(
+pub fn handle_eventstream_events_mutation(
     state: &mut store::State,
+    notify: &store::Notify,
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
-    mount_id: &MountId,
-    path: &RemotePath,
 ) {
-    let file_id = selectors::get_file_id(mount_id, &path.to_lowercase());
+    if !mutation_state.eventstream_events.events.is_empty() {
+        let events = mutation_state.eventstream_events.events.clone();
 
-    state.remote_files.files.insert(
-        file_id.clone(),
-        dir_to_remote_file(file_id.clone(), mount_id.to_owned(), path.to_owned()),
-    );
-
-    if let Some(parent_path) = remote_path_utils::parent_path(path) {
-        let parent_id = selectors::get_file_id(mount_id, &parent_path.to_lowercase());
-
-        add_child(state, &parent_id, file_id);
+        for (mount_listener, event) in events {
+            match event {
+                eventstream::Event::FileCreatedEvent {
+                    mount_id,
+                    path,
+                    file,
+                    ..
+                } => {
+                    file_created(
+                        state,
+                        notify,
+                        mutation_state,
+                        mutation_notify,
+                        &mount_id,
+                        &remote_path_utils::join_paths(&mount_listener.path, &path),
+                        file,
+                    );
+                }
+                eventstream::Event::FileRemovedEvent { mount_id, path, .. } => {
+                    file_removed(
+                        state,
+                        notify,
+                        mutation_state,
+                        mutation_notify,
+                        &mount_id,
+                        &remote_path_utils::join_paths(&mount_listener.path, &path),
+                    );
+                }
+                eventstream::Event::FileCopiedEvent {
+                    mount_id,
+                    new_path,
+                    file,
+                    ..
+                } => {
+                    file_copied(
+                        state,
+                        notify,
+                        mutation_state,
+                        mutation_notify,
+                        &mount_id,
+                        &remote_path_utils::join_paths(&mount_listener.path, &new_path),
+                        file,
+                    );
+                }
+                eventstream::Event::FileMovedEvent {
+                    mount_id,
+                    path,
+                    new_path,
+                    file,
+                    ..
+                } => {
+                    file_moved(
+                        state,
+                        notify,
+                        mutation_state,
+                        mutation_notify,
+                        &mount_id,
+                        &remote_path_utils::join_paths(&mount_listener.path, &path),
+                        &remote_path_utils::join_paths(&mount_listener.path, &new_path),
+                        file,
+                    );
+                }
+                _ => {}
+            }
+        }
     }
-
-    mutation_state
-        .remote_files
-        .created_files
-        .push((mount_id.to_owned(), path.to_owned()));
-
-    mutation_notify(store::MutationEvent::RemoteFiles, state, mutation_state);
 }
 
 pub fn file_created(
     state: &mut store::State,
+    notify: &store::Notify,
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
     mount_id: &MountId,
     path: &RemotePath,
     file: models::FilesFile,
 ) {
+    notify(store::Event::RemoteFiles);
+
     let file_id = selectors::get_file_id(mount_id, &path.to_lowercase());
 
     state.remote_files.files.insert(
@@ -507,11 +527,14 @@ pub fn remove_child(state: &mut store::State, parent_id: &RemoteFileId, child_id
 
 pub fn file_removed(
     state: &mut store::State,
+    notify: &store::Notify,
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
     mount_id: &MountId,
     path: &RemotePath,
 ) {
+    notify(store::Event::RemoteFiles);
+
     let file_id = selectors::get_file_id(mount_id, &path.to_lowercase());
 
     if let Some(parent_path) = remote_path_utils::parent_path(path) {
@@ -554,12 +577,15 @@ pub fn cleanup_file(state: &mut store::State, file_id: &RemoteFileId) {
 
 pub fn file_copied(
     state: &mut store::State,
+    notify: &store::Notify,
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
     mount_id: &MountId,
     new_path: &RemotePath,
     new_file: models::FilesFile,
 ) {
+    notify(store::Event::RemoteFiles);
+
     let new_file_id = selectors::get_file_id(mount_id, &new_path.to_lowercase());
     let new_parent_path = match remote_path_utils::parent_path(new_path) {
         Some(new_parent_path) => new_parent_path,
@@ -591,6 +617,7 @@ pub fn file_copied(
 
 pub fn file_moved(
     state: &mut store::State,
+    notify: &store::Notify,
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
     mount_id: &MountId,
@@ -598,6 +625,8 @@ pub fn file_moved(
     new_path: &RemotePath,
     new_file: models::FilesFile,
 ) {
+    notify(store::Event::RemoteFiles);
+
     let old_file_id = selectors::get_file_id(mount_id, &old_path.to_lowercase());
     let old_parent_path = match remote_path_utils::parent_path(old_path) {
         Some(old_parent_path) => old_parent_path,
@@ -617,6 +646,7 @@ pub fn file_moved(
 
     ensure_dirs(
         state,
+        notify,
         mutation_state,
         mutation_notify,
         mount_id,
@@ -654,18 +684,27 @@ pub fn file_moved(
 
 pub fn ensure_dirs(
     state: &mut store::State,
+    notify: &store::Notify,
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
     mount_id: &MountId,
     path: &RemotePath,
 ) {
     for path in remote_path_utils::paths_chain(path) {
-        ensure_dir(state, mutation_state, mutation_notify, mount_id, &path);
+        ensure_dir(
+            state,
+            notify,
+            mutation_state,
+            mutation_notify,
+            mount_id,
+            &path,
+        );
     }
 }
 
 pub fn ensure_dir(
     state: &mut store::State,
+    notify: &store::Notify,
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
     mount_id: &MountId,
@@ -684,6 +723,7 @@ pub fn ensure_dir(
 
     file_created(
         state,
+        notify,
         mutation_state,
         mutation_notify,
         mount_id,

@@ -24,11 +24,11 @@ pub struct Vault {
     pub auth_provider: Arc<Box<(dyn auth::AuthProvider + Send + Sync)>>,
     pub remote: Arc<remote::Remote>,
     pub user_service: Arc<user::UserService>,
+    pub eventstream_service: Arc<eventstream::EventStreamService>,
     pub transfers_service: Arc<transfers::TransfersService>,
     pub remote_files_service: Arc<remote_files::RemoteFilesService>,
     pub remote_files_dir_pickers_service:
         Arc<remote_files_dir_pickers::RemoteFilesDirPickersService>,
-    pub eventstream_service: Arc<eventstream::EventStreamService>,
     pub remote_files_browsers_service: Arc<remote_files_browsers::RemoteFilesBrowsersService>,
     pub repos_service: Arc<repos::ReposService>,
     pub repo_create_service: Arc<repo_create::RepoCreateService>,
@@ -89,17 +89,17 @@ impl Vault {
             auth_provider.clone(),
         ));
         let user_service = Arc::new(user::UserService::new(remote.clone(), store.clone()));
-        let remote_files_service = Arc::new(remote_files::RemoteFilesService::new(
-            remote.clone(),
-            dialogs_service.clone(),
-            store.clone(),
-        ));
         let eventstream_service = Arc::new(eventstream::EventStreamService::new(
             base_url.clone(),
             eventstream_websocket_client,
             auth_provider.clone(),
-            remote_files_service.clone(),
+            store.clone(),
             runtime.clone(),
+        ));
+        let remote_files_service = Arc::new(remote_files::RemoteFilesService::new(
+            remote.clone(),
+            dialogs_service.clone(),
+            store.clone(),
         ));
         let remote_files_browsers_service =
             Arc::new(remote_files_browsers::RemoteFilesBrowsersService::new(
@@ -216,10 +216,10 @@ impl Vault {
             auth_provider,
             remote,
             user_service,
+            eventstream_service,
             transfers_service,
             remote_files_service,
             remote_files_dir_pickers_service,
-            eventstream_service,
             remote_files_browsers_service,
             repos_service,
             repo_create_service,

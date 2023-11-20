@@ -45,9 +45,10 @@ fn test_content() {
             fixture
                 .vault
                 .store
-                .mutate(|state, _, mutation_state, mutation_notify| {
+                .mutate(|state, notify, mutation_state, mutation_notify| {
                     remote_files::mutations::file_removed(
                         state,
+                        notify,
                         mutation_state,
                         mutation_notify,
                         &upload_result.remote_file.mount_id,

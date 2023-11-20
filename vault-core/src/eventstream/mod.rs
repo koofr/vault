@@ -2,6 +2,7 @@ pub mod event;
 pub mod message;
 pub mod request;
 pub mod service;
+pub mod state;
 pub mod websocket_client;
 
 pub use self::{

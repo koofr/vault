@@ -6,13 +6,16 @@ use std::{
 
 use crate::{
     auth,
-    remote_files::{selectors::get_file_id, RemoteFilesService},
-    runtime,
+    eventstream::state::MountListenerState,
+    remote_files::selectors::get_file_id,
+    runtime, store,
     types::{MountId, RemoteFileId, RemotePath},
-    utils::remote_path_utils,
 };
 
-use super::{Event, Message, Request, WebSocketClient};
+use super::{
+    state::{ConnectionState, MountListener},
+    Event, Message, Request, WebSocketClient,
+};
 
 const RECONNECT_DURATION: Duration = Duration::from_secs(3);
 const PING_INTERVAL: Duration = Duration::from_secs(30);
@@ -46,39 +49,11 @@ impl Drop for MountSubscription {
     }
 }
 
-enum ConnectionState {
-    Initial,
-    Connecting,
-    Authenticating,
-    Reconnecting,
-    Connected {
-        next_request_id: u32,
-        request_id_to_mount_listener_id: HashMap<u32, u32>,
-        listener_id_to_mount_listener_id: HashMap<i64, u32>,
-    },
-    Disconnected,
-}
-
-#[derive(Debug, Clone)]
-enum MountListenerState {
-    Unregistered,
-    Registering,
-    Registered { listener_id: i64 },
-}
-
-#[derive(Debug, Clone)]
-struct MountListener {
-    id: u32,
-    mount_id: MountId,
-    path: RemotePath,
-    state: MountListenerState,
-}
-
 pub struct EventStreamService {
     base_url: String,
     websocket_client: Arc<Box<dyn WebSocketClient + Send + Sync>>,
     auth_provider: Arc<Box<dyn auth::AuthProvider + Send + Sync>>,
-    remote_files_service: Arc<RemoteFilesService>,
+    store: Arc<store::Store>,
     runtime: Arc<runtime::BoxRuntime>,
 
     connection_state: Arc<Mutex<ConnectionState>>,
@@ -94,7 +69,7 @@ impl EventStreamService {
         base_url: String,
         websocket_client: Box<dyn WebSocketClient + Send + Sync>,
         auth_provider: Arc<Box<dyn auth::AuthProvider + Send + Sync>>,
-        remote_files_service: Arc<RemoteFilesService>,
+        store: Arc<store::Store>,
         runtime: Arc<runtime::BoxRuntime>,
     ) -> EventStreamService {
         let websocket_client = Arc::new(websocket_client);
@@ -103,7 +78,7 @@ impl EventStreamService {
             base_url,
             websocket_client,
             auth_provider,
-            remote_files_service,
+            store,
             runtime,
 
             connection_state: Arc::new(Mutex::new(ConnectionState::Initial)),
@@ -443,53 +418,19 @@ impl EventStreamService {
     }
 
     fn handle_event(&self, mount_listener: MountListener, event: Event) {
-        match event {
-            Event::FileCreatedEvent {
-                mount_id,
-                path,
-                file,
-                ..
-            } => {
-                self.remote_files_service.file_created(
-                    &mount_id,
-                    &remote_path_utils::join_paths(&mount_listener.path, &path),
-                    file,
+        self.store
+            .mutate(|state, _, mutation_state, mutation_notify| {
+                mutation_state
+                    .eventstream_events
+                    .events
+                    .push((mount_listener, event));
+
+                mutation_notify(
+                    store::MutationEvent::EventstreamEvents,
+                    state,
+                    mutation_state,
                 );
-            }
-            Event::FileRemovedEvent { mount_id, path, .. } => {
-                self.remote_files_service.file_removed(
-                    &mount_id,
-                    &remote_path_utils::join_paths(&mount_listener.path, &path),
-                );
-            }
-            Event::FileCopiedEvent {
-                mount_id,
-                new_path,
-                file,
-                ..
-            } => {
-                self.remote_files_service.file_copied(
-                    &mount_id,
-                    &remote_path_utils::join_paths(&mount_listener.path, &new_path),
-                    file,
-                );
-            }
-            Event::FileMovedEvent {
-                mount_id,
-                path,
-                new_path,
-                file,
-                ..
-            } => {
-                self.remote_files_service.file_moved(
-                    &mount_id,
-                    &remote_path_utils::join_paths(&mount_listener.path, &path),
-                    &remote_path_utils::join_paths(&mount_listener.path, &new_path),
-                    file,
-                );
-            }
-            _ => {}
-        }
+            });
     }
 
     fn start_pinger(self: Arc<Self>) {
