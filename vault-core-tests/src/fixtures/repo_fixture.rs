@@ -55,6 +55,26 @@ impl RepoFixture {
         })
     }
 
+    pub fn new_session(&self) -> Arc<Self> {
+        let user_fixture = self.user_fixture.new_session();
+        let fake_remote = user_fixture.fake_remote.clone();
+        let vault = user_fixture.vault.clone();
+
+        let repo_id = self.repo_id.clone();
+        let mount_id = self.mount_id.clone();
+        let path = self.path.clone();
+
+        Arc::new(Self {
+            user_fixture,
+
+            fake_remote,
+            vault,
+            mount_id,
+            path,
+            repo_id,
+        })
+    }
+
     pub async fn unlock(&self) {
         self.vault
             .repos_service
@@ -118,7 +138,11 @@ impl RepoFixture {
                 &name,
                 reader,
                 Some(size as i64),
-                RepoFilesUploadConflictResolution::Error,
+                RepoFilesUploadConflictResolution::Overwrite {
+                    if_remote_size: None,
+                    if_remote_modified: None,
+                    if_remote_hash: None,
+                },
                 None,
             )
             .await

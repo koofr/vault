@@ -5,7 +5,7 @@ use vault_core::{
     oauth2::{service::TOKEN_STORAGE_KEY, state::OAuth2Token},
     remote::RemoteFileUploadConflictResolution,
     remote_files::{self, state::RemoteFile},
-    types::{MountId, RemotePath},
+    types::{MountId, RemoteFileId, RemotePath},
     utils::remote_path_utils,
     Vault,
 };
@@ -66,6 +66,30 @@ impl UserFixture {
         })
     }
 
+    pub fn new_session(&self) -> Arc<Self> {
+        let vault_fixture = self.vault_fixture.new_session();
+        let fake_remote = vault_fixture.fake_remote_fixture.fake_remote.clone();
+        let vault = vault_fixture.vault.clone();
+
+        let user_id = self.user_id.clone();
+        let mount_id = self.mount_id.clone();
+        let oauth2_access_token = self.oauth2_access_token.clone();
+        let oauth2_refresh_token = self.oauth2_refresh_token.clone();
+        let context = self.context.clone();
+
+        Arc::new(Self {
+            vault_fixture,
+
+            fake_remote,
+            vault,
+            user_id,
+            mount_id,
+            oauth2_access_token,
+            oauth2_refresh_token,
+            context,
+        })
+    }
+
     pub fn login(&self) {
         self.vault
             .secure_storage_service
@@ -86,6 +110,13 @@ impl UserFixture {
 
     pub async fn load(&self) {
         self.vault.load().await.unwrap();
+    }
+
+    pub fn get_remote_file_id(&self, path: &str) -> RemoteFileId {
+        remote_files::selectors::get_file_id(
+            &self.mount_id,
+            &RemotePath(path.into()).to_lowercase(),
+        )
     }
 
     pub async fn create_remote_dir(&self, path: &str) -> RemoteFile {

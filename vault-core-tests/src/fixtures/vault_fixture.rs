@@ -50,4 +50,8 @@ impl VaultFixture {
             vault,
         })
     }
+
+    pub fn new_session(&self) -> Arc<Self> {
+        Self::create(self.fake_remote_fixture.clone())
+    }
 }
