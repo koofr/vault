@@ -19,6 +19,10 @@ use super::state::{
     RepoFilesBrowser, RepoFilesBrowserInfo, RepoFilesBrowserItem, RepoFilesBrowserLocation,
 };
 
+pub fn get_eventstream_mount_subscriber(browser_id: u32) -> String {
+    format!("RepoFilesBrowsers:{}", browser_id)
+}
+
 pub fn select_file_ids<'a>(
     state: &'a store::State,
     repo_id: &RepoId,

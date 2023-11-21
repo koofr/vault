@@ -1,8 +1,8 @@
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
 
 use crate::{
     common::state::Status,
-    eventstream::service::MountSubscription,
+    eventstream::state::MountSubscription,
     repo_files::{
         errors::LoadFilesError,
         state::{RepoFile, RepoFilesBreadcrumb, RepoFilesSort},
@@ -43,7 +43,7 @@ pub struct RepoFilesBrowserInfo<'a> {
 pub struct RepoFilesBrowserLocation {
     pub repo_id: RepoId,
     pub path: DecryptedPath,
-    pub eventstream_mount_subscription: Option<Arc<MountSubscription>>,
+    pub eventstream_mount_subscription: Option<MountSubscription>,
 }
 
 #[derive(Debug, Clone, PartialEq)]

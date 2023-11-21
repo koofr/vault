@@ -1,17 +1,19 @@
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
 
 use crate::{
     common::state::Status,
-    eventstream::service::MountSubscription,
+    eventstream::mutations::{add_mount_subscriber, remove_mount_subscriber},
+    remote_files::errors::RemoteFilesErrors,
     repo_files::{
         errors::{DeleteFileError, LoadFilesError},
         selectors as repo_files_selectors,
         state::{RepoFile, RepoFilesUploadResult},
     },
     repo_files_read::errors::GetFilesReaderError,
-    store,
+    repos, store,
     transfers::errors::TransferError,
     types::{DecryptedPath, RepoId},
+    utils::repo_path_utils,
 };
 
 use super::{
@@ -25,12 +27,32 @@ use super::{
 };
 
 pub fn create_location(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
     repo_id: RepoId,
-    path: DecryptedPath,
-    eventstream_mount_subscription: Option<Arc<MountSubscription>>,
+    path: &DecryptedPath,
     is_editing: bool,
-) -> RepoFilesDetailsLocation {
-    RepoFilesDetailsLocation {
+    details_id: u32,
+) -> Result<RepoFilesDetailsLocation, LoadFilesError> {
+    let path = repo_path_utils::normalize_path(&path)
+        .map_err(|_| LoadFilesError::RemoteError(RemoteFilesErrors::invalid_path()))?;
+
+    let eventstream_mount_subscription = repos::selectors::select_repo(state, &repo_id)
+        .ok()
+        .map(|repo| (repo.mount_id.clone(), repo.path.clone()))
+        .map(|(mount_id, path)| {
+            add_mount_subscriber(
+                state,
+                notify,
+                mutation_state,
+                mount_id,
+                path,
+                selectors::get_eventstream_mount_subscriber(details_id),
+            )
+        });
+
+    Ok(RepoFilesDetailsLocation {
         repo_id,
         path,
         eventstream_mount_subscription,
@@ -46,21 +68,14 @@ pub fn create_location(
         save_status: Status::Initial,
         delete_status: Status::Initial,
         should_destroy: false,
-    }
+    })
 }
 
-pub fn create(
-    state: &mut store::State,
-    notify: &store::Notify,
-    options: RepoFilesDetailsOptions,
-    location: Result<RepoFilesDetailsLocation, LoadFilesError>,
-    repo_files_subscription_id: u32,
-) -> u32 {
-    notify(store::Event::RepoFilesDetails);
-
-    let details_id = state.repo_files_details.next_id.next();
-
-    let status = match &location {
+fn create_status(
+    state: &store::State,
+    location: Result<&RepoFilesDetailsLocation, &LoadFilesError>,
+) -> Status<LoadFilesError> {
+    match location {
         Ok(location) => Status::Loading {
             loaded: repo_files_selectors::select_file(
                 state,
@@ -72,7 +87,34 @@ pub fn create(
             error: err.clone(),
             loaded: false,
         },
-    };
+    }
+}
+
+pub fn create(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
+    options: RepoFilesDetailsOptions,
+    repo_id: RepoId,
+    path: &DecryptedPath,
+    is_editing: bool,
+    repo_files_subscription_id: u32,
+) -> u32 {
+    notify(store::Event::RepoFilesDetails);
+
+    let details_id = state.repo_files_details.next_id.next();
+
+    let location = create_location(
+        state,
+        notify,
+        mutation_state,
+        repo_id,
+        path,
+        is_editing,
+        details_id,
+    );
+
+    let status = create_status(state, location.as_ref());
 
     let details = RepoFilesDetails {
         options,
@@ -89,26 +131,31 @@ pub fn create(
 pub fn destroy(
     state: &mut store::State,
     notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
     details_id: u32,
 ) -> (Option<u32>, Option<u32>) {
     notify(store::Event::RepoFilesDetails);
 
-    let repo_files_subscription_id = state
-        .repo_files_details
-        .details
-        .get(&details_id)
-        .map(|details| details.repo_files_subscription_id);
+    match state.repo_files_details.details.remove(&details_id) {
+        Some(details) => {
+            let repo_files_subscription_id = details.repo_files_subscription_id;
 
-    let transfer_id = state
-        .repo_files_details
-        .details
-        .get(&details_id)
-        .and_then(|details| details.location.as_ref())
-        .and_then(|location| location.content.transfer_id);
+            let transfer_id = details
+                .location
+                .as_ref()
+                .and_then(|location| location.content.transfer_id);
 
-    state.repo_files_details.details.remove(&details_id);
+            if let Some(mount_subscription) = details
+                .location
+                .and_then(|location| location.eventstream_mount_subscription)
+            {
+                remove_mount_subscriber(state, notify, mutation_state, mount_subscription);
+            }
 
-    (repo_files_subscription_id, transfer_id)
+            (Some(repo_files_subscription_id), transfer_id)
+        }
+        None => (None, None),
+    }
 }
 
 pub fn loaded(

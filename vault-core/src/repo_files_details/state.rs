@@ -1,8 +1,8 @@
-use std::{collections::HashMap, sync::Arc, time::Duration};
+use std::{collections::HashMap, time::Duration};
 
 use crate::{
     common::state::Status,
-    eventstream::service::MountSubscription,
+    eventstream::state::MountSubscription,
     files::{file_category::FileCategory, files_filter::FilesFilter},
     repo_files::errors::{DeleteFileError, LoadFilesError},
     store::NextId,
@@ -64,7 +64,7 @@ pub struct RepoFilesDetailsContent {
 pub struct RepoFilesDetailsLocation {
     pub repo_id: RepoId,
     pub path: DecryptedPath,
-    pub eventstream_mount_subscription: Option<Arc<MountSubscription>>,
+    pub eventstream_mount_subscription: Option<MountSubscription>,
     pub content: RepoFilesDetailsContent,
     pub is_editing: bool,
     pub is_dirty: bool,

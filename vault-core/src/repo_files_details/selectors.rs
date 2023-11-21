@@ -27,6 +27,10 @@ use super::{
     },
 };
 
+pub fn get_eventstream_mount_subscriber(details_id: u32) -> String {
+    format!("RepoFilesDetails:{}", details_id)
+}
+
 pub fn select_details<'a>(
     state: &'a store::State,
     details_id: u32,

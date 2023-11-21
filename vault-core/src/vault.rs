@@ -89,13 +89,13 @@ impl Vault {
             auth_provider.clone(),
         ));
         let user_service = Arc::new(user::UserService::new(remote.clone(), store.clone()));
-        let eventstream_service = Arc::new(eventstream::EventStreamService::new(
+        let eventstream_service = eventstream::EventStreamService::new(
             base_url.clone(),
             eventstream_websocket_client,
             auth_provider.clone(),
             store.clone(),
             runtime.clone(),
-        ));
+        );
         let remote_files_service = Arc::new(remote_files::RemoteFilesService::new(
             remote.clone(),
             dialogs_service.clone(),
@@ -104,7 +104,6 @@ impl Vault {
         let remote_files_browsers_service =
             Arc::new(remote_files_browsers::RemoteFilesBrowsersService::new(
                 remote_files_service.clone(),
-                eventstream_service.clone(),
                 store.clone(),
             ));
         let remote_files_dir_pickers_service =
@@ -176,14 +175,12 @@ impl Vault {
                 repo_files_service.clone(),
                 repo_files_read_service.clone(),
                 repo_files_move_service.clone(),
-                eventstream_service.clone(),
                 store.clone(),
             ));
         let repo_files_details_service =
             Arc::new(repo_files_details::RepoFilesDetailsService::new(
                 repo_files_service.clone(),
                 repo_files_read_service.clone(),
-                eventstream_service.clone(),
                 dialogs_service.clone(),
                 transfers_service.clone(),
                 store.clone(),
@@ -693,7 +690,7 @@ impl Vault {
 
     pub fn repo_files_browsers_create(
         &self,
-        repo_id: &RepoId,
+        repo_id: RepoId,
         path: &DecryptedPath,
         options: repo_files_browsers::state::RepoFilesBrowserOptions,
     ) -> (

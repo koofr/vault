@@ -1,8 +1,8 @@
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
 
 use crate::{
     common::state::Status,
-    eventstream::service::MountSubscription,
+    eventstream::state::MountSubscription,
     files::file_icon::FileIconAttrs,
     remote,
     remote_files::state::{MountOrigin, RemoteFileType, RemoteFilesSort},
@@ -67,7 +67,7 @@ pub struct RemoteFilesBrowserLocationFiles {
     pub item_id_prefix: RemoteFilesBrowserItemId,
     pub mount_id: MountId,
     pub path: RemotePath,
-    pub eventstream_mount_subscription: Arc<MountSubscription>,
+    pub eventstream_mount_subscription: MountSubscription,
 }
 
 impl PartialEq for RemoteFilesBrowserLocationFiles {

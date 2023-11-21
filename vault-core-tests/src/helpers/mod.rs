@@ -1,3 +1,4 @@
+pub mod eventstream;
 pub mod repo_files_details;
 pub mod secure_storage;
 pub mod transfers;

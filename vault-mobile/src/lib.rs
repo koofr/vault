@@ -2837,7 +2837,7 @@ impl MobileVault {
         options: RepoFilesBrowserOptions,
     ) -> u32 {
         let (browser_id, load_future) = self.vault.repo_files_browsers_create(
-            &RepoId(repo_id),
+            RepoId(repo_id),
             &DecryptedPath(path),
             options.into(),
         );

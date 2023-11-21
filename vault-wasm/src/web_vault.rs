@@ -1228,7 +1228,7 @@ impl WebVault {
             serde_wasm_bindgen::from_value(options.into()).unwrap();
 
         let (browser_id, load_future) = self.vault.repo_files_browsers_create(
-            &RepoId(repo_id),
+            RepoId(repo_id),
             &DecryptedPath(path),
             options.into(),
         );

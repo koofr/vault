@@ -7,9 +7,12 @@ use vault_core::{
         errors::LoadFilesError,
         state::{RepoFilesBreadcrumb, RepoFilesSort, RepoFilesSortField},
     },
-    repo_files_browsers::state::{
-        RepoFilesBrowser, RepoFilesBrowserInfo, RepoFilesBrowserItem, RepoFilesBrowserLocation,
-        RepoFilesBrowserOptions, RepoFilesBrowsersState,
+    repo_files_browsers::{
+        self,
+        state::{
+            RepoFilesBrowser, RepoFilesBrowserInfo, RepoFilesBrowserItem, RepoFilesBrowserLocation,
+            RepoFilesBrowserOptions, RepoFilesBrowsersState,
+        },
     },
     repos::errors::{RepoLockedError, RepoNotFoundError},
     selection::state::SelectionSummary,
@@ -17,7 +20,10 @@ use vault_core::{
     store,
     types::{DecryptedName, DecryptedPath},
 };
-use vault_core_tests::{fixtures::repo_fixture::RepoFixture, helpers::with_repo};
+use vault_core_tests::{
+    fixtures::repo_fixture::RepoFixture,
+    helpers::{eventstream::eventstream_wait_registered, with_repo},
+};
 use vault_store::{test_helpers::StateRecorder, NextId};
 
 #[test]
@@ -25,7 +31,7 @@ fn test_repo_lock_unlock_remove() {
     with_repo(|fixture| {
         async move {
             let (browser_id, load_future) = fixture.vault.repo_files_browsers_create(
-                &fixture.repo_id,
+                fixture.repo_id.clone(),
                 &DecryptedPath("/".into()),
                 RepoFilesBrowserOptions { select_name: None },
             );
@@ -188,7 +194,7 @@ fn test_create() {
             );
 
             let (browser_id, load_future) = fixture.vault.repo_files_browsers_create(
-                &fixture.repo_id,
+                fixture.repo_id.clone(),
                 &DecryptedPath("/".into()),
                 RepoFilesBrowserOptions { select_name: None },
             );
@@ -255,7 +261,7 @@ fn test_create_already_loaded() {
             );
 
             let (browser_id, load_future) = fixture.vault.repo_files_browsers_create(
-                &fixture.repo_id,
+                fixture.repo_id.clone(),
                 &DecryptedPath("/".into()),
                 RepoFilesBrowserOptions { select_name: None },
             );
@@ -309,7 +315,7 @@ fn test_reload() {
             );
 
             let (browser_id, load_future) = fixture.vault.repo_files_browsers_create(
-                &fixture.repo_id,
+                fixture.repo_id.clone(),
                 &DecryptedPath("/".into()),
                 RepoFilesBrowserOptions { select_name: None },
             );
@@ -416,7 +422,7 @@ fn test_create_dir() {
     with_repo(|fixture| {
         async move {
             let (browser_id, load_future) = fixture.vault.repo_files_browsers_create(
-                &fixture.repo_id,
+                fixture.repo_id.clone(),
                 &DecryptedPath("/".into()),
                 RepoFilesBrowserOptions { select_name: None },
             );
@@ -460,7 +466,7 @@ fn test_create_dir_validation() {
     with_repo(|fixture| {
         async move {
             let (browser_id, load_future) = fixture.vault.repo_files_browsers_create(
-                &fixture.repo_id,
+                fixture.repo_id.clone(),
                 &DecryptedPath("/".into()),
                 RepoFilesBrowserOptions { select_name: None },
             );
@@ -505,6 +511,55 @@ fn test_create_dir_validation() {
             );
 
             fixture.vault.repo_files_browsers_destroy(browser_id);
+        }
+        .boxed()
+    });
+}
+
+#[test]
+fn test_eventstream() {
+    with_repo(|fixture| {
+        async move {
+            let fixture1 = fixture.new_session();
+            fixture1.user_fixture.login();
+            fixture1.user_fixture.load().await;
+            fixture1.unlock().await;
+
+            let (browser_id, load_future) = fixture.vault.repo_files_browsers_create(
+                fixture.repo_id.clone(),
+                &DecryptedPath("/".into()),
+                RepoFilesBrowserOptions { select_name: None },
+            );
+            load_future.await.unwrap();
+            eventstream_wait_registered(
+                fixture.vault.store.clone(),
+                &fixture.mount_id,
+                &fixture.path,
+            )
+            .await;
+
+            fixture1.upload_file("/file.txt", "test").await;
+
+            let wait_for_store = fixture.vault.store.clone();
+            store::wait_for(
+                wait_for_store.clone(),
+                &[store::Event::RepoFilesBrowsers],
+                move |_| {
+                    wait_for_store.with_state(|state| {
+                        repo_files_browsers::selectors::select_info(state, browser_id)
+                            .filter(|info| {
+                                info.items
+                                    .iter()
+                                    .find(|item| item.file.name_lower_force() == "file.txt")
+                                    .is_some()
+                            })
+                            .map(|_| ())
+                    })
+                },
+            )
+            .await;
+
+            fixture.vault.remote_files_browsers_destroy(browser_id);
         }
         .boxed()
     });

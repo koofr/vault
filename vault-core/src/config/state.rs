@@ -2,6 +2,21 @@ use std::time::Duration;
 
 use crate::locale::{get_locale, BoxLocale};
 
+#[derive(Debug, Clone)]
+pub struct EventstreamConfig {
+    pub reconnect_duration: Duration,
+    pub ping_interval: Duration,
+}
+
+impl Default for EventstreamConfig {
+    fn default() -> Self {
+        Self {
+            reconnect_duration: Duration::from_secs(3),
+            ping_interval: Duration::from_secs(30),
+        }
+    }
+}
+
 pub struct LocaleConfig {
     pub name: String,
     pub locale: BoxLocale,
@@ -48,8 +63,9 @@ impl Default for TransfersConfig {
 #[derive(Debug, Clone)]
 pub struct ConfigState {
     pub base_url: String,
-    pub transfers: TransfersConfig,
     pub locale: LocaleConfig,
+    pub transfers: TransfersConfig,
+    pub eventstream: EventstreamConfig,
 }
 
 impl Default for ConfigState {
@@ -61,6 +77,7 @@ impl Default for ConfigState {
                 locale: get_locale("en").unwrap(),
             },
             transfers: TransfersConfig::default(),
+            eventstream: EventstreamConfig::default(),
         }
     }
 }

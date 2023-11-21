@@ -6,7 +6,7 @@ use futures::{
 };
 
 use crate::{
-    eventstream, remote,
+    remote,
     remote_files::{
         errors::{CreateDirError, RemoteFilesErrors},
         state::RemoteFilesSortField,
@@ -18,25 +18,17 @@ use crate::{
 
 use super::{
     mutations, selectors,
-    state::{
-        RemoteFilesBrowserItemId, RemoteFilesBrowserLocation, RemoteFilesBrowserLocationFiles,
-        RemoteFilesBrowserOptions,
-    },
+    state::{RemoteFilesBrowserItemId, RemoteFilesBrowserLocation, RemoteFilesBrowserOptions},
 };
 
 pub struct RemoteFilesBrowsersService {
     remote_files_service: Arc<RemoteFilesService>,
-    eventstream_service: Arc<eventstream::EventStreamService>,
     store: Arc<store::Store>,
     remote_files_mutation_subscription_id: u32,
 }
 
 impl RemoteFilesBrowsersService {
-    pub fn new(
-        remote_files_service: Arc<RemoteFilesService>,
-        eventstream_service: Arc<eventstream::EventStreamService>,
-        store: Arc<store::Store>,
-    ) -> Self {
+    pub fn new(remote_files_service: Arc<RemoteFilesService>, store: Arc<store::Store>) -> Self {
         let remote_files_mutation_subscription_id = store.get_next_id();
 
         store.mutation_on(
@@ -49,8 +41,7 @@ impl RemoteFilesBrowsersService {
 
         Self {
             remote_files_service,
-            eventstream_service,
-            store: store.clone(),
+            store,
             remote_files_mutation_subscription_id,
         }
     }
@@ -60,11 +51,9 @@ impl RemoteFilesBrowsersService {
         location: &RemoteFilesBrowserItemId,
         options: RemoteFilesBrowserOptions,
     ) -> (u32, BoxFuture<'static, Result<(), remote::RemoteError>>) {
-        let location = self.get_location(location);
-
-        let browser_id = self
-            .store
-            .mutate(|state, notify, _, _| mutations::create(state, notify, options, location));
+        let browser_id = self.store.mutate(|state, notify, mutation_state, _| {
+            mutations::create(state, notify, mutation_state, options, location)
+        });
 
         let load_self = self.clone();
 
@@ -73,43 +62,9 @@ impl RemoteFilesBrowsersService {
         (browser_id, load_future)
     }
 
-    fn get_location(
-        &self,
-        location: &RemoteFilesBrowserItemId,
-    ) -> Result<RemoteFilesBrowserLocation, remote::RemoteError> {
-        match location {
-            _ if location == &*selectors::ITEM_ID_HOME => Ok(RemoteFilesBrowserLocation::Home),
-            _ if location == &*selectors::ITEM_ID_BOOKMARKS => {
-                Ok(RemoteFilesBrowserLocation::Bookmarks)
-            }
-            _ if location == &*selectors::ITEM_ID_SHARED => Ok(RemoteFilesBrowserLocation::Shared),
-            _ => {
-                if let Some((item_id_prefix, mount_id, path)) =
-                    selectors::parse_location_files(location)
-                {
-                    let eventstream_mount_subscription = self
-                        .eventstream_service
-                        .clone()
-                        .get_mount_subscription(&mount_id, &path);
-
-                    Ok(RemoteFilesBrowserLocation::Files(
-                        RemoteFilesBrowserLocationFiles {
-                            item_id_prefix,
-                            mount_id,
-                            path,
-                            eventstream_mount_subscription,
-                        },
-                    ))
-                } else {
-                    Err(RemoteFilesErrors::invalid_path())
-                }
-            }
-        }
-    }
-
     pub fn destroy(&self, browser_id: u32) {
-        self.store.mutate(|state, notify, _, _| {
-            mutations::destroy(state, notify, browser_id);
+        self.store.mutate(|state, notify, mutation_state, _| {
+            mutations::destroy(state, notify, mutation_state, browser_id);
         });
     }
 

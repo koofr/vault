@@ -2,9 +2,12 @@ use std::collections::HashSet;
 
 use crate::{
     common::state::Status,
+    eventstream::mutations::{add_mount_subscriber, remove_mount_subscriber},
+    remote_files::errors::RemoteFilesErrors,
     repo_files::{
         errors::LoadFilesError, selectors as repo_files_selectors, state::RepoFilesSortField,
     },
+    repos,
     selection::{mutations as selection_mutations, state::Selection},
     sort::state::SortDirection,
     store,
@@ -17,7 +20,39 @@ use super::{
     state::{RepoFilesBrowser, RepoFilesBrowserLocation, RepoFilesBrowserOptions},
 };
 
-fn get_initial_status(
+fn create_location(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
+    repo_id: RepoId,
+    path: &DecryptedPath,
+    browser_id: u32,
+) -> Result<RepoFilesBrowserLocation, LoadFilesError> {
+    let path = repo_path_utils::normalize_path(path)
+        .map_err(|_| LoadFilesError::RemoteError(RemoteFilesErrors::invalid_path()))?;
+
+    let eventstream_mount_subscription = repos::selectors::select_repo(state, &repo_id)
+        .ok()
+        .map(|repo| (repo.mount_id.clone(), repo.path.clone()))
+        .map(|(mount_id, path)| {
+            add_mount_subscriber(
+                state,
+                notify,
+                mutation_state,
+                mount_id,
+                path,
+                selectors::get_eventstream_mount_subscriber(browser_id),
+            )
+        });
+
+    Ok(RepoFilesBrowserLocation {
+        repo_id,
+        path,
+        eventstream_mount_subscription,
+    })
+}
+
+fn create_status(
     state: &store::State,
     location: Result<&RepoFilesBrowserLocation, &LoadFilesError>,
 ) -> Status<LoadFilesError> {
@@ -39,14 +74,18 @@ fn get_initial_status(
 pub fn create(
     state: &mut store::State,
     notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
     options: RepoFilesBrowserOptions,
-    location: Result<RepoFilesBrowserLocation, LoadFilesError>,
+    repo_id: RepoId,
+    path: &DecryptedPath,
 ) -> u32 {
     notify(store::Event::RepoFilesBrowsers);
 
     let browser_id = state.repo_files_browsers.next_id.next();
 
-    let status = get_initial_status(state, location.as_ref());
+    let location = create_location(state, notify, mutation_state, repo_id, path, browser_id);
+
+    let status = create_status(state, location.as_ref());
 
     let browser = RepoFilesBrowser {
         options,
@@ -67,10 +106,22 @@ pub fn create(
     browser_id
 }
 
-pub fn destroy(state: &mut store::State, notify: &store::Notify, browser_id: u32) {
+pub fn destroy(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
+    browser_id: u32,
+) {
     notify(store::Event::RepoFilesBrowsers);
 
-    state.repo_files_browsers.browsers.remove(&browser_id);
+    if let Some(browser) = state.repo_files_browsers.browsers.remove(&browser_id) {
+        if let Some(mount_subscription) = browser
+            .location
+            .and_then(|location| location.eventstream_mount_subscription)
+        {
+            remove_mount_subscriber(state, notify, mutation_state, mount_subscription);
+        }
+    }
 }
 
 pub fn loading(state: &mut store::State, notify: &store::Notify, browser_id: u32) {

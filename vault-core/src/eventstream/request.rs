@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::types::{MountId, RemotePath};
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "action")]
 pub enum Request {
     #[serde(rename = "auth")]

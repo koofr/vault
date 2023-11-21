@@ -1,22 +1,68 @@
 use std::collections::HashSet;
 
 use crate::{
-    common::state::Status, remote, remote_files::state::RemoteFilesSortField,
-    selection::mutations as selection_mutations, sort::state::SortDirection, store,
+    common::state::Status,
+    eventstream::mutations::{add_mount_subscriber, remove_mount_subscriber},
+    remote::{self, RemoteError},
+    remote_files::{errors::RemoteFilesErrors, state::RemoteFilesSortField},
+    selection::mutations as selection_mutations,
+    sort::state::SortDirection,
+    store,
 };
 
 use super::{
     selectors,
     state::{
         RemoteFilesBrowser, RemoteFilesBrowserItem, RemoteFilesBrowserItemId,
-        RemoteFilesBrowserLocation, RemoteFilesBrowserOptions,
+        RemoteFilesBrowserLocation, RemoteFilesBrowserLocationFiles, RemoteFilesBrowserOptions,
     },
 };
 
-fn get_initial_status(
+fn create_location(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
+    location: &RemoteFilesBrowserItemId,
+    browser_id: u32,
+) -> Result<RemoteFilesBrowserLocation, RemoteError> {
+    match location {
+        _ if location == &*selectors::ITEM_ID_HOME => Ok(RemoteFilesBrowserLocation::Home),
+        _ if location == &*selectors::ITEM_ID_BOOKMARKS => {
+            Ok(RemoteFilesBrowserLocation::Bookmarks)
+        }
+        _ if location == &*selectors::ITEM_ID_SHARED => Ok(RemoteFilesBrowserLocation::Shared),
+        _ => {
+            if let Some((item_id_prefix, mount_id, path)) =
+                selectors::parse_location_files(location)
+            {
+                let eventstream_mount_subscription = add_mount_subscriber(
+                    state,
+                    notify,
+                    mutation_state,
+                    mount_id.clone(),
+                    path.clone(),
+                    selectors::get_eventstream_mount_subscriber(browser_id),
+                );
+
+                Ok(RemoteFilesBrowserLocation::Files(
+                    RemoteFilesBrowserLocationFiles {
+                        item_id_prefix,
+                        mount_id,
+                        path,
+                        eventstream_mount_subscription,
+                    },
+                ))
+            } else {
+                Err(RemoteFilesErrors::invalid_path())
+            }
+        }
+    }
+}
+
+fn create_status(
     state: &store::State,
-    location: Result<&RemoteFilesBrowserLocation, &remote::RemoteError>,
-) -> Status<remote::RemoteError> {
+    location: Result<&RemoteFilesBrowserLocation, &RemoteError>,
+) -> Status<RemoteError> {
     match location {
         Ok(location) => Status::Loading {
             loaded: selectors::select_is_root_loaded(state, &location),
@@ -31,14 +77,17 @@ fn get_initial_status(
 pub fn create(
     state: &mut store::State,
     notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
     options: RemoteFilesBrowserOptions,
-    location: Result<RemoteFilesBrowserLocation, remote::RemoteError>,
+    location: &RemoteFilesBrowserItemId,
 ) -> u32 {
     notify(store::Event::RemoteFilesBrowsers);
 
     let browser_id = state.remote_files_browsers.next_id.next();
 
-    let status = get_initial_status(state, location.as_ref());
+    let location = create_location(state, notify, mutation_state, location, browser_id);
+
+    let status = create_status(state, location.as_ref());
 
     let browser = RemoteFilesBrowser {
         options,
@@ -59,10 +108,24 @@ pub fn create(
     browser_id
 }
 
-pub fn destroy(state: &mut store::State, notify: &store::Notify, browser_id: u32) {
+pub fn destroy(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
+    browser_id: u32,
+) {
     notify(store::Event::RemoteFilesBrowsers);
 
-    state.remote_files_browsers.browsers.remove(&browser_id);
+    if let Some(browser) = state.remote_files_browsers.browsers.remove(&browser_id) {
+        if let Some(RemoteFilesBrowserLocation::Files(location)) = browser.location {
+            remove_mount_subscriber(
+                state,
+                notify,
+                mutation_state,
+                location.eventstream_mount_subscription,
+            );
+        }
+    }
 }
 
 pub fn loaded(

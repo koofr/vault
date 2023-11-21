@@ -80,6 +80,10 @@ pub fn parse_location_files(
     }
 }
 
+pub fn get_eventstream_mount_subscriber(browser_id: u32) -> String {
+    format!("RemoteFilesBrowsers:{}", browser_id)
+}
+
 pub fn get_bookmarks_item() -> RemoteFilesBrowserItem {
     RemoteFilesBrowserItem {
         id: ITEM_ID_BOOKMARKS.to_owned(),

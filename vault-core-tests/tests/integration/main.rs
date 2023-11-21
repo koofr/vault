@@ -1,4 +1,5 @@
 mod oauth2_tests;
+mod remote_files_browsers_tests;
 mod remote_files_tests;
 mod repo_create_tests;
 mod repo_files_browsers_tests;

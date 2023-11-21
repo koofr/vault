@@ -27,6 +27,7 @@ use vault_core::{
 use vault_core_tests::{
     fixtures::repo_fixture::RepoFixture,
     helpers::{
+        eventstream::eventstream_wait_registered,
         repo_files_details::{details_wait, details_wait_content_loaded},
         transfers::TestDownloadable,
         with_repo,
@@ -575,4 +576,71 @@ fn expected_details_state(
         details: [(1, details)].into(),
         next_id: NextId(2),
     }
+}
+
+#[test]
+fn test_eventstream() {
+    with_repo(|fixture| {
+        async move {
+            let (_, file) = fixture.upload_file("/file.txt", "test").await;
+
+            let fixture1 = fixture.new_session();
+            fixture1.user_fixture.login();
+            fixture1.user_fixture.load().await;
+            fixture1.unlock().await;
+
+            let (details_id, load_future) = fixture.vault.repo_files_details_create(
+                fixture.repo_id.clone(),
+                &DecryptedPath("/file.txt".into()),
+                false,
+                RepoFilesDetailsOptions {
+                    autosave_interval: Duration::from_secs(20),
+                    load_content: FilesFilter {
+                        categories: vec![FileCategory::Text],
+                        exts: vec![],
+                    },
+                },
+            );
+            load_future.await.unwrap();
+            eventstream_wait_registered(
+                fixture.vault.store.clone(),
+                &fixture.mount_id,
+                &fixture.path,
+            )
+            .await;
+
+            details_wait(fixture.vault.store.clone(), 1, |details| {
+                matches!(
+                    details.location.as_ref().unwrap().content.status,
+                    Status::Loaded
+                )
+            })
+            .await;
+
+            fixture1.upload_file("/file.txt", "test1").await;
+
+            details_wait(fixture.vault.store.clone(), 1, |details| {
+                matches!(
+                    details.location.as_ref().unwrap().content.status,
+                    Status::Loaded
+                ) && details
+                    .location
+                    .as_ref()
+                    .unwrap()
+                    .content
+                    .data
+                    .as_ref()
+                    .map(|x| String::from_utf8(x.bytes.clone()) == Ok("test1".to_string()))
+                    .is_some()
+            })
+            .await;
+
+            fixture
+                .vault
+                .repo_files_details_destroy(details_id)
+                .await
+                .unwrap();
+        }
+        .boxed()
+    });
 }

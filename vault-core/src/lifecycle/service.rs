@@ -4,7 +4,7 @@ use futures::join;
 
 use crate::{
     common::state::Status,
-    eventstream::EventStreamService,
+    eventstream::{self, EventStreamService},
     notifications::NotificationsService,
     oauth2::{errors::OAuth2Error, state::FinishFlowResult, OAuth2Service},
     remote::{Remote, RemoteError},
@@ -104,6 +104,9 @@ impl LifecycleService {
             state.reset();
 
             state.oauth2.status = Status::Initial;
+
+            // state.reset() sets connection_state to Initial
+            state.eventstream.connection_state = eventstream::state::ConnectionState::Disconnected;
 
             for event in store::Event::all() {
                 notify(event);

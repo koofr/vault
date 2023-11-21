@@ -12,12 +12,11 @@ use futures::{
 
 use crate::{
     dialogs::{self, state::DialogShowOptions},
-    eventstream::{self, service::MountSubscription},
     http::HttpError,
     remote::{ApiErrorCode, RemoteError},
     remote_files::errors::RemoteFilesErrors,
     repo_files::{
-        errors::{DeleteFileError, LoadFilesError, UploadFileReaderError},
+        errors::{DeleteFileError, UploadFileReaderError},
         state::{RepoFile, RepoFilesUploadConflictResolution, RepoFilesUploadResult},
         RepoFilesService,
     },
@@ -26,27 +25,22 @@ use crate::{
         state::{RepoFileReader, RepoFileReaderBuilder, RepoFileReaderProvider},
         RepoFilesReadService,
     },
-    repos::selectors as repos_selectors,
     runtime, store,
     transfers::{downloadable::BoxDownloadable, errors::TransferError, TransfersService},
     types::{DecryptedName, DecryptedPath, RepoId},
     user_error::UserError,
-    utils::{on_end_reader::OnEndReader, path_utils::normalize_path, repo_path_utils},
+    utils::{on_end_reader::OnEndReader, repo_path_utils},
 };
 
 use super::{
     errors::{LoadContentError, LoadDetailsError, SaveError},
     mutations, selectors,
-    state::{
-        RepoFilesDetailsContentData, RepoFilesDetailsLocation, RepoFilesDetailsOptions,
-        SaveInitiator,
-    },
+    state::{RepoFilesDetailsContentData, RepoFilesDetailsOptions, SaveInitiator},
 };
 
 pub struct RepoFilesDetailsService {
     repo_files_service: Arc<RepoFilesService>,
     repo_files_read_service: Arc<RepoFilesReadService>,
-    eventstream_service: Arc<eventstream::EventStreamService>,
     dialogs_service: Arc<dialogs::DialogsService>,
     transfers_service: Arc<TransfersService>,
     store: Arc<store::Store>,
@@ -59,7 +53,6 @@ impl RepoFilesDetailsService {
     pub fn new(
         repo_files_service: Arc<RepoFilesService>,
         repo_files_read_service: Arc<RepoFilesReadService>,
-        eventstream_service: Arc<eventstream::EventStreamService>,
         dialogs_service: Arc<dialogs::DialogsService>,
         transfers_service: Arc<TransfersService>,
         store: Arc<store::Store>,
@@ -78,7 +71,6 @@ impl RepoFilesDetailsService {
         Self {
             repo_files_service,
             repo_files_read_service,
-            eventstream_service,
             dialogs_service,
             transfers_service,
             store,
@@ -95,12 +87,19 @@ impl RepoFilesDetailsService {
         is_editing: bool,
         options: RepoFilesDetailsOptions,
     ) -> (u32, BoxFuture<'static, Result<(), LoadDetailsError>>) {
-        let location = self.clone().get_location(repo_id.clone(), path, is_editing);
-
         let repo_files_subscription_id = self.store.get_next_id();
 
-        let details_id = self.store.mutate(|state, notify, _, _| {
-            mutations::create(state, notify, options, location, repo_files_subscription_id)
+        let details_id = self.store.mutate(|state, notify, mutation_state, _| {
+            mutations::create(
+                state,
+                notify,
+                mutation_state,
+                options,
+                repo_id,
+                path,
+                is_editing,
+                repo_files_subscription_id,
+            )
         });
 
         let load_self = self.clone();
@@ -162,45 +161,6 @@ impl RepoFilesDetailsService {
         (details_id, load_future)
     }
 
-    fn get_location(
-        &self,
-        repo_id: RepoId,
-        path: &DecryptedPath,
-        is_editing: bool,
-    ) -> Result<RepoFilesDetailsLocation, LoadFilesError> {
-        normalize_path(&path.0)
-            .map(DecryptedPath)
-            .map(|path| {
-                let eventstream_mount_subscription =
-                    self.clone().get_eventstream_mount_subscription(&repo_id);
-
-                mutations::create_location(
-                    repo_id,
-                    path,
-                    eventstream_mount_subscription,
-                    is_editing,
-                )
-            })
-            .map_err(|_| LoadFilesError::RemoteError(RemoteFilesErrors::invalid_path()))
-    }
-
-    fn get_eventstream_mount_subscription(
-        &self,
-        repo_id: &RepoId,
-    ) -> Option<Arc<MountSubscription>> {
-        self.store
-            .with_state(|state| {
-                repos_selectors::select_repo(state, repo_id)
-                    .map(|repo| (repo.mount_id.clone(), repo.path.clone()))
-            })
-            .ok()
-            .map(|(mount_id, mount_path)| {
-                self.eventstream_service
-                    .clone()
-                    .get_mount_subscription(&mount_id, &mount_path)
-            })
-    }
-
     pub async fn destroy(self: Arc<Self>, details_id: u32) -> Result<(), SaveError> {
         loop {
             match self.clone().edit_cancel(details_id).await {
@@ -225,9 +185,10 @@ impl RepoFilesDetailsService {
                 }
             }
 
-            let (repo_files_subscription_id, transfer_id) = self
-                .store
-                .mutate(|state, notify, _, _| mutations::destroy(state, notify, details_id));
+            let (repo_files_subscription_id, transfer_id) =
+                self.store.mutate(|state, notify, mutation_state, _| {
+                    mutations::destroy(state, notify, mutation_state, details_id)
+                });
 
             if let Some(repo_files_subscription_id) = repo_files_subscription_id {
                 self.store.remove_listener(repo_files_subscription_id);

@@ -3,8 +3,6 @@ use std::sync::Arc;
 use futures::future::{self, BoxFuture};
 
 use crate::{
-    eventstream::{self, service::MountSubscription},
-    remote_files::errors::RemoteFilesErrors,
     repo_files::{
         errors::{
             CreateDirError, CreateFileError, DeleteFileError, LoadFilesError, RepoFilesErrors,
@@ -16,23 +14,17 @@ use crate::{
     repo_files_read::{
         errors::GetFilesReaderError, state::RepoFileReaderProvider, RepoFilesReadService,
     },
-    repos::selectors as repos_selectors,
     sort::state::SortDirection,
     store,
     types::{DecryptedName, DecryptedPath, RepoFileId, RepoId},
-    utils::path_utils::normalize_path,
 };
 
-use super::{
-    mutations, selectors,
-    state::{RepoFilesBrowserLocation, RepoFilesBrowserOptions},
-};
+use super::{mutations, selectors, state::RepoFilesBrowserOptions};
 
 pub struct RepoFilesBrowsersService {
     repo_files_service: Arc<RepoFilesService>,
     repo_files_read_service: Arc<RepoFilesReadService>,
     repo_files_move_service: Arc<RepoFilesMoveService>,
-    eventstream_service: Arc<eventstream::EventStreamService>,
     store: Arc<store::Store>,
     repo_files_mutation_subscription_id: u32,
 }
@@ -42,7 +34,6 @@ impl RepoFilesBrowsersService {
         repo_files_service: Arc<RepoFilesService>,
         repo_files_read_service: Arc<RepoFilesReadService>,
         repo_files_move_service: Arc<RepoFilesMoveService>,
-        eventstream_service: Arc<eventstream::EventStreamService>,
         store: Arc<store::Store>,
     ) -> Self {
         let repo_files_mutation_subscription_id = store.get_next_id();
@@ -59,7 +50,6 @@ impl RepoFilesBrowsersService {
             repo_files_service,
             repo_files_read_service,
             repo_files_move_service,
-            eventstream_service,
             store: store.clone(),
             repo_files_mutation_subscription_id,
         }
@@ -67,15 +57,13 @@ impl RepoFilesBrowsersService {
 
     pub fn create(
         self: Arc<Self>,
-        repo_id: &RepoId,
+        repo_id: RepoId,
         path: &DecryptedPath,
         options: RepoFilesBrowserOptions,
     ) -> (u32, BoxFuture<'static, Result<(), LoadFilesError>>) {
-        let location = self.clone().get_location(repo_id, path);
-
-        let browser_id = self
-            .store
-            .mutate(|state, notify, _, _| mutations::create(state, notify, options, location));
+        let browser_id = self.store.mutate(|state, notify, mutation_state, _| {
+            mutations::create(state, notify, mutation_state, options, repo_id, path)
+        });
 
         let load_self = self.clone();
 
@@ -91,46 +79,9 @@ impl RepoFilesBrowsersService {
         (browser_id, load_future)
     }
 
-    fn get_location(
-        &self,
-        repo_id: &RepoId,
-        path: &DecryptedPath,
-    ) -> Result<RepoFilesBrowserLocation, LoadFilesError> {
-        normalize_path(&path.0)
-            .map(DecryptedPath)
-            .map(|path| {
-                let eventstream_mount_subscription =
-                    self.clone().get_eventstream_mount_subscription(repo_id);
-
-                RepoFilesBrowserLocation {
-                    repo_id: repo_id.to_owned(),
-                    path,
-                    eventstream_mount_subscription,
-                }
-            })
-            .map_err(|_| LoadFilesError::RemoteError(RemoteFilesErrors::invalid_path()))
-    }
-
-    fn get_eventstream_mount_subscription(
-        &self,
-        repo_id: &RepoId,
-    ) -> Option<Arc<MountSubscription>> {
-        self.store
-            .with_state(|state| {
-                repos_selectors::select_repo(state, repo_id)
-                    .map(|repo| (repo.mount_id.clone(), repo.path.clone()))
-            })
-            .ok()
-            .map(|(mount_id, mount_path)| {
-                self.eventstream_service
-                    .clone()
-                    .get_mount_subscription(&mount_id, &mount_path)
-            })
-    }
-
     pub fn destroy(&self, browser_id: u32) {
-        self.store.mutate(|state, notify, _, _| {
-            mutations::destroy(state, notify, browser_id);
+        self.store.mutate(|state, notify, mutation_state, _| {
+            mutations::destroy(state, notify, mutation_state, browser_id);
         });
     }
 

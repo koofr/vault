@@ -1,7 +1,8 @@
 use crate::{
     config::state::ConfigState, dialogs::state::DialogsState, dir_pickers::state::DirPickersState,
-    notifications::state::NotificationsState, oauth2::state::OAuth2State,
-    remote_files::state::RemoteFilesState, remote_files_browsers::state::RemoteFilesBrowsersState,
+    eventstream::state::EventstreamState, notifications::state::NotificationsState,
+    oauth2::state::OAuth2State, remote_files::state::RemoteFilesState,
+    remote_files_browsers::state::RemoteFilesBrowsersState,
     repo_config_backup::state::RepoConfigBackupsState, repo_create::state::RepoCreatesState,
     repo_files::state::RepoFilesState, repo_files_browsers::state::RepoFilesBrowsersState,
     repo_files_details::state::RepoFilesDetailsState, repo_files_move::state::RepoFilesMoveState,
@@ -17,6 +18,7 @@ pub struct State {
     pub dialogs: DialogsState,
     pub oauth2: OAuth2State,
     pub user: UserState,
+    pub eventstream: EventstreamState,
     pub remote_files: RemoteFilesState,
     pub remote_files_browsers: RemoteFilesBrowsersState,
     pub repos: ReposState,
@@ -41,6 +43,7 @@ impl State {
         self.dialogs.reset();
         self.oauth2.reset();
         self.user.reset();
+        self.eventstream.reset();
         self.remote_files.reset();
         self.remote_files_browsers.reset();
         self.repos.reset();
