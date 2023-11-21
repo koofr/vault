@@ -42,6 +42,8 @@ export class BrowserEventstreamWebSocketDelegateImpl
         this.onClose();
       }
     });
+
+    window.addEventListener('offline', this.onOffline);
   };
 
   send = (data: string): void => {
@@ -53,8 +55,20 @@ export class BrowserEventstreamWebSocketDelegateImpl
     this.onMessage = undefined;
     this.onClose = undefined;
 
+    window.removeEventListener('offline', this.onOffline);
+
     this.ws?.close();
 
     this.ws = undefined;
+  };
+
+  onOffline = () => {
+    if (this.ws?.readyState === WebSocket.OPEN && this.onClose !== undefined) {
+      console.log('Eventstream closing due to network offline');
+
+      window.removeEventListener('offline', this.onOffline);
+
+      this.onClose();
+    }
   };
 }
