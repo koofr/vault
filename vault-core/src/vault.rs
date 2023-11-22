@@ -9,7 +9,7 @@ use crate::{
     repo_files_dir_pickers, repo_files_list, repo_files_move, repo_files_read, repo_remove,
     repo_space_usage, repo_unlock, repos, runtime, secure_storage, sort, space_usage, store,
     transfers::{self, downloadable::BoxDownloadable},
-    types::{DecryptedName, DecryptedPath, RepoFileId, RepoId},
+    types::{DecryptedName, DecryptedPath, EncryptedPath, RepoFileId, RepoId},
     user,
 };
 
@@ -156,6 +156,7 @@ impl Vault {
             store.clone(),
         ));
         let transfers_service = Arc::new(transfers::TransfersService::new(
+            repos_service.clone(),
             repo_files_service.clone(),
             store.clone(),
             runtime.clone(),
@@ -172,6 +173,7 @@ impl Vault {
         ));
         let repo_files_browsers_service =
             Arc::new(repo_files_browsers::RepoFilesBrowsersService::new(
+                repos_service.clone(),
                 repo_files_service.clone(),
                 repo_files_read_service.clone(),
                 repo_files_move_service.clone(),
@@ -179,6 +181,7 @@ impl Vault {
             ));
         let repo_files_details_service =
             Arc::new(repo_files_details::RepoFilesDetailsService::new(
+                repos_service.clone(),
                 repo_files_service.clone(),
                 repo_files_read_service.clone(),
                 dialogs_service.clone(),
@@ -602,7 +605,7 @@ impl Vault {
     pub async fn repo_files_load_files(
         &self,
         repo_id: &RepoId,
-        path: &DecryptedPath,
+        path: &EncryptedPath,
     ) -> Result<(), repo_files::errors::LoadFilesError> {
         self.repo_files_service.load_files(repo_id, path).await
     }
@@ -610,7 +613,7 @@ impl Vault {
     pub fn repo_files_get_file_reader(
         &self,
         repo_id: &RepoId,
-        path: &DecryptedPath,
+        path: &EncryptedPath,
     ) -> Result<
         repo_files_read::state::RepoFileReaderProvider,
         repo_files_read::errors::GetFilesReaderError,
@@ -622,7 +625,7 @@ impl Vault {
 
     pub async fn repo_files_delete_files(
         &self,
-        files: &[(RepoId, DecryptedPath)],
+        files: &[(RepoId, EncryptedPath)],
     ) -> Result<(), repo_files::errors::DeleteFileError> {
         self.repo_files_service.delete_files(files, None).await
     }
@@ -630,7 +633,7 @@ impl Vault {
     pub async fn repo_files_rename_file(
         &self,
         repo_id: &RepoId,
-        path: &DecryptedPath,
+        path: &EncryptedPath,
     ) -> Result<(), repo_files::errors::RenameFileError> {
         self.repo_files_service.rename_file(repo_id, path).await
     }
@@ -640,8 +643,8 @@ impl Vault {
     pub fn transfers_upload(
         &self,
         repo_id: RepoId,
-        parent_path: DecryptedPath,
-        name: String,
+        parent_path: EncryptedPath,
+        name: transfers::state::TransferUploadRelativeName,
         uploadable: transfers::uploadable::BoxUploadable,
     ) -> (u32, transfers::state::CreateUploadResultFuture) {
         self.transfers_service
@@ -765,7 +768,7 @@ impl Vault {
     pub async fn repo_files_browsers_create_dir(
         &self,
         browser_id: u32,
-    ) -> Result<(DecryptedName, DecryptedPath), repo_files::errors::CreateDirError> {
+    ) -> Result<(DecryptedName, EncryptedPath), repo_files::errors::CreateDirError> {
         self.repo_files_browsers_service
             .create_dir(browser_id)
             .await
@@ -775,7 +778,7 @@ impl Vault {
         &self,
         browser_id: u32,
         name: &str,
-    ) -> Result<(DecryptedName, DecryptedPath), repo_files::errors::CreateFileError> {
+    ) -> Result<(DecryptedName, EncryptedPath), repo_files::errors::CreateFileError> {
         self.repo_files_browsers_service
             .create_file(browser_id, name)
             .await
@@ -910,7 +913,7 @@ impl Vault {
     pub async fn repo_files_move_move_file(
         &self,
         repo_id: RepoId,
-        path: DecryptedPath,
+        path: EncryptedPath,
         mode: repo_files_move::state::RepoFilesMoveMode,
     ) -> Result<(), repo_files_move::errors::ShowError> {
         self.repo_files_move_service
@@ -928,7 +931,7 @@ impl Vault {
             .await
     }
 
-    pub fn repo_files_move_set_dest_path(&self, dest_path: DecryptedPath) {
+    pub fn repo_files_move_set_dest_path(&self, dest_path: EncryptedPath) {
         self.repo_files_move_service.set_dest_path(dest_path)
     }
 

@@ -13,7 +13,7 @@ use crate::{
     store,
     types::{
         DecryptedName, DecryptedPath, EncryptedName, EncryptedPath, MountId, RemotePath,
-        RemotePathLower, RepoFileId, RepoId, DECRYPTED_PATH_ROOT,
+        RemotePathLower, RepoFileId, RepoId, ENCRYPTED_PATH_ROOT,
     },
     utils::{name_utils, path_utils, remote_path_utils, repo_path_utils},
 };
@@ -243,7 +243,7 @@ pub fn handle_repos_mutation(
         .iter()
         .chain(mutation_state.repos.removed_repos.iter())
     {
-        let file_id_prefix = selectors::get_file_id(&repo_id, &DecryptedPath("".into())).0;
+        let file_id_prefix = selectors::get_file_id(&repo_id, &EncryptedPath("".into())).0;
 
         state
             .repo_files
@@ -423,11 +423,9 @@ pub fn decrypt_files(
                 .insert(root_repo_file_id.clone());
         }
     } else {
-        if let Ok(path) = cipher.decrypt_path(encrypted_path) {
-            let file_id = selectors::get_file_id(repo_id, &path);
+        let file_id = selectors::get_file_id(repo_id, &encrypted_path);
 
-            state.repo_files.files.remove(&file_id);
-        }
+        state.repo_files.files.remove(&file_id);
     }
 
     Ok(())
@@ -444,7 +442,9 @@ pub fn decrypt_file(
         &encrypted_parent_path.0,
         &remote_file.name.0,
     ));
-    let name = match cipher.decrypt_filename(&remote_file.name) {
+    let encrypted_name = EncryptedName(remote_file.name.0.clone());
+    let id = selectors::get_file_id(repo_id, &encrypted_path);
+    let name = match cipher.decrypt_filename(&encrypted_name) {
         Ok(name) => match name_utils::validate_name(&name.0) {
             Ok(()) => {
                 let name_lower = name.to_lowercase().0;
@@ -463,35 +463,19 @@ pub fn decrypt_file(
             error: err,
         },
     };
-    let (path, id) = match &name {
-        RepoFileName::Decrypted { name, .. } => {
-            let path = repo_path_utils::join_path_name(parent_path, &name);
-            let id = selectors::get_file_id(repo_id, &path);
-
-            (RepoFilePath::Decrypted { path }, id)
-        }
+    let path = match &name {
+        RepoFileName::Decrypted { name, .. } => RepoFilePath::Decrypted {
+            path: repo_path_utils::join_path_name(parent_path, &name),
+        },
         RepoFileName::DecryptError {
             encrypted_name,
             error,
             ..
-        } => {
-            let id = selectors::get_error_file_id(
-                repo_id,
-                &EncryptedPath(path_utils::join_path_name(
-                    &parent_path.0,
-                    &encrypted_name.0,
-                )),
-            );
-
-            (
-                RepoFilePath::DecryptError {
-                    parent_path: parent_path.to_owned(),
-                    encrypted_name: encrypted_name.clone(),
-                    error: error.clone(),
-                },
-                id,
-            )
-        }
+        } => RepoFilePath::DecryptError {
+            parent_path: parent_path.to_owned(),
+            encrypted_name: encrypted_name.clone(),
+            error: error.clone(),
+        },
     };
     let size = remote_file.size.map(|size| match decrypt_size(size) {
         Ok(size) => RepoFileSize::Decrypted { size },
@@ -534,7 +518,7 @@ pub fn get_root_file(repo_id: &RepoId, remote_file: &RemoteFile) -> RepoFile {
     let unique_name = selectors::get_file_unique_name(&remote_file.unique_id, None);
 
     RepoFile {
-        id: selectors::get_file_id(repo_id, &DECRYPTED_PATH_ROOT),
+        id: selectors::get_file_id(repo_id, &ENCRYPTED_PATH_ROOT),
         mount_id: remote_file.mount_id.clone(),
         remote_path: remote_file.path.clone(),
         repo_id: repo_id.to_owned(),
@@ -647,7 +631,10 @@ mod tests {
                 &cipher
             ),
             RepoFile {
-                id: RepoFileId("r1:/D1".into()),
+                id: RepoFileId(format!(
+                    "r1:/{}",
+                    cipher.encrypt_filename(&DecryptedName("D1".into())).0
+                )),
                 mount_id: remote_file.mount_id.clone(),
                 remote_path: remote_file.path.clone(),
                 repo_id: RepoId("r1".into()),
@@ -688,7 +675,7 @@ mod tests {
                 &cipher
             ),
             RepoFile {
-                id: RepoFileId("err:r1:/D1".into()),
+                id: RepoFileId("r1:/D1".into()),
                 mount_id: remote_file.mount_id.clone(),
                 remote_path: remote_file.path.clone(),
                 repo_id: RepoId("r1".into()),
@@ -741,7 +728,12 @@ mod tests {
                 &cipher
             ),
             RepoFile {
-                id: RepoFileId("r1:/Image.JPG".into()),
+                id: RepoFileId(format!(
+                    "r1:/{}",
+                    cipher
+                        .encrypt_filename(&DecryptedName("Image.JPG".into()))
+                        .0
+                )),
                 mount_id: remote_file.mount_id.clone(),
                 remote_path: remote_file.path.clone(),
                 repo_id: RepoId("r1".into()),
@@ -780,7 +772,7 @@ mod tests {
                 &cipher
             ),
             RepoFile {
-                id: RepoFileId("err:r1:/F1".into()),
+                id: RepoFileId("r1:/F1".into()),
                 mount_id: remote_file.mount_id.clone(),
                 remote_path: remote_file.path.clone(),
                 repo_id: RepoId("r1".into()),

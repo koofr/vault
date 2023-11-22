@@ -8,7 +8,7 @@ use crate::{
         state::{RepoFile, RepoFileType},
     },
     store,
-    types::{RepoFileId, RepoId, DECRYPTED_PATH_ROOT},
+    types::{RepoFileId, RepoId, ENCRYPTED_PATH_ROOT},
 };
 
 use super::state::Options;
@@ -25,7 +25,7 @@ pub fn select_items(state: &store::State, picker: &DirPicker) -> Vec<DirPickerIt
     let mut items: Vec<DirPickerItem> = Vec::new();
 
     if let Some(repo_id) = select_repo_id(state, picker.id) {
-        let root_file_id = repo_files_selectors::get_file_id(&repo_id, &DECRYPTED_PATH_ROOT);
+        let root_file_id = repo_files_selectors::get_file_id(&repo_id, &ENCRYPTED_PATH_ROOT);
 
         if let Some(root_file) = repo_files_selectors::select_file(state, &root_file_id) {
             select_items_visit_file(state, picker, &mut items, root_file, 0);

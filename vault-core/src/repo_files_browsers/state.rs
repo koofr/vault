@@ -9,7 +9,7 @@ use crate::{
     },
     selection::state::{Selection, SelectionSummary},
     store::NextId,
-    types::{DecryptedName, DecryptedPath, RepoFileId, RepoId},
+    types::{DecryptedName, DecryptedPath, EncryptedPath, RepoFileId, RepoId},
 };
 
 #[derive(Debug, PartialEq)]
@@ -43,6 +43,7 @@ pub struct RepoFilesBrowserInfo<'a> {
 pub struct RepoFilesBrowserLocation {
     pub repo_id: RepoId,
     pub path: DecryptedPath,
+    pub encrypted_path: EncryptedPath,
     pub eventstream_mount_subscription: Option<MountSubscription>,
 }
 
@@ -53,6 +54,7 @@ pub struct RepoFilesBrowserOptions {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct RepoFilesBrowser {
+    pub id: u32,
     pub options: RepoFilesBrowserOptions,
     pub location: Option<RepoFilesBrowserLocation>,
     pub status: Status<LoadFilesError>,

@@ -5,13 +5,26 @@ use futures::future::BoxFuture;
 use crate::{
     common::state::SizeInfo,
     files::{file_category::FileCategory, file_icon::FileIconAttrs},
-    repo_files::{selectors as repo_files_selectors, state::RepoFilesUploadResult},
+    repo_files::state::RepoFilesUploadResult,
     repo_files_read::state::RepoFileReader,
     store::NextId,
-    types::{DecryptedPath, RepoFileId, RepoId},
+    types::{DecryptedName, EncryptedName, EncryptedPath, RepoFileId, RepoId},
 };
 
 use super::errors::TransferError;
+
+/// TransferDisplayName is a transfer display name and can be "file.txt" or "path/to/file.txt" (no leading slash)
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct TransferDisplayName(pub String);
+
+/// TransferUploadRelativeName is "file.txt" or "path/to/file.txt" (no leading slash)
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct TransferUploadRelativeName(pub String);
+
+/// If TransferUploadRelativeName is "path/to/file.txt" then TransferUploadRelativeNamePath
+/// is "path/to" (no leading slash)
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct TransferUploadRelativeNamePath(pub String);
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum TransferState {
@@ -25,27 +38,18 @@ pub enum TransferState {
 #[derive(Debug, Clone, PartialEq)]
 pub struct UploadTransfer {
     pub repo_id: RepoId,
-    pub parent_path: DecryptedPath,
-    pub name_rel_path: Option<String>,
-    pub original_name: String,
-    pub name: String,
-}
-
-impl UploadTransfer {
-    pub fn parent_id(&self) -> RepoFileId {
-        repo_files_selectors::get_file_id(&self.repo_id, &self.parent_path)
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct DownloadTransfer {
-    pub name: String,
+    pub parent_path: EncryptedPath,
+    pub parent_file_id: RepoFileId,
+    pub name_rel_path: Option<TransferUploadRelativeNamePath>,
+    pub original_name: DecryptedName,
+    pub current_name: DecryptedName,
+    pub current_name_encrypted: EncryptedName,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum TransferType {
     Upload(UploadTransfer),
-    Download(DownloadTransfer),
+    Download,
     DownloadReader,
 }
 
@@ -63,27 +67,13 @@ impl TransferType {
             _ => None,
         }
     }
-
-    pub fn download_transfer(&self) -> Option<&DownloadTransfer> {
-        match self {
-            Self::Download(download_transfer) => Some(download_transfer),
-            _ => None,
-        }
-    }
-
-    pub fn download_transfer_mut(&mut self) -> Option<&mut DownloadTransfer> {
-        match self {
-            Self::Download(ref mut download_transfer) => Some(download_transfer),
-            _ => None,
-        }
-    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Transfer {
     pub id: u32,
     pub typ: TransferType,
-    pub name: String,
+    pub name: TransferDisplayName,
     pub size: SizeInfo,
     pub category: FileCategory,
     pub started: Option<i64>,
@@ -105,25 +95,17 @@ impl Transfer {
         self.typ.upload_transfer_mut()
     }
 
-    pub fn download_transfer(&self) -> Option<&DownloadTransfer> {
-        self.typ.download_transfer()
-    }
-
-    pub fn download_transfer_mut(&mut self) -> Option<&mut DownloadTransfer> {
-        self.typ.download_transfer_mut()
-    }
-
     pub fn file_icon_attrs(&self) -> FileIconAttrs {
         FileIconAttrs {
             category: self.category.clone(),
             is_dl: match &self.typ {
                 TransferType::Upload(..) => false,
-                TransferType::Download(..) => true,
+                TransferType::Download => true,
                 TransferType::DownloadReader => true,
             },
             is_ul: match &self.typ {
                 TransferType::Upload(..) => true,
-                TransferType::Download(..) => false,
+                TransferType::Download => false,
                 TransferType::DownloadReader => false,
             },
             is_export: false,

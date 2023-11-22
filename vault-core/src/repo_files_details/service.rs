@@ -25,11 +25,12 @@ use crate::{
         state::{RepoFileReader, RepoFileReaderBuilder, RepoFileReaderProvider},
         RepoFilesReadService,
     },
+    repos::ReposService,
     runtime, store,
     transfers::{downloadable::BoxDownloadable, errors::TransferError, TransfersService},
-    types::{DecryptedName, DecryptedPath, RepoId},
+    types::{DecryptedName, DecryptedPath, EncryptedPath, RepoId},
     user_error::UserError,
-    utils::{on_end_reader::OnEndReader, repo_path_utils},
+    utils::{on_end_reader::OnEndReader, repo_encrypted_path_utils},
 };
 
 use super::{
@@ -39,6 +40,7 @@ use super::{
 };
 
 pub struct RepoFilesDetailsService {
+    repos_service: Arc<ReposService>,
     repo_files_service: Arc<RepoFilesService>,
     repo_files_read_service: Arc<RepoFilesReadService>,
     dialogs_service: Arc<dialogs::DialogsService>,
@@ -51,6 +53,7 @@ pub struct RepoFilesDetailsService {
 
 impl RepoFilesDetailsService {
     pub fn new(
+        repos_service: Arc<ReposService>,
         repo_files_service: Arc<RepoFilesService>,
         repo_files_read_service: Arc<RepoFilesReadService>,
         dialogs_service: Arc<dialogs::DialogsService>,
@@ -69,6 +72,7 @@ impl RepoFilesDetailsService {
         );
 
         Self {
+            repos_service,
             repo_files_service,
             repo_files_read_service,
             dialogs_service,
@@ -89,6 +93,8 @@ impl RepoFilesDetailsService {
     ) -> (u32, BoxFuture<'static, Result<(), LoadDetailsError>>) {
         let repo_files_subscription_id = self.store.get_next_id();
 
+        let cipher = self.repos_service.get_cipher(&repo_id).ok();
+
         let details_id = self.store.mutate(|state, notify, mutation_state, _| {
             mutations::create(
                 state,
@@ -99,6 +105,7 @@ impl RepoFilesDetailsService {
                 path,
                 is_editing,
                 repo_files_subscription_id,
+                cipher.as_deref(),
             )
         });
 
@@ -203,11 +210,14 @@ impl RepoFilesDetailsService {
     }
 
     pub async fn load_file(&self, details_id: u32) -> Result<(), LoadDetailsError> {
-        if let Some((repo_id, path)) = self
+        if let Some((repo_id, path, encrypted_path)) = self
             .store
             .with_state(|state| selectors::select_repo_id_path_owned(state, details_id))
         {
-            let res = self.repo_files_service.load_files(&repo_id, &path).await;
+            let res = self
+                .repo_files_service
+                .load_files(&repo_id, &encrypted_path)
+                .await;
 
             self.store.mutate(|state, notify, _, _| {
                 mutations::loaded(
@@ -469,12 +479,12 @@ impl RepoFilesDetailsService {
         details_id: u32,
         initiator: SaveInitiator,
     ) -> Result<(), SaveError> {
-        let (repo_id, path, data, version, is_deleted) =
+        let (repo_id, path, name, data, version, is_deleted) =
             self.clone().saving(details_id, &initiator).await?;
 
         let res = self
             .clone()
-            .save_inner(initiator, repo_id, path, data, is_deleted)
+            .save_inner(initiator, repo_id, path, name, data, is_deleted)
             .await;
 
         let res_err = res.as_ref().map(|_| ()).map_err(|err| err.clone());
@@ -493,7 +503,8 @@ impl RepoFilesDetailsService {
     ) -> Result<
         (
             RepoId,
-            DecryptedPath,
+            EncryptedPath,
+            DecryptedName,
             RepoFilesDetailsContentData,
             u32,
             bool,
@@ -529,21 +540,24 @@ impl RepoFilesDetailsService {
         self: Arc<Self>,
         initiator: SaveInitiator,
         repo_id: RepoId,
-        path: DecryptedPath,
+        path: EncryptedPath,
+        original_name: DecryptedName,
         data: RepoFilesDetailsContentData,
         is_deleted: bool,
-    ) -> Result<(DecryptedPath, RepoFilesUploadResult, bool), SaveError> {
+    ) -> Result<(DecryptedPath, EncryptedPath, RepoFilesUploadResult, bool), SaveError> {
         let mut autorename = false;
 
+        let cipher = self.repos_service.get_cipher(&repo_id)?;
+
         loop {
-            let (mut parent_path, original_name) = repo_path_utils::split_parent_name(&path)
+            let mut parent_path = repo_encrypted_path_utils::parent_path(&path)
                 .ok_or_else(|| SaveError::CannotSaveRoot)?;
 
             if is_deleted {
                 self.save_deleted_confirm_new_location(&initiator, &original_name)
                     .await?;
 
-                parent_path = DecryptedPath("/".into());
+                parent_path = EncryptedPath("/".into());
                 autorename = true;
             }
 
@@ -557,7 +571,10 @@ impl RepoFilesDetailsService {
                 )
                 .await?;
 
-            let path = repo_path_utils::join_path_name(&parent_path, &name);
+            let encrypted_name = cipher.encrypt_filename(&name);
+            let encrypted_path =
+                repo_encrypted_path_utils::join_path_name(&parent_path, &encrypted_name);
+            let path = cipher.decrypt_path(&encrypted_path)?;
 
             let size = Some(data.bytes.len() as i64);
             let reader = Box::pin(Cursor::new(data.bytes.clone()));
@@ -568,7 +585,7 @@ impl RepoFilesDetailsService {
                 .upload_file_reader(
                     &repo_id,
                     &parent_path,
-                    &name,
+                    encrypted_name,
                     reader,
                     size,
                     conflict_resolution,
@@ -580,9 +597,9 @@ impl RepoFilesDetailsService {
                     if is_deleted {
                         self.save_show_location_changed_alert(original_name.to_owned());
 
-                        Ok((path, res, true))
+                        Ok((path, encrypted_path, res, true))
                     } else {
-                        Ok((path, res, false))
+                        Ok((path, encrypted_path, res, false))
                     }
                 }
                 Err(UploadFileReaderError::RemoteError(err))
@@ -657,7 +674,7 @@ impl RepoFilesDetailsService {
     async fn save_name_conflict_resolution(
         &self,
         repo_id: &RepoId,
-        parent_path: &DecryptedPath,
+        parent_path: &EncryptedPath,
         name: &DecryptedName,
         autorename: bool,
         data: &RepoFilesDetailsContentData,
@@ -764,17 +781,17 @@ impl RepoFilesDetailsService {
     }
 
     pub async fn delete(&self, details_id: u32) -> Result<(), DeleteFileError> {
-        match self.store.with_state(|state| {
-            selectors::select_details_location(state, details_id)
-                .map(|loc| (loc.repo_id.clone(), loc.path.clone()))
-        }) {
-            Some((repo_id, path)) => {
+        match self
+            .store
+            .with_state(|state| selectors::select_repo_id_path_owned(state, details_id))
+        {
+            Some((repo_id, _, encrypted_path)) => {
                 let before_delete_store = self.store.clone();
 
                 let res = self
                     .repo_files_service
                     .delete_files(
-                        &[(repo_id, path)],
+                        &[(repo_id, encrypted_path)],
                         Some(Box::new(move || {
                             before_delete_store.mutate(|state, notify, _, _| {
                                 mutations::deleting(state, notify, details_id)

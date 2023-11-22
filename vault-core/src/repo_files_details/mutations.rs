@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
+    cipher::Cipher,
     common::state::Status,
     eventstream::mutations::{add_mount_subscriber, remove_mount_subscriber},
     remote_files::errors::RemoteFilesErrors,
@@ -10,9 +11,10 @@ use crate::{
         state::{RepoFile, RepoFilesUploadResult},
     },
     repo_files_read::errors::GetFilesReaderError,
-    repos, store,
+    repos::{self, errors::RepoLockedError},
+    store,
     transfers::errors::TransferError,
-    types::{DecryptedPath, RepoId},
+    types::{DecryptedName, DecryptedPath, EncryptedPath, RepoId},
     utils::repo_path_utils,
 };
 
@@ -34,9 +36,14 @@ pub fn create_location(
     path: &DecryptedPath,
     is_editing: bool,
     details_id: u32,
+    cipher: Option<&Cipher>,
 ) -> Result<RepoFilesDetailsLocation, LoadFilesError> {
     let path = repo_path_utils::normalize_path(&path)
         .map_err(|_| LoadFilesError::RemoteError(RemoteFilesErrors::invalid_path()))?;
+    let encrypted_path = match cipher {
+        Some(cipher) => cipher.encrypt_path(&path),
+        None => return Err(LoadFilesError::RepoLocked(RepoLockedError)),
+    };
 
     let eventstream_mount_subscription = repos::selectors::select_repo(state, &repo_id)
         .ok()
@@ -55,6 +62,7 @@ pub fn create_location(
     Ok(RepoFilesDetailsLocation {
         repo_id,
         path,
+        encrypted_path,
         eventstream_mount_subscription,
         content: RepoFilesDetailsContent {
             status: Status::Initial,
@@ -79,7 +87,7 @@ fn create_status(
         Ok(location) => Status::Loading {
             loaded: repo_files_selectors::select_file(
                 state,
-                &repo_files_selectors::get_file_id(&location.repo_id, &location.path),
+                &repo_files_selectors::get_file_id(&location.repo_id, &location.encrypted_path),
             )
             .is_some(),
         },
@@ -99,6 +107,7 @@ pub fn create(
     path: &DecryptedPath,
     is_editing: bool,
     repo_files_subscription_id: u32,
+    cipher: Option<&Cipher>,
 ) -> u32 {
     notify(store::Event::RepoFilesDetails);
 
@@ -112,6 +121,7 @@ pub fn create(
         path,
         is_editing,
         details_id,
+        cipher,
     );
 
     let status = create_status(state, location.as_ref());
@@ -442,7 +452,8 @@ pub fn saving(
 ) -> Result<
     (
         RepoId,
-        DecryptedPath,
+        EncryptedPath,
+        DecryptedName,
         RepoFilesDetailsContentData,
         u32,
         bool,
@@ -463,7 +474,7 @@ pub fn saving(
 
     let location = match selectors::select_details_location(state, details_id) {
         Some(location) => location,
-        _ => return Err(SaveError::InvalidState),
+        None => return Err(SaveError::InvalidState),
     };
 
     let is_deleted = file.is_none();
@@ -479,18 +490,24 @@ pub fn saving(
 
     let location = match selectors::select_details_location_mut(state, details_id) {
         Some(location) => location,
-        _ => return Err(SaveError::InvalidState),
+        None => return Err(SaveError::InvalidState),
     };
 
     location.save_status = Status::Loading {
         loaded: location.save_status.loaded(),
     };
 
+    let name = match repo_path_utils::path_to_name(&location.path) {
+        Some(name) => name,
+        None => return Err(SaveError::CannotSaveRoot),
+    };
+
     notify(store::Event::RepoFilesDetails);
 
     Ok((
         location.repo_id.clone(),
-        location.path.clone(),
+        location.encrypted_path.clone(),
+        name,
         data,
         version,
         is_deleted,
@@ -502,7 +519,7 @@ pub fn saved(
     notify: &store::Notify,
     details_id: u32,
     saved_version: u32,
-    res: Result<(DecryptedPath, RepoFilesUploadResult, bool), SaveError>,
+    res: Result<(DecryptedPath, EncryptedPath, RepoFilesUploadResult, bool), SaveError>,
 ) {
     let location = match selectors::select_details_location_mut(state, details_id) {
         Some(location) => location,
@@ -512,9 +529,10 @@ pub fn saved(
     notify(store::Event::RepoFilesDetails);
 
     match res {
-        Ok((saved_path, result, should_destroy)) => {
-            if location.path != saved_path {
+        Ok((saved_path, saved_encrypted_path, result, should_destroy)) => {
+            if location.encrypted_path != saved_encrypted_path {
                 location.path = saved_path;
+                location.encrypted_path = saved_encrypted_path;
             }
             if let Some(data) = &mut location.content.data {
                 data.remote_size = result.remote_file.size;

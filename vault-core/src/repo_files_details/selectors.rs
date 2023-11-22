@@ -14,7 +14,7 @@ use crate::{
     },
     store,
     transfers::errors::TransferError,
-    types::{DecryptedName, DecryptedPath, RepoFileId, RepoId},
+    types::{DecryptedName, DecryptedPath, EncryptedPath, RepoFileId, RepoId},
     user_error::UserError,
     utils::repo_path_utils,
 };
@@ -66,8 +66,14 @@ pub fn select_repo_id<'a>(state: &'a store::State, details_id: u32) -> Option<&'
 pub fn select_repo_id_path_owned(
     state: &store::State,
     details_id: u32,
-) -> Option<(RepoId, DecryptedPath)> {
-    select_details_location(state, details_id).map(|loc| (loc.repo_id.clone(), loc.path.clone()))
+) -> Option<(RepoId, DecryptedPath, EncryptedPath)> {
+    select_details_location(state, details_id).map(|loc| {
+        (
+            loc.repo_id.clone(),
+            loc.path.clone(),
+            loc.encrypted_path.clone(),
+        )
+    })
 }
 
 pub fn select_repo<'a>(state: &'a store::State, details_id: u32) -> Option<&'a Repo> {
@@ -206,8 +212,8 @@ pub fn select_info<'a>(state: &'a store::State, details_id: u32) -> Option<RepoF
         let repo_id = location.map(|loc| &loc.repo_id);
         let parent_path = location.and_then(|loc| repo_path_utils::parent_path(&loc.path));
         let path = location.map(|loc| &loc.path);
-        let file_id =
-            location.map(|loc| repo_files_selectors::get_file_id(&loc.repo_id, &loc.path));
+        let file_id = location
+            .map(|loc| repo_files_selectors::get_file_id(&loc.repo_id, &loc.encrypted_path));
         let file = file_id.and_then(|file_id| repo_files_selectors::select_file(state, &file_id));
         let (file_name, file_ext, file_category) = {
             file.map(|file| {
@@ -288,7 +294,7 @@ pub fn select_info<'a>(state: &'a store::State, details_id: u32) -> Option<RepoF
 
 pub fn select_file_id(state: &store::State, details_id: u32) -> Option<RepoFileId> {
     select_details_location(state, details_id)
-        .map(|loc| repo_files_selectors::get_file_id(&loc.repo_id, &loc.path))
+        .map(|loc| repo_files_selectors::get_file_id(&loc.repo_id, &loc.encrypted_path))
 }
 
 pub fn select_file<'a>(state: &'a store::State, details_id: u32) -> Option<&'a RepoFile> {

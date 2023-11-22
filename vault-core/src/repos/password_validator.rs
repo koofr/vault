@@ -1,7 +1,7 @@
 use data_encoding::BASE64URL_NOPAD;
 use uuid::Uuid;
 
-use crate::{cipher::Cipher, types::RemoteName};
+use crate::{cipher::Cipher, types::EncryptedName};
 
 pub async fn generate_password_validator(cipher: &Cipher) -> (String, String) {
     let password_validator = Uuid::new_v4().to_string();
@@ -42,7 +42,7 @@ pub fn check_password_validator_v1(
     password_validator_encrypted: &str,
 ) -> bool {
     cipher
-        .decrypt_filename(&RemoteName(password_validator_encrypted.to_owned()))
+        .decrypt_filename(&EncryptedName(password_validator_encrypted.to_owned()))
         .ok()
         .filter(|password_validator_decrypted| password_validator_decrypted.0 == password_validator)
         .is_some()

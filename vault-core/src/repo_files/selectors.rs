@@ -1,7 +1,6 @@
 use std::collections::HashSet;
 
 use crate::{
-    cipher,
     files::{
         content_type::ext_to_content_type,
         file_category::{ext_to_file_category, FileCategory},
@@ -11,10 +10,10 @@ use crate::{
     repos::{errors::RepoNotFoundError, selectors as repos_selectors},
     store,
     types::{
-        DecryptedName, DecryptedNameLower, DecryptedPath, EncryptedPath, MountId, RemotePath,
-        RepoFileId, RepoId,
+        DecryptedName, DecryptedNameLower, DecryptedPath, EncryptedName, EncryptedPath, MountId,
+        RemotePath, RepoFileId, RepoId,
     },
-    utils::{name_utils, remote_path_utils, repo_path_utils},
+    utils::{name_utils, remote_path_utils, repo_encrypted_path_utils, repo_path_utils},
 };
 
 use super::{
@@ -22,12 +21,8 @@ use super::{
     state::{RepoFile, RepoFileType, RepoFilesBreadcrumb, RepoFilesSort, RepoFilesSortField},
 };
 
-pub fn get_file_id(repo_id: &RepoId, path: &DecryptedPath) -> RepoFileId {
+pub fn get_file_id(repo_id: &RepoId, path: &EncryptedPath) -> RepoFileId {
     RepoFileId(format!("{}:{}", repo_id.0, path.0))
-}
-
-pub fn get_error_file_id(repo_id: &RepoId, path: &EncryptedPath) -> RepoFileId {
-    RepoFileId(format!("err:{}:{}", repo_id.0, path.0))
 }
 
 pub fn get_file_unique_name(remote_file_unique_id: &str, ext: Option<&str>) -> String {
@@ -60,7 +55,7 @@ pub fn select_children<'a>(
 pub fn select_files<'a>(
     state: &'a store::State,
     repo_id: &RepoId,
-    path: &DecryptedPath,
+    path: &EncryptedPath,
 ) -> impl Iterator<Item = &'a RepoFile> {
     match select_children(state, &get_file_id(repo_id, path)) {
         Some(ids) => select_files_from_ids(state, ids),
@@ -105,13 +100,11 @@ pub fn select_remote_file<'a>(
 pub fn select_repo_path_to_mount_path<'a>(
     state: &'a store::State,
     repo_id: &RepoId,
-    path: &DecryptedPath,
-    cipher: &cipher::Cipher,
+    path: &EncryptedPath,
 ) -> Result<(MountId, RemotePath), RepoNotFoundError> {
     let repo = repos_selectors::select_repo(state, repo_id)?;
 
-    let remote_path =
-        remote_path_utils::join_paths(&repo.path, &RemotePath(cipher.encrypt_path(path).0));
+    let remote_path = remote_path_utils::join_paths(&repo.path, &RemotePath(path.0.clone()));
 
     Ok((repo.mount_id.clone(), remote_path))
 }
@@ -138,7 +131,7 @@ pub fn select_mount_path_to_repo_id<'a>(
     None
 }
 
-pub fn select_is_root_loaded(state: &store::State, repo_id: &RepoId, path: &DecryptedPath) -> bool {
+pub fn select_is_root_loaded(state: &store::State, repo_id: &RepoId, path: &EncryptedPath) -> bool {
     state
         .repo_files
         .loaded_roots
@@ -152,12 +145,13 @@ pub fn check_name_valid(name: &DecryptedName) -> Result<(), RemoteError> {
 pub fn select_check_new_name_valid(
     state: &store::State,
     repo_id: &RepoId,
-    parent_path: &DecryptedPath,
+    parent_path: &EncryptedPath,
     new_name: &DecryptedName,
+    encrypted_new_name: &EncryptedName,
 ) -> Result<(), RemoteError> {
     check_name_valid(new_name)?;
 
-    let new_path = repo_path_utils::join_path_name(parent_path, new_name);
+    let new_path = repo_encrypted_path_utils::join_path_name(parent_path, encrypted_new_name);
 
     match select_children(state, &get_file_id(repo_id, parent_path)) {
         Some(ids) => {
@@ -174,20 +168,18 @@ pub fn select_check_new_name_valid(
 pub fn select_check_rename_file(
     state: &store::State,
     repo_id: &RepoId,
-    path: &DecryptedPath,
+    path: &EncryptedPath,
     name: &DecryptedName,
+    encrypted_new_name: &EncryptedName,
 ) -> Result<(), RenameFileError> {
-    let file =
-        select_file(state, &get_file_id(repo_id, path)).ok_or_else(RepoFilesErrors::not_found)?;
+    select_file(state, &get_file_id(repo_id, path)).ok_or_else(RepoFilesErrors::not_found)?;
 
-    let path = file.decrypted_path()?;
-
-    let parent_path = match repo_path_utils::parent_path(path) {
+    let parent_path = match repo_encrypted_path_utils::parent_path(path) {
         Some(parent_path) => parent_path,
         None => return Err(RenameFileError::RenameRoot),
     };
 
-    select_check_new_name_valid(state, &file.repo_id, &parent_path, name)?;
+    select_check_new_name_valid(state, repo_id, &parent_path, name, encrypted_new_name)?;
 
     Ok(())
 }
@@ -196,6 +188,7 @@ pub fn select_breadcrumbs(
     state: &store::State,
     repo_id: &RepoId,
     path: &DecryptedPath,
+    encrypted_path: &EncryptedPath,
 ) -> Vec<RepoFilesBreadcrumb> {
     let repo = match repos_selectors::select_repo(state, repo_id) {
         Ok(repo) => repo,
@@ -205,13 +198,16 @@ pub fn select_breadcrumbs(
     };
 
     let paths = repo_path_utils::paths_chain(path);
+    let encrypted_paths = repo_encrypted_path_utils::paths_chain(encrypted_path);
     let paths_len = paths.len();
+    assert_eq!(encrypted_paths.len(), paths_len);
 
-    paths
+    encrypted_paths
         .into_iter()
+        .zip(paths.into_iter())
         .enumerate()
-        .map(|(i, path)| {
-            let id = get_file_id(repo_id, &path);
+        .map(|(i, (encrypted_path, path))| {
+            let id = get_file_id(repo_id, &encrypted_path);
             let name = match repo_path_utils::path_to_name(&path) {
                 Some(name) => name.to_owned(),
                 None => repo.name.clone(),
@@ -265,7 +261,7 @@ pub fn select_sorted_files(
 pub fn select_used_names(
     state: &store::State,
     repo_id: &RepoId,
-    parent_path: &DecryptedPath,
+    parent_path: &EncryptedPath,
 ) -> HashSet<DecryptedNameLower> {
     let mut used_names = HashSet::new();
 

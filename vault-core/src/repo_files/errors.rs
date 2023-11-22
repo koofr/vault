@@ -35,13 +35,7 @@ impl RepoFilesErrors {
     }
 }
 
-#[derive(Error, Debug, Clone, PartialEq)]
-pub enum GetRepoMountPathError {
-    #[error("{0}")]
-    RepoNotFound(#[from] RepoNotFoundError),
-    #[error("{0}")]
-    RepoLocked(#[from] RepoLockedError),
-}
+// TODO remove all unnecessary RepoLocked errors
 
 #[derive(Error, Debug, Clone, PartialEq)]
 pub enum LoadFilesError {

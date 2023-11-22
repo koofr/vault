@@ -2,7 +2,7 @@ use futures::{io::Cursor, AsyncReadExt};
 use std::{str, sync::Arc};
 use xsalsa20poly1305::XSalsa20Poly1305;
 
-use crate::types::{DecryptedName, DecryptedPath, EncryptedName, EncryptedPath, RemoteName};
+use crate::types::{DecryptedName, DecryptedPath, EncryptedName, EncryptedPath};
 
 use super::{
     cipher_keys::{derive_keys, DerivedKeys},
@@ -64,7 +64,7 @@ impl Cipher {
 
     pub fn decrypt_filename(
         &self,
-        ciphertext: &RemoteName,
+        ciphertext: &EncryptedName,
     ) -> Result<DecryptedName, DecryptFilenameError> {
         decrypt_filename(
             get_name_cipher(&self.name_key, &self.name_tweak),
@@ -119,7 +119,7 @@ impl Cipher {
 mod tests {
     use futures::executor::block_on;
 
-    use crate::types::{DecryptedName, DecryptedPath, EncryptedName, EncryptedPath, RemoteName};
+    use crate::types::{DecryptedName, DecryptedPath, EncryptedName, EncryptedPath};
 
     use super::Cipher;
 
@@ -208,13 +208,13 @@ mod tests {
 
         assert_eq!(
             cipher
-                .decrypt_filename(&RemoteName("mvedi866srqc97sl5948oaej2g".into()))
+                .decrypt_filename(&EncryptedName("mvedi866srqc97sl5948oaej2g".into()))
                 .unwrap(),
             DecryptedName("testfilename".into())
         );
         assert_eq!(
             cipher
-                .decrypt_filename(&RemoteName(
+                .decrypt_filename(&EncryptedName(
                     "7dpcdrb8vdgnmm0g0n5behih3pltha7hllb1mncolkrqgp3p8b2g".into()
                 ))
                 .unwrap(),
@@ -222,7 +222,7 @@ mod tests {
         );
         assert_eq!(
             cipher
-                .decrypt_filename(&RemoteName(
+                .decrypt_filename(&EncryptedName(
                     "ok5l5eohh73jdulluibldf7grqa9r4q9jekamuqkt7is8fdjsn4f32cukfrnagu35bdsc63i9pqos"
                         .into()
                 ))
@@ -230,39 +230,39 @@ mod tests {
             DecryptedName("testfilenametestfilenametestfilename".into())
         );
         assert_eq!(
-            cipher.decrypt_filename(&RemoteName("hvrag3t30d3av1c31lp7j7klq95j12ru932ujf4hmaf6b4h2f2ooro1gnprne2itnibamt67h7j5a2bn1c0gkqni2n4pb17937rg22g".into())).unwrap(),
+            cipher.decrypt_filename(&EncryptedName("hvrag3t30d3av1c31lp7j7klq95j12ru932ujf4hmaf6b4h2f2ooro1gnprne2itnibamt67h7j5a2bn1c0gkqni2n4pb17937rg22g".into())).unwrap(),
             DecryptedName("testfilenametestfilenametestfilenametestfilename".into())
         );
         assert_eq!(
-            cipher.decrypt_filename(&RemoteName("013kcoiml8e3017c34132bdri58a77qea5i5f56npucna727c9tttepfe468e1aj1dmr0aqmn6rtbe2e3j8cgt7qr2rpfrpr4p12vj8".into())).unwrap(),
+            cipher.decrypt_filename(&EncryptedName("013kcoiml8e3017c34132bdri58a77qea5i5f56npucna727c9tttepfe468e1aj1dmr0aqmn6rtbe2e3j8cgt7qr2rpfrpr4p12vj8".into())).unwrap(),
             DecryptedName("testfilenametestfilenametestfilenametestfilenametestfilename".into())
         );
         assert_eq!(
-            cipher.decrypt_filename(&RemoteName("shcqqn35vr6ehsn5dqft11fpmr7em9krg0hvlbts0a5jb1nok9pc706c5jrjt0kug67oto6rt2o7bpqidtddvj16p2js37cgautb0856f7cnk6b4jluu3rvii0q4s87e".into())).unwrap(),
+            cipher.decrypt_filename(&EncryptedName("shcqqn35vr6ehsn5dqft11fpmr7em9krg0hvlbts0a5jb1nok9pc706c5jrjt0kug67oto6rt2o7bpqidtddvj16p2js37cgautb0856f7cnk6b4jluu3rvii0q4s87e".into())).unwrap(),
             DecryptedName("testfilenametestfilenametestfilenametestfilenametestfilenametestfilename".into())
         );
         assert_eq!(
-            cipher.decrypt_filename(&RemoteName("jhqr2n0782nqst11m4r5u7k6i1knb9lottugfng4m9l645ts99cr7eggld663llijgsqgrt2mqjm8b5asfb422drg3tnmthv5oj8vt0gkoura72hudp381r62si4les65hpm7jppvf0t9lgf40ime30cvs".into())).unwrap(),
+            cipher.decrypt_filename(&EncryptedName("jhqr2n0782nqst11m4r5u7k6i1knb9lottugfng4m9l645ts99cr7eggld663llijgsqgrt2mqjm8b5asfb422drg3tnmthv5oj8vt0gkoura72hudp381r62si4les65hpm7jppvf0t9lgf40ime30cvs".into())).unwrap(),
             DecryptedName("testfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilename".into())
         );
         assert_eq!(
-            cipher.decrypt_filename(&RemoteName("5vf0sm8ao57u2k44cpsg8u40uev5e0s4jor1qk7lm351c8m4uroglehuqtlqk93kukq4r1spahkk7bnsigre5up5mlm9s4ssgl3colsn6gcqodvbluj0d2ub7jnbvqqdiutbokm6a27ko4idef590kc70t998kegekv86ij24u3p8ao9k840".into())).unwrap(),
+            cipher.decrypt_filename(&EncryptedName("5vf0sm8ao57u2k44cpsg8u40uev5e0s4jor1qk7lm351c8m4uroglehuqtlqk93kukq4r1spahkk7bnsigre5up5mlm9s4ssgl3colsn6gcqodvbluj0d2ub7jnbvqqdiutbokm6a27ko4idef590kc70t998kegekv86ij24u3p8ao9k840".into())).unwrap(),
             DecryptedName("testfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilename".into())
         );
         assert_eq!(
-            cipher.decrypt_filename(&RemoteName("i0eqc8m8rsb2192altkfkhh387tunp8lcm14omfbmjneuejjipncpl760rrlfakh0dikhct7i63d84gqsca6kdint24fcfp7mhjfng7hpat8s60jo328n61oborkuqjr8qp81vt5p8ogsnj95sc4p8u1kh64k3130tnicstnvsmrmgpc646g".into())).unwrap(),
+            cipher.decrypt_filename(&EncryptedName("i0eqc8m8rsb2192altkfkhh387tunp8lcm14omfbmjneuejjipncpl760rrlfakh0dikhct7i63d84gqsca6kdint24fcfp7mhjfng7hpat8s60jo328n61oborkuqjr8qp81vt5p8ogsnj95sc4p8u1kh64k3130tnicstnvsmrmgpc646g".into())).unwrap(),
             DecryptedName("testfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilename".into())
         );
         assert_eq!(
-            cipher.decrypt_filename(&RemoteName("05oun5jfto8bd68aceui7cgjg44hoi0m8lv3shlqu21vro8ii1o7p4b2bg3mq21qlvj7jsj4n8smrrsc8h5be2s715cu6dj1g1o7jmju62uingea7v9q1sh3dkr77v3pfd14lu1tjpfq9b8qt8dsoiq7dukhpjhv9f8se91j0p69qrkmbf1cucht23ka043v3o9jcug272gjg".into())).unwrap(),
+            cipher.decrypt_filename(&EncryptedName("05oun5jfto8bd68aceui7cgjg44hoi0m8lv3shlqu21vro8ii1o7p4b2bg3mq21qlvj7jsj4n8smrrsc8h5be2s715cu6dj1g1o7jmju62uingea7v9q1sh3dkr77v3pfd14lu1tjpfq9b8qt8dsoiq7dukhpjhv9f8se91j0p69qrkmbf1cucht23ka043v3o9jcug272gjg".into())).unwrap(),
             DecryptedName("testfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilename".into())
         );
         assert_eq!(
-            cipher.decrypt_filename(&RemoteName("s8a8636o3oo1g95i5eh8cg2emaodulttad0460n83btqcukgsrfuna8kjoshtdis1nkh2v30hs0sas90443d59tqofvcsi1r7pd3eoi23mivj3bf3k5vl508doaqghh40t9n74ibhe22jc5n9buq7tn7kj897tjmhd7du3vqc1s8t97drmj7tekuq9f3nb3gmsfufv53adtth9g9qkpicendfl8umro0pk4asv8".into())).unwrap(),
+            cipher.decrypt_filename(&EncryptedName("s8a8636o3oo1g95i5eh8cg2emaodulttad0460n83btqcukgsrfuna8kjoshtdis1nkh2v30hs0sas90443d59tqofvcsi1r7pd3eoi23mivj3bf3k5vl508doaqghh40t9n74ibhe22jc5n9buq7tn7kj897tjmhd7du3vqc1s8t97drmj7tekuq9f3nb3gmsfufv53adtth9g9qkpicendfl8umro0pk4asv8".into())).unwrap(),
             DecryptedName("testfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilename".into())
         );
         assert_eq!(
-            cipher.decrypt_filename(&RemoteName("aih8hkkjcirtgsg067bg7g9ait5ets26p1vkctjfvmit3h6kun49cjabq01s2vrq9ia2k1q453f1uimjunf98qaja570as68irjdlhtir2vjlvfl6lmj5b18mmb3la3g8f5hhg5bf3kascg93mta0hd32blmur08deg59safibo75hvk51rtgf45r9o6v29qc4gi3kkv89k9rtlf1r4qm5ughavlqigr4ri640nhhf8b12ntidod6tv2jajaomb1".into())).unwrap(),
+            cipher.decrypt_filename(&EncryptedName("aih8hkkjcirtgsg067bg7g9ait5ets26p1vkctjfvmit3h6kun49cjabq01s2vrq9ia2k1q453f1uimjunf98qaja570as68irjdlhtir2vjlvfl6lmj5b18mmb3la3g8f5hhg5bf3kascg93mta0hd32blmur08deg59safibo75hvk51rtgf45r9o6v29qc4gi3kkv89k9rtlf1r4qm5ughavlqigr4ri640nhhf8b12ntidod6tv2jajaomb1".into())).unwrap(),
             DecryptedName("testfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilenametestfilename".into())
         );
     }

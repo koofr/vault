@@ -10,5 +10,6 @@ pub mod path_utils;
 pub mod progress_reader;
 pub mod reader_stream;
 pub mod remote_path_utils;
+pub mod repo_encrypted_path_utils;
 pub mod repo_path_utils;
 pub mod sender_writer;

@@ -151,8 +151,8 @@ pub fn select_next_upload_transfer<'a>(state: &'a store::State) -> Option<&'a Tr
 
     select_transfers(state)
         .into_iter()
-        .find(|transfer| match transfer.state {
-            TransferState::Waiting if transfer.upload_transfer().is_some() => true,
+        .find(|transfer| match (&transfer.state, &transfer.typ) {
+            (TransferState::Waiting, TransferType::Upload(..)) => true,
             _ => false,
         })
 }
@@ -164,8 +164,8 @@ pub fn select_next_download_transfer<'a>(state: &'a store::State) -> Option<&'a 
 
     select_transfers(state)
         .into_iter()
-        .find(|transfer| match transfer.state {
-            TransferState::Waiting if transfer.download_transfer().is_some() => true,
+        .find(|transfer| match (&transfer.state, &transfer.typ) {
+            (TransferState::Waiting, TransferType::Download) => true,
             _ => false,
         })
 }
@@ -174,15 +174,13 @@ pub fn select_unused_name(
     state: &store::State,
     transfer: &Transfer,
     upload_transfer: &UploadTransfer,
-) -> String {
+) -> DecryptedName {
     // names from repo files
     let mut used_names = repo_files_selectors::select_used_names(
         state,
         &upload_transfer.repo_id,
         &upload_transfer.parent_path,
     );
-
-    let parent_id = upload_transfer.parent_id();
 
     // add names from transfers
     for t in select_transfers(state) {
@@ -192,19 +190,15 @@ pub fn select_unused_name(
                 // we are not interested in Done transfers because their results
                 // will already be in repo_files used names
                 if t.id != transfer.id
-                    && upload_t.parent_id() == parent_id
+                    && upload_t.parent_file_id == upload_transfer.parent_file_id
                     && matches!(t.state, TransferState::Transferring)
                 {
-                    used_names.insert(DecryptedName(upload_t.name.to_owned()).to_lowercase());
+                    used_names.insert(upload_t.current_name.to_lowercase());
                 }
             }
             _ => {}
         }
     }
 
-    repo_files_selectors::get_unused_name(
-        used_names,
-        &DecryptedName(upload_transfer.name.to_owned()),
-    )
-    .0
+    repo_files_selectors::get_unused_name(used_names, &upload_transfer.original_name)
 }

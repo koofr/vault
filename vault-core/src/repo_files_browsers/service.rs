@@ -14,14 +14,16 @@ use crate::{
     repo_files_read::{
         errors::GetFilesReaderError, state::RepoFileReaderProvider, RepoFilesReadService,
     },
+    repos::ReposService,
     sort::state::SortDirection,
     store,
-    types::{DecryptedName, DecryptedPath, RepoFileId, RepoId},
+    types::{DecryptedName, DecryptedPath, EncryptedPath, RepoFileId, RepoId},
 };
 
 use super::{mutations, selectors, state::RepoFilesBrowserOptions};
 
 pub struct RepoFilesBrowsersService {
+    repos_service: Arc<ReposService>,
     repo_files_service: Arc<RepoFilesService>,
     repo_files_read_service: Arc<RepoFilesReadService>,
     repo_files_move_service: Arc<RepoFilesMoveService>,
@@ -31,22 +33,29 @@ pub struct RepoFilesBrowsersService {
 
 impl RepoFilesBrowsersService {
     pub fn new(
+        repos_service: Arc<ReposService>,
         repo_files_service: Arc<RepoFilesService>,
         repo_files_read_service: Arc<RepoFilesReadService>,
         repo_files_move_service: Arc<RepoFilesMoveService>,
         store: Arc<store::Store>,
     ) -> Self {
         let repo_files_mutation_subscription_id = store.get_next_id();
+        let repo_files_mutation_repos_service = repos_service.clone();
 
         store.mutation_on(
             repo_files_mutation_subscription_id,
             &[store::MutationEvent::RepoFiles],
-            Box::new(|state, notify, _, _| {
-                mutations::handle_repo_files_mutation(state, notify);
+            Box::new(move |state, notify, _, _| {
+                mutations::handle_repo_files_mutation(
+                    state,
+                    notify,
+                    &repo_files_mutation_repos_service.get_ciphers(),
+                );
             }),
         );
 
         Self {
+            repos_service,
             repo_files_service,
             repo_files_read_service,
             repo_files_move_service,
@@ -61,8 +70,18 @@ impl RepoFilesBrowsersService {
         path: &DecryptedPath,
         options: RepoFilesBrowserOptions,
     ) -> (u32, BoxFuture<'static, Result<(), LoadFilesError>>) {
+        let cipher = self.repos_service.get_cipher(&repo_id).ok();
+
         let browser_id = self.store.mutate(|state, notify, mutation_state, _| {
-            mutations::create(state, notify, mutation_state, options, repo_id, path)
+            mutations::create(
+                state,
+                notify,
+                mutation_state,
+                options,
+                repo_id,
+                path,
+                cipher.as_deref(),
+            )
         });
 
         let load_self = self.clone();
@@ -86,7 +105,7 @@ impl RepoFilesBrowsersService {
     }
 
     pub async fn load_files(&self, browser_id: u32) -> Result<(), LoadFilesError> {
-        if let Some((repo_id, path)) = self
+        if let Some((repo_id, path, encrypted_path)) = self
             .store
             .with_state(|state| selectors::select_repo_id_path_owned(state, browser_id))
         {
@@ -94,7 +113,12 @@ impl RepoFilesBrowsersService {
                 mutations::loading(state, notify, browser_id);
             });
 
-            let res = self.repo_files_service.load_files(&repo_id, &path).await;
+            let cipher = self.repos_service.get_cipher(&repo_id).ok();
+
+            let res = self
+                .repo_files_service
+                .load_files(&repo_id, &encrypted_path)
+                .await;
 
             self.store.mutate(|state, notify, _, _| {
                 mutations::loaded(
@@ -104,6 +128,7 @@ impl RepoFilesBrowsersService {
                     &repo_id,
                     &path,
                     res.as_ref().err(),
+                    cipher.as_deref(),
                 );
             });
 
@@ -151,7 +176,17 @@ impl RepoFilesBrowsersService {
         direction: Option<SortDirection>,
     ) {
         self.store.mutate(|state, notify, _, _| {
-            mutations::sort_by(state, notify, browser_id, field, direction);
+            let cipher = selectors::select_repo_id(state, browser_id)
+                .and_then(|repo_id| self.repos_service.get_cipher(&repo_id).ok());
+
+            mutations::sort_by(
+                state,
+                notify,
+                browser_id,
+                field,
+                direction,
+                cipher.as_deref(),
+            );
         });
     }
 
@@ -176,16 +211,14 @@ impl RepoFilesBrowsersService {
     pub async fn create_dir(
         &self,
         browser_id: u32,
-    ) -> Result<(DecryptedName, DecryptedPath), CreateDirError> {
+    ) -> Result<(DecryptedName, EncryptedPath), CreateDirError> {
         let (repo_id, parent_path) =
             self.store
                 .with_state::<_, Result<_, CreateDirError>>(|state| {
                     let root_file = selectors::select_root_file(state, browser_id)
                         .ok_or_else(RepoFilesErrors::not_found)?;
 
-                    let root_path = root_file.decrypted_path()?;
-
-                    Ok((root_file.repo_id.clone(), root_path.to_owned()))
+                    Ok((root_file.repo_id.clone(), root_file.encrypted_path.clone()))
                 })?;
 
         Ok(self
@@ -198,16 +231,14 @@ impl RepoFilesBrowsersService {
         &self,
         browser_id: u32,
         name: &str,
-    ) -> Result<(DecryptedName, DecryptedPath), CreateFileError> {
+    ) -> Result<(DecryptedName, EncryptedPath), CreateFileError> {
         let (repo_id, parent_path) =
             self.store
                 .with_state::<_, Result<_, CreateFileError>>(|state| {
                     let root_file = selectors::select_root_file(state, browser_id)
                         .ok_or_else(RepoFilesErrors::not_found)?;
 
-                    let root_path = root_file.decrypted_path()?;
-
-                    Ok((root_file.repo_id.clone(), root_path.to_owned()))
+                    Ok((root_file.repo_id.clone(), root_file.encrypted_path.clone()))
                 })?;
 
         Ok(self
@@ -221,12 +252,7 @@ impl RepoFilesBrowsersService {
         let files = self.store.with_state(|state| {
             selectors::select_selected_files(state, browser_id)
                 .into_iter()
-                .filter_map(|file| {
-                    file.path
-                        .decrypted_path()
-                        .ok()
-                        .map(|path| (file.repo_id.clone(), path.to_owned()))
-                })
+                .map(|file| (file.repo_id.clone(), file.encrypted_path.clone()))
                 .collect::<Vec<_>>()
         });
 

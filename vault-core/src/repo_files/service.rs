@@ -10,30 +10,30 @@ use futures::{
 };
 
 use crate::{
-    cipher::{
-        data_cipher::{decrypt_on_progress, encrypted_size},
-        Cipher,
-    },
+    cipher::data_cipher::{decrypt_on_progress, encrypted_size},
     common::state::BoxAsyncRead,
     dialogs, remote,
-    remote_files::{state::RemoteFilesLocation, RemoteFilesService},
+    remote_files::RemoteFilesService,
     repo_files_read::{
         errors::GetFilesReaderError, state::RepoFileReaderProvider, RepoFilesReadService,
     },
-    repos::{errors::RepoLockedError, ReposService},
+    repos::{
+        errors::{RepoLockedError, RepoNotFoundError},
+        ReposService,
+    },
     store,
     types::{
-        DecryptedName, DecryptedPath, EncryptedName, MountId, RemoteName, RemotePath, RepoFileId,
+        DecryptedName, EncryptedName, EncryptedPath, MountId, RemoteName, RemotePath, RepoFileId,
         RepoId,
     },
-    utils::{name_utils, repo_path_utils},
+    utils::{name_utils, repo_encrypted_path_utils},
 };
 
 use super::{
     errors::{
         CopyFileError, CreateDirError, CreateFileError, DeleteFileError, EnsureDirError,
-        GetRepoMountPathError, LoadFileError, LoadFilesError, MoveFileError, RenameFileError,
-        RepoFilesErrors, UploadFileReaderError,
+        LoadFileError, LoadFilesError, MoveFileError, RenameFileError, RepoFilesErrors,
+        UploadFileReaderError,
     },
     mutations, selectors,
     state::{RepoFileType, RepoFilesUploadConflictResolution, RepoFilesUploadResult},
@@ -65,17 +65,6 @@ impl RepoFilesService {
         let repos_mutation_subscription_id = store.get_next_id();
         let repos_mutation_repos_service = repos_service.clone();
 
-        let repo_files_service = Self {
-            repos_service,
-            remote_files_service,
-            repo_files_read_service,
-            dialogs_service,
-            store: store.clone(),
-            ensure_dirs_futures: Arc::new(Mutex::new(HashMap::new())),
-            remote_files_mutation_subscription_id,
-            repos_mutation_subscription_id,
-        };
-
         store.mutation_on(
             remote_files_mutation_subscription_id,
             &[store::MutationEvent::RemoteFiles],
@@ -104,54 +93,33 @@ impl RepoFilesService {
             }),
         );
 
-        repo_files_service
-    }
-
-    pub fn get_repo_mount_path_cipher(
-        &self,
-        repo_id: &RepoId,
-        path: &DecryptedPath,
-        cipher: &Cipher,
-    ) -> Result<(MountId, RemotePath), GetRepoMountPathError> {
-        self.store.with_state(|state| {
-            selectors::select_repo_path_to_mount_path(state, repo_id, path, cipher)
-                .map_err(GetRepoMountPathError::RepoNotFound)
-        })
+        Self {
+            repos_service,
+            remote_files_service,
+            repo_files_read_service,
+            dialogs_service,
+            store: store.clone(),
+            ensure_dirs_futures: Arc::new(Mutex::new(HashMap::new())),
+            remote_files_mutation_subscription_id,
+            repos_mutation_subscription_id,
+        }
     }
 
     pub fn get_repo_mount_path(
         &self,
         repo_id: &RepoId,
-        path: &DecryptedPath,
-    ) -> Result<(MountId, RemotePath), GetRepoMountPathError> {
-        let cipher = self
-            .repos_service
-            .get_cipher(repo_id)
-            .map_err(GetRepoMountPathError::RepoLocked)?;
-
-        self.get_repo_mount_path_cipher(repo_id, path, &cipher)
-    }
-
-    pub fn get_repo_remote_location(
-        &self,
-        repo_id: &RepoId,
-        path: &DecryptedPath,
-    ) -> Result<RemoteFilesLocation, GetRepoMountPathError> {
-        self.get_repo_mount_path(repo_id, path)
-            .map(|(mount_id, path)| RemoteFilesLocation { mount_id, path })
+        path: &EncryptedPath,
+    ) -> Result<(MountId, RemotePath), RepoNotFoundError> {
+        self.store
+            .with_state(|state| selectors::select_repo_path_to_mount_path(state, repo_id, path))
     }
 
     pub async fn load_files(
         &self,
         repo_id: &RepoId,
-        path: &DecryptedPath,
+        path: &EncryptedPath,
     ) -> Result<(), LoadFilesError> {
-        let (mount_id, remote_path) =
-            self.get_repo_mount_path(repo_id, path)
-                .map_err(|e| match e {
-                    GetRepoMountPathError::RepoNotFound(err) => LoadFilesError::RepoNotFound(err),
-                    GetRepoMountPathError::RepoLocked(err) => LoadFilesError::RepoLocked(err),
-                })?;
+        let (mount_id, remote_path) = self.get_repo_mount_path(repo_id, path)?;
 
         self.remote_files_service
             .load_files(&mount_id, &remote_path)
@@ -164,14 +132,9 @@ impl RepoFilesService {
     pub async fn load_file(
         &self,
         repo_id: &RepoId,
-        path: &DecryptedPath,
+        path: &EncryptedPath,
     ) -> Result<(), LoadFileError> {
-        let (mount_id, remote_path) =
-            self.get_repo_mount_path(repo_id, path)
-                .map_err(|e| match e {
-                    GetRepoMountPathError::RepoNotFound(err) => LoadFileError::RepoNotFound(err),
-                    GetRepoMountPathError::RepoLocked(err) => LoadFileError::RepoLocked(err),
-                })?;
+        let (mount_id, remote_path) = self.get_repo_mount_path(repo_id, path)?;
 
         self.remote_files_service
             .load_file(&mount_id, &remote_path)
@@ -194,7 +157,7 @@ impl RepoFilesService {
     pub fn get_file_reader(
         self: Arc<Self>,
         repo_id: &RepoId,
-        path: &DecryptedPath,
+        path: &EncryptedPath,
     ) -> Result<RepoFileReaderProvider, GetFilesReaderError> {
         let file = self
             .store
@@ -212,8 +175,8 @@ impl RepoFilesService {
     pub async fn upload_file_reader(
         self: Arc<Self>,
         repo_id: &RepoId,
-        parent_path: &DecryptedPath,
-        name: &DecryptedName,
+        parent_path: &EncryptedPath,
+        name: EncryptedName,
         reader: BoxAsyncRead,
         size: Option<i64>,
         conflict_resolution: RepoFilesUploadConflictResolution,
@@ -223,15 +186,9 @@ impl RepoFilesService {
 
         let cipher = self.repos_service.get_cipher(&repo_id)?;
 
-        let (mount_id, remote_parent_path) = self
-            .store
-            .with_state(|state| {
-                selectors::select_repo_path_to_mount_path(state, repo_id, parent_path, &cipher)
-            })
-            .map_err(UploadFileReaderError::RepoNotFound)?;
+        let (mount_id, remote_parent_path) = self.get_repo_mount_path(repo_id, parent_path)?;
 
         let encrypted_size = size.map(encrypted_size);
-        let encrypted_name = cipher.encrypt_filename(name);
         let encrypted_reader = cipher.encrypt_reader(reader);
 
         let (_, remote_file) = self
@@ -239,7 +196,7 @@ impl RepoFilesService {
             .upload_file_reader(
                 &mount_id,
                 &remote_parent_path,
-                &RemoteName(encrypted_name.0),
+                &RemoteName(name.0),
                 Box::pin(encrypted_reader),
                 encrypted_size,
                 conflict_resolution.into(),
@@ -248,8 +205,9 @@ impl RepoFilesService {
             .await
             .map_err(UploadFileReaderError::RemoteError)?;
 
-        let name = cipher.decrypt_filename(&remote_file.name)?;
-        let path = repo_path_utils::join_path_name(parent_path, &name);
+        let encrypted_name = EncryptedName(remote_file.name.0.clone());
+        let name = cipher.decrypt_filename(&encrypted_name)?;
+        let path = repo_encrypted_path_utils::join_path_name(parent_path, &encrypted_name);
         let file_id = selectors::get_file_id(repo_id, &path);
 
         Ok(RepoFilesUploadResult {
@@ -261,7 +219,7 @@ impl RepoFilesService {
 
     pub async fn delete_files(
         &self,
-        files: &[(RepoId, DecryptedPath)],
+        files: &[(RepoId, EncryptedPath)],
         before_delete: Option<Box<dyn Fn() + Send + 'static>>,
     ) -> Result<(), DeleteFileError> {
         if self
@@ -285,16 +243,7 @@ impl RepoFilesService {
             }
 
             for (repo_id, path) in files {
-                let (mount_id, remote_path) =
-                    self.get_repo_mount_path(repo_id, path)
-                        .map_err(|e| match e {
-                            GetRepoMountPathError::RepoLocked(err) => {
-                                DeleteFileError::RepoLocked(err)
-                            }
-                            GetRepoMountPathError::RepoNotFound(err) => {
-                                DeleteFileError::RepoNotFound(err)
-                            }
-                        })?;
+                let (mount_id, remote_path) = self.get_repo_mount_path(repo_id, path)?;
 
                 self.remote_files_service
                     .delete_file(&mount_id, &remote_path)
@@ -311,11 +260,12 @@ impl RepoFilesService {
     pub async fn create_dir(
         &self,
         repo_id: &RepoId,
-        parent_path: &DecryptedPath,
-    ) -> Result<(DecryptedName, DecryptedPath), CreateDirError> {
+        parent_path: &EncryptedPath,
+    ) -> Result<(DecryptedName, EncryptedPath), CreateDirError> {
         let input_value_validator_store = self.store.clone();
         let input_value_validator_repo_id = repo_id.to_owned();
         let input_value_validator_parent_path = parent_path.to_owned();
+        let input_value_validator_cipher = self.repos_service.get_cipher(repo_id)?;
 
         let name = match self
             .dialogs_service
@@ -328,12 +278,17 @@ impl RepoFilesService {
                         .build_prompt(String::from("Enter new folder name"))
                 },
                 move |value| {
+                    let new_name = DecryptedName(value.clone());
+                    let encrypted_new_name =
+                        input_value_validator_cipher.encrypt_filename(&new_name);
+
                     input_value_validator_store.with_state(|state| {
                         selectors::select_check_new_name_valid(
                             state,
                             &input_value_validator_repo_id,
                             &input_value_validator_parent_path,
-                            &DecryptedName(value.clone()),
+                            &new_name,
+                            &encrypted_new_name,
                         )
                         .map(|_| value)
                     })
@@ -345,9 +300,12 @@ impl RepoFilesService {
             None => return Err(CreateDirError::Canceled),
         };
 
-        let path = repo_path_utils::join_path_name(parent_path, &name);
+        let encrypted_name = self.encrypt_filename(repo_id, &name)?;
 
-        self.create_dir_name(repo_id, parent_path, &name).await?;
+        let path = repo_encrypted_path_utils::join_path_name(parent_path, &encrypted_name);
+
+        self.create_dir_name(repo_id, parent_path, encrypted_name)
+            .await?;
 
         Ok((name, path))
     }
@@ -355,20 +313,13 @@ impl RepoFilesService {
     pub async fn create_dir_name(
         &self,
         repo_id: &RepoId,
-        parent_path: &DecryptedPath,
-        name: &DecryptedName,
+        parent_path: &EncryptedPath,
+        name: EncryptedName,
     ) -> Result<(), CreateDirError> {
-        let (mount_id, remote_parent_path) = self
-            .get_repo_mount_path(repo_id, parent_path)
-            .map_err(|e| match e {
-                GetRepoMountPathError::RepoLocked(err) => CreateDirError::RepoLocked(err),
-                GetRepoMountPathError::RepoNotFound(err) => CreateDirError::RepoNotFound(err),
-            })?;
-
-        let encrypted_name = self.encrypt_filename(repo_id, name)?;
+        let (mount_id, remote_parent_path) = self.get_repo_mount_path(repo_id, parent_path)?;
 
         self.remote_files_service
-            .create_dir_name(&mount_id, &remote_parent_path, RemoteName(encrypted_name.0))
+            .create_dir_name(&mount_id, &remote_parent_path, RemoteName(name.0))
             .await
             .map_err(CreateDirError::RemoteError)?;
 
@@ -378,9 +329,9 @@ impl RepoFilesService {
     pub async fn ensure_dir(
         &self,
         repo_id: RepoId,
-        path: DecryptedPath,
+        path: EncryptedPath,
     ) -> Result<(), EnsureDirError> {
-        let (parent_path, name) = match repo_path_utils::split_parent_name(&path) {
+        let (parent_path, name) = match repo_encrypted_path_utils::split_parent_name(&path) {
             Some(val) => val,
             None => {
                 return Ok(());
@@ -401,7 +352,7 @@ impl RepoFilesService {
                 Err(EnsureDirError::RemoteError(remote::RemoteError::ApiError {
                     code: remote::ApiErrorCode::NotFound,
                     ..
-                })) => match self.create_dir_name(&repo_id, &parent_path, &name).await {
+                })) => match self.create_dir_name(&repo_id, &parent_path, name).await {
                     Ok(()) => Ok(()),
                     Err(CreateDirError::RemoteError(remote::RemoteError::ApiError {
                         code: remote::ApiErrorCode::AlreadyExists,
@@ -417,7 +368,7 @@ impl RepoFilesService {
     async fn ensure_dir_load_file(
         &self,
         repo_id: &RepoId,
-        path: &DecryptedPath,
+        path: &EncryptedPath,
     ) -> Result<(), EnsureDirError> {
         Ok(self.load_file(repo_id, path).await?)
     }
@@ -425,9 +376,9 @@ impl RepoFilesService {
     pub async fn ensure_dirs(
         self: Arc<Self>,
         repo_id: &RepoId,
-        path: &DecryptedPath,
+        path: &EncryptedPath,
     ) -> Result<(), EnsureDirError> {
-        for path in repo_path_utils::paths_chain(&path) {
+        for path in repo_encrypted_path_utils::paths_chain(&path) {
             if path.is_root() {
                 continue;
             }
@@ -441,7 +392,7 @@ impl RepoFilesService {
     pub async fn ensure_dir_synchronized(
         self: Arc<Self>,
         repo_id: &RepoId,
-        path: &DecryptedPath,
+        path: &EncryptedPath,
     ) -> Result<(), EnsureDirError> {
         let file_id = selectors::get_file_id(&repo_id, &path);
 
@@ -479,12 +430,13 @@ impl RepoFilesService {
     pub async fn create_file(
         self: Arc<Self>,
         repo_id: &RepoId,
-        parent_path: &DecryptedPath,
+        parent_path: &EncryptedPath,
         name: &str,
-    ) -> Result<(DecryptedName, DecryptedPath), CreateFileError> {
+    ) -> Result<(DecryptedName, EncryptedPath), CreateFileError> {
         let input_value_validator_store = self.store.clone();
         let input_value_validator_repo_id = repo_id.to_owned();
         let input_value_validator_parent_path = parent_path.to_owned();
+        let input_value_validator_cipher = self.repos_service.get_cipher(repo_id)?;
         let input_value_selected = Some(name_utils::split_name_ext(&name).0.to_owned());
 
         let name = match self
@@ -500,12 +452,17 @@ impl RepoFilesService {
                         .build_prompt(String::from("Enter new file name"))
                 },
                 move |value| {
+                    let new_name = DecryptedName(value.clone());
+                    let encrypted_new_name =
+                        input_value_validator_cipher.encrypt_filename(&new_name);
+
                     input_value_validator_store.with_state(|state| {
                         selectors::select_check_new_name_valid(
                             state,
                             &input_value_validator_repo_id,
                             &input_value_validator_parent_path,
-                            &DecryptedName(value.clone()),
+                            &new_name,
+                            &encrypted_new_name,
                         )
                         .map(|_| value)
                     })
@@ -517,9 +474,12 @@ impl RepoFilesService {
             None => return Err(CreateFileError::Canceled),
         };
 
-        let path = repo_path_utils::join_path_name(&parent_path, &name);
+        let encrypted_name = self.encrypt_filename(repo_id, &name)?;
 
-        self.create_file_name(repo_id, parent_path, &name).await?;
+        let path = repo_encrypted_path_utils::join_path_name(parent_path, &encrypted_name);
+
+        self.create_file_name(repo_id, parent_path, encrypted_name)
+            .await?;
 
         Ok((name, path))
     }
@@ -527,13 +487,13 @@ impl RepoFilesService {
     pub async fn create_file_name(
         self: Arc<Self>,
         repo_id: &RepoId,
-        parent_path: &DecryptedPath,
-        name: &DecryptedName,
+        parent_path: &EncryptedPath,
+        name: EncryptedName,
     ) -> Result<(), CreateFileError> {
         self.upload_file_reader(
             &repo_id,
             &parent_path,
-            &name,
+            name,
             Box::pin(Cursor::new(vec![])),
             Some(0),
             RepoFilesUploadConflictResolution::Error,
@@ -547,7 +507,7 @@ impl RepoFilesService {
     pub async fn rename_file(
         &self,
         repo_id: &RepoId,
-        path: &DecryptedPath,
+        path: &EncryptedPath,
     ) -> Result<(), RenameFileError> {
         let (mount_id, remote_path, original_name, typ) = match self.store.with_state(|state| {
             selectors::select_file(state, &selectors::get_file_id(repo_id, path)).map(|file| {
@@ -572,6 +532,7 @@ impl RepoFilesService {
 
         let input_value_validator_store = self.store.clone();
         let input_value_validator_repo_id = repo_id.to_owned();
+        let input_value_validator_cipher = self.repos_service.get_cipher(repo_id)?;
         let input_value_validator_path = path.to_owned();
 
         if let Some(name) = self
@@ -587,12 +548,17 @@ impl RepoFilesService {
                         .build_prompt(format!("Enter new name for '{}'", original_name.0))
                 },
                 move |value| {
+                    let new_name = DecryptedName(value.clone());
+                    let encrypted_new_name =
+                        input_value_validator_cipher.encrypt_filename(&new_name);
+
                     input_value_validator_store.with_state(|state| {
                         selectors::select_check_rename_file(
                             state,
                             &input_value_validator_repo_id,
                             &input_value_validator_path,
-                            &DecryptedName(value.clone()),
+                            &new_name,
+                            &encrypted_new_name,
                         )
                         .map(|_| value)
                     })
@@ -608,33 +574,25 @@ impl RepoFilesService {
                 .await
                 .map_err(RenameFileError::RemoteError)?;
         }
+
         Ok(())
     }
 
     pub async fn copy_file(
         &self,
         repo_id: &RepoId,
-        path: &DecryptedPath,
-        to_parent_path: &DecryptedPath,
+        path: &EncryptedPath,
+        to_parent_path: &EncryptedPath,
     ) -> Result<(), CopyFileError> {
-        let name = repo_path_utils::path_to_name(path).ok_or(CopyFileError::InvalidPath)?;
+        let name =
+            repo_encrypted_path_utils::path_to_name(path).ok_or(CopyFileError::InvalidPath)?;
 
-        let (mount_id, remote_path) =
-            self.get_repo_mount_path(repo_id, path)
-                .map_err(|e| match e {
-                    GetRepoMountPathError::RepoLocked(err) => CopyFileError::RepoLocked(err),
-                    GetRepoMountPathError::RepoNotFound(err) => CopyFileError::RepoNotFound(err),
-                })?;
+        let (mount_id, remote_path) = self.get_repo_mount_path(repo_id, path)?;
 
-        let (to_mount_id, to_remote_path) = self
-            .get_repo_mount_path(
-                repo_id,
-                &repo_path_utils::join_path_name(to_parent_path, &name),
-            )
-            .map_err(|e| match e {
-                GetRepoMountPathError::RepoLocked(err) => CopyFileError::RepoLocked(err),
-                GetRepoMountPathError::RepoNotFound(err) => CopyFileError::RepoNotFound(err),
-            })?;
+        let (to_mount_id, to_remote_path) = self.get_repo_mount_path(
+            repo_id,
+            &repo_encrypted_path_utils::join_path_name(to_parent_path, &name),
+        )?;
 
         self.remote_files_service
             .copy_file(&mount_id, &remote_path, &to_mount_id, &to_remote_path)
@@ -645,27 +603,18 @@ impl RepoFilesService {
     pub async fn move_file(
         &self,
         repo_id: &RepoId,
-        path: &DecryptedPath,
-        to_parent_path: &DecryptedPath,
+        path: &EncryptedPath,
+        to_parent_path: &EncryptedPath,
     ) -> Result<(), MoveFileError> {
-        let name = repo_path_utils::path_to_name(path).ok_or(MoveFileError::InvalidPath)?;
+        let name =
+            repo_encrypted_path_utils::path_to_name(path).ok_or(MoveFileError::InvalidPath)?;
 
-        let (mount_id, remote_path) =
-            self.get_repo_mount_path(repo_id, path)
-                .map_err(|e| match e {
-                    GetRepoMountPathError::RepoLocked(err) => MoveFileError::RepoLocked(err),
-                    GetRepoMountPathError::RepoNotFound(err) => MoveFileError::RepoNotFound(err),
-                })?;
+        let (mount_id, remote_path) = self.get_repo_mount_path(repo_id, path)?;
 
-        let (to_mount_id, to_path) = self
-            .get_repo_mount_path(
-                repo_id,
-                &repo_path_utils::join_path_name(to_parent_path, &name),
-            )
-            .map_err(|e| match e {
-                GetRepoMountPathError::RepoLocked(err) => MoveFileError::RepoLocked(err),
-                GetRepoMountPathError::RepoNotFound(err) => MoveFileError::RepoNotFound(err),
-            })?;
+        let (to_mount_id, to_path) = self.get_repo_mount_path(
+            repo_id,
+            &repo_encrypted_path_utils::join_path_name(to_parent_path, &name),
+        )?;
 
         self.remote_files_service
             .move_file(&mount_id, &remote_path, &to_mount_id, &to_path)
@@ -676,7 +625,7 @@ impl RepoFilesService {
     pub async fn get_unused_name(
         &self,
         repo_id: &RepoId,
-        parent_path: &DecryptedPath,
+        parent_path: &EncryptedPath,
         name: &DecryptedName,
     ) -> Result<DecryptedName, LoadFilesError> {
         self.load_files(repo_id, parent_path).await?;

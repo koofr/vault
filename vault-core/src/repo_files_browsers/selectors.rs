@@ -12,7 +12,7 @@ use crate::{
     },
     selection::{selectors as selection_selectors, state::SelectionSummary},
     store,
-    types::{DecryptedPath, RepoFileId, RepoId},
+    types::{DecryptedPath, EncryptedPath, RepoFileId, RepoId},
 };
 
 use super::state::{
@@ -26,7 +26,7 @@ pub fn get_eventstream_mount_subscriber(browser_id: u32) -> String {
 pub fn select_file_ids<'a>(
     state: &'a store::State,
     repo_id: &RepoId,
-    path: &DecryptedPath,
+    path: &EncryptedPath,
 ) -> impl Iterator<Item = &'a RepoFileId> {
     repo_files_selectors::select_files(state, repo_id, path).map(|file| &file.id)
 }
@@ -52,8 +52,14 @@ pub fn select_repo_id<'a>(state: &'a store::State, browser_id: u32) -> Option<&'
 pub fn select_repo_id_path_owned(
     state: &store::State,
     browser_id: u32,
-) -> Option<(RepoId, DecryptedPath)> {
-    select_browser_location(state, browser_id).map(|loc| (loc.repo_id.clone(), loc.path.clone()))
+) -> Option<(RepoId, DecryptedPath, EncryptedPath)> {
+    select_browser_location(state, browser_id).map(|loc| {
+        (
+            loc.repo_id.clone(),
+            loc.path.clone(),
+            loc.encrypted_path.clone(),
+        )
+    })
 }
 
 pub fn select_repo<'a>(state: &'a store::State, browser_id: u32) -> Option<&'a Repo> {
@@ -118,10 +124,10 @@ pub fn select_selected_files<'a>(state: &'a store::State, browser_id: u32) -> Ve
         .collect()
 }
 
-pub fn select_selected_paths(state: &store::State, browser_id: u32) -> Vec<DecryptedPath> {
+pub fn select_selected_paths(state: &store::State, browser_id: u32) -> Vec<EncryptedPath> {
     select_selected_files(state, browser_id)
         .into_iter()
-        .filter_map(|file| file.decrypted_path().ok().cloned())
+        .map(|file| file.encrypted_path.clone())
         .collect()
 }
 
@@ -209,13 +215,20 @@ pub fn select_info<'a>(state: &'a store::State, browser_id: u32) -> Option<RepoF
 
 pub fn select_breadcrumbs(state: &store::State, browser_id: u32) -> Vec<RepoFilesBreadcrumb> {
     select_browser_location(state, browser_id)
-        .map(|loc| repo_files_selectors::select_breadcrumbs(state, &loc.repo_id, &loc.path))
+        .map(|loc| {
+            repo_files_selectors::select_breadcrumbs(
+                state,
+                &loc.repo_id,
+                &loc.path,
+                &loc.encrypted_path,
+            )
+        })
         .unwrap_or_else(|| vec![])
 }
 
 pub fn select_root_file_id(state: &store::State, browser_id: u32) -> Option<RepoFileId> {
     select_browser_location(state, browser_id)
-        .map(|loc| repo_files_selectors::get_file_id(&loc.repo_id, &loc.path))
+        .map(|loc| repo_files_selectors::get_file_id(&loc.repo_id, &loc.encrypted_path))
 }
 
 pub fn select_root_file<'a>(state: &'a store::State, browser_id: u32) -> Option<&'a RepoFile> {

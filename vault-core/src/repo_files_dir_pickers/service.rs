@@ -5,13 +5,10 @@ use futures::future::BoxFuture;
 use crate::{
     dir_pickers,
     dir_pickers::state::{DirPickerItem, DirPickerItemId},
-    repo_files::{
-        errors::LoadFilesError, selectors as repo_files_selectors, state::RepoFilePath,
-        RepoFilesService,
-    },
+    repo_files::{errors::LoadFilesError, selectors as repo_files_selectors, RepoFilesService},
     store,
-    types::{DecryptedPath, RepoFileId, RepoId, DECRYPTED_PATH_ROOT},
-    utils::repo_path_utils,
+    types::{EncryptedPath, RepoFileId, RepoId, ENCRYPTED_PATH_ROOT},
+    utils::repo_encrypted_path_utils,
 };
 
 use super::{selectors, state::Options};
@@ -65,7 +62,7 @@ impl RepoFilesDirPickersService {
     pub async fn load(&self, picker_id: u32) -> Result<(), LoadFilesError> {
         if let Some(repo_id) = self.get_repo_id(picker_id) {
             self.repo_files_service
-                .load_files(&repo_id, &DECRYPTED_PATH_ROOT)
+                .load_files(&repo_id, &ENCRYPTED_PATH_ROOT)
                 .await?;
         }
 
@@ -84,14 +81,14 @@ impl RepoFilesDirPickersService {
     pub async fn select_file(
         &self,
         picker_id: u32,
-        path: &DecryptedPath,
+        path: &EncryptedPath,
     ) -> Result<(), LoadFilesError> {
         let repo_id = match self.get_repo_id(picker_id) {
             Some(repo_id) => repo_id,
             None => return Ok(()),
         };
 
-        let paths_chain = repo_path_utils::paths_chain(&path);
+        let paths_chain = repo_encrypted_path_utils::paths_chain(&path);
 
         let mut expand_futures = Vec::<BoxFuture<Result<(), LoadFilesError>>>::new();
 
@@ -123,11 +120,9 @@ pub async fn on_expand(
             .and_then(|file_id| {
                 repo_files_selectors::select_file(state, &RepoFileId(file_id.0.clone()))
             })
-            .map(|file| (file.repo_id.clone(), file.path.clone()))
+            .map(|file| (file.repo_id.clone(), file.encrypted_path.clone()))
     }) {
-        if let RepoFilePath::Decrypted { path } = path {
-            repo_files_service.load_files(&repo_id, &path).await?;
-        }
+        repo_files_service.load_files(&repo_id, &path).await?;
     }
 
     Ok(())

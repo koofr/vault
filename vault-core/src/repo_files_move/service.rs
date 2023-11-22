@@ -8,8 +8,8 @@ use crate::{
     },
     repo_files_dir_pickers::RepoFilesDirPickersService,
     store,
-    types::{DecryptedPath, RepoFileId, RepoId},
-    utils::repo_path_utils,
+    types::{EncryptedPath, RepoFileId, RepoId},
+    utils::repo_encrypted_path_utils,
 };
 
 use super::{
@@ -40,7 +40,7 @@ impl RepoFilesMoveService {
     pub async fn move_file(
         &self,
         repo_id: RepoId,
-        path: DecryptedPath,
+        path: EncryptedPath,
         mode: RepoFilesMoveMode,
     ) -> Result<(), ShowError> {
         self.show(repo_id, vec![path], mode).await
@@ -49,12 +49,12 @@ impl RepoFilesMoveService {
     pub async fn show(
         &self,
         repo_id: RepoId,
-        src_paths: Vec<DecryptedPath>,
+        src_paths: Vec<EncryptedPath>,
         mode: RepoFilesMoveMode,
     ) -> Result<(), ShowError> {
         let first_src_path = src_paths.get(0).ok_or(ShowError::FilesEmpty)?;
-        let dest_path =
-            repo_path_utils::parent_path(first_src_path).ok_or(RepoFilesErrors::move_root())?;
+        let dest_path = repo_encrypted_path_utils::parent_path(first_src_path)
+            .ok_or(RepoFilesErrors::move_root())?;
 
         let dir_picker_id = self.repo_files_dir_pickers_service.create(repo_id.clone());
 
@@ -90,7 +90,7 @@ impl RepoFilesMoveService {
         Ok(())
     }
 
-    pub fn set_dest_path(&self, dest_path: DecryptedPath) {
+    pub fn set_dest_path(&self, dest_path: EncryptedPath) {
         self.store
             .mutate(|state, notify, _, _| mutations::set_dest_path(state, notify, dest_path))
     }

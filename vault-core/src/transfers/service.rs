@@ -7,7 +7,7 @@ use futures::{
     channel::oneshot::{self, Sender},
     io::{self, BufReader},
     stream::{AbortHandle, AbortRegistration, Abortable, Aborted},
-    AsyncWriteExt, FutureExt,
+    AsyncWriteExt, FutureExt, TryFutureExt,
 };
 
 use crate::{
@@ -18,8 +18,9 @@ use crate::{
         state::RepoFilesUploadConflictResolution, RepoFilesService,
     },
     repo_files_read::state::{RepoFileReader, RepoFileReaderProvider},
+    repos::ReposService,
     runtime, store,
-    types::{DecryptedName, DecryptedPath, RepoId},
+    types::{EncryptedPath, RepoId},
     utils::{
         abort_reader::AbortReader, on_end_reader::OnEndReader, progress_reader::ProgressReader,
     },
@@ -32,7 +33,8 @@ use super::{
     state::{
         CreateDownloadResult, CreateDownloadResultFuture, CreateUploadResult,
         CreateUploadResultFuture, DownloadReaderResult, DownloadResult, RetryInitiator,
-        TransferType, UploadResult, UploadTransfer,
+        TransferDisplayName, TransferType, TransferUploadRelativeName, UploadResult,
+        UploadTransfer,
     },
     uploadable::BoxUploadable,
 };
@@ -67,6 +69,7 @@ struct TransfersServiceState {
 }
 
 pub struct TransfersService {
+    repos_service: Arc<ReposService>,
     repo_files_service: Arc<RepoFilesService>,
     store: Arc<store::Store>,
     runtime: Arc<runtime::BoxRuntime>,
@@ -76,11 +79,13 @@ pub struct TransfersService {
 
 impl TransfersService {
     pub fn new(
+        repos_service: Arc<ReposService>,
         repo_files_service: Arc<RepoFilesService>,
         store: Arc<store::Store>,
         runtime: Arc<runtime::BoxRuntime>,
     ) -> Self {
         Self {
+            repos_service,
             repo_files_service,
             store,
             runtime,
@@ -97,8 +102,8 @@ impl TransfersService {
     pub fn upload(
         self: Arc<Self>,
         repo_id: RepoId,
-        parent_path: DecryptedPath,
-        name: String,
+        parent_path: EncryptedPath,
+        name: TransferUploadRelativeName,
         uploadable: BoxUploadable,
     ) -> (u32, CreateUploadResultFuture) {
         let id = self.get_next_id();
@@ -111,8 +116,13 @@ impl TransfersService {
             },
         );
 
+        let cleanup_state = self.state.clone();
         let future = self
             .create_upload(repo_id, parent_path, name, uploadable, id)
+            .map_err(move |err| {
+                cleanup_state.write().unwrap().transfers.remove(&id);
+                err
+            })
             .boxed();
 
         (id, future)
@@ -121,14 +131,16 @@ impl TransfersService {
     async fn create_upload(
         self: Arc<Self>,
         repo_id: RepoId,
-        parent_path: DecryptedPath,
-        name: String,
+        parent_path: EncryptedPath,
+        name: TransferUploadRelativeName,
         uploadable: BoxUploadable,
         id: u32,
     ) -> CreateUploadResult {
         let size = uploadable.size().await?;
 
         let is_retriable = uploadable.is_retriable().await?;
+
+        let cipher = self.repos_service.get_cipher(&repo_id)?;
 
         let result_receiver = self.store.mutate(|state, notify, _, _| {
             let result_receiver = match self.state.write().unwrap().transfers.get_mut(&id) {
@@ -159,6 +171,7 @@ impl TransfersService {
                     repo_id,
                     parent_path,
                     name,
+                    cipher,
                 },
                 size,
                 is_persistent,
@@ -189,8 +202,13 @@ impl TransfersService {
             },
         );
 
+        let cleanup_state = self.state.clone();
         let future = self
             .create_download(reader_provider, downloadable, id)
+            .map_err(move |err| {
+                cleanup_state.write().unwrap().transfers.remove(&id);
+                err
+            })
             .boxed();
 
         (id, future)
@@ -258,7 +276,9 @@ impl TransfersService {
                 state,
                 notify,
                 id,
-                mutations::CreateTransferType::Download { name },
+                mutations::CreateTransferType::Download {
+                    name: TransferDisplayName(name),
+                },
                 size,
                 is_persistent,
                 is_retriable,
@@ -291,7 +311,7 @@ impl TransfersService {
                 state,
                 notify,
                 id,
-                reader.name.0.clone(),
+                TransferDisplayName(reader.name.0.clone()),
                 reader.size,
                 self.runtime.now_ms(),
             )
@@ -486,7 +506,7 @@ impl TransfersService {
             Some(TransferType::Upload(upload_transfer)) => {
                 self.process_upload_transfer(id, upload_transfer).await
             }
-            Some(TransferType::Download(_)) => self.process_download_transfer(id).await,
+            Some(TransferType::Download) => self.process_download_transfer(id).await,
             Some(TransferType::DownloadReader) => Ok(Box::new(|| {})), // unreachable
             None => return Err(TransferError::TransferNotFound),
         }
@@ -497,6 +517,8 @@ impl TransfersService {
         id: u32,
         upload_transfer: UploadTransfer,
     ) -> Result<Box<dyn FnOnce()>, TransferError> {
+        let cipher = self.repos_service.get_cipher(&upload_transfer.repo_id)?;
+
         if !self.store.with_state(|state| {
             repo_files_selectors::select_is_root_loaded(
                 state,
@@ -531,7 +553,7 @@ impl TransfersService {
         let (reader, size) = uploadable.reader().await?;
 
         let name = self.store.mutate(|state, notify, _, _| {
-            mutations::upload_transfer_processed(state, notify, id, size)
+            mutations::upload_transfer_processed(state, notify, id, size, &cipher)
         })?;
 
         let size = match size {
@@ -545,7 +567,7 @@ impl TransfersService {
             .upload_file_reader(
                 &upload_transfer.repo_id,
                 &upload_transfer.parent_path,
-                &DecryptedName(name),
+                name,
                 reader,
                 size,
                 RepoFilesUploadConflictResolution::Error,
@@ -612,7 +634,13 @@ impl TransfersService {
             .await?;
 
         self.store.mutate(|state, notify, _, _| {
-            mutations::download_transfer_processed(state, notify, id, name, reader.size)
+            mutations::download_transfer_processed(
+                state,
+                notify,
+                id,
+                TransferDisplayName(name),
+                reader.size,
+            )
         })?;
 
         let copy_res = io::copy_buf(

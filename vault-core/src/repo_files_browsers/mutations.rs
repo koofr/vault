@@ -1,18 +1,22 @@
-use std::collections::HashSet;
+use std::{
+    collections::{HashMap, HashSet},
+    sync::Arc,
+};
 
 use crate::{
+    cipher::Cipher,
     common::state::Status,
     eventstream::mutations::{add_mount_subscriber, remove_mount_subscriber},
     remote_files::errors::RemoteFilesErrors,
     repo_files::{
         errors::LoadFilesError, selectors as repo_files_selectors, state::RepoFilesSortField,
     },
-    repos,
+    repos::{self, errors::RepoLockedError},
     selection::{mutations as selection_mutations, state::Selection},
     sort::state::SortDirection,
     store,
     types::{DecryptedPath, RepoFileId, RepoId},
-    utils::repo_path_utils,
+    utils::{repo_encrypted_path_utils, repo_path_utils},
 };
 
 use super::{
@@ -27,9 +31,14 @@ fn create_location(
     repo_id: RepoId,
     path: &DecryptedPath,
     browser_id: u32,
+    cipher: Option<&Cipher>,
 ) -> Result<RepoFilesBrowserLocation, LoadFilesError> {
     let path = repo_path_utils::normalize_path(path)
         .map_err(|_| LoadFilesError::RemoteError(RemoteFilesErrors::invalid_path()))?;
+    let encrypted_path = match cipher {
+        Some(cipher) => cipher.encrypt_path(&path),
+        None => return Err(LoadFilesError::RepoLocked(RepoLockedError)),
+    };
 
     let eventstream_mount_subscription = repos::selectors::select_repo(state, &repo_id)
         .ok()
@@ -48,6 +57,7 @@ fn create_location(
     Ok(RepoFilesBrowserLocation {
         repo_id,
         path,
+        encrypted_path,
         eventstream_mount_subscription,
     })
 }
@@ -61,7 +71,7 @@ fn create_status(
             loaded: repo_files_selectors::select_is_root_loaded(
                 state,
                 &location.repo_id,
-                &location.path,
+                &location.encrypted_path,
             ),
         },
         Err(err) => Status::Error {
@@ -78,16 +88,26 @@ pub fn create(
     options: RepoFilesBrowserOptions,
     repo_id: RepoId,
     path: &DecryptedPath,
+    cipher: Option<&Cipher>,
 ) -> u32 {
     notify(store::Event::RepoFilesBrowsers);
 
     let browser_id = state.repo_files_browsers.next_id.next();
 
-    let location = create_location(state, notify, mutation_state, repo_id, path, browser_id);
+    let location = create_location(
+        state,
+        notify,
+        mutation_state,
+        repo_id,
+        path,
+        browser_id,
+        cipher,
+    );
 
     let status = create_status(state, location.as_ref());
 
     let browser = RepoFilesBrowser {
+        id: browser_id,
         options,
         location: location.ok(),
         status,
@@ -101,7 +121,7 @@ pub fn create(
         .browsers
         .insert(browser_id, browser);
 
-    update_files(state, notify, browser_id);
+    update_files(state, notify, browser_id, cipher);
 
     browser_id
 }
@@ -148,6 +168,7 @@ pub fn loaded(
     repo_id: &RepoId,
     path: &DecryptedPath,
     error: Option<&LoadFilesError>,
+    cipher: Option<&Cipher>,
 ) {
     let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
@@ -173,10 +194,15 @@ pub fn loaded(
         }
     }
 
-    update_files(state, notify, browser_id);
+    update_files(state, notify, browser_id, cipher);
 }
 
-pub fn update_files(state: &mut store::State, notify: &store::Notify, browser_id: u32) {
+pub fn update_files(
+    state: &mut store::State,
+    notify: &store::Notify,
+    browser_id: u32,
+    cipher: Option<&Cipher>,
+) {
     let browser = match state.repo_files_browsers.browsers.get(&browser_id) {
         Some(browser) => browser,
         _ => return,
@@ -187,7 +213,7 @@ pub fn update_files(state: &mut store::State, notify: &store::Notify, browser_id
         .as_ref()
         .map(|loc| {
             let file_ids: Vec<RepoFileId> =
-                selectors::select_file_ids(state, &loc.repo_id, &loc.path)
+                selectors::select_file_ids(state, &loc.repo_id, &loc.encrypted_path)
                     .map(ToOwned::to_owned)
                     .collect();
 
@@ -209,14 +235,19 @@ pub fn update_files(state: &mut store::State, notify: &store::Notify, browser_id
         dirty = true;
     }
 
-    let select_file_id = if let Some(name) = browser.options.select_name.clone() {
+    let select_file_id = if let Some(name) = browser
+        .options
+        .select_name
+        .clone()
+        .and_then(|name| cipher.map(|cipher| cipher.encrypt_filename(&name)))
+    {
         let file_id = browser
             .location
             .as_ref()
             .map(|loc| {
                 repo_files_selectors::get_file_id(
                     &loc.repo_id,
-                    &repo_path_utils::join_path_name(&loc.path, &name),
+                    &repo_encrypted_path_utils::join_path_name(&loc.encrypted_path, &name),
                 )
             })
             .filter(|file_id| file_ids_set.contains(file_id));
@@ -263,7 +294,7 @@ pub fn select_file(
         .location
         .as_ref()
         .map(|loc| {
-            selectors::select_file_ids(state, &loc.repo_id, &loc.path)
+            selectors::select_file_ids(state, &loc.repo_id, &loc.encrypted_path)
                 .map(ToOwned::to_owned)
                 .collect()
         })
@@ -289,7 +320,7 @@ pub fn select_all(state: &mut store::State, notify: &store::Notify, browser_id: 
         .location
         .as_ref()
         .map(|loc| {
-            selectors::select_file_ids(state, &loc.repo_id, &loc.path)
+            selectors::select_file_ids(state, &loc.repo_id, &loc.encrypted_path)
                 .map(ToOwned::to_owned)
                 .collect()
         })
@@ -338,6 +369,7 @@ pub fn sort_by(
     browser_id: u32,
     field: RepoFilesSortField,
     direction: Option<SortDirection>,
+    cipher: Option<&Cipher>,
 ) {
     let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
@@ -362,17 +394,29 @@ pub fn sort_by(
 
     state.repo_files_browsers.last_sort = browser.sort.clone();
 
-    update_files(state, notify, browser_id);
+    update_files(state, notify, browser_id, cipher);
 }
 
-pub fn handle_repo_files_mutation(state: &mut store::State, notify: &store::Notify) {
-    for browser_id in state
+pub fn handle_repo_files_mutation(
+    state: &mut store::State,
+    notify: &store::Notify,
+    ciphers: &HashMap<RepoId, Arc<Cipher>>,
+) {
+    for (browser_id, cipher) in state
         .repo_files_browsers
         .browsers
-        .keys()
-        .cloned()
+        .values()
+        .map(|browser| {
+            (
+                browser.id,
+                browser
+                    .location
+                    .as_ref()
+                    .and_then(|loc| ciphers.get(&loc.repo_id).cloned()),
+            )
+        })
         .collect::<Vec<_>>()
     {
-        update_files(state, notify, browser_id)
+        update_files(state, notify, browser_id, cipher.as_deref())
     }
 }

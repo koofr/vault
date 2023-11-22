@@ -7,7 +7,7 @@ use crate::{
     repo_files::errors::{DeleteFileError, LoadFilesError},
     store::NextId,
     transfers::errors::TransferError,
-    types::{DecryptedName, DecryptedPath, RepoId},
+    types::{DecryptedName, DecryptedPath, EncryptedPath, RepoId},
 };
 
 use super::errors::SaveError;
@@ -64,6 +64,7 @@ pub struct RepoFilesDetailsContent {
 pub struct RepoFilesDetailsLocation {
     pub repo_id: RepoId,
     pub path: DecryptedPath,
+    pub encrypted_path: EncryptedPath,
     pub eventstream_mount_subscription: Option<MountSubscription>,
     pub content: RepoFilesDetailsContent,
     pub is_editing: bool,

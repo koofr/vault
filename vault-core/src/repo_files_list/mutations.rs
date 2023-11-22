@@ -176,7 +176,10 @@ mod tests {
             RepoFilesListRecursiveItem::File {
                 relative_repo_path: Ok(DecryptedPath("/D1".into())),
                 file: RepoFile {
-                    id: RepoFileId("r1:/D1".into()),
+                    id: RepoFileId(format!(
+                        "r1:/{}",
+                        cipher.encrypt_filename(&DecryptedName("D1".into())).0
+                    )),
                     mount_id: MountId("m1".into()),
                     remote_path: RemotePath(format!(
                         "/Vault/{}",
@@ -227,7 +230,7 @@ mod tests {
                     "non-zero trailing bits at 1"
                 ))),
                 file: RepoFile {
-                    id: RepoFileId("err:r1:/D1".into()),
+                    id: RepoFileId("r1:/D1".into()),
                     mount_id: MountId("m1".into()),
                     remote_path: RemotePath("/Vault/D1".into()),
                     repo_id: RepoId("r1".into()),
@@ -283,7 +286,10 @@ mod tests {
             RepoFilesListRecursiveItem::File {
                 relative_repo_path: Ok(DecryptedPath("/F1".into())),
                 file: RepoFile {
-                    id: RepoFileId("r1:/F1".into()),
+                    id: RepoFileId(format!(
+                        "r1:/{}",
+                        cipher.encrypt_filename(&DecryptedName("F1".into())).0
+                    )),
                     mount_id: MountId("m1".into()),
                     remote_path: RemotePath(format!(
                         "/Vault/{}",
@@ -344,7 +350,11 @@ mod tests {
             RepoFilesListRecursiveItem::File {
                 relative_repo_path: Ok(DecryptedPath("/F1".into())),
                 file: RepoFile {
-                    id: RepoFileId("r1:/D1/F1".into()),
+                    id: RepoFileId(format!(
+                        "r1:/{}/{}",
+                        cipher.encrypt_filename(&DecryptedName("D1".into())).0,
+                        cipher.encrypt_filename(&DecryptedName("F1".into())).0
+                    )),
                     mount_id: MountId("m1".into()),
                     remote_path: RemotePath(format!(
                         "/Vault/{}/{}",
@@ -397,7 +407,7 @@ mod tests {
                     "non-zero trailing bits at 1"
                 ))),
                 file: RepoFile {
-                    id: RepoFileId("err:r1:/F1".into()),
+                    id: RepoFileId("r1:/F1".into()),
                     mount_id: MountId("m1".into()),
                     remote_path: RemotePath("/Vault/F1".into()),
                     repo_id: RepoId("r1".into()),

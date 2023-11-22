@@ -57,6 +57,10 @@ impl EncryptedPath {
     }
 }
 
+lazy_static! {
+    pub static ref ENCRYPTED_PATH_ROOT: EncryptedPath = EncryptedPath("/".into());
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Serialize, Deserialize)]
 pub struct DecryptedPath(pub String);
 

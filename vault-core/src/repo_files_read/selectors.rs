@@ -8,7 +8,7 @@ use crate::{
     repos::selectors as repos_selectors,
     store,
     types::DecryptedName,
-    utils::repo_path_utils,
+    utils::repo_encrypted_path_utils,
 };
 
 pub fn select_files_zip_name(state: &store::State, files: &[RepoFile]) -> DecryptedName {
@@ -22,9 +22,7 @@ pub fn select_files_zip_name(state: &store::State, files: &[RepoFile]) -> Decryp
     let mut parent_ids_set = files
         .iter()
         .filter_map(|file| {
-            file.decrypted_path()
-                .ok()
-                .and_then(|path| repo_path_utils::parent_path(path))
+            repo_encrypted_path_utils::parent_path(&file.encrypted_path)
                 .map(|parent_path| repo_files_selectors::get_file_id(&file.repo_id, &parent_path))
         })
         .collect::<HashSet<_>>();
@@ -98,11 +96,39 @@ mod tests {
             ciphers.clone(),
             vec![repo_files_test_helpers::create_file("F3", &cipher)],
         );
-        let d1 = repo_files_selectors::select_file(&state, &RepoFileId("r1:/D1".into())).unwrap();
-        let f1 = repo_files_selectors::select_file(&state, &RepoFileId("r1:/F1".into())).unwrap();
-        let f2 = repo_files_selectors::select_file(&state, &RepoFileId("r1:/F2".into())).unwrap();
-        let f3 =
-            repo_files_selectors::select_file(&state, &RepoFileId("r1:/D1/F3".into())).unwrap();
+        let d1 = repo_files_selectors::select_file(
+            &state,
+            &RepoFileId(format!(
+                "r1:/{}",
+                cipher.encrypt_filename(&DecryptedName("D1".into())).0
+            )),
+        )
+        .unwrap();
+        let f1 = repo_files_selectors::select_file(
+            &state,
+            &RepoFileId(format!(
+                "r1:/{}",
+                cipher.encrypt_filename(&DecryptedName("F1".into())).0
+            )),
+        )
+        .unwrap();
+        let f2 = repo_files_selectors::select_file(
+            &state,
+            &RepoFileId(format!(
+                "r1:/{}",
+                cipher.encrypt_filename(&DecryptedName("F2".into())).0
+            )),
+        )
+        .unwrap();
+        let f3 = repo_files_selectors::select_file(
+            &state,
+            &RepoFileId(format!(
+                "r1:/{}/{}",
+                cipher.encrypt_filename(&DecryptedName("D1".into())).0,
+                cipher.encrypt_filename(&DecryptedName("F3".into())).0
+            )),
+        )
+        .unwrap();
 
         assert_eq!(
             select_files_zip_name(&state, &[d1.clone(), f1.clone(), f2.clone()]),

@@ -1,7 +1,7 @@
 use crate::{
     repo_files::errors::MoveFileError,
     store,
-    types::{DecryptedPath, RepoId},
+    types::{EncryptedPath, RepoId},
 };
 
 use super::{
@@ -13,8 +13,8 @@ pub fn show(
     state: &mut store::State,
     notify: &store::Notify,
     repo_id: RepoId,
-    src_paths: Vec<DecryptedPath>,
-    dest_path: DecryptedPath,
+    src_paths: Vec<EncryptedPath>,
+    dest_path: EncryptedPath,
     mode: RepoFilesMoveMode,
     dir_picker_id: u32,
 ) {
@@ -29,7 +29,7 @@ pub fn show(
     });
 }
 
-pub fn set_dest_path(state: &mut store::State, notify: &store::Notify, dest_path: DecryptedPath) {
+pub fn set_dest_path(state: &mut store::State, notify: &store::Notify, dest_path: EncryptedPath) {
     if let Some(ref mut repo_files_move) = state.repo_files_move {
         notify(store::Event::RepoFilesMove);
 
