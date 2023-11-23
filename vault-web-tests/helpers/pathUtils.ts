@@ -11,6 +11,9 @@ export function splitParentName(path: string): [string, string] {
   }
   const parts = path.split('/');
   const name = parts.pop();
+  if (name === undefined) {
+    throw new Error(`invalid path: ${path}`);
+  }
   let parentPath = parts.join('/');
   if (parentPath === '') {
     parentPath = '/';

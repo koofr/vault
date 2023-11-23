@@ -4,20 +4,20 @@ import { useWebVault } from '../../webVault/useWebVault';
 
 export function useBrowser(
   repoId: string,
-  path: string,
+  encryptedPath: string,
   selectName: string | undefined,
 ): number {
   const webVault = useWebVault();
 
   const lastRepoId = useRef<string>(repoId);
-  const lastPath = useRef<string>(path);
+  const lastEncryptedPath = useRef<string>(encryptedPath);
   const lastBrowserId = useRef<number>();
 
   const browserId = useMemo(() => {
     if (
       lastBrowserId.current !== undefined &&
       repoId === lastRepoId.current &&
-      path === lastPath.current &&
+      encryptedPath === lastEncryptedPath.current &&
       selectName === undefined
     ) {
       // if selectName was set and then changed to undefined, use the same
@@ -25,16 +25,16 @@ export function useBrowser(
       return lastBrowserId.current;
     }
 
-    const browserId = webVault.repoFilesBrowsersCreate(repoId, path, {
+    const browserId = webVault.repoFilesBrowsersCreate(repoId, encryptedPath, {
       selectName,
     });
 
     lastRepoId.current = repoId;
-    lastPath.current = path;
+    lastEncryptedPath.current = encryptedPath;
     lastBrowserId.current = browserId;
 
     return browserId;
-  }, [webVault, repoId, path, selectName]);
+  }, [webVault, repoId, encryptedPath, selectName]);
 
   useEffect(() => {
     return () => {

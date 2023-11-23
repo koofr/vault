@@ -43,14 +43,10 @@ const FileName = memo<{ file: RepoFile }>(({ file }) => {
   const theme = useTheme();
   const webVault = useWebVault();
   const onClick = useCallback(() => {
-    if (file.path !== undefined) {
-      downloadFile(webVault, file.repoId, file.path, isMobile);
-    }
+    downloadFile(webVault, file.repoId, file.encryptedPath, isMobile);
   }, [webVault, file, isMobile]);
   const renameFile = useCallback(() => {
-    if (file.path !== undefined) {
-      webVault.repoFilesRenameFile(file.repoId, file.path);
-    }
+    webVault.repoFilesRenameFile(file.repoId, file.encryptedPath);
   }, [webVault, file]);
 
   return (
@@ -81,50 +77,46 @@ const FileName = memo<{ file: RepoFile }>(({ file }) => {
             `,
         )}
       >
-        {file.path != null ? (
-          file.type === 'Dir' ? (
-            <Link
-              to={repoFilesLink(file.repoId, file.path)}
-              className={css`
-                font-weight: 600;
+        {file.type === 'Dir' ? (
+          <Link
+            to={repoFilesLink(file.repoId, file.encryptedPath)}
+            className={css`
+              font-weight: 600;
 
-                ${allStates} {
-                  color: ${theme.colors.text};
-                }
-              `}
-            >
-              {file.name}
-            </Link>
-          ) : fileHasDetails(file) ? (
-            <Link
-              to={repoFilesDetailsLink(file.repoId, file.path)}
-              className={css`
-                ${allStates} {
-                  color: ${theme.colors.text};
-                }
-              `}
-            >
-              {file.name}
-            </Link>
-          ) : (
-            <a
-              href="."
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onClick();
-              }}
-              className={css`
-                ${allStates} {
-                  color: ${theme.colors.text};
-                }
-              `}
-            >
-              {file.name}
-            </a>
-          )
+              ${allStates} {
+                color: ${theme.colors.text};
+              }
+            `}
+          >
+            {file.name}
+          </Link>
+        ) : fileHasDetails(file) ? (
+          <Link
+            to={repoFilesDetailsLink(file.repoId, file.encryptedPath)}
+            className={css`
+              ${allStates} {
+                color: ${theme.colors.text};
+              }
+            `}
+          >
+            {file.name}
+          </Link>
         ) : (
-          file.name
+          <a
+            href="."
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onClick();
+            }}
+            className={css`
+              ${allStates} {
+                color: ${theme.colors.text};
+              }
+            `}
+          >
+            {file.name}
+          </a>
         )}
         {file.nameError !== undefined ? ' (ERROR)' : null}
       </span>

@@ -6,8 +6,8 @@ import vaultWasm, {
 } from '../vault-wasm-nodejs/vault-wasm.js';
 import { BrowserEventstreamWebSocketDelegate } from '../vault-wasm-nodejs/vault-wasm.js';
 
-import { splitParentName } from './pathUtils.js';
-import { sleep } from './time.js';
+import { splitParentName } from './pathUtils';
+import { sleep } from './time';
 
 const { initConsole, WebVault } = vaultWasm;
 
@@ -33,7 +33,7 @@ export class WebVaultClient {
     oauth2ClientId: string,
     oauth2ClientSecret: string,
     oauth2RedirectUri: string,
-    ignoreHTTPSErrors: boolean
+    ignoreHTTPSErrors: boolean,
   ) {
     tryInitConsole();
 
@@ -82,7 +82,7 @@ export class WebVaultClient {
       browserHttpClientDelegate,
       browserEventstreamWebSocketDelegate,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      storage as any
+      storage as any,
     );
 
     this._subscribeNotifications();
@@ -97,7 +97,7 @@ export class WebVaultClient {
   subscribe<T>(
     subscribe: (webVault: WebVault, callback: () => void) => number,
     getDataFunc: (webVault: WebVault) => (subscriptionId: number) => T,
-    callback: (data: T, unsubscribe: () => void) => void
+    callback: (data: T, unsubscribe: () => void) => void,
   ): () => void {
     // eslint-disable-next-line prefer-const
     let subscriptionId: number | undefined;
@@ -137,7 +137,7 @@ export class WebVaultClient {
     subscribe: (webVault: WebVault, callback: () => void) => number,
     getDataFunc: (webVault: WebVault) => (subscriptionId: number) => T,
     check: (data: T) => boolean,
-    timeoutMs?: number
+    timeoutMs?: number,
   ): Promise<T> {
     return new Promise<T>((resolve, reject) => {
       let timeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -155,7 +155,7 @@ export class WebVaultClient {
               clearTimeout(timeoutId);
             }
           }
-        }
+        },
       );
 
       if (timeoutMs !== undefined) {
@@ -168,11 +168,13 @@ export class WebVaultClient {
     });
   }
 
+  // repos
+
   async waitForReposLoaded() {
     await this.waitFor(
       (v, cb) => v.reposSubscribe(cb),
       (v) => v.reposData,
-      (repos) => repos.status.type === 'Loaded'
+      (repos) => repos.status.type === 'Loaded',
     );
   }
 
@@ -180,7 +182,7 @@ export class WebVaultClient {
     const repos = await this.waitFor(
       (v, cb) => v.reposSubscribe(cb),
       (v) => v.reposData,
-      (repos) => repos.status.type === 'Loaded' && repos.repos.length > 0
+      (repos) => repos.status.type === 'Loaded' && repos.repos.length > 0,
     );
 
     return repos.repos[0];
@@ -198,14 +200,16 @@ export class WebVaultClient {
     }
   }
 
+  // repo files
+
   async getFileContent(
     repo: Repo,
-    path: string,
-    timeoutMs?: number
+    encryptedPath: string,
+    timeoutMs?: number,
   ): Promise<string> {
     const detailsId = this.webVault.repoFilesDetailsCreate(
       repo.id,
-      path,
+      encryptedPath,
       false,
       {
         autosaveIntervalMs: 20000,
@@ -213,25 +217,26 @@ export class WebVaultClient {
           categories: [],
           exts: [],
         },
-      }
+      },
     );
 
     try {
       await this.waitFor(
         (v, cb) => v.repoFilesDetailsInfoSubscribe(detailsId, cb),
         (v) => v.repoFilesDetailsInfoData,
-        (info) => info.status.type === 'Loaded' || info.status.type === 'Error',
-        timeoutMs
+        (info) =>
+          info?.status.type === 'Loaded' || info?.status.type === 'Error',
+        timeoutMs,
       );
 
       const stream = await this.webVault.repoFilesDetailsGetFileStream(
         detailsId,
         false,
-        new AbortController().signal
+        new AbortController().signal,
       );
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return await new Response(stream.stream!).text();
+      return await new Response(stream!.stream!).text();
     } finally {
       await this.webVault.repoFilesDetailsDestroy(detailsId);
     }
@@ -239,10 +244,10 @@ export class WebVaultClient {
 
   async waitForFileContent(
     repo: Repo,
-    path: string,
+    encryptedPath: string,
     expectedContent: string,
     timeoutMs: number,
-    sleepMs = 25
+    sleepMs = 25,
   ): Promise<void> {
     const deadline = Date.now() + timeoutMs;
 
@@ -250,7 +255,11 @@ export class WebVaultClient {
 
     while (Date.now() < deadline) {
       try {
-        const content = await this.getFileContent(repo, path, timeoutMs);
+        const content = await this.getFileContent(
+          repo,
+          encryptedPath,
+          timeoutMs,
+        );
 
         if (content === expectedContent) {
           return;
@@ -263,40 +272,41 @@ export class WebVaultClient {
     }
 
     throw new Error(
-      `waitForFileContent timeout in ${timeoutMs} ms: ${lastErr}`
+      `waitForFileContent timeout in ${timeoutMs} ms: ${lastErr}`,
     );
   }
 
   async setFileContent(
     repo: Repo,
-    path: string,
+    encryptedPath: string,
+    ext: string,
     content: string,
-    timeoutMs?: number
+    timeoutMs?: number,
   ) {
     const detailsId = this.webVault.repoFilesDetailsCreate(
       repo.id,
-      path,
+      encryptedPath,
       true,
       {
         autosaveIntervalMs: 20000,
         loadContent: {
           categories: [],
-          exts: [path.split('/').pop().split('.').pop()],
+          exts: [ext],
         },
-      }
+      },
     );
 
     try {
       await this.waitFor(
         (v, cb) => v.repoFilesDetailsInfoSubscribe(detailsId, cb),
         (v) => v.repoFilesDetailsInfoData,
-        (info) => info.contentStatus.type === 'Loaded',
-        timeoutMs
+        (info) => info?.contentStatus.type === 'Loaded',
+        timeoutMs,
       );
 
       this.webVault.repoFilesDetailsSetContent(
         detailsId,
-        new TextEncoder().encode(content)
+        new TextEncoder().encode(content),
       );
 
       await this.webVault.repoFilesDetailsSave(detailsId);
@@ -305,24 +315,24 @@ export class WebVaultClient {
         (v, cb) => v.repoFilesDetailsInfoSubscribe(detailsId, cb),
         (v) => v.repoFilesDetailsInfoData,
         (info) => {
-          return !info.isDirty;
+          return info?.isDirty === false;
         },
-        timeoutMs
+        timeoutMs,
       );
     } finally {
       await this.webVault.repoFilesDetailsDestroy(detailsId);
     }
   }
 
-  async ensureFile(repo: Repo, path: string, timeoutMs?: number) {
-    const [parentPath] = splitParentName(path);
+  async ensureFile(repo: Repo, encryptedPath: string, timeoutMs?: number) {
+    const [encryptedParentPath] = splitParentName(encryptedPath);
 
     const browserId = this.webVault.repoFilesBrowsersCreate(
       repo.id,
-      parentPath,
+      encryptedParentPath,
       {
         selectName: undefined,
-      }
+      },
     );
 
     try {
@@ -330,9 +340,9 @@ export class WebVaultClient {
         (v, cb) => v.repoFilesBrowsersInfoSubscribe(browserId, cb),
         (v) => v.repoFilesBrowsersInfoData,
         (info) => {
-          return info.status.type === 'Loaded';
+          return info?.status.type === 'Loaded';
         },
-        timeoutMs
+        timeoutMs,
       );
     } finally {
       this.webVault.repoFilesBrowsersDestroy(browserId);
@@ -341,25 +351,25 @@ export class WebVaultClient {
 
   async renameFile(
     repo: Repo,
-    path: string,
+    encryptedPath: string,
     newName: string,
-    timeoutMs?: number
+    timeoutMs?: number,
   ) {
-    await this.ensureFile(repo, path, timeoutMs);
+    await this.ensureFile(repo, encryptedPath, timeoutMs);
 
     const promptDialogFillPromise = this.promptDialogFill(newName);
 
-    await this.webVault.repoFilesRenameFile(repo.id, path);
+    await this.webVault.repoFilesRenameFile(repo.id, encryptedPath);
 
     await promptDialogFillPromise;
   }
 
-  async deleteFile(repo: Repo, path: string, timeoutMs?: number) {
-    await this.ensureFile(repo, path, timeoutMs);
+  async deleteFile(repo: Repo, encryptedPath: string, timeoutMs?: number) {
+    await this.ensureFile(repo, encryptedPath, timeoutMs);
 
     const confirmDialogPromise = this.confirmDialog();
 
-    await this.webVault.repoFilesDeleteFile(repo.id, path);
+    await this.webVault.repoFilesDeleteFile(repo.id, encryptedPath);
 
     await confirmDialogPromise;
   }
@@ -374,7 +384,7 @@ export class WebVaultClient {
         (v, cb) => v.dialogsSubscribe(cb),
         (v) => v.dialogsData,
         (dialogs) => dialogs.length > 0,
-        5000
+        5000,
       )
     )[0];
 
@@ -382,7 +392,7 @@ export class WebVaultClient {
       (v, cb) => v.dialogsDialogSubscribe(dialogId, cb),
       (v) => v.dialogsDialogData,
       (dialog) => dialog !== undefined,
-      5000
+      5000,
     );
 
     if (inputValue !== undefined) {
@@ -395,7 +405,7 @@ export class WebVaultClient {
       (v, cb) => v.dialogsDialogSubscribe(dialogId, cb),
       (v) => v.dialogsDialogData,
       (dialog) => dialog === undefined,
-      5000
+      5000,
     );
   }
 
@@ -409,7 +419,7 @@ export class WebVaultClient {
           console.warn(`WebVault notification: ${notification.message}`);
           this.webVault.notificationsRemove(notification.id);
         }
-      }
+      },
     );
   }
 

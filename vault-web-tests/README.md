@@ -60,3 +60,9 @@ npx playwright test --debug
 # Auto generate tests with Codegen.
 npx playwright codegen
 ```
+
+## Run example
+
+```sh
+npx ts-node helpers/webVaultClientExample.ts
+```

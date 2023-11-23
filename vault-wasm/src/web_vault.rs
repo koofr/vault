@@ -12,7 +12,8 @@ use web_sys::{AbortSignal, Storage};
 use vault_core::{
     dir_pickers::state::DirPickerItemId,
     store::Event,
-    types::{DecryptedPath, RepoFileId, RepoId},
+    transfers,
+    types::{DecryptedName, EncryptedPath, RepoFileId, RepoId},
 };
 
 use crate::{
@@ -947,15 +948,6 @@ impl WebVault {
         self.get_data_js(id, self.subscription_data.repo_files_file.clone())
     }
 
-    #[wasm_bindgen(js_name = repoFilesLoadFiles)]
-    pub async fn repo_files_load_files(&self, repo_id: String, path: String) {
-        self.handle_result(
-            self.vault
-                .repo_files_load_files(&RepoId(repo_id), &DecryptedPath(path))
-                .await,
-        )
-    }
-
     async fn repo_file_reader_to_file_stream(
         &self,
         file_reader: Result<
@@ -1010,14 +1002,14 @@ impl WebVault {
     pub async fn repo_files_get_file_stream(
         &self,
         repo_id: String,
-        path: String,
+        encrypted_path: String,
         force_blob: bool,
     ) -> FileStreamOption {
         self.repo_file_reader_to_file_stream(
             match self
                 .vault
                 .clone()
-                .repo_files_get_file_reader(&RepoId(repo_id), &DecryptedPath(path))
+                .repo_files_get_file_reader(&RepoId(repo_id), &EncryptedPath(encrypted_path))
             {
                 Ok(provider) => provider.reader().await,
                 Err(err) => Err(err),
@@ -1029,10 +1021,10 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = repoFilesDeleteFile)]
-    pub async fn repo_files_delete_file(&self, repo_id: String, path: String) {
+    pub async fn repo_files_delete_file(&self, repo_id: String, encrypted_path: String) {
         match self
             .vault
-            .repo_files_delete_files(&[(RepoId(repo_id), DecryptedPath(path))])
+            .repo_files_delete_files(&[(RepoId(repo_id), EncryptedPath(encrypted_path))])
             .await
         {
             Ok(()) => {}
@@ -1042,12 +1034,21 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = repoFilesRenameFile)]
-    pub async fn repo_files_rename_file(&self, repo_id: String, path: String) {
+    pub async fn repo_files_rename_file(&self, repo_id: String, encrypted_path: String) {
         self.handle_result(
             self.vault
-                .repo_files_rename_file(&RepoId(repo_id), &DecryptedPath(path))
+                .repo_files_rename_file(&RepoId(repo_id), &EncryptedPath(encrypted_path))
                 .await,
         )
+    }
+
+    #[wasm_bindgen(js_name = repoFilesEncryptName)]
+    pub fn repo_files_encrypt_name(&self, repo_id: String, name: String) -> Option<String> {
+        self.vault
+            .repo_files_service
+            .encrypt_filename(&RepoId(repo_id), &DecryptedName(name))
+            .map(|x| x.0)
+            .ok()
     }
 
     // transfers
@@ -1137,7 +1138,7 @@ impl WebVault {
     pub async fn transfers_upload(
         &self,
         repo_id: String,
-        parent_path: String,
+        encrypted_parent_path: String,
         name: String,
         file: FileOrBlob,
     ) -> RepoFilesUploadResultOption {
@@ -1145,8 +1146,8 @@ impl WebVault {
 
         let (_, create_future) = self.vault.transfers_upload(
             RepoId(repo_id),
-            DecryptedPath(parent_path),
-            name,
+            EncryptedPath(encrypted_parent_path),
+            transfers::state::TransferUploadRelativeName(name),
             uploadable,
         );
 
@@ -1221,7 +1222,7 @@ impl WebVault {
     pub fn repo_files_browsers_create(
         &self,
         repo_id: String,
-        path: String,
+        encrypted_path: String,
         options: RepoFilesBrowserOptions,
     ) -> u32 {
         let options: dto::RepoFilesBrowserOptions =
@@ -1229,7 +1230,7 @@ impl WebVault {
 
         let (browser_id, load_future) = self.vault.repo_files_browsers_create(
             RepoId(repo_id),
-            &DecryptedPath(path),
+            &EncryptedPath(encrypted_path),
             options.into(),
         );
 
@@ -1399,7 +1400,7 @@ impl WebVault {
     pub fn repo_files_details_create(
         &self,
         repo_id: String,
-        path: String,
+        encrypted_path: String,
         is_editing: bool,
         options: RepoFilesDetailsOptions,
     ) -> u32 {
@@ -1408,7 +1409,7 @@ impl WebVault {
 
         let (details_id, load_future) = self.vault.repo_files_details_create(
             RepoId(repo_id),
-            &DecryptedPath(path),
+            &EncryptedPath(encrypted_path),
             is_editing,
             options.into(),
         );

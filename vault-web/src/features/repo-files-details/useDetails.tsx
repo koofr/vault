@@ -4,7 +4,7 @@ import { useWebVault } from '../../webVault/useWebVault';
 
 export function useDetails(
   repoId: string,
-  path: string,
+  encryptedPath: string,
   isEditing: boolean,
   autosaveIntervalMs?: number,
 ): number {
@@ -12,9 +12,9 @@ export function useDetails(
 
   const detailsId = useMemo(
     () => {
-      // we create a new details with repoId, path and then use edit and
+      // we create a new details with repoId, encryptedPath and then use edit and
       // cancelEditing to control isEditing
-      return webVault.repoFilesDetailsCreate(repoId, path, isEditing, {
+      return webVault.repoFilesDetailsCreate(repoId, encryptedPath, isEditing, {
         loadContent: {
           categories: ['Text', 'Code'],
           exts: [],
@@ -25,7 +25,7 @@ export function useDetails(
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       webVault,
-      // repoId, path and autosaveIntervalMs will never change, isEditing must
+      // repoId, encryptedPath and autosaveIntervalMs will never change, isEditing must
       // not be a dependency
     ],
   );

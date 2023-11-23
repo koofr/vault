@@ -88,9 +88,15 @@ check-web: build-wasm-web
 	cd vault-web && npm run tsc
 	cd vault-web && npm run eslint
 
+check-web-tsc-watch:
+	cd vault-web && npm run tsc-watch
+
 check-web-tests: build-wasm-web-tests
 	cd vault-web-tests && npm run tsc
 	cd vault-web-tests && npm run eslint
+
+check-web-tests-tsc-watch:
+	cd vault-web-tests && npm run tsc-watch
 
 check-android-env:
 	if [[ -z "$$ANDROID_HOME" ]]; then echo "ANDROID_HOME not set. run source vault-android/.profile"; false; fi

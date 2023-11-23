@@ -21,99 +21,122 @@ import { useShortcuts } from './useShortcuts';
 
 const RepoFilesDetailsInner = memo<{
   repo: Repo;
-  path: string;
+  encryptedPath: string;
   isEditing: boolean;
   autosaveIntervalMs?: number;
-  expectedNewPath: MutableRefObject<string | undefined>;
-}>(({ repo, path, isEditing, autosaveIntervalMs, expectedNewPath }) => {
-  const webVault = useWebVault();
-  const navigate = useNavigate();
-  const detailsId = useDetails(repo.id, path, isEditing, autosaveIntervalMs);
+  expectedEncryptedNewPath: MutableRefObject<string | undefined>;
+}>(
+  ({
+    repo,
+    encryptedPath,
+    isEditing,
+    autosaveIntervalMs,
+    expectedEncryptedNewPath,
+  }) => {
+    const webVault = useWebVault();
+    const navigate = useNavigate();
+    const detailsId = useDetails(
+      repo.id,
+      encryptedPath,
+      isEditing,
+      autosaveIntervalMs,
+    );
 
-  const [info, infoRef] = useSubscribe(
-    (v, cb) => v.repoFilesDetailsInfoSubscribe(detailsId, cb),
-    (v) => v.repoFilesDetailsInfoData,
-    [detailsId],
-  );
+    const [info, infoRef] = useSubscribe(
+      (v, cb) => v.repoFilesDetailsInfoSubscribe(detailsId, cb),
+      (v) => v.repoFilesDetailsInfoData,
+      [detailsId],
+    );
 
-  useDocumentTitle(info?.fileName);
+    useDocumentTitle(info?.fileName);
 
-  useEffect(() => {
-    if (
-      info !== undefined &&
-      info.repoId !== undefined &&
-      info.path !== undefined
-    ) {
-      if (info.shouldDestroy) {
-        // TODO navigate to parent and select the file
-        navigate(
-          repoFilesLink(info.repoId, info.parentPath ?? '/', info.fileName),
-        );
-      } else if (info.path !== path) {
-        expectedNewPath.current = info.path;
+    useEffect(() => {
+      if (
+        info !== undefined &&
+        info.repoId !== undefined &&
+        info.encryptedPath !== undefined
+      ) {
+        if (info.shouldDestroy) {
+          // TODO navigate to parent and select the file
+          navigate(
+            repoFilesLink(
+              info.repoId,
+              info.encryptedParentPath ?? '/',
+              info.fileName,
+            ),
+          );
+        } else if (info.encryptedPath !== encryptedPath) {
+          expectedEncryptedNewPath.current = info.encryptedPath;
 
-        navigate(
-          repoFilesDetailsLink(
-            info.repoId,
-            info.path,
-            info.isEditing,
-            autosaveIntervalMs,
-          ),
-          { replace: true },
-        );
+          navigate(
+            repoFilesDetailsLink(
+              info.repoId,
+              info.encryptedPath,
+              info.isEditing,
+              autosaveIntervalMs,
+            ),
+            { replace: true },
+          );
+        }
       }
+    }, [
+      info,
+      encryptedPath,
+      autosaveIntervalMs,
+      navigate,
+      expectedEncryptedNewPath,
+    ]);
+
+    useShortcuts(detailsId, infoRef);
+
+    usePreventUnload(info?.isDirty ?? false);
+
+    const documentSize = useDocumentSize();
+
+    if (info === undefined) {
+      return null;
     }
-  }, [info, path, autosaveIntervalMs, navigate, expectedNewPath]);
 
-  useShortcuts(detailsId, infoRef);
+    const contentEl = getContentEl(
+      detailsId,
+      info.fileName,
+      info.fileExt,
+      info.fileCategory,
+      info.contentStatus,
+      info.isEditing,
+      documentSize,
+    );
 
-  usePreventUnload(info?.isDirty ?? false);
+    return (
+      <>
+        <RepoFilesDetailsNavbar detailsId={detailsId} info={info} />
 
-  const documentSize = useDocumentSize();
+        <main
+          className={css`
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+          `}
+        >
+          {info.status.type === 'Error' && !info.isDirty ? (
+            <ErrorComponent
+              error={info.status.error}
+              onRetry={() => {
+                webVault.repoFilesDetailsLoadFile(detailsId);
+              }}
+            />
+          ) : contentEl !== undefined ? (
+            contentEl
+          ) : info.status.type === 'Loading' ? (
+            <LoadingCircle />
+          ) : null}
+        </main>
 
-  if (info === undefined) {
-    return null;
-  }
-
-  const contentEl = getContentEl(
-    detailsId,
-    info.fileName,
-    info.fileExt,
-    info.fileCategory,
-    info.contentStatus,
-    info.isEditing,
-    documentSize,
-  );
-
-  return (
-    <>
-      <RepoFilesDetailsNavbar detailsId={detailsId} info={info} />
-
-      <main
-        className={css`
-          display: flex;
-          flex-direction: column;
-          flex-grow: 1;
-        `}
-      >
-        {info.status.type === 'Error' && !info.isDirty ? (
-          <ErrorComponent
-            error={info.status.error}
-            onRetry={() => {
-              webVault.repoFilesDetailsLoadFile(detailsId);
-            }}
-          />
-        ) : contentEl !== undefined ? (
-          contentEl
-        ) : info.status.type === 'Loading' ? (
-          <LoadingCircle />
-        ) : null}
-      </main>
-
-      <Transfers />
-    </>
-  );
-});
+        <Transfers />
+      </>
+    );
+  },
+);
 
 function getAutosaveIntervalMs(
   searchParams: URLSearchParams,
@@ -131,32 +154,33 @@ function getAutosaveIntervalMs(
 
 export const RepoFilesDetails = memo<{ repo: Repo }>(({ repo }) => {
   const [searchParams] = useSearchParams();
-  const path = searchParams.get('path') ?? '/';
+  const encryptedPath = searchParams.get('path') ?? '/';
   const isEditing = searchParams.get('editing') === 'true';
   let autosaveIntervalMs = getAutosaveIntervalMs(searchParams);
 
-  const [currentPath, setCurrentPath] = useState(path);
-  const expectedNewPath = useRef<string>();
+  const [currentEncryptedPath, setCurrentEncryptedPath] =
+    useState(encryptedPath);
+  const expectedEncryptedNewPath = useRef<string>();
   const [key, setKey] = useState(0);
 
-  if (path !== currentPath) {
-    setCurrentPath(path);
-    if (path !== expectedNewPath.current) {
+  if (encryptedPath !== currentEncryptedPath) {
+    setCurrentEncryptedPath(encryptedPath);
+    if (encryptedPath !== expectedEncryptedNewPath.current) {
       setKey((key) => key + 1);
     }
-    expectedNewPath.current = undefined;
+    expectedEncryptedNewPath.current = undefined;
   }
 
-  // we specify the key so that the component is recreated when repo or path
+  // we specify the key so that the component is recreated when repo or encryptedPath
   // change
   return (
     <RepoFilesDetailsInner
       key={key}
       repo={repo}
-      path={path}
+      encryptedPath={encryptedPath}
       isEditing={isEditing}
       autosaveIntervalMs={autosaveIntervalMs}
-      expectedNewPath={expectedNewPath}
+      expectedEncryptedNewPath={expectedEncryptedNewPath}
     />
   );
 });

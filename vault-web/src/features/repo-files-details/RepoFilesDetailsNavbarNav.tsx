@@ -49,10 +49,10 @@ export const RepoFilesDetailsNavbarNav = memo<{
         <>
           {fileCategoryHasDetailsEdit(info.fileCategory) &&
           info.repoId !== undefined &&
-          info.path !== undefined ? (
+          info.encryptedPath !== undefined ? (
             <NavbarNavToolbarItem
               as={Link}
-              to={repoFilesDetailsLink(info.repoId, info.path, true)}
+              to={repoFilesDetailsLink(info.repoId, info.encryptedPath, true)}
               icon={<FilesEditIcon role="img" />}
               iconHover={<FilesEditHoverIcon role="img" />}
             >
@@ -63,8 +63,16 @@ export const RepoFilesDetailsNavbarNav = memo<{
             icon={<FilesToolbarDownloadIcon role="img" />}
             iconHover={<FilesToolbarDownloadHoverIcon role="img" />}
             onClick={() => {
-              if (info.repoId !== undefined && info.path !== undefined) {
-                downloadFile(webVault, info.repoId, info.path, isMobile);
+              if (
+                info.repoId !== undefined &&
+                info.encryptedPath !== undefined
+              ) {
+                downloadFile(
+                  webVault,
+                  info.repoId,
+                  info.encryptedPath,
+                  isMobile,
+                );
               }
             }}
           >
@@ -74,8 +82,11 @@ export const RepoFilesDetailsNavbarNav = memo<{
             icon={<FilesRenameIcon role="img" />}
             iconHover={<FilesRenameHoverIcon role="img" />}
             onClick={() => {
-              if (info.repoId !== undefined && info.path !== undefined) {
-                webVault.repoFilesRenameFile(info.repoId, info.path);
+              if (
+                info.repoId !== undefined &&
+                info.encryptedPath !== undefined
+              ) {
+                webVault.repoFilesRenameFile(info.repoId, info.encryptedPath);
               }
             }}
           >

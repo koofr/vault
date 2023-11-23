@@ -17,9 +17,10 @@ export function useUploadFiles(): (
       // we need to get current repoId and path before calling UploadsHelper
       // because user could change the current directory while UploadsHelper is
       // processing files and files could be uploaded to incorrect location
-      const { repoId, path } = webVault.repoFilesBrowsersInfo(browserId)!;
+      const { repoId, encryptedPath } =
+        webVault.repoFilesBrowsersInfo(browserId)!;
 
-      if (repoId === undefined || path === undefined) {
+      if (repoId === undefined || encryptedPath === undefined) {
         return [];
       }
 
@@ -31,7 +32,12 @@ export function useUploadFiles(): (
                 ? entry.name
                 : entry.parentPath.slice(1) + '/' + entry.name;
 
-            await webVault.transfersUpload(repoId, path, name, entry.file);
+            await webVault.transfersUpload(
+              repoId,
+              encryptedPath,
+              name,
+              entry.file,
+            );
           });
         },
       });

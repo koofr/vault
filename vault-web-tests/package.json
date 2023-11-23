@@ -6,6 +6,7 @@
     "test": "npx playwright test",
     "eslint": "eslint .",
     "tsc": "tsc",
+    "tsc-watch": "tsc --watch",
     "prettier": "prettier -w tests"
   },
   "engines": {

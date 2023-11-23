@@ -15,13 +15,9 @@ import {
   ModalTitle,
 } from '../../components/modal/Modal';
 import { useIsMobile } from '../../components/useIsMobile';
-import { RepoFile, RepoFilesMoveInfo } from '../../vault-wasm/vault-wasm';
+import { RepoFilesMoveInfo } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
-
-export interface RepoFileWithPath extends RepoFile {
-  path: string;
-}
 
 export const RepoFilesMoveModalContent = memo<{
   info: RepoFilesMoveInfo;

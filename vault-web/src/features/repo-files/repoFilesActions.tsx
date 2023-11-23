@@ -4,11 +4,15 @@ import { WebVault } from '../../vault-wasm/vault-wasm';
 export const downloadFile = async (
   webVault: WebVault,
   repoId: string,
-  path: string,
+  encryptedPath: string,
   isMobile: boolean,
 ) => {
   const forceBlob = isMobile;
-  const stream = await webVault.repoFilesGetFileStream(repoId, path, forceBlob);
+  const stream = await webVault.repoFilesGetFileStream(
+    repoId,
+    encryptedPath,
+    forceBlob,
+  );
 
   if (stream === undefined) {
     return;

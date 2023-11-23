@@ -3,7 +3,10 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { repoFilesLink } from './selectors';
 
-export function useSelectName(repoId: string, path: string | undefined) {
+export function useSelectName(
+  repoId: string,
+  encryptedPath: string | undefined,
+) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -15,9 +18,9 @@ export function useSelectName(repoId: string, path: string | undefined) {
 
   useEffect(() => {
     if (name !== undefined) {
-      navigate(repoFilesLink(repoId, path), { replace: true });
+      navigate(repoFilesLink(repoId, encryptedPath), { replace: true });
     }
-  }, [navigate, repoId, path, name]);
+  }, [navigate, repoId, encryptedPath, name]);
 
   return name;
 }

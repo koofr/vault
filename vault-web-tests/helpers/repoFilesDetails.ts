@@ -48,9 +48,10 @@ export class TextEditor {
   dialogs: Dialogs;
 
   unlocked: boolean;
-  currentPath: string;
-  currentParentPath: string;
+  currentEncryptedParentPath: string;
   currentName: string;
+  currentEncryptedName: string;
+  currentEncryptedPath: string;
   currentContent: string;
   serverContent: string;
   autosaveMs?: number;
@@ -59,7 +60,7 @@ export class TextEditor {
     page: Page,
     webVaultClient: WebVaultClient,
     repo: Repo,
-    dialogs: Dialogs
+    dialogs: Dialogs,
   ) {
     this.page = page;
     this.webVaultClient = webVaultClient;
@@ -67,9 +68,10 @@ export class TextEditor {
     this.dialogs = dialogs;
 
     this.unlocked = false;
-    this.currentPath = '';
-    this.currentParentPath = '';
+    this.currentEncryptedParentPath = '';
     this.currentName = '';
+    this.currentEncryptedName = '';
+    this.currentEncryptedPath = '';
     this.currentContent = '';
     this.serverContent = '';
   }
@@ -79,18 +81,37 @@ export class TextEditor {
     await this.expectFilesRootOpen();
   }
 
+  encryptName(name: string): string {
+    const encryptedName = this.webVaultClient.webVault.repoFilesEncryptName(
+      this.repo.id,
+      name,
+    );
+    if (encryptedName === undefined) {
+      throw new Error(`Failed to encrypted name: ${name}`);
+    }
+    return encryptedName;
+  }
+
+  setCurrentName(name: string) {
+    this.currentName = name;
+    this.currentEncryptedName = this.encryptName(name);
+    this.currentEncryptedPath = joinParentName(
+      this.currentEncryptedParentPath,
+      this.currentEncryptedName,
+    );
+  }
+
   async createFile() {
     this.serverContent = 'editorcontent';
     this.currentContent = this.serverContent;
-    this.currentName = 'file.txt';
-    this.currentParentPath = '/';
-    this.currentPath = joinParentName(this.currentParentPath, this.currentName);
+    this.currentEncryptedParentPath = '/';
+    this.setCurrentName('file.txt');
 
     await this.webVaultClient.webVault.transfersUpload(
       this.repo.id,
-      '/',
+      this.currentEncryptedParentPath,
       this.currentName,
-      new Blob([this.currentContent])
+      new Blob([this.currentContent]),
     );
   }
 
@@ -103,12 +124,18 @@ export class TextEditor {
   }
 
   async openParentFolder() {
-    await openFileBrowser(this.page, this.repo.id, this.currentParentPath);
+    await openFileBrowser(
+      this.page,
+      this.repo.id,
+      this.currentEncryptedParentPath,
+    );
     await this.unlockRepo();
   }
 
-  editorUrl(path: string, isEditing: boolean) {
-    let url = `/repos/${this.repo.id}/details?path=${encodeURIComponent(path)}`;
+  editorUrl(encryptedPath: string, isEditing: boolean) {
+    let url = `/repos/${this.repo.id}/details?path=${encodeURIComponent(
+      encryptedPath,
+    )}`;
 
     if (isEditing) {
       url += '&editing=true';
@@ -121,14 +148,13 @@ export class TextEditor {
     return url;
   }
 
-  async editorNavigate(path: string, editing: boolean) {
-    await this.page.goto(this.editorUrl(path, editing));
+  async editorNavigate(encryptedPath: string, editing: boolean) {
+    await this.page.goto(this.editorUrl(encryptedPath, editing));
     await this.unlockRepo();
   }
 
   autorenamed() {
-    this.currentName = 'file (1).txt';
-    this.currentPath = joinParentName(this.currentParentPath, this.currentName);
+    this.setCurrentName('file (1).txt');
     this.currentContent = 'editorcontent1';
   }
 
@@ -138,7 +164,7 @@ export class TextEditor {
 
   async expectHeaderNameMatch() {
     await expect(fileDetailsNameLocator(this.page)).toHaveText(
-      this.currentName
+      this.currentName,
     );
   }
 
@@ -161,7 +187,7 @@ export class TextEditor {
 
   async expectURLPathMatch() {
     await this.page.waitForURL(
-      (url) => url.searchParams.get('path') === this.currentPath
+      (url) => url.searchParams.get('path') === this.currentEncryptedPath,
     );
   }
 
@@ -183,7 +209,7 @@ export class TextEditor {
 
   async expectEmptyFolder() {
     await expect(
-      this.page.getByRole('heading', { name: 'This folder is empty.' })
+      this.page.getByRole('heading', { name: 'This folder is empty.' }),
     ).toBeVisible();
   }
 
@@ -210,30 +236,30 @@ export class TextEditor {
   async expectNoConflicts() {
     await expect(
       navbarLocator(this.page).getByText(
-        'Changes are saved automatically. Last saved'
-      )
+        'Changes are saved automatically. Last saved',
+      ),
     ).toBeVisible();
   }
 
   async expectDirty() {
     await expect(
-      navbarLocator(this.page).getByLabel('File modified')
+      navbarLocator(this.page).getByLabel('File modified'),
     ).toBeVisible();
   }
 
   async expectNotDirty() {
     await expect(
-      navbarLocator(this.page).getByLabel('File unchanged')
+      navbarLocator(this.page).getByLabel('File unchanged'),
     ).toBeVisible();
   }
 
   async openEditorContent(
-    path: string,
+    encryptedPath: string,
     filename: string,
     isEditing: boolean,
-    content: string
+    content: string,
   ) {
-    await this.editorNavigate(path, isEditing);
+    await this.editorNavigate(encryptedPath, isEditing);
     await this.expectHeaderName(filename);
     await this.waitForEditorContent(content);
   }
@@ -241,10 +267,10 @@ export class TextEditor {
   async viewFile() {
     await this.createFile();
     await this.openEditorContent(
-      this.currentPath,
+      this.currentEncryptedPath,
       this.currentName,
       false,
-      this.currentContent
+      this.currentContent,
     );
   }
 
@@ -257,17 +283,17 @@ export class TextEditor {
   }
 
   async viewNonexistentFile() {
-    await this.editorNavigate('/nonexistent', false);
+    await this.editorNavigate(`/${this.encryptName('nonexistent')}`, false);
     await this.expectHeaderName('nonexistent');
   }
 
   async editFile() {
     await this.createFile();
     await this.openEditorContent(
-      this.currentPath,
+      this.currentEncryptedPath,
       this.currentName,
       true,
-      this.currentContent
+      this.currentContent,
     );
   }
 
@@ -284,6 +310,7 @@ export class TextEditor {
 
   async editorAppendText(text: string) {
     await this.textEditorLocator().click();
+    // we need type (deprecated) here, fill does not work
     await this.textEditorLocator().type(text);
     this.currentContent += text;
   }
@@ -324,22 +351,22 @@ export class TextEditor {
 
   async expectFileBrowserFile() {
     await expect(
-      filesTableRowNameLocator(this.page, 'File', this.currentName)
+      filesTableRowNameLocator(this.page, 'File', this.currentName),
     ).toBeVisible();
   }
 
   async expectFileBrowserFileSelected() {
     await expect(
-      filesTableRowLocator(this.page, 'File', this.currentName)
+      filesTableRowLocator(this.page, 'File', this.currentName),
     ).toHaveAttribute('aria-selected', 'true');
   }
 
   async expectServerContent(expectedContent: string) {
     await this.webVaultClient.waitForFileContent(
       this.repo,
-      this.currentPath,
+      this.currentEncryptedPath,
       expectedContent,
-      15000
+      15000,
     );
   }
 
@@ -357,25 +384,30 @@ export class TextEditor {
 
     await this.webVaultClient.setFileContent(
       this.repo,
-      this.currentPath,
+      this.currentEncryptedPath,
+      'txt',
       this.currentContent,
-      15000
+      15000,
     );
   }
 
   async renameFileOnServer() {
-    this.currentName = 'file renamed.txt';
+    const name = 'file renamed.txt';
     await this.webVaultClient.renameFile(
       this.repo,
-      this.currentPath,
-      this.currentName,
-      15000
+      this.currentEncryptedPath,
+      name,
+      15000,
     );
-    this.currentPath = joinParentName(this.currentParentPath, this.currentName);
+    this.setCurrentName(name);
   }
 
   async deleteFileOnServer() {
-    await this.webVaultClient.deleteFile(this.repo, this.currentPath, 15000);
+    await this.webVaultClient.deleteFile(
+      this.repo,
+      this.currentEncryptedPath,
+      15000,
+    );
   }
 
   async hasOnBeforeLeave() {

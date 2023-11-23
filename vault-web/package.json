@@ -9,6 +9,7 @@
     "preview": "vite preview --port 5173",
     "eslint": "eslint src",
     "tsc": "tsc",
+    "tsc-watch": "tsc --watch",
     "prettier": "prettier -w src"
   },
   "dependencies": {

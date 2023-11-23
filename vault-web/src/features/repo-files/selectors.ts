@@ -4,13 +4,13 @@ import { FileCategory, RepoFile } from '../../vault-wasm/vault-wasm';
 
 export const repoFilesLink = (
   repoId: string,
-  path?: string,
+  encryptedPath?: string,
   name?: string,
 ): To => {
   const search = new URLSearchParams();
 
-  if (path !== undefined) {
-    search.set('path', path);
+  if (encryptedPath !== undefined) {
+    search.set('path', encryptedPath);
   }
 
   if (name !== undefined) {
@@ -25,12 +25,12 @@ export const repoFilesLink = (
 
 export const repoFilesDetailsLink = (
   repoId: string,
-  path: string,
+  encryptedPath: string,
   isEditing?: boolean,
   autosaveIntervalMs?: number,
 ): To => {
   const search = new URLSearchParams({
-    path,
+    path: encryptedPath,
   });
 
   if (isEditing) {

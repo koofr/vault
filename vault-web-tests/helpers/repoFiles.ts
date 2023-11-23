@@ -74,16 +74,16 @@ export async function uploadTextFile(
   });
 }
 
-export function fileBrowserUrl(repoId: string, path: string) {
-  return `/repos/${repoId}?path=${encodeURIComponent(path)}`;
+export function fileBrowserUrl(repoId: string, encryptedPath: string) {
+  return `/repos/${repoId}?path=${encodeURIComponent(encryptedPath)}`;
 }
 
 export async function openFileBrowser(
   page: Page,
   repoId: string,
-  path: string
+  encryptedPath: string
 ) {
-  await page.goto(fileBrowserUrl(repoId, path));
+  await page.goto(fileBrowserUrl(repoId, encryptedPath));
 }
 
 export async function toolbarEditTextFile(page: Page) {

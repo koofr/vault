@@ -60,7 +60,7 @@ async function main() {
     (v, cb) => v.repoFilesBrowsersInfoSubscribe(browserId, cb),
     (v) => v.repoFilesBrowsersInfoData,
     (info) => {
-      return info.status.type === 'Loaded';
+      return info?.status.type === 'Loaded';
     },
   );
 
@@ -69,6 +69,9 @@ async function main() {
     (v) => v.repoFilesBrowsersInfoData,
     () => true,
   );
+  if (info === undefined) {
+    throw new Error('No files');
+  }
 
   console.log('Files', info.items);
 
@@ -81,6 +84,10 @@ async function main() {
   );
 
   const fileName = `${(Math.random() * 1000000000) >> 0}.txt`;
+  const encryptedFileName = client.webVault.repoFilesEncryptName(
+    repo.id,
+    fileName,
+  );
   const fileContent = new Blob(['test file']);
 
   console.log('Upload file');
@@ -95,18 +102,25 @@ async function main() {
     (v, cb) => v.repoFilesBrowsersInfoSubscribe(browserId, cb),
     (v) => v.repoFilesBrowsersInfoData,
     (info) =>
-      info.items.find((item) => item.fileId.endsWith(`/${fileName}`)) !==
-      undefined,
+      info?.items.find((item) =>
+        item.fileId.endsWith(`/${encryptedFileName}`),
+      ) !== undefined,
   );
 
-  const fileId = info.items.find((item) =>
-    item.fileId.endsWith(`/${fileName}`),
-  ).fileId;
+  const fileId = info?.items.find((item) =>
+    item.fileId.endsWith(`/${encryptedFileName}`),
+  )?.fileId;
+  if (fileId === undefined) {
+    throw new Error('File not found');
+  }
   const file = await client.waitFor(
     (v, cb) => v.repoFilesFileSubscribe(fileId, cb),
     (v) => v.repoFilesFileData,
     () => true,
   );
+  if (file === undefined) {
+    throw new Error('File not found');
+  }
 
   console.log('Uploaded file', file);
 
@@ -114,9 +128,12 @@ async function main() {
 
   const downloadStream = await client.webVault.repoFilesGetFileStream(
     file.repoId,
-    file.path,
+    file.encryptedPath,
     false,
   );
+  if (downloadStream === undefined) {
+    throw new Error('Missing file stream');
+  }
 
   console.log('Download done');
 

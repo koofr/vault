@@ -754,7 +754,8 @@ pub struct RepoFile {
     pub repo_id: String,
     #[serde(rename = "encryptedPath")]
     pub encrypted_path: String,
-    pub path: Option<String>,
+    #[serde(rename = "decryptedPath")]
+    pub decrypted_path: Option<String>,
     pub name: String,
     #[serde(rename = "nameError")]
     pub name_error: Option<String>,
@@ -779,13 +780,9 @@ impl From<&repo_files_state::RepoFile> for RepoFile {
             id: file.id.0.clone(),
             repo_id: file.repo_id.0.clone(),
             encrypted_path: file.encrypted_path.0.clone(),
-            path: match &file.path {
+            decrypted_path: match &file.path {
                 repo_files_state::RepoFilePath::Decrypted { path } => Some(path.0.clone()),
-                repo_files_state::RepoFilePath::DecryptError {
-                    parent_path: _,
-                    encrypted_name: _,
-                    error: _,
-                } => None,
+                repo_files_state::RepoFilePath::DecryptError { .. } => None,
             },
             name: match &file.name {
                 repo_files_state::RepoFileName::Decrypted { name, .. } => name.0.clone(),
@@ -804,10 +801,7 @@ impl From<&repo_files_state::RepoFile> for RepoFile {
             typ: (&file.typ).into(),
             size_display: match &file.size {
                 Some(repo_files_state::RepoFileSize::Decrypted { size }) => size_display(*size),
-                Some(repo_files_state::RepoFileSize::DecryptError {
-                    encrypted_size: _,
-                    error: _,
-                }) => String::from("???"),
+                Some(repo_files_state::RepoFileSize::DecryptError { .. }) => String::from("???"),
                 None => "".into(),
             },
             modified: file.modified.map(|modified| modified as f64),
@@ -884,7 +878,7 @@ impl From<&repo_files_state::RepoFilesBreadcrumb> for RepoFilesBreadcrumb {
             id: breadcrumb.id.0.clone(),
             repo_id: breadcrumb.repo_id.0.clone(),
             path: breadcrumb.path.0.clone(),
-            name: breadcrumb.name.0.clone(),
+            name: breadcrumb.name.clone(),
             last: breadcrumb.last,
         }
     }
@@ -940,7 +934,8 @@ impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserItem<'a>> for RepoFile
 pub struct RepoFilesBrowserInfo {
     #[serde(rename = "repoId")]
     pub repo_id: Option<String>,
-    pub path: Option<String>,
+    #[serde(rename = "encryptedPath")]
+    pub encrypted_path: Option<String>,
     #[serde(rename = "selectionSummary")]
     pub selection_summary: SelectionSummary,
     pub sort: RepoFilesSort,
@@ -971,7 +966,7 @@ impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFile
     fn from(info: &repo_files_browsers_state::RepoFilesBrowserInfo<'a>) -> Self {
         Self {
             repo_id: info.repo_id.map(|x| x.0.to_owned()),
-            path: info.path.map(|x| x.0.to_owned()),
+            encrypted_path: info.path.map(|x| x.0.to_owned()),
             selection_summary: (&info.selection_summary).into(),
             sort: (&info.sort).into(),
             status: (&info.status).into(),
@@ -985,7 +980,10 @@ impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFile
             can_move_selected: info.can_move_selected,
             can_delete_selected: info.can_delete_selected,
             items: info.items.iter().map(|item| item.into()).collect(),
-            breadcrumbs: info.breadcrumbs.iter().map(Into::into).collect(),
+            breadcrumbs: info
+                .breadcrumbs
+                .map(|breadcrumbs| breadcrumbs.iter().map(Into::into).collect())
+                .unwrap_or(vec![]),
         }
     }
 }
@@ -1011,9 +1009,10 @@ impl Into<repo_files_details_state::RepoFilesDetailsOptions> for RepoFilesDetail
 pub struct RepoFilesDetailsInfo {
     #[serde(rename = "repoId")]
     pub repo_id: Option<String>,
-    #[serde(rename = "parentPath")]
-    pub parent_path: Option<String>,
-    pub path: Option<String>,
+    #[serde(rename = "encryptedParentPath")]
+    pub encrypted_parent_path: Option<String>,
+    #[serde(rename = "encryptedPath")]
+    pub encrypted_path: Option<String>,
     pub status: Status,
     #[serde(rename = "fileName")]
     pub file_name: Option<String>,
@@ -1052,8 +1051,8 @@ impl<'a> From<&repo_files_details_state::RepoFilesDetailsInfo<'a>> for RepoFiles
     fn from(info: &repo_files_details_state::RepoFilesDetailsInfo<'a>) -> Self {
         Self {
             repo_id: info.repo_id.map(|x| x.0.to_owned()),
-            parent_path: info.parent_path.as_ref().map(|x| x.0.to_owned()),
-            path: info.path.map(|x| x.0.to_owned()),
+            encrypted_parent_path: info.parent_path.as_ref().map(|x| x.0.to_owned()),
+            encrypted_path: info.path.map(|x| x.0.to_owned()),
             status: (&info.status).into(),
             file_name: info.file_name.as_ref().map(|x| x.0.to_owned()),
             file_ext: info.file_ext.clone(),
@@ -1131,7 +1130,7 @@ impl From<&transfers_state::TransferType> for TransferType {
     fn from(typ: &transfers_state::TransferType) -> Self {
         match typ {
             transfers_state::TransferType::Upload(..) => Self::Upload,
-            transfers_state::TransferType::Download(..) => Self::Download,
+            transfers_state::TransferType::Download => Self::Download,
             transfers_state::TransferType::DownloadReader => Self::Download,
         }
     }
@@ -1187,7 +1186,7 @@ impl From<&transfers_state::Transfer> for Transfer {
         Self {
             id: transfer.id,
             typ: (&transfer.typ).into(),
-            name: transfer.name.clone(),
+            name: transfer.name.0.clone(),
             file_icon_attrs: transfer.file_icon_attrs().into(),
             size: transfer.size.exact_or_estimate(),
             size_display: transfer.size.exact_or_estimate().map(size_display),

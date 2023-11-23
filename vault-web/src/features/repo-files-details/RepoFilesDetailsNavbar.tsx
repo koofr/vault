@@ -11,10 +11,14 @@ import { RepoFilesDetailsNavbarHeader } from './RepoFilesDetailsNavbarHeader';
 import { RepoFilesDetailsNavbarNav } from './RepoFilesDetailsNavbarNav';
 
 const closeLink = (info: RepoFilesDetailsInfo): To => {
-  if (info.isEditing && info.repoId !== undefined && info.path !== undefined) {
-    return repoFilesDetailsLink(info.repoId, info.path, false);
+  if (
+    info.isEditing &&
+    info.repoId !== undefined &&
+    info.encryptedPath !== undefined
+  ) {
+    return repoFilesDetailsLink(info.repoId, info.encryptedPath, false);
   } else if (info.repoId !== undefined) {
-    return repoFilesLink(info.repoId, info.parentPath ?? '/');
+    return repoFilesLink(info.repoId, info.encryptedParentPath ?? '/');
   } else {
     return '/';
   }

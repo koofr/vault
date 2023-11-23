@@ -39,12 +39,13 @@ export const RepoFilesToolbar = memo<{
   const webVault = useWebVault();
   const browserId = useRepoFilesBrowserId();
   const selectedFile =
-    info.selectedFile !== undefined && info.path !== undefined
-      ? info.selectedFile
-      : undefined;
+    info.selectedFile !== undefined ? info.selectedFile : undefined;
   const renameSelectedFile = useCallback(() => {
-    if (selectedFile !== undefined && selectedFile.path !== undefined) {
-      webVault.repoFilesRenameFile(selectedFile.repoId, selectedFile.path);
+    if (selectedFile !== undefined) {
+      webVault.repoFilesRenameFile(
+        selectedFile.repoId,
+        selectedFile.encryptedPath,
+      );
     }
   }, [webVault, selectedFile]);
 
@@ -124,7 +125,7 @@ export const RepoFilesToolbar = memo<{
           as={Link}
           to={repoFilesDetailsLink(
             info.selectedFile.repoId,
-            info.selectedFile.path!,
+            info.selectedFile.encryptedPath,
             true,
           )}
           icon={<FilesEditIcon role="img" />}
