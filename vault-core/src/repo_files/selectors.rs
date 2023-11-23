@@ -96,8 +96,8 @@ pub fn select_remote_file<'a>(
     )
 }
 
-pub fn select_repo_path_to_mount_path<'a>(
-    state: &'a store::State,
+pub fn select_repo_path_to_mount_path(
+    state: &store::State,
     repo_id: &RepoId,
     path: &EncryptedPath,
 ) -> Result<(MountId, RemotePath), RepoNotFoundError> {
@@ -106,6 +106,21 @@ pub fn select_repo_path_to_mount_path<'a>(
     let remote_path = remote_path_utils::join_paths(&repo.path, &RemotePath(path.0.clone()));
 
     Ok((repo.mount_id.clone(), remote_path))
+}
+
+pub fn select_repo_path_to_remote_file<'a>(
+    state: &'a store::State,
+    repo_id: &RepoId,
+    path: &EncryptedPath,
+) -> Option<&'a RemoteFile> {
+    select_repo_path_to_mount_path(state, repo_id, path)
+        .ok()
+        .and_then(|(mount_id, remote_path)| {
+            remote_files_selectors::select_file(
+                state,
+                &remote_files_selectors::get_file_id(&mount_id, &remote_path.to_lowercase()),
+            )
+        })
 }
 
 pub fn select_mount_path_to_repo_id<'a>(

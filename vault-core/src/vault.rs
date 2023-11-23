@@ -9,7 +9,7 @@ use crate::{
     repo_files_dir_pickers, repo_files_list, repo_files_move, repo_files_read, repo_remove,
     repo_space_usage, repo_unlock, repos, runtime, secure_storage, sort, space_usage, store,
     transfers::{self, downloadable::BoxDownloadable},
-    types::{DecryptedName, DecryptedPath, EncryptedPath, RepoFileId, RepoId},
+    types::{DecryptedName, EncryptedPath, RepoFileId, RepoId},
     user,
 };
 
@@ -808,7 +808,7 @@ impl Vault {
     pub fn repo_files_details_create(
         &self,
         repo_id: RepoId,
-        path: &DecryptedPath,
+        path: &EncryptedPath,
         is_editing: bool,
         options: repo_files_details::state::RepoFilesDetailsOptions,
     ) -> (

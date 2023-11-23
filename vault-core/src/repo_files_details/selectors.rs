@@ -9,14 +9,15 @@ use crate::{
     },
     repo_files_read::errors::GetFilesReaderError,
     repos::{
-        selectors as repo_selectors,
+        errors::RepoLockedError,
+        selectors as repos_selectors,
         state::{Repo, RepoState},
     },
     store,
     transfers::errors::TransferError,
-    types::{DecryptedName, DecryptedPath, EncryptedPath, RepoFileId, RepoId},
+    types::{DecryptedName, EncryptedPath, RepoFileId, RepoId},
     user_error::UserError,
-    utils::repo_path_utils,
+    utils::repo_encrypted_path_utils,
 };
 
 use super::{
@@ -66,24 +67,24 @@ pub fn select_repo_id<'a>(state: &'a store::State, details_id: u32) -> Option<&'
 pub fn select_repo_id_path_owned(
     state: &store::State,
     details_id: u32,
-) -> Option<(RepoId, DecryptedPath, EncryptedPath)> {
-    select_details_location(state, details_id).map(|loc| {
-        (
-            loc.repo_id.clone(),
-            loc.path.clone(),
-            loc.encrypted_path.clone(),
-        )
-    })
+) -> Option<(RepoId, EncryptedPath)> {
+    select_details_location(state, details_id).map(|loc| (loc.repo_id.clone(), loc.path.clone()))
 }
 
 pub fn select_repo<'a>(state: &'a store::State, details_id: u32) -> Option<&'a Repo> {
     select_details(state, details_id)
         .and_then(|details| details.location.as_ref())
-        .and_then(|loc| repo_selectors::select_repo(state, &loc.repo_id).ok())
+        .and_then(|loc| repos_selectors::select_repo(state, &loc.repo_id).ok())
 }
 
 pub fn select_repo_state<'a>(state: &'a store::State, details_id: u32) -> Option<&'a RepoState> {
     select_repo(state, details_id).map(|repo| &repo.state)
+}
+
+pub fn select_is_locked<'a>(state: &'a store::State, details_id: u32) -> bool {
+    select_repo_state(state, details_id)
+        .map(|repo_state| repo_state.is_locked())
+        .unwrap_or(false)
 }
 
 pub fn select_is_unlocked<'a>(state: &'a store::State, details_id: u32) -> bool {
@@ -98,10 +99,19 @@ pub fn select_is_status_any_loaded(state: &store::State, details_id: u32) -> boo
         .unwrap_or(false)
 }
 
-pub fn get_status(status: &Status<LoadFilesError>, file_exists: bool) -> Status<LoadFilesError> {
+pub fn get_status(
+    status: &Status<LoadFilesError>,
+    file_exists: bool,
+    is_locked: bool,
+) -> Status<LoadFilesError> {
     match status {
         Status::Loaded => {
-            if file_exists {
+            if is_locked {
+                Status::Error {
+                    error: LoadFilesError::RepoLocked(RepoLockedError),
+                    loaded: true,
+                }
+            } else if file_exists {
                 Status::Loaded
             } else {
                 Status::Error {
@@ -210,10 +220,17 @@ pub fn select_info<'a>(state: &'a store::State, details_id: u32) -> Option<RepoF
     select_details(state, details_id).map(|details| {
         let location = details.location.as_ref();
         let repo_id = location.map(|loc| &loc.repo_id);
-        let parent_path = location.and_then(|loc| repo_path_utils::parent_path(&loc.path));
+        let parent_path =
+            location.and_then(|loc| repo_encrypted_path_utils::parent_path(&loc.path));
         let path = location.map(|loc| &loc.path);
-        let file_id = location
-            .map(|loc| repo_files_selectors::get_file_id(&loc.repo_id, &loc.encrypted_path));
+        let remote_file = match (repo_id, path) {
+            (Some(repo_id), Some(path)) => {
+                repo_files_selectors::select_repo_path_to_remote_file(state, repo_id, path)
+            }
+            _ => None,
+        };
+        let file_id =
+            location.map(|loc| repo_files_selectors::get_file_id(&loc.repo_id, &loc.path));
         let file = file_id.and_then(|file_id| repo_files_selectors::select_file(state, &file_id));
         let (file_name, file_ext, file_category) = {
             file.map(|file| {
@@ -226,24 +243,26 @@ pub fn select_info<'a>(state: &'a store::State, details_id: u32) -> Option<RepoF
                 )
             })
             .unwrap_or_else(move || {
-                match path.and_then(repo_path_utils::path_to_name) {
+                match location
+                    .as_ref()
+                    .and_then(|loc| loc.decrypted_name.as_ref().and_then(|x| x.as_ref().ok()))
+                {
                     Some(name) => {
                         let (ext, _, category) =
                             repo_files_selectors::get_file_ext_content_type_category(
                                 &name.to_lowercase().0,
                             );
 
-                        (Some(name), ext, Some(category))
+                        (Some(name.to_owned()), ext, Some(category))
                     }
                     None => (None, None, None),
                 }
             })
         };
-        let file_modified = file.and_then(|file| file.modified);
-        let file_exists = file.is_some();
-        let remote_file =
-            file.and_then(|file| repo_files_selectors::select_remote_file(state, file));
-        let status = get_status(&details.status, file.is_some());
+        let file_modified = remote_file.and_then(|file| file.modified);
+        let file_exists = remote_file.is_some();
+        let is_locked = select_is_locked(state, details_id);
+        let status = get_status(&details.status, file_exists, is_locked);
         let content_status = location
             .map(|location| location.content.status.clone())
             .unwrap_or(Status::Initial);
@@ -294,7 +313,7 @@ pub fn select_info<'a>(state: &'a store::State, details_id: u32) -> Option<RepoF
 
 pub fn select_file_id(state: &store::State, details_id: u32) -> Option<RepoFileId> {
     select_details_location(state, details_id)
-        .map(|loc| repo_files_selectors::get_file_id(&loc.repo_id, &loc.encrypted_path))
+        .map(|loc| repo_files_selectors::get_file_id(&loc.repo_id, &loc.path))
 }
 
 pub fn select_file<'a>(state: &'a store::State, details_id: u32) -> Option<&'a RepoFile> {
@@ -311,8 +330,8 @@ pub fn select_file_name<'a>(state: &'a store::State, details_id: u32) -> Option<
         })
         .or_else(|| {
             select_details_location(state, details_id)
-                .map(|loc| &loc.path)
-                .and_then(repo_path_utils::path_to_name)
+                .and_then(|loc| loc.decrypted_name.as_ref().and_then(|x| x.as_ref().ok()))
+                .cloned()
         })
 }
 
@@ -435,7 +454,7 @@ pub fn select_was_removed(
                 mutation_state
                     .repo_files
                     .removed_files
-                    .contains(&(loc.repo_id.clone(), loc.encrypted_path.clone()))
+                    .contains(&(loc.repo_id.clone(), loc.path.clone()))
             })
             .unwrap_or(false)
 }

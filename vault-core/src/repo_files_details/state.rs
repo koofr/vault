@@ -1,21 +1,23 @@
 use std::{collections::HashMap, time::Duration};
 
 use crate::{
+    cipher::errors::DecryptFilenameError,
     common::state::Status,
     eventstream::state::MountSubscription,
     files::{file_category::FileCategory, files_filter::FilesFilter},
     repo_files::errors::{DeleteFileError, LoadFilesError},
     store::NextId,
     transfers::errors::TransferError,
-    types::{DecryptedName, DecryptedPath, EncryptedPath, RepoId},
+    types::{DecryptedName, EncryptedName, EncryptedPath, RepoId},
 };
 
 use super::errors::SaveError;
 
+#[derive(Debug, PartialEq)]
 pub struct RepoFilesDetailsInfo<'a> {
     pub repo_id: Option<&'a RepoId>,
-    pub parent_path: Option<DecryptedPath>,
-    pub path: Option<&'a DecryptedPath>,
+    pub parent_path: Option<EncryptedPath>,
+    pub path: Option<&'a EncryptedPath>,
     pub status: Status<LoadFilesError>,
     pub file_name: Option<DecryptedName>,
     pub file_ext: Option<String>,
@@ -63,8 +65,9 @@ pub struct RepoFilesDetailsContent {
 #[derive(Debug, Clone, PartialEq)]
 pub struct RepoFilesDetailsLocation {
     pub repo_id: RepoId,
-    pub path: DecryptedPath,
-    pub encrypted_path: EncryptedPath,
+    pub path: EncryptedPath,
+    pub name: EncryptedName,
+    pub decrypted_name: Option<Result<DecryptedName, DecryptFilenameError>>,
     pub eventstream_mount_subscription: Option<MountSubscription>,
     pub content: RepoFilesDetailsContent,
     pub is_editing: bool,

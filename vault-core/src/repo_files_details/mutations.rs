@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 use crate::{
     cipher::Cipher,
@@ -11,11 +11,10 @@ use crate::{
         state::{RepoFile, RepoFilesUploadResult},
     },
     repo_files_read::errors::GetFilesReaderError,
-    repos::{self, errors::RepoLockedError},
-    store,
+    repos, store,
     transfers::errors::TransferError,
-    types::{DecryptedName, DecryptedPath, EncryptedPath, RepoId},
-    utils::repo_path_utils,
+    types::{EncryptedName, EncryptedPath, RepoId},
+    utils::repo_encrypted_path_utils,
 };
 
 use super::{
@@ -33,17 +32,18 @@ pub fn create_location(
     notify: &store::Notify,
     mutation_state: &mut store::MutationState,
     repo_id: RepoId,
-    path: &DecryptedPath,
+    path: &EncryptedPath,
     is_editing: bool,
     details_id: u32,
     cipher: Option<&Cipher>,
 ) -> Result<RepoFilesDetailsLocation, LoadFilesError> {
-    let path = repo_path_utils::normalize_path(&path)
+    let path = repo_encrypted_path_utils::normalize_path(&path)
         .map_err(|_| LoadFilesError::RemoteError(RemoteFilesErrors::invalid_path()))?;
-    let encrypted_path = match cipher {
-        Some(cipher) => cipher.encrypt_path(&path),
-        None => return Err(LoadFilesError::RepoLocked(RepoLockedError)),
-    };
+
+    let name = repo_encrypted_path_utils::path_to_name(&path)
+        .ok_or_else(|| LoadFilesError::RemoteError(RemoteFilesErrors::invalid_path()))?;
+
+    let decrypted_name = cipher.map(|cipher| cipher.decrypt_filename(&name));
 
     let eventstream_mount_subscription = repos::selectors::select_repo(state, &repo_id)
         .ok()
@@ -62,7 +62,8 @@ pub fn create_location(
     Ok(RepoFilesDetailsLocation {
         repo_id,
         path,
-        encrypted_path,
+        name,
+        decrypted_name,
         eventstream_mount_subscription,
         content: RepoFilesDetailsContent {
             status: Status::Initial,
@@ -87,7 +88,7 @@ fn create_status(
         Ok(location) => Status::Loading {
             loaded: repo_files_selectors::select_file(
                 state,
-                &repo_files_selectors::get_file_id(&location.repo_id, &location.encrypted_path),
+                &repo_files_selectors::get_file_id(&location.repo_id, &location.path),
             )
             .is_some(),
         },
@@ -104,7 +105,7 @@ pub fn create(
     mutation_state: &mut store::MutationState,
     options: RepoFilesDetailsOptions,
     repo_id: RepoId,
-    path: &DecryptedPath,
+    path: &EncryptedPath,
     is_editing: bool,
     repo_files_subscription_id: u32,
     cipher: Option<&Cipher>,
@@ -173,7 +174,7 @@ pub fn loaded(
     notify: &store::Notify,
     details_id: u32,
     repo_id: &RepoId,
-    path: &DecryptedPath,
+    path: &EncryptedPath,
     error: Option<&LoadFilesError>,
 ) {
     let details = match state.repo_files_details.details.get_mut(&details_id) {
@@ -278,7 +279,7 @@ pub fn content_loaded(
     notify: &store::Notify,
     details_id: u32,
     repo_id: &RepoId,
-    path: &DecryptedPath,
+    path: &EncryptedPath,
     res: Result<Option<RepoFilesDetailsContentData>, TransferError>,
 ) {
     let location = match selectors::select_details_location_mut(state, details_id) {
@@ -358,7 +359,7 @@ pub fn content_transfer_removed(
     notify: &store::Notify,
     details_id: u32,
     repo_id: &RepoId,
-    path: &DecryptedPath,
+    path: &EncryptedPath,
     transfer_id: u32,
     res: Result<(), TransferError>,
 ) {
@@ -453,7 +454,7 @@ pub fn saving(
     (
         RepoId,
         EncryptedPath,
-        DecryptedName,
+        EncryptedName,
         RepoFilesDetailsContentData,
         u32,
         bool,
@@ -497,17 +498,12 @@ pub fn saving(
         loaded: location.save_status.loaded(),
     };
 
-    let name = match repo_path_utils::path_to_name(&location.path) {
-        Some(name) => name,
-        None => return Err(SaveError::CannotSaveRoot),
-    };
-
     notify(store::Event::RepoFilesDetails);
 
     Ok((
         location.repo_id.clone(),
-        location.encrypted_path.clone(),
-        name,
+        location.path.clone(),
+        location.name.clone(),
         data,
         version,
         is_deleted,
@@ -519,7 +515,7 @@ pub fn saved(
     notify: &store::Notify,
     details_id: u32,
     saved_version: u32,
-    res: Result<(DecryptedPath, EncryptedPath, RepoFilesUploadResult, bool), SaveError>,
+    res: Result<(EncryptedPath, RepoFilesUploadResult, bool), SaveError>,
 ) {
     let location = match selectors::select_details_location_mut(state, details_id) {
         Some(location) => location,
@@ -529,10 +525,9 @@ pub fn saved(
     notify(store::Event::RepoFilesDetails);
 
     match res {
-        Ok((saved_path, saved_encrypted_path, result, should_destroy)) => {
-            if location.encrypted_path != saved_encrypted_path {
+        Ok((saved_path, result, should_destroy)) => {
+            if location.path != saved_path {
                 location.path = saved_path;
-                location.encrypted_path = saved_encrypted_path;
             }
             if let Some(data) = &mut location.content.data {
                 data.remote_size = result.remote_file.size;
@@ -616,6 +611,7 @@ pub fn handle_repo_files_mutation(
     state: &mut store::State,
     notify: &store::Notify,
     mutation_state: &mut store::MutationState,
+    ciphers: &HashMap<RepoId, Arc<Cipher>>,
 ) {
     if !mutation_state.repo_files.moved_files.is_empty() {
         let moved_files = mutation_state
@@ -633,13 +629,32 @@ pub fn handle_repo_files_mutation(
         for (_, details) in state.repo_files_details.details.iter_mut() {
             if let Some(location) = &mut details.location {
                 if let Some(new_path) =
-                    moved_files.get(&(location.repo_id.clone(), location.encrypted_path.clone()))
+                    moved_files.get(&(location.repo_id.clone(), location.path.clone()))
                 {
-                    location.encrypted_path = new_path.to_owned();
-                    // TODO update location.path
+                    if let Some(new_name) = repo_encrypted_path_utils::path_to_name(new_path) {
+                        location.path = new_path.to_owned();
+                        location.name = new_name;
+                        location.decrypted_name = None;
 
-                    notify(store::Event::RepoFilesDetails);
+                        notify(store::Event::RepoFilesDetails);
+                    }
                 }
+            }
+        }
+    }
+
+    for (_, details) in state.repo_files_details.details.iter_mut() {
+        if let Some(location) = &mut details.location {
+            let decrypted_name_is_some = location.decrypted_name.is_some();
+
+            match (decrypted_name_is_some, ciphers.get(&location.repo_id)) {
+                (false, Some(cipher)) => {
+                    location.decrypted_name = Some(cipher.decrypt_filename(&location.name));
+                }
+                (true, None) => {
+                    location.decrypted_name = None;
+                }
+                _ => {}
             }
         }
     }
