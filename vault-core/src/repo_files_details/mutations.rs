@@ -633,9 +633,10 @@ pub fn handle_repo_files_mutation(
         for (_, details) in state.repo_files_details.details.iter_mut() {
             if let Some(location) = &mut details.location {
                 if let Some(new_path) =
-                    moved_files.get(&(location.repo_id.clone(), location.path.clone()))
+                    moved_files.get(&(location.repo_id.clone(), location.encrypted_path.clone()))
                 {
-                    location.path = new_path.to_owned();
+                    location.encrypted_path = new_path.to_owned();
+                    // TODO update location.path
 
                     notify(store::Event::RepoFilesDetails);
                 }

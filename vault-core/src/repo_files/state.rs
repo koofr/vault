@@ -212,8 +212,8 @@ impl RepoFilesState {
 
 #[derive(Debug, Clone, Default)]
 pub struct RepoFilesMutationState {
-    pub removed_files: Vec<(RepoId, DecryptedPath)>,
-    pub moved_files: Vec<(RepoId, DecryptedPath, DecryptedPath)>,
+    pub removed_files: Vec<(RepoId, EncryptedPath)>,
+    pub moved_files: Vec<(RepoId, EncryptedPath, EncryptedPath)>,
 }
 
 pub enum RepoFilesUploadConflictResolution {

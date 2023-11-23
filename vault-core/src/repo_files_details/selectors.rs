@@ -435,7 +435,7 @@ pub fn select_was_removed(
                 mutation_state
                     .repo_files
                     .removed_files
-                    .contains(&(loc.repo_id.clone(), loc.path.clone()))
+                    .contains(&(loc.repo_id.clone(), loc.encrypted_path.clone()))
             })
             .unwrap_or(false)
 }

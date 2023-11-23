@@ -200,27 +200,21 @@ pub fn handle_remote_files_mutation(
         .collect();
 
     for (repo_id, path) in removed_repo_files {
-        if let Some(cipher) = ciphers.get(&repo_id) {
-            if let Ok(path) = cipher.decrypt_path(&path) {
-                mutation_state
-                    .repo_files
-                    .removed_files
-                    .push((repo_id, path));
-            }
-        }
+        mutation_state
+            .repo_files
+            .removed_files
+            .push((repo_id, path));
+
+        repo_files_dirty = true;
     }
 
     for (repo_id, from_path, to_path) in moved_repo_files {
-        if let Some(cipher) = ciphers.get(&repo_id) {
-            if let Ok(from_path) = cipher.decrypt_path(&from_path) {
-                if let Ok(to_path) = cipher.decrypt_path(&to_path) {
-                    mutation_state
-                        .repo_files
-                        .moved_files
-                        .push((repo_id, from_path, to_path));
-                }
-            }
-        }
+        mutation_state
+            .repo_files
+            .moved_files
+            .push((repo_id, from_path, to_path));
+
+        repo_files_dirty = true;
     }
 
     if repo_files_dirty {
