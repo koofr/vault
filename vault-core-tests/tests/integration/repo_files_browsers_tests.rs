@@ -18,7 +18,7 @@ use vault_core::{
     selection::state::SelectionSummary,
     sort::state::SortDirection,
     store,
-    types::{DecryptedName, DecryptedPath},
+    types::{DecryptedName, DecryptedPath, EncryptedPath},
 };
 use vault_core_tests::{
     fixtures::repo_fixture::RepoFixture,
@@ -46,7 +46,7 @@ fn test_repo_lock_unlock_remove() {
 
             let root_id = vault_core::repo_files::selectors::get_file_id(
                 &fixture.repo_id,
-                &DecryptedPath("/".into()),
+                &EncryptedPath("/".into()),
             );
             let (_, file) = fixture.upload_file("/file.txt", "test").await;
             let dir = fixture.create_dir("/dir").await;
@@ -250,7 +250,7 @@ fn test_create_already_loaded() {
             fixture
                 .vault
                 .repo_files_service
-                .load_files(&fixture.repo_id, &DecryptedPath("/".into()))
+                .load_files(&fixture.repo_id, &EncryptedPath("/".into()))
                 .await
                 .unwrap();
 
@@ -388,10 +388,12 @@ fn expected_browsers_state(
     mut patch: impl FnMut(&mut RepoFilesBrowser),
 ) -> RepoFilesBrowsersState {
     let mut browser = RepoFilesBrowser {
+        id: 1,
         options: RepoFilesBrowserOptions { select_name: None },
         location: Some(RepoFilesBrowserLocation {
             repo_id: fixture.repo_id.clone(),
             path: DecryptedPath("/".into()),
+            encrypted_path: EncryptedPath("/".into()),
             eventstream_mount_subscription: state
                 .browsers
                 .get(&1)
@@ -453,7 +455,7 @@ fn test_create_dir() {
             let (name, path) = create_dir_res.unwrap();
 
             assert_eq!(name.0, "dir");
-            assert_eq!(path.0, "/dir");
+            assert_eq!(path, fixture.encrypt_path("/dir"));
 
             fixture.vault.repo_files_browsers_destroy(browser_id);
         }

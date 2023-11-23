@@ -12,7 +12,7 @@ use vault_core::{
         state::{RepoConfig, RepoCreated, RepoUnlockMode},
     },
     store,
-    types::{DecryptedName, DecryptedPath, RemotePath},
+    types::{DecryptedName, EncryptedPath, RemotePath},
 };
 use vault_core_tests::{
     fixtures::user_fixture::UserFixture,
@@ -60,14 +60,14 @@ fn test_create() {
             fixture
                 .vault
                 .repo_files_service
-                .load_files(&repo_id, &DecryptedPath("/".into()))
+                .load_files(&repo_id, &EncryptedPath("/".into()))
                 .await
                 .unwrap();
             let file_names = fixture.vault.with_state(|state| {
                 vault_core::repo_files::selectors::select_files(
                     state,
                     &repo_id,
-                    &DecryptedPath("/".into()),
+                    &EncryptedPath("/".into()),
                 )
                 .map(|file| file.decrypted_name().unwrap().to_owned())
                 .collect::<HashSet<_>>()

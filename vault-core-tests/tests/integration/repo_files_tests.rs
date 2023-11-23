@@ -27,19 +27,22 @@ fn test_repo_lock_unlock_remove() {
             fixture
                 .vault
                 .repo_files_service
-                .load_files(&fixture.repo_id, &DecryptedPath("/".into()))
+                .load_files(&fixture.repo_id, &EncryptedPath("/".into()))
                 .await
                 .unwrap();
             fixture
                 .vault
                 .repo_files_service
-                .load_files(&fixture.repo_id, &DecryptedPath("/dir1".into()))
+                .load_files(&fixture.repo_id, &fixture.encrypt_path("/dir1".into()))
                 .await
                 .unwrap();
             fixture
                 .vault
                 .repo_files_service
-                .load_files(&fixture.repo_id, &DecryptedPath("/dir1/dir12".into()))
+                .load_files(
+                    &fixture.repo_id,
+                    &fixture.encrypt_path("/dir1/dir12".into()),
+                )
                 .await
                 .unwrap();
 
@@ -79,7 +82,7 @@ fn test_name_decryption_error() {
             fixture
                 .vault
                 .repo_files_service
-                .load_files(&fixture.repo_id, &DecryptedPath("/".into()))
+                .load_files(&fixture.repo_id, &EncryptedPath("/".into()))
                 .await
                 .unwrap();
 
@@ -87,7 +90,7 @@ fn test_name_decryption_error() {
                 vault_core::repo_files::selectors::select_files(
                     state,
                     &fixture.repo_id,
-                    &DecryptedPath("/".into()),
+                    &EncryptedPath("/".into()),
                 )
                 .next()
                 .cloned()
@@ -97,7 +100,7 @@ fn test_name_decryption_error() {
             assert_eq!(
                 file,
                 RepoFile {
-                    id: RepoFileId(format!("err:{}:/Plain.txt", fixture.repo_id.0)),
+                    id: RepoFileId(format!("{}:/Plain.txt", fixture.repo_id.0)),
                     mount_id: fixture.mount_id.clone(),
                     remote_path: RemotePath("/My safe box/Plain.txt".into()),
                     repo_id: fixture.repo_id.clone(),
@@ -140,7 +143,7 @@ fn test_encrypted_decrypted_same_name() {
             fixture
                 .vault
                 .repo_files_service
-                .load_files(&fixture.repo_id, &DecryptedPath("/".into()))
+                .load_files(&fixture.repo_id, &EncryptedPath("/".into()))
                 .await
                 .unwrap();
 
@@ -148,7 +151,7 @@ fn test_encrypted_decrypted_same_name() {
                 vault_core::repo_files::selectors::select_files(
                     state,
                     &fixture.repo_id,
-                    &DecryptedPath("/".into()),
+                    &EncryptedPath("/".into()),
                 )
                 .cloned()
                 .collect::<Vec<_>>()
@@ -161,7 +164,7 @@ fn test_encrypted_decrypted_same_name() {
                 files,
                 vec![
                     RepoFile {
-                        id: RepoFileId(format!("err:{}:/Plain.txt", fixture.repo_id.0)),
+                        id: RepoFileId(format!("{}:/Plain.txt", fixture.repo_id.0)),
                         mount_id: fixture.mount_id.clone(),
                         remote_path: RemotePath("/My safe box/Plain.txt".into()),
                         repo_id: fixture.repo_id.clone(),
@@ -186,7 +189,11 @@ fn test_encrypted_decrypted_same_name() {
                         category: FileCategory::Generic,
                     },
                     RepoFile {
-                        id: RepoFileId(format!("{}:/Plain.txt", fixture.repo_id.0)),
+                        id: RepoFileId(format!(
+                            "{}:{}",
+                            fixture.repo_id.0,
+                            fixture.encrypt_path("/Plain.txt").0
+                        )),
                         mount_id: fixture.mount_id.clone(),
                         remote_path: RemotePath(format!(
                             "/My safe box/{}",
@@ -246,8 +253,8 @@ fn test_invalid_name() {
                 .clone()
                 .upload_file_reader(
                     &fixture.repo_id,
-                    &DecryptedPath("/".into()),
-                    &DecryptedName("A\n/\n".into()),
+                    &EncryptedPath("/".into()),
+                    fixture.encrypt_filename("A\n/\n"),
                     Box::pin(Cursor::new("text".as_bytes().to_vec())),
                     Some(4),
                     RepoFilesUploadConflictResolution::Error,
@@ -259,7 +266,7 @@ fn test_invalid_name() {
             fixture
                 .vault
                 .repo_files_service
-                .load_files(&fixture.repo_id, &DecryptedPath("/".into()))
+                .load_files(&fixture.repo_id, &EncryptedPath("/".into()))
                 .await
                 .unwrap();
 
@@ -267,7 +274,7 @@ fn test_invalid_name() {
                 vault_core::repo_files::selectors::select_files(
                     state,
                     &fixture.repo_id,
-                    &DecryptedPath("/".into()),
+                    &EncryptedPath("/".into()),
                 )
                 .next()
                 .cloned()
@@ -277,7 +284,11 @@ fn test_invalid_name() {
             assert_eq!(
                 file,
                 RepoFile {
-                    id: RepoFileId(format!("err:{}:/A\\n/\\n", fixture.repo_id.0)),
+                    id: RepoFileId(format!(
+                        "{}:/{}",
+                        fixture.repo_id.0,
+                        fixture.encrypt_filename("A\n/\n").0
+                    )),
                     mount_id: fixture.mount_id.clone(),
                     remote_path: RemotePath(format!(
                         "/My safe box/{}",

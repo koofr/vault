@@ -544,6 +544,7 @@ fn expected_details_state(
         location: Some(RepoFilesDetailsLocation {
             repo_id: fixture.repo_id.clone(),
             path: DecryptedPath("/file.txt".into()),
+            encrypted_path: fixture.encrypt_path("/file.txt"),
             eventstream_mount_subscription: state
                 .details
                 .get(&1)
@@ -582,7 +583,7 @@ fn expected_details_state(
 fn test_eventstream() {
     with_repo(|fixture| {
         async move {
-            let (_, file) = fixture.upload_file("/file.txt", "test").await;
+            fixture.upload_file("/file.txt", "test").await;
 
             let fixture1 = fixture.new_session();
             fixture1.user_fixture.login();

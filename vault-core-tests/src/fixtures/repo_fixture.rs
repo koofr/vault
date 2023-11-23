@@ -2,13 +2,16 @@ use std::sync::Arc;
 
 use futures::io::Cursor;
 use vault_core::{
+    cipher::Cipher,
     repo_files::{
         self,
         state::{RepoFile, RepoFilesUploadConflictResolution, RepoFilesUploadResult},
     },
     repos::state::RepoUnlockMode,
-    types::{DecryptedPath, MountId, RemotePath, RepoId},
-    utils::repo_path_utils,
+    types::{
+        DecryptedName, DecryptedPath, EncryptedName, EncryptedPath, MountId, RemotePath, RepoId,
+    },
+    utils::repo_encrypted_path_utils,
     Vault,
 };
 use vault_fake_remote::fake_remote::context::Context;
@@ -23,6 +26,7 @@ pub struct RepoFixture {
     pub mount_id: MountId,
     pub path: RemotePath,
     pub repo_id: RepoId,
+    pub cipher: Arc<Cipher>,
 }
 
 impl RepoFixture {
@@ -40,9 +44,10 @@ impl RepoFixture {
             .await
             .unwrap();
 
-        let repo_id = repo.id;
         let mount_id = repo.mount_id;
         let path = repo.path;
+        let repo_id = repo.id;
+        let cipher = Arc::new(Cipher::new("password", Some("salt")));
 
         Arc::new(Self {
             user_fixture,
@@ -52,6 +57,7 @@ impl RepoFixture {
             mount_id,
             path,
             repo_id,
+            cipher,
         })
     }
 
@@ -60,9 +66,10 @@ impl RepoFixture {
         let fake_remote = user_fixture.fake_remote.clone();
         let vault = user_fixture.vault.clone();
 
-        let repo_id = self.repo_id.clone();
         let mount_id = self.mount_id.clone();
         let path = self.path.clone();
+        let repo_id = self.repo_id.clone();
+        let cipher = self.cipher.clone();
 
         Arc::new(Self {
             user_fixture,
@@ -72,6 +79,7 @@ impl RepoFixture {
             mount_id,
             path,
             repo_id,
+            cipher,
         })
     }
 
@@ -95,14 +103,23 @@ impl RepoFixture {
             .unwrap();
     }
 
+    pub fn encrypt_filename(&self, name: &str) -> EncryptedName {
+        self.cipher.encrypt_filename(&DecryptedName(name.into()))
+    }
+
+    pub fn encrypt_path(&self, path: &str) -> EncryptedPath {
+        self.cipher.encrypt_path(&DecryptedPath(path.into()))
+    }
+
     pub async fn create_dir(&self, path: &str) -> RepoFile {
-        let path = DecryptedPath(path.to_owned());
-        let (parent_path, name) = repo_path_utils::split_parent_name(&path).unwrap();
+        let cipher = self.vault.repos_service.get_cipher(&self.repo_id).unwrap();
+        let path = cipher.encrypt_path(&DecryptedPath(path.to_owned()));
+        let (parent_path, name) = repo_encrypted_path_utils::split_parent_name(&path).unwrap();
 
         self.vault
             .repo_files_service
             .clone()
-            .create_dir_name(&self.repo_id, &parent_path, &name)
+            .create_dir_name(&self.repo_id, &parent_path, name)
             .await
             .unwrap();
 
@@ -121,8 +138,9 @@ impl RepoFixture {
         path: &str,
         content: &str,
     ) -> (RepoFilesUploadResult, RepoFile) {
-        let path = DecryptedPath(path.to_owned());
-        let (parent_path, name) = repo_path_utils::split_parent_name(&path).unwrap();
+        let cipher = self.vault.repos_service.get_cipher(&self.repo_id).unwrap();
+        let path = cipher.encrypt_path(&DecryptedPath(path.to_owned()));
+        let (parent_path, name) = repo_encrypted_path_utils::split_parent_name(&path).unwrap();
 
         let bytes = content.as_bytes().to_vec();
         let size = bytes.len();
@@ -135,7 +153,7 @@ impl RepoFixture {
             .upload_file_reader(
                 &self.repo_id,
                 &parent_path,
-                &name,
+                name,
                 reader,
                 Some(size as i64),
                 RepoFilesUploadConflictResolution::Overwrite {

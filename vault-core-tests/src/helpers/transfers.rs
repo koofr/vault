@@ -260,9 +260,10 @@ pub fn download_string(
     CreateDownloadResultFuture,
     BoxFuture<'static, Option<String>>,
 ) {
-    let reader_provider = vault
-        .repo_files_get_file_reader(&RepoId(repo_id.to_owned()), &DecryptedPath(path.to_owned()))
-        .unwrap();
+    let repo_id = RepoId(repo_id.to_owned());
+    let cipher = vault.repos_service.get_cipher(&repo_id).unwrap();
+    let path = cipher.encrypt_path(&DecryptedPath(path.to_owned()));
+    let reader_provider = vault.repo_files_get_file_reader(&repo_id, &path).unwrap();
     let (downloadable, content_future) = TestDownloadable::string();
     let (id, future) = vault.transfers_download(reader_provider, Box::new(downloadable));
 

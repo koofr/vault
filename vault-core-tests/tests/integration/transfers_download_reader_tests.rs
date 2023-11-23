@@ -7,8 +7,9 @@ use vault_core::{
     common::state::SizeInfo,
     files::file_category::FileCategory,
     store::NextId,
-    transfers::state::{Transfer, TransferState, TransferType, TransfersState},
-    types::DecryptedPath,
+    transfers::state::{
+        Transfer, TransferDisplayName, TransferState, TransferType, TransfersState,
+    },
 };
 use vault_core_tests::helpers::transfers::{
     transfer_abort_when, transfers_recorder, with_transfers,
@@ -25,7 +26,7 @@ fn test_download_reader() {
 
             let reader = fixture
                 .vault
-                .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
+                .repo_files_get_file_reader(&fixture.repo_id, &fixture.encrypt_path("/file.txt"))
                 .unwrap()
                 .reader()
                 .await
@@ -77,7 +78,7 @@ fn test_download_reader_fail() {
 
             let reader = fixture
                 .vault
-                .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
+                .repo_files_get_file_reader(&fixture.repo_id, &fixture.encrypt_path("/file.txt"))
                 .unwrap()
                 .reader()
                 .await
@@ -127,7 +128,7 @@ fn test_download_reader_abort() {
 
             let reader = fixture
                 .vault
-                .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
+                .repo_files_get_file_reader(&fixture.repo_id, &fixture.encrypt_path("/file.txt"))
                 .unwrap()
                 .reader()
                 .await
@@ -162,7 +163,7 @@ fn expected_transfers_transferring(transfers: &TransfersState, attempts: usize) 
             Transfer {
                 id: 1,
                 typ: TransferType::DownloadReader,
-                name: "file.txt".into(),
+                name: TransferDisplayName("file.txt".into()),
                 size: SizeInfo::Exact(4),
                 category: FileCategory::Text,
                 started: Some(
@@ -208,7 +209,7 @@ fn expected_transfers_transferring_progress(
             Transfer {
                 id: 1,
                 typ: TransferType::DownloadReader,
-                name: "file.txt".into(),
+                name: TransferDisplayName("file.txt".into()),
                 size: SizeInfo::Exact(4),
                 category: FileCategory::Text,
                 started: Some(

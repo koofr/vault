@@ -18,9 +18,9 @@ use vault_core::{
     store::NextId,
     transfers::{
         errors::{DownloadableError, TransferError},
-        state::{DownloadTransfer, Transfer, TransferState, TransferType, TransfersState},
+        state::{Transfer, TransferDisplayName, TransferState, TransferType, TransfersState},
     },
-    types::{DecryptedName, DecryptedPath},
+    types::DecryptedName,
     utils::memory_writer::MemoryWriter,
 };
 use vault_core_tests::helpers::transfers::{
@@ -74,7 +74,7 @@ fn test_download_change_name() {
 
             let reader_provider = fixture
                 .vault
-                .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
+                .repo_files_get_file_reader(&fixture.repo_id, &fixture.encrypt_path("/file.txt"))
                 .unwrap()
                 .wrap_reader_builder(|reader_builder| {
                     async move {
@@ -103,10 +103,7 @@ fn test_download_change_name() {
                     3 => assert_eq!(
                         transfers,
                         patch_transfer(expected_transfers_transferring(&transfers, 1), 1, |t| {
-                            t.typ = TransferType::Download(DownloadTransfer {
-                                name: "file renamed.txt".into(),
-                            });
-                            t.name = "file renamed.txt".into();
+                            t.name = TransferDisplayName("file renamed.txt".into());
                         })
                     ),
                     4 => assert_eq!(
@@ -115,10 +112,7 @@ fn test_download_change_name() {
                             expected_transfers_transferring_progress(&transfers, 1),
                             1,
                             |t| {
-                                t.typ = TransferType::Download(DownloadTransfer {
-                                    name: "file renamed.txt".into(),
-                                });
-                                t.name = "file renamed.txt".into();
+                                t.name = TransferDisplayName("file renamed.txt".into());
                             }
                         )
                     ),
@@ -141,7 +135,7 @@ fn test_download_change_name_writer() {
 
             let reader_provider = fixture
                 .vault
-                .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
+                .repo_files_get_file_reader(&fixture.repo_id, &fixture.encrypt_path("/file.txt"))
                 .unwrap();
             let (mut downloadable, content_future) = TestDownloadable::string();
             let writer_data = downloadable.data.clone();
@@ -171,10 +165,7 @@ fn test_download_change_name_writer() {
                     3 => assert_eq!(
                         transfers,
                         patch_transfer(expected_transfers_transferring(&transfers, 1), 1, |t| {
-                            t.typ = TransferType::Download(DownloadTransfer {
-                                name: "file renamed.txt".into(),
-                            });
-                            t.name = "file renamed.txt".into();
+                            t.name = TransferDisplayName("file renamed.txt".into());
                         })
                     ),
                     4 => assert_eq!(
@@ -183,10 +174,7 @@ fn test_download_change_name_writer() {
                             expected_transfers_transferring_progress(&transfers, 1),
                             1,
                             |t| {
-                                t.typ = TransferType::Download(DownloadTransfer {
-                                    name: "file renamed.txt".into(),
-                                });
-                                t.name = "file renamed.txt".into();
+                                t.name = TransferDisplayName("file renamed.txt".into());
                             }
                         )
                     ),
@@ -209,7 +197,7 @@ fn test_download_already_exists() {
 
             let reader_provider = fixture
                 .vault
-                .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
+                .repo_files_get_file_reader(&fixture.repo_id, &fixture.encrypt_path("/file.txt"))
                 .unwrap();
             let downloadable = Box::new(TestDownloadable {
                 is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
@@ -252,7 +240,7 @@ fn test_download_already_exists_error() {
 
             let reader_provider = fixture
                 .vault
-                .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
+                .repo_files_get_file_reader(&fixture.repo_id, &fixture.encrypt_path("/file.txt"))
                 .unwrap();
             let downloadable = Box::new(TestDownloadable {
                 is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
@@ -297,7 +285,7 @@ fn test_download_already_exists_done_error() {
 
             let reader_provider = fixture
                 .vault
-                .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
+                .repo_files_get_file_reader(&fixture.repo_id, &fixture.encrypt_path("/file.txt"))
                 .unwrap();
             let downloadable = Box::new(TestDownloadable {
                 is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
@@ -417,7 +405,7 @@ fn test_download_downloadable_writer_error() {
 
         let reader_provider = fixture
             .vault
-            .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
+            .repo_files_get_file_reader(&fixture.repo_id, &fixture.encrypt_path("/file.txt"))
             .unwrap();
         let downloadable = Box::new(TestDownloadable {
             is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
@@ -488,7 +476,7 @@ fn test_download_downloadable_close_error() {
 
         let reader_provider = fixture
             .vault
-            .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
+            .repo_files_get_file_reader(&fixture.repo_id, &fixture.encrypt_path("/file.txt"))
             .unwrap();
 
         use futures::AsyncWrite;
@@ -593,7 +581,7 @@ fn test_download_downloadable_done_error() {
 
         let reader_provider = fixture
             .vault
-            .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
+            .repo_files_get_file_reader(&fixture.repo_id, &fixture.encrypt_path("/file.txt"))
             .unwrap();
         let downloadable = Box::new(TestDownloadable {
             is_retriable_fn: Box::new(|| future::ready(Ok(true)).boxed()),
@@ -1002,7 +990,7 @@ fn test_download_openable() {
 
             let reader_provider = fixture
                 .vault
-                .repo_files_get_file_reader(&fixture.repo_id, &DecryptedPath("/file.txt".into()))
+                .repo_files_get_file_reader(&fixture.repo_id, &fixture.encrypt_path("/file.txt"))
                 .unwrap();
             let (mut downloadable, content_future) = TestDownloadable::string();
             downloadable.is_openable_fn = Box::new(|| future::ready(Ok(true)).boxed());
@@ -1074,10 +1062,8 @@ fn expected_transfers_waiting(transfers: &TransfersState) -> TransfersState {
             1,
             Transfer {
                 id: 1,
-                typ: TransferType::Download(DownloadTransfer {
-                    name: "file.txt".into(),
-                }),
-                name: "file.txt".into(),
+                typ: TransferType::Download,
+                name: TransferDisplayName("file.txt".into()),
                 size: SizeInfo::Exact(4),
                 category: FileCategory::Text,
                 started: None,
@@ -1113,10 +1099,8 @@ fn expected_transfers_processing(transfers: &TransfersState, attempts: usize) ->
             1,
             Transfer {
                 id: 1,
-                typ: TransferType::Download(DownloadTransfer {
-                    name: "file.txt".into(),
-                }),
-                name: "file.txt".into(),
+                typ: TransferType::Download,
+                name: TransferDisplayName("file.txt".into()),
                 size: SizeInfo::Exact(4),
                 category: FileCategory::Text,
                 started: Some(
@@ -1158,10 +1142,8 @@ fn expected_transfers_transferring(transfers: &TransfersState, attempts: usize) 
             1,
             Transfer {
                 id: 1,
-                typ: TransferType::Download(DownloadTransfer {
-                    name: "file.txt".into(),
-                }),
-                name: "file.txt".into(),
+                typ: TransferType::Download,
+                name: TransferDisplayName("file.txt".into()),
                 size: SizeInfo::Exact(4),
                 category: FileCategory::Text,
                 started: Some(
@@ -1206,10 +1188,8 @@ fn expected_transfers_transferring_progress(
             1,
             Transfer {
                 id: 1,
-                typ: TransferType::Download(DownloadTransfer {
-                    name: "file.txt".into(),
-                }),
-                name: "file.txt".into(),
+                typ: TransferType::Download,
+                name: TransferDisplayName("file.txt".into()),
                 size: SizeInfo::Exact(4),
                 category: FileCategory::Text,
                 started: Some(
@@ -1254,10 +1234,8 @@ fn expected_transfers_waiting_failed(
             1,
             Transfer {
                 id: 1,
-                typ: TransferType::Download(DownloadTransfer {
-                    name: "file.txt".into(),
-                }),
-                name: "file.txt".into(),
+                typ: TransferType::Download,
+                name: TransferDisplayName("file.txt".into()),
                 size: SizeInfo::Exact(4),
                 category: FileCategory::Text,
                 started: None,
@@ -1293,10 +1271,8 @@ fn expected_transfers_failed(transfers: &TransfersState, attempts: usize) -> Tra
             1,
             Transfer {
                 id: 1,
-                typ: TransferType::Download(DownloadTransfer {
-                    name: "file.txt".into(),
-                }),
-                name: "file.txt".into(),
+                typ: TransferType::Download,
+                name: TransferDisplayName("file.txt".into()),
                 size: SizeInfo::Exact(4),
                 category: FileCategory::Text,
                 started: None,
@@ -1344,10 +1320,8 @@ fn expected_transfers_done_openable(transfers: &TransfersState, attempts: usize)
             1,
             Transfer {
                 id: 1,
-                typ: TransferType::Download(DownloadTransfer {
-                    name: "file.txt".into(),
-                }),
-                name: "file.txt".into(),
+                typ: TransferType::Download,
+                name: TransferDisplayName("file.txt".into()),
                 size: SizeInfo::Exact(4),
                 category: FileCategory::Text,
                 started: None,
