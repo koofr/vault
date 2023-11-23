@@ -9,7 +9,8 @@ use vault_core::{
     },
     repos::state::RepoUnlockMode,
     types::{
-        DecryptedName, DecryptedPath, EncryptedName, EncryptedPath, MountId, RemotePath, RepoId,
+        DecryptedName, DecryptedPath, EncryptedName, EncryptedPath, MountId, RemotePath,
+        RepoFileId, RepoId,
     },
     utils::repo_encrypted_path_utils,
     Vault,
@@ -111,10 +112,24 @@ impl RepoFixture {
         self.cipher.encrypt_path(&DecryptedPath(path.into()))
     }
 
+    pub fn get_file_id(&self, path: &str) -> RepoFileId {
+        repo_files::selectors::get_file_id(&self.repo_id, &self.encrypt_path(path.into()))
+    }
+
     pub async fn create_dir(&self, path: &str) -> RepoFile {
         let cipher = self.vault.repos_service.get_cipher(&self.repo_id).unwrap();
         let path = cipher.encrypt_path(&DecryptedPath(path.to_owned()));
         let (parent_path, name) = repo_encrypted_path_utils::split_parent_name(&path).unwrap();
+
+        self.create_dir_encrypted(&parent_path, name).await
+    }
+
+    pub async fn create_dir_encrypted(
+        &self,
+        parent_path: &EncryptedPath,
+        name: EncryptedName,
+    ) -> RepoFile {
+        let path = repo_encrypted_path_utils::join_path_name(parent_path, &name);
 
         self.vault
             .repo_files_service
@@ -142,6 +157,16 @@ impl RepoFixture {
         let path = cipher.encrypt_path(&DecryptedPath(path.to_owned()));
         let (parent_path, name) = repo_encrypted_path_utils::split_parent_name(&path).unwrap();
 
+        self.upload_file_encrypted(&parent_path, name, content)
+            .await
+    }
+
+    pub async fn upload_file_encrypted(
+        &self,
+        parent_path: &EncryptedPath,
+        name: EncryptedName,
+        content: &str,
+    ) -> (RepoFilesUploadResult, RepoFile) {
         let bytes = content.as_bytes().to_vec();
         let size = bytes.len();
         let reader = Box::pin(Cursor::new(bytes));
@@ -152,7 +177,7 @@ impl RepoFixture {
             .clone()
             .upload_file_reader(
                 &self.repo_id,
-                &parent_path,
+                parent_path,
                 name,
                 reader,
                 Some(size as i64),

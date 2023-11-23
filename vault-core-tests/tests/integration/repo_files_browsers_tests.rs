@@ -1,7 +1,7 @@
 use futures::{join, FutureExt};
 use similar_asserts::assert_eq;
 use vault_core::{
-    common::state::Status,
+    common::{self, state::Status},
     dialogs,
     repo_files::{
         errors::LoadFilesError,
@@ -18,7 +18,7 @@ use vault_core::{
     selection::state::SelectionSummary,
     sort::state::SortDirection,
     store,
-    types::{DecryptedName, DecryptedPath, EncryptedPath},
+    types::{EncryptedName, EncryptedPath, RepoFileId},
 };
 use vault_core_tests::{
     fixtures::repo_fixture::RepoFixture,
@@ -32,22 +32,17 @@ fn test_repo_lock_unlock_remove() {
         async move {
             let (browser_id, load_future) = fixture.vault.repo_files_browsers_create(
                 fixture.repo_id.clone(),
-                &DecryptedPath("/".into()),
+                &EncryptedPath("/".into()),
                 RepoFilesBrowserOptions { select_name: None },
             );
             load_future.await.unwrap();
 
             let get_state = || fixture.vault.with_state(|state| state.clone());
-            let select_info = |state| {
-                vault_core::repo_files_browsers::selectors::select_info(state, browser_id).unwrap()
-            };
+            let select_info =
+                |state| repo_files_browsers::selectors::select_info(state, browser_id).unwrap();
             let select_items =
-                |state| vault_core::repo_files_browsers::selectors::select_items(state, browser_id);
+                |state| repo_files_browsers::selectors::select_items(state, browser_id);
 
-            let root_id = vault_core::repo_files::selectors::get_file_id(
-                &fixture.repo_id,
-                &EncryptedPath("/".into()),
-            );
             let (_, file) = fixture.upload_file("/file.txt", "test").await;
             let dir = fixture.create_dir("/dir").await;
 
@@ -56,14 +51,14 @@ fn test_repo_lock_unlock_remove() {
                 select_info(&state_before_lock),
                 RepoFilesBrowserInfo {
                     repo_id: Some(&fixture.repo_id),
-                    path: Some(&DecryptedPath("/".into())),
+                    path: Some(&EncryptedPath("/".into())),
                     selection_summary: SelectionSummary::None,
                     sort: RepoFilesSort {
                         field: RepoFilesSortField::Name,
                         direction: SortDirection::Asc
                     },
-                    status: vault_core::common::state::Status::Loaded,
-                    title: Some(DecryptedName("My safe box".to_owned())),
+                    status: common::state::Status::Loaded,
+                    title: Some("My safe box".into()),
                     total_count: 2,
                     total_size: 4,
                     selected_count: 0,
@@ -83,13 +78,13 @@ fn test_repo_lock_unlock_remove() {
                             is_selected: false,
                         }
                     ],
-                    breadcrumbs: vec![RepoFilesBreadcrumb {
-                        id: root_id.clone(),
+                    breadcrumbs: Some(&[RepoFilesBreadcrumb {
+                        id: fixture.get_file_id("/"),
                         repo_id: fixture.repo_id.clone(),
-                        path: DecryptedPath("/".into()),
-                        name: DecryptedName("My safe box".into()),
+                        path: EncryptedPath("/".into()),
+                        name: "My safe box".into(),
                         last: true
-                    }],
+                    }]),
                 }
             );
 
@@ -100,17 +95,17 @@ fn test_repo_lock_unlock_remove() {
                 select_info(&state_after_lock),
                 RepoFilesBrowserInfo {
                     repo_id: Some(&fixture.repo_id),
-                    path: Some(&DecryptedPath("/".into())),
+                    path: Some(&EncryptedPath("/".into())),
                     selection_summary: SelectionSummary::None,
                     sort: RepoFilesSort {
                         field: RepoFilesSortField::Name,
                         direction: SortDirection::Asc
                     },
-                    status: vault_core::common::state::Status::Error {
+                    status: common::state::Status::Error {
                         error: LoadFilesError::RepoLocked(RepoLockedError),
                         loaded: false
                     },
-                    title: Some(DecryptedName("My safe box".to_owned())),
+                    title: None,
                     total_count: 0,
                     total_size: 0,
                     selected_count: 0,
@@ -121,13 +116,7 @@ fn test_repo_lock_unlock_remove() {
                     can_move_selected: false,
                     can_delete_selected: false,
                     items: vec![],
-                    breadcrumbs: vec![RepoFilesBreadcrumb {
-                        id: root_id.clone(),
-                        repo_id: fixture.repo_id.clone(),
-                        path: DecryptedPath("/".into()),
-                        name: DecryptedName("My safe box".into()),
-                        last: true
-                    }],
+                    breadcrumbs: None,
                 }
             );
 
@@ -150,13 +139,13 @@ fn test_repo_lock_unlock_remove() {
                 select_info(&state_after_remove),
                 RepoFilesBrowserInfo {
                     repo_id: Some(&fixture.repo_id),
-                    path: Some(&DecryptedPath("/".into())),
+                    path: Some(&EncryptedPath("/".into())),
                     selection_summary: SelectionSummary::None,
                     sort: RepoFilesSort {
                         field: RepoFilesSortField::Name,
                         direction: SortDirection::Asc
                     },
-                    status: vault_core::common::state::Status::Error {
+                    status: common::state::Status::Error {
                         error: LoadFilesError::RepoNotFound(RepoNotFoundError),
                         loaded: false
                     },
@@ -171,7 +160,84 @@ fn test_repo_lock_unlock_remove() {
                     can_move_selected: false,
                     can_delete_selected: false,
                     items: vec![],
-                    breadcrumbs: vec![]
+                    breadcrumbs: None
+                }
+            );
+
+            fixture.vault.repo_files_browsers_destroy(browser_id);
+        }
+        .boxed()
+    });
+}
+
+#[test]
+fn test_repo_decrypt_path_error() {
+    with_repo(|fixture| {
+        async move {
+            fixture
+                .create_dir_encrypted(&EncryptedPath("/".into()), EncryptedName("dir".into()))
+                .await;
+            let (_, file) = fixture
+                .upload_file_encrypted(
+                    &EncryptedPath("/dir".into()),
+                    fixture.encrypt_filename("file.txt".into()),
+                    "test",
+                )
+                .await;
+
+            let (browser_id, load_future) = fixture.vault.repo_files_browsers_create(
+                fixture.repo_id.clone(),
+                &EncryptedPath("/dir".into()),
+                RepoFilesBrowserOptions { select_name: None },
+            );
+            load_future.await.unwrap();
+
+            let get_state = || fixture.vault.with_state(|state| state.clone());
+            let select_info =
+                |state| repo_files_browsers::selectors::select_info(state, browser_id).unwrap();
+
+            let state = get_state();
+            assert_eq!(
+                select_info(&state),
+                RepoFilesBrowserInfo {
+                    repo_id: Some(&fixture.repo_id),
+                    path: Some(&EncryptedPath("/dir".into())),
+                    selection_summary: SelectionSummary::None,
+                    sort: RepoFilesSort {
+                        field: RepoFilesSortField::Name,
+                        direction: SortDirection::Asc
+                    },
+                    status: common::state::Status::Loaded,
+                    title: Some("dir".into()),
+                    total_count: 1,
+                    total_size: 4,
+                    selected_count: 0,
+                    selected_size: 0,
+                    selected_file: None,
+                    can_download_selected: false,
+                    can_copy_selected: false,
+                    can_move_selected: false,
+                    can_delete_selected: false,
+                    items: vec![RepoFilesBrowserItem {
+                        file: &file,
+                        is_selected: false,
+                    }],
+                    breadcrumbs: Some(&[
+                        RepoFilesBreadcrumb {
+                            id: fixture.get_file_id("/"),
+                            repo_id: fixture.repo_id.clone(),
+                            path: EncryptedPath("/".into()),
+                            name: "My safe box".into(),
+                            last: false
+                        },
+                        RepoFilesBreadcrumb {
+                            id: RepoFileId(format!("{}:/dir", fixture.repo_id.0)),
+                            repo_id: fixture.repo_id.clone(),
+                            path: EncryptedPath("/dir".into()),
+                            name: "dir".into(),
+                            last: true
+                        }
+                    ]),
                 }
             );
 
@@ -195,7 +261,7 @@ fn test_create() {
 
             let (browser_id, load_future) = fixture.vault.repo_files_browsers_create(
                 fixture.repo_id.clone(),
-                &DecryptedPath("/".into()),
+                &EncryptedPath("/".into()),
                 RepoFilesBrowserOptions { select_name: None },
             );
             load_future.await.unwrap();
@@ -262,7 +328,7 @@ fn test_create_already_loaded() {
 
             let (browser_id, load_future) = fixture.vault.repo_files_browsers_create(
                 fixture.repo_id.clone(),
-                &DecryptedPath("/".into()),
+                &EncryptedPath("/".into()),
                 RepoFilesBrowserOptions { select_name: None },
             );
             load_future.await.unwrap();
@@ -316,7 +382,7 @@ fn test_reload() {
 
             let (browser_id, load_future) = fixture.vault.repo_files_browsers_create(
                 fixture.repo_id.clone(),
-                &DecryptedPath("/".into()),
+                &EncryptedPath("/".into()),
                 RepoFilesBrowserOptions { select_name: None },
             );
             load_future.await.unwrap();
@@ -392,8 +458,7 @@ fn expected_browsers_state(
         options: RepoFilesBrowserOptions { select_name: None },
         location: Some(RepoFilesBrowserLocation {
             repo_id: fixture.repo_id.clone(),
-            path: DecryptedPath("/".into()),
-            encrypted_path: EncryptedPath("/".into()),
+            path: EncryptedPath("/".into()),
             eventstream_mount_subscription: state
                 .browsers
                 .get(&1)
@@ -405,6 +470,13 @@ fn expected_browsers_state(
                 .clone(),
         }),
         status: Status::Initial,
+        breadcrumbs: Some(vec![RepoFilesBreadcrumb {
+            id: fixture.get_file_id("/"),
+            repo_id: fixture.repo_id.clone(),
+            path: EncryptedPath("/".into()),
+            name: "My safe box".into(),
+            last: true,
+        }]),
         file_ids: vec![],
         selection: Default::default(),
         sort: Default::default(),
@@ -425,7 +497,7 @@ fn test_create_dir() {
         async move {
             let (browser_id, load_future) = fixture.vault.repo_files_browsers_create(
                 fixture.repo_id.clone(),
-                &DecryptedPath("/".into()),
+                &EncryptedPath("/".into()),
                 RepoFilesBrowserOptions { select_name: None },
             );
             load_future.await.unwrap();
@@ -469,7 +541,7 @@ fn test_create_dir_validation() {
         async move {
             let (browser_id, load_future) = fixture.vault.repo_files_browsers_create(
                 fixture.repo_id.clone(),
-                &DecryptedPath("/".into()),
+                &EncryptedPath("/".into()),
                 RepoFilesBrowserOptions { select_name: None },
             );
             load_future.await.unwrap();
@@ -529,7 +601,7 @@ fn test_eventstream() {
 
             let (browser_id, load_future) = fixture.vault.repo_files_browsers_create(
                 fixture.repo_id.clone(),
-                &DecryptedPath("/".into()),
+                &EncryptedPath("/".into()),
                 RepoFilesBrowserOptions { select_name: None },
             );
             load_future.await.unwrap();

@@ -11,12 +11,12 @@ use crate::{
     repo_files::{
         errors::LoadFilesError, selectors as repo_files_selectors, state::RepoFilesSortField,
     },
-    repos::{self, errors::RepoLockedError},
+    repos::{self},
     selection::{mutations as selection_mutations, state::Selection},
     sort::state::SortDirection,
     store,
-    types::{DecryptedPath, RepoFileId, RepoId},
-    utils::{repo_encrypted_path_utils, repo_path_utils},
+    types::{EncryptedPath, RepoFileId, RepoId},
+    utils::repo_encrypted_path_utils,
 };
 
 use super::{
@@ -29,16 +29,11 @@ fn create_location(
     notify: &store::Notify,
     mutation_state: &mut store::MutationState,
     repo_id: RepoId,
-    path: &DecryptedPath,
+    path: &EncryptedPath,
     browser_id: u32,
-    cipher: Option<&Cipher>,
 ) -> Result<RepoFilesBrowserLocation, LoadFilesError> {
-    let path = repo_path_utils::normalize_path(path)
+    let path = repo_encrypted_path_utils::normalize_path(path)
         .map_err(|_| LoadFilesError::RemoteError(RemoteFilesErrors::invalid_path()))?;
-    let encrypted_path = match cipher {
-        Some(cipher) => cipher.encrypt_path(&path),
-        None => return Err(LoadFilesError::RepoLocked(RepoLockedError)),
-    };
 
     let eventstream_mount_subscription = repos::selectors::select_repo(state, &repo_id)
         .ok()
@@ -57,7 +52,6 @@ fn create_location(
     Ok(RepoFilesBrowserLocation {
         repo_id,
         path,
-        encrypted_path,
         eventstream_mount_subscription,
     })
 }
@@ -71,7 +65,7 @@ fn create_status(
             loaded: repo_files_selectors::select_is_root_loaded(
                 state,
                 &location.repo_id,
-                &location.encrypted_path,
+                &location.path,
             ),
         },
         Err(err) => Status::Error {
@@ -87,22 +81,14 @@ pub fn create(
     mutation_state: &mut store::MutationState,
     options: RepoFilesBrowserOptions,
     repo_id: RepoId,
-    path: &DecryptedPath,
+    path: &EncryptedPath,
     cipher: Option<&Cipher>,
 ) -> u32 {
     notify(store::Event::RepoFilesBrowsers);
 
     let browser_id = state.repo_files_browsers.next_id.next();
 
-    let location = create_location(
-        state,
-        notify,
-        mutation_state,
-        repo_id,
-        path,
-        browser_id,
-        cipher,
-    );
+    let location = create_location(state, notify, mutation_state, repo_id, path, browser_id);
 
     let status = create_status(state, location.as_ref());
 
@@ -111,6 +97,7 @@ pub fn create(
         options,
         location: location.ok(),
         status,
+        breadcrumbs: None,
         file_ids: Vec::new(),
         selection: Selection::default(),
         sort: state.repo_files_browsers.last_sort.clone(),
@@ -166,7 +153,7 @@ pub fn loaded(
     notify: &store::Notify,
     browser_id: u32,
     repo_id: &RepoId,
-    path: &DecryptedPath,
+    path: &EncryptedPath,
     error: Option<&LoadFilesError>,
     cipher: Option<&Cipher>,
 ) {
@@ -208,12 +195,25 @@ pub fn update_files(
         _ => return,
     };
 
+    let update_breadcrumbs = match (&browser.breadcrumbs, cipher) {
+        (None, Some(cipher)) => Some(browser.location.as_ref().and_then(|loc| {
+            Some(repo_files_selectors::select_breadcrumbs(
+                state,
+                &loc.repo_id,
+                &loc.path,
+                cipher,
+            ))
+        })),
+        (Some(_), None) => Some(None),
+        _ => None,
+    };
+
     let file_ids: Vec<RepoFileId> = browser
         .location
         .as_ref()
         .map(|loc| {
             let file_ids: Vec<RepoFileId> =
-                selectors::select_file_ids(state, &loc.repo_id, &loc.encrypted_path)
+                selectors::select_file_ids(state, &loc.repo_id, &loc.path)
                     .map(ToOwned::to_owned)
                     .collect();
 
@@ -229,6 +229,11 @@ pub fn update_files(
     };
 
     let mut dirty = false;
+
+    if let Some(breadcrumbs) = update_breadcrumbs {
+        browser.breadcrumbs = breadcrumbs;
+        dirty = true;
+    }
 
     if browser.file_ids != file_ids {
         browser.file_ids = file_ids;
@@ -247,7 +252,7 @@ pub fn update_files(
             .map(|loc| {
                 repo_files_selectors::get_file_id(
                     &loc.repo_id,
-                    &repo_encrypted_path_utils::join_path_name(&loc.encrypted_path, &name),
+                    &repo_encrypted_path_utils::join_path_name(&loc.path, &name),
                 )
             })
             .filter(|file_id| file_ids_set.contains(file_id));
@@ -294,7 +299,7 @@ pub fn select_file(
         .location
         .as_ref()
         .map(|loc| {
-            selectors::select_file_ids(state, &loc.repo_id, &loc.encrypted_path)
+            selectors::select_file_ids(state, &loc.repo_id, &loc.path)
                 .map(ToOwned::to_owned)
                 .collect()
         })
@@ -320,7 +325,7 @@ pub fn select_all(state: &mut store::State, notify: &store::Notify, browser_id: 
         .location
         .as_ref()
         .map(|loc| {
-            selectors::select_file_ids(state, &loc.repo_id, &loc.encrypted_path)
+            selectors::select_file_ids(state, &loc.repo_id, &loc.path)
                 .map(ToOwned::to_owned)
                 .collect()
         })

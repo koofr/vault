@@ -694,7 +694,7 @@ impl Vault {
     pub fn repo_files_browsers_create(
         &self,
         repo_id: RepoId,
-        path: &DecryptedPath,
+        path: &EncryptedPath,
         options: repo_files_browsers::state::RepoFilesBrowserOptions,
     ) -> (
         u32,

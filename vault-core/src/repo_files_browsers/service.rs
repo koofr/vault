@@ -17,7 +17,7 @@ use crate::{
     repos::ReposService,
     sort::state::SortDirection,
     store,
-    types::{DecryptedName, DecryptedPath, EncryptedPath, RepoFileId, RepoId},
+    types::{DecryptedName, EncryptedPath, RepoFileId, RepoId},
 };
 
 use super::{mutations, selectors, state::RepoFilesBrowserOptions};
@@ -59,7 +59,7 @@ impl RepoFilesBrowsersService {
             repo_files_service,
             repo_files_read_service,
             repo_files_move_service,
-            store: store.clone(),
+            store,
             repo_files_mutation_subscription_id,
         }
     }
@@ -67,7 +67,7 @@ impl RepoFilesBrowsersService {
     pub fn create(
         self: Arc<Self>,
         repo_id: RepoId,
-        path: &DecryptedPath,
+        path: &EncryptedPath,
         options: RepoFilesBrowserOptions,
     ) -> (u32, BoxFuture<'static, Result<(), LoadFilesError>>) {
         let cipher = self.repos_service.get_cipher(&repo_id).ok();
@@ -105,7 +105,7 @@ impl RepoFilesBrowsersService {
     }
 
     pub async fn load_files(&self, browser_id: u32) -> Result<(), LoadFilesError> {
-        if let Some((repo_id, path, encrypted_path)) = self
+        if let Some((repo_id, path)) = self
             .store
             .with_state(|state| selectors::select_repo_id_path_owned(state, browser_id))
         {
@@ -115,10 +115,7 @@ impl RepoFilesBrowsersService {
 
             let cipher = self.repos_service.get_cipher(&repo_id).ok();
 
-            let res = self
-                .repo_files_service
-                .load_files(&repo_id, &encrypted_path)
-                .await;
+            let res = self.repo_files_service.load_files(&repo_id, &path).await;
 
             self.store.mutate(|state, notify, _, _| {
                 mutations::loaded(

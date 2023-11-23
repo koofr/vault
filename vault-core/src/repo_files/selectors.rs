@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 
 use crate::{
+    cipher::Cipher,
     files::{
         content_type::ext_to_content_type,
         file_category::{ext_to_file_category, FileCategory},
@@ -10,10 +11,10 @@ use crate::{
     repos::{errors::RepoNotFoundError, selectors as repos_selectors},
     store,
     types::{
-        DecryptedName, DecryptedNameLower, DecryptedPath, EncryptedName, EncryptedPath, MountId,
-        RemotePath, RepoFileId, RepoId,
+        DecryptedName, DecryptedNameLower, EncryptedName, EncryptedPath, MountId, RemotePath,
+        RepoFileId, RepoId,
     },
-    utils::{name_utils, remote_path_utils, repo_encrypted_path_utils, repo_path_utils},
+    utils::{name_utils, remote_path_utils, repo_encrypted_path_utils},
 };
 
 use super::{
@@ -185,8 +186,8 @@ pub fn select_check_rename_file(
 pub fn select_breadcrumbs(
     state: &store::State,
     repo_id: &RepoId,
-    path: &DecryptedPath,
-    encrypted_path: &EncryptedPath,
+    path: &EncryptedPath,
+    cipher: &Cipher,
 ) -> Vec<RepoFilesBreadcrumb> {
     let repo = match repos_selectors::select_repo(state, repo_id) {
         Ok(repo) => repo,
@@ -195,20 +196,20 @@ pub fn select_breadcrumbs(
         }
     };
 
-    let paths = repo_path_utils::paths_chain(path);
-    let encrypted_paths = repo_encrypted_path_utils::paths_chain(encrypted_path);
-    let paths_len = paths.len();
-    assert_eq!(encrypted_paths.len(), paths_len);
+    let paths = repo_encrypted_path_utils::paths_chain(path);
+    let paths_len: usize = paths.len();
 
-    encrypted_paths
+    paths
         .into_iter()
-        .zip(paths.into_iter())
         .enumerate()
-        .map(|(i, (encrypted_path, path))| {
-            let id = get_file_id(repo_id, &encrypted_path);
-            let name = match repo_path_utils::path_to_name(&path) {
-                Some(name) => name.to_owned(),
-                None => repo.name.clone(),
+        .map(|(i, path)| {
+            let id = get_file_id(repo_id, &path);
+            let name = match repo_encrypted_path_utils::path_to_name(&path) {
+                Some(name) => cipher
+                    .decrypt_filename(&name)
+                    .map(|x| x.0)
+                    .unwrap_or(name.0),
+                None => repo.name.0.clone(),
             };
 
             RepoFilesBreadcrumb {

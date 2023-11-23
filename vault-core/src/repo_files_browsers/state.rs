@@ -9,7 +9,7 @@ use crate::{
     },
     selection::state::{Selection, SelectionSummary},
     store::NextId,
-    types::{DecryptedName, DecryptedPath, EncryptedPath, RepoFileId, RepoId},
+    types::{DecryptedName, EncryptedPath, RepoFileId, RepoId},
 };
 
 #[derive(Debug, PartialEq)]
@@ -21,11 +21,11 @@ pub struct RepoFilesBrowserItem<'a> {
 #[derive(Debug, PartialEq)]
 pub struct RepoFilesBrowserInfo<'a> {
     pub repo_id: Option<&'a RepoId>,
-    pub path: Option<&'a DecryptedPath>,
+    pub path: Option<&'a EncryptedPath>,
     pub selection_summary: SelectionSummary,
     pub sort: RepoFilesSort,
     pub status: Status<LoadFilesError>,
-    pub title: Option<DecryptedName>,
+    pub title: Option<String>,
     pub total_count: usize,
     pub total_size: i64,
     pub selected_count: usize,
@@ -36,14 +36,13 @@ pub struct RepoFilesBrowserInfo<'a> {
     pub can_move_selected: bool,
     pub can_delete_selected: bool,
     pub items: Vec<RepoFilesBrowserItem<'a>>,
-    pub breadcrumbs: Vec<RepoFilesBreadcrumb>,
+    pub breadcrumbs: Option<&'a [RepoFilesBreadcrumb]>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct RepoFilesBrowserLocation {
     pub repo_id: RepoId,
-    pub path: DecryptedPath,
-    pub encrypted_path: EncryptedPath,
+    pub path: EncryptedPath,
     pub eventstream_mount_subscription: Option<MountSubscription>,
 }
 
@@ -58,6 +57,7 @@ pub struct RepoFilesBrowser {
     pub options: RepoFilesBrowserOptions,
     pub location: Option<RepoFilesBrowserLocation>,
     pub status: Status<LoadFilesError>,
+    pub breadcrumbs: Option<Vec<RepoFilesBreadcrumb>>,
     pub file_ids: Vec<RepoFileId>,
     pub selection: Selection<RepoFileId>,
     pub sort: RepoFilesSort,

@@ -16,8 +16,8 @@ use crate::{
 pub struct RepoFilesBreadcrumb {
     pub id: RepoFileId,
     pub repo_id: RepoId,
-    pub path: DecryptedPath,
-    pub name: DecryptedName,
+    pub path: EncryptedPath,
+    pub name: String,
     pub last: bool,
 }
 
