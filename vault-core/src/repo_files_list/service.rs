@@ -36,7 +36,7 @@ impl RepoFilesListService {
         let root_remote_path = file.remote_path.clone();
         let repo_id = file.repo_id.clone();
         let encrypted_root_path = file.encrypted_path.clone();
-        let root_path = file.decrypted_path()?.to_owned();
+        let root_path = file.decrypted_path().map(ToOwned::to_owned);
 
         let cipher = self
             .repos_service

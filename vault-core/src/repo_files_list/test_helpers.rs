@@ -32,7 +32,7 @@ pub fn create_list_recursive_item_dir(
         ),
         &RepoId(repo_id.to_owned()),
         &encrypted_root_path,
-        &DecryptedPath(root_path.to_owned()),
+        &Ok(DecryptedPath(root_path.to_owned())),
         remote_item,
         &cipher,
     )
@@ -63,7 +63,7 @@ pub fn create_list_recursive_item_file(
         ),
         &RepoId(repo_id.to_owned()),
         &encrypted_root_path,
-        &DecryptedPath(root_path.to_owned()),
+        &Ok(DecryptedPath(root_path.to_owned())),
         remote_item,
         &cipher,
     )

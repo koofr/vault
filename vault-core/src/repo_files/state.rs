@@ -23,14 +23,8 @@ pub struct RepoFilesBreadcrumb {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum RepoFilePath {
-    Decrypted {
-        path: DecryptedPath,
-    },
-    DecryptError {
-        parent_path: DecryptedPath,
-        encrypted_name: EncryptedName,
-        error: DecryptFilenameError,
-    },
+    Decrypted { path: DecryptedPath },
+    DecryptError { error: DecryptFilenameError },
 }
 
 impl RepoFilePath {

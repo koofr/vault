@@ -106,8 +106,6 @@ fn test_name_decryption_error() {
                     repo_id: fixture.repo_id.clone(),
                     encrypted_path: EncryptedPath("/Plain.txt".into()),
                     path: RepoFilePath::DecryptError {
-                        parent_path: DecryptedPath("/".into()),
-                        encrypted_name: EncryptedName("Plain.txt".into()),
                         error: file.path.decrypted_path().clone().unwrap_err()
                     },
                     name: RepoFileName::DecryptError {
@@ -170,8 +168,6 @@ fn test_encrypted_decrypted_same_name() {
                         repo_id: fixture.repo_id.clone(),
                         encrypted_path: EncryptedPath("/Plain.txt".into()),
                         path: RepoFilePath::DecryptError {
-                            parent_path: DecryptedPath("/".into()),
-                            encrypted_name: EncryptedName("Plain.txt".into()),
                             error: err_file.path.decrypted_path().clone().unwrap_err()
                         },
                         name: RepoFileName::DecryptError {
@@ -310,8 +306,6 @@ fn test_invalid_name() {
                             .0
                     )),
                     path: RepoFilePath::DecryptError {
-                        parent_path: DecryptedPath("/".into()),
-                        encrypted_name: EncryptedName("A\\n/\\n".into()),
                         error: DecryptFilenameError::InvalidName(InvalidNameError::new("A\n/\n")),
                     },
                     name: RepoFileName::DecryptError {

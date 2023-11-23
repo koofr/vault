@@ -4,7 +4,7 @@ use std::{
 };
 
 use crate::{
-    cipher::{data_cipher::decrypt_size, Cipher},
+    cipher::{data_cipher::decrypt_size, errors::DecryptFilenameError, Cipher},
     files::file_category::FileCategory,
     remote_files::{
         selectors as remote_files_selectors,
@@ -356,11 +356,12 @@ pub fn decrypt_files(
                     .unwrap()
                     .to_owned(),
             );
+            let decrypted_parent_path = cipher.decrypt_path(&encrypted_parent_path);
 
             decrypt_file(
                 repo_id,
                 &encrypted_parent_path,
-                &cipher.decrypt_path(&encrypted_parent_path)?,
+                &decrypted_parent_path,
                 root_remote_file,
                 &cipher,
             )
@@ -373,7 +374,7 @@ pub fn decrypt_files(
             .insert(root_repo_file_id.clone(), root_repo_file);
 
         if let Some(remote_children_ids) = state.remote_files.children.get(&root_remote_file_id) {
-            let path = cipher.decrypt_path(encrypted_path)?;
+            let path = cipher.decrypt_path(encrypted_path);
 
             let mut children = Vec::with_capacity(remote_children_ids.len());
 
@@ -434,7 +435,7 @@ pub fn decrypt_files(
 pub fn decrypt_file(
     repo_id: &RepoId,
     encrypted_parent_path: &EncryptedPath,
-    parent_path: &DecryptedPath,
+    parent_path: &Result<DecryptedPath, DecryptFilenameError>,
     remote_file: &RemoteFile,
     cipher: &Cipher,
 ) -> RepoFile {
@@ -463,17 +464,12 @@ pub fn decrypt_file(
             error: err,
         },
     };
-    let path = match &name {
-        RepoFileName::Decrypted { name, .. } => RepoFilePath::Decrypted {
+    let path = match (parent_path, &name) {
+        (Ok(parent_path), RepoFileName::Decrypted { name, .. }) => RepoFilePath::Decrypted {
             path: repo_path_utils::join_path_name(parent_path, &name),
         },
-        RepoFileName::DecryptError {
-            encrypted_name,
-            error,
-            ..
-        } => RepoFilePath::DecryptError {
-            parent_path: parent_path.to_owned(),
-            encrypted_name: encrypted_name.clone(),
+        (Err(err), _) => RepoFilePath::DecryptError { error: err.clone() },
+        (_, RepoFileName::DecryptError { error, .. }) => RepoFilePath::DecryptError {
             error: error.clone(),
         },
     };
@@ -626,7 +622,7 @@ mod tests {
             decrypt_file(
                 &RepoId("r1".into()),
                 &EncryptedPath("/".into()),
-                &DecryptedPath("/".into()),
+                &Ok(DecryptedPath("/".into())),
                 &remote_file,
                 &cipher
             ),
@@ -670,7 +666,7 @@ mod tests {
             decrypt_file(
                 &RepoId("r1".into()),
                 &EncryptedPath("/".into()),
-                &DecryptedPath("/".into()),
+                &Ok(DecryptedPath("/".into())),
                 &remote_file,
                 &cipher
             ),
@@ -681,8 +677,6 @@ mod tests {
                 repo_id: RepoId("r1".into()),
                 encrypted_path: EncryptedPath(format!("/{}", remote_file.name.0)),
                 path: RepoFilePath::DecryptError {
-                    parent_path: DecryptedPath("/".into()),
-                    encrypted_name: EncryptedName("D1".into()),
                     error: DecryptFilenameError::DecodeError(String::from(
                         "non-zero trailing bits at 1"
                     )),
@@ -723,7 +717,7 @@ mod tests {
             decrypt_file(
                 &RepoId("r1".into()),
                 &EncryptedPath("/".into()),
-                &DecryptedPath("/".into()),
+                &Ok(DecryptedPath("/".into())),
                 &remote_file,
                 &cipher
             ),
@@ -767,7 +761,7 @@ mod tests {
             decrypt_file(
                 &RepoId("r1".into()),
                 &EncryptedPath("/".into()),
-                &DecryptedPath("/".into()),
+                &Ok(DecryptedPath("/".into())),
                 &remote_file,
                 &cipher
             ),
@@ -778,8 +772,6 @@ mod tests {
                 repo_id: RepoId("r1".into()),
                 encrypted_path: EncryptedPath(format!("/{}", remote_file.name.0)),
                 path: RepoFilePath::DecryptError {
-                    parent_path: DecryptedPath("/".into()),
-                    encrypted_name: EncryptedName("F1".into()),
                     error: DecryptFilenameError::DecodeError(String::from(
                         "non-zero trailing bits at 1"
                     )),
@@ -800,6 +792,60 @@ mod tests {
                 }),
                 modified: Some(1),
                 unique_name: String::from("de40e3afb025fe16012fd421e246c711"),
+                remote_hash: Some(String::from("hash")),
+                category: FileCategory::Generic,
+            }
+        )
+    }
+
+    #[test]
+    fn test_decrypt_file_parent_path_error() {
+        let cipher = create_cipher();
+        let remote_file = remote_files_test_helpers::create_file(
+            "m1",
+            &format!(
+                "/Vault/dir/{}",
+                cipher.encrypt_filename(&DecryptedName("F1".into())).0
+            ),
+        );
+
+        assert_eq!(
+            decrypt_file(
+                &RepoId("r1".into()),
+                &EncryptedPath("/dir".into()),
+                &Err(DecryptFilenameError::DecodeError(String::from(
+                    "non-zero trailing bits at 1"
+                ))),
+                &remote_file,
+                &cipher
+            ),
+            RepoFile {
+                id: RepoFileId(format!(
+                    "r1:/dir/{}",
+                    cipher.encrypt_filename(&DecryptedName("F1".into())).0
+                )),
+                mount_id: remote_file.mount_id.clone(),
+                remote_path: remote_file.path.clone(),
+                repo_id: RepoId("r1".into()),
+                encrypted_path: EncryptedPath(format!(
+                    "/dir/{}",
+                    cipher.encrypt_filename(&DecryptedName("F1".into())).0
+                )),
+                path: RepoFilePath::DecryptError {
+                    error: DecryptFilenameError::DecodeError(String::from(
+                        "non-zero trailing bits at 1"
+                    )),
+                },
+                name: RepoFileName::Decrypted {
+                    name: DecryptedName("F1".into()),
+                    name_lower: String::from("f1")
+                },
+                ext: None,
+                content_type: None,
+                typ: RepoFileType::File,
+                size: Some(RepoFileSize::Decrypted { size: 52 }),
+                modified: Some(1),
+                unique_name: String::from("2516f2ba5aeeaa8479cd8db7070ff615"),
                 remote_hash: Some(String::from("hash")),
                 category: FileCategory::Generic,
             }

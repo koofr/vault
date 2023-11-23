@@ -301,7 +301,7 @@ mod tests {
         let file = decrypt_file(
             &RepoId("r1".into()),
             &EncryptedPath("/".into()),
-            &DecryptedPath("/".into()),
+            &Ok(DecryptedPath("/".into())),
             &remote_file,
             &cipher,
         );
@@ -329,7 +329,7 @@ mod tests {
         let file = decrypt_file(
             &RepoId("r1".into()),
             &EncryptedPath("/".into()),
-            &DecryptedPath("/".into()),
+            &Ok(DecryptedPath("/".into())),
             &remote_file,
             &cipher,
         );

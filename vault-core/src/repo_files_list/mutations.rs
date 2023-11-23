@@ -1,5 +1,5 @@
 use crate::{
-    cipher::Cipher,
+    cipher::{errors::DecryptFilenameError, Cipher},
     remote::{models, RemoteError},
     remote_files::{mutations as remote_files_mutations, selectors as remote_files_selectors},
     repo_files::mutations as repo_files_mutations,
@@ -14,7 +14,7 @@ pub fn decrypt_files_list_recursive_item(
     root_remote_path: &RemotePath,
     repo_id: &RepoId,
     encrypted_root_path: &EncryptedPath,
-    root_path: &DecryptedPath,
+    root_path: &Result<DecryptedPath, DecryptFilenameError>,
     item: models::FilesListRecursiveItem,
     cipher: &Cipher,
 ) -> RepoFilesListRecursiveItem {
@@ -43,23 +43,18 @@ pub fn decrypt_files_list_recursive_item(
                         .unwrap()
                         .to_owned(),
                 );
-                let decrypted_item_parent_path =
-                    match cipher.decrypt_path(&encrypted_item_parent_path) {
-                        Ok(path) => path,
-                        Err(err) => {
-                            return RepoFilesListRecursiveItem::Error {
-                                mount_id: mount_id.to_owned(),
-                                remote_path: Some(remote_path),
-                                error: FilesListRecursiveItemError::DecryptFilenameError(err),
-                            }
-                        }
-                    };
+                let decrypted_item_parent_path = cipher.decrypt_path(&encrypted_item_parent_path);
                 let encrypted_parent_path = EncryptedPath(path_utils::join_paths(
                     &encrypted_root_path.0,
                     &encrypted_item_parent_path.0,
                 ));
-                let parent_path =
-                    repo_path_utils::join_paths(root_path, &decrypted_item_parent_path);
+                let parent_path = match (root_path, &decrypted_item_parent_path) {
+                    (Ok(root_path), Ok(decrypted_item_parent_path)) => Ok(
+                        repo_path_utils::join_paths(root_path, decrypted_item_parent_path),
+                    ),
+                    (Err(err), _) => Err(err.to_owned()),
+                    (_, Err(err)) => Err(err.to_owned()),
+                };
                 let repo_file = repo_files_mutations::decrypt_file(
                     repo_id,
                     &encrypted_parent_path,
@@ -67,9 +62,17 @@ pub fn decrypt_files_list_recursive_item(
                     &remote_file,
                     &cipher,
                 );
-                let relative_repo_path = repo_file
-                    .decrypted_name()
-                    .map(|name| repo_path_utils::join_path_name(&decrypted_item_parent_path, name));
+                let relative_repo_path =
+                    match (&decrypted_item_parent_path, repo_file.decrypted_name()) {
+                        (Ok(decrypted_item_parent_path), Ok(decrypted_name)) => {
+                            Ok(repo_path_utils::join_path_name(
+                                decrypted_item_parent_path,
+                                decrypted_name,
+                            ))
+                        }
+                        (Err(err), _) => Err(err.to_owned()),
+                        (_, Err(err)) => Err(err.to_owned()),
+                    };
 
                 (repo_file, relative_repo_path)
             };
@@ -100,7 +103,7 @@ mod tests {
         files::file_category::FileCategory,
         remote::test_helpers as remote_test_helpers,
         repo_files::state::{RepoFile, RepoFileName, RepoFilePath, RepoFileSize, RepoFileType},
-        repo_files_list::{errors::FilesListRecursiveItemError, state::RepoFilesListRecursiveItem},
+        repo_files_list::state::RepoFilesListRecursiveItem,
         types::{
             DecryptedName, DecryptedPath, EncryptedName, EncryptedPath, MountId, RemotePath,
             RepoFileId, RepoId,
@@ -120,7 +123,7 @@ mod tests {
                 &RemotePath("/Vault".into()),
                 &RepoId("r1".into()),
                 &EncryptedPath("/".into()),
-                &DecryptedPath("/".into()),
+                &Ok(DecryptedPath("/".into())),
                 item,
                 &cipher
             ),
@@ -169,7 +172,7 @@ mod tests {
                 &RemotePath("/Vault".into()),
                 &RepoId("r1".into()),
                 &EncryptedPath("/".into()),
-                &DecryptedPath("/".into()),
+                &Ok(DecryptedPath("/".into())),
                 item,
                 &cipher
             ),
@@ -221,7 +224,7 @@ mod tests {
                 &RemotePath("/Vault".into()),
                 &RepoId("r1".into()),
                 &EncryptedPath("/".into()),
-                &DecryptedPath("/".into()),
+                &Ok(DecryptedPath("/".into())),
                 item,
                 &cipher
             ),
@@ -236,8 +239,6 @@ mod tests {
                     repo_id: RepoId("r1".into()),
                     encrypted_path: EncryptedPath("/D1".into()),
                     path: RepoFilePath::DecryptError {
-                        parent_path: DecryptedPath("/".into()),
-                        encrypted_name: EncryptedName("D1".into()),
                         error: DecryptFilenameError::DecodeError(String::from(
                             "non-zero trailing bits at 1"
                         )),
@@ -279,7 +280,7 @@ mod tests {
                 &RemotePath("/Vault".into()),
                 &RepoId("r1".into()),
                 &EncryptedPath("/".into()),
-                &DecryptedPath("/".into()),
+                &Ok(DecryptedPath("/".into())),
                 item,
                 &cipher
             ),
@@ -343,7 +344,7 @@ mod tests {
                     "/{}",
                     cipher.encrypt_filename(&DecryptedName("D1".into())).0
                 )),
-                &DecryptedPath("/D1".into()),
+                &Ok(DecryptedPath("/D1".into())),
                 item,
                 &cipher
             ),
@@ -398,7 +399,7 @@ mod tests {
                 &RemotePath("/Vault".into()),
                 &RepoId("r1".into()),
                 &EncryptedPath("/".into()),
-                &DecryptedPath("/".into()),
+                &Ok(DecryptedPath("/".into())),
                 item,
                 &cipher
             ),
@@ -413,8 +414,6 @@ mod tests {
                     repo_id: RepoId("r1".into()),
                     encrypted_path: EncryptedPath("/F1".into()),
                     path: RepoFilePath::DecryptError {
-                        parent_path: DecryptedPath("/".into()),
-                        encrypted_name: EncryptedName("F1".into()),
                         error: DecryptFilenameError::DecodeError(String::from(
                             "non-zero trailing bits at 1"
                         )),
@@ -442,6 +441,68 @@ mod tests {
     #[test]
     fn test_decrypt_files_list_recursive_item_file_decrypt_parent_path_error() {
         let cipher = create_cipher();
+        let item = remote_test_helpers::create_files_list_recursive_item_file(
+            &format!(
+                "/D1/{}",
+                cipher.encrypt_filename(&DecryptedName("F1".into())).0
+            ),
+            &cipher.encrypt_filename(&DecryptedName("F1".into())).0,
+        );
+
+        assert_eq!(
+            decrypt_files_list_recursive_item(
+                &MountId("m1".into()),
+                &RemotePath("/Vault".into()),
+                &RepoId("r1".into()),
+                &EncryptedPath("/".into()),
+                &Ok(DecryptedPath("/".into())),
+                item,
+                &cipher
+            ),
+            RepoFilesListRecursiveItem::File {
+                relative_repo_path: Err(DecryptFilenameError::DecodeError(String::from(
+                    "non-zero trailing bits at 1"
+                ))),
+                file: RepoFile {
+                    id: RepoFileId(format!(
+                        "r1:/D1/{}",
+                        cipher.encrypt_filename(&DecryptedName("F1".into())).0
+                    )),
+                    mount_id: MountId("m1".into()),
+                    remote_path: RemotePath(format!(
+                        "/Vault/D1/{}",
+                        cipher.encrypt_filename(&DecryptedName("F1".into())).0
+                    )),
+                    repo_id: RepoId("r1".into()),
+                    encrypted_path: EncryptedPath(format!(
+                        "/D1/{}",
+                        cipher.encrypt_filename(&DecryptedName("F1".into())).0
+                    )),
+                    path: RepoFilePath::DecryptError {
+                        error: DecryptFilenameError::DecodeError(String::from(
+                            "non-zero trailing bits at 1"
+                        )),
+                    },
+                    name: RepoFileName::Decrypted {
+                        name: DecryptedName("F1".into()),
+                        name_lower: String::from("f1")
+                    },
+                    ext: None,
+                    content_type: None,
+                    typ: RepoFileType::File,
+                    size: Some(RepoFileSize::Decrypted { size: 52 }),
+                    modified: Some(1),
+                    unique_name: String::from("c50276d197b1b9ea9b92d674e1d9c291"),
+                    remote_hash: Some(String::from("hash")),
+                    category: FileCategory::Generic,
+                },
+            }
+        )
+    }
+
+    #[test]
+    fn test_decrypt_files_list_recursive_item_file_decrypt_parent_path_file_error() {
+        let cipher = create_cipher();
         let item = remote_test_helpers::create_files_list_recursive_item_file("/D1/F1", "F1");
 
         assert_eq!(
@@ -450,16 +511,93 @@ mod tests {
                 &RemotePath("/Vault".into()),
                 &RepoId("r1".into()),
                 &EncryptedPath("/".into()),
-                &DecryptedPath("/".into()),
+                &Ok(DecryptedPath("/".into())),
                 item,
                 &cipher
             ),
-            RepoFilesListRecursiveItem::Error {
-                mount_id: MountId("m1".into()),
-                remote_path: Some(RemotePath("/Vault/D1/F1".into())),
-                error: FilesListRecursiveItemError::DecryptFilenameError(
-                    DecryptFilenameError::DecodeError(String::from("non-zero trailing bits at 1"))
-                ),
+            RepoFilesListRecursiveItem::File {
+                relative_repo_path: Err(DecryptFilenameError::DecodeError(String::from(
+                    "non-zero trailing bits at 1"
+                ))),
+                file: RepoFile {
+                    id: RepoFileId("r1:/D1/F1".into()),
+                    mount_id: MountId("m1".into()),
+                    remote_path: RemotePath("/Vault/D1/F1".into()),
+                    repo_id: RepoId("r1".into()),
+                    encrypted_path: EncryptedPath("/D1/F1".into()),
+                    path: RepoFilePath::DecryptError {
+                        error: DecryptFilenameError::DecodeError(String::from(
+                            "non-zero trailing bits at 1"
+                        )),
+                    },
+                    name: RepoFileName::DecryptError {
+                        encrypted_name: EncryptedName("F1".into()),
+                        encrypted_name_lower: String::from("f1"),
+                        error: DecryptFilenameError::DecodeError(String::from(
+                            "non-zero trailing bits at 1"
+                        )),
+                    },
+                    ext: None,
+                    content_type: None,
+                    typ: RepoFileType::File,
+                    size: Some(RepoFileSize::Decrypted { size: 52 }),
+                    modified: Some(1),
+                    unique_name: String::from("e73e9572f66d72dfbca3ad23eaebd8b5"),
+                    remote_hash: Some(String::from("hash")),
+                    category: FileCategory::Generic,
+                },
+            }
+        )
+    }
+
+    #[test]
+    fn test_decrypt_files_list_recursive_item_file_decrypt_root_parent_path_file_error() {
+        let cipher = create_cipher();
+        let item = remote_test_helpers::create_files_list_recursive_item_file("/D1/F1", "F1");
+
+        assert_eq!(
+            decrypt_files_list_recursive_item(
+                &MountId("m1".into()),
+                &RemotePath("/Vault".into()),
+                &RepoId("r1".into()),
+                &EncryptedPath("/".into()),
+                &Err(DecryptFilenameError::DecodeError(String::from(
+                    "non-zero trailing bits at 1"
+                ))),
+                item,
+                &cipher
+            ),
+            RepoFilesListRecursiveItem::File {
+                relative_repo_path: Err(DecryptFilenameError::DecodeError(String::from(
+                    "non-zero trailing bits at 1"
+                ))),
+                file: RepoFile {
+                    id: RepoFileId("r1:/D1/F1".into()),
+                    mount_id: MountId("m1".into()),
+                    remote_path: RemotePath("/Vault/D1/F1".into()),
+                    repo_id: RepoId("r1".into()),
+                    encrypted_path: EncryptedPath("/D1/F1".into()),
+                    path: RepoFilePath::DecryptError {
+                        error: DecryptFilenameError::DecodeError(String::from(
+                            "non-zero trailing bits at 1"
+                        )),
+                    },
+                    name: RepoFileName::DecryptError {
+                        encrypted_name: EncryptedName("F1".into()),
+                        encrypted_name_lower: String::from("f1"),
+                        error: DecryptFilenameError::DecodeError(String::from(
+                            "non-zero trailing bits at 1"
+                        )),
+                    },
+                    ext: None,
+                    content_type: None,
+                    typ: RepoFileType::File,
+                    size: Some(RepoFileSize::Decrypted { size: 52 }),
+                    modified: Some(1),
+                    unique_name: String::from("e73e9572f66d72dfbca3ad23eaebd8b5"),
+                    remote_hash: Some(String::from("hash")),
+                    category: FileCategory::Generic,
+                },
             }
         )
     }

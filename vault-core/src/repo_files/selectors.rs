@@ -78,12 +78,10 @@ pub fn select_file_name<'a>(
     state: &'a store::State,
     file: &'a RepoFile,
 ) -> Result<&'a DecryptedName, FileNameError> {
-    match file.decrypted_path() {
-        Ok(path) if path.is_root() => {
-            Ok(repos_selectors::select_repo(state, &file.repo_id).map(|repo| &repo.name)?)
-        }
-        Ok(_) => Ok(file.decrypted_name()?),
-        Err(err) => Err(err.into()),
+    if file.encrypted_path.is_root() {
+        Ok(repos_selectors::select_repo(state, &file.repo_id).map(|repo| &repo.name)?)
+    } else {
+        Ok(file.decrypted_name()?)
     }
 }
 
