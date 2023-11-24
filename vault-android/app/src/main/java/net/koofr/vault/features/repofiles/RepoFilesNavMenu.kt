@@ -25,10 +25,10 @@ fun RepoFilesNavMenu(vm: RepoFilesScreenViewModel, info: State<RepoFilesBrowserI
 
         when (info.value?.selectionSummary) {
             SelectionSummary.ALL -> vm.mobileVault.repoFilesBrowsersClearSelection(
-                vm.browserId,
+                browserId = vm.browserId,
             )
 
-            else -> vm.mobileVault.repoFilesBrowsersSelectAll(vm.browserId)
+            else -> vm.mobileVault.repoFilesBrowsersSelectAll(browserId = vm.browserId)
         }
     })
 
@@ -39,7 +39,7 @@ fun RepoFilesNavMenu(vm: RepoFilesScreenViewModel, info: State<RepoFilesBrowserI
             vm.menuExpanded.value = false
 
             vm.mobileVault.repoFilesBrowsersMoveSelected(
-                vm.browserId,
+                browserId = vm.browserId,
                 RepoFilesMoveMode.COPY,
             )
         })
@@ -50,8 +50,8 @@ fun RepoFilesNavMenu(vm: RepoFilesScreenViewModel, info: State<RepoFilesBrowserI
             vm.menuExpanded.value = false
 
             vm.mobileVault.repoFilesBrowsersMoveSelected(
-                vm.browserId,
-                RepoFilesMoveMode.MOVE,
+                browserId = vm.browserId,
+                mode = RepoFilesMoveMode.MOVE,
             )
         })
     } else {

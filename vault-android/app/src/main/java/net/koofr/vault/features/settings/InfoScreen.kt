@@ -185,7 +185,7 @@ fun InfoScreen(vm: InfoScreenViewModel = hiltViewModel()) {
                         try {
                             uriHandler.openUri(vm.reportABugUrl(version))
                         } catch (e: ActivityNotFoundException) {
-                            vm.mobileVault.notificationsShow("Please write an email to support@koofr.net")
+                            vm.mobileVault.notificationsShow(message = "Please write an email to support@koofr.net")
                         }
                     },
                 ) {

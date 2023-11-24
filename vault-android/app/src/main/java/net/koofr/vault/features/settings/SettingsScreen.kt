@@ -58,9 +58,9 @@ class SettingsScreenViewModel @Inject constructor(
             try {
                 storageHelper.clearCache()
 
-                mobileVault.notificationsShow("Cache has been cleared")
+                mobileVault.notificationsShow(message = "Cache has been cleared")
             } catch (ex: IOException) {
-                mobileVault.notificationsShow(ex.message ?: "Unknown error")
+                mobileVault.notificationsShow(message = ex.message ?: "Unknown error")
             }
         }.invokeOnCompletion {
             isClearingCache.value = false
@@ -75,8 +75,8 @@ fun SettingsScreen(vm: SettingsScreenViewModel = hiltViewModel()) {
     val navController = LocalNavController.current
 
     val user = subscribe(
-        { v, cb -> v.userSubscribe(cb) },
-        { v, id -> v.userData(id) },
+        { v, cb -> v.userSubscribe(cb = cb) },
+        { v, id -> v.userData(id = id) },
     )
 
     Scaffold(topBar = {

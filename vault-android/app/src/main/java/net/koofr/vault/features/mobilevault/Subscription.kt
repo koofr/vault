@@ -50,7 +50,7 @@ class Subscription<T> constructor(
 
     override fun close() {
         id?.let {
-            mobileVault.unsubscribe(it)
+            mobileVault.unsubscribe(id = it)
         }
     }
 }

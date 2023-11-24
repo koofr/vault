@@ -34,8 +34,8 @@ import net.koofr.vault.features.transfers.TransfersView
 @Composable
 fun ShareActivityScreen(vm: ShareActivityViewModel) {
     val oauth2Status = subscribe(
-        { v, cb -> v.oauth2StatusSubscribe(cb) },
-        { v, id -> v.oauth2StatusData(id) },
+        { v, cb -> v.oauth2StatusSubscribe(cb = cb) },
+        { v, id -> v.oauth2StatusData(id = id) },
     )
 
     oauth2Status.value?.let { status ->

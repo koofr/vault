@@ -62,8 +62,8 @@ fun RepoCreateRcloneDialog(
         }, confirmButton = {
             TextButton(onClick = {
                 if (vm.mobileVault.repoCreateFillFromRcloneConfig(
-                        vm.createId,
-                        vm.rcloneConfigState.value.text,
+                        createId = vm.createId,
+                        config = vm.rcloneConfigState.value.text,
                     )
                 ) {
                     dismiss()

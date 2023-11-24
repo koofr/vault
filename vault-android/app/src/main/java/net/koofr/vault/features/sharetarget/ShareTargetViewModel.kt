@@ -24,8 +24,8 @@ class ShareTargetViewModel constructor(
         onCancel()
     }
 
-    fun upload(repoId: String, path: String) {
-        uploadHelper.uploadFiles(repoId, path, files.map { it.uploadFile })
+    fun upload(repoId: String, encryptedPath: String) {
+        uploadHelper.uploadFiles(repoId, encryptedPath, files.map { it.uploadFile })
 
         onUpload()
     }

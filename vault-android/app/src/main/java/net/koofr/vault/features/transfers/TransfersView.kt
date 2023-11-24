@@ -38,12 +38,12 @@ fun TransfersView(
     vm: TransfersViewModel = hiltViewModel(),
 ) {
     val transfersSummary = subscribe(
-        { v, cb -> v.transfersSummarySubscribe(cb) },
-        { v, id -> v.transfersSummaryData(id) },
+        { v, cb -> v.transfersSummarySubscribe(cb = cb) },
+        { v, id -> v.transfersSummaryData(id = id) },
     )
     val transfersList = subscribe(
-        { v, cb -> v.transfersListSubscribe(cb) },
-        { v, id -> v.transfersListData(id) },
+        { v, cb -> v.transfersListSubscribe(cb = cb) },
+        { v, id -> v.transfersListData(id = id) },
     )
 
     Scaffold(topBar = {
@@ -108,12 +108,12 @@ fun TransfersViewRow(
     )
 
     TransferRow(transfer, fileIconBitmap = fileIconBitmap, onRetry = {
-        vm.mobileVault.transfersRetry(transfer.id)
+        vm.mobileVault.transfersRetry(id = transfer.id)
     }, onAbort = {
         vm.onAbort?.invoke()
 
-        vm.mobileVault.transfersAbort(transfer.id)
+        vm.mobileVault.transfersAbort(id = transfer.id)
     }, onOpen = {
-        vm.mobileVault.transfersOpen(transfer.id)
+        vm.mobileVault.transfersOpen(id = transfer.id)
     })
 }

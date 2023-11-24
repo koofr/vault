@@ -11,7 +11,7 @@ import java.util.Date
 @Composable
 fun relativeTime(mobileVault: MobileVault, value: Long, withModifier: Boolean = true): String {
     val relativeTime = remember {
-        mutableStateOf(mobileVault.relativeTime(minOf(value, Date().time), withModifier))
+        mutableStateOf(mobileVault.relativeTime(value = minOf(value, Date().time), withModifier = withModifier))
     }
     val nextUpdate = relativeTime.value.nextUpdate
 
@@ -19,7 +19,7 @@ fun relativeTime(mobileVault: MobileVault, value: Long, withModifier: Boolean = 
         if (nextUpdate != null) {
             delay(maxOf(nextUpdate - Date().time, 0))
 
-            relativeTime.value = mobileVault.relativeTime(minOf(value, Date().time), withModifier)
+            relativeTime.value = mobileVault.relativeTime(value = minOf(value, Date().time), withModifier = withModifier)
         }
     }
 

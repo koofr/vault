@@ -70,8 +70,8 @@ fun RepoInfoScreen(
     val navController = LocalNavController.current
 
     val repo = subscribe(
-        { v, cb -> v.reposRepoSubscribe(vm.repoId, cb) },
-        { v, id -> v.reposRepoData(id) },
+        { v, cb -> v.reposRepoSubscribe(repoId = vm.repoId, cb = cb) },
+        { v, id -> v.reposRepoData(id = id) },
     )
 
     LaunchedEffect(Unit) {
@@ -124,7 +124,7 @@ fun RepoInfoScreen(
                             if (it) {
                                 vm.repoUnlockDialog.value = ViewModelStore()
                             } else {
-                                vm.mobileVault.reposLockRepo(vm.repoId)
+                                vm.mobileVault.reposLockRepo(repoId = vm.repoId)
                             }
                         },
                         modifier = Modifier.semantics {

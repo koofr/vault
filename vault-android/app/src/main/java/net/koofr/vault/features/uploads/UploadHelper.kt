@@ -21,25 +21,25 @@ import java.io.FileNotFoundException
 import java.util.UUID
 
 class UploadHelper(private val mobileVault: MobileVault, private val appContext: Context) {
-    fun uploadFiles(repoId: String, parentPath: String, files: List<UploadFile>) {
+    fun uploadFiles(repoId: String, encryptedParentPath: String, files: List<UploadFile>) {
         files.forEach { file ->
             file.data.let { data ->
                 when (data) {
                     is UploadFileData.Stream -> {
                         mobileVault.transfersUploadStream(
-                            repoId,
-                            parentPath,
-                            file.name,
-                            UploadInputStreamProvider(data.stream, file.size),
+                            repoId = repoId,
+                            encryptedParentPath = encryptedParentPath,
+                            name = file.name,
+                            streamProvider = UploadInputStreamProvider(data.stream, file.size),
                         )
                     }
 
                     is UploadFileData.Bytes -> {
                         mobileVault.transfersUploadBytes(
-                            repoId,
-                            parentPath,
-                            file.name,
-                            data.bytes,
+                            repoId = repoId,
+                            encryptedParentPath = encryptedParentPath,
+                            name = file.name,
+                            bytes = data.bytes,
                         )
                     }
                 }

@@ -33,7 +33,7 @@ class FileIconCache @Inject constructor(val mobileVault: MobileVault) {
     }
 
     private fun buildIcon(props: FileIconProps, scale: Int): ImageBitmap {
-        val png = mobileVault.fileIconPng(props, scale.toUInt())
+        val png = mobileVault.fileIconPng(props = props, scale = scale.toUInt())
 
         val pngByteArray = png.png
 

@@ -28,13 +28,13 @@ fun RepoFileMenu(
             showFileInfo()
         })
 
-        item.file.path?.let { path ->
+        item.file.let { file ->
             DropdownMenuItem(text = { Text(text = "Rename") }, onClick = {
                 onDismiss()
 
                 vm.mobileVault.repoFilesRenameFile(
-                    item.file.repoId,
-                    path,
+                    repoId = file.repoId,
+                    encryptedPath = file.encryptedPath,
                 )
             })
 
@@ -42,9 +42,9 @@ fun RepoFileMenu(
                 onDismiss()
 
                 vm.mobileVault.repoFilesMoveFile(
-                    item.file.repoId,
-                    path,
-                    RepoFilesMoveMode.COPY,
+                    repoId = item.file.repoId,
+                    encryptedPath = file.encryptedPath,
+                    mode = RepoFilesMoveMode.COPY,
                 )
             })
 
@@ -52,9 +52,9 @@ fun RepoFileMenu(
                 onDismiss()
 
                 vm.mobileVault.repoFilesMoveFile(
-                    item.file.repoId,
-                    path,
-                    RepoFilesMoveMode.MOVE,
+                    repoId = item.file.repoId,
+                    encryptedPath = file.encryptedPath,
+                    mode = RepoFilesMoveMode.MOVE,
                 )
             })
 
@@ -62,8 +62,8 @@ fun RepoFileMenu(
                 onDismiss()
 
                 vm.mobileVault.repoFilesDeleteFile(
-                    item.file.repoId,
-                    path,
+                    repoId = item.file.repoId,
+                    encryptedPath = file.encryptedPath,
                 )
             })
 

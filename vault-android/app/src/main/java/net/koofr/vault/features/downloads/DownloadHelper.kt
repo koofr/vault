@@ -30,34 +30,32 @@ class DownloadHelper(
     private val appContext: Context,
 ) {
     fun downloadRepoFile(navController: NavController, repoFile: RepoFile) {
-        repoFile.path?.let { path ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                mobileVault.transfersDownloadStream(
-                    repoId = repoFile.repoId,
-                    path = path,
-                    streamProvider = downloadStreamProvider(),
-                )
-            } else {
-                val localFilePath = try {
-                    storageHelper.getDownloadsDir()
-                } catch (ex: Exception) {
-                    mobileVault.notificationsShow(ex.toString())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            mobileVault.transfersDownloadStream(
+                repoId = repoFile.repoId,
+                encryptedPath = repoFile.encryptedPath,
+                streamProvider = downloadStreamProvider(),
+            )
+        } else {
+            val localFilePath = try {
+                storageHelper.getDownloadsDir()
+            } catch (ex: Exception) {
+                mobileVault.notificationsShow(message = ex.toString())
 
-                    return
-                }
-
-                val transfersDownloadFileHandler = transfersDownloadFileHandler()
-
-                mobileVault.transfersDownloadFile(
-                    repoId = repoFile.repoId,
-                    path = path,
-                    localFilePath = localFilePath,
-                    appendName = true,
-                    autorename = true,
-                    onOpen = transfersDownloadFileHandler,
-                    onDone = transfersDownloadFileHandler,
-                )
+                return
             }
+
+            val transfersDownloadFileHandler = transfersDownloadFileHandler()
+
+            mobileVault.transfersDownloadFile(
+                repoId = repoFile.repoId,
+                encryptedPath = repoFile.encryptedPath,
+                localFilePath = localFilePath,
+                appendName = true,
+                autorename = true,
+                onOpen = transfersDownloadFileHandler,
+                onDone = transfersDownloadFileHandler,
+            )
         }
 
         transfersHelper.navigateWhenActive(navController)
@@ -66,14 +64,14 @@ class DownloadHelper(
     fun downloadRepoFilesBrowsersSelected(navController: NavController, browserId: UInt) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             mobileVault.repoFilesBrowsersDownloadSelectedStream(
-                browserId,
-                downloadStreamProvider(),
+                browserId = browserId,
+                streamProvider = downloadStreamProvider(),
             )
         } else {
             val localFilePath = try {
                 storageHelper.getDownloadsDir()
             } catch (ex: Exception) {
-                mobileVault.notificationsShow(ex.toString())
+                mobileVault.notificationsShow(message = ex.toString())
 
                 return
             }
@@ -119,7 +117,7 @@ class DownloadHelper(
                 appContext.startActivity(viewDownloadsIntent)
             }
         } catch (ex: Exception) {
-            mobileVault.notificationsShow(ex.toString())
+            mobileVault.notificationsShow(message = ex.toString())
         }
     }
 }
@@ -151,7 +149,7 @@ class TransfersDownloadHandler(
 
             uri = downloadManager.getUriForDownloadedFile(id)
         } catch (ex: Exception) {
-            mobileVault.notificationsShow(ex.toString())
+            mobileVault.notificationsShow(message = ex.toString())
         }
     }
 

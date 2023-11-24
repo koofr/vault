@@ -45,7 +45,7 @@ class RepoSetupBiometricUnlockDialogViewModel @Inject constructor(
 ) : ViewModel() {
     private val repoId: String = savedStateHandle.get<String>("repoId")!!
 
-    val unlockId = mobileVault.repoUnlockCreate(repoId, RepoUnlockOptions(RepoUnlockMode.VERIFY))
+    val unlockId = mobileVault.repoUnlockCreate(repoId = repoId, options = RepoUnlockOptions(RepoUnlockMode.VERIFY))
 
     private val biometricsHelper: RepoPasswordBiometricsHelper =
         RepoPasswordBiometricsHelper(repoId, androidSecureStorage)
@@ -55,7 +55,7 @@ class RepoSetupBiometricUnlockDialogViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
 
-        mobileVault.repoUnlockDestroy(unlockId)
+        mobileVault.repoUnlockDestroy(unlockId = unlockId)
     }
 
     fun setup(
@@ -64,8 +64,8 @@ class RepoSetupBiometricUnlockDialogViewModel @Inject constructor(
         onDismiss: () -> Unit,
     ) {
         mobileVault.repoUnlockUnlock(
-            unlockId,
-            password,
+            unlockId = unlockId,
+            password = password,
             object : RepoUnlockUnlocked {
                 override fun onUnlocked() {
                     viewModelScope.launch {
@@ -78,7 +78,7 @@ class RepoSetupBiometricUnlockDialogViewModel @Inject constructor(
                                     super.onAuthenticationError(errorCode, errString)
 
                                     if (errorCode != BiometricPrompt.ERROR_USER_CANCELED && errorCode != BiometricPrompt.ERROR_NEGATIVE_BUTTON && errorCode != BiometricPrompt.ERROR_CANCELED) {
-                                        mobileVault.notificationsShow(errString.toString())
+                                        mobileVault.notificationsShow(message = errString.toString())
                                     }
 
                                     onDismiss()
@@ -106,7 +106,7 @@ class RepoSetupBiometricUnlockDialogViewModel @Inject constructor(
                                 )
                             }
                         } catch (e: Exception) {
-                            mobileVault.notificationsShow("Biometric prompt error: ${e.message}")
+                            mobileVault.notificationsShow(message = "Biometric prompt error: ${e.message}")
                         }
                     }
                 }
@@ -132,8 +132,8 @@ fun RepoSetupBiometricUnlockDialog(
     val activity = LocalContext.current.getActivity()
 
     val info = subscribe(
-        { v, cb -> v.repoUnlockInfoSubscribe(vm.unlockId, cb) },
-        { v, id -> v.repoUnlockInfoData(id) },
+        { v, cb -> v.repoUnlockInfoSubscribe(unlockId = vm.unlockId, cb = cb) },
+        { v, id -> v.repoUnlockInfoData(id = id) },
     )
 
     val unlock = remember {

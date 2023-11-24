@@ -47,22 +47,22 @@ fun RepoFilesScreen(
     val navController = LocalNavController.current
 
     val info = subscribe(
-        { v, cb -> v.repoFilesBrowsersInfoSubscribe(vm.browserId, cb) },
-        { v, id -> v.repoFilesBrowsersInfoData(id) },
+        { v, cb -> v.repoFilesBrowsersInfoSubscribe(browserId = vm.browserId, cb = cb) },
+        { v, id -> v.repoFilesBrowsersInfoData(id = id) },
     )
 
     val moveInfo = subscribe(
-        { v, cb -> v.repoFilesMoveInfoSubscribe(cb) },
-        { v, id -> v.repoFilesMoveInfoData(id) },
+        { v, cb -> v.repoFilesMoveInfoSubscribe(cb = cb) },
+        { v, id -> v.repoFilesMoveInfoData(id = id) },
     )
 
     LaunchedEffect(moveInfo.value != null) {
         moveInfo.value?.let { moveInfo ->
-            moveInfo.destPathChain.forEach { destPath ->
+            moveInfo.encryptedDestPathChain.forEach { encryptedDestPath ->
                 navController.navigate(
                     "repos/${moveInfo.repoId}/files/move?path=${
                         queryEscape(
-                            destPath,
+                            encryptedDestPath,
                         )
                     }",
                 )
@@ -73,13 +73,13 @@ fun RepoFilesScreen(
     val takePicture = takePicture({ file ->
         info.value?.let { info ->
             info.repoId?.let { repoId ->
-                info.path?.let { path ->
+                info.encryptedPath?.let { encryptedPath ->
                     vm.mobileVault.transfersUploadFile(
-                        repoId,
-                        path,
-                        file.name,
-                        file.absolutePath,
-                        true,
+                        repoId = repoId,
+                        encryptedParentPath = encryptedPath,
+                        name = file.name,
+                        localFilePath = file.absolutePath,
+                        removeFileAfterUpload = true,
                     )
                 }
             }
@@ -116,7 +116,7 @@ fun RepoFilesScreen(
     val selectMode = selectedCount > 0u
 
     BackHandler(selectMode) {
-        vm.mobileVault.repoFilesBrowsersClearSelection(vm.browserId)
+        vm.mobileVault.repoFilesBrowsersClearSelection(browserId = vm.browserId)
     }
 
     Scaffold(topBar = {
@@ -132,7 +132,7 @@ fun RepoFilesScreen(
             },
             navigationIcon = {
                 if (selectMode) {
-                    IconButton(onClick = { vm.mobileVault.repoFilesBrowsersClearSelection(vm.browserId) }) {
+                    IconButton(onClick = { vm.mobileVault.repoFilesBrowsersClearSelection(browserId = vm.browserId) }) {
                         Icon(Icons.Filled.Close, "Deselect all")
                     }
                 }
@@ -145,7 +145,7 @@ fun RepoFilesScreen(
                         Icon(Icons.Filled.Download, "Download selected")
                     }
 
-                    IconButton(onClick = { vm.mobileVault.repoFilesBrowsersDeleteSelected(vm.browserId) }) {
+                    IconButton(onClick = { vm.mobileVault.repoFilesBrowsersDeleteSelected(browserId = vm.browserId) }) {
                         Icon(Icons.Filled.Delete, "Delete selected")
                     }
                 }
@@ -169,9 +169,9 @@ fun RepoFilesScreen(
             listOf(
                 MultiAddButtonItem("New folder") {
                     vm.mobileVault.repoFilesBrowsersCreateDir(
-                        vm.browserId,
-                        object : RepoFilesBrowserDirCreated {
-                            override fun onCreated(path: String) {}
+                        browserId = vm.browserId,
+                        cb = object : RepoFilesBrowserDirCreated {
+                            override fun onCreated(encryptedPath: String) {}
                         },
                     )
                 },
@@ -193,7 +193,7 @@ fun RepoFilesScreen(
                 status = info.status,
                 isEmpty = info.items.isEmpty(),
                 onRefresh = {
-                    vm.mobileVault.repoFilesBrowsersLoadFiles(vm.browserId)
+                    vm.mobileVault.repoFilesBrowsersLoadFiles(browserId = vm.browserId)
                 },
                 empty = {
                     EmptyFolderView()

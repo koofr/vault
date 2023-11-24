@@ -13,8 +13,8 @@ fun TransfersButton() {
     val navController = LocalNavController.current
 
     val transfersIsActive = subscribe(
-        { v, cb -> v.transfersIsActiveSubscribe(cb) },
-        { v, id -> v.transfersIsActiveData(id) },
+        { v, cb -> v.transfersIsActiveSubscribe(cb = cb) },
+        { v, id -> v.transfersIsActiveData(id = id) },
     )
 
     if (transfersIsActive.value == true) {

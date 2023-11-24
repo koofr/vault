@@ -34,8 +34,8 @@ fun ShareTargetReposScreen(
     val navController = LocalNavController.current
 
     val repos = subscribe(
-        { v, cb -> v.reposSubscribe(cb) },
-        { v, id -> v.reposData(id) },
+        { v, cb -> v.reposSubscribe(cb = cb) },
+        { v, id -> v.reposData(id = id) },
     )
 
     BackHandler(true) {

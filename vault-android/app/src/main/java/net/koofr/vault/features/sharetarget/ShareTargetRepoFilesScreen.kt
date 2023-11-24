@@ -43,11 +43,11 @@ class ShareTargetRepoFilesViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     val repoId: String = savedStateHandle.get<String>("repoId")!!
-    val path: String = savedStateHandle.get<String>("path")!!
+    val encryptedPath: String = savedStateHandle.get<String>("path")!!
 
     val browserId = mobileVault.repoFilesBrowsersCreate(
-        repoId,
-        path,
+        repoId = repoId,
+        encryptedPath = encryptedPath,
         options = RepoFilesBrowserOptions(
             selectName = null,
         ),
@@ -56,7 +56,7 @@ class ShareTargetRepoFilesViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
 
-        mobileVault.repoFilesBrowsersDestroy(browserId)
+        mobileVault.repoFilesBrowsersDestroy(browserId = browserId)
     }
 }
 
@@ -70,8 +70,8 @@ fun ShareTargetRepoFilesScreen(
     val navController = LocalNavController.current
 
     val info = subscribe(
-        { v, cb -> v.repoFilesBrowsersInfoSubscribe(vm.browserId, cb) },
-        { v, id -> v.repoFilesBrowsersInfoData(id) },
+        { v, cb -> v.repoFilesBrowsersInfoSubscribe(browserId = vm.browserId, cb = cb) },
+        { v, id -> v.repoFilesBrowsersInfoData(id = id) },
     )
 
     Scaffold(topBar = {
@@ -81,14 +81,14 @@ fun ShareTargetRepoFilesScreen(
             IconButton(onClick = {
                 info.value?.repoId?.let { repoId ->
                     vm.mobileVault.repoFilesBrowsersCreateDir(
-                        vm.browserId,
-                        object : RepoFilesBrowserDirCreated {
-                            override fun onCreated(path: String) {
+                        browserId = vm.browserId,
+                        cb = object : RepoFilesBrowserDirCreated {
+                            override fun onCreated(encryptedPath: String) {
                                 coroutineScope.launch {
                                     navController.navigate(
                                         "shareTarget/repos/$repoId/files?path=${
                                             queryEscape(
-                                                path,
+                                                encryptedPath,
                                             )
                                         }",
                                     )
@@ -103,7 +103,7 @@ fun ShareTargetRepoFilesScreen(
         })
     }, bottomBar = {
         ShareTargetBottomBar(shareTargetVm, uploadEnabled = true, onUploadClick = {
-            shareTargetVm.upload(vm.repoId, vm.path)
+            shareTargetVm.upload(vm.repoId, vm.encryptedPath)
         })
     }, snackbarHost = { SnackbarHost(LocalSnackbarHostState.current) }) { paddingValues ->
         info.value?.let { info ->
@@ -112,7 +112,7 @@ fun ShareTargetRepoFilesScreen(
                 status = info.status,
                 isEmpty = info.items.isEmpty(),
                 onRefresh = {
-                    vm.mobileVault.repoFilesBrowsersLoadFiles(vm.browserId)
+                    vm.mobileVault.repoFilesBrowsersLoadFiles(browserId = vm.browserId)
                 },
                 empty = {
                     EmptyFolderView()
@@ -150,11 +150,11 @@ fun ShareTargetRepoFilesListRow(
         modifiedDisplay = modifiedDisplay,
         checkboxChecked = false,
         onClick = {
-            item.file.path?.let { path ->
+            item.file.let { file ->
                 navController.navigate(
-                    "shareTarget/repos/${item.file.repoId}/files?path=${
+                    "shareTarget/repos/${file.repoId}/files?path=${
                         queryEscape(
-                            path,
+                            file.encryptedPath,
                         )
                     }",
                 )

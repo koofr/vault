@@ -162,7 +162,7 @@ fun RepoCreateFormView(vm: RepoCreateViewModel, form: RepoCreateForm, modifier: 
                             onValueChange = {
                                 vm.passwordState.value = it
 
-                                vm.mobileVault.repoCreateSetPassword(vm.createId, it.text)
+                                vm.mobileVault.repoCreateSetPassword(createId = vm.createId, password = it.text)
                             },
                             passwordVisible = vm.passwordVisible.value,
                             onPasswordVisibleChange = {
@@ -190,8 +190,8 @@ fun RepoCreateFormView(vm: RepoCreateViewModel, form: RepoCreateForm, modifier: 
                                     vm.saltState.value = it
 
                                     vm.mobileVault.repoCreateSetSalt(
-                                        vm.createId,
-                                        it.text.ifEmpty { null },
+                                        createId = vm.createId,
+                                        salt = it.text.ifEmpty { null },
                                     )
                                 },
                                 label = { Text("Salt") },

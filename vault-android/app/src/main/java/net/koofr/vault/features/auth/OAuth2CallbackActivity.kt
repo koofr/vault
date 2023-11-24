@@ -17,8 +17,8 @@ class OAuth2CallbackActivity : ComponentActivity() {
 
         intent?.data?.let { url ->
             mobileVault.oauth2FinishFlowUrl(
-                url.toString(),
-                object : OAuth2FinishFlowDone {
+                url = url.toString(),
+                cb = object : OAuth2FinishFlowDone {
                     override fun onDone() {}
                 },
             )

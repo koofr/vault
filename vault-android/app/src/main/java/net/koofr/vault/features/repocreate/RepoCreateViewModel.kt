@@ -33,11 +33,11 @@ class RepoCreateViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
 
-        mobileVault.repoCreateDestroy(createId)
+        mobileVault.repoCreateDestroy(createId = createId)
     }
 
     fun retryLoad() {
-        mobileVault.repoCreateCreateLoad(createId)
+        mobileVault.repoCreateCreateLoad(createId = createId)
     }
 
     fun locationPickerNavigate(navController: NavController, location: String) {
@@ -52,8 +52,8 @@ class RepoCreateViewModel @Inject constructor(
 
     fun setLocation(mountId: String, path: String) {
         mobileVault.repoCreateSetLocation(
-            createId,
-            RemoteFilesLocation(mountId = mountId, path = path),
+            createId = createId,
+            location = RemoteFilesLocation(mountId = mountId, path = path),
         )
     }
 
@@ -64,7 +64,7 @@ class RepoCreateViewModel @Inject constructor(
     }
 
     fun createRepo() {
-        mobileVault.repoCreateCreateRepo(createId)
+        mobileVault.repoCreateCreateRepo(createId = createId)
     }
 
     fun saveConfig() {

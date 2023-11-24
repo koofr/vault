@@ -57,11 +57,11 @@ class RepoFilesMoveScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val repoId: String = savedStateHandle.get<String>("repoId")!!
-    val path: String = savedStateHandle.get<String>("path")!!
+    val encryptedPath: String = savedStateHandle.get<String>("path")!!
 
     val browserId = mobileVault.repoFilesBrowsersCreate(
-        repoId,
-        path,
+        repoId = repoId,
+        encryptedPath = encryptedPath,
         options = RepoFilesBrowserOptions(
             selectName = null,
         ),
@@ -70,11 +70,11 @@ class RepoFilesMoveScreenViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
 
-        mobileVault.repoFilesBrowsersDestroy(browserId)
+        mobileVault.repoFilesBrowsersDestroy(browserId = browserId)
     }
 
     fun setCurrentDest() {
-        mobileVault.repoFilesMoveSetDestPath(path)
+        mobileVault.repoFilesMoveSetDestPath(encryptedDestPath = encryptedPath)
     }
 }
 
@@ -87,15 +87,15 @@ fun RepoFilesMoveScreen(
     val navController = LocalNavController.current
 
     val moveInfo = subscribe(
-        { v, cb -> v.repoFilesMoveInfoSubscribe(cb) },
-        { v, id -> v.repoFilesMoveInfoData(id) },
+        { v, cb -> v.repoFilesMoveInfoSubscribe(cb = cb) },
+        { v, id -> v.repoFilesMoveInfoData(id = id) },
     )
 
     LaunchedEffect(Unit) {
         vm.setCurrentDest()
     }
 
-    BackHandler(vm.path == "/") {
+    BackHandler(vm.encryptedPath == "/") {
         // if we are on root, just cancel the move and the following LaunchedEffect
         // will call navController.popBackStack
         vm.mobileVault.repoFilesMoveCancel()
@@ -108,8 +108,8 @@ fun RepoFilesMoveScreen(
     }
 
     val info = subscribe(
-        { v, cb -> v.repoFilesBrowsersInfoSubscribe(vm.browserId, cb) },
-        { v, id -> v.repoFilesBrowsersInfoData(id) },
+        { v, cb -> v.repoFilesBrowsersInfoSubscribe(browserId = vm.browserId, cb = cb) },
+        { v, id -> v.repoFilesBrowsersInfoData(id = id) },
     )
 
     moveInfo.value?.let { moveInfo ->
@@ -120,14 +120,14 @@ fun RepoFilesMoveScreen(
                 IconButton(onClick = {
                     info.value?.repoId?.let { repoId ->
                         vm.mobileVault.repoFilesBrowsersCreateDir(
-                            vm.browserId,
-                            object : RepoFilesBrowserDirCreated {
-                                override fun onCreated(path: String) {
+                            browserId = vm.browserId,
+                            cb = object : RepoFilesBrowserDirCreated {
+                                override fun onCreated(encryptedPath: String) {
                                     coroutineScope.launch {
                                         navController.navigate(
                                             "repos/$repoId/files/move?path=${
                                                 queryEscape(
-                                                    path,
+                                                    encryptedPath,
                                                 )
                                             }",
                                         )
@@ -188,7 +188,7 @@ fun RepoFilesMoveScreen(
                     status = info.status,
                     isEmpty = info.items.isEmpty(),
                     onRefresh = {
-                        vm.mobileVault.repoFilesBrowsersLoadFiles(vm.browserId)
+                        vm.mobileVault.repoFilesBrowsersLoadFiles(browserId = vm.browserId)
                     },
                     empty = {
                         EmptyFolderView()
@@ -227,8 +227,8 @@ fun RepoFilesListMoveRow(
         modifiedDisplay = modifiedDisplay,
         checkboxChecked = false,
         onClick = {
-            item.file.path?.let { path ->
-                navController.navigate("repos/${item.file.repoId}/files/move?path=${queryEscape(path)}")
+            item.file.let { file ->
+                navController.navigate("repos/${file.repoId}/files/move?path=${queryEscape(file.encryptedPath)}")
             }
         },
     )

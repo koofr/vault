@@ -32,7 +32,7 @@ class MobileVaultHelper constructor(private val mobileVault: MobileVault) {
                             lock.lock()
 
                             try {
-                                mobileVault.unsubscribe(id)
+                                mobileVault.unsubscribe(id = id)
 
                                 callbackData = it
 
@@ -49,7 +49,7 @@ class MobileVaultHelper constructor(private val mobileVault: MobileVault) {
         val data = getData(mobileVault, id)
 
         if (data != null) {
-            mobileVault.unsubscribe(id)
+            mobileVault.unsubscribe(id = id)
 
             return data
         }
@@ -69,25 +69,25 @@ class MobileVaultHelper constructor(private val mobileVault: MobileVault) {
 
     fun waitForOAuth2Loaded() {
         subscriptionWait(
-            { v, cb -> v.oauth2StatusSubscribe(cb) },
+            { v, cb -> v.oauth2StatusSubscribe(cb = cb) },
             { v, id ->
-                v.oauth2StatusData(id)?.takeIf { it is Status.Loaded }
+                v.oauth2StatusData(id = id)?.takeIf { it is Status.Loaded }
             },
         )
     }
 
     fun waitForReposLoaded() {
         subscriptionWait(
-            { v, cb -> v.reposSubscribe(cb) },
-            { v, id -> v.reposData(id)?.takeIf { it.status is Status.Loaded } },
+            { v, cb -> v.reposSubscribe(cb = cb) },
+            { v, id -> v.reposData(id = id)?.takeIf { it.status is Status.Loaded } },
         )
     }
 
     fun waitForRepo(): Repo {
         return subscriptionWait(
-            { v, cb -> v.reposSubscribe(cb) },
+            { v, cb -> v.reposSubscribe(cb = cb) },
             { v, id ->
-                v.reposData(id)?.takeIf { it.status is Status.Loaded }
+                v.reposData(id = id)?.takeIf { it.status is Status.Loaded }
                     ?.let { it.repos.firstOrNull() }
             },
         )
@@ -95,23 +95,23 @@ class MobileVaultHelper constructor(private val mobileVault: MobileVault) {
 
     fun unlockRepo(repo: Repo, password: String = "password") {
         val unlockId =
-            mobileVault.repoUnlockCreate(repo.id, RepoUnlockOptions(mode = RepoUnlockMode.UNLOCK))
+            mobileVault.repoUnlockCreate(repoId = repo.id, options = RepoUnlockOptions(mode = RepoUnlockMode.UNLOCK))
 
         try {
             mobileVault.repoUnlockUnlock(
-                unlockId,
-                password,
-                object : RepoUnlockUnlocked {
+                unlockId = unlockId,
+                password = password,
+                cb = object : RepoUnlockUnlocked {
                     override fun onUnlocked() {}
                 },
             )
 
             subscriptionWait(
-                { v, cb -> v.repoUnlockInfoSubscribe(unlockId, cb) },
-                { v, id -> v.repoUnlockInfoData(id)?.takeIf { it.status is Status.Loaded } },
+                { v, cb -> v.repoUnlockInfoSubscribe(unlockId = unlockId, cb = cb) },
+                { v, id -> v.repoUnlockInfoData(id = id)?.takeIf { it.status is Status.Loaded } },
             )
         } finally {
-            mobileVault.repoUnlockDestroy(unlockId)
+            mobileVault.repoUnlockDestroy(unlockId = unlockId)
         }
     }
 
@@ -123,22 +123,22 @@ class MobileVaultHelper constructor(private val mobileVault: MobileVault) {
         return repo
     }
 
-    fun uploadFile(repo: Repo, parentPath: String, name: String, content: String): RepoFile {
+    fun uploadFile(repo: Repo, encryptedParentPath: String, name: String, content: String): RepoFile {
         val browserId = mobileVault.repoFilesBrowsersCreate(
-            repo.id,
-            parentPath,
-            RepoFilesBrowserOptions(selectName = null),
+            repoId = repo.id,
+            encryptedPath = encryptedParentPath,
+            options = RepoFilesBrowserOptions(selectName = null),
         )
 
         try {
-            mobileVault.transfersUploadBytes(repo.id, parentPath, name, content.toByteArray())
+            mobileVault.transfersUploadBytes(repoId = repo.id, encryptedParentPath = encryptedParentPath, name, content.toByteArray())
 
             return subscriptionWait(
-                { v, cb -> v.repoFilesBrowsersItemsSubscribe(browserId, cb) },
-                { v, id -> v.repoFilesBrowsersItemsData(id)?.find { it.file.name == name }?.file },
+                { v, cb -> v.repoFilesBrowsersInfoSubscribe(browserId = browserId, cb = cb) },
+                { v, id -> v.repoFilesBrowsersInfoData(id = id)?.items?.find { it.file.name == name }?.file },
             )
         } finally {
-            mobileVault.repoFilesBrowsersDestroy(browserId)
+            mobileVault.repoFilesBrowsersDestroy(browserId = browserId)
         }
     }
 }

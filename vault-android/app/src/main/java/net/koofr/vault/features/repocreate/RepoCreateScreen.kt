@@ -22,8 +22,8 @@ fun RepoCreateScreen(
     vm: RepoCreateViewModel = hiltViewModel(),
 ) {
     val info = subscribe(
-        { v, cb -> v.repoCreateInfoSubscribe(vm.createId, cb) },
-        { v, id -> v.repoCreateInfoData(id) },
+        { v, cb -> v.repoCreateInfoSubscribe(createId = vm.createId, cb = cb) },
+        { v, id -> v.repoCreateInfoData(id = id) },
     )
 
     Scaffold(topBar = {

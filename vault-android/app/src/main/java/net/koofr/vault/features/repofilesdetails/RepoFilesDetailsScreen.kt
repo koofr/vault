@@ -186,11 +186,11 @@ class RepoFilesDetailsScreenViewModel @Inject constructor(
     @SuppressLint("StaticFieldLeak") @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
     private val repoId: String = savedStateHandle.get<String>("repoId")!!
-    private val path: String = savedStateHandle.get<String>("path")!!
+    private val encryptedPath: String = savedStateHandle.get<String>("path")!!
 
     val detailsId = mobileVault.repoFilesDetailsCreate(
-        repoId,
-        path,
+        repoId = repoId,
+        encryptedPath = encryptedPath,
         isEditing = false,
         options = RepoFilesDetailsOptions(
             loadContent = FilesFilter(
@@ -211,7 +211,7 @@ class RepoFilesDetailsScreenViewModel @Inject constructor(
 
         content.value.close()
 
-        mobileVault.repoFilesDetailsDestroy(detailsId)
+        mobileVault.repoFilesDetailsDestroy(detailsId = detailsId)
     }
 
     fun setContent(newContent: RepoFilesDetailsScreenContent) {
@@ -229,7 +229,7 @@ class RepoFilesDetailsScreenViewModel @Inject constructor(
             setContent(RepoFilesDetailsScreenContent.Downloading)
 
             mobileVault.repoFilesDetailsDownloadTempFile(
-                detailsId,
+                detailsId = detailsId,
                 localBasePath = storageHelper.getTempDir(),
                 onDone = object : TransfersDownloadDone {
                     override fun onDone(localFilePath: String, contentType: String?) {
@@ -284,13 +284,13 @@ fun RepoFilesDetailsScreen(
     val context = LocalContext.current
 
     val info = subscribe(
-        { v, cb -> v.repoFilesDetailsInfoSubscribe(vm.detailsId, cb) },
-        { v, id -> v.repoFilesDetailsInfoData(id) },
+        { v, cb -> v.repoFilesDetailsInfoSubscribe(detailsId = vm.detailsId, cb = cb) },
+        { v, id -> v.repoFilesDetailsInfoData(id = id) },
     )
     subscribe(
-        { v, cb -> v.repoFilesDetailsFileSubscribe(vm.detailsId, cb) },
+        { v, cb -> v.repoFilesDetailsFileSubscribe(detailsId = vm.detailsId, cb = cb) },
         { v, id ->
-            val data = v.repoFilesDetailsFileData(id)
+            val data = v.repoFilesDetailsFileData(id = id)
 
             data?.let { file ->
                 vm.load(file)
@@ -385,8 +385,8 @@ fun RepoFilesDetailsContentDownloadingTransferView(
     transferId: UInt,
 ) {
     val transfer = subscribe(
-        { v, cb -> v.transfersTransferSubscribe(transferId, cb) },
-        { v, id -> v.transfersTransferData(id) },
+        { v, cb -> v.transfersTransferSubscribe(transferId = transferId, cb = cb) },
+        { v, id -> v.transfersTransferData(id = id) },
     )
 
     Column(
@@ -398,7 +398,7 @@ fun RepoFilesDetailsContentDownloadingTransferView(
     ) {
         transfer.value?.let {
             TransferInfoView(it, onRetry = {
-                vm.mobileVault.transfersRetry(transferId)
+                vm.mobileVault.transfersRetry(id = transferId)
             })
         }
     }

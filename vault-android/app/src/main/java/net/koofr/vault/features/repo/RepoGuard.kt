@@ -54,8 +54,8 @@ class RepoGuardViewModel @Inject constructor(
     private val repoSubscription = Subscription(
         mobileVault = mobileVault,
         coroutineScope = MainScope(),
-        subscribe = { v, cb -> v.reposRepoSubscribe(repoId, cb) },
-        getData = { v, id -> v.reposRepoData(id) },
+        subscribe = { v, cb -> v.reposRepoSubscribe(repoId = repoId, cb = cb) },
+        getData = { v, id -> v.reposRepoData(id = id) },
     ).also {
         addCloseable(it)
     }

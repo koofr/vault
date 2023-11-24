@@ -48,13 +48,13 @@ class UserIconViewModel @Inject constructor(
 @Composable
 fun UserIcon(vm: UserIconViewModel = hiltViewModel()) {
     val userProfilePictureLoaded = subscribe(
-        { v, cb -> v.userProfilePictureLoadedSubscribe(cb) },
-        { v, id -> v.userProfilePictureLoadedData(id) },
+        { v, cb -> v.userProfilePictureLoadedSubscribe(cb = cb) },
+        { v, id -> v.userProfilePictureLoadedData(id = id) },
     )
 
     val user = subscribe(
-        { v, cb -> v.userSubscribe(cb) },
-        { v, id -> v.userData(id) },
+        { v, cb -> v.userSubscribe(cb = cb) },
+        { v, id -> v.userData(id = id) },
     )
 
     LaunchedEffect(Unit) {

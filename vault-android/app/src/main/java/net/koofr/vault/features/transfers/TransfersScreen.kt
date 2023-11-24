@@ -10,8 +10,8 @@ fun TransfersScreen() {
     val navController = LocalNavController.current
 
     val isActive = subscribe(
-        { v, cb -> v.transfersIsActiveSubscribe(cb) },
-        { v, id -> v.transfersIsActiveData(id) },
+        { v, cb -> v.transfersIsActiveSubscribe(cb = cb) },
+        { v, id -> v.transfersIsActiveData(id = id) },
     )
 
     LaunchedEffect(isActive.value) {

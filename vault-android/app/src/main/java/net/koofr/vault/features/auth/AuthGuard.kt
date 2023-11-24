@@ -10,8 +10,8 @@ import net.koofr.vault.features.mobilevault.subscribe
 @Composable
 fun AuthGuard() {
     val oauth2Status = subscribe(
-        { v, cb -> v.oauth2StatusSubscribe(cb) },
-        { v, id -> v.oauth2StatusData(id) },
+        { v, cb -> v.oauth2StatusSubscribe(cb = cb) },
+        { v, id -> v.oauth2StatusData(id = id) },
     )
 
     when (oauth2Status.value) {

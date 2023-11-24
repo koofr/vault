@@ -51,7 +51,7 @@ class RepoRemoveScreenViewModel @Inject constructor(
 ) : ViewModel() {
     private val repoId: String = savedStateHandle.get<String>("repoId")!!
 
-    val removeId = mobileVault.repoRemoveCreate(repoId)
+    val removeId = mobileVault.repoRemoveCreate(repoId = repoId)
 
     val passwordState = mutableStateOf(TextFieldValue())
     val passwordVisible = mutableStateOf(false)
@@ -59,14 +59,14 @@ class RepoRemoveScreenViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
 
-        mobileVault.repoRemoveDestroy(removeId)
+        mobileVault.repoRemoveDestroy(removeId = removeId)
     }
 
     fun remove(cb: () -> Unit) {
         mobileVault.repoRemoveRemove(
-            removeId,
-            passwordState.value.text,
-            object : RepoRemoved {
+            removeId = removeId,
+            password = passwordState.value.text,
+            cb = object : RepoRemoved {
                 override fun onRemoved() {
                     viewModelScope.launch {
                         cb()
@@ -87,8 +87,8 @@ fun RepoRemoveScreen(
     val passwordFocusRequester = remember { FocusRequester() }
 
     val info = subscribe(
-        { v, cb -> v.repoRemoveInfoSubscribe(vm.removeId, cb) },
-        { v, id -> v.repoRemoveInfoData(id) },
+        { v, cb -> v.repoRemoveInfoSubscribe(removeId = vm.removeId, cb = cb) },
+        { v, id -> v.repoRemoveInfoData(id = id) },
     )
 
     LaunchedEffect(Unit) {

@@ -115,7 +115,7 @@ private fun RepoFilesSortRow(
         modifier = Modifier
             .clickable(
                 onClick = {
-                    vm.mobileVault.repoFilesBrowsersSortBy(vm.browserId, field, direction)
+                    vm.mobileVault.repoFilesBrowsersSortBy(browserId = vm.browserId, field = field, direction = direction)
 
                     coroutineScope
                         .launch { vm.sortSheetState.value.hide() }

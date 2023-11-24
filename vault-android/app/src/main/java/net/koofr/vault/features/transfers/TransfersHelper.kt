@@ -15,8 +15,8 @@ class TransfersHelper(mobileVault: MobileVault) : Closeable {
     private val transfersIsActiveSubscription = Subscription(
         mobileVault = mobileVault,
         coroutineScope = MainScope(),
-        subscribe = { v, cb -> v.transfersIsActiveSubscribe(cb) },
-        getData = { v, id -> v.transfersIsActiveData(id) },
+        subscribe = { v, cb -> v.transfersIsActiveSubscribe(cb = cb) },
+        getData = { v, id -> v.transfersIsActiveData(id = id) },
     )
     private var navControllerWhenActivate: NavController? = null
 

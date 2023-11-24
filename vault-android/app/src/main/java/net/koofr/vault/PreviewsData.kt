@@ -37,7 +37,8 @@ object PreviewsData {
         RepoFile(
             id = "011a4ac4-0844-40ef-9e69-dffb45ee5aaa:/example.jpg",
             repoId = "011a4ac4-0844-40ef-9e69-dffb45ee5aaa",
-            path = "/example.jpg",
+            encryptedPath = "/pto9jrnh1kar26rfahf2hbu8bk",
+            decryptedPath = "/example.jpg",
             name = "example example example example example example example example example.jpg",
             nameError = null,
             ext = "jpg",

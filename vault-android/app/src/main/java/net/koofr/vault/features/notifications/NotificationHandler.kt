@@ -22,14 +22,14 @@ fun NotificationHandler(vm: NotificationHandlerViewModel = hiltViewModel()) {
     val snackbarHostState = LocalSnackbarHostState.current
     val coroutineScope = rememberCoroutineScope()
 
-    subscribe({ v, cb -> v.notificationsSubscribe(cb) }, { v, id ->
-        val notifications = v.notificationsData(id)
+    subscribe({ v, cb -> v.notificationsSubscribe(cb = cb) }, { v, id ->
+        val notifications = v.notificationsData(id = id)
 
         if (!notifications.isNullOrEmpty()) {
             val notification = notifications.first()
 
             coroutineScope.launch {
-                vm.mobileVault.notificationsRemove(notification.id)
+                vm.mobileVault.notificationsRemove(notificationId = notification.id)
 
                 Log.w("Vault", notification.message)
 

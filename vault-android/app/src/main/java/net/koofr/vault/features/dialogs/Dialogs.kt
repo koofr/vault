@@ -60,8 +60,8 @@ class DialogsViewModel @Inject constructor(
 
 @Composable
 fun Dialogs(vm: DialogsViewModel = hiltViewModel()) {
-    val dialogs = subscribe({ v, cb -> v.dialogsSubscribe(cb) }, { v, id ->
-        val dialogs = v.dialogsData(id)
+    val dialogs = subscribe({ v, cb -> v.dialogsSubscribe(cb = cb) }, { v, id ->
+        val dialogs = v.dialogsData(id = id)
 
         dialogs?.let { vm.cleanupDialogViewModels(it) }
 
@@ -80,8 +80,8 @@ fun Dialogs(vm: DialogsViewModel = hiltViewModel()) {
 @Composable
 fun DialogsDialog(dialogsVm: DialogsViewModel, dialogId: UInt) {
     val dialog = subscribe(
-        { v, cb -> v.dialogsDialogSubscribe(dialogId, cb) },
-        { v, id -> v.dialogsDialogData(id) },
+        { v, cb -> v.dialogsDialogSubscribe(dialogId = dialogId, cb = cb) },
+        { v, id -> v.dialogsDialogData(id = id) },
     )
 
     dialog.value?.let {
@@ -112,7 +112,7 @@ fun DialogView(vm: DialogViewModel, dialog: Dialog) {
 
     AlertDialog(
         onDismissRequest = {
-            vm.mobileVault.dialogsCancel(dialog.id)
+            vm.mobileVault.dialogsCancel(dialogId = dialog.id)
         },
         title = {
             Text(dialog.title)
@@ -141,7 +141,7 @@ fun DialogView(vm: DialogViewModel, dialog: Dialog) {
                         onValueChange = {
                             vm.localInputValue.value = it
 
-                            vm.mobileVault.dialogsSetInputValue(dialog.id, it.text)
+                            vm.mobileVault.dialogsSetInputValue(dialogId = dialog.id, value = it.text)
                         },
                         modifier = Modifier.focusRequester(inputFocusRequester),
                         singleLine = true,
@@ -150,7 +150,7 @@ fun DialogView(vm: DialogViewModel, dialog: Dialog) {
                         ),
                         keyboardActions = KeyboardActions(onDone = {
                             if (dialog.confirmButtonEnabled) {
-                                vm.mobileVault.dialogsConfirm(dialog.id)
+                                vm.mobileVault.dialogsConfirm(dialogId = dialog.id)
                             }
                         }),
                     )
@@ -161,7 +161,7 @@ fun DialogView(vm: DialogViewModel, dialog: Dialog) {
         },
         confirmButton = {
             TextButton(onClick = {
-                vm.mobileVault.dialogsConfirm(dialog.id)
+                vm.mobileVault.dialogsConfirm(dialogId = dialog.id)
             }, enabled = dialog.confirmButtonEnabled) {
                 Text(dialog.confirmButtonText.uppercase())
             }
@@ -169,7 +169,7 @@ fun DialogView(vm: DialogViewModel, dialog: Dialog) {
         dismissButton = dialog.cancelButtonText?.let {
             {
                 TextButton(onClick = {
-                    vm.mobileVault.dialogsCancel(dialog.id)
+                    vm.mobileVault.dialogsCancel(dialogId = dialog.id)
                 }) {
                     Text(it.uppercase())
                 }

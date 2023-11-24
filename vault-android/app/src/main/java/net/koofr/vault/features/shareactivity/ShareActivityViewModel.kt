@@ -44,22 +44,24 @@ class ShareActivityViewModel @Inject constructor(
 
     init {
         transfersIsActiveSubscriptionId =
-            mobileVault.transfersIsActiveSubscribe(object : SubscriptionCallback {
-                override fun onChange() {
-                    viewModelScope.launch {
-                        transfersIsActiveSubscriptionId?.let {
-                            handleTransfersIsActive(it)
+            mobileVault.transfersIsActiveSubscribe(
+                cb = object : SubscriptionCallback {
+                    override fun onChange() {
+                        viewModelScope.launch {
+                            transfersIsActiveSubscriptionId?.let {
+                                handleTransfersIsActive(it)
+                            }
                         }
                     }
-                }
-            })
+                },
+            )
 
         handleTransfersIsActive(transfersIsActiveSubscriptionId!!)
     }
 
     override fun onCleared() {
         transfersIsActiveSubscriptionId?.let {
-            mobileVault.unsubscribe(it)
+            mobileVault.unsubscribe(id = it)
 
             transfersIsActiveSubscriptionId = null
         }
@@ -68,7 +70,7 @@ class ShareActivityViewModel @Inject constructor(
     }
 
     private fun handleTransfersIsActive(id: UInt) {
-        mobileVault.transfersIsActiveData(id)?.let { isActive ->
+        mobileVault.transfersIsActiveData(id = id)?.let { isActive ->
             if (isActive && !transfersWasActive) {
                 transfersWasActive = true
             }
@@ -84,10 +86,10 @@ class ShareActivityViewModel @Inject constructor(
 
     fun initFiles(intent: Intent) {
         val files = uploadHelper.getSendIntentFiles(intent) { ex ->
-            mobileVault.notificationsShow(ex.toString())
+            mobileVault.notificationsShow(message = ex.toString())
         }.map {
             val localFile =
-                mobileVault.localFilesFileInfo(it.name, LocalFileType.FILE, it.size, null)
+                mobileVault.localFilesFileInfo(name = it.name, typ = LocalFileType.FILE, size = it.size, modified = null)
 
             ShareTargetFile(localFile = localFile, uploadFile = it)
         }

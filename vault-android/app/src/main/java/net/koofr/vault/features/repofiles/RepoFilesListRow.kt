@@ -39,8 +39,8 @@ fun RepoFilesListRow(
     val selectFile = remember {
         {
             vm.mobileVault.repoFilesBrowsersSelectFile(
-                vm.browserId,
-                item.file.id,
+                browserId = vm.browserId,
+                fileId = item.file.id,
                 extend = true,
                 range = false,
                 force = false,
@@ -57,13 +57,13 @@ fun RepoFilesListRow(
             if (selectMode) {
                 selectFile()
             } else {
-                item.file.path?.let { path ->
+                item.file.let { file ->
                     when (item.file.typ) {
                         RepoFileType.DIR -> {
                             navController.navigate(
-                                "repos/${item.file.repoId}/files?path=${
+                                "repos/${file.repoId}/files?path=${
                                     queryEscape(
-                                        path,
+                                        file.encryptedPath,
                                     )
                                 }",
                             )
@@ -71,9 +71,9 @@ fun RepoFilesListRow(
 
                         RepoFileType.FILE -> {
                             navController.navigate(
-                                "repos/${item.file.repoId}/files/details?path=${
+                                "repos/${file.repoId}/files/details?path=${
                                     queryEscape(
-                                        path,
+                                        file.encryptedPath,
                                     )
                                 }",
                             )

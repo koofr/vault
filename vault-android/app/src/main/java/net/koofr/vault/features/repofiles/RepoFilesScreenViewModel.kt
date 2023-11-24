@@ -30,7 +30,7 @@ class RepoFilesScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val repoId: String = savedStateHandle.get<String>("repoId")!!
-    private val path: String = savedStateHandle.get<String>("path")!!
+    private val encryptedPath: String = savedStateHandle.get<String>("path")!!
 
     val menuExpanded = mutableStateOf(false)
 
@@ -41,8 +41,8 @@ class RepoFilesScreenViewModel @Inject constructor(
     val sortSheetState = mutableStateOf(SheetState(false, SheetValue.Hidden, { true }, false))
 
     val browserId = mobileVault.repoFilesBrowsersCreate(
-        repoId,
-        path,
+        repoId = repoId,
+        encryptedPath = encryptedPath,
         options = RepoFilesBrowserOptions(
             selectName = null,
         ),
@@ -51,16 +51,16 @@ class RepoFilesScreenViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
 
-        mobileVault.repoFilesBrowsersDestroy(browserId)
+        mobileVault.repoFilesBrowsersDestroy(browserId = browserId)
     }
 
     fun uploadFile(intent: Intent) {
         viewModelScope.launch(Dispatchers.IO) {
             val files = uploadHelper.getGetContentIntentFiles(intent) { ex ->
-                mobileVault.notificationsShow(ex.toString())
+                mobileVault.notificationsShow(message = ex.toString())
             }
 
-            uploadHelper.uploadFiles(repoId, path, files)
+            uploadHelper.uploadFiles(repoId, encryptedPath, files)
         }
     }
 
@@ -71,6 +71,6 @@ class RepoFilesScreenViewModel @Inject constructor(
     fun downloadSelected(navController: NavController) {
         downloadHelper.downloadRepoFilesBrowsersSelected(navController, browserId)
 
-        mobileVault.repoFilesBrowsersClearSelection(browserId)
+        mobileVault.repoFilesBrowsersClearSelection(browserId = browserId)
     }
 }

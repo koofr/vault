@@ -57,7 +57,7 @@ class RemoteFilesDirPickerScreenViewModel @Inject constructor(
     val location = savedStateHandle.get<String>("location")!!
 
     val browserId = mobileVault.remoteFilesBrowsersCreate(
-        location,
+        location = location,
         options = RemoteFilesBrowserOptions(
             selectName = null,
             onlyHostedDevices = true,
@@ -67,7 +67,7 @@ class RemoteFilesDirPickerScreenViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
 
-        mobileVault.remoteFilesBrowsersDestroy(browserId)
+        mobileVault.remoteFilesBrowsersDestroy(browserId = browserId)
     }
 }
 
@@ -91,8 +91,8 @@ fun RemoteFilesDirPickerScreen(
     }
 
     val info = subscribe(
-        { v, cb -> v.remoteFilesBrowsersInfoSubscribe(vm.browserId, cb) },
-        { v, id -> v.remoteFilesBrowsersInfoData(id) },
+        { v, cb -> v.remoteFilesBrowsersInfoSubscribe(browserId = vm.browserId, cb = cb) },
+        { v, id -> v.remoteFilesBrowsersInfoData(id = id) },
     )
 
     Scaffold(
@@ -104,8 +104,8 @@ fun RemoteFilesDirPickerScreen(
                     onClick = {
                         if (info.value?.canCreateDir == true) {
                             vm.mobileVault.remoteFilesBrowsersCreateDir(
-                                vm.browserId,
-                                object : RemoteFilesBrowserDirCreated {
+                                browserId = vm.browserId,
+                                cb = object : RemoteFilesBrowserDirCreated {
                                     override fun onCreated(location: String) {
                                         coroutineScope.launch {
                                             delegate.navigate(location)
@@ -168,7 +168,7 @@ fun RemoteFilesDirPickerScreen(
                 status = info.status,
                 isEmpty = info.items.isEmpty(),
                 onRefresh = {
-                    vm.mobileVault.remoteFilesBrowsersLoad(vm.browserId)
+                    vm.mobileVault.remoteFilesBrowsersLoad(browserId = vm.browserId)
                 },
                 empty = {
                     EmptyFolderView()

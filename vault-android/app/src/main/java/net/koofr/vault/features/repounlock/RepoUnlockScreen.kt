@@ -51,7 +51,7 @@ class RepoUnlockScreenViewModel @Inject constructor(
 ) : ViewModel() {
     private val repoId: String = savedStateHandle.get<String>("repoId")!!
 
-    val unlockId = mobileVault.repoUnlockCreate(repoId, RepoUnlockOptions(RepoUnlockMode.UNLOCK))
+    val unlockId = mobileVault.repoUnlockCreate(repoId = repoId, options = RepoUnlockOptions(RepoUnlockMode.UNLOCK))
 
     private val biometricsHelper: RepoPasswordBiometricsHelper =
         RepoPasswordBiometricsHelper(repoId, androidSecureStorage)
@@ -64,14 +64,14 @@ class RepoUnlockScreenViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
 
-        mobileVault.repoUnlockDestroy(unlockId)
+        mobileVault.repoUnlockDestroy(unlockId = unlockId)
     }
 
     fun unlock(password: String, onUnlock: (() -> Unit)?) {
         mobileVault.repoUnlockUnlock(
-            unlockId,
-            password,
-            object : RepoUnlockUnlocked {
+            unlockId = unlockId,
+            password = password,
+            cb = object : RepoUnlockUnlocked {
                 override fun onUnlocked() {
                     viewModelScope.launch {
                         onUnlock?.invoke()
@@ -94,7 +94,7 @@ class RepoUnlockScreenViewModel @Inject constructor(
                             super.onAuthenticationError(errorCode, errString)
 
                             if (errorCode != BiometricPrompt.ERROR_USER_CANCELED && errorCode != BiometricPrompt.ERROR_NEGATIVE_BUTTON && errorCode != BiometricPrompt.ERROR_CANCELED) {
-                                mobileVault.notificationsShow(errString.toString())
+                                mobileVault.notificationsShow(message = errString.toString())
                             }
 
                             biometricPrompt = null
@@ -125,7 +125,7 @@ class RepoUnlockScreenViewModel @Inject constructor(
                         )
                     }
                 } catch (e: KeyPermanentlyInvalidatedException) {
-                    mobileVault.notificationsShow("Your biometric info has changed. Please setup biometric unlock again.")
+                    mobileVault.notificationsShow(message = "Your biometric info has changed. Please setup biometric unlock again.")
 
                     biometricsHelper.removeBiometricUnlock()
 
@@ -161,8 +161,8 @@ fun RepoUnlockScreen(
     val coroutineScope = rememberCoroutineScope()
 
     val info = subscribe(
-        { v, cb -> v.repoUnlockInfoSubscribe(vm.unlockId, cb) },
-        { v, id -> v.repoUnlockInfoData(id) },
+        { v, cb -> v.repoUnlockInfoSubscribe(unlockId = vm.unlockId, cb = cb) },
+        { v, id -> v.repoUnlockInfoData(id = id) },
     )
 
     DisposableEffect(Unit) {
