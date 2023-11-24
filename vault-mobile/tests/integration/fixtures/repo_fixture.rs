@@ -1,6 +1,7 @@
 use std::sync::{Arc, Mutex};
 
 use futures::{channel::oneshot, future::BoxFuture, FutureExt};
+use vault_core::{cipher::Cipher, types::DecryptedPath};
 use vault_core_tests::fake_remote::FakeRemote;
 use vault_mobile::{
     MobileVault, Repo, RepoCreateInfo, RepoFile, RepoFilesBrowserItem, RepoFilesBrowserOptions,
@@ -16,6 +17,7 @@ pub struct RepoFixture {
     pub fake_remote: Arc<FakeRemote>,
     pub mobile_vault: Arc<MobileVault>,
     pub repo_id: String,
+    pub cipher: Arc<Cipher>,
 }
 
 impl RepoFixture {
@@ -61,12 +63,15 @@ impl RepoFixture {
         let repo_id = created.repo_id;
         mobile_vault.repo_create_destroy(create_id);
 
+        let cipher = Arc::new(Cipher::new("password", Some("salt")));
+
         Arc::new(Self {
             user_fixture,
 
             fake_remote,
             mobile_vault,
             repo_id,
+            cipher,
         })
     }
 
@@ -125,6 +130,10 @@ impl RepoFixture {
         assert!(matches!(repo_info.status, Status::Loaded));
 
         repo_info.repo.unwrap()
+    }
+
+    pub fn encrypt_path(&self, path: &str) -> String {
+        self.cipher.encrypt_path(&DecryptedPath(path.into())).0
     }
 
     pub fn wait_for_repo_browser_items<T: Clone + Send + Sync + 'static>(

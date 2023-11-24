@@ -41,10 +41,10 @@ use vault_core::{
     sort::state as sort_state,
     store::{self, Event},
     transfers::{
-        downloadable, errors::TransferError, selectors as transfers_selectors,
+        self, downloadable, errors::TransferError, selectors as transfers_selectors,
         state as transfers_state,
     },
-    types::{DecryptedName, DecryptedPath, MountId, RemoteName, RemotePath, RepoFileId, RepoId},
+    types::{DecryptedName, EncryptedPath, MountId, RemoteName, RemotePath, RepoFileId, RepoId},
     user::state as user_state,
     user_error::UserError,
     Vault,
@@ -455,28 +455,26 @@ impl Into<std::io::Error> for StreamError {
     }
 }
 
-impl Into<vault_core::transfers::errors::UploadableError> for StreamError {
-    fn into(self) -> vault_core::transfers::errors::UploadableError {
+impl Into<transfers::errors::UploadableError> for StreamError {
+    fn into(self) -> transfers::errors::UploadableError {
         match self {
-            Self::IoError { reason } => {
-                vault_core::transfers::errors::UploadableError::LocalFileError(reason)
+            Self::IoError { reason } => transfers::errors::UploadableError::LocalFileError(reason),
+            Self::NotRetriable => transfers::errors::UploadableError::NotRetriable,
+            Self::NotOpenable => {
+                transfers::errors::UploadableError::LocalFileError("not openable".into())
             }
-            Self::NotRetriable => vault_core::transfers::errors::UploadableError::NotRetriable,
-            Self::NotOpenable => vault_core::transfers::errors::UploadableError::LocalFileError(
-                "not openable".into(),
-            ),
         }
     }
 }
 
-impl Into<vault_core::transfers::errors::DownloadableError> for StreamError {
-    fn into(self) -> vault_core::transfers::errors::DownloadableError {
+impl Into<transfers::errors::DownloadableError> for StreamError {
+    fn into(self) -> transfers::errors::DownloadableError {
         match self {
             Self::IoError { reason } => {
-                vault_core::transfers::errors::DownloadableError::LocalFileError(reason)
+                transfers::errors::DownloadableError::LocalFileError(reason)
             }
-            Self::NotRetriable => vault_core::transfers::errors::DownloadableError::NotRetriable,
-            Self::NotOpenable => vault_core::transfers::errors::DownloadableError::NotOpenable,
+            Self::NotRetriable => transfers::errors::DownloadableError::NotRetriable,
+            Self::NotOpenable => transfers::errors::DownloadableError::NotOpenable,
         }
     }
 }
@@ -1122,7 +1120,7 @@ pub struct RepoFile {
     pub id: String,
     pub repo_id: String,
     pub encrypted_path: String,
-    pub path: Option<String>,
+    pub decrypted_path: Option<String>,
     pub name: String,
     pub name_error: Option<String>,
     pub ext: Option<String>,
@@ -1140,13 +1138,9 @@ impl From<&repo_files_state::RepoFile> for RepoFile {
             id: file.id.0.clone(),
             repo_id: file.repo_id.0.clone(),
             encrypted_path: file.encrypted_path.0.clone(),
-            path: match &file.path {
+            decrypted_path: match &file.path {
                 repo_files_state::RepoFilePath::Decrypted { path } => Some(path.0.clone()),
-                repo_files_state::RepoFilePath::DecryptError {
-                    parent_path: _,
-                    encrypted_name: _,
-                    error: _,
-                } => None,
+                repo_files_state::RepoFilePath::DecryptError { .. } => None,
             },
             name: match &file.name {
                 repo_files_state::RepoFileName::Decrypted { name, .. } => name.0.clone(),
@@ -1237,7 +1231,7 @@ impl From<&repo_files_state::RepoFilesBreadcrumb> for RepoFilesBreadcrumb {
             id: breadcrumb.id.0.clone(),
             repo_id: breadcrumb.repo_id.0.clone(),
             path: breadcrumb.path.0.clone(),
-            name: breadcrumb.name.0.clone(),
+            name: breadcrumb.name.clone(),
             last: breadcrumb.last,
         }
     }
@@ -1255,7 +1249,7 @@ impl From<&transfers_state::TransferType> for TransferType {
     fn from(typ: &transfers_state::TransferType) -> Self {
         match typ {
             transfers_state::TransferType::Upload(..) => Self::Upload,
-            transfers_state::TransferType::Download(..) => Self::Download,
+            transfers_state::TransferType::Download => Self::Download,
             transfers_state::TransferType::DownloadReader => Self::Download,
         }
     }
@@ -1307,7 +1301,7 @@ impl From<&transfers_state::Transfer> for Transfer {
         Self {
             id: transfer.id,
             typ: (&transfer.typ).into(),
-            name: transfer.name.clone(),
+            name: transfer.name.0.clone(),
             file_icon_attrs: (&transfer.file_icon_attrs()).into(),
             size: transfer.size.exact_or_estimate(),
             size_display: transfer
@@ -1393,7 +1387,7 @@ impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserItem<'a>> for RepoFile
 #[derive(Clone, Debug, PartialEq)]
 pub struct RepoFilesBrowserInfo {
     pub repo_id: Option<String>,
-    pub path: Option<String>,
+    pub encrypted_path: Option<String>,
     pub selection_summary: SelectionSummary,
     pub sort: RepoFilesSort,
     pub status: Status,
@@ -1410,7 +1404,7 @@ impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFile
     fn from(info: &repo_files_browsers_state::RepoFilesBrowserInfo<'a>) -> Self {
         Self {
             repo_id: info.repo_id.map(|x| x.0.clone()),
-            path: info.path.map(|x| x.0.clone()),
+            encrypted_path: info.path.map(|x| x.0.clone()),
             selection_summary: (&info.selection_summary).into(),
             sort: (&info.sort).into(),
             status: (&info.status).into(),
@@ -1418,7 +1412,7 @@ impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFile
                 common_state::Status::Error { error, .. } => Some(error.user_error()),
                 _ => None,
             },
-            title: info.title.as_ref().map(|x| x.0.clone()),
+            title: info.title.as_ref().map(|x| x.clone()),
             total_count: info.total_count as u32,
             total_size_display: vault_core::files::file_size::size_display(info.total_size),
             selected_count: info.selected_count as u32,
@@ -1429,7 +1423,7 @@ impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFile
 }
 
 pub trait RepoFilesBrowserDirCreated: Send + Sync + Debug {
-    fn on_created(&self, path: String);
+    fn on_created(&self, encrypted_path: String);
 }
 
 // repo_files_details
@@ -1452,8 +1446,8 @@ impl Into<repo_files_details_state::RepoFilesDetailsOptions> for RepoFilesDetail
 #[derive(Clone, Debug, PartialEq)]
 pub struct RepoFilesDetailsInfo {
     pub repo_id: Option<String>,
-    pub parent_path: Option<String>,
-    pub path: Option<String>,
+    pub encrypted_parent_path: Option<String>,
+    pub encrypted_path: Option<String>,
     pub status: Status,
     pub file_name: Option<String>,
     pub file_ext: Option<String>,
@@ -1478,8 +1472,8 @@ impl<'a> From<&repo_files_details_state::RepoFilesDetailsInfo<'a>> for RepoFiles
     fn from(info: &repo_files_details_state::RepoFilesDetailsInfo<'a>) -> Self {
         Self {
             repo_id: info.repo_id.map(|x| x.0.clone()),
-            parent_path: info.parent_path.as_ref().map(|x| x.0.clone()),
-            path: info.path.map(|x| x.0.clone()),
+            encrypted_parent_path: info.parent_path.as_ref().map(|x| x.0.clone()),
+            encrypted_path: info.path.map(|x| x.0.clone()),
             status: (&info.status).into(),
             file_name: info.file_name.as_ref().map(|x| x.0.clone()),
             file_ext: info.file_ext.clone(),
@@ -1533,7 +1527,7 @@ pub struct RepoFilesMoveInfo {
     pub repo_id: String,
     pub src_files_count: u32,
     pub mode: RepoFilesMoveMode,
-    pub dest_path_chain: Vec<String>,
+    pub encrypted_dest_path_chain: Vec<String>,
     pub can_move: bool,
 }
 
@@ -2482,11 +2476,11 @@ impl MobileVault {
             .flatten()
     }
 
-    pub fn repo_files_delete_file(self: Arc<Self>, repo_id: String, path: String) {
+    pub fn repo_files_delete_file(self: Arc<Self>, repo_id: String, encrypted_path: String) {
         self.clone().spawn_result(async move {
             match self
                 .vault
-                .repo_files_delete_files(&[(RepoId(repo_id), DecryptedPath(path))])
+                .repo_files_delete_files(&[(RepoId(repo_id), EncryptedPath(encrypted_path))])
                 .await
             {
                 Ok(()) => Ok(()),
@@ -2496,10 +2490,10 @@ impl MobileVault {
         })
     }
 
-    pub fn repo_files_rename_file(self: Arc<Self>, repo_id: String, path: String) {
+    pub fn repo_files_rename_file(self: Arc<Self>, repo_id: String, encrypted_path: String) {
         self.clone().spawn_result(async move {
             self.vault
-                .repo_files_rename_file(&RepoId(repo_id), &DecryptedPath(path))
+                .repo_files_rename_file(&RepoId(repo_id), &EncryptedPath(encrypted_path))
                 .await
         })
     }
@@ -2507,12 +2501,16 @@ impl MobileVault {
     pub fn repo_files_move_file(
         self: Arc<Self>,
         repo_id: String,
-        path: String,
+        encrypted_path: String,
         mode: RepoFilesMoveMode,
     ) {
         self.clone().spawn_result(async move {
             self.vault
-                .repo_files_move_move_file(RepoId(repo_id), DecryptedPath(path), mode.into())
+                .repo_files_move_move_file(
+                    RepoId(repo_id),
+                    EncryptedPath(encrypted_path),
+                    mode.into(),
+                )
                 .await
         })
     }
@@ -2524,9 +2522,7 @@ impl MobileVault {
             &[Event::Transfers],
             cb,
             self.subscription_data.transfers_is_active.clone(),
-            move |vault| {
-                vault.with_state(|state| vault_core::transfers::selectors::select_is_active(state))
-            },
+            move |vault| vault.with_state(|state| transfers::selectors::select_is_active(state)),
         )
     }
 
@@ -2541,7 +2537,7 @@ impl MobileVault {
             self.subscription_data.transfers_summary.clone(),
             move |vault| {
                 vault.with_state(|state| {
-                    use vault_core::transfers::selectors;
+                    use transfers::selectors;
 
                     let now = now_ms();
 
@@ -2581,7 +2577,7 @@ impl MobileVault {
             self.subscription_data.transfers_list.clone(),
             move |vault| {
                 vault.with_state(|state| {
-                    vault_core::transfers::selectors::select_transfers(state)
+                    transfers::selectors::select_transfers(state)
                         .into_iter()
                         .map(Into::into)
                         .collect()
@@ -2605,8 +2601,7 @@ impl MobileVault {
             self.subscription_data.transfers_transfer.clone(),
             move |vault| {
                 vault.with_state(|state| {
-                    vault_core::transfers::selectors::select_transfer(state, transfer_id)
-                        .map(Into::into)
+                    transfers::selectors::select_transfer(state, transfer_id).map(Into::into)
                 })
             },
         )
@@ -2620,7 +2615,7 @@ impl MobileVault {
     pub fn transfers_upload_file(
         self: Arc<Self>,
         repo_id: String,
-        parent_path: String,
+        encrypted_parent_path: String,
         name: String,
         local_file_path: String,
         remove_file_after_upload: bool,
@@ -2631,14 +2626,18 @@ impl MobileVault {
             tokio_runtime: self.tokio_runtime.clone(),
         });
 
-        self.clone()
-            .transfers_upload_uploadable(repo_id, parent_path, name, uploadable);
+        self.clone().transfers_upload_uploadable(
+            RepoId(repo_id),
+            EncryptedPath(encrypted_parent_path),
+            transfers::state::TransferUploadRelativeName(name),
+            uploadable,
+        );
     }
 
     pub fn transfers_upload_stream(
         self: Arc<Self>,
         repo_id: String,
-        parent_path: String,
+        encrypted_parent_path: String,
         name: String,
         stream_provider: Box<dyn UploadStreamProvider>,
     ) {
@@ -2647,8 +2646,12 @@ impl MobileVault {
             tokio_runtime: self.tokio_runtime.clone(),
         });
 
-        self.clone()
-            .transfers_upload_uploadable(repo_id, parent_path, name, uploadable);
+        self.clone().transfers_upload_uploadable(
+            RepoId(repo_id),
+            EncryptedPath(encrypted_parent_path),
+            transfers::state::TransferUploadRelativeName(name),
+            uploadable,
+        );
     }
 
     pub fn transfers_upload_bytes(
@@ -2660,24 +2663,25 @@ impl MobileVault {
     ) {
         let uploadable = Box::new(MobileUploadable::Bytes { bytes });
 
-        self.clone()
-            .transfers_upload_uploadable(repo_id, parent_path, name, uploadable);
+        self.clone().transfers_upload_uploadable(
+            RepoId(repo_id),
+            EncryptedPath(parent_path),
+            transfers::state::TransferUploadRelativeName(name),
+            uploadable,
+        );
     }
 
     fn transfers_upload_uploadable(
         self: Arc<Self>,
-        repo_id: String,
-        parent_path: String,
-        name: String,
-        uploadable: vault_core::transfers::uploadable::BoxUploadable,
+        repo_id: RepoId,
+        parent_path: EncryptedPath,
+        name: transfers::state::TransferUploadRelativeName,
+        uploadable: transfers::uploadable::BoxUploadable,
     ) {
         self.clone().spawn(async move {
-            let (_, create_future) = self.vault.transfers_upload(
-                RepoId(repo_id),
-                DecryptedPath(parent_path),
-                name,
-                uploadable,
-            );
+            let (_, create_future) =
+                self.vault
+                    .transfers_upload(repo_id, parent_path, name, uploadable);
 
             let future = match create_future.await {
                 Ok(future) => future,
@@ -2695,7 +2699,7 @@ impl MobileVault {
     pub fn transfers_download_file(
         self: Arc<Self>,
         repo_id: String,
-        path: String,
+        encrypted_path: String,
         local_file_path: String,
         append_name: bool,
         autorename: bool,
@@ -2703,8 +2707,8 @@ impl MobileVault {
         on_done: Box<dyn TransfersDownloadDone>,
     ) {
         self.transfers_download(
-            repo_id,
-            path,
+            RepoId(repo_id),
+            EncryptedPath(encrypted_path),
             Box::new(MobileDownloadable::File {
                 original_path: local_file_path.into(),
                 append_name,
@@ -2720,14 +2724,14 @@ impl MobileVault {
     pub fn transfers_download_temp_file(
         self: Arc<Self>,
         repo_id: String,
-        path: String,
+        encrypted_path: String,
         local_base_path: String,
         on_open: Option<Box<dyn TransfersDownloadOpen>>,
         on_done: Box<dyn TransfersDownloadDone>,
     ) {
         self.transfers_download(
-            repo_id,
-            path,
+            RepoId(repo_id),
+            EncryptedPath(encrypted_path),
             Box::new(MobileDownloadable::TempFile {
                 base_path: local_base_path.into(),
                 on_open,
@@ -2743,12 +2747,12 @@ impl MobileVault {
     pub fn transfers_download_stream(
         self: Arc<Self>,
         repo_id: String,
-        path: String,
+        encrypted_path: String,
         stream_provider: Box<dyn DownloadStreamProvider>,
     ) {
         self.clone().transfers_download(
-            repo_id,
-            path,
+            RepoId(repo_id),
+            EncryptedPath(encrypted_path),
             Box::new(MobileDownloadable::Stream {
                 stream_provider: Arc::new(stream_provider),
                 tokio_runtime: self.tokio_runtime.clone(),
@@ -2758,15 +2762,12 @@ impl MobileVault {
 
     fn transfers_download(
         self: Arc<Self>,
-        repo_id: String,
-        path: String,
+        repo_id: RepoId,
+        path: EncryptedPath,
         downloadable: downloadable::BoxDownloadable,
     ) {
         self.clone().spawn(async move {
-            let reader_provider = match self
-                .vault
-                .repo_files_get_file_reader(&RepoId(repo_id), &DecryptedPath(path))
-            {
+            let reader_provider = match self.vault.repo_files_get_file_reader(&repo_id, &path) {
                 Ok(reader_provider) => reader_provider,
                 Err(err) => {
                     self.errors.handle_error(err);
@@ -2833,12 +2834,12 @@ impl MobileVault {
     pub fn repo_files_browsers_create(
         self: Arc<Self>,
         repo_id: String,
-        path: String,
+        encrypted_path: String,
         options: RepoFilesBrowserOptions,
     ) -> u32 {
         let (browser_id, load_future) = self.vault.repo_files_browsers_create(
             RepoId(repo_id),
-            &DecryptedPath(path),
+            &EncryptedPath(encrypted_path),
             options.into(),
         );
 
@@ -2888,12 +2889,13 @@ impl MobileVault {
                 .clone(),
             move |vault| {
                 vault.with_state(|state| {
-                    vault_core::repo_files_browsers::selectors::select_breadcrumbs(
-                        state, browser_id,
-                    )
-                    .iter()
-                    .map(Into::into)
-                    .collect()
+                    vault_core::repo_files_browsers::selectors::select_info(state, browser_id)
+                        .as_ref()
+                        .and_then(|info| {
+                            info.breadcrumbs
+                                .map(|breadcrumbs| breadcrumbs.iter().map(Into::into).collect())
+                        })
+                        .unwrap_or(vec![])
                 })
             },
         )
@@ -3073,13 +3075,13 @@ impl MobileVault {
     pub fn repo_files_details_create(
         self: Arc<Self>,
         repo_id: String,
-        path: String,
+        encrypted_path: String,
         is_editing: bool,
         options: RepoFilesDetailsOptions,
     ) -> u32 {
         let (details_id, load_future) = self.vault.repo_files_details_create(
             RepoId(repo_id),
-            &DecryptedPath(path),
+            &EncryptedPath(encrypted_path),
             is_editing,
             options.into(),
         );
@@ -3285,7 +3287,7 @@ impl MobileVault {
                             repo_id: files_move.repo_id.0.clone(),
                             src_files_count: files_move.src_paths.len() as u32,
                             mode: (&files_move.mode).into(),
-                            dest_path_chain: vault_core::utils::path_utils::paths_chain(
+                            encrypted_dest_path_chain: vault_core::utils::path_utils::paths_chain(
                                 &files_move.dest_path.0,
                             ),
                             can_move: vault_core::repo_files_move::selectors::select_check_move(
@@ -3303,9 +3305,9 @@ impl MobileVault {
             .flatten()
     }
 
-    pub fn repo_files_move_set_dest_path(&self, dest_path: String) {
+    pub fn repo_files_move_set_dest_path(&self, encrypted_dest_path: String) {
         self.vault
-            .repo_files_move_set_dest_path(DecryptedPath(dest_path))
+            .repo_files_move_set_dest_path(EncryptedPath(encrypted_dest_path))
     }
 
     pub fn repo_files_move_move_files(self: Arc<Self>) {

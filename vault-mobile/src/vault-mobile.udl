@@ -437,7 +437,7 @@ dictionary RepoFile {
   string id;
   string repo_id;
   string encrypted_path;
-  string? path;
+  string? decrypted_path;
   string name;
   string? name_error;
   string? ext;
@@ -528,7 +528,7 @@ dictionary RepoFilesBrowserItem {
 
 dictionary RepoFilesBrowserInfo {
   string? repo_id;
-  string? path;
+  string? encrypted_path;
   SelectionSummary selection_summary;
   RepoFilesSort sort;
   Status status;
@@ -542,7 +542,7 @@ dictionary RepoFilesBrowserInfo {
 };
 
 callback interface RepoFilesBrowserDirCreated {
-  void on_created(string path);
+  void on_created(string encrypted_path);
 };
 
 // repo_files_details
@@ -554,8 +554,8 @@ dictionary RepoFilesDetailsOptions {
 
 dictionary RepoFilesDetailsInfo {
   string? repo_id;
-  string? parent_path;
-  string? path;
+  string? encrypted_parent_path;
+  string? encrypted_path;
   Status status;
   string? file_name;
   string? file_ext;
@@ -587,7 +587,7 @@ dictionary RepoFilesMoveInfo {
   string repo_id;
   u32 src_files_count;
   RepoFilesMoveMode mode;
-  sequence<string> dest_path_chain;
+  sequence<string> encrypted_dest_path_chain;
   boolean can_move;
 };
 
@@ -753,11 +753,11 @@ interface MobileVault {
   u32 repo_files_file_subscribe(string file_id, SubscriptionCallback cb);
   RepoFile? repo_files_file_data(u32 id);
   [Self=ByArc]
-  void repo_files_delete_file(string repo_id, string path);
+  void repo_files_delete_file(string repo_id, string encrypted_path);
   [Self=ByArc]
-  void repo_files_rename_file(string repo_id, string path);
+  void repo_files_rename_file(string repo_id, string encrypted_path);
   [Self=ByArc]
-  void repo_files_move_file(string repo_id, string path, RepoFilesMoveMode mode);
+  void repo_files_move_file(string repo_id, string encrypted_path, RepoFilesMoveMode mode);
 
   // transfers
 
@@ -770,17 +770,17 @@ interface MobileVault {
   u32 transfers_transfer_subscribe(u32 transfer_id, SubscriptionCallback cb);
   Transfer? transfers_transfer_data(u32 id);
   [Self=ByArc]
-  void transfers_upload_file(string repo_id, string parent_path, string name, string local_file_path, boolean remove_file_after_upload);
+  void transfers_upload_file(string repo_id, string encrypted_parent_path, string name, string local_file_path, boolean remove_file_after_upload);
   [Self=ByArc]
-  void transfers_upload_stream(string repo_id, string parent_path, string name, UploadStreamProvider stream_provider);
+  void transfers_upload_stream(string repo_id, string encrypted_parent_path, string name, UploadStreamProvider stream_provider);
   [Self=ByArc]
-  void transfers_upload_bytes(string repo_id, string parent_path, string name, bytes bytes);
+  void transfers_upload_bytes(string repo_id, string encrypted_parent_path, string name, bytes bytes);
   [Self=ByArc]
-  void transfers_download_file(string repo_id, string path, string local_file_path, boolean append_name, boolean autorename, TransfersDownloadOpen? on_open, TransfersDownloadDone on_done);
+  void transfers_download_file(string repo_id, string encrypted_path, string local_file_path, boolean append_name, boolean autorename, TransfersDownloadOpen? on_open, TransfersDownloadDone on_done);
   [Self=ByArc]
-  void transfers_download_temp_file(string repo_id, string path, string local_base_path, TransfersDownloadOpen? on_open, TransfersDownloadDone on_done);
+  void transfers_download_temp_file(string repo_id, string encrypted_path, string local_base_path, TransfersDownloadOpen? on_open, TransfersDownloadDone on_done);
   [Self=ByArc]
-  void transfers_download_stream(string repo_id, string path, DownloadStreamProvider stream_provider);
+  void transfers_download_stream(string repo_id, string encrypted_path, DownloadStreamProvider stream_provider);
   void transfers_abort(u32 id);
   void transfers_abort_all();
   void transfers_retry(u32 id);
@@ -791,7 +791,7 @@ interface MobileVault {
   // repo_files_browsers
 
   [Self=ByArc]
-  u32 repo_files_browsers_create(string repo_id, string path, RepoFilesBrowserOptions options);
+  u32 repo_files_browsers_create(string repo_id, string encrypted_path, RepoFilesBrowserOptions options);
   void repo_files_browsers_destroy(u32 browser_id);
   u32 repo_files_browsers_info_subscribe(u32 browser_id, SubscriptionCallback cb);
   RepoFilesBrowserInfo? repo_files_browsers_info_data(u32 id);
@@ -816,7 +816,7 @@ interface MobileVault {
   // repo_files_details
 
   [Self=ByArc]
-  u32 repo_files_details_create(string repo_id, string path, boolean is_editing, RepoFilesDetailsOptions options);
+  u32 repo_files_details_create(string repo_id, string encrypted_path, boolean is_editing, RepoFilesDetailsOptions options);
   [Self=ByArc]
   void repo_files_details_destroy(u32 details_id);
   u32 repo_files_details_info_subscribe(u32 details_id, SubscriptionCallback cb);
@@ -842,7 +842,7 @@ interface MobileVault {
   boolean? repo_files_move_is_visible_data(u32 id);
   u32 repo_files_move_info_subscribe(SubscriptionCallback cb);
   RepoFilesMoveInfo? repo_files_move_info_data(u32 id);
-  void repo_files_move_set_dest_path(string dest_path);
+  void repo_files_move_set_dest_path(string encrypted_dest_path);
   [Self=ByArc]
   void repo_files_move_move_files();
   void repo_files_move_cancel();

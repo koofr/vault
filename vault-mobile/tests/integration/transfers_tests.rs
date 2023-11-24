@@ -14,7 +14,12 @@ fn test_transfers_download_file() {
             let local_base_path = fixture.get_temp_path().await;
 
             let local_file_path = fixture
-                .transfers_download_file("/file.txt", &local_base_path, true, false)
+                .transfers_download_file(
+                    &fixture.encrypt_path("/file.txt"),
+                    &local_base_path,
+                    true,
+                    false,
+                )
                 .await;
 
             assert_eq!(
@@ -35,7 +40,12 @@ fn test_transfers_download_file_cleanup_name() {
             let local_base_path = fixture.get_temp_path().await;
 
             let local_file_path = fixture
-                .transfers_download_file("/<>", &local_base_path, true, false)
+                .transfers_download_file(
+                    &fixture.encrypt_path("/<>"),
+                    &local_base_path,
+                    true,
+                    false,
+                )
                 .await;
 
             assert_eq!(
