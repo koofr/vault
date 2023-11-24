@@ -1,13 +1,13 @@
 use std::sync::Arc;
 
-use futures::join;
+use futures::{join, TryFutureExt};
 
 use crate::{
     common::state::Status,
     eventstream::{self, EventStreamService},
     notifications::NotificationsService,
-    oauth2::{errors::OAuth2Error, state::FinishFlowResult, OAuth2Service},
-    remote::{Remote, RemoteError},
+    oauth2::{state::FinishFlowResult, OAuth2Service},
+    remote::Remote,
     repos::ReposService,
     secure_storage::SecureStorageService,
     space_usage::SpaceUsageService,
@@ -15,7 +15,9 @@ use crate::{
     user::UserService,
 };
 
-use super::errors::LoadError;
+use super::errors::{
+    LoadError, LogoutError, OAuth2FinishFlowUrlError, OnLoginError, OnLogoutError,
+};
 
 pub struct LifecycleService {
     secure_storage_service: Arc<SecureStorageService>,
@@ -65,21 +67,32 @@ impl LifecycleService {
     }
 
     pub async fn load(&self) -> Result<(), LoadError> {
-        self.oauth2_service.load()?;
+        self.oauth2_service
+            .load()
+            .map_err(LoadError::OAuth2LoadError)?;
 
         if self.oauth2_service.is_authenticated() {
-            self.on_login().await?;
+            self.on_login().await.map_err(LoadError::OnLoginError)?;
         }
 
         Ok(())
     }
 
-    pub async fn on_login(&self) -> Result<(), RemoteError> {
+    pub async fn on_login(&self) -> Result<(), OnLoginError> {
         self.eventstream_service.clone().connect();
 
-        let user_future = self.user_service.load_user();
-        let repos_future = self.repos_service.load_repos();
-        let space_usage_future = self.space_usage_service.load();
+        let user_future = self
+            .user_service
+            .load_user()
+            .map_err(OnLoginError::LoadUserError);
+        let repos_future = self
+            .repos_service
+            .load_repos()
+            .map_err(OnLoginError::LoadReposError);
+        let space_usage_future = self
+            .space_usage_service
+            .load()
+            .map_err(OnLoginError::LoadSpaceUsageError);
 
         let (user_res, repos_res, space_usage_res) =
             join!(user_future, repos_future, space_usage_future);
@@ -91,13 +104,17 @@ impl LifecycleService {
         Ok(())
     }
 
-    pub fn logout(&self) -> Result<(), OAuth2Error> {
-        self.oauth2_service.logout()?;
+    pub fn logout(&self) -> Result<(), LogoutError> {
+        self.oauth2_service
+            .logout()
+            .map_err(LogoutError::OAuth2LogoutError)?;
 
-        self.on_logout()
+        self.on_logout()?;
+
+        Ok(())
     }
 
-    pub fn on_logout(&self) -> Result<(), OAuth2Error> {
+    pub fn on_logout(&self) -> Result<(), OnLogoutError> {
         self.eventstream_service.disconnect();
 
         self.store.mutate(|state, notify, _, _| {
@@ -115,18 +132,17 @@ impl LifecycleService {
 
         self.repos_service.reset();
 
-        self.secure_storage_service.clear()?;
+        self.secure_storage_service
+            .clear()
+            .map_err(OnLogoutError::ClearStorageError)?;
 
         Ok(())
     }
 
-    pub async fn oauth2_finish_flow_url(&self, url: &str) -> Result<(), OAuth2Error> {
+    pub async fn oauth2_finish_flow_url(&self, url: &str) -> Result<(), OAuth2FinishFlowUrlError> {
         match self.oauth2_service.finish_flow_url(url).await? {
             FinishFlowResult::LoggedIn => {
-                self.on_login().await.map_err(|e| match e {
-                    RemoteError::HttpError(err) => OAuth2Error::HttpError(err),
-                    _ => OAuth2Error::Unknown(e.to_string()),
-                })?;
+                self.on_login().await?;
             }
             FinishFlowResult::LoggedOut => {
                 self.on_logout()?;

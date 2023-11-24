@@ -129,7 +129,7 @@ fn test_oauth2_logout_clear_error() {
                     .await
                     .unwrap_err()
                     .to_string(),
-                "storage error: secure storage error: secure storage clear error"
+                "secure storage error: secure storage clear error"
             );
 
             assert!(matches!(oauth2_fixture.get_status(), Status::Initial));

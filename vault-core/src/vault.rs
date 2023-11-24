@@ -272,7 +272,7 @@ impl Vault {
         self.lifecycle_service.load().await
     }
 
-    pub fn logout(&self) -> Result<(), oauth2::errors::OAuth2Error> {
+    pub fn logout(&self) -> Result<(), lifecycle::errors::LogoutError> {
         self.lifecycle_service.logout()
     }
 
@@ -336,7 +336,7 @@ impl Vault {
     pub async fn oauth2_finish_flow_url(
         &self,
         url: &str,
-    ) -> Result<(), oauth2::errors::OAuth2Error> {
+    ) -> Result<(), lifecycle::errors::OAuth2FinishFlowUrlError> {
         self.lifecycle_service.oauth2_finish_flow_url(url).await
     }
 
