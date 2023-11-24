@@ -21,7 +21,7 @@ public class OpenDownloadsFolderActivity: UIActivity {
     }
 
     public override var activityImage: UIImage? {
-        return UIImage(systemName: "arrow.down.to.line.compact")
+        return UIImage(systemName: "arrow.down.to.line.circle")
     }
 
     public override func canPerform(withActivityItems activityItems: [Any]) -> Bool {
