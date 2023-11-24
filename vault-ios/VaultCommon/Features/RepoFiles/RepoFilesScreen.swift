@@ -154,7 +154,7 @@ struct RepoFilesNavMenuButton: View {
                 Task(priority: .background) {
                     do {
                         try vm.container.uploadHelper.uploadSecurityScopedResources(
-                            repoId: vm.repoId, parentPath: vm.path, urls: urls)
+                            repoId: vm.repoId, encryptedParentPath: vm.encryptedPath, urls: urls)
                     } catch {
                         vm.container.mobileVault.notificationsShow(message: "\(error)")
                     }

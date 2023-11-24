@@ -138,7 +138,7 @@ final class VaultUITests: XCTestCase {
 
         let repo = await fixture.mobileVaultHelper.waitForRepoUnlock()
         let _ = await fixture.mobileVaultHelper.uploadFile(
-            repo: repo, parentPath: "/", name: "file.txt", content: "čšž")
+            repo: repo, encryptedParentPath: "/", name: "file.txt", content: "čšž")
 
         await MainActor.run {
             let app = fixture.launchApp()
@@ -157,7 +157,7 @@ final class VaultUITests: XCTestCase {
 
         let repo = await fixture.mobileVaultHelper.waitForRepoUnlock()
         let _ = await fixture.mobileVaultHelper.uploadFile(
-            repo: repo, parentPath: "/", name: "file.jpg", content: "test")
+            repo: repo, encryptedParentPath: "/", name: "file.jpg", content: "test")
 
         await MainActor.run {
             let app = fixture.launchApp()

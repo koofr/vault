@@ -49,9 +49,9 @@ public class RepoFilesBrowserDirCreatedFn: RepoFilesBrowserDirCreated {
         self.fn = fn
     }
 
-    public func onCreated(path: String) {
+    public func onCreated(encryptedPath: String) {
         DispatchQueue.main.async {
-            self.fn(path)
+            self.fn(encryptedPath)
         }
     }
 }

@@ -4,7 +4,7 @@ import VaultMobile
 public class RepoFilesDetailsScreenViewModel: ObservableObject {
     public let container: Container
     public let repoId: String
-    public let path: String
+    public let encryptedPath: String
 
     public var detailsId: UInt32
 
@@ -12,13 +12,13 @@ public class RepoFilesDetailsScreenViewModel: ObservableObject {
 
     public var file: Subscription<RepoFile>
 
-    public init(container: Container, repoId: String, path: String) {
+    public init(container: Container, repoId: String, encryptedPath: String) {
         self.container = container
         self.repoId = repoId
-        self.path = path
+        self.encryptedPath = encryptedPath
 
         let detailsId = container.mobileVault.repoFilesDetailsCreate(
-            repoId: repoId, path: path, isEditing: false,
+            repoId: repoId, encryptedPath: encryptedPath, isEditing: false,
             options: RepoFilesDetailsOptions(
                 loadContent: FilesFilter(categories: [.code, .text], exts: []),
                 autosaveIntervalMs: 20000))

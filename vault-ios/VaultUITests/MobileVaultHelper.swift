@@ -79,17 +79,20 @@ class MobileVaultHelper {
         return repo
     }
 
-    func uploadFile(repo: Repo, parentPath: String, name: String, content: String) async -> RepoFile
+    func uploadFile(repo: Repo, encryptedParentPath: String, name: String, content: String) async
+        -> RepoFile
     {
         let browserId = mobileVault.repoFilesBrowsersCreate(
-            repoId: repo.id, path: parentPath, options: RepoFilesBrowserOptions(selectName: nil))
+            repoId: repo.id, encryptedPath: encryptedParentPath,
+            options: RepoFilesBrowserOptions(selectName: nil))
 
         defer {
             mobileVault.repoFilesBrowsersDestroy(browserId: browserId)
         }
 
         mobileVault.transfersUploadBytes(
-            repoId: repo.id, parentPath: parentPath, name: name, bytes: content.data(using: .utf8)!)
+            repoId: repo.id, encryptedParentPath: encryptedParentPath, name: name,
+            bytes: content.data(using: .utf8)!)
 
         return await subscriptionWait(
             mobileVault: mobileVault,

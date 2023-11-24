@@ -9,14 +9,11 @@ public struct RepoFilesMoveListRow: View {
         let file = item.file
 
         HStack {
-            if let path = file.path {
-                if file.typ == .dir {
-                    Button {
-                        vm.navController.push(.repoFiles(repoId: file.repoId, path: path))
-                    } label: {
-                        RepoFileRow(container: vm.container, file: file)
-                    }
-                } else {
+            if file.typ == .dir {
+                Button {
+                    vm.navController.push(
+                        .repoFiles(repoId: file.repoId, encryptedPath: file.encryptedPath))
+                } label: {
                     RepoFileRow(container: vm.container, file: file)
                 }
             } else {

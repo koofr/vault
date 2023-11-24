@@ -36,21 +36,25 @@ public class UploadHelper {
         self.storageHelper = storageHelper
     }
 
-    public func uploadFiles(repoId: String, parentPath: String, files: [UploadFile]) {
+    public func uploadFiles(repoId: String, encryptedParentPath: String, files: [UploadFile]) {
         for file in files {
             switch file.data {
             case .data(let data):
                 mobileVault.transfersUploadBytes(
-                    repoId: repoId, parentPath: parentPath, name: file.name, bytes: data)
+                    repoId: repoId, encryptedParentPath: encryptedParentPath, name: file.name,
+                    bytes: data)
             case .file(let path, let removeFileAfterUpload):
                 mobileVault.transfersUploadFile(
-                    repoId: repoId, parentPath: parentPath, name: file.name, localFilePath: path,
+                    repoId: repoId, encryptedParentPath: encryptedParentPath, name: file.name,
+                    localFilePath: path,
                     removeFileAfterUpload: removeFileAfterUpload)
             }
         }
     }
 
-    public func uploadSecurityScopedResources(repoId: String, parentPath: String, urls: [URL])
+    public func uploadSecurityScopedResources(
+        repoId: String, encryptedParentPath: String, urls: [URL]
+    )
         throws
     {
         var uploadFiles = [UploadFile]()
@@ -59,7 +63,8 @@ public class UploadHelper {
             try securityScopedResourceToUploadFiles(url: url, uploadFiles: &uploadFiles)
         }
 
-        self.uploadFiles(repoId: repoId, parentPath: parentPath, files: uploadFiles)
+        self.uploadFiles(
+            repoId: repoId, encryptedParentPath: encryptedParentPath, files: uploadFiles)
     }
 
     private func securityScopedResourceToUploadFiles(url: URL, uploadFiles: inout [UploadFile])

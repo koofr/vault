@@ -18,28 +18,26 @@ public class DownloadHelper {
     }
 
     public func downloadRepoFile(file: RepoFile) {
-        if let path = file.path {
-            do {
-                let localFilePath = try storageHelper.getDownloadsDir().path(percentEncoded: false)
+        do {
+            let localFilePath = try storageHelper.getDownloadsDir().path(percentEncoded: false)
 
-                mobileVault.transfersDownloadFile(
-                    repoId: file.repoId,
-                    path: path,
-                    localFilePath: localFilePath,
-                    appendName: true,
-                    autorename: true,
-                    onOpen: TransfersDownloadOpenFn { [weak self] localFilePath in
-                        if let self = self {
-                            self.onOpen(localFilePath: localFilePath)
-                        }
-                    },
-                    onDone: TransfersDownloadDoneFn { _ in }
-                )
+            mobileVault.transfersDownloadFile(
+                repoId: file.repoId,
+                encryptedPath: file.encryptedPath,
+                localFilePath: localFilePath,
+                appendName: true,
+                autorename: true,
+                onOpen: TransfersDownloadOpenFn { [weak self] localFilePath in
+                    if let self = self {
+                        self.onOpen(localFilePath: localFilePath)
+                    }
+                },
+                onDone: TransfersDownloadDoneFn { _ in }
+            )
 
-                transfersSheetController.showWhenActive()
-            } catch {
-                print("DownloadHelper downloadRepoFile error: \(error)")
-            }
+            transfersSheetController.showWhenActive()
+        } catch {
+            print("DownloadHelper downloadRepoFile error: \(error)")
         }
     }
 

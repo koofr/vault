@@ -15,7 +15,7 @@ public struct ShareTargetNavigation: View {
                 switch routeContainer.route {
                 case .repos:
                     ShareTargetReposScreen(vm: vm)
-                case .repoFiles(let repoId, let path):
+                case .repoFiles(let repoId, let encryptedPath):
                     RepoGuard(
                         vm: navController.ensureViewModel(routeContainer: routeContainer) {
                             RepoGuardViewModel(
@@ -29,7 +29,7 @@ public struct ShareTargetNavigation: View {
                             ) {
                                 ShareTargetRepoFilesScreenViewModel(
                                     container: vm.container, shareTargetVm: vm,
-                                    repoId: repoId, path: path)
+                                    repoId: repoId, encryptedPath: encryptedPath)
                             })
                     }
                 }

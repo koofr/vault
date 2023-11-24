@@ -59,7 +59,7 @@ public struct RepoFilesImagePicker: UIViewControllerRepresentable {
                 itemProviders: itemProviders, loadFileRepresentation: true)
 
             self.vm.container.uploadHelper.uploadFiles(
-                repoId: vm.repoId, parentPath: vm.path, files: files)
+                repoId: vm.repoId, encryptedParentPath: vm.encryptedPath, files: files)
         }
     }
 }

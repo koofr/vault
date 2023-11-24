@@ -5,20 +5,21 @@ public class RepoFilesMoveScreenViewModel: ObservableObject {
     public let container: Container
     @Published public var navController: RepoFilesMoveNavController
     public let repoId: String
-    public let path: String
+    public let encryptedPath: String
     public let browserId: UInt32
 
     public init(
         container: Container, navController: RepoFilesMoveNavController, repoId: String,
-        path: String
+        encryptedPath: String
     ) {
         self.container = container
         self.navController = navController
         self.repoId = repoId
-        self.path = path
+        self.encryptedPath = encryptedPath
 
         browserId = container.mobileVault.repoFilesBrowsersCreate(
-            repoId: repoId, path: path, options: RepoFilesBrowserOptions(selectName: nil))
+            repoId: repoId, encryptedPath: encryptedPath,
+            options: RepoFilesBrowserOptions(selectName: nil))
     }
 
     deinit {
@@ -80,7 +81,7 @@ public struct RepoFilesMoveScreen: View {
         .navigationTitle(info.data?.title ?? "")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            if vm.path == "/" {
+            if vm.encryptedPath == "/" {
                 ToolbarItem(placement: .cancellationAction) {
                     Button {
                         vm.container.mobileVault.repoFilesMoveCancel()
@@ -95,8 +96,9 @@ public struct RepoFilesMoveScreen: View {
                     Button {
                         vm.container.mobileVault.repoFilesBrowsersCreateDir(
                             browserId: vm.browserId,
-                            cb: RepoFilesBrowserDirCreatedFn { path in
-                                vm.navController.push(.repoFiles(repoId: vm.repoId, path: path))
+                            cb: RepoFilesBrowserDirCreatedFn { encryptedPath in
+                                vm.navController.push(
+                                    .repoFiles(repoId: vm.repoId, encryptedPath: encryptedPath))
                             })
                     } label: {
                         Label("New folder", systemImage: "folder.badge.plus")

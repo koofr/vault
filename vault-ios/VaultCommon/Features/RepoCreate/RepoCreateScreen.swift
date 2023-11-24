@@ -59,7 +59,8 @@ public struct RepoCreateScreen: View {
                         config: created.config,
                         onContinue: {
                             vm.navController.pop()
-                            vm.navController.push(.repoFiles(repoId: created.repoId, path: "/"))
+                            vm.navController.push(
+                                .repoFiles(repoId: created.repoId, encryptedPath: "/"))
                         })
                 }
             }

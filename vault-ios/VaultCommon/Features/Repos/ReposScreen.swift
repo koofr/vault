@@ -178,7 +178,7 @@ struct ReposRepoRow: View {
     var body: some View {
         HStack {
             Button {
-                vm.navController.push(.repoFiles(repoId: repo.id, path: "/"))
+                vm.navController.push(.repoFiles(repoId: repo.id, encryptedPath: "/"))
             } label: {
                 RepoRow(repo: repo)
             }

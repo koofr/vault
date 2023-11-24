@@ -9,21 +9,22 @@ public class RepoFilesMoveViewModel: ObservableObject {
 
     private var pathChangedCancellable: AnyCancellable?
 
-    public init(container: Container, repoId: String, initialPathChain: [String]) {
+    public init(container: Container, repoId: String, initialEncryptedPathChain: [String]) {
         self.container = container
 
-        navController = RepoFilesMoveNavController(rootRoute: .repoFiles(repoId: repoId, path: "/"))
+        navController = RepoFilesMoveNavController(
+            rootRoute: .repoFiles(repoId: repoId, encryptedPath: "/"))
 
         pathChangedCancellable = navController.$state.sink(receiveValue: { state in
             switch state.activeRoute {
-            case .repoFiles(_, let path):
-                container.mobileVault.repoFilesMoveSetDestPath(destPath: path)
+            case .repoFiles(_, let encryptedPath):
+                container.mobileVault.repoFilesMoveSetDestPath(encryptedDestPath: encryptedPath)
             }
         })
 
-        for path in initialPathChain {
-            if path != "/" {
-                navController.push(.repoFiles(repoId: repoId, path: path))
+        for encryptedPath in initialEncryptedPathChain {
+            if encryptedPath != "/" {
+                navController.push(.repoFiles(repoId: repoId, encryptedPath: encryptedPath))
             }
         }
     }

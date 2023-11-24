@@ -9,7 +9,7 @@ public struct RepoFilesMoveNavigation: View {
         Navigation(navController: vm.navController) { navController, routeContainer in
             Group {
                 switch routeContainer.route {
-                case .repoFiles(let repoId, let path):
+                case .repoFiles(let repoId, let encryptedPath):
                     RepoGuard(
                         vm: navController.ensureViewModel(routeContainer: routeContainer) {
                             RepoGuardViewModel(
@@ -21,7 +21,7 @@ public struct RepoFilesMoveNavigation: View {
                             vm: vm.navController.ensureViewModel(routeContainer: routeContainer) {
                                 RepoFilesMoveScreenViewModel(
                                     container: vm.container, navController: navController,
-                                    repoId: repoId, path: path)
+                                    repoId: repoId, encryptedPath: encryptedPath)
                             })
                     }
                 }

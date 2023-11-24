@@ -19,7 +19,7 @@ public struct MainNavigation: View {
                         vm: navController.ensureViewModel(routeContainer: routeContainer) {
                             ReposScreenViewModel(container: container, navController: navController)
                         })
-                case .repoFiles(let repoId, let path):
+                case .repoFiles(let repoId, let encryptedPath):
                     RepoGuard(
                         vm: navController.ensureViewModel(routeContainer: routeContainer) {
                             RepoGuardViewModel(
@@ -31,10 +31,10 @@ public struct MainNavigation: View {
                             vm: navController.ensureViewModel(routeContainer: routeContainer) {
                                 RepoFilesScreenViewModel(
                                     container: container, navController: navController,
-                                    repoId: repoId, path: path)
+                                    repoId: repoId, encryptedPath: encryptedPath)
                             })
                     }
-                case .repoFilesDetails(let repoId, let path):
+                case .repoFilesDetails(let repoId, let encryptedPath):
                     RepoGuard(
                         vm: navController.ensureViewModel(routeContainer: routeContainer) {
                             RepoGuardViewModel(
@@ -45,7 +45,8 @@ public struct MainNavigation: View {
                         RepoFilesDetailsScreen(
                             vm: navController.ensureViewModel(routeContainer: routeContainer) {
                                 RepoFilesDetailsScreenViewModel(
-                                    container: container, repoId: repoId, path: path)
+                                    container: container, repoId: repoId,
+                                    encryptedPath: encryptedPath)
                             })
                     }
                 case .repoInfo(let repoId):
@@ -71,7 +72,7 @@ public struct MainNavigation: View {
         }
         .onOpenURL { url in
             if let match = url.path().firstMatch(of: /^\/mobile\/repos\/([\w-]+)$/) {
-                navController.replace([.repoFiles(repoId: String(match.1), path: "/")])
+                navController.replace([.repoFiles(repoId: String(match.1), encryptedPath: "/")])
             }
         }
     }

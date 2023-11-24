@@ -7,7 +7,7 @@ public class RepoFilesScreenViewModel: ObservableObject {
     public let container: Container
     public let navController: MainNavController
     public let repoId: String
-    public let path: String
+    public let encryptedPath: String
 
     public let browserId: UInt32
 
@@ -25,15 +25,17 @@ public class RepoFilesScreenViewModel: ObservableObject {
     private var isUpdatingSelection: Bool = false
 
     public init(
-        container: Container, navController: MainNavController, repoId: String, path: String
+        container: Container, navController: MainNavController, repoId: String,
+        encryptedPath: String
     ) {
         self.container = container
         self.navController = navController
         self.repoId = repoId
-        self.path = path
+        self.encryptedPath = encryptedPath
 
         let browserId = container.mobileVault.repoFilesBrowsersCreate(
-            repoId: repoId, path: path, options: RepoFilesBrowserOptions(selectName: nil))
+            repoId: repoId, encryptedPath: encryptedPath,
+            options: RepoFilesBrowserOptions(selectName: nil))
 
         self.browserId = browserId
 

@@ -31,7 +31,7 @@ public class RepoFilesMoveSheetController {
                         name: "repoFilesMove",
                         viewModel: RepoFilesMoveViewModel(
                             container: container, repoId: info.repoId,
-                            initialPathChain: info.destPathChain),
+                            initialEncryptedPathChain: info.encryptedDestPathChain),
                         onHide: {
                             container.mobileVault.repoFilesMoveCancel()
                         }

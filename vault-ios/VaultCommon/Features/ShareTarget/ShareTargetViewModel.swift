@@ -30,9 +30,9 @@ public class ShareTargetViewModel: ObservableObject {
         onCancel()
     }
 
-    public func upload(repoId: String, path: String) {
+    public func upload(repoId: String, encryptedPath: String) {
         container.uploadHelper.uploadFiles(
-            repoId: repoId, parentPath: path, files: files.map { $0.uploadFile })
+            repoId: repoId, encryptedParentPath: encryptedPath, files: files.map { $0.uploadFile })
 
         onUpload()
     }

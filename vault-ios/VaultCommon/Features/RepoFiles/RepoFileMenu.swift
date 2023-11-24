@@ -14,52 +14,44 @@ public struct RepoFileMenu: View {
             Label("Get Info", systemImage: "info.circle")
         }
 
-        if file.path != nil {
-            Button {
-                if let path = file.path {
-                    vm.container.mobileVault.repoFilesRenameFile(repoId: file.repoId, path: path)
-                }
-            } label: {
-                Label("Rename", systemImage: "pencil")
-            }
+        Button {
+            vm.container.mobileVault.repoFilesRenameFile(
+                repoId: file.repoId, encryptedPath: file.encryptedPath)
+        } label: {
+            Label("Rename", systemImage: "pencil")
+        }
 
-            Divider()
+        Divider()
 
-            Button {
-                if let path = file.path {
-                    vm.container.mobileVault.repoFilesMoveFile(
-                        repoId: file.repoId, path: path, mode: .copy)
-                }
-            } label: {
-                Label("Copy", systemImage: "doc.on.doc")
-            }
+        Button {
+            vm.container.mobileVault.repoFilesMoveFile(
+                repoId: file.repoId, encryptedPath: file.encryptedPath, mode: .copy)
+        } label: {
+            Label("Copy", systemImage: "doc.on.doc")
+        }
 
-            Button {
-                if let path = file.path {
-                    vm.container.mobileVault.repoFilesMoveFile(
-                        repoId: file.repoId, path: path, mode: .move)
-                }
-            } label: {
-                Label("Move", systemImage: "folder")
-            }
+        Button {
+            vm.container.mobileVault.repoFilesMoveFile(
+                repoId: file.repoId, encryptedPath: file.encryptedPath, mode: .move)
+        } label: {
+            Label("Move", systemImage: "folder")
+        }
 
-            Divider()
+        Divider()
 
-            Button {
-                vm.container.downloadHelper.downloadRepoFile(file: file)
-            } label: {
-                Label("Download", systemImage: "arrow.down.to.line.compact")
-            }
+        Button {
+            vm.container.downloadHelper.downloadRepoFile(file: file)
+        } label: {
+            Label("Download", systemImage: "arrow.down.to.line.compact")
+        }
 
-            Divider()
+        Divider()
 
-            Button(role: .destructive) {
-                if let path = file.path {
-                    vm.container.mobileVault.repoFilesDeleteFile(repoId: file.repoId, path: path)
-                }
-            } label: {
-                Label("Delete", systemImage: "trash")
-            }
+        Button(role: .destructive) {
+            vm.container.mobileVault.repoFilesDeleteFile(
+                repoId: file.repoId, encryptedPath: file.encryptedPath)
+        } label: {
+            Label("Delete", systemImage: "trash")
         }
     }
 }

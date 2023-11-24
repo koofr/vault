@@ -5,22 +5,24 @@ public class ShareTargetRepoFilesScreenViewModel: ObservableObject {
     public let container: Container
     @Published public var shareTargetVm: ShareTargetViewModel
     public let repoId: String
-    public let path: String
+    public let encryptedPath: String
 
     public let browserId: UInt32
 
     @Published public var navController: ShareTargetNavController
 
     public init(
-        container: Container, shareTargetVm: ShareTargetViewModel, repoId: String, path: String
+        container: Container, shareTargetVm: ShareTargetViewModel, repoId: String,
+        encryptedPath: String
     ) {
         self.container = container
         self.shareTargetVm = shareTargetVm
         self.repoId = repoId
-        self.path = path
+        self.encryptedPath = encryptedPath
 
         browserId = container.mobileVault.repoFilesBrowsersCreate(
-            repoId: repoId, path: path, options: RepoFilesBrowserOptions(selectName: nil))
+            repoId: repoId, encryptedPath: encryptedPath,
+            options: RepoFilesBrowserOptions(selectName: nil))
 
         navController = shareTargetVm.navController
     }
@@ -78,8 +80,9 @@ public struct ShareTargetRepoFilesScreen: View {
                     Button {
                         vm.container.mobileVault.repoFilesBrowsersCreateDir(
                             browserId: vm.browserId,
-                            cb: RepoFilesBrowserDirCreatedFn({ path in
-                                vm.navController.push(.repoFiles(repoId: vm.repoId, path: path))
+                            cb: RepoFilesBrowserDirCreatedFn({ encryptedPath in
+                                vm.navController.push(
+                                    .repoFiles(repoId: vm.repoId, encryptedPath: encryptedPath))
                             }))
                     } label: {
                         Label("New folder", systemImage: "folder.badge.plus")
@@ -92,7 +95,7 @@ public struct ShareTargetRepoFilesScreen: View {
             ToolbarItem(placement: .confirmationAction) {
                 Button(
                     action: {
-                        vm.shareTargetVm.upload(repoId: vm.repoId, path: vm.path)
+                        vm.shareTargetVm.upload(repoId: vm.repoId, encryptedPath: vm.encryptedPath)
                     },
                     label: {
                         Text("Upload")
