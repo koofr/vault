@@ -98,12 +98,14 @@ impl Transfer {
     pub fn file_icon_attrs(&self) -> FileIconAttrs {
         FileIconAttrs {
             category: self.category.clone(),
-            is_dl: match &self.typ {
+            is_dl: false,
+            is_ul: false,
+            is_download_transfer: match &self.typ {
                 TransferType::Upload(..) => false,
                 TransferType::Download => true,
                 TransferType::DownloadReader => true,
             },
-            is_ul: match &self.typ {
+            is_upload_transfer: match &self.typ {
                 TransferType::Upload(..) => true,
                 TransferType::Download => false,
                 TransferType::DownloadReader => false,

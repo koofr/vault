@@ -5,6 +5,8 @@ pub struct FileIconAttrs {
     pub category: FileCategory,
     pub is_dl: bool,
     pub is_ul: bool,
+    pub is_download_transfer: bool,
+    pub is_upload_transfer: bool,
     pub is_export: bool,
     pub is_import: bool,
     pub is_android: bool,

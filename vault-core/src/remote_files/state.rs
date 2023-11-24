@@ -227,6 +227,8 @@ impl RemoteFile {
             category: self.category.clone(),
             is_dl: false,
             is_ul: false,
+            is_download_transfer: false,
+            is_upload_transfer: false,
             is_export: mount
                 .map(|mount| matches!(mount.typ, MountType::Export))
                 .unwrap_or(false),

@@ -45,6 +45,8 @@ struct RemoteFilesBrowserItemRow_Previews: PreviewProvider {
                             category: .generic,
                             isDl: false,
                             isUl: false,
+                            isDownloadTransfer: false,
+                            isUploadTransfer: false,
                             isExport: false,
                             isImport: false,
                             isAndroid: false,

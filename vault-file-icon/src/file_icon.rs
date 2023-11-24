@@ -23,6 +23,7 @@ pub struct FileIconTheme {
     pub color_ios: String,
     pub color_ios_split: String,
     pub color_link: String,
+    pub color_transfer: String,
     pub color_export: String,
     pub color_import: String,
 }
@@ -51,6 +52,7 @@ impl Default for FileIconTheme {
             color_ios: "#000000".into(),
             color_ios_split: "#c0c0c0".into(),
             color_link: "#00aac3".into(),
+            color_transfer: "#1e395a".into(),
             color_export: "#00aac3".into(),
             color_import: "#9160a0".into(),
         }
@@ -84,6 +86,8 @@ pub struct FileIconAttrs {
     pub category: FileIconCategory,
     pub is_dl: bool,
     pub is_ul: bool,
+    pub is_download_transfer: bool,
+    pub is_upload_transfer: bool,
     pub is_export: bool,
     pub is_import: bool,
     pub is_android: bool,
@@ -106,6 +110,7 @@ struct FileIconDefFile {
     import_bg: String,
     shared: String,
     link_bg: String,
+    transfer_bg: String,
     error_overlay: Option<String>,
 }
 
@@ -127,6 +132,7 @@ struct FileIconDefFolder {
     ios: String,
     vault_repo: String,
     link_bg: String,
+    transfer_bg: String,
     error_overlay: Option<String>,
 }
 
@@ -171,6 +177,7 @@ impl FileIconDefs {
             color_ios,
             color_ios_split,
             color_link,
+            color_transfer,
             color_export,
             color_import,
             ..
@@ -206,6 +213,9 @@ impl FileIconDefs {
                         r#"<path d="M3 24.647a1.36 1.36 0 0 1 1.36-1.352h3.696c.751 0 1.36.6 1.36 1.352V26H3v-1.353zm3.15-2.305A1.66 1.66 0 0 1 4.5 20.67a1.66 1.66 0 0 1 1.65-1.671c.911 0 1.65.748 1.65 1.67a1.66 1.66 0 0 1-1.65 1.672z" fill="{color_white}" />"#
                     ),
                     link_bg: format!(r#"<path d="M16 10h9v18h-9V10z" fill="{color_link}" />"#),
+                    transfer_bg: format!(
+                        r#"<path d="M16 10h9v18h-9V10z" fill="{color_transfer}" />"#
+                    ),
                     error_overlay: None,
                 },
                 folder: FileIconDefFolder {
@@ -241,6 +251,9 @@ impl FileIconDefs {
                     ),
                     link_bg: format!(
                         r#"<path d="M16 10v18h8.004c.55 0 .996-.447.996-.996 0-2.881.004-5.774-.004-8.649V10H16z" fill="{color_link}" />"#
+                    ),
+                    transfer_bg: format!(
+                        r#"<path d="M16 10v18h8.004c.55 0 .996-.447.996-.996 0-2.881.004-5.774-.004-8.649V10H16z" fill="{color_transfer}" />"#
                     ),
                     error_overlay: None,
                 },
@@ -341,6 +354,9 @@ impl FileIconDefs {
                         r#"<path d="M5 60.908a3.097 3.097 0 0 1 3.086-3.091h7.578a3.091 3.091 0 0 1 3.086 3.091V64H5v-3.092zm6.95-5.27c-2.126 0-3.85-1.71-3.85-3.819S9.824 48 11.95 48c2.126 0 3.85 1.71 3.85 3.82 0 2.108-1.724 3.818-3.85 3.818z" fill="{color_white}" />"#
                     ),
                     link_bg: format!(r#"<path d="M40 20h19v47H40z" fill="{color_link}" />"#),
+                    transfer_bg: format!(
+                        r#"<path d="M40 20h19v47H40z" fill="{color_transfer}" />"#
+                    ),
                     error_overlay: Some(format!(
                         r#"<path d="M59.001 20H40V1H1.01C1.004 1 1 67 1 67h58.001V20z" fill="{color_white}" opacity=".7" />"#
                     )),
@@ -378,6 +394,9 @@ impl FileIconDefs {
                     ),
                     link_bg: format!(
                         r#"<path d="M40 20v47h15.695C57.513 66.99 59 65.465 59 63.586V20H40z" fill="{color_link}" />"#
+                    ),
+                    transfer_bg: format!(
+                        r#"<path d="M40 20v47h15.695C57.513 66.99 59 65.465 59 63.586V20H40z" fill="{color_transfer}" />"#
                     ),
                     error_overlay: None,
                 },
@@ -482,6 +501,8 @@ impl FileIconFactory {
         let FileIconAttrs {
             is_dl,
             is_ul,
+            is_download_transfer,
+            is_upload_transfer,
             is_export,
             is_import,
             is_android,
@@ -560,6 +581,22 @@ impl FileIconFactory {
             } else if is_dl {
                 svg.push_str(&def.dl);
             } else if is_ul {
+                svg.push_str(&def.ul);
+            }
+        }
+
+        if is_download_transfer || is_upload_transfer {
+            if is_folder {
+                svg.push_str(&def.folder.transfer_bg);
+            } else {
+                svg.push_str(&def.file.transfer_bg);
+            }
+
+            if is_download_transfer && is_upload_transfer {
+                svg.push_str(&def.dl_ul);
+            } else if is_download_transfer {
+                svg.push_str(&def.dl);
+            } else if is_upload_transfer {
                 svg.push_str(&def.ul);
             }
         }

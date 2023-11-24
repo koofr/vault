@@ -55,6 +55,8 @@ fn generate_all_props() -> Vec<FileIconProps> {
     ];
     let dls = [false, true];
     let uls = [false, true];
+    let download_transfers = [false, true];
+    let upload_transfers = [false, true];
     let export_imports = [(false, false), (true, false), (false, true)];
     let android_ios_vault_repos = [
         (false, false, false),
@@ -71,29 +73,38 @@ fn generate_all_props() -> Vec<FileIconProps> {
                     if is_ul && !matches!(category, FileIconCategory::Folder) {
                         continue;
                     }
-                    for (is_export, is_import) in export_imports {
-                        for (is_android, is_ios, is_vault_repo) in android_ios_vault_repos {
-                            if (is_android || is_ios || is_vault_repo)
-                                && !matches!(category, FileIconCategory::Folder)
-                            {
+                    for is_download_transfer in download_transfers {
+                        for is_upload_transfer in upload_transfers {
+                            if is_dl || is_ul {
                                 continue;
                             }
+                            for (is_export, is_import) in export_imports {
+                                for (is_android, is_ios, is_vault_repo) in android_ios_vault_repos {
+                                    if (is_android || is_ios || is_vault_repo)
+                                        && !matches!(category, FileIconCategory::Folder)
+                                    {
+                                        continue;
+                                    }
 
-                            for is_error in errors {
-                                v.push(FileIconProps {
-                                    size: size.clone(),
-                                    attrs: FileIconAttrs {
-                                        category: category.clone(),
-                                        is_dl,
-                                        is_ul,
-                                        is_export,
-                                        is_import,
-                                        is_ios,
-                                        is_android,
-                                        is_vault_repo,
-                                        is_error,
-                                    },
-                                });
+                                    for is_error in errors {
+                                        v.push(FileIconProps {
+                                            size: size.clone(),
+                                            attrs: FileIconAttrs {
+                                                category: category.clone(),
+                                                is_dl,
+                                                is_ul,
+                                                is_download_transfer,
+                                                is_upload_transfer,
+                                                is_export,
+                                                is_import,
+                                                is_ios,
+                                                is_android,
+                                                is_vault_repo,
+                                                is_error,
+                                            },
+                                        });
+                                    }
+                                }
                             }
                         }
                     }

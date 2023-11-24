@@ -86,7 +86,8 @@ public struct FileRowFilePreview: View {
                 FileIcon(
                     fileIconCache: container.fileIconCache,
                     attrs: FileIconAttrs(
-                        category: .image, isDl: false, isUl: false, isExport: false,
+                        category: .image, isDl: false, isUl: false, isDownloadTransfer: false,
+                        isUploadTransfer: false, isExport: false,
                         isImport: false, isAndroid: false, isIos: false, isVaultRepo: false,
                         isError: false),
                     size: .sm
@@ -110,7 +111,8 @@ public struct FileRowFolderPreview: View {
                 FileIcon(
                     fileIconCache: container.fileIconCache,
                     attrs: FileIconAttrs(
-                        category: .folder, isDl: false, isUl: false, isExport: false,
+                        category: .folder, isDl: false, isUl: false, isDownloadTransfer: false,
+                        isUploadTransfer: false, isExport: false,
                         isImport: false, isAndroid: false, isIos: false, isVaultRepo: false,
                         isError: true),
                     size: .sm

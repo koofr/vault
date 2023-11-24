@@ -112,6 +112,8 @@ dictionary FileIconAttrs {
   FileCategory category;
   boolean is_dl;
   boolean is_ul;
+  boolean is_download_transfer;
+  boolean is_upload_transfer;
   boolean is_export;
   boolean is_import;
   boolean is_android;

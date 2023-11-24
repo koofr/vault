@@ -184,6 +184,8 @@ impl RepoFile {
             category: self.category.clone(),
             is_dl: false,
             is_ul: false,
+            is_download_transfer: false,
+            is_upload_transfer: false,
             is_export: false,
             is_import: false,
             is_android: false,

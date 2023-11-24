@@ -42,7 +42,8 @@ public struct FileIcon_Previews: PreviewProvider {
         FileIcon(
             fileIconCache: Container().fileIconCache,
             attrs: FileIconAttrs(
-                category: .generic, isDl: false, isUl: false, isExport: false, isImport: false,
+                category: .generic, isDl: false, isUl: false, isDownloadTransfer: false,
+                isUploadTransfer: false, isExport: false, isImport: false,
                 isAndroid: false, isIos: false, isVaultRepo: false, isError: false)
         )
     }

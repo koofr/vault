@@ -242,6 +242,10 @@ pub struct FileIconAttrs {
     pub is_dl: bool,
     #[serde(rename = "isUl")]
     pub is_ul: bool,
+    #[serde(rename = "isDownloadTransfer")]
+    pub is_download_transfer: bool,
+    #[serde(rename = "isUploadTransfer")]
+    pub is_upload_transfer: bool,
     #[serde(rename = "isExport")]
     pub is_export: bool,
     #[serde(rename = "isImport")]
@@ -262,6 +266,8 @@ impl From<files::file_icon::FileIconAttrs> for FileIconAttrs {
             category: (&attrs.category).into(),
             is_dl: attrs.is_dl,
             is_ul: attrs.is_ul,
+            is_download_transfer: attrs.is_download_transfer,
+            is_upload_transfer: attrs.is_upload_transfer,
             is_export: attrs.is_export,
             is_import: attrs.is_import,
             is_android: attrs.is_android,
@@ -278,6 +284,8 @@ impl Into<vault_file_icon::FileIconAttrs> for FileIconAttrs {
             category: self.category.into(),
             is_dl: self.is_dl,
             is_ul: self.is_ul,
+            is_download_transfer: self.is_download_transfer,
+            is_upload_transfer: self.is_upload_transfer,
             is_export: self.is_export,
             is_import: self.is_import,
             is_android: self.is_android,
