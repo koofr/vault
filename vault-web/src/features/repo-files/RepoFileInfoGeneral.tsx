@@ -84,6 +84,8 @@ export const RepoFileInfoGeneral = memo<{ file: RepoFile }>(({ file }) => {
           {format(file.modified, 'PPPPpp')}
         </Item>
       ) : null}
+      <Item label="Path">{file.decryptedPath ?? '???'}</Item>
+      <Item label="Encrypted path">{file.encryptedPath}</Item>
     </div>
   );
 });

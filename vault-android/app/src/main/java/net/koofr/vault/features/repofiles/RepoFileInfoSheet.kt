@@ -150,6 +150,16 @@ fun RepoFileInfoSheet(
                         }
                     }
 
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Label("Path")
+                    Value(file.decryptedPath ?: "???")
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Label("Encrypted path")
+                    Value(file.encryptedPath)
+
                     Spacer(modifier = Modifier.height(30.dp))
                 }
             }

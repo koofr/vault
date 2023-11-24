@@ -36,84 +36,109 @@ struct RepoFileInfoSheet: View {
 
     var body: some View {
         NavigationView {
-            VStack(alignment: .leading, spacing: 0) {
-                HStack {
-                    Spacer()
-
-                    FileIcon(
-                        fileIconCache: vm.container.fileIconCache, attrs: file.fileIconAttrs,
-                        size: .lg, scale: 4, height: 136)
-
-                    Spacer()
-                }
-                .padding(.top, 50)
-                .padding(.bottom, 50)
-
-                if let nameError = file.nameError {
-                    Text(file.name).font(.title2).foregroundColor(Color(.systemRed)).padding(
-                        .bottom, 5)
-
-                    Text(nameError).font(.system(size: 15)).foregroundColor(Color(.systemRed))
-                        .padding(
-                            .bottom, 20)
-                } else {
-                    Text(file.name).font(.title2).padding(.bottom, 20)
-                }
-
-                Text("Information").font(.headline).padding(.bottom, 20)
-
-                HStack {
-                    Text("Type").font(.system(size: 15)).foregroundColor(Color(.systemGray2))
-                    Spacer()
-                    Text(categoryDisplay).font(.system(size: 15))
-                }
-                .padding(.bottom, 10)
-
-                Divider().padding(.bottom, 10)
-
-                if !file.sizeDisplay.isEmpty {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
                     HStack {
-                        Text("Size").font(.system(size: 15)).foregroundColor(Color(.systemGray2))
                         Spacer()
-                        Text(file.sizeDisplay).font(.system(size: 15))
+
+                        FileIcon(
+                            fileIconCache: vm.container.fileIconCache, attrs: file.fileIconAttrs,
+                            size: .lg, scale: 4, height: 136)
+
+                        Spacer()
+                    }
+                    .padding(.top, 50)
+                    .padding(.bottom, 50)
+
+                    if let nameError = file.nameError {
+                        Text(file.name).font(.title2).foregroundColor(Color(.systemRed)).padding(
+                            .bottom, 5)
+
+                        Text(nameError).font(.system(size: 15)).foregroundColor(Color(.systemRed))
+                            .padding(
+                                .bottom, 20)
+                    } else {
+                        Text(file.name).font(.title2).padding(.bottom, 20)
+                    }
+
+                    Text("Information").font(.headline).padding(.bottom, 20)
+
+                    HStack {
+                        Text("Type").font(.system(size: 15)).foregroundColor(Color(.systemGray2))
+                        Spacer()
+                        Text(categoryDisplay).font(.system(size: 15))
                     }
                     .padding(.bottom, 10)
 
                     Divider().padding(.bottom, 10)
-                }
 
-                if let modified = file.modified {
-                    if let modifiedRelativeTimeDisplay = modifiedRelativeTime.display {
-                        HStack(alignment: .top) {
-                            Text("Modified").font(.system(size: 15)).foregroundColor(
+                    if !file.sizeDisplay.isEmpty {
+                        HStack {
+                            Text("Size").font(.system(size: 15)).foregroundColor(
                                 Color(.systemGray2))
                             Spacer()
-                            VStack(alignment: .trailing, spacing: 10) {
-                                Text(modifiedRelativeTimeDisplay).font(.system(size: 15))
-                                Text(
-                                    Date(timeIntervalSince1970: Double(modified) / 1000).formatted(
-                                        date: .long, time: .standard)
-                                ).font(.system(size: 15))
-                            }
+                            Text(file.sizeDisplay).font(.system(size: 15))
                         }
                         .padding(.bottom, 10)
 
                         Divider().padding(.bottom, 10)
                     }
-                }
 
-                Spacer()
-            }
-            .padding()
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
-                        onDismiss()
+                    if let modified = file.modified {
+                        if let modifiedRelativeTimeDisplay = modifiedRelativeTime.display {
+                            HStack(alignment: .top) {
+                                Text("Modified").font(.system(size: 15)).foregroundColor(
+                                    Color(.systemGray2))
+                                Spacer()
+                                VStack(alignment: .trailing, spacing: 10) {
+                                    Text(modifiedRelativeTimeDisplay).font(.system(size: 15))
+                                    Text(
+                                        Date(timeIntervalSince1970: Double(modified) / 1000)
+                                            .formatted(
+                                                date: .long, time: .standard)
+                                    ).font(.system(size: 15))
+                                }
+                            }
+                            .padding(.bottom, 10)
+
+                            Divider().padding(.bottom, 10)
+                        }
+                    }
+
+                    HStack {
+                        Text("Path").font(.system(size: 15)).foregroundColor(Color(.systemGray2))
+                        Spacer()
+                        Text(file.decryptedPath ?? "???")
+                            .font(.system(size: 15))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(.bottom, 10)
+
+                    Divider().padding(.bottom, 10)
+
+                    HStack {
+                        Text("Encrypted path").font(.system(size: 15)).foregroundColor(
+                            Color(.systemGray2))
+                        Spacer()
+                        Text(file.encryptedPath)
+                            .font(.system(size: 15))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(.bottom, 10)
+
+                    Spacer()
+                }
+                .padding()
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Done") {
+                            onDismiss()
+                        }
                     }
                 }
+                .navigationTitle("Info")
+                .navigationBarTitleDisplayMode(.inline)
             }
-            .navigationTitle("Info")
-            .navigationBarTitleDisplayMode(.inline)
         }
         .task {
             await modifiedRelativeTime.updateLoop()
