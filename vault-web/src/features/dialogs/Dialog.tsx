@@ -43,7 +43,9 @@ const DialogInner = memo<{
         ) {
           selectRange(el, 0, dialogRef.current.inputValueSelected.length);
         } else {
-          el.focus();
+          setTimeout(() => {
+            el.focus();
+          });
         }
       }
     },
