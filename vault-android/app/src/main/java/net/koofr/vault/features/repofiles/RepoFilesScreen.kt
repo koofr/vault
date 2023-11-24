@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import net.koofr.vault.LocalSnackbarHostState
@@ -128,6 +129,8 @@ fun RepoFilesScreen(
                     } else {
                         info.value?.title ?: ""
                     },
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             },
             navigationIcon = {

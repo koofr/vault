@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
@@ -82,7 +83,11 @@ fun RepoInfoScreen(
 
     Scaffold(topBar = {
         TopAppBar(title = {
-            Text(repo.value?.repo?.name ?: "")
+            Text(
+                repo.value?.repo?.name ?: "",
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         })
     }, snackbarHost = { SnackbarHost(LocalSnackbarHostState.current) }) { paddingValues ->
         repo.value?.repo?.let { repo ->

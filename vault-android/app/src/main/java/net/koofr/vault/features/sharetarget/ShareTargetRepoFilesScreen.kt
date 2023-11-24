@@ -14,6 +14,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -76,7 +77,11 @@ fun ShareTargetRepoFilesScreen(
 
     Scaffold(topBar = {
         TopAppBar(title = {
-            Text(info.value?.title ?: "")
+            Text(
+                info.value?.title ?: "",
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         }, actions = {
             IconButton(onClick = {
                 info.value?.repoId?.let { repoId ->
