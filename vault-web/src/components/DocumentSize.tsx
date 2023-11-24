@@ -52,7 +52,7 @@ export const DocumentSizeProvider: React.FC<PropsWithChildren<{}>> = ({
       window.removeEventListener('resize', onResize);
       window.removeEventListener('scroll', onResize);
     };
-  });
+  }, [onResize]);
 
   return (
     <DocumentSizeContext.Provider value={size}>

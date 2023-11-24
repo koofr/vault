@@ -47,7 +47,7 @@ export const DocumentScrollProvider: React.FC<PropsWithChildren<{}>> = ({
       window.removeEventListener('resize', onScroll);
       window.removeEventListener('scroll', onScroll);
     };
-  });
+  }, [onScroll]);
 
   return (
     <DocumentScrollContext.Provider value={info}>
