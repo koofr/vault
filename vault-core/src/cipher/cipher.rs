@@ -8,8 +8,8 @@ use super::{
     cipher_keys::{derive_keys, DerivedKeys},
     constants::{DATA_KEY_LEN, NAME_CIPHER_BLOCK_SIZE, NAME_KEY_LEN},
     data_cipher::get_data_cipher,
-    decrypt_reader::DecryptReader,
-    encrypt_reader::EncryptReader,
+    decrypt_reader::AsyncDecryptReader,
+    encrypt_reader::AsyncEncryptReader,
     errors::DecryptFilenameError,
     name_cipher::{
         decrypt_filename, decrypt_path, encrypt_filename, encrypt_path, get_name_cipher,
@@ -84,10 +84,10 @@ impl Cipher {
         .map(DecryptedPath)
     }
 
-    pub fn encrypt_reader<R>(&self, reader: R) -> EncryptReader<R> {
+    pub fn encrypt_reader_async<R>(&self, reader: R) -> AsyncEncryptReader<R> {
         let nonce = Nonce::new_random().unwrap();
 
-        EncryptReader::new(reader, self.data_cipher.clone(), nonce)
+        AsyncEncryptReader::new(reader, self.data_cipher.clone(), nonce)
     }
 
     pub async fn encrypt_data(
@@ -97,11 +97,11 @@ impl Cipher {
     ) -> Result<usize, std::io::Error> {
         let reader = Cursor::new(data);
 
-        self.encrypt_reader(reader).read_to_end(out).await
+        self.encrypt_reader_async(reader).read_to_end(out).await
     }
 
-    pub fn decrypt_reader<R>(&self, reader: R) -> DecryptReader<R> {
-        DecryptReader::new(reader, self.data_cipher.clone())
+    pub fn decrypt_reader_async<R>(&self, reader: R) -> AsyncDecryptReader<R> {
+        AsyncDecryptReader::new(reader, self.data_cipher.clone())
     }
 
     pub async fn decrypt_data(
@@ -111,7 +111,7 @@ impl Cipher {
     ) -> Result<usize, std::io::Error> {
         let reader = Cursor::new(data);
 
-        self.decrypt_reader(reader).read_to_end(out).await
+        self.decrypt_reader_async(reader).read_to_end(out).await
     }
 }
 

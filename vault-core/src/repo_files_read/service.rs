@@ -69,7 +69,7 @@ impl RepoFilesReadService {
         let size =
             decrypt_size(encrypted_reader.size).map_err(GetFilesReaderError::DecryptSizeError)?;
 
-        let decrypt_reader = Box::pin(cipher.decrypt_reader(encrypted_reader.reader));
+        let decrypt_reader = Box::pin(cipher.decrypt_reader_async(encrypted_reader.reader));
 
         Ok(RepoFileReader {
             name,

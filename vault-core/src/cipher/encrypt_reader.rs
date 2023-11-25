@@ -143,7 +143,7 @@ impl<R: Read> Read for SyncEncryptReader<R> {
 }
 
 pin_project! {
-    pub struct EncryptReader<R> {
+    pub struct AsyncEncryptReader<R> {
         #[pin]
         inner: R,
         state: EncryptReaderState,
@@ -151,7 +151,7 @@ pin_project! {
     }
 }
 
-impl<R> EncryptReader<R> {
+impl<R> AsyncEncryptReader<R> {
     pub fn new(inner: R, data_cipher: Arc<XSalsa20Poly1305>, nonce: Nonce) -> Self {
         Self {
             inner,
@@ -161,7 +161,7 @@ impl<R> EncryptReader<R> {
     }
 }
 
-impl<R: AsyncRead> AsyncRead for EncryptReader<R> {
+impl<R: AsyncRead> AsyncRead for AsyncEncryptReader<R> {
     fn poll_read(
         self: Pin<&mut Self>,
         cx: &mut Context<'_>,
@@ -266,7 +266,7 @@ mod tests {
         test_helpers::{assert_reader_pending, assert_reader_ready},
     };
 
-    use super::EncryptReader;
+    use super::AsyncEncryptReader;
 
     fn get_dummy_data_cipher() -> Arc<XSalsa20Poly1305> {
         let data_key = [
@@ -339,14 +339,14 @@ mod tests {
     }
 
     #[test]
-    fn test_encrypt_reader() {
+    fn test_async_encrypt_reader() {
         let data_cipher = get_dummy_data_cipher();
         let nonce = get_dummy_nonce();
 
         let (tx, rx) = futures::channel::mpsc::unbounded::<Result<Vec<u8>>>();
         let reader = rx.into_async_read();
 
-        let mut r = EncryptReader::new(reader, data_cipher.clone(), nonce.clone());
+        let mut r = AsyncEncryptReader::new(reader, data_cipher.clone(), nonce.clone());
 
         let res1 = assert_reader_ready!(r, 7).unwrap();
         assert_eq!(res1.len(), 7);

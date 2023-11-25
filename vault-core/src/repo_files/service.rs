@@ -189,7 +189,7 @@ impl RepoFilesService {
         let (mount_id, remote_parent_path) = self.get_repo_mount_path(repo_id, parent_path)?;
 
         let encrypted_size = size.map(encrypted_size);
-        let encrypted_reader = cipher.encrypt_reader(reader);
+        let encrypted_reader = cipher.encrypt_reader_async(reader);
 
         let (_, remote_file) = self
             .remote_files_service

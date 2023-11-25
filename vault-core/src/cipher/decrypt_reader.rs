@@ -158,7 +158,7 @@ impl<R: Read> Read for SyncDecryptReader<R> {
 }
 
 pin_project! {
-    pub struct DecryptReader<R> {
+    pub struct AsyncDecryptReader<R> {
         #[pin]
         inner: R,
         state: DecryptReaderState,
@@ -166,7 +166,7 @@ pin_project! {
     }
 }
 
-impl<R> DecryptReader<R> {
+impl<R> AsyncDecryptReader<R> {
     pub fn new(inner: R, data_cipher: Arc<XSalsa20Poly1305>) -> Self {
         Self {
             inner,
@@ -179,7 +179,7 @@ impl<R> DecryptReader<R> {
     }
 }
 
-impl<R: AsyncRead> AsyncRead for DecryptReader<R> {
+impl<R: AsyncRead> AsyncRead for AsyncDecryptReader<R> {
     fn poll_read(
         self: Pin<&mut Self>,
         cx: &mut Context<'_>,
@@ -296,7 +296,7 @@ mod tests {
         test_helpers::{assert_reader_pending, assert_reader_ready},
     };
 
-    use super::DecryptReader;
+    use super::AsyncDecryptReader;
 
     fn get_dummy_data_cipher() -> Arc<XSalsa20Poly1305> {
         let data_key = [
@@ -352,14 +352,14 @@ mod tests {
     }
 
     #[test]
-    fn test_decrypt_reader() {
+    fn test_async_decrypt_reader() {
         let data_cipher = get_dummy_data_cipher();
         let nonce = get_dummy_nonce();
 
         let (tx, rx) = mpsc::unbounded::<Result<Vec<u8>>>();
         let reader = rx.into_async_read();
 
-        let mut r = DecryptReader::new(reader, data_cipher.clone());
+        let mut r = AsyncDecryptReader::new(reader, data_cipher.clone());
 
         assert_reader_pending!(r);
 
