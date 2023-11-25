@@ -5,7 +5,12 @@ use futures::{
     AsyncRead,
 };
 use pin_project_lite::pin_project;
-use std::{cmp, io::Result, pin::Pin, sync::Arc};
+use std::{
+    cmp,
+    io::{Read, Result},
+    pin::Pin,
+    sync::Arc,
+};
 use xsalsa20poly1305::XSalsa20Poly1305;
 
 use super::{
@@ -35,6 +40,121 @@ pub enum DecryptReaderState {
         buffer: Vec<u8>,
         pos: usize,
     },
+}
+
+pub struct SyncDecryptReader<R> {
+    inner: R,
+    state: DecryptReaderState,
+    data_cipher: Arc<XSalsa20Poly1305>,
+}
+
+impl<R> SyncDecryptReader<R> {
+    pub fn new(inner: R, data_cipher: Arc<XSalsa20Poly1305>) -> Self {
+        Self {
+            inner,
+            state: DecryptReaderState::ReadingMagic {
+                buffer: [0; FILE_MAGIC_SIZE],
+                pos: 0,
+            },
+            data_cipher,
+        }
+    }
+}
+
+impl<R: Read> Read for SyncDecryptReader<R> {
+    fn read(self: &mut Self, buf: &mut [u8]) -> Result<usize> {
+        loop {
+            match &mut self.state {
+                DecryptReaderState::ReadingMagic { buffer, pos } => {
+                    let n = self.inner.read(&mut buffer[*pos..])?;
+
+                    if n == 0 {
+                        return Err(CipherError::EncryptedFileTooShort.into());
+                    }
+
+                    *pos += n;
+
+                    if *pos == FILE_MAGIC_SIZE {
+                        let magic = &buffer[0..FILE_MAGIC_SIZE];
+
+                        if magic != FILE_MAGIC {
+                            return Err(CipherError::EncryptedBadMagic.into());
+                        }
+
+                        self.state = DecryptReaderState::ReadingNonce {
+                            buffer: [0; FILE_NONCE_SIZE],
+                            pos: 0,
+                        };
+                    }
+                }
+                DecryptReaderState::ReadingNonce { buffer, pos } => {
+                    let n = self.inner.read(&mut buffer[*pos..])?;
+
+                    if n == 0 {
+                        return Err(CipherError::EncryptedFileTooShort.into());
+                    }
+
+                    *pos += n;
+
+                    if *pos == FILE_NONCE_SIZE {
+                        let nonce = &buffer[..FILE_NONCE_SIZE];
+
+                        self.state = DecryptReaderState::ReadingCiphertext {
+                            nonce: Nonce::new(nonce.try_into().unwrap()),
+                            buffer: vec![0; BLOCK_SIZE],
+                            pos: 0,
+                        };
+                    }
+                }
+                DecryptReaderState::ReadingCiphertext { nonce, buffer, pos } => {
+                    let n = self.inner.read(&mut buffer[*pos..])?;
+
+                    if n == 0 && *pos == 0 {
+                        return Ok(0);
+                    }
+
+                    *pos += n;
+
+                    if n == 0 || *pos == BLOCK_SIZE {
+                        if *pos <= BLOCK_HEADER_SIZE {
+                            return Err(CipherError::EncryptedFileBadHeader.into());
+                        }
+
+                        let decrypted =
+                            match decrypt_block(&self.data_cipher, &nonce, &buffer[..*pos]) {
+                                Ok(decrypted) => decrypted,
+                                Err(e) => return Err(e.into()),
+                            };
+
+                        nonce.increment();
+
+                        self.state = DecryptReaderState::WritingPlaintext {
+                            nonce: mem::take(nonce),
+                            buffer: decrypted,
+                            pos: 0,
+                        };
+                    }
+                }
+                DecryptReaderState::WritingPlaintext { nonce, buffer, pos } => {
+                    let n = cmp::min(buf.len(), buffer.len() - *pos);
+
+                    buf[..n].copy_from_slice(&buffer[*pos..*pos + n]);
+
+                    *pos += n;
+
+                    if *pos == buffer.len() {
+                        self.state = DecryptReaderState::ReadingCiphertext {
+                            nonce: mem::take(nonce),
+                            buffer: vec![0; BLOCK_SIZE],
+                            pos: 0,
+                        };
+                    }
+
+                    return Ok(n);
+                }
+            }
+        }
+    }
 }
 
 pin_project! {
@@ -171,6 +291,7 @@ mod tests {
     use crate::cipher::{
         constants::FILE_MAGIC,
         data_cipher::{encrypt_block, get_data_cipher},
+        decrypt_reader::SyncDecryptReader,
         nonce::Nonce,
         test_helpers::{assert_reader_pending, assert_reader_ready},
     };
@@ -198,6 +319,36 @@ mod tests {
             res.append(vec);
         }
         res
+    }
+
+    #[test]
+    fn test_sync_decrypt_reader() {
+        let data_cipher = get_dummy_data_cipher();
+        let nonce = get_dummy_nonce();
+
+        let reader = std::io::Cursor::new(concat_vecs(&mut vec![
+            FILE_MAGIC.to_owned(),
+            nonce.as_slice().to_owned(),
+            encrypt_block(&data_cipher, &nonce, b"test").unwrap(),
+        ]));
+
+        let mut r = SyncDecryptReader::new(reader, data_cipher.clone());
+
+        fn read(r: &mut impl std::io::Read, n: usize) -> Result<Vec<u8>> {
+            let mut buf = vec![0; n];
+            r.read(&mut buf).map(|n| {
+                buf.truncate(n);
+                buf
+            })
+        }
+
+        let res1 = read(&mut r, 3).unwrap();
+        assert_eq!(res1.len(), 3);
+        let res2 = read(&mut r, 3).unwrap();
+        assert_eq!(res2.len(), 1);
+        let res = concat_vecs(&mut [res1, res2]);
+
+        assert_eq!(res, b"test");
     }
 
     #[test]
