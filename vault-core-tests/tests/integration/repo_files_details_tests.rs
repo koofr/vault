@@ -627,7 +627,7 @@ fn test_repo_lock_unlock_remove() {
                 }
             );
 
-            fixture.unlock().await;
+            fixture.unlock();
 
             let state_after_unlock = get_state();
             assert_eq!(
@@ -749,7 +749,7 @@ fn test_eventstream() {
             let fixture1 = fixture.new_session();
             fixture1.user_fixture.login();
             fixture1.user_fixture.load().await;
-            fixture1.unlock().await;
+            fixture1.unlock();
 
             let (details_id, load_future) = fixture.vault.repo_files_details_create(
                 fixture.repo_id.clone(),

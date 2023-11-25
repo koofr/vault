@@ -85,7 +85,7 @@ impl ReposService {
             })
     }
 
-    pub async fn build_cipher(
+    pub fn build_cipher(
         &self,
         repo_id: &RepoId,
         password: &str,
@@ -103,22 +103,20 @@ impl ReposService {
 
         let cipher = Cipher::new(password, salt.as_deref());
 
-        if !check_password_validator(&cipher, &password_validator, &password_validator_encrypted)
-            .await
-        {
+        if !check_password_validator(&cipher, &password_validator, &password_validator_encrypted) {
             return Err(BuildCipherError::InvalidPassword(InvalidPasswordError));
         }
 
         Ok(cipher)
     }
 
-    pub async fn unlock_repo(
+    pub fn unlock_repo(
         &self,
         repo_id: &RepoId,
         password: &str,
         mode: RepoUnlockMode,
     ) -> Result<(), UnlockRepoError> {
-        let cipher = self.build_cipher(repo_id, password).await?;
+        let cipher = self.build_cipher(repo_id, password)?;
 
         if matches!(mode, RepoUnlockMode::Unlock) {
             self.ciphers
@@ -164,7 +162,7 @@ impl ReposService {
         let cipher = Cipher::new(&password, salt.as_deref());
 
         let (password_validator, password_validator_encrypted) =
-            generate_password_validator(&cipher).await;
+            generate_password_validator(&cipher);
 
         let repo = self
             .remote
@@ -192,7 +190,7 @@ impl ReposService {
             mutations::repo_loaded(state, notify, repo);
         });
 
-        let config = self.get_repo_config(&repo_id, &password).await.unwrap();
+        let config = self.get_repo_config(&repo_id, &password).unwrap();
 
         Ok(RepoCreated { repo_id, config })
     }
@@ -202,7 +200,7 @@ impl ReposService {
         repo_id: &RepoId,
         password: &str,
     ) -> Result<(), RemoveRepoError> {
-        let _ = self.build_cipher(repo_id, password).await?;
+        let _ = self.build_cipher(repo_id, password)?;
 
         self.remote
             .remove_vault_repo(repo_id)
@@ -231,13 +229,12 @@ impl ReposService {
         Ok(())
     }
 
-    pub async fn get_repo_config(
+    pub fn get_repo_config(
         &self,
         repo_id: &RepoId,
         password: &str,
     ) -> Result<RepoConfig, UnlockRepoError> {
-        self.unlock_repo(repo_id, password, RepoUnlockMode::Verify)
-            .await?;
+        self.unlock_repo(repo_id, password, RepoUnlockMode::Verify)?;
 
         self.store.with_state(|state| {
             let repo = selectors::select_repo(state, repo_id)?;

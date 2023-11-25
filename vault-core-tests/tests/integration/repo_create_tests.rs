@@ -55,7 +55,6 @@ fn test_create() {
                 .vault
                 .repos_service
                 .unlock_repo(&repo_id, "password", RepoUnlockMode::Unlock)
-                .await
                 .unwrap();
             fixture
                 .vault

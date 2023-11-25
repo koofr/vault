@@ -84,11 +84,10 @@ impl RepoFixture {
         })
     }
 
-    pub async fn unlock(&self) {
+    pub fn unlock(&self) {
         self.vault
             .repos_service
             .unlock_repo(&self.repo_id, "password", RepoUnlockMode::Unlock)
-            .await
             .unwrap();
     }
 

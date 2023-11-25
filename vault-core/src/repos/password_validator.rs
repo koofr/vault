@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 use crate::{cipher::Cipher, types::EncryptedName};
 
-pub async fn generate_password_validator(cipher: &Cipher) -> (String, String) {
+pub fn generate_password_validator(cipher: &Cipher) -> (String, String) {
     let password_validator = Uuid::new_v4().to_string();
 
     let mut password_validator_encrypted_bytes = Vec::new();
@@ -13,7 +13,6 @@ pub async fn generate_password_validator(cipher: &Cipher) -> (String, String) {
             password_validator.as_bytes(),
             &mut password_validator_encrypted_bytes,
         )
-        .await
         .unwrap();
 
     let password_validator_encrypted = format!(
@@ -24,13 +23,13 @@ pub async fn generate_password_validator(cipher: &Cipher) -> (String, String) {
     (password_validator, password_validator_encrypted)
 }
 
-pub async fn check_password_validator(
+pub fn check_password_validator(
     cipher: &Cipher,
     password_validator: &str,
     password_validator_encrypted: &str,
 ) -> bool {
     if password_validator_encrypted.starts_with("v2:") {
-        check_password_validator_v2(cipher, password_validator, password_validator_encrypted).await
+        check_password_validator_v2(cipher, password_validator, password_validator_encrypted)
     } else {
         check_password_validator_v1(cipher, password_validator, password_validator_encrypted)
     }
@@ -48,7 +47,7 @@ pub fn check_password_validator_v1(
         .is_some()
 }
 
-pub async fn check_password_validator_v2(
+pub fn check_password_validator_v2(
     cipher: &Cipher,
     password_validator: &str,
     password_validator_encrypted: &str,
@@ -70,7 +69,6 @@ pub async fn check_password_validator_v2(
             &password_validator_encrypted_bytes,
             &mut password_validator_decrypted_bytes,
         )
-        .await
         .is_err()
     {
         return false;
@@ -87,74 +85,54 @@ pub async fn check_password_validator_v2(
 
 #[cfg(test)]
 mod tests {
-    use futures::executor::block_on;
-
     use crate::{cipher::Cipher, repos::password_validator::check_password_validator};
 
     use super::generate_password_validator;
 
     #[test]
     fn test_generate_password_validator() {
-        block_on(async {
-            let cipher = Cipher::new("testpassword", None);
+        let cipher = Cipher::new("testpassword", None);
 
-            let (password_validator, password_validator_encrypted) =
-                generate_password_validator(&cipher).await;
+        let (password_validator, password_validator_encrypted) =
+            generate_password_validator(&cipher);
 
-            assert_eq!(password_validator.len(), 36);
-            assert!(password_validator_encrypted.starts_with("v2:"));
+        assert_eq!(password_validator.len(), 36);
+        assert!(password_validator_encrypted.starts_with("v2:"));
 
-            println!("{}", password_validator);
-            println!("{}", password_validator_encrypted);
-
-            assert!(
-                check_password_validator(
-                    &cipher,
-                    &password_validator,
-                    &password_validator_encrypted
-                )
-                .await
-            )
-        });
+        assert!(check_password_validator(
+            &cipher,
+            &password_validator,
+            &password_validator_encrypted
+        ))
     }
 
     #[test]
     fn test_check_password_validator_v1() {
-        block_on(async {
-            let cipher = Cipher::new("testpassword", None);
+        let cipher = Cipher::new("testpassword", None);
 
-            let password_validator = "d645d972-d7f4-4577-bec6-b52652c025c9";
-            let password_validator_encrypted =
-                "lb96gl718rmaq911ehuan90tu6ta5sg6k38fpd4hsj91p4h0tvd5ouk37663f9jacrl9eaq4depri";
+        let password_validator = "d645d972-d7f4-4577-bec6-b52652c025c9";
+        let password_validator_encrypted =
+            "lb96gl718rmaq911ehuan90tu6ta5sg6k38fpd4hsj91p4h0tvd5ouk37663f9jacrl9eaq4depri";
 
-            assert!(
-                check_password_validator(
-                    &cipher,
-                    &password_validator,
-                    &password_validator_encrypted
-                )
-                .await
-            )
-        })
+        assert!(check_password_validator(
+            &cipher,
+            &password_validator,
+            &password_validator_encrypted
+        ))
     }
 
     #[test]
     fn test_check_password_validator_v2() {
-        block_on(async {
-            let cipher = Cipher::new("testpassword", None);
+        let cipher = Cipher::new("testpassword", None);
 
-            let password_validator = "508ddd3f-f18e-4514-932b-b2c1f0c8b291";
-            let password_validator_encrypted =
-                "v2:UkNMT05FAAA-YjvGKKxTpiFekFYVMNO2UnG2u-Z16MMHAB-ipQYycVTmPSNk0mbnYeZrZ2I-Kh0lTmh4Kt2UxhdYWEXd9YQvyODrWMWWHZaLhL7e";
+        let password_validator = "508ddd3f-f18e-4514-932b-b2c1f0c8b291";
+        let password_validator_encrypted =
+            "v2:UkNMT05FAAA-YjvGKKxTpiFekFYVMNO2UnG2u-Z16MMHAB-ipQYycVTmPSNk0mbnYeZrZ2I-Kh0lTmh4Kt2UxhdYWEXd9YQvyODrWMWWHZaLhL7e";
 
-            assert!(
-                check_password_validator(
-                    &cipher,
-                    &password_validator,
-                    &password_validator_encrypted
-                )
-                .await
-            )
-        })
+        assert!(check_password_validator(
+            &cipher,
+            &password_validator,
+            &password_validator_encrypted
+        ))
     }
 }

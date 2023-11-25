@@ -113,7 +113,7 @@ pub fn with_repo(
 
             user_fixture.load().await;
 
-            repo_fixture.unlock().await;
+            repo_fixture.unlock();
 
             f(repo_fixture).await;
         }

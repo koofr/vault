@@ -2385,13 +2385,9 @@ impl MobileVault {
         password: String,
         cb: Box<dyn RepoUnlockUnlocked>,
     ) {
-        let tokio_runtime = self.tokio_runtime.clone();
-
         // use a thread pool, unlock takes a while and would block UI
         self.clone().spawn_blocking(move || {
-            match tokio_runtime
-                .block_on(async move { self.vault.repo_unlock_unlock(unlock_id, &password).await })
-            {
+            match self.vault.repo_unlock_unlock(unlock_id, &password) {
                 Ok(()) => {
                     cb.on_unlocked();
                 }

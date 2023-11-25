@@ -533,12 +533,12 @@ impl Vault {
         self.repo_unlock_service.create(repo_id, options)
     }
 
-    pub async fn repo_unlock_unlock(
+    pub fn repo_unlock_unlock(
         &self,
         unlock_id: u32,
         password: &str,
     ) -> Result<(), repos::errors::UnlockRepoError> {
-        self.repo_unlock_service.unlock(unlock_id, password).await
+        self.repo_unlock_service.unlock(unlock_id, password)
     }
 
     pub fn repo_unlock_destroy(&self, unlock_id: u32) {
@@ -569,14 +569,13 @@ impl Vault {
         self.repo_config_backup_service.create(repo_id)
     }
 
-    pub async fn repo_config_backup_generate(
+    pub fn repo_config_backup_generate(
         &self,
         backup_id: u32,
         password: &str,
     ) -> Result<(), repos::errors::UnlockRepoError> {
         self.repo_config_backup_service
             .generate(backup_id, password)
-            .await
     }
 
     pub fn repo_config_backup_destroy(&self, backup_id: u32) {

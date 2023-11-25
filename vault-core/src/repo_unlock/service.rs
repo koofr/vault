@@ -29,15 +29,12 @@ impl RepoUnlockService {
         })
     }
 
-    pub async fn unlock(&self, unlock_id: u32, password: &str) -> Result<(), UnlockRepoError> {
+    pub fn unlock(&self, unlock_id: u32, password: &str) -> Result<(), UnlockRepoError> {
         let (repo_id, mode) = self
             .store
             .mutate(|state, notify, _, _| mutations::unlocking(state, notify, unlock_id))?;
 
-        let res = self
-            .repos_service
-            .unlock_repo(&repo_id, password, mode)
-            .await;
+        let res = self.repos_service.unlock_repo(&repo_id, password, mode);
 
         self.store.mutate(|state, notify, _, _| {
             mutations::unlocked(state, notify, unlock_id, res.clone());

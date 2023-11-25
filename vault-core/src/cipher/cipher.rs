@@ -1,5 +1,8 @@
-use futures::{io::Cursor, AsyncReadExt};
-use std::{str, sync::Arc};
+use std::{
+    io::{Cursor, Read},
+    str,
+    sync::Arc,
+};
 use xsalsa20poly1305::XSalsa20Poly1305;
 
 use crate::types::{DecryptedName, DecryptedPath, EncryptedName, EncryptedPath};
@@ -8,8 +11,8 @@ use super::{
     cipher_keys::{derive_keys, DerivedKeys},
     constants::{DATA_KEY_LEN, NAME_CIPHER_BLOCK_SIZE, NAME_KEY_LEN},
     data_cipher::get_data_cipher,
-    decrypt_reader::AsyncDecryptReader,
-    encrypt_reader::AsyncEncryptReader,
+    decrypt_reader::{AsyncDecryptReader, SyncDecryptReader},
+    encrypt_reader::{AsyncEncryptReader, SyncEncryptReader},
     errors::DecryptFilenameError,
     name_cipher::{
         decrypt_filename, decrypt_path, encrypt_filename, encrypt_path, get_name_cipher,
@@ -90,35 +93,35 @@ impl Cipher {
         AsyncEncryptReader::new(reader, self.data_cipher.clone(), nonce)
     }
 
-    pub async fn encrypt_data(
-        &self,
-        data: &[u8],
-        out: &mut Vec<u8>,
-    ) -> Result<usize, std::io::Error> {
+    pub fn encrypt_reader_sync<R>(&self, reader: R) -> SyncEncryptReader<R> {
+        let nonce = Nonce::new_random().unwrap();
+
+        SyncEncryptReader::new(reader, self.data_cipher.clone(), nonce)
+    }
+
+    pub fn encrypt_data(&self, data: &[u8], out: &mut Vec<u8>) -> Result<usize, std::io::Error> {
         let reader = Cursor::new(data);
 
-        self.encrypt_reader_async(reader).read_to_end(out).await
+        self.encrypt_reader_sync(reader).read_to_end(out)
     }
 
     pub fn decrypt_reader_async<R>(&self, reader: R) -> AsyncDecryptReader<R> {
         AsyncDecryptReader::new(reader, self.data_cipher.clone())
     }
 
-    pub async fn decrypt_data(
-        &self,
-        data: &[u8],
-        out: &mut Vec<u8>,
-    ) -> Result<usize, std::io::Error> {
+    pub fn decrypt_reader_sync<R>(&self, reader: R) -> SyncDecryptReader<R> {
+        SyncDecryptReader::new(reader, self.data_cipher.clone())
+    }
+
+    pub fn decrypt_data(&self, data: &[u8], out: &mut Vec<u8>) -> Result<usize, std::io::Error> {
         let reader = Cursor::new(data);
 
-        self.decrypt_reader_async(reader).read_to_end(out).await
+        self.decrypt_reader_sync(reader).read_to_end(out)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use futures::executor::block_on;
-
     use crate::types::{DecryptedName, DecryptedPath, EncryptedName, EncryptedPath};
 
     use super::Cipher;
@@ -293,47 +296,41 @@ mod tests {
 
     #[test]
     fn test_encrypt_data() {
-        block_on(async {
-            // tested with rclone 1.60
-            let cipher = Cipher::new("testpassword", None);
+        // tested with rclone 1.60
+        let cipher = Cipher::new("testpassword", None);
 
-            let mut encrypted = Vec::new();
+        let mut encrypted = Vec::new();
 
-            let res = cipher
-                .encrypt_data("testdata".as_bytes(), &mut encrypted)
-                .await;
+        let res = cipher.encrypt_data("testdata".as_bytes(), &mut encrypted);
 
-            assert_eq!(res.unwrap(), 56);
+        assert_eq!(res.unwrap(), 56);
 
-            let mut decrypted = Vec::new();
+        let mut decrypted = Vec::new();
 
-            let res = cipher.decrypt_data(&encrypted, &mut decrypted).await;
+        let res = cipher.decrypt_data(&encrypted, &mut decrypted);
 
-            assert_eq!(res.unwrap(), 8);
+        assert_eq!(res.unwrap(), 8);
 
-            assert_eq!(std::str::from_utf8(&decrypted).unwrap(), "testdata");
-        })
+        assert_eq!(std::str::from_utf8(&decrypted).unwrap(), "testdata");
     }
 
     #[test]
     fn test_decrypt_data() {
-        block_on(async {
-            // tested with rclone 1.60
-            let cipher = Cipher::new("testpassword", None);
+        // tested with rclone 1.60
+        let cipher = Cipher::new("testpassword", None);
 
-            let encrypted = vec![
-                82, 67, 76, 79, 78, 69, 0, 0, 209, 27, 246, 23, 134, 105, 131, 148, 3, 49, 228, 74,
-                200, 43, 245, 170, 123, 102, 24, 137, 45, 77, 53, 115, 206, 216, 221, 4, 40, 177,
-                52, 14, 5, 190, 84, 192, 246, 157, 207, 154, 11, 178, 94, 181, 135, 59, 240, 115,
-            ];
+        let encrypted = vec![
+            82, 67, 76, 79, 78, 69, 0, 0, 209, 27, 246, 23, 134, 105, 131, 148, 3, 49, 228, 74,
+            200, 43, 245, 170, 123, 102, 24, 137, 45, 77, 53, 115, 206, 216, 221, 4, 40, 177, 52,
+            14, 5, 190, 84, 192, 246, 157, 207, 154, 11, 178, 94, 181, 135, 59, 240, 115,
+        ];
 
-            let mut decrypted = Vec::new();
+        let mut decrypted = Vec::new();
 
-            let res = cipher.decrypt_data(&encrypted, &mut decrypted).await;
+        let res = cipher.decrypt_data(&encrypted, &mut decrypted);
 
-            assert_eq!(res.unwrap(), 8);
+        assert_eq!(res.unwrap(), 8);
 
-            assert_eq!(std::str::from_utf8(&decrypted).unwrap(), "testdata");
-        })
+        assert_eq!(std::str::from_utf8(&decrypted).unwrap(), "testdata");
     }
 }

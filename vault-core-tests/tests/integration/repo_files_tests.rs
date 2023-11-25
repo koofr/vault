@@ -54,7 +54,7 @@ fn test_repo_lock_unlock_remove() {
 
             assert_eq!(state_after_lock, RepoFilesState::default());
 
-            fixture.unlock().await;
+            fixture.unlock();
 
             let state_after_unlock = get_state();
 

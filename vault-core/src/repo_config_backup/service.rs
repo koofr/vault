@@ -26,12 +26,12 @@ impl RepoConfigBackupService {
             .mutate(|state, notify, _, _| mutations::create(state, notify, repo_id))
     }
 
-    pub async fn generate(&self, backup_id: u32, password: &str) -> Result<(), UnlockRepoError> {
+    pub fn generate(&self, backup_id: u32, password: &str) -> Result<(), UnlockRepoError> {
         let repo_id = self
             .store
             .mutate(|state, notify, _, _| mutations::generating(state, notify, backup_id))?;
 
-        let res = self.repos_service.get_repo_config(&repo_id, password).await;
+        let res = self.repos_service.get_repo_config(&repo_id, password);
 
         let res_err = res.as_ref().map(|_| ()).map_err(|err| err.clone());
 

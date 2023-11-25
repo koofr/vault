@@ -796,8 +796,8 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = repoUnlockUnlock)]
-    pub async fn repo_unlock_unlock(&self, unlock_id: u32, password: &str) {
-        let _ = self.vault.repo_unlock_unlock(unlock_id, password).await;
+    pub fn repo_unlock_unlock(&self, unlock_id: u32, password: &str) {
+        let _ = self.vault.repo_unlock_unlock(unlock_id, password);
     }
 
     #[wasm_bindgen(js_name = repoUnlockDestroy)]
@@ -875,11 +875,8 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = repoConfigBackupGenerate)]
-    pub async fn repo_config_backup_generate(&self, backup_id: u32, password: &str) {
-        let _ = self
-            .vault
-            .repo_config_backup_generate(backup_id, password)
-            .await;
+    pub fn repo_config_backup_generate(&self, backup_id: u32, password: &str) {
+        let _ = self.vault.repo_config_backup_generate(backup_id, password);
     }
 
     #[wasm_bindgen(js_name = repoConfigBackupDestroy)]
