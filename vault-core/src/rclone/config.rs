@@ -3,10 +3,9 @@ use std::collections::HashMap;
 use ini::Ini;
 use slug::slugify;
 use thiserror::Error;
+use vault_crypto::rclone_obscure::{obscure, reveal};
 
-use crate::{rclone::obscure::obscure, utils::path_utils::normalize_path};
-
-use super::obscure::reveal;
+use crate::utils::path_utils::normalize_path;
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Config {

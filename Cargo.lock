@@ -2788,13 +2788,11 @@ dependencies = [
 name = "vault-core"
 version = "0.1.0"
 dependencies = [
- "aes",
  "async-trait",
  "async_zip_futures",
  "bytes",
  "chrono",
  "data-encoding",
- "eme-mode",
  "futures",
  "futures-test",
  "http",
@@ -2807,7 +2805,6 @@ dependencies = [
  "rand_core",
  "regex",
  "rust-ini",
- "scrypt",
  "serde",
  "serde_json",
  "serde_urlencoded",
@@ -2817,8 +2814,8 @@ dependencies = [
  "url",
  "urlencoding",
  "uuid",
+ "vault-crypto",
  "vault-store",
- "xsalsa20poly1305",
 ]
 
 [[package]]
@@ -2837,9 +2834,26 @@ dependencies = [
  "tokio",
  "uuid",
  "vault-core",
+ "vault-crypto",
  "vault-fake-remote",
  "vault-native",
  "vault-store",
+]
+
+[[package]]
+name = "vault-crypto"
+version = "0.1.0"
+dependencies = [
+ "aes",
+ "data-encoding",
+ "eme-mode",
+ "futures",
+ "futures-test",
+ "pin-project-lite",
+ "rand_core",
+ "scrypt",
+ "thiserror",
+ "xsalsa20poly1305",
 ]
 
 [[package]]
@@ -2906,6 +2920,7 @@ dependencies = [
  "uuid",
  "vault-core",
  "vault-core-tests",
+ "vault-crypto",
  "vault-fake-remote",
  "vault-file-icon",
  "vault-native",
@@ -2927,6 +2942,7 @@ dependencies = [
  "tokio-tungstenite",
  "url",
  "vault-core",
+ "vault-crypto",
 ]
 
 [[package]]
@@ -2958,6 +2974,7 @@ dependencies = [
  "thiserror",
  "tsify",
  "vault-core",
+ "vault-crypto",
  "vault-file-icon",
  "wasm-bindgen",
  "wasm-bindgen-futures",

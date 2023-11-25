@@ -377,7 +377,9 @@ fn test_download_size_decryption_error() {
             assert_eq!(
                 res,
                 Err(TransferError::DecryptSizeError(
-                    DecryptSizeError::EncryptedFileTooShort
+                    DecryptSizeError::DecryptSizeError(
+                        vault_crypto::errors::DecryptSizeError::EncryptedFileTooShort
+                    )
                 ))
             );
 
@@ -413,7 +415,9 @@ fn test_download_size_decryption_error() {
                             if let Some(location) = details.location.as_mut() {
                                 location.content.status = Status::Error {
                                     error: TransferError::DecryptSizeError(
-                                        DecryptSizeError::EncryptedFileTooShort,
+                                        DecryptSizeError::DecryptSizeError(
+                                            vault_crypto::errors::DecryptSizeError::EncryptedFileTooShort
+                                        )
                                     ),
                                     loaded: false,
                                 };

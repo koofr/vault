@@ -91,7 +91,7 @@ mod tests {
 
     #[test]
     fn test_generate_password_validator() {
-        let cipher = Cipher::new("testpassword", None);
+        let cipher = Cipher::new(vault_crypto::Cipher::new("testpassword", None));
 
         let (password_validator, password_validator_encrypted) =
             generate_password_validator(&cipher);
@@ -108,7 +108,7 @@ mod tests {
 
     #[test]
     fn test_check_password_validator_v1() {
-        let cipher = Cipher::new("testpassword", None);
+        let cipher = Cipher::new(vault_crypto::Cipher::new("testpassword", None));
 
         let password_validator = "d645d972-d7f4-4577-bec6-b52652c025c9";
         let password_validator_encrypted =
@@ -123,7 +123,7 @@ mod tests {
 
     #[test]
     fn test_check_password_validator_v2() {
-        let cipher = Cipher::new("testpassword", None);
+        let cipher = Cipher::new(vault_crypto::Cipher::new("testpassword", None));
 
         let password_validator = "508ddd3f-f18e-4514-932b-b2c1f0c8b291";
         let password_validator_encrypted =

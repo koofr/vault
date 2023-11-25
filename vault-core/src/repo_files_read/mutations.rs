@@ -94,7 +94,7 @@ pub fn list_recursive_items_to_remote_zip_entries(
             RepoFilesListRecursiveItem::Error { error, .. } => {
                 match error {
                     FilesListRecursiveItemError::DecryptFilenameError(_) => {
-                        // skip non-decrypted files
+                        // skip non-decrypted or invalid files
                         continue;
                     }
                     FilesListRecursiveItemError::RemoteError(err) => {
@@ -187,9 +187,11 @@ mod tests {
                 ref mut relative_repo_path,
                 ..
             } => {
-                *relative_repo_path = Err(DecryptFilenameError::DecodeError(String::from(
-                    "non-zero trailing bits at 1",
-                )));
+                *relative_repo_path = Err(DecryptFilenameError::DecryptFilenameError(
+                    vault_crypto::errors::DecryptFilenameError::DecodeError(
+                        "non-zero trailing bits at 1".into(),
+                    ),
+                ));
             }
             _ => {}
         };
@@ -203,9 +205,11 @@ mod tests {
                     mount_id: MountId("m1".into()),
                     remote_path: None,
                     error: FilesListRecursiveItemError::DecryptFilenameError(
-                        DecryptFilenameError::DecodeError(String::from(
-                            "non-zero trailing bits at 1",
-                        ))
+                        DecryptFilenameError::DecryptFilenameError(
+                            vault_crypto::errors::DecryptFilenameError::DecodeError(
+                                "non-zero trailing bits at 1".into(),
+                            ),
+                        )
                     )
                 },
                 repo_files_list_test_helpers::create_list_recursive_item_file(

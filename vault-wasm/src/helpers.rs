@@ -5,13 +5,13 @@ use futures::{
     AsyncRead, AsyncReadExt,
 };
 use thiserror::Error;
+use vault_crypto::constants::BLOCK_SIZE;
 use wasm_bindgen::{prelude::*, JsCast};
 use wasm_bindgen_futures::JsFuture;
 use wasm_streams::ReadableStream;
 use web_sys::AbortSignal;
 
 use vault_core::{
-    cipher::constants::BLOCK_SIZE,
     common::state::{BoxAsyncRead, SizeInfo},
     user_error::UserError,
     utils::on_end_reader::OnEndReader,

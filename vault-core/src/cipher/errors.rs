@@ -1,75 +1,38 @@
-use std::sync::Arc;
-
-use rand_core;
 use thiserror::Error;
 
 use crate::{common::errors::InvalidNameError, user_error::UserError};
 
-#[derive(Error, Debug, Clone)]
-#[error("generate nonce error: {0:?}")]
-pub struct GenerateNonceError(pub Arc<rand_core::Error>);
-
-impl PartialEq for GenerateNonceError {
-    fn eq(&self, other: &Self) -> bool {
-        self.to_string() == other.to_string()
-    }
-}
-
-#[derive(Error, Debug, Clone, PartialEq)]
-pub enum CipherError {
-    #[error("file is too short to be decrypted")]
-    EncryptedFileTooShort,
-    #[error("file has truncated block header")]
-    EncryptedFileBadHeader,
-    #[error("not an encrypted file - bad magic string")]
-    EncryptedBadMagic,
-    #[error("encryption error")]
-    EncryptionError,
-    #[error("decryption error")]
-    DecryptionError,
-    #[error("{0}")]
-    GenerateNonceError(GenerateNonceError),
-}
-
-impl From<rand_core::Error> for CipherError {
-    fn from(err: rand_core::Error) -> Self {
-        Self::GenerateNonceError(GenerateNonceError(Arc::new(err)))
-    }
-}
-
-impl Into<std::io::Error> for CipherError {
-    fn into(self) -> std::io::Error {
-        std::io::Error::new(std::io::ErrorKind::Other, self)
-    }
-}
-
 #[derive(Error, Debug, Clone, PartialEq)]
 pub enum DecryptSizeError {
-    #[error("file is too short to be decrypted")]
-    EncryptedFileTooShort,
-    #[error("file has truncated block header")]
-    EncryptedFileBadHeader,
+    #[error("{0}")]
+    DecryptSizeError(#[from] vault_crypto::errors::DecryptSizeError),
+}
+
+impl UserError for DecryptSizeError {
+    fn user_error(&self) -> String {
+        match self {
+            Self::DecryptSizeError(err) => format!("Failed to decrypt size: {}", err),
+        }
+    }
 }
 
 #[derive(Error, Debug, Clone, PartialEq)]
 pub enum DecryptFilenameError {
-    #[error("decode error: {0}")]
-    DecodeError(String),
-    #[error("decrypt error")]
-    DecryptError,
-    #[error("unicode error: {0}")]
-    UnicodeError(String),
     #[error("{0}")]
-    InvalidName(#[from] InvalidNameError),
+    DecryptFilenameError(#[from] vault_crypto::errors::DecryptFilenameError),
+    #[error("{0}")]
+    InvalidNameError(#[from] InvalidNameError),
 }
 
 impl UserError for DecryptFilenameError {
     fn user_error(&self) -> String {
+        use vault_crypto::errors::DecryptFilenameError;
+
         match self {
-            Self::DecodeError(_) => "Failed to decode file name".into(),
-            Self::DecryptError => "Failed to decrypt file name. Vault files can only be uploaded using Vault apps or rclone. If all your files have errors please check that you've used the correct salt.".into(),
-            Self::UnicodeError(_) => "File name is not a valid Unicode text".into(),
-            Self::InvalidName(_) => "File name contains invalid characters".into(),
+            Self::DecryptFilenameError(DecryptFilenameError::DecodeError(_)) => "Failed to decode file name".into(),
+            Self::DecryptFilenameError(DecryptFilenameError::DecryptError) => "Failed to decrypt file name. Vault files can only be uploaded using Vault apps or rclone. If all your files have errors please check that you've used the correct salt.".into(),
+            Self::DecryptFilenameError(DecryptFilenameError::UnicodeError(_)) => "File name is not a valid Unicode text".into(),
+            Self::InvalidNameError(err) => err.user_error(),
         }
     }
 }

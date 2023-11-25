@@ -2,19 +2,16 @@ use std::sync::Arc;
 
 use futures::io::Cursor;
 use vault_core::{
-    cipher::Cipher,
     repo_files::{
         self,
         state::{RepoFile, RepoFilesUploadConflictResolution, RepoFilesUploadResult},
     },
     repos::state::RepoUnlockMode,
-    types::{
-        DecryptedName, DecryptedPath, EncryptedName, EncryptedPath, MountId, RemotePath,
-        RepoFileId, RepoId,
-    },
+    types::{DecryptedPath, EncryptedName, EncryptedPath, MountId, RemotePath, RepoFileId, RepoId},
     utils::repo_encrypted_path_utils,
     Vault,
 };
+use vault_crypto::Cipher;
 use vault_fake_remote::fake_remote::context::Context;
 
 use crate::{fake_remote::FakeRemote, fixtures::user_fixture::UserFixture};
@@ -104,11 +101,11 @@ impl RepoFixture {
     }
 
     pub fn encrypt_filename(&self, name: &str) -> EncryptedName {
-        self.cipher.encrypt_filename(&DecryptedName(name.into()))
+        EncryptedName(self.cipher.encrypt_filename(name))
     }
 
     pub fn encrypt_path(&self, path: &str) -> EncryptedPath {
-        self.cipher.encrypt_path(&DecryptedPath(path.into()))
+        EncryptedPath(self.cipher.encrypt_path(path))
     }
 
     pub fn get_file_id(&self, path: &str) -> RepoFileId {

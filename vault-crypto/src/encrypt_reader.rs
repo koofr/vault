@@ -258,7 +258,7 @@ mod tests {
     use futures::{stream::TryStreamExt, AsyncRead};
     use xsalsa20poly1305::XSalsa20Poly1305;
 
-    use crate::cipher::{
+    use crate::{
         constants::FILE_MAGIC,
         data_cipher::{decrypt_block, get_data_cipher},
         encrypt_reader::SyncEncryptReader,

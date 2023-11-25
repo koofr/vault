@@ -101,7 +101,7 @@ impl ReposService {
                 })
             })?;
 
-        let cipher = Cipher::new(password, salt.as_deref());
+        let cipher = Cipher::new(vault_crypto::Cipher::new(password, salt.as_deref()));
 
         if !check_password_validator(&cipher, &password_validator, &password_validator_encrypted) {
             return Err(BuildCipherError::InvalidPassword(InvalidPasswordError));
@@ -159,7 +159,7 @@ impl ReposService {
             _ => false,
         };
 
-        let cipher = Cipher::new(&password, salt.as_deref());
+        let cipher = Cipher::new(vault_crypto::Cipher::new(password, salt.as_deref()));
 
         let (password_validator, password_validator_encrypted) =
             generate_password_validator(&cipher);

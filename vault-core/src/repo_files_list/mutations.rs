@@ -229,9 +229,11 @@ mod tests {
                 &cipher
             ),
             RepoFilesListRecursiveItem::File {
-                relative_repo_path: Err(DecryptFilenameError::DecodeError(String::from(
-                    "non-zero trailing bits at 1"
-                ))),
+                relative_repo_path: Err(DecryptFilenameError::DecryptFilenameError(
+                    vault_crypto::errors::DecryptFilenameError::DecodeError(
+                        "non-zero trailing bits at 1".into()
+                    )
+                )),
                 file: RepoFile {
                     id: RepoFileId("r1:/D1".into()),
                     mount_id: MountId("m1".into()),
@@ -239,16 +241,20 @@ mod tests {
                     repo_id: RepoId("r1".into()),
                     encrypted_path: EncryptedPath("/D1".into()),
                     path: RepoFilePath::DecryptError {
-                        error: DecryptFilenameError::DecodeError(String::from(
-                            "non-zero trailing bits at 1"
-                        )),
+                        error: DecryptFilenameError::DecryptFilenameError(
+                            vault_crypto::errors::DecryptFilenameError::DecodeError(
+                                "non-zero trailing bits at 1".into()
+                            )
+                        ),
                     },
                     name: RepoFileName::DecryptError {
                         encrypted_name: EncryptedName("D1".into()),
                         encrypted_name_lower: String::from("d1"),
-                        error: DecryptFilenameError::DecodeError(String::from(
-                            "non-zero trailing bits at 1"
-                        )),
+                        error: DecryptFilenameError::DecryptFilenameError(
+                            vault_crypto::errors::DecryptFilenameError::DecodeError(
+                                "non-zero trailing bits at 1".into()
+                            )
+                        ),
                     },
                     ext: None,
                     content_type: None,
@@ -404,9 +410,11 @@ mod tests {
                 &cipher
             ),
             RepoFilesListRecursiveItem::File {
-                relative_repo_path: Err(DecryptFilenameError::DecodeError(String::from(
-                    "non-zero trailing bits at 1"
-                ))),
+                relative_repo_path: Err(DecryptFilenameError::DecryptFilenameError(
+                    vault_crypto::errors::DecryptFilenameError::DecodeError(
+                        "non-zero trailing bits at 1".into()
+                    )
+                )),
                 file: RepoFile {
                     id: RepoFileId("r1:/F1".into()),
                     mount_id: MountId("m1".into()),
@@ -414,16 +422,20 @@ mod tests {
                     repo_id: RepoId("r1".into()),
                     encrypted_path: EncryptedPath("/F1".into()),
                     path: RepoFilePath::DecryptError {
-                        error: DecryptFilenameError::DecodeError(String::from(
-                            "non-zero trailing bits at 1"
-                        )),
+                        error: DecryptFilenameError::DecryptFilenameError(
+                            vault_crypto::errors::DecryptFilenameError::DecodeError(
+                                "non-zero trailing bits at 1".into()
+                            )
+                        ),
                     },
                     name: RepoFileName::DecryptError {
                         encrypted_name: EncryptedName("F1".into()),
                         encrypted_name_lower: String::from("f1"),
-                        error: DecryptFilenameError::DecodeError(String::from(
-                            "non-zero trailing bits at 1"
-                        )),
+                        error: DecryptFilenameError::DecryptFilenameError(
+                            vault_crypto::errors::DecryptFilenameError::DecodeError(
+                                "non-zero trailing bits at 1".into()
+                            )
+                        ),
                     },
                     ext: None,
                     content_type: None,
@@ -460,9 +472,11 @@ mod tests {
                 &cipher
             ),
             RepoFilesListRecursiveItem::File {
-                relative_repo_path: Err(DecryptFilenameError::DecodeError(String::from(
-                    "non-zero trailing bits at 1"
-                ))),
+                relative_repo_path: Err(DecryptFilenameError::DecryptFilenameError(
+                    vault_crypto::errors::DecryptFilenameError::DecodeError(
+                        "non-zero trailing bits at 1".into()
+                    )
+                )),
                 file: RepoFile {
                     id: RepoFileId(format!(
                         "r1:/D1/{}",
@@ -479,9 +493,11 @@ mod tests {
                         cipher.encrypt_filename(&DecryptedName("F1".into())).0
                     )),
                     path: RepoFilePath::DecryptError {
-                        error: DecryptFilenameError::DecodeError(String::from(
-                            "non-zero trailing bits at 1"
-                        )),
+                        error: DecryptFilenameError::DecryptFilenameError(
+                            vault_crypto::errors::DecryptFilenameError::DecodeError(
+                                "non-zero trailing bits at 1".into()
+                            )
+                        ),
                     },
                     name: RepoFileName::Decrypted {
                         name: DecryptedName("F1".into()),
@@ -516,9 +532,11 @@ mod tests {
                 &cipher
             ),
             RepoFilesListRecursiveItem::File {
-                relative_repo_path: Err(DecryptFilenameError::DecodeError(String::from(
-                    "non-zero trailing bits at 1"
-                ))),
+                relative_repo_path: Err(DecryptFilenameError::DecryptFilenameError(
+                    vault_crypto::errors::DecryptFilenameError::DecodeError(
+                        "non-zero trailing bits at 1".into()
+                    )
+                )),
                 file: RepoFile {
                     id: RepoFileId("r1:/D1/F1".into()),
                     mount_id: MountId("m1".into()),
@@ -526,16 +544,20 @@ mod tests {
                     repo_id: RepoId("r1".into()),
                     encrypted_path: EncryptedPath("/D1/F1".into()),
                     path: RepoFilePath::DecryptError {
-                        error: DecryptFilenameError::DecodeError(String::from(
-                            "non-zero trailing bits at 1"
-                        )),
+                        error: DecryptFilenameError::DecryptFilenameError(
+                            vault_crypto::errors::DecryptFilenameError::DecodeError(
+                                "non-zero trailing bits at 1".into()
+                            )
+                        ),
                     },
                     name: RepoFileName::DecryptError {
                         encrypted_name: EncryptedName("F1".into()),
                         encrypted_name_lower: String::from("f1"),
-                        error: DecryptFilenameError::DecodeError(String::from(
-                            "non-zero trailing bits at 1"
-                        )),
+                        error: DecryptFilenameError::DecryptFilenameError(
+                            vault_crypto::errors::DecryptFilenameError::DecodeError(
+                                "non-zero trailing bits at 1".into()
+                            )
+                        ),
                     },
                     ext: None,
                     content_type: None,
@@ -561,16 +583,20 @@ mod tests {
                 &RemotePath("/Vault".into()),
                 &RepoId("r1".into()),
                 &EncryptedPath("/".into()),
-                &Err(DecryptFilenameError::DecodeError(String::from(
-                    "non-zero trailing bits at 1"
-                ))),
+                &Err(DecryptFilenameError::DecryptFilenameError(
+                    vault_crypto::errors::DecryptFilenameError::DecodeError(
+                        "non-zero trailing bits at 1".into()
+                    )
+                )),
                 item,
                 &cipher
             ),
             RepoFilesListRecursiveItem::File {
-                relative_repo_path: Err(DecryptFilenameError::DecodeError(String::from(
-                    "non-zero trailing bits at 1"
-                ))),
+                relative_repo_path: Err(DecryptFilenameError::DecryptFilenameError(
+                    vault_crypto::errors::DecryptFilenameError::DecodeError(
+                        "non-zero trailing bits at 1".into()
+                    )
+                )),
                 file: RepoFile {
                     id: RepoFileId("r1:/D1/F1".into()),
                     mount_id: MountId("m1".into()),
@@ -578,16 +604,20 @@ mod tests {
                     repo_id: RepoId("r1".into()),
                     encrypted_path: EncryptedPath("/D1/F1".into()),
                     path: RepoFilePath::DecryptError {
-                        error: DecryptFilenameError::DecodeError(String::from(
-                            "non-zero trailing bits at 1"
-                        )),
+                        error: DecryptFilenameError::DecryptFilenameError(
+                            vault_crypto::errors::DecryptFilenameError::DecodeError(
+                                "non-zero trailing bits at 1".into()
+                            )
+                        ),
                     },
                     name: RepoFileName::DecryptError {
                         encrypted_name: EncryptedName("F1".into()),
                         encrypted_name_lower: String::from("f1"),
-                        error: DecryptFilenameError::DecodeError(String::from(
-                            "non-zero trailing bits at 1"
-                        )),
+                        error: DecryptFilenameError::DecryptFilenameError(
+                            vault_crypto::errors::DecryptFilenameError::DecodeError(
+                                "non-zero trailing bits at 1".into()
+                            )
+                        ),
                     },
                     ext: None,
                     content_type: None,

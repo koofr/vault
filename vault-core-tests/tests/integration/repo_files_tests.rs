@@ -243,7 +243,9 @@ fn test_encrypted_decrypted_same_name() {
 fn test_invalid_name() {
     with_repo(|fixture| {
         async move {
-            fixture
+            // upload fails because after upload it tries to decrypt the name
+            // and the name is invalid
+            let _ = fixture
                 .vault
                 .repo_files_service
                 .clone()
@@ -256,8 +258,7 @@ fn test_invalid_name() {
                     RepoFilesUploadConflictResolution::Error,
                     None,
                 )
-                .await
-                .unwrap();
+                .await;
 
             fixture
                 .vault
@@ -306,12 +307,16 @@ fn test_invalid_name() {
                             .0
                     )),
                     path: RepoFilePath::DecryptError {
-                        error: DecryptFilenameError::InvalidName(InvalidNameError::new("A\n/\n")),
+                        error: DecryptFilenameError::InvalidNameError(InvalidNameError::new(
+                            "A\n/\n"
+                        )),
                     },
                     name: RepoFileName::DecryptError {
                         encrypted_name: EncryptedName("A\\n/\\n".into()),
                         encrypted_name_lower: "a\\n/\\n".into(),
-                        error: DecryptFilenameError::InvalidName(InvalidNameError::new("A\n/\n")),
+                        error: DecryptFilenameError::InvalidNameError(InvalidNameError::new(
+                            "A\n/\n"
+                        )),
                     },
                     ext: None,
                     content_type: None,

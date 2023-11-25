@@ -2,6 +2,7 @@
 members = [
   "vault-core-tests",
   "vault-core",
+  "vault-crypto",
   "vault-fake-remote",
   "vault-file-icon",
   "vault-mobile",

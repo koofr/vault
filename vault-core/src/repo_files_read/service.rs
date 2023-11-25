@@ -3,9 +3,10 @@ use std::{collections::HashMap, sync::Arc};
 use futures::{
     channel::mpsc, io::BufReader, AsyncWrite, FutureExt, SinkExt, StreamExt, TryStreamExt,
 };
+use vault_crypto::data_cipher::decrypt_size;
 
 use crate::{
-    cipher::{data_cipher::decrypt_size, Cipher},
+    cipher::{errors::DecryptSizeError, Cipher},
     common::state::{BoxAsyncRead, SizeInfo},
     remote_files::RemoteFilesService,
     repo_files::{
@@ -66,8 +67,8 @@ impl RepoFilesReadService {
             .get_file_reader(&mount_id, &remote_path)
             .await?;
 
-        let size =
-            decrypt_size(encrypted_reader.size).map_err(GetFilesReaderError::DecryptSizeError)?;
+        let size = decrypt_size(encrypted_reader.size)
+            .map_err(|err| GetFilesReaderError::DecryptSizeError(DecryptSizeError::from(err)))?;
 
         let decrypt_reader = Box::pin(cipher.decrypt_reader_async(encrypted_reader.reader));
 

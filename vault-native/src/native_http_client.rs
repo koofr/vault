@@ -86,7 +86,7 @@ impl HttpClient for NativeHttpClient {
 
                 req.body(reqwest::Body::wrap_stream(ReaderStream::new(
                     on_end_reader,
-                    vault_core::cipher::constants::BLOCK_SIZE,
+                    vault_crypto::constants::BLOCK_SIZE,
                 )))
             }
             None => req,

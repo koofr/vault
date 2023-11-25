@@ -1,8 +1,8 @@
 use std::sync::{Arc, Mutex};
 
 use futures::{channel::oneshot, future::BoxFuture, FutureExt};
-use vault_core::{cipher::Cipher, types::DecryptedPath};
 use vault_core_tests::fake_remote::FakeRemote;
+use vault_crypto::Cipher;
 use vault_mobile::{
     MobileVault, Repo, RepoCreateInfo, RepoFile, RepoFilesBrowserItem, RepoFilesBrowserOptions,
     RepoUnlockMode, RepoUnlockOptions, RepoUnlockUnlocked, Status, SubscriptionCallback,
@@ -133,7 +133,7 @@ impl RepoFixture {
     }
 
     pub fn encrypt_path(&self, path: &str) -> String {
-        self.cipher.encrypt_path(&DecryptedPath(path.into())).0
+        self.cipher.encrypt_path(path)
     }
 
     pub fn wait_for_repo_browser_items<T: Clone + Send + Sync + 'static>(

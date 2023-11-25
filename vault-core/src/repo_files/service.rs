@@ -8,9 +8,10 @@ use futures::{
     io::Cursor,
     FutureExt,
 };
+use vault_crypto::data_cipher::encrypted_size;
 
 use crate::{
-    cipher::data_cipher::{decrypt_on_progress, encrypted_size},
+    cipher::decrypt_on_progress::decrypt_on_progress,
     common::state::BoxAsyncRead,
     dialogs, remote,
     remote_files::RemoteFilesService,

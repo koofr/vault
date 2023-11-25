@@ -9,13 +9,13 @@ use wasm_streams::ReadableStream;
 use web_sys::{AbortController, AbortSignal, Request, RequestInit, Response};
 
 use vault_core::{
-    cipher::constants::BLOCK_SIZE,
     http::{
         BoxHttpResponse, HttpClient, HttpError, HttpRequest, HttpRequestBody, HttpResponse,
         HttpResponseBytesStream,
     },
     utils::progress_reader::ProgressReader,
 };
+use vault_crypto::constants::BLOCK_SIZE;
 
 use crate::helpers;
 

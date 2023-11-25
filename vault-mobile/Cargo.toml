@@ -28,6 +28,7 @@ uniffi = "0.24.3"
 url = "2.4.1"
 uuid = { version = "1.4.1", features = ["v4", "fast-rng"] }
 vault-core = { path = "../vault-core" }
+vault-crypto = { path = "../vault-crypto" }
 vault-fake-remote = { path = "../vault-fake-remote" }
 vault-file-icon = { path = "../vault-file-icon" }
 vault-native = { path = "../vault-native" }

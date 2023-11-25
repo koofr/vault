@@ -18,6 +18,7 @@ tokio-tungstenite = { version = "0.20.1", features = [
   "rustls-tls-webpki-roots",
 ] }
 vault-core = { path = "../vault-core" }
+vault-crypto = { path = "../vault-crypto" }
 rustls = { version = "0.21.7", features = ["dangerous_configuration"] }
 
 [dev-dependencies]

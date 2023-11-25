@@ -1,7 +1,5 @@
 /// Based on rclone implementation
 /// https://github.com/rclone/rclone/blob/7be9855a706d1e09504f17949a90c54cd56fb2a5/backend/crypt/cipher.go
-use std::sync::{Arc, Mutex};
-
 use xsalsa20poly1305::{
     aead::{AeadInPlace, KeyInit},
     XSalsa20Poly1305,
@@ -80,31 +78,4 @@ pub fn decrypt_size(size: i64) -> Result<i64, DecryptSizeError> {
     decrypted_size = decrypted_size + residue;
 
     Ok(decrypted_size)
-}
-
-pub fn decrypt_on_progress(
-    encrypted_on_progress: Box<dyn Fn(usize) + Send + Sync>,
-) -> Box<dyn Fn(usize) + Send + Sync> {
-    struct OnProgressState {
-        pub encrypted_uploaded_bytes: i64,
-        pub decrypted_uploaded_bytes: i64,
-    }
-
-    let state = Arc::new(Mutex::new(OnProgressState {
-        encrypted_uploaded_bytes: 0,
-        decrypted_uploaded_bytes: 0,
-    }));
-
-    Box::new(move |n: usize| {
-        let mut state = state.lock().unwrap();
-
-        state.encrypted_uploaded_bytes += n as i64;
-
-        if let Ok(bytes) = decrypt_size(state.encrypted_uploaded_bytes) {
-            if bytes > state.decrypted_uploaded_bytes {
-                encrypted_on_progress((bytes - state.decrypted_uploaded_bytes) as usize);
-            }
-            state.decrypted_uploaded_bytes = bytes;
-        }
-    })
 }

@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
 use futures::{future::BoxFuture, FutureExt};
+use vault_crypto::random_password::random_password;
 
 use crate::{
-    cipher::random_password::random_password,
     dir_pickers::{selectors as dir_pickers_selectors, state::DirPickerItemId},
     rclone, remote,
     remote_files::{
