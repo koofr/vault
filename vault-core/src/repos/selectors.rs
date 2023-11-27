@@ -33,6 +33,17 @@ pub fn select_repo<'a>(
         .ok_or(RepoNotFoundError)
 }
 
+pub fn select_repo_mut<'a>(
+    state: &'a mut store::State,
+    repo_id: &RepoId,
+) -> Result<&'a mut Repo, RepoNotFoundError> {
+    state
+        .repos
+        .repos_by_id
+        .get_mut(repo_id)
+        .ok_or(RepoNotFoundError)
+}
+
 pub fn select_repo_info<'a>(state: &'a store::State, repo_id: &RepoId) -> RepoInfo<'a> {
     let repo = select_repo(state, repo_id);
 
