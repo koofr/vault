@@ -30,12 +30,10 @@ use vault_core::{
     space_usage::state as space_usage_state,
     store,
     transfers::{selectors as transfers_selectors, state as transfers_state},
-    types::DecryptedName,
+    types::{DecryptedName, TimeMillis},
     user::state as user_state,
     user_error::UserError,
 };
-
-use crate::browser_runtime::now_ms;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 #[serde(tag = "type")]
@@ -123,9 +121,9 @@ pub struct RelativeTime {
 impl From<relative_time::RelativeTime> for RelativeTime {
     fn from(time: relative_time::RelativeTime) -> Self {
         Self {
-            value: time.value as f64,
+            value: time.value.0 as f64,
             display: time.display,
-            next_update: time.next_update.map(|x| x as f64),
+            next_update: time.next_update.map(|x| x.0 as f64),
         }
     }
 }
@@ -1189,8 +1187,8 @@ pub struct Transfer {
     pub can_retry: bool,
 }
 
-impl From<&transfers_state::Transfer> for Transfer {
-    fn from(transfer: &transfers_state::Transfer) -> Self {
+impl From<(&transfers_state::Transfer, TimeMillis)> for Transfer {
+    fn from((transfer, now): (&transfers_state::Transfer, TimeMillis)) -> Self {
         Self {
             id: transfer.id,
             typ: (&transfer.typ).into(),
@@ -1200,7 +1198,7 @@ impl From<&transfers_state::Transfer> for Transfer {
             size_display: transfer.size.exact_or_estimate().map(size_display),
             transferred_bytes: transfer.transferred_bytes,
             transferred_display: size_display(transfer.transferred_bytes),
-            speed_display: transfers_selectors::transfer_duration(&transfer, now_ms())
+            speed_display: transfers_selectors::transfer_duration(&transfer, now)
                 .map(|duration| speed_display_bytes_duration(transfer.transferred_bytes, duration)),
             state: (&transfer.state).into(),
             can_retry: transfers_selectors::can_retry(transfer),

@@ -13,7 +13,7 @@ use vault_core::{
     dir_pickers::state::DirPickerItemId,
     store::Event,
     transfers,
-    types::{DecryptedName, EncryptedPath, RepoFileId, RepoId},
+    types::{DecryptedName, EncryptedPath, RepoFileId, RepoId, TimeMillis},
 };
 
 use crate::{
@@ -21,7 +21,7 @@ use crate::{
         BrowserEventstreamWebSocketClient, BrowserEventstreamWebSocketDelegate,
     },
     browser_http_client::{BrowserHttpClient, BrowserHttpClientDelegate},
-    browser_runtime::{now_ms, BrowserRuntime},
+    browser_runtime::{now, BrowserRuntime},
     browser_secure_storage::BrowserSecureStorage,
     browser_uploadable::BrowserUploadable,
     dto, helpers,
@@ -312,7 +312,8 @@ impl WebVault {
     #[wasm_bindgen(js_name = relativeTime)]
     pub fn relative_time(&self, value: f64, with_modifier: bool) -> RelativeTime {
         to_js(&dto::RelativeTime::from(
-            self.vault.relative_time(value as i64, with_modifier),
+            self.vault
+                .relative_time(TimeMillis(value as i64), with_modifier),
         ))
     }
 
@@ -1078,7 +1079,7 @@ impl WebVault {
                 vault.with_state(|state| {
                     use vault_core::transfers::selectors;
 
-                    let now = now_ms();
+                    let now = now();
 
                     dto::TransfersSummary {
                         total_count: state.transfers.total_count,
@@ -1116,10 +1117,12 @@ impl WebVault {
             cb,
             self.subscription_data.transfers_list.clone(),
             move |vault| {
+                let now = now();
+
                 vault.with_state(|state| dto::TransfersList {
                     transfers: vault_core::transfers::selectors::select_transfers(state)
                         .into_iter()
-                        .map(Into::into)
+                        .map(|transfer| (transfer, now).into())
                         .collect(),
                 })
             },

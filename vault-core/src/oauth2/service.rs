@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, sync::Arc, time::Duration};
 
 use data_encoding::BASE64URL_NOPAD;
 use futures::lock::Mutex as AsyncMutex;
@@ -331,7 +331,7 @@ impl OAuth2Service {
 
     fn is_token_expired(&self, token: &OAuth2Token) -> bool {
         // 10 minutes for clock skew
-        (token.expires_at as i64) < self.runtime.now_ms() - 10 * 60 * 1000
+        self.runtime.now() > token.expires_at - Duration::from_secs(600)
     }
 
     async fn exchange_token(
@@ -390,7 +390,7 @@ impl OAuth2Service {
         let token = OAuth2Token {
             access_token: raw_token.access_token,
             refresh_token: raw_token.refresh_token,
-            expires_at: (self.runtime.now_ms() as f64) + (raw_token.expires_in as f64) * 1000.0,
+            expires_at: self.runtime.now() + Duration::from_secs(raw_token.expires_in as u64),
         };
 
         Ok(token)

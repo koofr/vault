@@ -5,7 +5,7 @@ use crate::{
     common::state::SizeInfo,
     files::file_category::{ext_to_file_category, FileCategory},
     repo_files, store,
-    types::{DecryptedName, DecryptedPath, EncryptedName, EncryptedPath, RepoId},
+    types::{DecryptedName, DecryptedPath, EncryptedName, EncryptedPath, RepoId, TimeMillis},
     utils::{name_utils, path_utils},
 };
 
@@ -152,7 +152,11 @@ pub fn create_transfer(
     }
 }
 
-pub fn next_transfer(state: &mut store::State, notify: &store::Notify, now: i64) -> Option<u32> {
+pub fn next_transfer(
+    state: &mut store::State,
+    notify: &store::Notify,
+    now: TimeMillis,
+) -> Option<u32> {
     let transfer = match selectors::select_next_transfer(state) {
         Some(transfer) => transfer,
         None => return None,
@@ -165,7 +169,7 @@ pub fn next_transfer(state: &mut store::State, notify: &store::Notify, now: i64)
     Some(id)
 }
 
-pub fn start_transfer(state: &mut store::State, notify: &store::Notify, id: u32, now: i64) {
+pub fn start_transfer(state: &mut store::State, notify: &store::Notify, id: u32, now: TimeMillis) {
     let transfer = match state.transfers.transfers.get_mut(&id) {
         Some(transfer) => transfer,
         None => return,
@@ -292,7 +296,7 @@ pub fn transfer_progress(
     notify: &store::Notify,
     id: u32,
     n: i64,
-    now: i64,
+    now: TimeMillis,
 ) {
     let transfer = match state.transfers.transfers.get_mut(&id) {
         Some(transfer) => transfer,
@@ -350,7 +354,7 @@ pub fn transfer_failed(
     notify: &store::Notify,
     id: u32,
     err: TransferError,
-    now: i64,
+    now: TimeMillis,
 ) {
     let is_err_not_retriable = matches!(err, TransferError::NotRetriable);
 
@@ -467,7 +471,7 @@ pub fn retry(
     notify: &store::Notify,
     id: u32,
     initiator: RetryInitiator,
-    now: i64,
+    now: TimeMillis,
 ) {
     let transfer = match state.transfers.transfers.get(&id) {
         Some(transfer) => transfer,
@@ -507,7 +511,7 @@ pub fn retry(
     }
 }
 
-pub fn retry_all(state: &mut store::State, notify: &store::Notify, now: i64) {
+pub fn retry_all(state: &mut store::State, notify: &store::Notify, now: TimeMillis) {
     for id in state
         .transfers
         .transfers
@@ -549,7 +553,7 @@ pub fn create_download_reader_transfer(
     id: u32,
     name: TransferDisplayName,
     size: SizeInfo,
-    now: i64,
+    now: TimeMillis,
 ) {
     let is_persistent = false;
     let is_retriable = false;
@@ -594,7 +598,7 @@ mod tests {
                 TransferUploadRelativeName, TransferUploadRelativeNamePath, UploadTransfer,
             },
         },
-        types::{DecryptedName, DecryptedPath, EncryptedPath, RepoFileId},
+        types::{DecryptedName, DecryptedPath, EncryptedPath, RepoFileId, TimeMillis},
     };
 
     use super::{create_transfer, CreateTransferType};
@@ -659,7 +663,7 @@ mod tests {
         );
 
         let (notify, _, _) = store_test_helpers::mutation();
-        start_transfer(&mut state, &notify, 1, 2);
+        start_transfer(&mut state, &notify, 1, TimeMillis(2));
 
         assert_eq!(
             state.transfers.transfers.get(&1).unwrap(),
@@ -678,7 +682,7 @@ mod tests {
                 name: TransferDisplayName("file.txt".into()),
                 size: SizeInfo::Exact(10),
                 category: FileCategory::Text,
-                started: Some(2),
+                started: Some(TimeMillis(2)),
                 is_persistent: false,
                 is_retriable: true,
                 is_openable: false,
@@ -714,7 +718,7 @@ mod tests {
                 name: TransferDisplayName("file (1).txt".into()),
                 size: SizeInfo::Exact(11),
                 category: FileCategory::Text,
-                started: Some(2),
+                started: Some(TimeMillis(2)),
                 is_persistent: false,
                 is_retriable: true,
                 is_openable: false,
@@ -804,7 +808,7 @@ mod tests {
         );
 
         let (notify, _, _) = store_test_helpers::mutation();
-        start_transfer(&mut state, &notify, 1, 2);
+        start_transfer(&mut state, &notify, 1, TimeMillis(2));
 
         assert_eq!(
             state.transfers.transfers.get(&1).unwrap(),
@@ -827,7 +831,7 @@ mod tests {
                 name: TransferDisplayName("path/to/file.txt".into()),
                 size: SizeInfo::Exact(10),
                 category: FileCategory::Text,
-                started: Some(2),
+                started: Some(TimeMillis(2)),
                 is_persistent: false,
                 is_retriable: true,
                 is_openable: false,
@@ -867,7 +871,7 @@ mod tests {
                 name: TransferDisplayName("path/to/file (1).txt".into()),
                 size: SizeInfo::Exact(11),
                 category: FileCategory::Text,
-                started: Some(2),
+                started: Some(TimeMillis(2)),
                 is_persistent: false,
                 is_retriable: true,
                 is_openable: false,
@@ -948,7 +952,7 @@ mod tests {
         );
 
         let (notify, _, _) = store_test_helpers::mutation();
-        start_transfer(&mut state, &notify, 2, 2);
+        start_transfer(&mut state, &notify, 2, TimeMillis(2));
 
         let (notify, _, _) = store_test_helpers::mutation();
         let name = upload_transfer_processed(&mut state, &notify, 2, SizeInfo::Exact(10), &cipher)
@@ -959,7 +963,7 @@ mod tests {
         );
 
         let (notify, _, _) = store_test_helpers::mutation();
-        start_transfer(&mut state, &notify, 1, 2);
+        start_transfer(&mut state, &notify, 1, TimeMillis(2));
 
         assert_eq!(
             state.transfers.transfers.get(&1).unwrap(),
@@ -978,7 +982,7 @@ mod tests {
                 name: TransferDisplayName("file.txt".into()),
                 size: SizeInfo::Exact(10),
                 category: FileCategory::Text,
-                started: Some(2),
+                started: Some(TimeMillis(2)),
                 is_persistent: false,
                 is_retriable: true,
                 is_openable: false,
@@ -1014,7 +1018,7 @@ mod tests {
                 name: TransferDisplayName("file (1).txt".into()),
                 size: SizeInfo::Exact(11),
                 category: FileCategory::Text,
-                started: Some(2),
+                started: Some(TimeMillis(2)),
                 is_persistent: false,
                 is_retriable: true,
                 is_openable: false,

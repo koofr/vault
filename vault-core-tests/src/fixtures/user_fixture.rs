@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 
 use futures::io::Cursor;
 use vault_core::{
@@ -9,7 +9,8 @@ use vault_core::{
     utils::remote_path_utils,
     Vault,
 };
-use vault_fake_remote::fake_remote::{context::Context, utils::now_ms};
+use vault_fake_remote::fake_remote::context::Context;
+use vault_native::native_runtime::now;
 
 use crate::fake_remote::FakeRemote;
 
@@ -98,7 +99,7 @@ impl UserFixture {
                 &OAuth2Token {
                     access_token: self.oauth2_access_token.clone(),
                     refresh_token: self.oauth2_refresh_token.clone(),
-                    expires_at: (now_ms() + 3600_000) as f64,
+                    expires_at: now() + Duration::from_secs(3600),
                 },
             )
             .unwrap();

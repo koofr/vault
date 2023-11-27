@@ -44,12 +44,15 @@ use vault_core::{
         self, downloadable, errors::TransferError, selectors as transfers_selectors,
         state as transfers_state,
     },
-    types::{DecryptedName, EncryptedPath, MountId, RemoteName, RemotePath, RepoFileId, RepoId},
+    types::{
+        DecryptedName, EncryptedPath, MountId, RemoteName, RemotePath, RepoFileId, RepoId,
+        TimeMillis,
+    },
     user::state as user_state,
     user_error::UserError,
     Vault,
 };
-use vault_native::{native_runtime::now_ms, vault::build_vault};
+use vault_native::{native_runtime::now, vault::build_vault};
 
 use crate::{
     mobile_downloadable::MobileDownloadable, mobile_errors::MobileErrors,
@@ -215,9 +218,9 @@ pub struct RelativeTime {
 impl From<relative_time::RelativeTime> for RelativeTime {
     fn from(time: relative_time::RelativeTime) -> Self {
         Self {
-            value: time.value,
+            value: time.value.0,
             display: time.display,
-            next_update: time.next_update,
+            next_update: time.next_update.map(|x| x.0),
         }
     }
 }
@@ -1302,8 +1305,8 @@ pub struct Transfer {
     pub can_open: bool,
 }
 
-impl From<&transfers_state::Transfer> for Transfer {
-    fn from(transfer: &transfers_state::Transfer) -> Self {
+impl From<(&transfers_state::Transfer, TimeMillis)> for Transfer {
+    fn from((transfer, now): (&transfers_state::Transfer, TimeMillis)) -> Self {
         Self {
             id: transfer.id,
             typ: (&transfer.typ).into(),
@@ -1322,14 +1325,12 @@ impl From<&transfers_state::Transfer> for Transfer {
             transferred_display: vault_core::files::file_size::size_display(
                 transfer.transferred_bytes,
             ),
-            speed_display: transfers_selectors::transfer_duration(&transfer, now_ms()).map(
-                |duration| {
-                    vault_core::files::file_size::speed_display_bytes_duration(
-                        transfer.transferred_bytes,
-                        duration,
-                    )
-                },
-            ),
+            speed_display: transfers_selectors::transfer_duration(&transfer, now).map(|duration| {
+                vault_core::files::file_size::speed_display_bytes_duration(
+                    transfer.transferred_bytes,
+                    duration,
+                )
+            }),
             state: (&transfer.state).into(),
             can_retry: transfers_selectors::can_retry(transfer),
             can_open: transfers_selectors::can_open(transfer),
@@ -1799,7 +1800,9 @@ impl MobileVault {
     // relative_time
 
     pub fn relative_time(&self, value: i64, with_modifier: bool) -> RelativeTime {
-        self.vault.relative_time(value, with_modifier).into()
+        self.vault
+            .relative_time(TimeMillis(value), with_modifier)
+            .into()
     }
 
     // notifications
@@ -2541,7 +2544,7 @@ impl MobileVault {
                 vault.with_state(|state| {
                     use transfers::selectors;
 
-                    let now = now_ms();
+                    let now = now();
 
                     TransfersSummary {
                         total_count: state.transfers.total_count as u32,
@@ -2578,10 +2581,12 @@ impl MobileVault {
             cb,
             self.subscription_data.transfers_list.clone(),
             move |vault| {
+                let now = now();
+
                 vault.with_state(|state| {
                     transfers::selectors::select_transfers(state)
                         .into_iter()
-                        .map(Into::into)
+                        .map(|transfer| (transfer, now).into())
                         .collect()
                 })
             },
@@ -2602,8 +2607,11 @@ impl MobileVault {
             cb,
             self.subscription_data.transfers_transfer.clone(),
             move |vault| {
+                let now = now();
+
                 vault.with_state(|state| {
-                    transfers::selectors::select_transfer(state, transfer_id).map(Into::into)
+                    transfers::selectors::select_transfer(state, transfer_id)
+                        .map(|transfer| (transfer, now).into())
                 })
             },
         )

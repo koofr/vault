@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::common::state::Status;
+use crate::{common::state::Status, types::TimeMillis};
 
 use super::errors::OAuth2Error;
 
@@ -8,7 +8,7 @@ use super::errors::OAuth2Error;
 pub struct OAuth2Token {
     pub access_token: String,
     pub refresh_token: String,
-    pub expires_at: f64,
+    pub expires_at: TimeMillis,
 }
 
 #[derive(Debug, Clone)]

@@ -4,7 +4,7 @@ use futures::{future::BoxFuture, Future};
 use gloo_timers::future::sleep;
 use wasm_bindgen_futures::spawn_local;
 
-use vault_core::runtime;
+use vault_core::{runtime, types::TimeMillis};
 
 pub struct BrowserRuntime {}
 
@@ -28,11 +28,11 @@ impl runtime::Runtime for BrowserRuntime {
         })
     }
 
-    fn now_ms(&self) -> i64 {
-        now_ms()
+    fn now(&self) -> TimeMillis {
+        now()
     }
 }
 
-pub fn now_ms() -> i64 {
-    js_sys::Date::now() as i64
+pub fn now() -> TimeMillis {
+    TimeMillis(js_sys::Date::now() as i64)
 }

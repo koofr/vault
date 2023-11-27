@@ -8,7 +8,7 @@ use crate::{
     repo_files::state::RepoFilesUploadResult,
     repo_files_read::state::RepoFileReader,
     store::NextId,
-    types::{DecryptedName, EncryptedName, EncryptedPath, RepoFileId, RepoId},
+    types::{DecryptedName, EncryptedName, EncryptedPath, RepoFileId, RepoId, TimeMillis},
 };
 
 use super::errors::TransferError;
@@ -76,7 +76,7 @@ pub struct Transfer {
     pub name: TransferDisplayName,
     pub size: SizeInfo,
     pub category: FileCategory,
-    pub started: Option<i64>,
+    pub started: Option<TimeMillis>,
     pub is_persistent: bool,
     pub is_retriable: bool,
     pub is_openable: bool,
@@ -127,8 +127,8 @@ impl Transfer {
 pub struct TransfersState {
     pub transfers: HashMap<u32, Transfer>,
     pub next_id: NextId,
-    pub started: Option<i64>,
-    pub last_progress_update: Option<i64>,
+    pub started: Option<TimeMillis>,
+    pub last_progress_update: Option<TimeMillis>,
     pub transferring_count: usize,
     pub transferring_uploads_count: usize,
     pub transferring_downloads_count: usize,

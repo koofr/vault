@@ -1,8 +1,11 @@
 use std::{cmp::min, time::Duration};
 
 use crate::{
-    common::state::RemainingTime, config::state::TransfersConfig,
-    repo_files::selectors as repo_files_selectors, store, types::DecryptedName,
+    common::state::RemainingTime,
+    config::state::TransfersConfig,
+    repo_files::selectors as repo_files_selectors,
+    store,
+    types::{DecryptedName, TimeMillis},
 };
 
 use super::state::{Transfer, TransferState, TransferType, TransfersState, UploadTransfer};
@@ -26,19 +29,21 @@ pub fn get_percentage(done_bytes: i64, total_bytes: i64) -> u8 {
     }
 }
 
-pub fn transfer_duration(transfer: &Transfer, now: i64) -> Option<Duration> {
-    transfer.started.map(|started| match now - started {
-        x if x < 0 => Duration::ZERO,
-        x => Duration::from_millis(x as u64),
+pub fn transfer_duration(transfer: &Transfer, now: TimeMillis) -> Option<Duration> {
+    transfer.started.map(|started| {
+        (now - started)
+            .max(chrono::Duration::zero())
+            .to_std()
+            .unwrap()
     })
 }
 
-pub fn transfers_duration(transfers: &TransfersState, now: i64) -> Duration {
+pub fn transfers_duration(transfers: &TransfersState, now: TimeMillis) -> Duration {
     match transfers.started {
-        Some(started) => match now - started {
-            x if x < 0 => Duration::ZERO,
-            x => Duration::from_millis(x as u64),
-        },
+        Some(started) => (now - started)
+            .max(chrono::Duration::zero())
+            .to_std()
+            .unwrap(),
         None => Duration::ZERO,
     }
 }
@@ -66,11 +71,11 @@ pub fn select_transfers<'a>(state: &'a store::State) -> Vec<&'a Transfer> {
     files
 }
 
-pub fn select_should_notify_progress(state: &store::State, now: i64) -> bool {
+pub fn select_should_notify_progress(state: &store::State, now: TimeMillis) -> bool {
     state.transfers.last_progress_update.is_none()
         || matches!(
             state.transfers.last_progress_update, Some(last_progress_update)
-            if last_progress_update < now - select_config(state).progress_throttle.as_millis() as i64
+            if last_progress_update < now - select_config(state).progress_throttle
         )
 }
 
@@ -113,11 +118,11 @@ pub fn select_bytes_done(state: &store::State) -> i64 {
     state.transfers.done_bytes
 }
 
-pub fn select_duration(state: &store::State, now: i64) -> Duration {
+pub fn select_duration(state: &store::State, now: TimeMillis) -> Duration {
     transfers_duration(&state.transfers, now)
 }
 
-pub fn select_remaining_time(state: &store::State, now: i64) -> RemainingTime {
+pub fn select_remaining_time(state: &store::State, now: TimeMillis) -> RemainingTime {
     let bytes_done = select_bytes_done(state);
 
     // before transfers actually start, the remaining time can be really large so we default to 0s

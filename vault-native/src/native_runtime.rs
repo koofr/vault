@@ -1,6 +1,7 @@
 use std::{sync::Arc, time::Duration};
 
 use futures::FutureExt;
+use vault_core::types::TimeMillis;
 
 pub struct NativeRuntime {
     runtime: Arc<tokio::runtime::Runtime>,
@@ -25,14 +26,16 @@ impl vault_core::runtime::Runtime for NativeRuntime {
         tokio::time::sleep(duration).boxed()
     }
 
-    fn now_ms(&self) -> i64 {
-        now_ms()
+    fn now(&self) -> TimeMillis {
+        now()
     }
 }
 
-pub fn now_ms() -> i64 {
-    std::time::SystemTime::now()
-        .duration_since(std::time::SystemTime::UNIX_EPOCH)
-        .expect("System clock was before 1970.")
-        .as_millis() as i64
+pub fn now() -> TimeMillis {
+    TimeMillis(
+        std::time::SystemTime::now()
+            .duration_since(std::time::SystemTime::UNIX_EPOCH)
+            .expect("System clock was before 1970.")
+            .as_millis() as i64,
+    )
 }

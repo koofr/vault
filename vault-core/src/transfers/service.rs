@@ -313,7 +313,7 @@ impl TransfersService {
                 id,
                 TransferDisplayName(reader.name.0.clone()),
                 reader.size,
-                self.runtime.now_ms(),
+                self.runtime.now(),
             )
         });
 
@@ -394,13 +394,7 @@ impl TransfersService {
 
     pub fn retry(self: Arc<Self>, id: u32) {
         self.store.mutate(|state, notify, _, _| {
-            mutations::retry(
-                state,
-                notify,
-                id,
-                RetryInitiator::User,
-                self.runtime.now_ms(),
-            );
+            mutations::retry(state, notify, id, RetryInitiator::User, self.runtime.now());
         });
 
         self.process_next();
@@ -408,7 +402,7 @@ impl TransfersService {
 
     pub fn retry_all(self: Arc<Self>) {
         self.store.mutate(|state, notify, _, _| {
-            mutations::retry_all(state, notify, self.runtime.now_ms());
+            mutations::retry_all(state, notify, self.runtime.now());
         });
 
         self.process_next();
@@ -439,7 +433,7 @@ impl TransfersService {
     fn process_next(self: Arc<Self>) {
         loop {
             let (id, abort_registration) = match self.store.mutate(|state, notify, _, _| {
-                let id = mutations::next_transfer(state, notify, self.runtime.now_ms())?;
+                let id = mutations::next_transfer(state, notify, self.runtime.now())?;
 
                 let mut state = self.state.write().unwrap();
 
@@ -477,13 +471,7 @@ impl TransfersService {
             }
             Ok(Err(err)) => {
                 self.store.mutate(|state, notify, _, _| {
-                    mutations::transfer_failed(
-                        state,
-                        notify,
-                        id,
-                        err.into(),
-                        self.runtime.now_ms(),
-                    );
+                    mutations::transfer_failed(state, notify, id, err.into(), self.runtime.now());
 
                     if let Some(state) = self.state.write().unwrap().transfers.get_mut(&id) {
                         state.abort_handle = None;
@@ -702,7 +690,7 @@ impl TransfersService {
     fn get_transfer_on_progress(self: Arc<Self>, id: u32) -> Box<dyn Fn(usize) + Send + Sync> {
         Box::new(move |n| {
             self.store.mutate(|state, notify, _, _| {
-                mutations::transfer_progress(state, notify, id, n as i64, self.runtime.now_ms());
+                mutations::transfer_progress(state, notify, id, n as i64, self.runtime.now());
             });
         })
     }

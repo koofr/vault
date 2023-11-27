@@ -1,5 +1,5 @@
 use lazy_static::lazy_static;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Serialize, Deserialize)]
 pub struct MountId(pub String);
@@ -100,6 +100,74 @@ pub struct DecryptedNameLower(pub String);
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Serialize, Deserialize)]
 pub struct RepoFileId(pub String);
+
+/// Unix timestamp in milliseconds
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+pub struct TimeMillis(pub i64);
+
+impl std::ops::Sub<TimeMillis> for TimeMillis {
+    // chrono::Duration instead of std::time::Duration because
+    // std::time::Duration does not support negative values
+    type Output = chrono::Duration;
+
+    fn sub(self, rhs: TimeMillis) -> Self::Output {
+        chrono::Duration::milliseconds(self.0 - rhs.0)
+    }
+}
+
+impl std::ops::Add<std::time::Duration> for TimeMillis {
+    type Output = TimeMillis;
+
+    fn add(self, rhs: std::time::Duration) -> Self::Output {
+        TimeMillis(self.0 + rhs.as_millis() as i64)
+    }
+}
+
+impl std::ops::Sub<std::time::Duration> for TimeMillis {
+    type Output = TimeMillis;
+
+    fn sub(self, rhs: std::time::Duration) -> Self::Output {
+        TimeMillis(self.0 - rhs.as_millis() as i64)
+    }
+}
+
+impl std::ops::Add<chrono::Duration> for TimeMillis {
+    type Output = TimeMillis;
+
+    fn add(self, rhs: chrono::Duration) -> Self::Output {
+        TimeMillis(self.0 + rhs.num_milliseconds() as i64)
+    }
+}
+
+impl std::ops::Sub<chrono::Duration> for TimeMillis {
+    type Output = TimeMillis;
+
+    fn sub(self, rhs: chrono::Duration) -> Self::Output {
+        TimeMillis(self.0 - rhs.num_milliseconds() as i64)
+    }
+}
+
+impl Serialize for TimeMillis {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        // f64 for json compatibility
+        serializer.serialize_f64(self.0 as f64)
+    }
+}
+
+impl<'de> Deserialize<'de> for TimeMillis {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        // f64 for json compatibility
+        let value: f64 = Deserialize::deserialize(deserializer)?;
+
+        Ok(TimeMillis(value as i64))
+    }
+}
 
 #[cfg(test)]
 mod tests {

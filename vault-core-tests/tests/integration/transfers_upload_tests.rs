@@ -21,7 +21,7 @@ use vault_core::{
             TransferUploadRelativeNamePath, TransfersState, UploadTransfer,
         },
     },
-    types::{DecryptedName, EncryptedPath, RepoFileId},
+    types::{DecryptedName, EncryptedPath, RepoFileId, TimeMillis},
 };
 use vault_core_tests::{
     fixtures::repo_fixture::RepoFixture,
@@ -1310,7 +1310,7 @@ fn test_upload_abort_all() {
                                             .transfers
                                             .get(&1)
                                             .and_then(|t| t.started)
-                                            .unwrap_or(9999),
+                                            .unwrap_or(TimeMillis(9999)),
                                     ),
                                     is_persistent: false,
                                     is_retriable: true,
@@ -1323,7 +1323,7 @@ fn test_upload_abort_all() {
                             )]
                             .into(),
                             next_id: NextId(2),
-                            started: Some(transfers.started.unwrap_or(999)),
+                            started: Some(transfers.started.unwrap_or(TimeMillis(999))),
                             last_progress_update: transfers.last_progress_update,
                             transferring_count: 1,
                             transferring_uploads_count: 1,
@@ -1366,7 +1366,7 @@ fn test_upload_abort_all() {
                                                 .transfers
                                                 .get(&1)
                                                 .and_then(|t| t.started)
-                                                .unwrap_or(9999),
+                                                .unwrap_or(TimeMillis(9999)),
                                         ),
                                         is_persistent: false,
                                         is_retriable: true,
@@ -1410,7 +1410,7 @@ fn test_upload_abort_all() {
                             ]
                             .into(),
                             next_id: NextId(3),
-                            started: Some(transfers.started.unwrap_or(999)),
+                            started: Some(transfers.started.unwrap_or(TimeMillis(999))),
                             last_progress_update: transfers.last_progress_update,
                             transferring_count: 1,
                             transferring_uploads_count: 1,
@@ -1453,7 +1453,7 @@ fn test_upload_abort_all() {
                                                 .transfers
                                                 .get(&1)
                                                 .and_then(|t| t.started)
-                                                .unwrap_or(9999),
+                                                .unwrap_or(TimeMillis(9999)),
                                         ),
                                         is_persistent: false,
                                         is_retriable: true,
@@ -1489,7 +1489,7 @@ fn test_upload_abort_all() {
                                                 .transfers
                                                 .get(&2)
                                                 .and_then(|t| t.started)
-                                                .unwrap_or(9999),
+                                                .unwrap_or(TimeMillis(9999)),
                                         ),
                                         is_persistent: false,
                                         is_retriable: true,
@@ -1503,7 +1503,7 @@ fn test_upload_abort_all() {
                             ]
                             .into(),
                             next_id: NextId(3),
-                            started: Some(transfers.started.unwrap_or(999)),
+                            started: Some(transfers.started.unwrap_or(TimeMillis(999))),
                             last_progress_update: transfers.last_progress_update,
                             transferring_count: 2,
                             transferring_uploads_count: 2,
@@ -2121,7 +2121,7 @@ fn expected_transfers_processing(
                         .transfers
                         .get(&1)
                         .and_then(|t| t.started)
-                        .unwrap_or(9999),
+                        .unwrap_or(TimeMillis(9999)),
                 ),
                 is_persistent: false,
                 is_retriable: true,
@@ -2134,7 +2134,7 @@ fn expected_transfers_processing(
         )]
         .into(),
         next_id: NextId(2),
-        started: Some(transfers.started.unwrap_or(999)),
+        started: Some(transfers.started.unwrap_or(TimeMillis(999))),
         last_progress_update: transfers.last_progress_update,
         transferring_count: 1,
         transferring_uploads_count: 1,
@@ -2176,7 +2176,7 @@ fn expected_transfers_transferring(
                         .transfers
                         .get(&1)
                         .and_then(|t| t.started)
-                        .unwrap_or(9999),
+                        .unwrap_or(TimeMillis(9999)),
                 ),
                 is_persistent: false,
                 is_retriable: true,
@@ -2189,7 +2189,7 @@ fn expected_transfers_transferring(
         )]
         .into(),
         next_id: NextId(2),
-        started: Some(transfers.started.unwrap_or(999)),
+        started: Some(transfers.started.unwrap_or(TimeMillis(999))),
         last_progress_update: transfers.last_progress_update,
         transferring_count: 1,
         transferring_uploads_count: 1,
@@ -2231,7 +2231,7 @@ fn expected_transfers_transferring_progress(
                         .transfers
                         .get(&1)
                         .and_then(|t| t.started)
-                        .unwrap_or(9999),
+                        .unwrap_or(TimeMillis(9999)),
                 ),
                 is_persistent: false,
                 is_retriable: true,
@@ -2244,7 +2244,7 @@ fn expected_transfers_transferring_progress(
         )]
         .into(),
         next_id: NextId(2),
-        started: Some(transfers.started.unwrap_or(999)),
+        started: Some(transfers.started.unwrap_or(TimeMillis(999))),
         last_progress_update: transfers.last_progress_update,
         transferring_count: 1,
         transferring_uploads_count: 1,
@@ -2293,7 +2293,7 @@ fn expected_transfers_waiting_failed(
         )]
         .into(),
         next_id: NextId(2),
-        started: Some(transfers.started.unwrap_or(999)),
+        started: Some(transfers.started.unwrap_or(TimeMillis(999))),
         last_progress_update: transfers.last_progress_update,
         transferring_count: 0,
         transferring_uploads_count: 0,

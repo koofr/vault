@@ -9,7 +9,7 @@ use crate::{
     repo_files_dir_pickers, repo_files_list, repo_files_move, repo_files_read, repo_remove,
     repo_space_usage, repo_unlock, repos, runtime, secure_storage, sort, space_usage, store,
     transfers::{self, downloadable::BoxDownloadable},
-    types::{DecryptedName, EncryptedPath, RepoFileId, RepoId},
+    types::{DecryptedName, EncryptedPath, RepoFileId, RepoId, TimeMillis},
     user,
 };
 
@@ -278,7 +278,11 @@ impl Vault {
 
     // relative_time
 
-    pub fn relative_time(&self, value: i64, with_modifier: bool) -> relative_time::RelativeTime {
+    pub fn relative_time(
+        &self,
+        value: TimeMillis,
+        with_modifier: bool,
+    ) -> relative_time::RelativeTime {
         self.with_state(|state| {
             relative_time::RelativeTime::new(
                 &self.runtime,
