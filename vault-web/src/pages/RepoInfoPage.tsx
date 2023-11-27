@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { RepoInfo } from '../features/repo/RepoInfo';
+import { RepoInfoComponent } from '../features/repo/RepoInfoComponent';
 
 export const RepoInfoPage = memo(() => {
   const params = useParams();
@@ -11,5 +11,5 @@ export const RepoInfoPage = memo(() => {
     return null;
   }
 
-  return <RepoInfo key={repoId} repoId={repoId} />;
+  return <RepoInfoComponent key={repoId} repoId={repoId} />;
 });

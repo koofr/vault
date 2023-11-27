@@ -11,13 +11,13 @@ import { useDocumentTitle } from '../../utils/useDocumentTitle';
 import { useModal } from '../../utils/useModal';
 import { Repo } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
-
-import { RepoRemoveModal } from './RepoRemoveModal';
-import { RepoError } from './RepoError';
-import { RepoSpaceUsage } from './RepoSpaceUsage';
 import { useWebVault } from '../../webVault/useWebVault';
 
-export const RepoInfoRepo = memo<{ repo: Repo }>(({ repo }) => {
+import { RepoError } from './RepoError';
+import { RepoRemoveModal } from './RepoRemoveModal';
+import { RepoSpaceUsage } from './RepoSpaceUsage';
+
+export const RepoInfoComponentRepo = memo<{ repo: Repo }>(({ repo }) => {
   const isMobile = useIsMobile();
   const removeModal = useModal<Repo>();
   const removeModalShow = removeModal.show;
@@ -139,7 +139,7 @@ export const RepoInfoRepo = memo<{ repo: Repo }>(({ repo }) => {
   );
 });
 
-export const RepoInfo = memo<{ repoId: string }>(({ repoId }) => {
+export const RepoInfoComponent = memo<{ repoId: string }>(({ repoId }) => {
   const webVault = useWebVault();
   const [info] = useSubscribe(
     (v, cb) => v.reposRepoSubscribe(repoId, cb),
@@ -152,7 +152,7 @@ export const RepoInfo = memo<{ repoId: string }>(({ repoId }) => {
       <RepoError error={info.status.error} onRetry={() => webVault.load()} />
     );
   } else if (info.repo !== undefined) {
-    return <RepoInfoRepo repo={info.repo} />;
+    return <RepoInfoComponentRepo repo={info.repo} />;
   } else {
     return <DashboardLoading />;
   }
