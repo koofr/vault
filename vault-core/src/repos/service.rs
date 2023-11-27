@@ -77,12 +77,25 @@ impl ReposService {
     }
 
     pub fn lock_repo(&self, repo_id: &RepoId) -> Result<(), RepoNotFoundError> {
-        self.ciphers.write().unwrap().remove(repo_id);
+        let cipher = self.ciphers.write().unwrap().remove(repo_id);
 
-        self.store
-            .mutate(|state, notify, mutation_state, mutation_notify| {
-                mutations::lock_repo(state, notify, mutation_state, mutation_notify, repo_id)
-            })
+        // match needs to be separate from self.ciphers.write() otherwise
+        // self.ciphers stays locked and we can deadlock
+        match cipher {
+            Some(cipher) => self
+                .store
+                .mutate(|state, notify, mutation_state, mutation_notify| {
+                    mutations::lock_repo(
+                        state,
+                        notify,
+                        mutation_state,
+                        mutation_notify,
+                        repo_id,
+                        cipher,
+                    )
+                }),
+            None => Err(RepoNotFoundError),
+        }
     }
 
     pub fn build_cipher(
@@ -119,14 +132,23 @@ impl ReposService {
         let cipher = self.build_cipher(repo_id, password)?;
 
         if matches!(mode, RepoUnlockMode::Unlock) {
+            let cipher = Arc::new(cipher);
+
             self.ciphers
                 .write()
                 .unwrap()
-                .insert(repo_id.to_owned(), Arc::new(cipher));
+                .insert(repo_id.to_owned(), cipher.clone());
 
             self.store
                 .mutate(|state, notify, mutation_state, mutation_notify| {
-                    mutations::unlock_repo(state, notify, mutation_state, mutation_notify, repo_id)
+                    mutations::unlock_repo(
+                        state,
+                        notify,
+                        mutation_state,
+                        mutation_notify,
+                        repo_id,
+                        cipher,
+                    )
                 })?;
         }
 

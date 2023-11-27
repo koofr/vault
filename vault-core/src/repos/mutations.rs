@@ -1,8 +1,9 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, sync::Arc};
 
 use urlencoding::encode;
 
 use crate::{
+    cipher::Cipher,
     common::state::Status,
     remote::{models, RemoteError},
     remote_files::selectors as remote_files_selectors,
@@ -13,6 +14,7 @@ use crate::{
 use super::{
     errors::RepoNotFoundError,
     repo_tree::RepoTree,
+    selectors,
     state::{Repo, RepoState},
 };
 
@@ -139,18 +141,22 @@ pub fn lock_repo(
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
     repo_id: &RepoId,
+    cipher: Arc<Cipher>,
 ) -> Result<(), RepoNotFoundError> {
-    let repo = state
-        .repos
-        .repos_by_id
-        .get_mut(repo_id)
-        .ok_or(RepoNotFoundError)?;
+    let repo = selectors::select_repo_mut(state, repo_id)?;
+
+    if matches!(repo.state, RepoState::Locked) {
+        return Ok(());
+    }
 
     notify(store::Event::Repos);
 
     repo.state = RepoState::Locked;
 
-    mutation_state.repos.locked_repos.push(repo_id.to_owned());
+    mutation_state
+        .repos
+        .locked_repos
+        .push((repo_id.to_owned(), cipher));
 
     mutation_notify(store::MutationEvent::Repos, state, mutation_state);
 
@@ -163,18 +169,22 @@ pub fn unlock_repo(
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
     repo_id: &RepoId,
+    cipher: Arc<Cipher>,
 ) -> Result<(), RepoNotFoundError> {
-    let repo = state
-        .repos
-        .repos_by_id
-        .get_mut(repo_id)
-        .ok_or(RepoNotFoundError)?;
+    let repo = selectors::select_repo_mut(state, repo_id)?;
 
     notify(store::Event::Repos);
 
+    if matches!(repo.state, RepoState::Unlocked) {
+        return Ok(());
+    }
+
     repo.state = RepoState::Unlocked;
 
-    mutation_state.repos.unlocked_repos.push(repo_id.to_owned());
+    mutation_state
+        .repos
+        .unlocked_repos
+        .push((repo_id.to_owned(), cipher));
 
     mutation_notify(store::MutationEvent::Repos, state, mutation_state);
 

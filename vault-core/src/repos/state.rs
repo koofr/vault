@@ -1,6 +1,7 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 use crate::{
+    cipher::Cipher,
     common::state::Status,
     remote::RemoteError,
     remote_files::state::RemoteFilesLocation,
@@ -94,7 +95,7 @@ impl ReposState {
 
 #[derive(Debug, Clone, Default)]
 pub struct ReposMutationState {
-    pub locked_repos: Vec<RepoId>,
-    pub unlocked_repos: Vec<RepoId>,
+    pub locked_repos: Vec<(RepoId, Arc<Cipher>)>,
+    pub unlocked_repos: Vec<(RepoId, Arc<Cipher>)>,
     pub removed_repos: Vec<RepoId>,
 }

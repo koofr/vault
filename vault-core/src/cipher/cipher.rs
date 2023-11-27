@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use crate::{
     types::{DecryptedName, DecryptedPath, EncryptedName, EncryptedPath},
     utils::name_utils,
@@ -7,6 +9,12 @@ use super::errors::DecryptFilenameError;
 
 pub struct Cipher {
     cipher: vault_crypto::Cipher,
+}
+
+impl Debug for Cipher {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Cipher").finish()
+    }
 }
 
 impl Cipher {

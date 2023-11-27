@@ -240,6 +240,7 @@ pub fn handle_repos_mutation(
         .repos
         .locked_repos
         .iter()
+        .map(|(repo_id, _)| repo_id)
         .chain(mutation_state.repos.removed_repos.iter())
     {
         let file_id_prefix = selectors::get_file_id(&repo_id, &EncryptedPath("".into())).0;
@@ -293,7 +294,7 @@ pub fn handle_repos_mutation(
         }
     }
 
-    for repo_id in mutation_state.repos.unlocked_repos.iter() {
+    for (repo_id, _) in mutation_state.repos.unlocked_repos.iter() {
         if let Some(repo) = state.repos.repos_by_id.get(repo_id) {
             files_to_decrypt.push((
                 repo.mount_id.clone(),
