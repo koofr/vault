@@ -32,8 +32,15 @@ pub enum GetFilesReaderError {
 impl UserError for GetFilesReaderError {
     fn user_error(&self) -> String {
         match self {
+            Self::RepoNotFound(err) => err.user_error(),
+            Self::RepoLocked(err) => err.user_error(),
+            Self::FileNotFound => self.to_string(),
+            Self::FilesEmpty => self.to_string(),
             Self::DecryptFilenameError(err) => err.user_error(),
-            _ => self.to_string(),
+            Self::DecryptSizeError(err) => err.user_error(),
+            Self::RemoteError(err) => err.user_error(),
+            Self::IOError(err) => err.to_string(),
+            Self::Aborted => self.to_string(),
         }
     }
 }

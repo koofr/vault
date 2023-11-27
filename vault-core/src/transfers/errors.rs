@@ -93,9 +93,20 @@ pub enum TransferError {
 impl UserError for TransferError {
     fn user_error(&self) -> String {
         match self {
+            Self::RepoNotFound(err) => err.user_error(),
+            Self::RepoLocked(err) => err.user_error(),
             Self::DecryptFilenameError(err) => err.user_error(),
+            Self::DecryptSizeError(err) => err.user_error(),
+            Self::RemoteError(err) => err.user_error(),
+            Self::LocalFileError(_) => self.to_string(),
+            Self::NotRetriable => self.to_string(),
+            Self::NotOpenable => self.to_string(),
+            Self::RemoteFileNotFound => self.to_string(),
+            Self::RemoteFilesEmpty => self.to_string(),
+            Self::TransferNotFound => self.to_string(),
+            Self::AlreadyExists => self.to_string(),
+            Self::IOError(_) => self.to_string(),
             Self::Aborted => "Transfer has been aborted.".into(),
-            _ => self.to_string(),
         }
     }
 }

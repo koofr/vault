@@ -36,11 +36,12 @@ pub enum CreateDirError {
 impl UserError for CreateDirError {
     fn user_error(&self) -> String {
         match self {
+            Self::Canceled => self.to_string(),
             Self::RemoteError(RemoteError::ApiError {
                 code: ApiErrorCode::AlreadyExists,
                 ..
             }) => String::from("Folder with this name already exists."),
-            _ => self.to_string(),
+            Self::RemoteError(err) => err.user_error(),
         }
     }
 }

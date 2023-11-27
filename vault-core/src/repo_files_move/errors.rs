@@ -56,8 +56,10 @@ pub enum DirPickerClickError {
 impl UserError for DirPickerClickError {
     fn user_error(&self) -> String {
         match self {
+            Self::RepoNotFound(err) => err.user_error(),
+            Self::RepoLocked(err) => err.user_error(),
             Self::DecryptFilenameError(err) => err.user_error(),
-            _ => self.to_string(),
+            Self::RemoteError(err) => err.user_error(),
         }
     }
 }

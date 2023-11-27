@@ -19,7 +19,7 @@ impl UserError for FilesListRecursiveItemError {
     fn user_error(&self) -> String {
         match self {
             Self::DecryptFilenameError(err) => err.user_error(),
-            _ => self.to_string(),
+            Self::RemoteError(err) => err.user_error(),
         }
     }
 }
@@ -39,8 +39,10 @@ pub enum GetListRecursiveError {
 impl UserError for GetListRecursiveError {
     fn user_error(&self) -> String {
         match self {
+            Self::RepoNotFound(err) => err.user_error(),
+            Self::RepoLocked(err) => err.user_error(),
             Self::DecryptFilenameError(err) => err.user_error(),
-            _ => self.to_string(),
+            Self::RemoteError(err) => err.user_error(),
         }
     }
 }

@@ -52,7 +52,7 @@ impl UserError for RepoInfoError {
     fn user_error(&self) -> String {
         match self {
             Self::RepoNotFound(_) => String::from("Safe Box not found."),
-            _ => self.to_string(),
+            Self::RemoteError(err) => err.user_error(),
         }
     }
 }
@@ -68,8 +68,8 @@ pub enum UnlockRepoError {
 impl UserError for UnlockRepoError {
     fn user_error(&self) -> String {
         match self {
+            Self::RepoNotFound(err) => err.user_error(),
             Self::InvalidPassword(err) => err.user_error(),
-            _ => self.to_string(),
         }
     }
 }
@@ -100,7 +100,7 @@ impl UserError for CreateRepoError {
                 code: remote::ApiErrorCode::VaultReposMaxTotalLimitExceeded,
                 ..
             }) => String::from("You cannot create more Safe Boxes. Please upgrade your account."),
-            _ => self.to_string(),
+            Self::RemoteError(err) => err.user_error(),
         }
     }
 }
@@ -118,8 +118,9 @@ pub enum RemoveRepoError {
 impl UserError for RemoveRepoError {
     fn user_error(&self) -> String {
         match self {
+            Self::RepoNotFound(err) => err.user_error(),
             Self::InvalidPassword(err) => err.user_error(),
-            _ => self.to_string(),
+            Self::RemoteError(err) => err.user_error(),
         }
     }
 }
