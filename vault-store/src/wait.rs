@@ -4,13 +4,20 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use futures::channel::oneshot;
+use futures::{
+    channel::oneshot,
+    future::{self, BoxFuture},
+    FutureExt,
+};
 
 use super::Store;
 
 /// Waits until `f` returns Some. If you call `store.mutate` in `f`, `notify`
 /// must not be called if `mutate` returns `None` otherwise `f` will be called
 /// again and cause an infinite recursion.
+///
+/// `wait_for`` is not async and returns BoxFuture so that you can be sure that
+/// the store subscription has been created when wait_for returns.
 ///
 /// ```ignore
 /// wait_for(store, &[Event::MyEvent], move |unsubscribe| {
@@ -25,13 +32,13 @@ use super::Store;
 ///
 ///         Some(())
 ///     });
-/// });
+/// }).await;
 /// ```
-pub async fn wait_for<F, R, State, Event, MutationState, MutationEvent>(
+pub fn wait_for<F, R, State, Event, MutationState, MutationEvent>(
     store: Arc<Store<State, Event, MutationState, MutationEvent>>,
     events: &[Event],
     f: F,
-) -> R
+) -> BoxFuture<'static, R>
 where
     F: Fn(Option<&MutationState>) -> Option<R> + Send + Sync + 'static,
     R: Send + 'static,
@@ -41,7 +48,7 @@ where
     MutationEvent: Debug + Clone + PartialEq + Eq + Hash + Send + 'static,
 {
     if let Some(res) = f(None) {
-        return res;
+        return future::ready(res).boxed();
     }
 
     let subscription_id = store.get_next_id();
@@ -78,8 +85,8 @@ where
     if let Some(res) = f(None) {
         store.remove_listener(subscription_id);
 
-        return res;
+        return future::ready(res).boxed();
     }
 
-    receiver.await.unwrap()
+    receiver.map(|x| x.unwrap()).boxed()
 }
