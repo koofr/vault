@@ -1,6 +1,7 @@
 import { css } from '@emotion/css';
 import { memo, useCallback, useEffect, useMemo } from 'react';
 
+import { DashboardError } from '../../components/dashboard/DashboardError';
 import { DashboardLayout } from '../../components/dashboard/DashboardLayout';
 import { DashboardLoading } from '../../components/dashboard/DashboardLoading';
 import { NavbarBreadcrumbInfo } from '../../components/navbar/NavbarBreadcrumb';
@@ -12,7 +13,6 @@ import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
 
 import { RepoConfigInfo } from './RepoConfigInfo';
-import { RepoError } from './RepoError';
 import { RepoUnlockForm } from './RepoUnlockForm';
 
 export const RepoConfigBackupRepo = memo<{ repo: Repo }>(({ repo }) => {
@@ -104,7 +104,7 @@ export const RepoConfigBackup = memo<{ repoId: string }>(({ repoId }) => {
   );
 
   if (info.status.type === 'Error') {
-    return <RepoError error={info.status.error} />;
+    return <DashboardError error={info.status.error} />;
   } else if (info.repo !== undefined) {
     return <RepoConfigBackupRepo repo={info.repo} />;
   } else {

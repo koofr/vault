@@ -1,11 +1,11 @@
 import React from 'react';
 
+import { DashboardError } from '../../components/dashboard/DashboardError';
 import { DashboardLoading } from '../../components/dashboard/DashboardLoading';
 import { useSubscribe } from '../../webVault/useSubscribe';
-
-import { RepoError } from './RepoError';
-import { RepoUnlock } from './RepoUnlock';
 import { useWebVault } from '../../webVault/useWebVault';
+
+import { RepoUnlock } from './RepoUnlock';
 
 export const RepoGuard: React.FC<{
   repoId: string;
@@ -26,7 +26,10 @@ export const RepoGuard: React.FC<{
     );
   } else if (info.status.type === 'Error') {
     return (
-      <RepoError error={info.status.error} onRetry={() => webVault.load()} />
+      <DashboardError
+        error={info.status.error}
+        onRetry={() => webVault.load()}
+      />
     );
   } else {
     return <DashboardLoading />;

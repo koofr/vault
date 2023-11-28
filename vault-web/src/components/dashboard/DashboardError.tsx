@@ -4,7 +4,7 @@ import { ErrorComponent } from '../../components/ErrorComponent';
 import { DashboardLayout } from '../../components/dashboard/DashboardLayout';
 import { useDocumentTitle } from '../../utils/useDocumentTitle';
 
-export const RepoError = memo<{ error: string; onRetry?: () => void }>(
+export const DashboardError = memo<{ error: string; onRetry?: () => void }>(
   ({ error, onRetry }) => {
     useDocumentTitle('Error');
 

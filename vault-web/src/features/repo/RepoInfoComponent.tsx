@@ -3,6 +3,7 @@ import format from 'date-fns/format';
 import { memo, useCallback } from 'react';
 
 import { Button, LinkButton } from '../../components/Button';
+import { DashboardError } from '../../components/dashboard/DashboardError';
 import { DashboardLayout } from '../../components/dashboard/DashboardLayout';
 import { DashboardLoading } from '../../components/dashboard/DashboardLoading';
 import { useSingleNavbarBreadcrumb } from '../../components/navbar/useSingleNavbarBreadcrumb';
@@ -13,7 +14,6 @@ import { Repo } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
 
-import { RepoError } from './RepoError';
 import { RepoRemoveModal } from './RepoRemoveModal';
 import { RepoSpaceUsage } from './RepoSpaceUsage';
 
@@ -149,7 +149,10 @@ export const RepoInfoComponent = memo<{ repoId: string }>(({ repoId }) => {
 
   if (info.status.type === 'Error') {
     return (
-      <RepoError error={info.status.error} onRetry={() => webVault.load()} />
+      <DashboardError
+        error={info.status.error}
+        onRetry={() => webVault.load()}
+      />
     );
   } else if (info.repo !== undefined) {
     return <RepoInfoComponentRepo repo={info.repo} />;
