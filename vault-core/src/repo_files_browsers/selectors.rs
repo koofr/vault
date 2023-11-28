@@ -223,3 +223,22 @@ pub fn select_root_file<'a>(state: &'a store::State, browser_id: u32) -> Option<
     select_root_file_id(state, browser_id)
         .and_then(|file_id| repo_files_selectors::select_file(state, &file_id))
 }
+
+pub fn select_unlocked_browsers(
+    state: &store::State,
+    mutation_state: &store::MutationState,
+) -> Vec<u32> {
+    let mut browser_ids = vec![];
+
+    for (repo_id, _) in &mutation_state.repos.unlocked_repos {
+        for browser in state.repo_files_browsers.browsers.values() {
+            if let Some(location) = &browser.location {
+                if &location.repo_id == repo_id {
+                    browser_ids.push(browser.id);
+                }
+            }
+        }
+    }
+
+    browser_ids
+}

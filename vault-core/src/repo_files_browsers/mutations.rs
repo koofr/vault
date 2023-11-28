@@ -11,7 +11,7 @@ use crate::{
     repo_files::{
         errors::LoadFilesError, selectors as repo_files_selectors, state::RepoFilesSortField,
     },
-    repos::{self},
+    repos,
     selection::{mutations as selection_mutations, state::Selection},
     sort::state::SortDirection,
     store,

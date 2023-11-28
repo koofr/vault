@@ -178,6 +178,7 @@ impl Vault {
                 repo_files_read_service.clone(),
                 repo_files_move_service.clone(),
                 store.clone(),
+                runtime.clone(),
             ));
         let repo_files_details_service =
             Arc::new(repo_files_details::RepoFilesDetailsService::new(

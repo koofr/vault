@@ -1,7 +1,7 @@
 use futures::{join, FutureExt};
 use similar_asserts::assert_eq;
 use vault_core::{
-    common::{self, state::Status},
+    common::state::Status,
     dialogs,
     repo_files::{
         errors::LoadFilesError,
@@ -57,7 +57,7 @@ fn test_repo_lock_unlock_remove() {
                         field: RepoFilesSortField::Name,
                         direction: SortDirection::Asc
                     },
-                    status: common::state::Status::Loaded,
+                    status: Status::Loaded,
                     title: Some("My safe box".into()),
                     total_count: 2,
                     total_size: 4,
@@ -101,7 +101,7 @@ fn test_repo_lock_unlock_remove() {
                         field: RepoFilesSortField::Name,
                         direction: SortDirection::Asc
                     },
-                    status: common::state::Status::Error {
+                    status: Status::Error {
                         error: LoadFilesError::RepoLocked(RepoLockedError),
                         loaded: false
                     },
@@ -120,7 +120,7 @@ fn test_repo_lock_unlock_remove() {
                 }
             );
 
-            fixture.unlock();
+            unlock_wait_for_browser_loaded(&fixture).await;
 
             let state_after_unlock = get_state();
             assert_eq!(
@@ -145,7 +145,7 @@ fn test_repo_lock_unlock_remove() {
                         field: RepoFilesSortField::Name,
                         direction: SortDirection::Asc
                     },
-                    status: common::state::Status::Error {
+                    status: Status::Error {
                         error: LoadFilesError::RepoNotFound(RepoNotFoundError),
                         loaded: false
                     },
@@ -160,7 +160,7 @@ fn test_repo_lock_unlock_remove() {
                     can_move_selected: false,
                     can_delete_selected: false,
                     items: vec![],
-                    breadcrumbs: None
+                    breadcrumbs: None,
                 }
             );
 
@@ -207,7 +207,7 @@ fn test_repo_decrypt_path_error() {
                         field: RepoFilesSortField::Name,
                         direction: SortDirection::Asc
                     },
-                    status: common::state::Status::Loaded,
+                    status: Status::Loaded,
                     title: Some("dir".into()),
                     total_count: 1,
                     total_size: 4,
@@ -489,6 +489,46 @@ fn expected_browsers_state(
         next_id: NextId(2),
         last_sort: Default::default(),
     }
+}
+
+async fn unlock_wait_for_browser_loaded(fixture: &RepoFixture) {
+    // wait for loading and loaded, otherwise we have flaky tests
+    let loading_store = fixture.vault.store.clone();
+    let loaded_store = fixture.vault.store.clone();
+    let loaded_future = store::wait_for(
+        fixture.vault.store.clone(),
+        &[store::Event::RepoFilesBrowsers],
+        move |_| {
+            loading_store.with_state(|state| {
+                state
+                    .repo_files_browsers
+                    .browsers
+                    .get(&1)
+                    .filter(|browser| matches!(browser.status, Status::Loading { .. }))
+                    .map(|_| ())
+            })
+        },
+    )
+    .then(|_| {
+        store::wait_for(
+            fixture.vault.store.clone(),
+            &[store::Event::RepoFilesBrowsers],
+            move |_| {
+                loaded_store.with_state(|state| {
+                    state
+                        .repo_files_browsers
+                        .browsers
+                        .get(&1)
+                        .filter(|browser| matches!(browser.status, Status::Loaded))
+                        .map(|_| ())
+                })
+            },
+        )
+    });
+
+    fixture.unlock();
+
+    loaded_future.await;
 }
 
 #[test]
