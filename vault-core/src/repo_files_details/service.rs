@@ -7,7 +7,7 @@ use futures::{
     future::{self, BoxFuture},
     io::Cursor,
     stream::{AbortHandle, Abortable},
-    AsyncReadExt,
+    AsyncReadExt, FutureExt,
 };
 
 use crate::{
@@ -47,8 +47,10 @@ pub struct RepoFilesDetailsService {
     transfers_service: Arc<TransfersService>,
     store: Arc<store::Store>,
     runtime: Arc<runtime::BoxRuntime>,
+
     autosave_abort_handles: Arc<Mutex<HashMap<u32, AbortHandle>>>,
-    repo_files_mutation_subscription_id: u32,
+    repos_subscription_id: u32,
+    mutation_subscription_id: u32,
 }
 
 impl RepoFilesDetailsService {
@@ -61,18 +63,52 @@ impl RepoFilesDetailsService {
         store: Arc<store::Store>,
         runtime: Arc<runtime::BoxRuntime>,
     ) -> Self {
-        let repo_files_mutation_subscription_id = store.get_next_id();
-        let repo_files_mutation_repos_service = repos_service.clone();
+        let repos_subscription_id = store.get_next_id();
+        let repos_subscription_repo_files_service = repo_files_service.clone();
+        let repos_subscription_store = store.clone();
+        let repos_subscription_runtime = runtime.clone();
+
+        store.on(
+            repos_subscription_id,
+            &[store::Event::Repos],
+            Box::new(move |mutation_state, add_side_effect| {
+                if !mutation_state.repos.unlocked_repos.is_empty() {
+                    for details_id in repos_subscription_store.with_state(|state| {
+                        selectors::select_unlocked_details(state, mutation_state)
+                    }) {
+                        let repo_files_service = repos_subscription_repo_files_service.clone();
+                        let store = repos_subscription_store.clone();
+                        let runtime = repos_subscription_runtime.clone();
+
+                        add_side_effect(Box::new(move || {
+                            // load errors are displayed inside details
+                            runtime.spawn(
+                                Self::load_file_inner(
+                                    repo_files_service.clone(),
+                                    store.clone(),
+                                    details_id,
+                                )
+                                .map(|_| ())
+                                .boxed(),
+                            )
+                        }))
+                    }
+                }
+            }),
+        );
+
+        let mutation_subscription_id = store.get_next_id();
+        let mutation_repos_service = repos_service.clone();
 
         store.mutation_on(
-            repo_files_mutation_subscription_id,
-            &[store::MutationEvent::RepoFiles],
+            mutation_subscription_id,
+            &[store::MutationEvent::RepoFiles, store::MutationEvent::Repos],
             Box::new(move |state, notify, mutation_state, _| {
-                mutations::handle_repo_files_mutation(
+                mutations::handle_mutation(
                     state,
                     notify,
                     mutation_state,
-                    &repo_files_mutation_repos_service.get_ciphers(),
+                    &mutation_repos_service.get_ciphers(),
                 );
             }),
         );
@@ -85,8 +121,10 @@ impl RepoFilesDetailsService {
             transfers_service,
             store,
             runtime,
+
             autosave_abort_handles: Arc::new(Mutex::new(HashMap::new())),
-            repo_files_mutation_subscription_id,
+            repos_subscription_id,
+            mutation_subscription_id,
         }
     }
 
@@ -115,17 +153,16 @@ impl RepoFilesDetailsService {
             )
         });
 
-        let load_self = self.clone();
-
         let load_future: BoxFuture<'static, Result<(), LoadDetailsError>> = if self
             .store
             .with_state(|state| selectors::select_is_unlocked(state, details_id))
         {
-            Box::pin(async move {
-                load_self.load_file(details_id).await?;
-
-                Ok(())
-            })
+            Self::load_file_inner(
+                self.repo_files_service.clone(),
+                self.store.clone(),
+                details_id,
+            )
+            .boxed()
         } else {
             Box::pin(future::ready(Ok(())))
         };
@@ -216,13 +253,29 @@ impl RepoFilesDetailsService {
     }
 
     pub async fn load_file(&self, details_id: u32) -> Result<(), LoadDetailsError> {
-        if let Some((repo_id, path)) = self
-            .store
-            .with_state(|state| selectors::select_repo_id_path_owned(state, details_id))
-        {
-            let res = self.repo_files_service.load_files(&repo_id, &path).await;
+        Self::load_file_inner(
+            self.repo_files_service.clone(),
+            self.store.clone(),
+            details_id,
+        )
+        .await
+    }
 
-            self.store.mutate(|state, notify, _, _| {
+    pub async fn load_file_inner(
+        repo_files_service: Arc<RepoFilesService>,
+        store: Arc<store::Store>,
+        details_id: u32,
+    ) -> Result<(), LoadDetailsError> {
+        if let Some((repo_id, path)) =
+            store.with_state(|state| selectors::select_repo_id_path_owned(state, details_id))
+        {
+            store.mutate(|state, notify, _, _| {
+                mutations::loading(state, notify, details_id);
+            });
+
+            let res = repo_files_service.load_files(&repo_id, &path).await;
+
+            store.mutate(|state, notify, _, _| {
                 mutations::loaded(
                     state,
                     notify,
@@ -889,7 +942,8 @@ impl RepoFilesDetailsService {
 
 impl Drop for RepoFilesDetailsService {
     fn drop(&mut self) {
+        self.store.remove_listener(self.repos_subscription_id);
         self.store
-            .mutation_remove_listener(self.repo_files_mutation_subscription_id)
+            .mutation_remove_listener(self.mutation_subscription_id)
     }
 }

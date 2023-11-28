@@ -578,6 +578,8 @@ dictionary RepoFilesDetailsInfo {
   boolean can_copy;
   boolean can_move;
   boolean can_delete;
+  Status repo_status;
+  boolean is_locked;
 };
 
 // repo_files_move

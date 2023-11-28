@@ -6,6 +6,7 @@ use crate::{
     eventstream::state::MountSubscription,
     files::{file_category::FileCategory, files_filter::FilesFilter},
     repo_files::errors::{DeleteFileError, LoadFilesError},
+    repos::errors::RepoInfoError,
     store::NextId,
     transfers::errors::TransferError,
     types::{DecryptedName, EncryptedName, EncryptedPath, RepoId},
@@ -36,6 +37,8 @@ pub struct RepoFilesDetailsInfo<'a> {
     pub can_copy: bool,
     pub can_move: bool,
     pub can_delete: bool,
+    pub repo_status: Status<RepoInfoError>,
+    pub is_locked: bool,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -89,6 +92,8 @@ pub struct RepoFilesDetails {
     pub options: RepoFilesDetailsOptions,
     pub location: Option<RepoFilesDetailsLocation>,
     pub status: Status<LoadFilesError>,
+    pub repo_status: Status<RepoInfoError>,
+    pub is_locked: bool,
     pub repo_files_subscription_id: u32,
 }
 

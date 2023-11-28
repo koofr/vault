@@ -9,7 +9,7 @@ use crate::{
     },
     repo_files_read::errors::GetFilesReaderError,
     repos::{
-        errors::RepoLockedError,
+        errors::{RepoInfoError, RepoLockedError, RepoNotFoundError},
         selectors as repos_selectors,
         state::{Repo, RepoState},
     },
@@ -102,25 +102,32 @@ pub fn select_is_status_any_loaded(state: &store::State, details_id: u32) -> boo
 pub fn get_status(
     status: &Status<LoadFilesError>,
     file_exists: bool,
+    repo_status: &Status<RepoInfoError>,
     is_locked: bool,
 ) -> Status<LoadFilesError> {
-    match status {
-        Status::Loaded => {
-            if is_locked {
-                Status::Error {
-                    error: LoadFilesError::RepoLocked(RepoLockedError),
-                    loaded: true,
-                }
-            } else if file_exists {
-                Status::Loaded
-            } else {
-                Status::Error {
-                    error: LoadFilesError::RemoteError(RepoFilesErrors::not_found()),
-                    loaded: true,
-                }
-            }
-        }
-        _ => status.to_owned(),
+    match (status, file_exists, repo_status, is_locked) {
+        (
+            _,
+            _,
+            Status::Error {
+                error: RepoInfoError::RepoNotFound(RepoNotFoundError),
+                ..
+            },
+            _,
+        ) => Status::Error {
+            error: LoadFilesError::RepoNotFound(RepoNotFoundError),
+            loaded: false,
+        },
+        (_, _, _, true) => Status::Error {
+            error: LoadFilesError::RepoLocked(RepoLockedError),
+            loaded: status.loaded(),
+        },
+        (Status::Loaded, true, _, _) => Status::Loaded,
+        (Status::Loaded, false, _, _) => Status::Error {
+            error: LoadFilesError::RemoteError(RepoFilesErrors::not_found()),
+            loaded: true,
+        },
+        (status, _, _, _) => status.to_owned(),
     }
 }
 
@@ -261,8 +268,9 @@ pub fn select_info<'a>(state: &'a store::State, details_id: u32) -> Option<RepoF
         };
         let file_modified = remote_file.and_then(|file| file.modified);
         let file_exists = remote_file.is_some();
-        let is_locked = select_is_locked(state, details_id);
-        let status = get_status(&details.status, file_exists, is_locked);
+        let repo_status = details.repo_status.clone();
+        let is_locked = details.is_locked;
+        let status = get_status(&details.status, file_exists, &repo_status, is_locked);
         let content_status = location
             .map(|location| location.content.status.clone())
             .unwrap_or(Status::Initial);
@@ -307,6 +315,8 @@ pub fn select_info<'a>(state: &'a store::State, details_id: u32) -> Option<RepoF
             can_copy,
             can_move,
             can_delete,
+            repo_status,
+            is_locked,
         }
     })
 }
@@ -498,4 +508,23 @@ pub fn select_file_reader_file(
         ),
         None => None,
     }
+}
+
+pub fn select_unlocked_details(
+    state: &store::State,
+    mutation_state: &store::MutationState,
+) -> Vec<u32> {
+    let mut details_ids = vec![];
+
+    for (repo_id, _) in &mutation_state.repos.unlocked_repos {
+        for details in state.repo_files_details.details.values() {
+            if let Some(location) = &details.location {
+                if &location.repo_id == repo_id {
+                    details_ids.push(details.id);
+                }
+            }
+        }
+    }
+
+    details_ids
 }

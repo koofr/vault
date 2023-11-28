@@ -14,7 +14,6 @@ use vault_core::{
     cipher::errors::DecryptSizeError,
     common::state::Status,
     files::{file_category::FileCategory, files_filter::FilesFilter},
-    remote::{ApiErrorCode, RemoteError},
     remote_files,
     repo_files::errors::LoadFilesError,
     repo_files_details::{
@@ -25,7 +24,7 @@ use vault_core::{
             RepoFilesDetailsOptions, RepoFilesDetailsState,
         },
     },
-    repos::errors::RepoLockedError,
+    repos::errors::{RepoInfoError, RepoLockedError, RepoNotFoundError},
     store,
     transfers::errors::{DownloadableError, TransferError},
     types::{DecryptedName, EncryptedPath, RepoId},
@@ -36,7 +35,7 @@ use vault_core_tests::{
         eventstream::eventstream_wait_registered,
         repo_files_details::{details_wait, details_wait_content_loaded},
         transfers::TestDownloadable,
-        with_repo,
+        with_repo, with_user,
     },
 };
 use vault_fake_remote::fake_remote::interceptor::InterceptorResult;
@@ -539,6 +538,368 @@ fn test_download_downloadable_error() {
 }
 
 #[test]
+fn test_repo_not_loaded() {
+    use repo_files_details::selectors::select_info;
+
+    with_user(|user_fixture| {
+        async move {
+            let fixture = RepoFixture::create(user_fixture).await;
+
+            let fixture1 = fixture.new_session();
+            fixture1.user_fixture.login();
+            fixture1.user_fixture.load().await;
+            fixture1.unlock();
+            fixture1.upload_file("/file.txt", "test").await;
+
+            let (details_id, load_future) = fixture.vault.repo_files_details_create(
+                fixture.repo_id.clone(),
+                &fixture.encrypt_path("/file.txt"),
+                false,
+                RepoFilesDetailsOptions {
+                    autosave_interval: Duration::from_secs(20),
+                    load_content: FilesFilter {
+                        categories: vec![FileCategory::Text],
+                        exts: vec![],
+                    },
+                },
+            );
+
+            let recorder = StateRecorder::record(
+                fixture.vault.store.clone(),
+                &[store::Event::RepoFilesDetails],
+                |state| state.clone(),
+            );
+
+            load_future.await.unwrap();
+
+            fixture.user_fixture.load().await;
+
+            recorder.check_recorded(
+                |len| assert_eq!(len, 3),
+                |i, state| match i {
+                    0 => assert_eq!(
+                        select_info(&state, details_id).unwrap(),
+                        RepoFilesDetailsInfo {
+                            repo_id: Some(&RepoId(fixture.repo_id.0.clone())),
+                            parent_path: Some(EncryptedPath("/".into())),
+                            path: Some(&fixture.encrypt_path("/file.txt")),
+                            status: Status::Loading { loaded: false },
+                            file_name: None,
+                            file_ext: None,
+                            file_category: None,
+                            file_modified: None,
+                            file_exists: false,
+                            content_status: Status::Initial,
+                            transfer_id: None,
+                            save_status: Status::Initial,
+                            error: None,
+                            is_editing: false,
+                            is_dirty: false,
+                            should_destroy: false,
+                            can_save: false,
+                            can_download: true,
+                            can_copy: true,
+                            can_move: true,
+                            can_delete: true,
+                            repo_status: Status::Initial,
+                            is_locked: false,
+                        }
+                    ),
+                    1 => assert_eq!(
+                        select_info(&state, details_id).unwrap(),
+                        RepoFilesDetailsInfo {
+                            repo_id: Some(&RepoId(fixture.repo_id.0.clone())),
+                            parent_path: Some(EncryptedPath("/".into())),
+                            path: Some(&fixture.encrypt_path("/file.txt")),
+                            status: Status::Loading { loaded: false },
+                            file_name: None,
+                            file_ext: None,
+                            file_category: None,
+                            file_modified: None,
+                            file_exists: false,
+                            content_status: Status::Initial,
+                            transfer_id: None,
+                            save_status: Status::Initial,
+                            error: None,
+                            is_editing: false,
+                            is_dirty: false,
+                            should_destroy: false,
+                            can_save: false,
+                            can_download: true,
+                            can_copy: true,
+                            can_move: true,
+                            can_delete: true,
+                            repo_status: Status::Loading { loaded: false },
+                            is_locked: false,
+                        }
+                    ),
+                    2 => assert_eq!(
+                        select_info(&state, details_id).unwrap(),
+                        RepoFilesDetailsInfo {
+                            repo_id: Some(&RepoId(fixture.repo_id.0.clone())),
+                            parent_path: Some(EncryptedPath("/".into())),
+                            path: Some(&fixture.encrypt_path("/file.txt")),
+                            status: Status::Error {
+                                error: LoadFilesError::RepoLocked(RepoLockedError),
+                                loaded: false
+                            },
+                            file_name: None,
+                            file_ext: None,
+                            file_category: None,
+                            file_modified: None,
+                            file_exists: false,
+                            content_status: Status::Initial,
+                            transfer_id: None,
+                            save_status: Status::Initial,
+                            error: Some("Safe Box is locked".into()),
+                            is_editing: false,
+                            is_dirty: false,
+                            should_destroy: false,
+                            can_save: false,
+                            can_download: true,
+                            can_copy: true,
+                            can_move: true,
+                            can_delete: true,
+                            repo_status: Status::Loaded,
+                            is_locked: true,
+                        }
+                    ),
+                    _ => panic!("unexpected state: {:#?}", select_info(&state, details_id)),
+                },
+            );
+
+            fixture
+                .vault
+                .repo_files_details_destroy(details_id)
+                .await
+                .unwrap();
+        }
+        .boxed()
+    });
+}
+
+#[test]
+fn test_repo_locked_unlock() {
+    use repo_files_details::selectors::select_info;
+
+    with_user(|user_fixture| {
+        async move {
+            let fixture = RepoFixture::create(user_fixture).await;
+            fixture.user_fixture.load().await;
+
+            let fixture1 = fixture.new_session();
+            fixture1.user_fixture.login();
+            fixture1.user_fixture.load().await;
+            fixture1.unlock();
+            fixture1.upload_file("/file.txt", "test").await;
+
+            let (details_id, load_future) = fixture.vault.repo_files_details_create(
+                fixture.repo_id.clone(),
+                &fixture.encrypt_path("/file.txt"),
+                false,
+                RepoFilesDetailsOptions {
+                    autosave_interval: Duration::from_secs(20),
+                    load_content: FilesFilter {
+                        categories: vec![FileCategory::Text],
+                        exts: vec![],
+                    },
+                },
+            );
+
+            let recorder = StateRecorder::record(
+                fixture.vault.store.clone(),
+                &[store::Event::RepoFilesDetails],
+                |state| state.clone(),
+            );
+
+            load_future.await.unwrap();
+
+            unlock_wait_for_details_loaded(&fixture).await;
+
+            details_wait(fixture.vault.store.clone(), 1, |details| {
+                matches!(
+                    details.location.as_ref().unwrap().content.status,
+                    Status::Loaded
+                )
+            })
+            .await;
+
+            recorder.check_recorded(
+                |len| assert_eq!(len, 5),
+                |i, state| match i {
+                    0 => assert_eq!(
+                        select_info(&state, details_id).unwrap(),
+                        RepoFilesDetailsInfo {
+                            repo_id: Some(&RepoId(fixture.repo_id.0.clone())),
+                            parent_path: Some(EncryptedPath("/".into())),
+                            path: Some(&fixture.encrypt_path("/file.txt")),
+                            status: Status::Error {
+                                error: LoadFilesError::RepoLocked(RepoLockedError),
+                                loaded: false
+                            },
+                            file_name: None,
+                            file_ext: None,
+                            file_category: None,
+                            file_modified: None,
+                            file_exists: false,
+                            content_status: Status::Initial,
+                            transfer_id: None,
+                            save_status: Status::Initial,
+                            error: Some("Safe Box is locked".into()),
+                            is_editing: false,
+                            is_dirty: false,
+                            should_destroy: false,
+                            can_save: false,
+                            can_download: true,
+                            can_copy: true,
+                            can_move: true,
+                            can_delete: true,
+                            repo_status: Status::Loaded,
+                            is_locked: true,
+                        }
+                    ),
+                    1 => assert_eq!(
+                        select_info(&state, details_id).unwrap(),
+                        RepoFilesDetailsInfo {
+                            repo_id: Some(&RepoId(fixture.repo_id.0.clone())),
+                            parent_path: Some(EncryptedPath("/".into())),
+                            path: Some(&fixture.encrypt_path("/file.txt")),
+                            status: Status::Loading { loaded: false },
+                            file_name: Some(DecryptedName("file.txt".into())),
+                            file_ext: Some("txt".into()),
+                            file_category: Some(FileCategory::Text),
+                            file_modified: None,
+                            file_exists: false,
+                            content_status: Status::Initial,
+                            transfer_id: None,
+                            save_status: Status::Initial,
+                            error: None,
+                            is_editing: false,
+                            is_dirty: false,
+                            should_destroy: false,
+                            can_save: false,
+                            can_download: true,
+                            can_copy: true,
+                            can_move: true,
+                            can_delete: true,
+                            repo_status: Status::Loaded,
+                            is_locked: false,
+                        }
+                    ),
+                    2 => assert_eq!(
+                        select_info(&state, details_id).unwrap(),
+                        RepoFilesDetailsInfo {
+                            repo_id: Some(&RepoId(fixture.repo_id.0.clone())),
+                            parent_path: Some(EncryptedPath("/".into())),
+                            path: Some(&fixture.encrypt_path("/file.txt")),
+                            status: Status::Loaded,
+                            file_name: Some(DecryptedName("file.txt".into())),
+                            file_ext: Some("txt".into()),
+                            file_category: Some(FileCategory::Text),
+                            file_modified: Some(
+                                select_info(&state, details_id)
+                                    .unwrap()
+                                    .file_modified
+                                    .unwrap()
+                            ),
+                            file_exists: true,
+                            content_status: Status::Initial,
+                            transfer_id: None,
+                            save_status: Status::Initial,
+                            error: None,
+                            is_editing: false,
+                            is_dirty: false,
+                            should_destroy: false,
+                            can_save: false,
+                            can_download: true,
+                            can_copy: true,
+                            can_move: true,
+                            can_delete: true,
+                            repo_status: Status::Loaded,
+                            is_locked: false,
+                        }
+                    ),
+                    3 => assert_eq!(
+                        select_info(&state, details_id).unwrap(),
+                        RepoFilesDetailsInfo {
+                            repo_id: Some(&RepoId(fixture.repo_id.0.clone())),
+                            parent_path: Some(EncryptedPath("/".into())),
+                            path: Some(&fixture.encrypt_path("/file.txt")),
+                            status: Status::Loaded,
+                            file_name: Some(DecryptedName("file.txt".into())),
+                            file_ext: Some("txt".into()),
+                            file_category: Some(FileCategory::Text),
+                            file_modified: Some(
+                                select_info(&state, details_id)
+                                    .unwrap()
+                                    .file_modified
+                                    .unwrap()
+                            ),
+                            file_exists: true,
+                            content_status: Status::Loading { loaded: false },
+                            transfer_id: None,
+                            save_status: Status::Initial,
+                            error: None,
+                            is_editing: false,
+                            is_dirty: false,
+                            should_destroy: false,
+                            can_save: false,
+                            can_download: true,
+                            can_copy: true,
+                            can_move: true,
+                            can_delete: true,
+                            repo_status: Status::Loaded,
+                            is_locked: false,
+                        }
+                    ),
+                    4 => assert_eq!(
+                        select_info(&state, details_id).unwrap(),
+                        RepoFilesDetailsInfo {
+                            repo_id: Some(&RepoId(fixture.repo_id.0.clone())),
+                            parent_path: Some(EncryptedPath("/".into())),
+                            path: Some(&fixture.encrypt_path("/file.txt")),
+                            status: Status::Loaded,
+                            file_name: Some(DecryptedName("file.txt".into())),
+                            file_ext: Some("txt".into()),
+                            file_category: Some(FileCategory::Text),
+                            file_modified: Some(
+                                select_info(&state, details_id)
+                                    .unwrap()
+                                    .file_modified
+                                    .unwrap()
+                            ),
+                            file_exists: true,
+                            content_status: Status::Loaded,
+                            transfer_id: None,
+                            save_status: Status::Initial,
+                            error: None,
+                            is_editing: false,
+                            is_dirty: false,
+                            should_destroy: false,
+                            can_save: false,
+                            can_download: true,
+                            can_copy: true,
+                            can_move: true,
+                            can_delete: true,
+                            repo_status: Status::Loaded,
+                            is_locked: false,
+                        }
+                    ),
+                    _ => panic!("unexpected state: {:#?}", select_info(&state, details_id)),
+                },
+            );
+
+            fixture
+                .vault
+                .repo_files_details_destroy(details_id)
+                .await
+                .unwrap();
+        }
+        .boxed()
+    });
+}
+
+#[test]
 fn test_repo_lock_unlock_remove() {
     with_repo(|fixture| {
         async move {
@@ -595,6 +956,8 @@ fn test_repo_lock_unlock_remove() {
                     can_copy: true,
                     can_move: true,
                     can_delete: true,
+                    repo_status: Status::Loaded,
+                    is_locked: false,
                 }
             );
 
@@ -628,10 +991,12 @@ fn test_repo_lock_unlock_remove() {
                     can_copy: true,
                     can_move: true,
                     can_delete: true,
+                    repo_status: Status::Loaded,
+                    is_locked: true,
                 }
             );
 
-            fixture.unlock();
+            unlock_wait_for_details_loaded(&fixture).await;
 
             let state_after_unlock = get_state();
             assert_eq!(
@@ -649,14 +1014,8 @@ fn test_repo_lock_unlock_remove() {
                     parent_path: Some(EncryptedPath("/".into())),
                     path: Some(&fixture.encrypt_path("/file.txt")),
                     status: Status::Error {
-                        error: LoadFilesError::RemoteError(RemoteError::ApiError {
-                            code: ApiErrorCode::NotFound,
-                            message: "Not found".into(),
-                            request_id: None,
-                            extra: None,
-                            status_code: None
-                        }),
-                        loaded: true,
+                        error: LoadFilesError::RepoNotFound(RepoNotFoundError),
+                        loaded: false,
                     },
                     file_name: None,
                     file_ext: None,
@@ -666,11 +1025,7 @@ fn test_repo_lock_unlock_remove() {
                     content_status: Status::Loaded,
                     transfer_id: None,
                     save_status: Status::Initial,
-                    error: Some(format!(
-                        "{}{}",
-                        "This file is no longer accessible. ",
-                        "Probably it was deleted or you no longer have access to it."
-                    )),
+                    error: Some("Safe Box not found".into()),
                     is_editing: false,
                     is_dirty: false,
                     should_destroy: false,
@@ -679,6 +1034,11 @@ fn test_repo_lock_unlock_remove() {
                     can_copy: true,
                     can_move: true,
                     can_delete: true,
+                    repo_status: Status::Error {
+                        error: RepoInfoError::RepoNotFound(RepoNotFoundError),
+                        loaded: true
+                    },
+                    is_locked: false,
                 }
             );
 
@@ -734,6 +1094,8 @@ fn expected_details_state(
             should_destroy: false,
         }),
         status: Status::Initial,
+        repo_status: Status::Loaded,
+        is_locked: false,
         repo_files_subscription_id: state.details.get(&1).unwrap().repo_files_subscription_id,
     };
 
@@ -743,6 +1105,46 @@ fn expected_details_state(
         details: [(1, details)].into(),
         next_id: NextId(2),
     }
+}
+
+async fn unlock_wait_for_details_loaded(fixture: &RepoFixture) {
+    // wait for loading and loaded, otherwise we have flaky tests
+    let loading_store = fixture.vault.store.clone();
+    let loaded_store = fixture.vault.store.clone();
+    let loaded_future = store::wait_for(
+        fixture.vault.store.clone(),
+        &[store::Event::RepoFilesDetails],
+        move |_| {
+            loading_store.with_state(|state| {
+                state
+                    .repo_files_details
+                    .details
+                    .get(&1)
+                    .filter(|details| matches!(details.status, Status::Loading { .. }))
+                    .map(|_| ())
+            })
+        },
+    )
+    .then(|_| {
+        store::wait_for(
+            fixture.vault.store.clone(),
+            &[store::Event::RepoFilesDetails],
+            move |_| {
+                loaded_store.with_state(|state| {
+                    state
+                        .repo_files_details
+                        .details
+                        .get(&1)
+                        .filter(|details| matches!(details.status, Status::Loaded))
+                        .map(|_| ())
+                })
+            },
+        )
+    });
+
+    fixture.unlock();
+
+    loaded_future.await;
 }
 
 #[test]

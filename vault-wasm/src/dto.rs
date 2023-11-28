@@ -1057,6 +1057,10 @@ pub struct RepoFilesDetailsInfo {
     pub can_move: bool,
     #[serde(rename = "canDelete")]
     pub can_delete: bool,
+    #[serde(rename = "repoStatus")]
+    pub repo_status: Status,
+    #[serde(rename = "isLocked")]
+    pub is_locked: bool,
 }
 
 impl<'a> From<&repo_files_details_state::RepoFilesDetailsInfo<'a>> for RepoFilesDetailsInfo {
@@ -1082,6 +1086,8 @@ impl<'a> From<&repo_files_details_state::RepoFilesDetailsInfo<'a>> for RepoFiles
             can_copy: info.can_copy,
             can_move: info.can_move,
             can_delete: info.can_delete,
+            repo_status: (&info.repo_status).into(),
+            is_locked: info.is_locked,
         }
     }
 }

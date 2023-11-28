@@ -133,9 +133,13 @@ pub fn create(
         location: location.ok(),
         status,
         repo_files_subscription_id,
+        repo_status: Status::Initial,
+        is_locked: false,
     };
 
     state.repo_files_details.details.insert(details_id, details);
+
+    update_details(state, notify, details_id, cipher);
 
     details_id
 }
@@ -170,6 +174,23 @@ pub fn destroy(
     }
 }
 
+pub fn loading(state: &mut store::State, notify: &store::Notify, details_id: u32) {
+    let details = match state.repo_files_details.details.get_mut(&details_id) {
+        Some(details) => details,
+        _ => return,
+    };
+
+    let new_status = Status::Loading {
+        loaded: details.status.loaded(),
+    };
+
+    if details.status != new_status {
+        notify(store::Event::RepoFilesDetails);
+
+        details.status = new_status;
+    }
+}
+
 pub fn loaded(
     state: &mut store::State,
     notify: &store::Notify,
@@ -198,6 +219,71 @@ pub fn loaded(
             },
             None => Status::Loaded,
         };
+    }
+}
+
+pub fn update_details(
+    state: &mut store::State,
+    notify: &store::Notify,
+    details_id: u32,
+    cipher: Option<&Cipher>,
+) {
+    let details = match state.repo_files_details.details.get(&details_id) {
+        Some(details) => details,
+        _ => return,
+    };
+
+    let (repo_status, is_locked) = match &details.location {
+        Some(loc) => {
+            let (repo, status) = repos::selectors::select_repo_status(state, &loc.repo_id);
+
+            (
+                status,
+                repo.map(|repo| repo.state.is_locked()).unwrap_or(false),
+            )
+        }
+        None => (Status::Initial, false),
+    };
+
+    let details = match state.repo_files_details.details.get_mut(&details_id) {
+        Some(details) => details,
+        _ => return,
+    };
+
+    let mut dirty = false;
+
+    if let Some(location) = &mut details.location {
+        let decrypted_name_is_some = location.decrypted_name.is_some();
+
+        match (decrypted_name_is_some, cipher) {
+            (false, Some(cipher)) => {
+                location.decrypted_name = Some(cipher.decrypt_filename(&location.name));
+
+                dirty = true;
+            }
+            (true, None) => {
+                location.decrypted_name = None;
+
+                dirty = true;
+            }
+            _ => {}
+        }
+    }
+
+    if details.repo_status != repo_status {
+        details.repo_status = repo_status;
+
+        dirty = true;
+    }
+
+    if details.is_locked != is_locked {
+        details.is_locked = is_locked;
+
+        dirty = true;
+    }
+
+    if dirty {
+        notify(store::Event::RepoFilesDetails);
     }
 }
 
@@ -608,7 +694,7 @@ pub fn deleted(
     }
 }
 
-pub fn handle_repo_files_mutation(
+pub fn handle_mutation(
     state: &mut store::State,
     notify: &store::Notify,
     mutation_state: &mut store::MutationState,
@@ -644,19 +730,21 @@ pub fn handle_repo_files_mutation(
         }
     }
 
-    for (_, details) in state.repo_files_details.details.iter_mut() {
-        if let Some(location) = &mut details.location {
-            let decrypted_name_is_some = location.decrypted_name.is_some();
-
-            match (decrypted_name_is_some, ciphers.get(&location.repo_id)) {
-                (false, Some(cipher)) => {
-                    location.decrypted_name = Some(cipher.decrypt_filename(&location.name));
-                }
-                (true, None) => {
-                    location.decrypted_name = None;
-                }
-                _ => {}
-            }
-        }
+    for (details_id, cipher) in state
+        .repo_files_details
+        .details
+        .values()
+        .map(|details| {
+            (
+                details.id,
+                details
+                    .location
+                    .as_ref()
+                    .and_then(|loc| ciphers.get(&loc.repo_id).cloned()),
+            )
+        })
+        .collect::<Vec<_>>()
+    {
+        update_details(state, notify, details_id, cipher.as_deref())
     }
 }

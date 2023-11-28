@@ -1477,6 +1477,8 @@ pub struct RepoFilesDetailsInfo {
     pub can_copy: bool,
     pub can_move: bool,
     pub can_delete: bool,
+    pub repo_status: Status,
+    pub is_locked: bool,
 }
 
 impl<'a> From<&repo_files_details_state::RepoFilesDetailsInfo<'a>> for RepoFilesDetailsInfo {
@@ -1503,6 +1505,8 @@ impl<'a> From<&repo_files_details_state::RepoFilesDetailsInfo<'a>> for RepoFiles
             can_copy: info.can_copy,
             can_move: info.can_move,
             can_delete: info.can_delete,
+            repo_status: (&info.repo_status).into(),
+            is_locked: info.is_locked,
         }
     }
 }
