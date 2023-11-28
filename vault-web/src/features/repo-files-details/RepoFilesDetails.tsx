@@ -7,7 +7,6 @@ import { ErrorComponent } from '../../components/ErrorComponent';
 import { LoadingCircle } from '../../components/LoadingCircle';
 import { useDocumentTitle } from '../../utils/useDocumentTitle';
 import { usePreventUnload } from '../../utils/usePreventUnload';
-import { Repo } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
 
@@ -20,14 +19,14 @@ import { useDetails } from './useDetails';
 import { useShortcuts } from './useShortcuts';
 
 const RepoFilesDetailsInner = memo<{
-  repo: Repo;
+  repoId: string;
   encryptedPath: string;
   isEditing: boolean;
   autosaveIntervalMs?: number;
   expectedEncryptedNewPath: MutableRefObject<string | undefined>;
 }>(
   ({
-    repo,
+    repoId,
     encryptedPath,
     isEditing,
     autosaveIntervalMs,
@@ -36,7 +35,7 @@ const RepoFilesDetailsInner = memo<{
     const webVault = useWebVault();
     const navigate = useNavigate();
     const detailsId = useDetails(
-      repo.id,
+      repoId,
       encryptedPath,
       isEditing,
       autosaveIntervalMs,
@@ -152,7 +151,7 @@ function getAutosaveIntervalMs(
   return parsed;
 }
 
-export const RepoFilesDetails = memo<{ repo: Repo }>(({ repo }) => {
+export const RepoFilesDetails = memo<{ repoId: string }>(({ repoId }) => {
   const [searchParams] = useSearchParams();
   const encryptedPath = searchParams.get('path') ?? '/';
   const isEditing = searchParams.get('editing') === 'true';
@@ -176,7 +175,7 @@ export const RepoFilesDetails = memo<{ repo: Repo }>(({ repo }) => {
   return (
     <RepoFilesDetailsInner
       key={key}
-      repo={repo}
+      repoId={repoId}
       encryptedPath={encryptedPath}
       isEditing={isEditing}
       autosaveIntervalMs={autosaveIntervalMs}

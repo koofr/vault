@@ -5,7 +5,6 @@ import { useSearchParams } from 'react-router-dom';
 import { DashboardLayout } from '../../components/dashboard/DashboardLayout';
 import { useIsMobile } from '../../components/useIsMobile';
 import { useDocumentTitle } from '../../utils/useDocumentTitle';
-import { Repo } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
 
 import { RepoFileInfoModal } from './RepoFileInfoModal';
@@ -27,9 +26,8 @@ import { useBrowser } from './useBrowser';
 import { useRepoFileInfo } from './useRepoFileInfo';
 import { useSelectName } from './useSelectName';
 
-export const RepoFiles = memo<{ repo: Repo }>(({ repo }) => {
+export const RepoFiles = memo<{ repoId: string }>(({ repoId }) => {
   const isMobile = useIsMobile();
-  const repoId = repo.id;
   const [searchParams] = useSearchParams();
   const path = searchParams.get('path') ?? undefined;
 
