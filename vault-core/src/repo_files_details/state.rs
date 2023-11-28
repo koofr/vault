@@ -85,6 +85,7 @@ pub struct RepoFilesDetailsOptions {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct RepoFilesDetails {
+    pub id: u32,
     pub options: RepoFilesDetailsOptions,
     pub location: Option<RepoFilesDetailsLocation>,
     pub status: Status<LoadFilesError>,

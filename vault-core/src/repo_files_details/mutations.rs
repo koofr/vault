@@ -128,6 +128,7 @@ pub fn create(
     let status = create_status(state, location.as_ref());
 
     let details = RepoFilesDetails {
+        id: details_id,
         options,
         location: location.ok(),
         status,

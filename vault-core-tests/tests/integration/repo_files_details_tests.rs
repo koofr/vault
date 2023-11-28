@@ -698,6 +698,7 @@ fn expected_details_state(
     mut patch: impl FnMut(&mut RepoFilesDetails),
 ) -> RepoFilesDetailsState {
     let mut details = RepoFilesDetails {
+        id: 1,
         options: RepoFilesDetailsOptions {
             autosave_interval: Duration::from_secs(20),
             load_content: FilesFilter {
