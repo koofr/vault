@@ -7,7 +7,7 @@ use crate::{
     },
     repos::{
         errors::RepoLockedError,
-        selectors as repo_selectors,
+        selectors as repos_selectors,
         state::{Repo, RepoState},
     },
     selection::{selectors as selection_selectors, state::SelectionSummary},
@@ -59,7 +59,7 @@ pub fn select_repo_id_path_owned(
 pub fn select_repo<'a>(state: &'a store::State, browser_id: u32) -> Option<&'a Repo> {
     select_browser(state, browser_id)
         .and_then(|browser| browser.location.as_ref())
-        .and_then(|loc| repo_selectors::select_repo(state, &loc.repo_id).ok())
+        .and_then(|loc| repos_selectors::select_repo(state, &loc.repo_id).ok())
 }
 
 pub fn select_repo_state<'a>(state: &'a store::State, browser_id: u32) -> Option<&'a RepoState> {
@@ -130,7 +130,7 @@ pub fn select_status<'a>(
     browser: &RepoFilesBrowser,
 ) -> Status<LoadFilesError> {
     match &browser.location {
-        Some(location) => match repo_selectors::select_repo(state, &location.repo_id) {
+        Some(location) => match repos_selectors::select_repo(state, &location.repo_id) {
             Ok(repo) => {
                 if matches!(repo.state, RepoState::Locked) {
                     Status::Error {
