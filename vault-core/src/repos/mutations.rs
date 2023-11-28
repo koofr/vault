@@ -51,9 +51,7 @@ fn vault_repo_to_repo(repo: models::VaultRepo, base_url: &str) -> Repo {
     }
 }
 
-pub fn repo_loaded(state: &mut store::State, notify: &store::Notify, repo: models::VaultRepo) {
-    notify(store::Event::Repos);
-
+fn repo_loaded(state: &mut store::State, repo: models::VaultRepo) {
     let mut repo = vault_repo_to_repo(repo, &state.config.base_url);
 
     if let Some(existing) = state.repos.repos_by_id.get(&repo.id) {
@@ -76,12 +74,19 @@ pub fn repo_loaded(state: &mut store::State, notify: &store::Notify, repo: model
     state.repos.repos_by_id.insert(repo.id.clone(), repo);
 }
 
-pub fn repos_loading(state: &mut store::State, notify: &store::Notify) {
-    notify(store::Event::Repos);
-
+pub fn repos_loading(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
+    mutation_notify: &store::MutationNotify,
+) {
     state.repos.status = Status::Loading {
         loaded: state.repos.status.loaded(),
     };
+
+    notify(store::Event::Repos);
+
+    mutation_notify(store::MutationEvent::Repos, state, mutation_state);
 }
 
 pub fn repos_loaded(
@@ -91,8 +96,6 @@ pub fn repos_loaded(
     mutation_notify: &store::MutationNotify,
     res: Result<Vec<models::VaultRepo>, RemoteError>,
 ) {
-    notify(store::Event::Repos);
-
     match res {
         Ok(repos) => {
             state.repos.status = Status::Loaded;
@@ -115,16 +118,10 @@ pub fn repos_loaded(
             };
 
             for repo in repos {
-                repo_loaded(state, notify, repo);
+                repo_loaded(state, repo);
             }
 
-            remove_repos(
-                state,
-                notify,
-                mutation_state,
-                mutation_notify,
-                &remove_repo_ids,
-            );
+            remove_repos(state, mutation_state, &remove_repo_ids)
         }
         Err(err) => {
             state.repos.status = Status::Error {
@@ -133,6 +130,10 @@ pub fn repos_loaded(
             };
         }
     }
+
+    notify(store::Event::Repos);
+
+    mutation_notify(store::MutationEvent::Repos, state, mutation_state);
 }
 
 pub fn lock_repo(
@@ -149,9 +150,9 @@ pub fn lock_repo(
         return Ok(());
     }
 
-    notify(store::Event::Repos);
-
     repo.state = RepoState::Locked;
+
+    notify(store::Event::Repos);
 
     mutation_state
         .repos
@@ -173,13 +174,13 @@ pub fn unlock_repo(
 ) -> Result<(), RepoNotFoundError> {
     let repo = selectors::select_repo_mut(state, repo_id)?;
 
-    notify(store::Event::Repos);
-
     if matches!(repo.state, RepoState::Unlocked) {
         return Ok(());
     }
 
     repo.state = RepoState::Unlocked;
+
+    notify(store::Event::Repos);
 
     mutation_state
         .repos
@@ -193,13 +194,9 @@ pub fn unlock_repo(
 
 pub fn remove_repos(
     state: &mut store::State,
-    notify: &store::Notify,
     mutation_state: &mut store::MutationState,
-    mutation_notify: &store::MutationNotify,
     repo_ids: &[RepoId],
 ) {
-    let mut removed = false;
-
     for repo_id in repo_ids {
         if let Some(repo) = state.repos.repos_by_id.remove(repo_id) {
             state
@@ -215,14 +212,34 @@ pub fn remove_repos(
             }
 
             mutation_state.repos.removed_repos.push(repo_id.to_owned());
-
-            removed = true;
         }
     }
+}
 
-    if removed {
-        notify(store::Event::Repos);
+pub fn repo_created(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
+    mutation_notify: &store::MutationNotify,
+    repo: models::VaultRepo,
+) {
+    repo_loaded(state, repo);
 
-        mutation_notify(store::MutationEvent::Repos, state, mutation_state);
-    }
+    notify(store::Event::Repos);
+
+    mutation_notify(store::MutationEvent::Repos, state, mutation_state);
+}
+
+pub fn repo_removed(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
+    mutation_notify: &store::MutationNotify,
+    repo_id: RepoId,
+) {
+    remove_repos(state, mutation_state, &[repo_id]);
+
+    notify(store::Event::Repos);
+
+    mutation_notify(store::MutationEvent::Repos, state, mutation_state);
 }

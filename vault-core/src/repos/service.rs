@@ -60,9 +60,10 @@ impl ReposService {
     }
 
     pub async fn load_repos(&self) -> Result<(), remote::RemoteError> {
-        self.store.mutate(|state, notify, _, _| {
-            mutations::repos_loading(state, notify);
-        });
+        self.store
+            .mutate(|state, notify, mutation_state, mutation_notify| {
+                mutations::repos_loading(state, notify, mutation_state, mutation_notify);
+            });
 
         let res = self.remote.get_vault_repos().await.map(|res| res.repos);
 
@@ -208,9 +209,10 @@ impl ReposService {
             }
         }
 
-        self.store.mutate(|state, notify, _, _| {
-            mutations::repo_loaded(state, notify, repo);
-        });
+        self.store
+            .mutate(|state, notify, mutation_state, mutation_notify| {
+                mutations::repo_created(state, notify, mutation_state, mutation_notify, repo);
+            });
 
         let config = self.get_repo_config(&repo_id, &password).unwrap();
 
@@ -239,12 +241,12 @@ impl ReposService {
 
         self.store
             .mutate(|state, notify, mutation_state, mutation_notify| {
-                mutations::remove_repos(
+                mutations::repo_removed(
                     state,
                     notify,
                     mutation_state,
                     mutation_notify,
-                    &[repo_id.to_owned()],
+                    repo_id.to_owned(),
                 )
             });
 
