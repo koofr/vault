@@ -44,7 +44,10 @@ pub fn select_repo_mut<'a>(
         .ok_or(RepoNotFoundError)
 }
 
-pub fn select_repo_info<'a>(state: &'a store::State, repo_id: &RepoId) -> RepoInfo<'a> {
+pub fn select_repo_status<'a>(
+    state: &'a store::State,
+    repo_id: &RepoId,
+) -> (Result<&'a Repo, RepoNotFoundError>, Status<RepoInfoError>) {
     let repo = select_repo(state, repo_id);
 
     let status = match &state.repos.status {
@@ -62,6 +65,12 @@ pub fn select_repo_info<'a>(state: &'a store::State, repo_id: &RepoId) -> RepoIn
             loaded: *loaded,
         },
     };
+
+    (repo, status)
+}
+
+pub fn select_repo_info<'a>(state: &'a store::State, repo_id: &RepoId) -> RepoInfo<'a> {
+    let (repo, status) = select_repo_status(state, repo_id);
 
     RepoInfo {
         status,

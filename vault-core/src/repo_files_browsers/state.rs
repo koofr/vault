@@ -7,6 +7,7 @@ use crate::{
         errors::LoadFilesError,
         state::{RepoFile, RepoFilesBreadcrumb, RepoFilesSort},
     },
+    repos::errors::RepoInfoError,
     selection::state::{Selection, SelectionSummary},
     store::NextId,
     types::{DecryptedName, EncryptedPath, RepoFileId, RepoId},
@@ -37,6 +38,8 @@ pub struct RepoFilesBrowserInfo<'a> {
     pub can_delete_selected: bool,
     pub items: Vec<RepoFilesBrowserItem<'a>>,
     pub breadcrumbs: Option<&'a [RepoFilesBreadcrumb]>,
+    pub repo_status: Status<RepoInfoError>,
+    pub is_locked: bool,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -61,6 +64,8 @@ pub struct RepoFilesBrowser {
     pub file_ids: Vec<RepoFileId>,
     pub selection: Selection<RepoFileId>,
     pub sort: RepoFilesSort,
+    pub repo_status: Status<RepoInfoError>,
+    pub is_locked: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Default)]

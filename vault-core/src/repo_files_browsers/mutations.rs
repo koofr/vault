@@ -101,6 +101,8 @@ pub fn create(
         file_ids: Vec::new(),
         selection: Selection::default(),
         sort: state.repo_files_browsers.last_sort.clone(),
+        repo_status: Status::Initial,
+        is_locked: false,
     };
 
     state
@@ -108,7 +110,7 @@ pub fn create(
         .browsers
         .insert(browser_id, browser);
 
-    update_files(state, notify, browser_id, cipher);
+    update_browser(state, notify, browser_id, cipher);
 
     browser_id
 }
@@ -181,10 +183,10 @@ pub fn loaded(
         }
     }
 
-    update_files(state, notify, browser_id, cipher);
+    update_browser(state, notify, browser_id, cipher);
 }
 
-pub fn update_files(
+pub fn update_browser(
     state: &mut store::State,
     notify: &store::Notify,
     browser_id: u32,
@@ -223,7 +225,17 @@ pub fn update_files(
 
     let file_ids_set: HashSet<RepoFileId> = file_ids.iter().cloned().collect();
 
-    let is_unlocked = selectors::select_is_unlocked(state, browser_id);
+    let (repo_status, is_locked) = match &browser.location {
+        Some(loc) => {
+            let (repo, status) = repos::selectors::select_repo_status(state, &loc.repo_id);
+
+            (
+                status,
+                repo.map(|repo| repo.state.is_locked()).unwrap_or(false),
+            )
+        }
+        None => (Status::Initial, false),
+    };
 
     let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
@@ -268,10 +280,22 @@ pub fn update_files(
         None
     };
 
-    if is_unlocked {
+    if !is_locked {
         if selection_mutations::update_selection(&mut browser.selection, file_ids_set) {
             dirty = true;
         }
+    }
+
+    if browser.repo_status != repo_status {
+        browser.repo_status = repo_status;
+
+        dirty = true;
+    }
+
+    if browser.is_locked != is_locked {
+        browser.is_locked = is_locked;
+
+        dirty = true;
     }
 
     if let Some(file_id) = select_file_id {
@@ -403,10 +427,10 @@ pub fn sort_by(
 
     state.repo_files_browsers.last_sort = browser.sort.clone();
 
-    update_files(state, notify, browser_id, cipher);
+    update_browser(state, notify, browser_id, cipher);
 }
 
-pub fn handle_repo_files_mutation(
+pub fn handle_mutation(
     state: &mut store::State,
     notify: &store::Notify,
     ciphers: &HashMap<RepoId, Arc<Cipher>>,
@@ -426,6 +450,6 @@ pub fn handle_repo_files_mutation(
         })
         .collect::<Vec<_>>()
     {
-        update_files(state, notify, browser_id, cipher.as_deref())
+        update_browser(state, notify, browser_id, cipher.as_deref())
     }
 }

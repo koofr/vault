@@ -1405,6 +1405,8 @@ pub struct RepoFilesBrowserInfo {
     pub selected_count: u32,
     pub selected_size_display: String,
     pub items: Vec<RepoFilesBrowserItem>,
+    pub repo_status: Status,
+    pub is_locked: bool,
 }
 
 impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFilesBrowserInfo {
@@ -1425,6 +1427,8 @@ impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFile
             selected_count: info.selected_count as u32,
             selected_size_display: vault_core::files::file_size::size_display(info.selected_size),
             items: info.items.iter().map(Into::into).collect(),
+            repo_status: (&info.repo_status).into(),
+            is_locked: info.is_locked,
         }
     }
 }
@@ -2250,8 +2254,7 @@ impl MobileVault {
         cb: Box<dyn SubscriptionCallback>,
     ) -> u32 {
         self.subscribe(
-            // TODO remove dir pickers
-            &[Event::RepoCreate, Event::DirPickers],
+            &[Event::RepoCreate],
             cb,
             self.subscription_data.repo_create_info.clone(),
             move |vault| {
@@ -3285,7 +3288,7 @@ impl MobileVault {
 
     pub fn repo_files_move_info_subscribe(&self, cb: Box<dyn SubscriptionCallback>) -> u32 {
         self.subscribe(
-            &[Event::RepoFilesMove, Event::RepoFiles, Event::DirPickers],
+            &[Event::RepoFilesMove, Event::RepoFiles],
             cb,
             self.subscription_data.repo_files_move_info.clone(),
             move |vault| {

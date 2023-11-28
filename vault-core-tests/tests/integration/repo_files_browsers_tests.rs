@@ -14,7 +14,7 @@ use vault_core::{
             RepoFilesBrowserOptions, RepoFilesBrowsersState,
         },
     },
-    repos::errors::{RepoLockedError, RepoNotFoundError},
+    repos::errors::{RepoInfoError, RepoLockedError, RepoNotFoundError},
     selection::state::SelectionSummary,
     sort::state::SortDirection,
     store,
@@ -22,9 +22,269 @@ use vault_core::{
 };
 use vault_core_tests::{
     fixtures::repo_fixture::RepoFixture,
-    helpers::{eventstream::eventstream_wait_registered, with_repo},
+    helpers::{eventstream::eventstream_wait_registered, with_repo, with_user},
 };
 use vault_store::{test_helpers::StateRecorder, NextId};
+
+#[test]
+fn test_repo_not_loaded() {
+    use repo_files_browsers::selectors::select_info;
+
+    with_user(|user_fixture| {
+        async move {
+            let fixture = RepoFixture::create(user_fixture).await;
+
+            let (browser_id, load_future) = fixture.vault.repo_files_browsers_create(
+                fixture.repo_id.clone(),
+                &EncryptedPath("/".into()),
+                RepoFilesBrowserOptions { select_name: None },
+            );
+
+            let recorder = StateRecorder::record(
+                fixture.vault.store.clone(),
+                &[store::Event::RepoFilesBrowsers],
+                |state| state.clone(),
+            );
+
+            load_future.await.unwrap();
+
+            fixture.user_fixture.load().await;
+
+            recorder.check_recorded(
+                |len| assert_eq!(len, 3),
+                |i, state| match i {
+                    0 => assert_eq!(
+                        select_info(&state, browser_id).unwrap(),
+                        RepoFilesBrowserInfo {
+                            repo_id: Some(&fixture.repo_id),
+                            path: Some(&EncryptedPath("/".into())),
+                            selection_summary: SelectionSummary::None,
+                            sort: RepoFilesSort {
+                                field: RepoFilesSortField::Name,
+                                direction: SortDirection::Asc
+                            },
+                            status: Status::Error {
+                                error: LoadFilesError::RepoNotFound(RepoNotFoundError),
+                                loaded: false
+                            },
+                            title: None,
+                            total_count: 0,
+                            total_size: 0,
+                            selected_count: 0,
+                            selected_size: 0,
+                            selected_file: None,
+                            can_download_selected: false,
+                            can_copy_selected: false,
+                            can_move_selected: false,
+                            can_delete_selected: false,
+                            items: vec![],
+                            breadcrumbs: None,
+                            repo_status: Status::Initial,
+                            is_locked: false,
+                        }
+                    ),
+                    1 => assert_eq!(
+                        select_info(&state, browser_id).unwrap(),
+                        RepoFilesBrowserInfo {
+                            repo_id: Some(&fixture.repo_id),
+                            path: Some(&EncryptedPath("/".into())),
+                            selection_summary: SelectionSummary::None,
+                            sort: RepoFilesSort {
+                                field: RepoFilesSortField::Name,
+                                direction: SortDirection::Asc
+                            },
+                            status: Status::Error {
+                                error: LoadFilesError::RepoNotFound(RepoNotFoundError),
+                                loaded: false
+                            },
+                            title: None,
+                            total_count: 0,
+                            total_size: 0,
+                            selected_count: 0,
+                            selected_size: 0,
+                            selected_file: None,
+                            can_download_selected: false,
+                            can_copy_selected: false,
+                            can_move_selected: false,
+                            can_delete_selected: false,
+                            items: vec![],
+                            breadcrumbs: None,
+                            repo_status: Status::Loading { loaded: false },
+                            is_locked: false,
+                        }
+                    ),
+                    2 => assert_eq!(
+                        select_info(&state, browser_id).unwrap(),
+                        RepoFilesBrowserInfo {
+                            repo_id: Some(&fixture.repo_id),
+                            path: Some(&EncryptedPath("/".into())),
+                            selection_summary: SelectionSummary::None,
+                            sort: RepoFilesSort {
+                                field: RepoFilesSortField::Name,
+                                direction: SortDirection::Asc
+                            },
+                            status: Status::Error {
+                                error: LoadFilesError::RepoLocked(RepoLockedError),
+                                loaded: false
+                            },
+                            title: None,
+                            total_count: 0,
+                            total_size: 0,
+                            selected_count: 0,
+                            selected_size: 0,
+                            selected_file: None,
+                            can_download_selected: false,
+                            can_copy_selected: false,
+                            can_move_selected: false,
+                            can_delete_selected: false,
+                            items: vec![],
+                            breadcrumbs: None,
+                            repo_status: Status::Loaded,
+                            is_locked: true,
+                        }
+                    ),
+                    _ => panic!("unexpected state: {:#?}", select_info(&state, browser_id)),
+                },
+            );
+
+            fixture.vault.repo_files_browsers_destroy(browser_id);
+        }
+        .boxed()
+    });
+}
+
+#[test]
+fn test_repo_locked_unlock() {
+    use repo_files_browsers::selectors::select_info;
+
+    with_user(|user_fixture| {
+        async move {
+            let fixture = RepoFixture::create(user_fixture).await;
+            fixture.user_fixture.load().await;
+
+            let (browser_id, load_future) = fixture.vault.repo_files_browsers_create(
+                fixture.repo_id.clone(),
+                &EncryptedPath("/".into()),
+                RepoFilesBrowserOptions { select_name: None },
+            );
+            load_future.await.unwrap();
+
+            let recorder = StateRecorder::record(
+                fixture.vault.store.clone(),
+                &[store::Event::RepoFilesBrowsers],
+                |state| state.clone(),
+            );
+
+            unlock_wait_for_browser_loaded(&fixture).await;
+
+            recorder.check_recorded(
+                |len| assert_eq!(len, 3),
+                |i, state| match i {
+                    0 => assert_eq!(
+                        select_info(&state, browser_id).unwrap(),
+                        RepoFilesBrowserInfo {
+                            repo_id: Some(&fixture.repo_id),
+                            path: Some(&EncryptedPath("/".into())),
+                            selection_summary: SelectionSummary::None,
+                            sort: RepoFilesSort {
+                                field: RepoFilesSortField::Name,
+                                direction: SortDirection::Asc
+                            },
+                            status: Status::Error {
+                                error: LoadFilesError::RepoLocked(RepoLockedError),
+                                loaded: false
+                            },
+                            title: None,
+                            total_count: 0,
+                            total_size: 0,
+                            selected_count: 0,
+                            selected_size: 0,
+                            selected_file: None,
+                            can_download_selected: false,
+                            can_copy_selected: false,
+                            can_move_selected: false,
+                            can_delete_selected: false,
+                            items: vec![],
+                            breadcrumbs: None,
+                            repo_status: Status::Loaded,
+                            is_locked: true,
+                        }
+                    ),
+                    1 => assert_eq!(
+                        select_info(&state, browser_id).unwrap(),
+                        RepoFilesBrowserInfo {
+                            repo_id: Some(&fixture.repo_id),
+                            path: Some(&EncryptedPath("/".into())),
+                            selection_summary: SelectionSummary::None,
+                            sort: RepoFilesSort {
+                                field: RepoFilesSortField::Name,
+                                direction: SortDirection::Asc
+                            },
+                            status: Status::Loading { loaded: false },
+                            title: Some("My safe box".into()),
+                            total_count: 0,
+                            total_size: 0,
+                            selected_count: 0,
+                            selected_size: 0,
+                            selected_file: None,
+                            can_download_selected: false,
+                            can_copy_selected: false,
+                            can_move_selected: false,
+                            can_delete_selected: false,
+                            items: vec![],
+                            breadcrumbs: Some(&[RepoFilesBreadcrumb {
+                                id: fixture.get_file_id("/"),
+                                repo_id: fixture.repo_id.clone(),
+                                path: EncryptedPath("/".into()),
+                                name: "My safe box".into(),
+                                last: true
+                            }]),
+                            repo_status: Status::Loaded,
+                            is_locked: false,
+                        }
+                    ),
+                    2 => assert_eq!(
+                        select_info(&state, browser_id).unwrap(),
+                        RepoFilesBrowserInfo {
+                            repo_id: Some(&fixture.repo_id),
+                            path: Some(&EncryptedPath("/".into())),
+                            selection_summary: SelectionSummary::None,
+                            sort: RepoFilesSort {
+                                field: RepoFilesSortField::Name,
+                                direction: SortDirection::Asc
+                            },
+                            status: Status::Loaded,
+                            title: Some("My safe box".into()),
+                            total_count: 0,
+                            total_size: 0,
+                            selected_count: 0,
+                            selected_size: 0,
+                            selected_file: None,
+                            can_download_selected: false,
+                            can_copy_selected: false,
+                            can_move_selected: false,
+                            can_delete_selected: false,
+                            items: vec![],
+                            breadcrumbs: Some(&[RepoFilesBreadcrumb {
+                                id: fixture.get_file_id("/"),
+                                repo_id: fixture.repo_id.clone(),
+                                path: EncryptedPath("/".into()),
+                                name: "My safe box".into(),
+                                last: true
+                            }]),
+                            repo_status: Status::Loaded,
+                            is_locked: false,
+                        }
+                    ),
+                    _ => panic!("unexpected state: {:#?}", select_info(&state, browser_id)),
+                },
+            );
+
+            fixture.vault.repo_files_browsers_destroy(browser_id);
+        }
+        .boxed()
+    });
+}
 
 #[test]
 fn test_repo_lock_unlock_remove() {
@@ -85,6 +345,8 @@ fn test_repo_lock_unlock_remove() {
                         name: "My safe box".into(),
                         last: true
                     }]),
+                    repo_status: Status::Loaded,
+                    is_locked: false,
                 }
             );
 
@@ -117,6 +379,8 @@ fn test_repo_lock_unlock_remove() {
                     can_delete_selected: false,
                     items: vec![],
                     breadcrumbs: None,
+                    repo_status: Status::Loaded,
+                    is_locked: true,
                 }
             );
 
@@ -161,6 +425,11 @@ fn test_repo_lock_unlock_remove() {
                     can_delete_selected: false,
                     items: vec![],
                     breadcrumbs: None,
+                    repo_status: Status::Error {
+                        error: RepoInfoError::RepoNotFound(RepoNotFoundError),
+                        loaded: true
+                    },
+                    is_locked: false,
                 }
             );
 
@@ -238,6 +507,8 @@ fn test_repo_decrypt_path_error() {
                             last: true
                         }
                     ]),
+                    repo_status: Status::Loaded,
+                    is_locked: false,
                 }
             );
 
@@ -480,6 +751,8 @@ fn expected_browsers_state(
         file_ids: vec![],
         selection: Default::default(),
         sort: Default::default(),
+        repo_status: Status::Loaded,
+        is_locked: false,
     };
 
     patch(&mut browser);

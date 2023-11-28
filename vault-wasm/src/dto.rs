@@ -966,6 +966,10 @@ pub struct RepoFilesBrowserInfo {
     pub can_delete_selected: bool,
     pub items: Vec<RepoFilesBrowserItem>,
     pub breadcrumbs: Vec<RepoFilesBreadcrumb>,
+    #[serde(rename = "repoStatus")]
+    pub repo_status: Status,
+    #[serde(rename = "isLocked")]
+    pub is_locked: bool,
 }
 
 impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFilesBrowserInfo {
@@ -990,6 +994,8 @@ impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFile
                 .breadcrumbs
                 .map(|breadcrumbs| breadcrumbs.iter().map(Into::into).collect())
                 .unwrap_or(vec![]),
+            repo_status: (&info.repo_status).into(),
+            is_locked: info.is_locked,
         }
     }
 }

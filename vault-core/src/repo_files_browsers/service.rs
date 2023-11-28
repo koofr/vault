@@ -33,7 +33,7 @@ pub struct RepoFilesBrowsersService {
     repo_files_move_service: Arc<RepoFilesMoveService>,
     store: Arc<store::Store>,
     repos_subscription_id: u32,
-    repo_files_mutation_subscription_id: u32,
+    mutation_subscription_id: u32,
 }
 
 impl RepoFilesBrowsersService {
@@ -82,14 +82,14 @@ impl RepoFilesBrowsersService {
             }),
         );
 
-        let repo_files_mutation_subscription_id = store.get_next_id();
+        let mutation_subscription_id = store.get_next_id();
         let repo_files_mutation_repos_service = repos_service.clone();
 
         store.mutation_on(
-            repo_files_mutation_subscription_id,
-            &[store::MutationEvent::RepoFiles],
+            mutation_subscription_id,
+            &[store::MutationEvent::RepoFiles, store::MutationEvent::Repos],
             Box::new(move |state, notify, _, _| {
-                mutations::handle_repo_files_mutation(
+                mutations::handle_mutation(
                     state,
                     notify,
                     &repo_files_mutation_repos_service.get_ciphers(),
@@ -104,7 +104,7 @@ impl RepoFilesBrowsersService {
             repo_files_move_service,
             store,
             repos_subscription_id,
-            repo_files_mutation_subscription_id,
+            mutation_subscription_id,
         }
     }
 
@@ -349,6 +349,6 @@ impl Drop for RepoFilesBrowsersService {
     fn drop(&mut self) {
         self.store.remove_listener(self.repos_subscription_id);
         self.store
-            .mutation_remove_listener(self.repo_files_mutation_subscription_id);
+            .mutation_remove_listener(self.mutation_subscription_id);
     }
 }

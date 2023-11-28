@@ -541,6 +541,8 @@ dictionary RepoFilesBrowserInfo {
   u32 selected_count;
   string selected_size_display;
   sequence<RepoFilesBrowserItem> items;
+  Status repo_status;
+  boolean is_locked;
 };
 
 callback interface RepoFilesBrowserDirCreated {

@@ -152,6 +152,10 @@ pub fn select_status<'a>(
 
 pub fn select_info<'a>(state: &'a store::State, browser_id: u32) -> Option<RepoFilesBrowserInfo> {
     select_browser(state, browser_id).map(|browser| {
+        let repo_id = browser.location.as_ref().map(|loc| &loc.repo_id);
+        let path = browser.location.as_ref().map(|loc| &loc.path);
+        let selection_summary = select_selection_summary(state, browser_id);
+        let sort = browser.sort.clone();
         let items = select_items(state, browser_id);
         let breadcrumbs = select_breadcrumbs(state, browser_id);
         let status = select_status(state, browser);
@@ -184,12 +188,14 @@ pub fn select_info<'a>(state: &'a store::State, browser_id: u32) -> Option<RepoF
         let can_copy_selected = selected_count > 0;
         let can_move_selected = selected_count > 0;
         let can_delete_selected = selected_count > 0;
+        let repo_status = browser.repo_status.clone();
+        let is_locked = browser.is_locked;
 
         RepoFilesBrowserInfo {
-            repo_id: browser.location.as_ref().map(|loc| &loc.repo_id),
-            path: browser.location.as_ref().map(|loc| &loc.path),
-            selection_summary: select_selection_summary(state, browser_id),
-            sort: browser.sort.clone(),
+            repo_id,
+            path,
+            selection_summary,
+            sort,
             status,
             title,
             total_count,
@@ -203,6 +209,8 @@ pub fn select_info<'a>(state: &'a store::State, browser_id: u32) -> Option<RepoF
             can_delete_selected,
             items,
             breadcrumbs,
+            repo_status,
+            is_locked,
         }
     })
 }
