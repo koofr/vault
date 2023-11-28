@@ -16,10 +16,6 @@ class ShareTargetViewModel constructor(
 ) : ViewModel() {
     val filesDialogVisible = mutableStateOf(false)
 
-    override fun onCleared() {
-        super.onCleared()
-    }
-
     fun cancel() {
         onCancel()
     }

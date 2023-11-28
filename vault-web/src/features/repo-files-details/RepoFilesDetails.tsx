@@ -5,12 +5,15 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useDocumentSize } from '../../components/DocumentSize';
 import { ErrorComponent } from '../../components/ErrorComponent';
 import { LoadingCircle } from '../../components/LoadingCircle';
+import { DashboardLoading } from '../../components/dashboard/DashboardLoading';
 import { useDocumentTitle } from '../../utils/useDocumentTitle';
 import { usePreventUnload } from '../../utils/usePreventUnload';
+import { RepoFilesDetailsInfo } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
 
 import { repoFilesDetailsLink, repoFilesLink } from '../repo-files/selectors';
+import { RepoGuard } from '../repo/RepoGuard';
 import { Transfers } from '../transfers/Transfers';
 
 import { getContentEl } from './RepoFilesDetailsContent';
@@ -18,43 +21,29 @@ import { RepoFilesDetailsNavbar } from './RepoFilesDetailsNavbar';
 import { useDetails } from './useDetails';
 import { useShortcuts } from './useShortcuts';
 
-const RepoFilesDetailsInner = memo<{
-  repoId: string;
+const RepoFilesDetailsInnerInfo = memo<{
   encryptedPath: string;
-  isEditing: boolean;
   autosaveIntervalMs?: number;
   expectedEncryptedNewPath: MutableRefObject<string | undefined>;
+  detailsId: number;
+  info: RepoFilesDetailsInfo;
+  infoRef: { current: RepoFilesDetailsInfo | undefined };
 }>(
   ({
-    repoId,
     encryptedPath,
-    isEditing,
+    detailsId,
     autosaveIntervalMs,
     expectedEncryptedNewPath,
+    info,
+    infoRef,
   }) => {
     const webVault = useWebVault();
     const navigate = useNavigate();
-    const detailsId = useDetails(
-      repoId,
-      encryptedPath,
-      isEditing,
-      autosaveIntervalMs,
-    );
 
-    const [info, infoRef] = useSubscribe(
-      (v, cb) => v.repoFilesDetailsInfoSubscribe(detailsId, cb),
-      (v) => v.repoFilesDetailsInfoData,
-      [detailsId],
-    );
-
-    useDocumentTitle(info?.fileName);
+    useDocumentTitle(info.fileName);
 
     useEffect(() => {
-      if (
-        info !== undefined &&
-        info.repoId !== undefined &&
-        info.encryptedPath !== undefined
-      ) {
+      if (info.repoId !== undefined && info.encryptedPath !== undefined) {
         if (info.shouldDestroy) {
           // TODO navigate to parent and select the file
           navigate(
@@ -88,13 +77,9 @@ const RepoFilesDetailsInner = memo<{
 
     useShortcuts(detailsId, infoRef);
 
-    usePreventUnload(info?.isDirty ?? false);
+    usePreventUnload(info.isDirty ?? false);
 
     const documentSize = useDocumentSize();
-
-    if (info === undefined) {
-      return null;
-    }
 
     const contentEl = getContentEl(
       detailsId,
@@ -133,6 +118,56 @@ const RepoFilesDetailsInner = memo<{
 
         <Transfers />
       </>
+    );
+  },
+);
+
+const RepoFilesDetailsInner = memo<{
+  repoId: string;
+  encryptedPath: string;
+  isEditing: boolean;
+  autosaveIntervalMs?: number;
+  expectedEncryptedNewPath: MutableRefObject<string | undefined>;
+}>(
+  ({
+    repoId,
+    encryptedPath,
+    isEditing,
+    autosaveIntervalMs,
+    expectedEncryptedNewPath,
+  }) => {
+    const detailsId = useDetails(
+      repoId,
+      encryptedPath,
+      isEditing,
+      autosaveIntervalMs,
+    );
+
+    const [info, infoRef] = useSubscribe(
+      (v, cb) => v.repoFilesDetailsInfoSubscribe(detailsId, cb),
+      (v) => v.repoFilesDetailsInfoData,
+      [detailsId],
+    );
+
+    if (info === undefined) {
+      return <DashboardLoading />;
+    }
+
+    return (
+      <RepoGuard
+        repoId={repoId}
+        repoStatus={info.repoStatus}
+        isLocked={info.isLocked}
+      >
+        <RepoFilesDetailsInnerInfo
+          encryptedPath={encryptedPath}
+          autosaveIntervalMs={autosaveIntervalMs}
+          expectedEncryptedNewPath={expectedEncryptedNewPath}
+          detailsId={detailsId}
+          info={info}
+          infoRef={infoRef}
+        />
+      </RepoGuard>
     );
   },
 );

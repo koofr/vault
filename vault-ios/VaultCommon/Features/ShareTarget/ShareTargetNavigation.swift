@@ -17,20 +17,13 @@ public struct ShareTargetNavigation: View {
                     ShareTargetReposScreen(vm: vm)
                 case .repoFiles(let repoId, let encryptedPath):
                     RepoGuard(
-                        vm: navController.ensureViewModel(routeContainer: routeContainer) {
-                            RepoGuardViewModel(
-                                container: vm.container, repoId: repoId,
-                                setupBiometricUnlockVisible: false)
+                        navController.ensureViewModel(routeContainer: routeContainer) {
+                            ShareTargetRepoFilesScreenViewModel(
+                                container: vm.container, shareTargetVm: vm,
+                                repoId: repoId, encryptedPath: encryptedPath)
                         }
-                    ) {
-                        ShareTargetRepoFilesScreen(
-                            vm: navController.ensureViewModel(
-                                routeContainer: routeContainer
-                            ) {
-                                ShareTargetRepoFilesScreenViewModel(
-                                    container: vm.container, shareTargetVm: vm,
-                                    repoId: repoId, encryptedPath: encryptedPath)
-                            })
+                    ) { vm in
+                        ShareTargetRepoFilesScreen(vm: vm)
                     }
                 }
             }

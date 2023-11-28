@@ -14,7 +14,11 @@ import javax.inject.Inject
 class RepoCreateViewModel @Inject constructor(
     val mobileVault: MobileVault,
 ) : ViewModel() {
-    var createId = mobileVault.repoCreateCreate()
+    var createId = mobileVault.repoCreateCreate().also {
+        addCloseable {
+            mobileVault.repoCreateDestroy(createId = it)
+        }
+    }
 
     val locationPickerActive = mutableStateOf(false)
 
@@ -29,12 +33,6 @@ class RepoCreateViewModel @Inject constructor(
     val advancedVisible = mutableStateOf(false)
 
     val configSaved = mutableStateOf(false)
-
-    override fun onCleared() {
-        super.onCleared()
-
-        mobileVault.repoCreateDestroy(createId = createId)
-    }
 
     fun retryLoad() {
         mobileVault.repoCreateCreateLoad(createId = createId)

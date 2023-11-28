@@ -45,18 +45,16 @@ class RepoSetupBiometricUnlockDialogViewModel @Inject constructor(
 ) : ViewModel() {
     private val repoId: String = savedStateHandle.get<String>("repoId")!!
 
-    val unlockId = mobileVault.repoUnlockCreate(repoId = repoId, options = RepoUnlockOptions(RepoUnlockMode.VERIFY))
+    val unlockId = mobileVault.repoUnlockCreate(repoId = repoId, options = RepoUnlockOptions(RepoUnlockMode.VERIFY)).also {
+        addCloseable {
+            mobileVault.repoUnlockDestroy(unlockId = it)
+        }
+    }
 
     private val biometricsHelper: RepoPasswordBiometricsHelper =
         RepoPasswordBiometricsHelper(repoId, androidSecureStorage)
 
     private var biometricPrompt: BiometricPrompt? = null
-
-    override fun onCleared() {
-        super.onCleared()
-
-        mobileVault.repoUnlockDestroy(unlockId = unlockId)
-    }
 
     fun setup(
         password: String,

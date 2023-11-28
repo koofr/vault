@@ -1,12 +1,16 @@
 import SwiftUI
 import VaultMobile
 
-public class RepoFilesMoveScreenViewModel: ObservableObject {
+public class RepoFilesMoveScreenViewModel: ObservableObject, WithRepoGuardViewModel {
     public let container: Container
     @Published public var navController: RepoFilesMoveNavController
     public let repoId: String
     public let encryptedPath: String
     public let browserId: UInt32
+
+    @Published public var info: VaultMobile.Subscription<RepoFilesBrowserInfo>
+
+    @Published public var repoGuardViewModel: RepoGuardViewModel
 
     public init(
         container: Container, navController: RepoFilesMoveNavController, repoId: String,
@@ -17,9 +21,32 @@ public class RepoFilesMoveScreenViewModel: ObservableObject {
         self.repoId = repoId
         self.encryptedPath = encryptedPath
 
-        browserId = container.mobileVault.repoFilesBrowsersCreate(
+        let browserId = container.mobileVault.repoFilesBrowsersCreate(
             repoId: repoId, encryptedPath: encryptedPath,
             options: RepoFilesBrowserOptions(selectName: nil))
+
+        self.browserId = browserId
+
+        info = VaultMobile.Subscription(
+            mobileVault: container.mobileVault,
+            subscribe: { v, cb in
+                v.repoFilesBrowsersInfoSubscribe(browserId: browserId, cb: cb)
+            },
+            getData: { v, id in
+                v.repoFilesBrowsersInfoData(id: id)
+            })
+
+        repoGuardViewModel = RepoGuardViewModel(
+            container: container, repoId: repoId, setupBiometricUnlockVisible: false)
+
+        info.setOnData { [weak self] data in
+            if let self = self {
+                if let info = data {
+                    self.repoGuardViewModel.update(
+                        repoStatus: info.repoStatus, isLocked: info.isLocked)
+                }
+            }
+        }
     }
 
     deinit {
@@ -40,14 +67,7 @@ public struct RepoFilesMoveScreen: View {
 
         self.navController = vm.navController
 
-        info = Subscription(
-            mobileVault: vm.container.mobileVault,
-            subscribe: { v, cb in
-                v.repoFilesBrowsersInfoSubscribe(browserId: vm.browserId, cb: cb)
-            },
-            getData: { v, id in
-                v.repoFilesBrowsersInfoData(id: id)
-            })
+        info = vm.info
 
         moveInfo = Subscription(
             mobileVault: vm.container.mobileVault,

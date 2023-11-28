@@ -13,14 +13,7 @@ public struct RepoFilesDetailsScreen: View {
     public init(vm: RepoFilesDetailsScreenViewModel) {
         self.vm = vm
 
-        self.info = Subscription(
-            mobileVault: vm.container.mobileVault,
-            subscribe: { v, cb in
-                v.repoFilesDetailsInfoSubscribe(detailsId: vm.detailsId, cb: cb)
-            },
-            getData: { v, id in
-                v.repoFilesDetailsInfoData(id: id)
-            })
+        self.info = vm.info
     }
 
     public var body: some View {

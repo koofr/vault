@@ -36,7 +36,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -60,8 +59,11 @@ import net.koofr.vault.composables.ZoomableImage
 import net.koofr.vault.composables.buildExoPlayer
 import net.koofr.vault.features.downloads.DownloadHelper
 import net.koofr.vault.features.fileicon.FileIconCache
+import net.koofr.vault.features.mobilevault.Subscription
 import net.koofr.vault.features.mobilevault.subscribe
 import net.koofr.vault.features.navigation.LocalNavController
+import net.koofr.vault.features.repo.RepoGuardViewModel
+import net.koofr.vault.features.repo.WithRepoGuardViewModel
 import net.koofr.vault.features.storage.StorageHelper
 import net.koofr.vault.features.transfers.TransferInfoView
 import net.koofr.vault.features.transfers.TransfersButton
@@ -184,7 +186,9 @@ class RepoFilesDetailsScreenViewModel @Inject constructor(
     private val imageLoader: ImageLoader,
     savedStateHandle: SavedStateHandle,
     @SuppressLint("StaticFieldLeak") @ApplicationContext private val appContext: Context,
-) : ViewModel() {
+) : ViewModel(), WithRepoGuardViewModel {
+    private var repoGuardViewModel: RepoGuardViewModel? = null
+
     private val repoId: String = savedStateHandle.get<String>("repoId")!!
     private val encryptedPath: String = savedStateHandle.get<String>("path")!!
 
@@ -199,7 +203,26 @@ class RepoFilesDetailsScreenViewModel @Inject constructor(
             ),
             autosaveIntervalMs = 20000u,
         ),
-    )
+    ).also {
+        addCloseable {
+            mobileVault.repoFilesDetailsDestroy(detailsId = it)
+        }
+    }
+
+    val info = Subscription(
+        mobileVault = mobileVault,
+        coroutineScope = viewModelScope,
+        subscribe = { v, cb -> v.repoFilesDetailsInfoSubscribe(detailsId = detailsId, cb = cb) },
+        getData = { v, id ->
+            v.repoFilesDetailsInfoData(id = id).also {
+                it?.let {
+                    repoGuardViewModel?.update(it.repoStatus, it.isLocked)
+                }
+            }
+        },
+    ).also {
+        addCloseable(it)
+    }
 
     var currentFile: RepoFile? = null
 
@@ -210,8 +233,22 @@ class RepoFilesDetailsScreenViewModel @Inject constructor(
         super.onCleared()
 
         content.value.close()
+    }
 
-        mobileVault.repoFilesDetailsDestroy(detailsId = detailsId)
+    override fun setRepoGuardViewModel(repoGuardViewModel: RepoGuardViewModel) {
+        if (this.repoGuardViewModel != null) {
+            return
+        }
+
+        this.repoGuardViewModel = repoGuardViewModel
+
+        addCloseable {
+            this.repoGuardViewModel = null
+        }
+
+        info.data.value?.let {
+            repoGuardViewModel.update(it.repoStatus, it.isLocked)
+        }
     }
 
     fun setContent(newContent: RepoFilesDetailsScreenContent) {
@@ -279,14 +316,10 @@ class RepoFilesDetailsScreenViewModel @Inject constructor(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RepoFilesDetailsScreen(
-    vm: RepoFilesDetailsScreenViewModel = hiltViewModel(),
+    vm: RepoFilesDetailsScreenViewModel,
 ) {
     val context = LocalContext.current
 
-    val info = subscribe(
-        { v, cb -> v.repoFilesDetailsInfoSubscribe(detailsId = vm.detailsId, cb = cb) },
-        { v, id -> v.repoFilesDetailsInfoData(id = id) },
-    )
     subscribe(
         { v, cb -> v.repoFilesDetailsFileSubscribe(detailsId = vm.detailsId, cb = cb) },
         { v, id ->
@@ -303,7 +336,7 @@ fun RepoFilesDetailsScreen(
     Scaffold(topBar = {
         TopAppBar(title = {
             Text(
-                info.value?.fileName ?: "",
+                vm.info.data.value?.fileName ?: "",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -326,7 +359,7 @@ fun RepoFilesDetailsScreen(
         })
     }, snackbarHost = { SnackbarHost(LocalSnackbarHostState.current) }) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) {
-            info.value?.let {
+            vm.info.data.value?.let {
                 RepoFilesDetailsContentView(vm, it)
             }
         }

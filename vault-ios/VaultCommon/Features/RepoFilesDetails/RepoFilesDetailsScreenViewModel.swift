@@ -1,7 +1,7 @@
 import Foundation
 import VaultMobile
 
-public class RepoFilesDetailsScreenViewModel: ObservableObject {
+public class RepoFilesDetailsScreenViewModel: ObservableObject, WithRepoGuardViewModel {
     public let container: Container
     public let repoId: String
     public let encryptedPath: String
@@ -10,7 +10,10 @@ public class RepoFilesDetailsScreenViewModel: ObservableObject {
 
     @Published public var content: RepoFilesDetailsScreenContent
 
-    public var file: Subscription<RepoFile>
+    @Published public var info: Subscription<RepoFilesDetailsInfo>
+    @Published public var file: Subscription<RepoFile>
+
+    @Published public var repoGuardViewModel: RepoGuardViewModel
 
     public init(container: Container, repoId: String, encryptedPath: String) {
         self.container = container
@@ -27,7 +30,16 @@ public class RepoFilesDetailsScreenViewModel: ObservableObject {
 
         self.content = .loading
 
-        self.file = Subscription(
+        info = Subscription(
+            mobileVault: container.mobileVault,
+            subscribe: { v, cb in
+                v.repoFilesDetailsInfoSubscribe(detailsId: detailsId, cb: cb)
+            },
+            getData: { v, id in
+                v.repoFilesDetailsInfoData(id: id)
+            })
+
+        file = Subscription(
             mobileVault: container.mobileVault,
             subscribe: { v, cb in
                 v.repoFilesDetailsFileSubscribe(detailsId: detailsId, cb: cb)
@@ -36,9 +48,21 @@ public class RepoFilesDetailsScreenViewModel: ObservableObject {
                 v.repoFilesDetailsFileData(id: id)
             })
 
-        self.file.setOnData { [weak self] file in
+        repoGuardViewModel = RepoGuardViewModel(
+            container: container, repoId: repoId, setupBiometricUnlockVisible: true)
+
+        self.info.setOnData { [weak self] data in
             if let self = self {
-                if let file = file {
+                if let info = data {
+                    self.repoGuardViewModel.update(
+                        repoStatus: info.repoStatus, isLocked: info.isLocked)
+                }
+            }
+        }
+
+        self.file.setOnData { [weak self] data in
+            if let self = self {
+                if let file = data {
                     self.load(file)
                 }
             }

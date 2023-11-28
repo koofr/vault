@@ -26,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import net.koofr.vault.LocalSnackbarHostState
 import net.koofr.vault.RepoFilesBrowserDirCreated
 import net.koofr.vault.composables.EmptyFolderView
@@ -43,14 +42,9 @@ import net.koofr.vault.utils.queryEscape
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RepoFilesScreen(
-    vm: RepoFilesScreenViewModel = hiltViewModel(),
+    vm: RepoFilesScreenViewModel,
 ) {
     val navController = LocalNavController.current
-
-    val info = subscribe(
-        { v, cb -> v.repoFilesBrowsersInfoSubscribe(browserId = vm.browserId, cb = cb) },
-        { v, id -> v.repoFilesBrowsersInfoData(id = id) },
-    )
 
     val moveInfo = subscribe(
         { v, cb -> v.repoFilesMoveInfoSubscribe(cb = cb) },
@@ -72,7 +66,7 @@ fun RepoFilesScreen(
     }
 
     val takePicture = takePicture({ file ->
-        info.value?.let { info ->
+        vm.info.data.value?.let { info ->
             info.repoId?.let { repoId ->
                 info.encryptedPath?.let { encryptedPath ->
                     vm.mobileVault.transfersUploadFile(
@@ -113,7 +107,7 @@ fun RepoFilesScreen(
         }
     }
 
-    val selectedCount = info.value?.selectedCount ?: 0u
+    val selectedCount = vm.info.data.value?.selectedCount ?: 0u
     val selectMode = selectedCount > 0u
 
     BackHandler(selectMode) {
@@ -127,7 +121,7 @@ fun RepoFilesScreen(
                     if (selectMode) {
                         "$selectedCount selected"
                     } else {
-                        info.value?.title ?: ""
+                        vm.info.data.value?.title ?: ""
                     },
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -162,7 +156,7 @@ fun RepoFilesScreen(
                         expanded = vm.menuExpanded.value,
                         onDismissRequest = { vm.menuExpanded.value = false },
                     ) {
-                        RepoFilesNavMenu(vm, info)
+                        RepoFilesNavMenu(vm, vm.info.data)
                     }
                 }
             },
@@ -190,7 +184,7 @@ fun RepoFilesScreen(
             ),
         )
     }, snackbarHost = { SnackbarHost(LocalSnackbarHostState.current) }) { paddingValues ->
-        info.value?.let { info ->
+        vm.info.data.value?.let { info ->
             RefreshableList(
                 modifier = Modifier.padding(paddingValues),
                 status = info.status,
@@ -218,7 +212,7 @@ fun RepoFilesScreen(
 
         takePicture.permissionDialog()
 
-        info.value?.let {
+        vm.info.data.value?.let {
             RepoFilesSortSheet(vm = vm, info = it)
         }
 

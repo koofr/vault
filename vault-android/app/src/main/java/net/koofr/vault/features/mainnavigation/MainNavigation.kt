@@ -3,6 +3,7 @@ package net.koofr.vault.features.mainnavigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -13,13 +14,17 @@ import androidx.navigation.navDeepLink
 import net.koofr.vault.features.navigation.LocalNavController
 import net.koofr.vault.features.remotefilesdirpicker.RemoteFilesDirPickerScreen
 import net.koofr.vault.features.repo.RepoGuard
+import net.koofr.vault.features.repo.RepoGuardViewModel
 import net.koofr.vault.features.repo.RepoInfoScreen
 import net.koofr.vault.features.repocreate.RepoCreateLocationPickerDelegateImpl
 import net.koofr.vault.features.repocreate.RepoCreateScreen
 import net.koofr.vault.features.repocreate.RepoCreateViewModel
 import net.koofr.vault.features.repofiles.RepoFilesScreen
+import net.koofr.vault.features.repofiles.RepoFilesScreenViewModel
 import net.koofr.vault.features.repofilesdetails.RepoFilesDetailsScreen
+import net.koofr.vault.features.repofilesdetails.RepoFilesDetailsScreenViewModel
 import net.koofr.vault.features.repofilesmove.RepoFilesMoveScreen
+import net.koofr.vault.features.repofilesmove.RepoFilesMoveScreenViewModel
 import net.koofr.vault.features.reporemove.RepoRemoveScreen
 import net.koofr.vault.features.repos.ReposListScreen
 import net.koofr.vault.features.settings.InfoScreen
@@ -94,8 +99,12 @@ fun MainNavigation() {
                     },
                 ),
             ) {
-                RepoGuard(setupBiometricUnlockVisible = true) {
-                    RepoFilesScreen()
+                val repoGuardViewModel: RepoGuardViewModel = hiltViewModel()
+                val vm: RepoFilesScreenViewModel = hiltViewModel()
+                vm.setRepoGuardViewModel(repoGuardViewModel)
+
+                RepoGuard(repoGuardViewModel, setupBiometricUnlockVisible = true) {
+                    RepoFilesScreen(vm)
                 }
             }
 
@@ -111,8 +120,12 @@ fun MainNavigation() {
                     },
                 ),
             ) {
-                RepoGuard(setupBiometricUnlockVisible = true) {
-                    RepoFilesDetailsScreen()
+                val repoGuardViewModel: RepoGuardViewModel = hiltViewModel()
+                val vm: RepoFilesDetailsScreenViewModel = hiltViewModel()
+                vm.setRepoGuardViewModel(repoGuardViewModel)
+
+                RepoGuard(repoGuardViewModel, setupBiometricUnlockVisible = true) {
+                    RepoFilesDetailsScreen(vm)
                 }
             }
 
@@ -128,8 +141,12 @@ fun MainNavigation() {
                     },
                 ),
             ) {
-                RepoGuard(setupBiometricUnlockVisible = false) {
-                    RepoFilesMoveScreen()
+                val repoGuardViewModel: RepoGuardViewModel = hiltViewModel()
+                val vm: RepoFilesMoveScreenViewModel = hiltViewModel()
+                vm.setRepoGuardViewModel(repoGuardViewModel)
+
+                RepoGuard(repoGuardViewModel, setupBiometricUnlockVisible = false) {
+                    RepoFilesMoveScreen(vm)
                 }
             }
 

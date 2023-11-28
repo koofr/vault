@@ -21,33 +21,23 @@ public struct MainNavigation: View {
                         })
                 case .repoFiles(let repoId, let encryptedPath):
                     RepoGuard(
-                        vm: navController.ensureViewModel(routeContainer: routeContainer) {
-                            RepoGuardViewModel(
-                                container: container, repoId: repoId,
-                                setupBiometricUnlockVisible: true)
+                        navController.ensureViewModel(routeContainer: routeContainer) {
+                            RepoFilesScreenViewModel(
+                                container: container, navController: navController,
+                                repoId: repoId, encryptedPath: encryptedPath)
                         }
-                    ) {
-                        RepoFilesScreen(
-                            vm: navController.ensureViewModel(routeContainer: routeContainer) {
-                                RepoFilesScreenViewModel(
-                                    container: container, navController: navController,
-                                    repoId: repoId, encryptedPath: encryptedPath)
-                            })
+                    ) { vm in
+                        RepoFilesScreen(vm: vm)
                     }
                 case .repoFilesDetails(let repoId, let encryptedPath):
                     RepoGuard(
-                        vm: navController.ensureViewModel(routeContainer: routeContainer) {
-                            RepoGuardViewModel(
+                        navController.ensureViewModel(routeContainer: routeContainer) {
+                            RepoFilesDetailsScreenViewModel(
                                 container: container, repoId: repoId,
-                                setupBiometricUnlockVisible: true)
+                                encryptedPath: encryptedPath)
                         }
-                    ) {
-                        RepoFilesDetailsScreen(
-                            vm: navController.ensureViewModel(routeContainer: routeContainer) {
-                                RepoFilesDetailsScreenViewModel(
-                                    container: container, repoId: repoId,
-                                    encryptedPath: encryptedPath)
-                            })
+                    ) { vm in
+                        RepoFilesDetailsScreen(vm: vm)
                     }
                 case .repoInfo(let repoId):
                     RepoInfoScreen(

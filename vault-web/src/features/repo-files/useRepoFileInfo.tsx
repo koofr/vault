@@ -26,7 +26,7 @@ function localStorageSet(visible: boolean) {
   } catch {}
 }
 
-export function useRepoFileInfo(info: RepoFilesBrowserInfo | undefined): {
+export function useRepoFileInfo(info: RepoFilesBrowserInfo): {
   onInfoClick: () => void;
   infoSheetVisible: boolean;
   infoSheetHide: () => void;
@@ -41,7 +41,7 @@ export function useRepoFileInfo(info: RepoFilesBrowserInfo | undefined): {
   const infoModal = useModal<RepoFile>();
   const infoModalShow = infoModal.show;
 
-  const selectedFile = info?.selectedFile;
+  const selectedFile = info.selectedFile;
 
   const onInfoClick = useCallback(() => {
     if (isMobile) {

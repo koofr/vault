@@ -41,6 +41,8 @@
 		A12D80F72AB8A59B009424D2 /* StorageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12D80F62AB8A59B009424D2 /* StorageHelper.swift */; };
 		A12D80F92AB99B8D009424D2 /* InfoSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12D80F82AB99B8D009424D2 /* InfoSheet.swift */; };
 		A14A53D62AD7EEA300AE65B0 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A14A53D52AD7EEA300AE65B0 /* LoadingView.swift */; };
+		A15809462B1757C700329F9A /* UnlockedRepoWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A15809452B1757C700329F9A /* UnlockedRepoWrapper.swift */; };
+		A15809482B17723100329F9A /* WindowReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A15809472B17723100329F9A /* WindowReader.swift */; };
 		A168FA042AE51CA20041418F /* RefreshableList.swift in Sources */ = {isa = PBXBuildFile; fileRef = A168FA032AE51CA20041418F /* RefreshableList.swift */; };
 		A168FA062AE520C50041418F /* FullSizeListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A168FA052AE520C50041418F /* FullSizeListItem.swift */; };
 		A1699AA12AC31A6600D58F6B /* VaultMobile.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = A182697A2AA0E6AB0072F531 /* VaultMobile.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -280,6 +282,8 @@
 		A12D80F62AB8A59B009424D2 /* StorageHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageHelper.swift; sourceTree = "<group>"; };
 		A12D80F82AB99B8D009424D2 /* InfoSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoSheet.swift; sourceTree = "<group>"; };
 		A14A53D52AD7EEA300AE65B0 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
+		A15809452B1757C700329F9A /* UnlockedRepoWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnlockedRepoWrapper.swift; sourceTree = "<group>"; };
+		A15809472B17723100329F9A /* WindowReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowReader.swift; sourceTree = "<group>"; };
 		A16070B22A792E9900BDE0CE /* RepoUnlockForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoUnlockForm.swift; sourceTree = "<group>"; };
 		A16070B42A7937DA00BDE0CE /* RepoSetupBiometricUnlockSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoSetupBiometricUnlockSheet.swift; sourceTree = "<group>"; };
 		A16070B62A794CF000BDE0CE /* Container.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Container.swift; sourceTree = "<group>"; };
@@ -442,6 +446,7 @@
 			children = (
 				A1265CAB2AAE3FCF00CEAA5C /* ErrorView.swift */,
 				A168FA052AE520C50041418F /* FullSizeListItem.swift */,
+				A15809472B17723100329F9A /* WindowReader.swift */,
 				A168FA032AE51CA20041418F /* RefreshableList.swift */,
 				A1A90B802ADEFBD50061C286 /* EmptyFolderView.swift */,
 				A14A53D52AD7EEA300AE65B0 /* LoadingView.swift */,
@@ -706,7 +711,6 @@
 			children = (
 				A18A8CFB2917A26D00B8F8B9 /* RepoRow.swift */,
 				A1287A4C2A83855500855708 /* RepoCreateRow.swift */,
-				A10A8C842ADCE9C0005A081D /* RepoGuard.swift */,
 				A17A7590291B95760037A015 /* ReposScreen.swift */,
 			);
 			path = Repos;
@@ -775,9 +779,11 @@
 		A18AB2CD2A77DF440037156B /* Repo */ = {
 			isa = PBXGroup;
 			children = (
+				A12D0A562AB473580010CF38 /* RepoConfigInfo.swift */,
+				A10A8C842ADCE9C0005A081D /* RepoGuard.swift */,
 				A17A75A6291D4DC10037A015 /* RepoInfoScreen.swift */,
 				A16070B42A7937DA00BDE0CE /* RepoSetupBiometricUnlockSheet.swift */,
-				A12D0A562AB473580010CF38 /* RepoConfigInfo.swift */,
+				A15809452B1757C700329F9A /* UnlockedRepoWrapper.swift */,
 			);
 			path = Repo;
 			sourceTree = "<group>";
@@ -1298,6 +1304,7 @@
 				A168FA042AE51CA20041418F /* RefreshableList.swift in Sources */,
 				A1AD93312A8286CE006172BF /* TransfersSheet.swift in Sources */,
 				A1265C9A2AA1E2A700CEAA5C /* SheetView.swift in Sources */,
+				A15809482B17723100329F9A /* WindowReader.swift in Sources */,
 				A103E97F2ACAA66700883DA8 /* FormInfoSheet.swift in Sources */,
 				A1A77FAA2A84215F001F6CF2 /* ShareExtScreen.swift in Sources */,
 				A1AD93002A828637006172BF /* FileIcon.swift in Sources */,
@@ -1308,6 +1315,7 @@
 				A198035C2A84F5A90047CA6B /* ZoomableScrollView.swift in Sources */,
 				A1AD931C2A828690006172BF /* RepoRow.swift in Sources */,
 				A1AD92FE2A828631006172BF /* DialogsView.swift in Sources */,
+				A15809462B1757C700329F9A /* UnlockedRepoWrapper.swift in Sources */,
 				A1AD93332A8286D5006172BF /* UserIcon.swift in Sources */,
 				A1CC12A02A8BB69900C0E1A0 /* ShareTargetFile.swift in Sources */,
 				A1AD931B2A82868B006172BF /* RepoFilesMoveViewModel.swift in Sources */,

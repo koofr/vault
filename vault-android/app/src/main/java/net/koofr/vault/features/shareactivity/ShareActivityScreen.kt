@@ -47,7 +47,7 @@ fun ShareActivityScreen(vm: ShareActivityViewModel) {
                     when (it) {
                         is ShareActivityState.PreparingFiles -> ShareActivityScreenPreparingFiles(vm)
                         is ShareActivityState.NoFiles -> ShareActivityScreenNoFiles(vm)
-                        is ShareActivityState.ShareTarget -> ShareTargetNavigation(vm = it.vm)
+                        is ShareActivityState.ShareTarget -> ShareTargetNavigation(it.vm)
                         is ShareActivityState.Transfers -> TransfersView(vm = it.vm)
                         is ShareActivityState.Done -> ShareActivityScreenDone(vm)
                     }

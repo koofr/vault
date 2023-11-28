@@ -51,16 +51,14 @@ class RepoRemoveScreenViewModel @Inject constructor(
 ) : ViewModel() {
     private val repoId: String = savedStateHandle.get<String>("repoId")!!
 
-    val removeId = mobileVault.repoRemoveCreate(repoId = repoId)
+    val removeId = mobileVault.repoRemoveCreate(repoId = repoId).also {
+        addCloseable {
+            mobileVault.repoRemoveDestroy(removeId = it)
+        }
+    }
 
     val passwordState = mutableStateOf(TextFieldValue())
     val passwordVisible = mutableStateOf(false)
-
-    override fun onCleared() {
-        super.onCleared()
-
-        mobileVault.repoRemoveDestroy(removeId = removeId)
-    }
 
     fun remove(cb: () -> Unit) {
         mobileVault.repoRemoveRemove(

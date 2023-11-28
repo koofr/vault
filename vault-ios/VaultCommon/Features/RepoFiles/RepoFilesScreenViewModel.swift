@@ -3,7 +3,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 import VaultMobile
 
-public class RepoFilesScreenViewModel: ObservableObject {
+public class RepoFilesScreenViewModel: ObservableObject, WithRepoGuardViewModel {
     public let container: Container
     public let navController: MainNavController
     public let repoId: String
@@ -18,7 +18,9 @@ public class RepoFilesScreenViewModel: ObservableObject {
     @Published var editMode: EditMode = .inactive
     @Published var selection = Set<String>()
 
-    @Published var info: VaultMobile.Subscription<RepoFilesBrowserInfo>
+    @Published public var info: VaultMobile.Subscription<RepoFilesBrowserInfo>
+
+    @Published public var repoGuardViewModel: RepoGuardViewModel
 
     private var selectionChangedCancellable: AnyCancellable?
 
@@ -48,6 +50,9 @@ public class RepoFilesScreenViewModel: ObservableObject {
                 v.repoFilesBrowsersInfoData(id: id)
             })
 
+        repoGuardViewModel = RepoGuardViewModel(
+            container: container, repoId: repoId, setupBiometricUnlockVisible: true)
+
         selectionChangedCancellable = self.$selection.sink { [weak self] selection in
             if let self = self {
                 if !isUpdatingSelection {
@@ -57,8 +62,15 @@ public class RepoFilesScreenViewModel: ObservableObject {
         }
 
         info.setOnData { [weak self] data in
-            if let info = data {
-                self?.updateSelection(from: info.items)
+            if let self = self {
+                if let info = data {
+                    self.repoGuardViewModel.update(
+                        repoStatus: info.repoStatus, isLocked: info.isLocked)
+
+                    if !info.isLocked {
+                        self.updateSelection(from: info.items)
+                    }
+                }
             }
         }
     }

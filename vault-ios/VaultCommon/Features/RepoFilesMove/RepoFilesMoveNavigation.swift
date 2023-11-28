@@ -11,18 +11,13 @@ public struct RepoFilesMoveNavigation: View {
                 switch routeContainer.route {
                 case .repoFiles(let repoId, let encryptedPath):
                     RepoGuard(
-                        vm: navController.ensureViewModel(routeContainer: routeContainer) {
-                            RepoGuardViewModel(
-                                container: vm.container, repoId: repoId,
-                                setupBiometricUnlockVisible: false)
+                        vm.navController.ensureViewModel(routeContainer: routeContainer) {
+                            RepoFilesMoveScreenViewModel(
+                                container: vm.container, navController: navController,
+                                repoId: repoId, encryptedPath: encryptedPath)
                         }
-                    ) {
-                        RepoFilesMoveScreen(
-                            vm: vm.navController.ensureViewModel(routeContainer: routeContainer) {
-                                RepoFilesMoveScreenViewModel(
-                                    container: vm.container, navController: navController,
-                                    repoId: repoId, encryptedPath: encryptedPath)
-                            })
+                    ) { vm in
+                        RepoFilesMoveScreen(vm: vm)
                     }
                 }
             }

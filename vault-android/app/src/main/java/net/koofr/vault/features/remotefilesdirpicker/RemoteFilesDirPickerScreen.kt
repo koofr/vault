@@ -63,12 +63,10 @@ class RemoteFilesDirPickerScreenViewModel @Inject constructor(
             selectName = null,
             onlyHostedDevices = true,
         ),
-    )
-
-    override fun onCleared() {
-        super.onCleared()
-
-        mobileVault.remoteFilesBrowsersDestroy(browserId = browserId)
+    ).also {
+        addCloseable {
+            mobileVault.remoteFilesBrowsersDestroy(browserId = it)
+        }
     }
 }
 

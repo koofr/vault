@@ -1,7 +1,7 @@
 import SwiftUI
 import VaultMobile
 
-public class ShareTargetRepoFilesScreenViewModel: ObservableObject {
+public class ShareTargetRepoFilesScreenViewModel: ObservableObject, WithRepoGuardViewModel {
     public let container: Container
     @Published public var shareTargetVm: ShareTargetViewModel
     public let repoId: String
@@ -10,6 +10,10 @@ public class ShareTargetRepoFilesScreenViewModel: ObservableObject {
     public let browserId: UInt32
 
     @Published public var navController: ShareTargetNavController
+
+    @Published public var info: VaultMobile.Subscription<RepoFilesBrowserInfo>
+
+    @Published public var repoGuardViewModel: RepoGuardViewModel
 
     public init(
         container: Container, shareTargetVm: ShareTargetViewModel, repoId: String,
@@ -20,11 +24,34 @@ public class ShareTargetRepoFilesScreenViewModel: ObservableObject {
         self.repoId = repoId
         self.encryptedPath = encryptedPath
 
-        browserId = container.mobileVault.repoFilesBrowsersCreate(
+        let browserId = container.mobileVault.repoFilesBrowsersCreate(
             repoId: repoId, encryptedPath: encryptedPath,
             options: RepoFilesBrowserOptions(selectName: nil))
 
+        self.browserId = browserId
+
         navController = shareTargetVm.navController
+
+        info = VaultMobile.Subscription(
+            mobileVault: container.mobileVault,
+            subscribe: { v, cb in
+                v.repoFilesBrowsersInfoSubscribe(browserId: browserId, cb: cb)
+            },
+            getData: { v, id in
+                v.repoFilesBrowsersInfoData(id: id)
+            })
+
+        repoGuardViewModel = RepoGuardViewModel(
+            container: container, repoId: repoId, setupBiometricUnlockVisible: false)
+
+        info.setOnData { [weak self] data in
+            if let self = self {
+                if let info = data {
+                    self.repoGuardViewModel.update(
+                        repoStatus: info.repoStatus, isLocked: info.isLocked)
+                }
+            }
+        }
     }
 
     deinit {
@@ -42,15 +69,7 @@ public struct ShareTargetRepoFilesScreen: View {
     public init(vm: ShareTargetRepoFilesScreenViewModel) {
         self.vm = vm
         self.navController = vm.navController
-
-        info = Subscription(
-            mobileVault: vm.container.mobileVault,
-            subscribe: { v, cb in
-                v.repoFilesBrowsersInfoSubscribe(browserId: vm.browserId, cb: cb)
-            },
-            getData: { v, id in
-                v.repoFilesBrowsersInfoData(id: id)
-            })
+        self.info = vm.info
     }
 
     public var body: some View {

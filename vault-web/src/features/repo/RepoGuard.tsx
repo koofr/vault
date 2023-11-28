@@ -1,37 +1,37 @@
-import React from 'react';
+import { PropsWithChildren, memo } from 'react';
 
 import { DashboardError } from '../../components/dashboard/DashboardError';
 import { DashboardLoading } from '../../components/dashboard/DashboardLoading';
-import { useSubscribe } from '../../webVault/useSubscribe';
+import { Status } from '../../vault-wasm/vault-wasm';
 import { useWebVault } from '../../webVault/useWebVault';
 
 import { RepoUnlock } from './RepoUnlock';
+import { UnlockedRepoWrapper } from './UnlockedRepoWrapper';
 
-export const RepoGuard: React.FC<{
-  repoId: string;
-  component: React.ComponentType<{ repoId: string }>;
-}> = ({ repoId, component }) => {
+export const RepoGuard = memo<
+  PropsWithChildren<{ repoId: string; repoStatus: Status; isLocked: boolean }>
+>(({ repoId, repoStatus, isLocked, children }) => {
   const webVault = useWebVault();
-  const [info] = useSubscribe(
-    (v, cb) => v.reposRepoSubscribe(repoId, cb),
-    (v) => v.reposRepoData,
-    [repoId],
-  );
 
-  if (info.repo !== undefined) {
-    return info.repo.state === 'Locked' ? (
-      <RepoUnlock key={repoId} repoId={info.repo.id} />
-    ) : (
-      React.createElement(component, { repoId: info.repo.id })
-    );
-  } else if (info.status.type === 'Error') {
+  if (
+    repoStatus.type === 'Initial' ||
+    (repoStatus.type === 'Loading' && !repoStatus.loaded)
+  ) {
+    return <DashboardLoading />;
+  } else if (repoStatus.type === 'Error') {
     return (
       <DashboardError
-        error={info.status.error}
-        onRetry={() => webVault.load()}
+        error={repoStatus.error}
+        onRetry={() => {
+          webVault.load();
+        }}
       />
     );
+  } else if (isLocked) {
+    return <RepoUnlock key={repoId} repoId={repoId} />;
   } else {
-    return <DashboardLoading />;
+    return (
+      <UnlockedRepoWrapper repoId={repoId}>{children}</UnlockedRepoWrapper>
+    );
   }
-};
+});

@@ -15,9 +15,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import net.koofr.vault.FileIconProps
@@ -30,9 +30,12 @@ import net.koofr.vault.RepoFilesBrowserOptions
 import net.koofr.vault.composables.EmptyFolderView
 import net.koofr.vault.composables.RefreshableList
 import net.koofr.vault.features.fileicon.FileIconCache
+import net.koofr.vault.features.mobilevault.Subscription
 import net.koofr.vault.features.mobilevault.subscribe
 import net.koofr.vault.features.navigation.LocalNavController
 import net.koofr.vault.features.relativetime.relativeTime
+import net.koofr.vault.features.repo.RepoGuardViewModel
+import net.koofr.vault.features.repo.WithRepoGuardViewModel
 import net.koofr.vault.features.repofiles.RepoFileRow
 import net.koofr.vault.utils.queryEscape
 import javax.inject.Inject
@@ -42,9 +45,11 @@ class ShareTargetRepoFilesViewModel @Inject constructor(
     val mobileVault: MobileVault,
     val fileIconCache: FileIconCache,
     savedStateHandle: SavedStateHandle,
-) : ViewModel() {
+) : ViewModel(), WithRepoGuardViewModel {
     val repoId: String = savedStateHandle.get<String>("repoId")!!
     val encryptedPath: String = savedStateHandle.get<String>("path")!!
+
+    private var repoGuardViewModel: RepoGuardViewModel? = null
 
     val browserId = mobileVault.repoFilesBrowsersCreate(
         repoId = repoId,
@@ -52,12 +57,41 @@ class ShareTargetRepoFilesViewModel @Inject constructor(
         options = RepoFilesBrowserOptions(
             selectName = null,
         ),
-    )
+    ).also {
+        addCloseable {
+            mobileVault.repoFilesBrowsersDestroy(browserId = it)
+        }
+    }
 
-    override fun onCleared() {
-        super.onCleared()
+    val info = Subscription(
+        mobileVault = mobileVault,
+        coroutineScope = viewModelScope,
+        subscribe = { v, cb -> v.repoFilesBrowsersInfoSubscribe(browserId = browserId, cb = cb) },
+        getData = { v, id ->
+            v.repoFilesBrowsersInfoData(id = id).also {
+                it?.let {
+                    repoGuardViewModel?.update(it.repoStatus, it.isLocked)
+                }
+            }
+        },
+    ).also {
+        addCloseable(it)
+    }
 
-        mobileVault.repoFilesBrowsersDestroy(browserId = browserId)
+    override fun setRepoGuardViewModel(repoGuardViewModel: RepoGuardViewModel) {
+        if (this.repoGuardViewModel != null) {
+            return
+        }
+
+        this.repoGuardViewModel = repoGuardViewModel
+
+        addCloseable {
+            this.repoGuardViewModel = null
+        }
+
+        info.data.value?.let {
+            repoGuardViewModel.update(it.repoStatus, it.isLocked)
+        }
     }
 }
 
@@ -65,26 +99,21 @@ class ShareTargetRepoFilesViewModel @Inject constructor(
 @Composable
 fun ShareTargetRepoFilesScreen(
     shareTargetVm: ShareTargetViewModel,
-    vm: ShareTargetRepoFilesViewModel = hiltViewModel(),
+    vm: ShareTargetRepoFilesViewModel,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val navController = LocalNavController.current
 
-    val info = subscribe(
-        { v, cb -> v.repoFilesBrowsersInfoSubscribe(browserId = vm.browserId, cb = cb) },
-        { v, id -> v.repoFilesBrowsersInfoData(id = id) },
-    )
-
     Scaffold(topBar = {
         TopAppBar(title = {
             Text(
-                info.value?.title ?: "",
+                vm.info.data.value?.title ?: "",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
         }, actions = {
             IconButton(onClick = {
-                info.value?.repoId?.let { repoId ->
+                vm.info.data.value?.repoId?.let { repoId ->
                     vm.mobileVault.repoFilesBrowsersCreateDir(
                         browserId = vm.browserId,
                         cb = object : RepoFilesBrowserDirCreated {
@@ -111,7 +140,7 @@ fun ShareTargetRepoFilesScreen(
             shareTargetVm.upload(vm.repoId, vm.encryptedPath)
         })
     }, snackbarHost = { SnackbarHost(LocalSnackbarHostState.current) }) { paddingValues ->
-        info.value?.let { info ->
+        vm.info.data.value?.let { info ->
             RefreshableList(
                 modifier = Modifier.padding(paddingValues),
                 status = info.status,

@@ -2,19 +2,14 @@ package net.koofr.vault.features.repo
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStore
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.MainScope
 import net.koofr.vault.MobileVault
-import net.koofr.vault.RepoInfo
-import net.koofr.vault.RepoState
 import net.koofr.vault.Status
 import net.koofr.vault.composables.ErrorView
 import net.koofr.vault.composables.LoadingView
-import net.koofr.vault.features.mobilevault.Subscription
 import net.koofr.vault.features.repounlock.RepoUnlockScreen
 import net.koofr.vault.utils.WithCustomViewModelStore
 import java.io.Closeable
@@ -31,15 +26,20 @@ sealed class RepoGuardState : Closeable {
     data object Unlocked : RepoGuardState()
     data class Error(val error: String) : RepoGuardState()
 
-    val repoState: RepoState?
-        get() = when (this) {
-            is Loading -> null
-            is Locked -> RepoState.LOCKED
-            is Unlocked -> RepoState.UNLOCKED
-            is Error -> null
+    fun matches(isLocked: Boolean): Boolean {
+        return when (this) {
+            is Loading -> false
+            is Locked -> isLocked
+            is Unlocked -> !isLocked
+            is Error -> false
         }
+    }
 
     override fun close() {}
+}
+
+interface WithRepoGuardViewModel {
+    fun setRepoGuardViewModel(repoGuardViewModel: RepoGuardViewModel)
 }
 
 @HiltViewModel
@@ -51,23 +51,6 @@ class RepoGuardViewModel @Inject constructor(
     val repoId: String = savedStateHandle.get<String>("repoId")!!
     val state = mutableStateOf<RepoGuardState>(RepoGuardState.Loading)
 
-    private val repoSubscription = Subscription(
-        mobileVault = mobileVault,
-        coroutineScope = MainScope(),
-        subscribe = { v, cb -> v.reposRepoSubscribe(repoId = repoId, cb = cb) },
-        getData = { v, id -> v.reposRepoData(id = id) },
-    ).also {
-        addCloseable(it)
-    }
-
-    init {
-        repoSubscription.setOnData {
-            it?.let {
-                updateState(it)
-            }
-        }
-    }
-
     private fun setState(state: RepoGuardState) {
         val oldState = this.state.value
 
@@ -76,25 +59,22 @@ class RepoGuardViewModel @Inject constructor(
         oldState.close()
     }
 
-    private fun updateState(info: RepoInfo) {
-        info.status.let {
+    fun update(repoStatus: Status, isLocked: Boolean) {
+        repoStatus.let {
             when {
                 it is Status.Initial || (it is Status.Loading && !it.loaded) -> {
                     setState(RepoGuardState.Loading)
                 }
 
-                it is Status.Loading || it is Status.Loaded -> info.repo.let { repo ->
-                    if (repo != null) {
-                        if (this.state.value.repoState != repo.state) {
-                            setState(
-                                when (repo.state) {
-                                    RepoState.LOCKED -> RepoGuardState.Locked(ViewModelStore())
-                                    RepoState.UNLOCKED -> RepoGuardState.Unlocked
-                                },
-                            )
-                        }
-                    } else {
-                        setState(RepoGuardState.Loading)
+                it is Status.Loading || it is Status.Loaded -> {
+                    if (!state.value.matches(isLocked)) {
+                        setState(
+                            if (isLocked) {
+                                RepoGuardState.Locked(ViewModelStore())
+                            } else {
+                                RepoGuardState.Unlocked
+                            },
+                        )
                     }
                 }
 
@@ -108,8 +88,8 @@ class RepoGuardViewModel @Inject constructor(
 
 @Composable
 fun RepoGuard(
+    vm: RepoGuardViewModel,
     setupBiometricUnlockVisible: Boolean,
-    vm: RepoGuardViewModel = hiltViewModel(),
     content: @Composable () -> Unit,
 ) {
     vm.state.value.let {
@@ -123,7 +103,9 @@ fun RepoGuard(
                 }
             }
 
-            is RepoGuardState.Unlocked -> content()
+            is RepoGuardState.Unlocked -> UnlockedRepoWrapper(repoId = vm.repoId) {
+                content()
+            }
             is RepoGuardState.Error -> ErrorView(errorText = it.error, onRetry = {
                 vm.mobileVault.load()
             })

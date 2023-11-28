@@ -2,6 +2,7 @@ package net.koofr.vault.features.sharetarget
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -9,15 +10,16 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import net.koofr.vault.features.navigation.LocalNavController
 import net.koofr.vault.features.repo.RepoGuard
+import net.koofr.vault.features.repo.RepoGuardViewModel
 
 @Composable
-fun ShareTargetNavigation(vm: ShareTargetViewModel) {
+fun ShareTargetNavigation(shareTargetViewModel: ShareTargetViewModel) {
     val navController = rememberNavController()
 
     CompositionLocalProvider(LocalNavController provides navController) {
         NavHost(navController = navController, startDestination = "shareTargetRepos") {
             composable("shareTargetRepos") {
-                ShareTargetReposScreen(shareTargetVm = vm)
+                ShareTargetReposScreen(shareTargetViewModel)
             }
             composable(
                 "shareTarget/repos/{repoId}/files?path={path}",
@@ -31,8 +33,12 @@ fun ShareTargetNavigation(vm: ShareTargetViewModel) {
                     },
                 ),
             ) {
-                RepoGuard(setupBiometricUnlockVisible = false) {
-                    ShareTargetRepoFilesScreen(vm)
+                val repoGuardViewModel: RepoGuardViewModel = hiltViewModel()
+                val vm: ShareTargetRepoFilesViewModel = hiltViewModel()
+                vm.setRepoGuardViewModel(repoGuardViewModel)
+
+                RepoGuard(repoGuardViewModel, setupBiometricUnlockVisible = false) {
+                    ShareTargetRepoFilesScreen(shareTargetViewModel, vm)
                 }
             }
         }

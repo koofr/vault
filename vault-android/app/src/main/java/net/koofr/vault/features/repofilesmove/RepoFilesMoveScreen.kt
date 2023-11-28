@@ -28,9 +28,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import net.koofr.vault.FileIconProps
@@ -44,9 +44,12 @@ import net.koofr.vault.RepoFilesMoveMode
 import net.koofr.vault.composables.EmptyFolderView
 import net.koofr.vault.composables.RefreshableList
 import net.koofr.vault.features.fileicon.FileIconCache
+import net.koofr.vault.features.mobilevault.Subscription
 import net.koofr.vault.features.mobilevault.subscribe
 import net.koofr.vault.features.navigation.LocalNavController
 import net.koofr.vault.features.relativetime.relativeTime
+import net.koofr.vault.features.repo.RepoGuardViewModel
+import net.koofr.vault.features.repo.WithRepoGuardViewModel
 import net.koofr.vault.features.repofiles.RepoFileRow
 import net.koofr.vault.utils.queryEscape
 import javax.inject.Inject
@@ -56,9 +59,11 @@ class RepoFilesMoveScreenViewModel @Inject constructor(
     val mobileVault: MobileVault,
     val fileIconCache: FileIconCache,
     savedStateHandle: SavedStateHandle,
-) : ViewModel() {
+) : ViewModel(), WithRepoGuardViewModel {
     private val repoId: String = savedStateHandle.get<String>("repoId")!!
     val encryptedPath: String = savedStateHandle.get<String>("path")!!
+
+    private var repoGuardViewModel: RepoGuardViewModel? = null
 
     val browserId = mobileVault.repoFilesBrowsersCreate(
         repoId = repoId,
@@ -66,12 +71,41 @@ class RepoFilesMoveScreenViewModel @Inject constructor(
         options = RepoFilesBrowserOptions(
             selectName = null,
         ),
-    )
+    ).also {
+        addCloseable {
+            mobileVault.repoFilesBrowsersDestroy(browserId = it)
+        }
+    }
 
-    override fun onCleared() {
-        super.onCleared()
+    val info = Subscription(
+        mobileVault = mobileVault,
+        coroutineScope = viewModelScope,
+        subscribe = { v, cb -> v.repoFilesBrowsersInfoSubscribe(browserId = browserId, cb = cb) },
+        getData = { v, id ->
+            v.repoFilesBrowsersInfoData(id = id).also {
+                it?.let {
+                    repoGuardViewModel?.update(it.repoStatus, it.isLocked)
+                }
+            }
+        },
+    ).also {
+        addCloseable(it)
+    }
 
-        mobileVault.repoFilesBrowsersDestroy(browserId = browserId)
+    override fun setRepoGuardViewModel(repoGuardViewModel: RepoGuardViewModel) {
+        if (this.repoGuardViewModel != null) {
+            return
+        }
+
+        this.repoGuardViewModel = repoGuardViewModel
+
+        addCloseable {
+            this.repoGuardViewModel = null
+        }
+
+        info.data.value?.let {
+            repoGuardViewModel.update(it.repoStatus, it.isLocked)
+        }
     }
 
     fun setCurrentDest() {
@@ -82,7 +116,7 @@ class RepoFilesMoveScreenViewModel @Inject constructor(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RepoFilesMoveScreen(
-    vm: RepoFilesMoveScreenViewModel = hiltViewModel(),
+    vm: RepoFilesMoveScreenViewModel,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val navController = LocalNavController.current

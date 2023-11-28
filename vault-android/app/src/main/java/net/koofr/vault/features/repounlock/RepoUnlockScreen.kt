@@ -52,7 +52,11 @@ class RepoUnlockScreenViewModel @Inject constructor(
 ) : ViewModel() {
     private val repoId: String = savedStateHandle.get<String>("repoId")!!
 
-    val unlockId = mobileVault.repoUnlockCreate(repoId = repoId, options = RepoUnlockOptions(RepoUnlockMode.UNLOCK))
+    val unlockId = mobileVault.repoUnlockCreate(repoId = repoId, options = RepoUnlockOptions(RepoUnlockMode.UNLOCK)).also {
+        addCloseable {
+            mobileVault.repoUnlockDestroy(unlockId = it)
+        }
+    }
 
     private val biometricsHelper: RepoPasswordBiometricsHelper =
         RepoPasswordBiometricsHelper(repoId, androidSecureStorage)
@@ -61,12 +65,6 @@ class RepoUnlockScreenViewModel @Inject constructor(
 
     val canSetupBiometricUnlock = mutableStateOf(false)
     val setupBiometricUnlockVisible = mutableStateOf(false)
-
-    override fun onCleared() {
-        super.onCleared()
-
-        mobileVault.repoUnlockDestroy(unlockId = unlockId)
-    }
 
     fun unlock(password: String, onUnlock: (() -> Unit)?) {
         mobileVault.repoUnlockUnlock(
