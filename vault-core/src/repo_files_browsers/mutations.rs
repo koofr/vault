@@ -223,6 +223,8 @@ pub fn update_files(
 
     let file_ids_set: HashSet<RepoFileId> = file_ids.iter().cloned().collect();
 
+    let is_unlocked = selectors::select_is_unlocked(state, browser_id);
+
     let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
         _ => return,
@@ -266,8 +268,10 @@ pub fn update_files(
         None
     };
 
-    if selection_mutations::update_selection(&mut browser.selection, file_ids_set) {
-        dirty = true;
+    if is_unlocked {
+        if selection_mutations::update_selection(&mut browser.selection, file_ids_set) {
+            dirty = true;
+        }
     }
 
     if let Some(file_id) = select_file_id {
