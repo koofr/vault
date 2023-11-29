@@ -1,10 +1,6 @@
-use std::{
-    collections::{HashMap, HashSet},
-    sync::Arc,
-};
+use std::collections::HashSet;
 
 use crate::{
-    cipher::Cipher,
     common::state::Status,
     eventstream::mutations::{add_mount_subscriber, remove_mount_subscriber},
     remote_files::errors::RemoteFilesErrors,
@@ -82,7 +78,6 @@ pub fn create(
     options: RepoFilesBrowserOptions,
     repo_id: RepoId,
     path: &EncryptedPath,
-    cipher: Option<&Cipher>,
 ) -> u32 {
     notify(store::Event::RepoFilesBrowsers);
 
@@ -110,7 +105,7 @@ pub fn create(
         .browsers
         .insert(browser_id, browser);
 
-    update_browser(state, notify, browser_id, cipher);
+    update_browser(state, notify, browser_id);
 
     browser_id
 }
@@ -157,7 +152,6 @@ pub fn loaded(
     repo_id: &RepoId,
     path: &EncryptedPath,
     error: Option<&LoadFilesError>,
-    cipher: Option<&Cipher>,
 ) {
     let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
@@ -183,27 +177,36 @@ pub fn loaded(
         }
     }
 
-    update_browser(state, notify, browser_id, cipher);
+    update_browser(state, notify, browser_id);
 }
 
-pub fn update_browser(
-    state: &mut store::State,
-    notify: &store::Notify,
-    browser_id: u32,
-    cipher: Option<&Cipher>,
-) {
+pub fn update_browser(state: &mut store::State, notify: &store::Notify, browser_id: u32) {
     let browser = match state.repo_files_browsers.browsers.get(&browser_id) {
         Some(browser) => browser,
         _ => return,
     };
 
-    let update_breadcrumbs = match (&browser.breadcrumbs, cipher) {
+    let (repo_status, is_locked, cipher) = match &browser.location {
+        Some(loc) => {
+            let (repo, status) = repos::selectors::select_repo_status(state, &loc.repo_id);
+            let cipher = repos::selectors::select_cipher_owned(state, &loc.repo_id).ok();
+
+            (
+                status,
+                repo.map(|repo| repo.state.is_locked()).unwrap_or(false),
+                cipher,
+            )
+        }
+        None => (Status::Initial, false, None),
+    };
+
+    let update_breadcrumbs = match (&browser.breadcrumbs, cipher.as_deref()) {
         (None, Some(cipher)) => Some(browser.location.as_ref().and_then(|loc| {
             Some(repo_files_selectors::select_breadcrumbs(
                 state,
                 &loc.repo_id,
                 &loc.path,
-                cipher,
+                &cipher,
             ))
         })),
         (Some(_), None) => Some(None),
@@ -225,18 +228,6 @@ pub fn update_browser(
 
     let file_ids_set: HashSet<RepoFileId> = file_ids.iter().cloned().collect();
 
-    let (repo_status, is_locked) = match &browser.location {
-        Some(loc) => {
-            let (repo, status) = repos::selectors::select_repo_status(state, &loc.repo_id);
-
-            (
-                status,
-                repo.map(|repo| repo.state.is_locked()).unwrap_or(false),
-            )
-        }
-        None => (Status::Initial, false),
-    };
-
     let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
         _ => return,
@@ -254,12 +245,11 @@ pub fn update_browser(
         dirty = true;
     }
 
-    let select_file_id = if let Some(name) = browser
-        .options
-        .select_name
-        .clone()
-        .and_then(|name| cipher.map(|cipher| cipher.encrypt_filename(&name)))
-    {
+    let select_file_id = if let Some(name) = browser.options.select_name.clone().and_then(|name| {
+        cipher
+            .as_deref()
+            .map(|cipher| cipher.encrypt_filename(&name))
+    }) {
         let file_id = browser
             .location
             .as_ref()
@@ -402,7 +392,6 @@ pub fn sort_by(
     browser_id: u32,
     field: RepoFilesSortField,
     direction: Option<SortDirection>,
-    cipher: Option<&Cipher>,
 ) {
     let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
@@ -427,29 +416,17 @@ pub fn sort_by(
 
     state.repo_files_browsers.last_sort = browser.sort.clone();
 
-    update_browser(state, notify, browser_id, cipher);
+    update_browser(state, notify, browser_id);
 }
 
-pub fn handle_mutation(
-    state: &mut store::State,
-    notify: &store::Notify,
-    ciphers: &HashMap<RepoId, Arc<Cipher>>,
-) {
-    for (browser_id, cipher) in state
+pub fn handle_mutation(state: &mut store::State, notify: &store::Notify) {
+    for browser_id in state
         .repo_files_browsers
         .browsers
-        .values()
-        .map(|browser| {
-            (
-                browser.id,
-                browser
-                    .location
-                    .as_ref()
-                    .and_then(|loc| ciphers.get(&loc.repo_id).cloned()),
-            )
-        })
+        .keys()
+        .map(ToOwned::to_owned)
         .collect::<Vec<_>>()
     {
-        update_browser(state, notify, browser_id, cipher.as_deref())
+        update_browser(state, notify, browser_id)
     }
 }

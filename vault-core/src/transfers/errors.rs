@@ -5,7 +5,7 @@ use crate::{
     remote::RemoteError,
     repo_files::errors::{FileNameError, LoadFilesError, UploadFileReaderError},
     repo_files_read::errors::GetFilesReaderError,
-    repos::errors::{RepoLockedError, RepoNotFoundError},
+    repos::errors::{GetCipherError, RepoLockedError, RepoNotFoundError},
     user_error::UserError,
 };
 
@@ -107,6 +107,15 @@ impl UserError for TransferError {
             Self::AlreadyExists => self.to_string(),
             Self::IOError(_) => self.to_string(),
             Self::Aborted => "Transfer has been aborted.".into(),
+        }
+    }
+}
+
+impl From<GetCipherError> for TransferError {
+    fn from(err: GetCipherError) -> Self {
+        match err {
+            GetCipherError::RepoNotFound(err) => Self::RepoNotFound(err),
+            GetCipherError::RepoLocked(err) => Self::RepoLocked(err),
         }
     }
 }

@@ -3,7 +3,7 @@ use thiserror::Error;
 use crate::{
     cipher::errors::{DecryptFilenameError, DecryptSizeError},
     remote::RemoteError,
-    repos::errors::{RepoLockedError, RepoNotFoundError},
+    repos::errors::{GetCipherError, RepoLockedError, RepoNotFoundError},
     user_error::UserError,
 };
 
@@ -41,6 +41,15 @@ impl UserError for GetFilesReaderError {
             Self::RemoteError(err) => err.user_error(),
             Self::IOError(err) => err.to_string(),
             Self::Aborted => self.to_string(),
+        }
+    }
+}
+
+impl From<GetCipherError> for GetFilesReaderError {
+    fn from(err: GetCipherError) -> Self {
+        match err {
+            GetCipherError::RepoNotFound(err) => Self::RepoNotFound(err),
+            GetCipherError::RepoLocked(err) => Self::RepoLocked(err),
         }
     }
 }

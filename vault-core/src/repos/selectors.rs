@@ -1,12 +1,15 @@
+use std::sync::Arc;
+
 use crate::{
+    cipher::Cipher,
     common::state::Status,
     store,
     types::{DecryptedName, RepoId},
 };
 
 use super::{
-    errors::{RepoInfoError, RepoNotFoundError},
-    state::{Repo, RepoInfo},
+    errors::{GetCipherError, RepoInfoError, RepoLockedError, RepoNotFoundError},
+    state::{Repo, RepoInfo, RepoState},
 };
 
 pub fn select_repos<'a>(state: &'a store::State) -> Vec<&'a Repo> {
@@ -83,4 +86,28 @@ pub fn select_repo_name<'a>(
     repo_id: &RepoId,
 ) -> Option<&'a DecryptedName> {
     select_repo(state, repo_id).ok().map(|repo| &repo.name)
+}
+
+pub fn select_cipher<'a>(
+    state: &'a store::State,
+    repo_id: &RepoId,
+) -> Result<&'a Cipher, GetCipherError> {
+    select_repo(state, repo_id)
+        .map_err(Into::into)
+        .and_then(|repo| match &repo.state {
+            RepoState::Locked => Err(GetCipherError::RepoLocked(RepoLockedError)),
+            RepoState::Unlocked { cipher } => Ok(cipher.as_ref()),
+        })
+}
+
+pub fn select_cipher_owned(
+    state: &store::State,
+    repo_id: &RepoId,
+) -> Result<Arc<Cipher>, GetCipherError> {
+    select_repo(state, repo_id)
+        .map_err(Into::into)
+        .and_then(|repo| match &repo.state {
+            RepoState::Locked => Err(GetCipherError::RepoLocked(RepoLockedError)),
+            RepoState::Unlocked { cipher } => Ok(cipher.clone()),
+        })
 }

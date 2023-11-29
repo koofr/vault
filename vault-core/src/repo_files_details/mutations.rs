@@ -1,7 +1,6 @@
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
 
 use crate::{
-    cipher::Cipher,
     common::state::Status,
     eventstream::mutations::{add_mount_subscriber, remove_mount_subscriber},
     remote_files::errors::RemoteFilesErrors,
@@ -35,7 +34,6 @@ pub fn create_location(
     path: &EncryptedPath,
     is_editing: bool,
     details_id: u32,
-    cipher: Option<&Cipher>,
 ) -> Result<RepoFilesDetailsLocation, LoadFilesError> {
     let path = repo_encrypted_path_utils::normalize_path(&path)
         .map_err(|_| LoadFilesError::RemoteError(RemoteFilesErrors::invalid_path()))?;
@@ -43,7 +41,9 @@ pub fn create_location(
     let name = repo_encrypted_path_utils::path_to_name(&path)
         .ok_or_else(|| LoadFilesError::RemoteError(RemoteFilesErrors::invalid_path()))?;
 
-    let decrypted_name = cipher.map(|cipher| cipher.decrypt_filename(&name));
+    let decrypted_name = repos::selectors::select_cipher(state, &repo_id)
+        .ok()
+        .map(|cipher| cipher.decrypt_filename(&name));
 
     let eventstream_mount_subscription = repos::selectors::select_repo(state, &repo_id)
         .ok()
@@ -108,7 +108,6 @@ pub fn create(
     path: &EncryptedPath,
     is_editing: bool,
     repo_files_subscription_id: u32,
-    cipher: Option<&Cipher>,
 ) -> u32 {
     notify(store::Event::RepoFilesDetails);
 
@@ -122,7 +121,6 @@ pub fn create(
         path,
         is_editing,
         details_id,
-        cipher,
     );
 
     let status = create_status(state, location.as_ref());
@@ -139,7 +137,7 @@ pub fn create(
 
     state.repo_files_details.details.insert(details_id, details);
 
-    update_details(state, notify, details_id, cipher);
+    update_details(state, notify, details_id);
 
     details_id
 }
@@ -222,27 +220,24 @@ pub fn loaded(
     }
 }
 
-pub fn update_details(
-    state: &mut store::State,
-    notify: &store::Notify,
-    details_id: u32,
-    cipher: Option<&Cipher>,
-) {
+pub fn update_details(state: &mut store::State, notify: &store::Notify, details_id: u32) {
     let details = match state.repo_files_details.details.get(&details_id) {
         Some(details) => details,
         _ => return,
     };
 
-    let (repo_status, is_locked) = match &details.location {
+    let (repo_status, is_locked, cipher) = match &details.location {
         Some(loc) => {
             let (repo, status) = repos::selectors::select_repo_status(state, &loc.repo_id);
+            let cipher = repos::selectors::select_cipher_owned(state, &loc.repo_id).ok();
 
             (
                 status,
                 repo.map(|repo| repo.state.is_locked()).unwrap_or(false),
+                cipher,
             )
         }
-        None => (Status::Initial, false),
+        None => (Status::Initial, false, None),
     };
 
     let details = match state.repo_files_details.details.get_mut(&details_id) {
@@ -698,7 +693,6 @@ pub fn handle_mutation(
     state: &mut store::State,
     notify: &store::Notify,
     mutation_state: &mut store::MutationState,
-    ciphers: &HashMap<RepoId, Arc<Cipher>>,
 ) {
     if !mutation_state.repo_files.moved_files.is_empty() {
         let moved_files = mutation_state
@@ -730,21 +724,13 @@ pub fn handle_mutation(
         }
     }
 
-    for (details_id, cipher) in state
+    for details_id in state
         .repo_files_details
         .details
-        .values()
-        .map(|details| {
-            (
-                details.id,
-                details
-                    .location
-                    .as_ref()
-                    .and_then(|loc| ciphers.get(&loc.repo_id).cloned()),
-            )
-        })
+        .keys()
+        .map(ToOwned::to_owned)
         .collect::<Vec<_>>()
     {
-        update_details(state, notify, details_id, cipher.as_deref())
+        update_details(state, notify, details_id)
     }
 }

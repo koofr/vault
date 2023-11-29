@@ -38,10 +38,7 @@ impl RepoFilesListService {
         let encrypted_root_path = file.encrypted_path.clone();
         let root_path = file.decrypted_path().map(ToOwned::to_owned);
 
-        let cipher = self
-            .repos_service
-            .get_cipher(&file.repo_id)
-            .map_err(GetListRecursiveError::RepoLocked)?;
+        let cipher = self.repos_service.get_cipher(&file.repo_id)?;
 
         let remote_items_stream = self
             .remote_files_service

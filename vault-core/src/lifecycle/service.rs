@@ -130,8 +130,6 @@ impl LifecycleService {
             }
         });
 
-        self.repos_service.reset();
-
         self.secure_storage_service
             .clear()
             .map_err(OnLogoutError::ClearStorageError)?;

@@ -3,7 +3,7 @@ use thiserror::Error;
 use crate::{
     cipher::errors::DecryptFilenameError,
     remote::RemoteError,
-    repos::errors::{RepoLockedError, RepoNotFoundError},
+    repos::errors::{GetCipherError, RepoLockedError, RepoNotFoundError},
     user_error::UserError,
 };
 
@@ -43,6 +43,15 @@ impl UserError for GetListRecursiveError {
             Self::RepoLocked(err) => err.user_error(),
             Self::DecryptFilenameError(err) => err.user_error(),
             Self::RemoteError(err) => err.user_error(),
+        }
+    }
+}
+
+impl From<GetCipherError> for GetListRecursiveError {
+    fn from(err: GetCipherError) -> Self {
+        match err {
+            GetCipherError::RepoNotFound(err) => Self::RepoNotFound(err),
+            GetCipherError::RepoLocked(err) => Self::RepoLocked(err),
         }
     }
 }

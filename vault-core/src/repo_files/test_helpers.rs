@@ -38,8 +38,6 @@ pub fn files_loaded(
 
     let cipher = ciphers.get(&repo_id).unwrap().clone();
 
-    let ciphers1 = ciphers.clone();
-
     let mutation_notify: store::MutationNotify = Box::new(move |_, state, mutation_state| {
         let (_, _, mutation_notify) = store_test_helpers::mutation();
 
@@ -48,7 +46,6 @@ pub fn files_loaded(
             notify.clone().as_ref(),
             mutation_state,
             &mutation_notify,
-            ciphers1.as_ref(),
         );
     });
 

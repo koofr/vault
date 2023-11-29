@@ -1,10 +1,8 @@
-use std::sync::Arc;
-
 use crate::{
     cipher::Cipher,
     common::state::SizeInfo,
     files::file_category::{ext_to_file_category, FileCategory},
-    repo_files, store,
+    repo_files, repos, store,
     types::{DecryptedName, DecryptedPath, EncryptedName, EncryptedPath, RepoId, TimeMillis},
     utils::{name_utils, path_utils},
 };
@@ -23,34 +21,8 @@ pub fn get_next_id(state: &mut store::State) -> u32 {
     state.transfers.next_id.next()
 }
 
-pub enum CreateTransferType {
-    Upload {
-        repo_id: RepoId,
-        parent_path: EncryptedPath,
-        name: TransferUploadRelativeName,
-        cipher: Arc<Cipher>,
-    },
-    Download {
-        name: TransferDisplayName,
-    },
-    DownloadReader {
-        name: TransferDisplayName,
-    },
-}
-
-pub fn name_to_category(name: &TransferDisplayName) -> FileCategory {
-    let name = match name.0.rfind('/') {
-        Some(idx) => &name.0[idx + 1..],
-        None => &name.0,
-    };
-
-    name_utils::name_to_ext(&name.to_lowercase())
-        .and_then(ext_to_file_category)
-        .unwrap_or(FileCategory::Generic)
-}
-
-pub fn transfer_upload_relative_name_split(
-    name: TransferUploadRelativeName,
+fn transfer_upload_relative_name_split(
+    name: &TransferUploadRelativeName,
 ) -> (Option<TransferUploadRelativeNamePath>, DecryptedName) {
     match name.0.rfind('/') {
         Some(idx) => {
@@ -68,60 +40,141 @@ pub fn transfer_upload_relative_name_split(
     }
 }
 
-pub fn create_transfer(
+pub fn create_upload_transfer(
     state: &mut store::State,
     notify: &store::Notify,
     id: u32,
-    typ: CreateTransferType,
+    repo_id: RepoId,
+    parent_path: EncryptedPath,
+    name: TransferUploadRelativeName,
+    size: SizeInfo,
+    is_persistent: bool,
+    is_retriable: bool,
+    is_openable: bool,
+) -> Result<(), TransferError> {
+    let (name_rel_path, original_name) = transfer_upload_relative_name_split(&name);
+
+    let cipher = repos::selectors::select_cipher(state, &repo_id)?;
+
+    let parent_path = match &name_rel_path {
+        Some(name_rel_path) => EncryptedPath(path_utils::join_path_name(
+            &parent_path.0,
+            &cipher
+                .encrypt_path(&DecryptedPath(format!("/{}", name_rel_path.0)))
+                .0[1..],
+        )),
+        None => parent_path,
+    };
+
+    let parent_file_id = repo_files::selectors::get_file_id(&repo_id, &parent_path);
+
+    let current_name = original_name.clone();
+    let current_name_encrypted = cipher.encrypt_filename(&current_name);
+
+    let typ = TransferType::Upload(UploadTransfer {
+        repo_id,
+        parent_path,
+        parent_file_id,
+        name_rel_path,
+        original_name,
+        current_name,
+        current_name_encrypted,
+    });
+
+    let name = TransferDisplayName(name.0.clone());
+
+    create_transfer(
+        state,
+        notify,
+        id,
+        typ,
+        name,
+        size,
+        is_persistent,
+        is_retriable,
+        is_openable,
+    );
+
+    Ok(())
+}
+
+pub fn create_download_transfer(
+    state: &mut store::State,
+    notify: &store::Notify,
+    id: u32,
+    name: TransferDisplayName,
+    size: SizeInfo,
+    is_persistent: bool,
+    is_retriable: bool,
+    is_openable: bool,
+) {
+    create_transfer(
+        state,
+        notify,
+        id,
+        TransferType::Download,
+        name,
+        size,
+        is_persistent,
+        is_retriable,
+        is_openable,
+    )
+}
+
+pub fn create_download_reader_transfer(
+    state: &mut store::State,
+    notify: &store::Notify,
+    id: u32,
+    name: TransferDisplayName,
+    size: SizeInfo,
+    now: TimeMillis,
+) {
+    let is_persistent = false;
+    let is_retriable = false;
+    let is_openable = false;
+
+    create_transfer(
+        state,
+        notify,
+        id,
+        TransferType::DownloadReader,
+        name,
+        size,
+        is_persistent,
+        is_retriable,
+        is_openable,
+    );
+
+    start_transfer(state, notify, id, now);
+
+    if let Some(transfer) = state.transfers.transfers.get_mut(&id) {
+        transfer.state = TransferState::Transferring;
+    }
+}
+
+fn name_to_category(name: &TransferDisplayName) -> FileCategory {
+    let name = match name.0.rfind('/') {
+        Some(idx) => &name.0[idx + 1..],
+        None => &name.0,
+    };
+
+    name_utils::name_to_ext(&name.to_lowercase())
+        .and_then(ext_to_file_category)
+        .unwrap_or(FileCategory::Generic)
+}
+
+fn create_transfer(
+    state: &mut store::State,
+    notify: &store::Notify,
+    id: u32,
+    typ: TransferType,
+    name: TransferDisplayName,
     size: SizeInfo,
     is_persistent: bool,
     is_retriable: bool,
     is_openable: bool,
 ) {
     notify(store::Event::Transfers);
-
-    let (typ, name) = match typ {
-        CreateTransferType::Upload {
-            repo_id,
-            parent_path,
-            name,
-            cipher,
-        } => {
-            let display_name = TransferDisplayName(name.0.clone());
-
-            let (name_rel_path, original_name) = transfer_upload_relative_name_split(name);
-
-            let parent_path = match &name_rel_path {
-                Some(name_rel_path) => EncryptedPath(path_utils::join_path_name(
-                    &parent_path.0,
-                    &cipher
-                        .encrypt_path(&DecryptedPath(format!("/{}", name_rel_path.0)))
-                        .0[1..],
-                )),
-                None => parent_path,
-            };
-
-            let parent_file_id = repo_files::selectors::get_file_id(&repo_id, &parent_path);
-
-            let current_name = original_name.clone();
-            let current_name_encrypted = cipher.encrypt_filename(&current_name);
-
-            (
-                TransferType::Upload(UploadTransfer {
-                    repo_id,
-                    parent_path,
-                    parent_file_id,
-                    name_rel_path,
-                    original_name,
-                    current_name,
-                    current_name_encrypted,
-                }),
-                display_name,
-            )
-        }
-        CreateTransferType::Download { name } => (TransferType::Download, name.clone()),
-        CreateTransferType::DownloadReader { name } => (TransferType::DownloadReader, name.clone()),
-    };
 
     let category = name_to_category(&name);
 
@@ -547,36 +600,6 @@ pub fn cleanup(state: &mut store::State, notify: &store::Notify) {
     }
 }
 
-pub fn create_download_reader_transfer(
-    state: &mut store::State,
-    notify: &store::Notify,
-    id: u32,
-    name: TransferDisplayName,
-    size: SizeInfo,
-    now: TimeMillis,
-) {
-    let is_persistent = false;
-    let is_retriable = false;
-    let is_openable = false;
-
-    create_transfer(
-        state,
-        notify,
-        id,
-        CreateTransferType::DownloadReader { name },
-        size,
-        is_persistent,
-        is_retriable,
-        is_openable,
-    );
-
-    start_transfer(state, notify, id, now);
-
-    if let Some(transfer) = state.transfers.transfers.get_mut(&id) {
-        transfer.state = TransferState::Transferring;
-    }
-}
-
 pub fn cleanup_download_reader_transfer(state: &mut store::State, notify: &store::Notify, id: u32) {
     abort(state, notify, id);
 }
@@ -591,17 +614,14 @@ mod tests {
         repo_files::test_helpers as repo_files_test_helpers,
         repos::test_helpers as repos_test_helpers,
         store::{self, test_helpers as store_test_helpers},
-        transfers::{
-            mutations::{start_transfer, upload_transfer_processed},
-            state::{
-                Transfer, TransferDisplayName, TransferState, TransferType,
-                TransferUploadRelativeName, TransferUploadRelativeNamePath, UploadTransfer,
-            },
+        transfers::state::{
+            Transfer, TransferDisplayName, TransferState, TransferType, TransferUploadRelativeName,
+            TransferUploadRelativeNamePath, UploadTransfer,
         },
         types::{DecryptedName, DecryptedPath, EncryptedPath, RepoFileId, TimeMillis},
     };
 
-    use super::{create_transfer, CreateTransferType};
+    use super::{create_upload_transfer, start_transfer, upload_transfer_processed};
 
     #[test]
     fn test_upload() {
@@ -618,21 +638,19 @@ mod tests {
         );
 
         let (notify, _, _) = store_test_helpers::mutation();
-        create_transfer(
+        create_upload_transfer(
             &mut state,
             &notify,
             1,
-            CreateTransferType::Upload {
-                repo_id: repo.id.clone(),
-                parent_path: EncryptedPath("/".into()),
-                name: TransferUploadRelativeName("file.txt".into()),
-                cipher: cipher.clone(),
-            },
+            repo.id.clone(),
+            EncryptedPath("/".into()),
+            TransferUploadRelativeName("file.txt".into()),
             SizeInfo::Exact(10),
             false,
             true,
             false,
-        );
+        )
+        .unwrap();
 
         assert_eq!(
             state.transfers.transfers.get(&1).unwrap(),
@@ -759,21 +777,19 @@ mod tests {
         );
 
         let (notify, _, _) = store_test_helpers::mutation();
-        create_transfer(
+        create_upload_transfer(
             &mut state,
             &notify,
             1,
-            CreateTransferType::Upload {
-                repo_id: repo.id.clone(),
-                parent_path: EncryptedPath("/".into()),
-                name: TransferUploadRelativeName("path/to/file.txt".into()),
-                cipher: cipher.clone(),
-            },
+            repo.id.clone(),
+            EncryptedPath("/".into()),
+            TransferUploadRelativeName("path/to/file.txt".into()),
             SizeInfo::Exact(10),
             false,
             true,
             false,
-        );
+        )
+        .unwrap();
 
         assert_eq!(
             state.transfers.transfers.get(&1).unwrap(),
@@ -890,21 +906,19 @@ mod tests {
         let (repo, cipher, _) = repos_test_helpers::create_repo(&mut state, "r1", "m1", "/Vault");
 
         let (notify, _, _) = store_test_helpers::mutation();
-        create_transfer(
+        create_upload_transfer(
             &mut state,
             &notify,
             1,
-            CreateTransferType::Upload {
-                repo_id: repo.id.clone(),
-                parent_path: EncryptedPath("/".into()),
-                name: TransferUploadRelativeName("file.txt".into()),
-                cipher: cipher.clone(),
-            },
+            repo.id.clone(),
+            EncryptedPath("/".into()),
+            TransferUploadRelativeName("file.txt".into()),
             SizeInfo::Exact(10),
             false,
             true,
             false,
-        );
+        )
+        .unwrap();
 
         assert_eq!(
             state.transfers.transfers.get(&1).unwrap(),
@@ -935,21 +949,19 @@ mod tests {
         );
 
         let (notify, _, _) = store_test_helpers::mutation();
-        create_transfer(
+        create_upload_transfer(
             &mut state,
             &notify,
             2,
-            CreateTransferType::Upload {
-                repo_id: repo.id.clone(),
-                parent_path: EncryptedPath("/".into()),
-                name: TransferUploadRelativeName("file.txt".into()),
-                cipher: cipher.clone(),
-            },
+            repo.id.clone(),
+            EncryptedPath("/".into()),
+            TransferUploadRelativeName("file.txt".into()),
             SizeInfo::Exact(10),
             false,
             true,
             false,
-        );
+        )
+        .unwrap();
 
         let (notify, _, _) = store_test_helpers::mutation();
         start_transfer(&mut state, &notify, 2, TimeMillis(2));

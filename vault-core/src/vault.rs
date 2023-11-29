@@ -173,7 +173,6 @@ impl Vault {
         ));
         let repo_files_browsers_service =
             Arc::new(repo_files_browsers::RepoFilesBrowsersService::new(
-                repos_service.clone(),
                 repo_files_service.clone(),
                 repo_files_read_service.clone(),
                 repo_files_move_service.clone(),
@@ -436,10 +435,7 @@ impl Vault {
         self.repos_service.load_repos().await
     }
 
-    pub fn repos_lock_repo(
-        &self,
-        repo_id: &RepoId,
-    ) -> Result<(), repos::errors::RepoNotFoundError> {
+    pub fn repos_lock_repo(&self, repo_id: &RepoId) -> Result<(), repos::errors::LockRepoError> {
         self.repos_service.lock_repo(repo_id)
     }
 

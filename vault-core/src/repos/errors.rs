@@ -23,6 +23,16 @@ impl UserError for RepoLockedError {
 }
 
 #[derive(Error, Debug, Clone, PartialEq)]
+#[error("repo unlocked")]
+pub struct RepoUnlockedError;
+
+impl UserError for RepoUnlockedError {
+    fn user_error(&self) -> String {
+        return "Safe Box is unlocked".into();
+    }
+}
+
+#[derive(Error, Debug, Clone, PartialEq)]
 #[error("invalid password")]
 pub struct InvalidPasswordError;
 
@@ -58,9 +68,28 @@ impl UserError for RepoInfoError {
 }
 
 #[derive(Error, Debug, Clone, PartialEq)]
+pub enum LockRepoError {
+    #[error("{0}")]
+    RepoNotFound(#[from] RepoNotFoundError),
+    #[error("already locked")]
+    RepoLocked(#[from] RepoLockedError),
+}
+
+impl UserError for LockRepoError {
+    fn user_error(&self) -> String {
+        match self {
+            Self::RepoNotFound(err) => err.user_error(),
+            Self::RepoLocked(err) => err.user_error(),
+        }
+    }
+}
+
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum UnlockRepoError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
+    #[error("{0}")]
+    RepoUnlocked(#[from] RepoUnlockedError),
     #[error("{0}")]
     InvalidPassword(#[from] InvalidPasswordError),
 }
@@ -69,6 +98,7 @@ impl UserError for UnlockRepoError {
     fn user_error(&self) -> String {
         match self {
             Self::RepoNotFound(err) => err.user_error(),
+            Self::RepoUnlocked(err) => err.user_error(),
             Self::InvalidPassword(err) => err.user_error(),
         }
     }
@@ -79,6 +109,23 @@ impl From<BuildCipherError> for UnlockRepoError {
         match err {
             BuildCipherError::RepoNotFound(err) => Self::RepoNotFound(err),
             BuildCipherError::InvalidPassword(err) => Self::InvalidPassword(err),
+        }
+    }
+}
+
+#[derive(Error, Debug, Clone, PartialEq)]
+pub enum GetCipherError {
+    #[error("{0}")]
+    RepoNotFound(#[from] RepoNotFoundError),
+    #[error("{0}")]
+    RepoLocked(#[from] RepoLockedError),
+}
+
+impl UserError for GetCipherError {
+    fn user_error(&self) -> String {
+        match self {
+            Self::RepoNotFound(err) => err.user_error(),
+            Self::RepoLocked(err) => err.user_error(),
         }
     }
 }

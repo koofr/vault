@@ -1,7 +1,4 @@
-use std::{
-    collections::{HashMap, HashSet},
-    sync::Arc,
-};
+use std::collections::HashSet;
 
 use vault_crypto::data_cipher::decrypt_size;
 
@@ -15,7 +12,7 @@ use crate::{
         selectors as remote_files_selectors,
         state::{RemoteFile, RemoteFileType},
     },
-    store,
+    repos, store,
     types::{
         DecryptedName, DecryptedPath, EncryptedName, EncryptedPath, MountId, RemotePath,
         RemotePathLower, RepoFileId, RepoId, ENCRYPTED_PATH_ROOT,
@@ -24,7 +21,6 @@ use crate::{
 };
 
 use super::{
-    errors::DecryptFilesError,
     selectors,
     state::{RepoFile, RepoFileName, RepoFilePath, RepoFileSize},
 };
@@ -67,7 +63,6 @@ pub fn handle_remote_files_mutation(
     notify: &store::Notify,
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
-    ciphers: &HashMap<RepoId, Arc<Cipher>>,
 ) {
     let remote_loaded_roots = mutation_state
         .remote_files
@@ -146,15 +141,8 @@ pub fn handle_remote_files_mutation(
     let mut repo_files_dirty = false;
 
     for (mount_id, remote_path, repo_id, path) in files_to_decrypt {
-        if let Some(cipher) = ciphers.get(&repo_id) {
-            let _ = decrypt_files(
-                state,
-                &mount_id,
-                &remote_path,
-                &repo_id,
-                &path,
-                cipher.as_ref(),
-            );
+        if let Ok(cipher) = repos::selectors::select_cipher_owned(state, &repo_id) {
+            let _ = decrypt_files(state, &mount_id, &remote_path, &repo_id, &path, &cipher);
 
             repo_files_dirty = true;
         }
@@ -232,7 +220,6 @@ pub fn handle_repos_mutation(
     notify: &store::Notify,
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
-    ciphers: &HashMap<RepoId, Arc<Cipher>>,
 ) {
     let mut repo_files_dirty = false;
 
@@ -315,15 +302,8 @@ pub fn handle_repos_mutation(
     }
 
     for (mount_id, remote_path, repo_id, path) in files_to_decrypt {
-        if let Some(cipher) = ciphers.get(&repo_id) {
-            let _ = decrypt_files(
-                state,
-                &mount_id,
-                &remote_path,
-                &repo_id,
-                &path,
-                cipher.as_ref(),
-            );
+        if let Ok(cipher) = repos::selectors::select_cipher_owned(state, &repo_id) {
+            let _ = decrypt_files(state, &mount_id, &remote_path, &repo_id, &path, &cipher);
 
             repo_files_dirty = true;
         }
@@ -343,7 +323,7 @@ pub fn decrypt_files(
     repo_id: &RepoId,
     encrypted_path: &EncryptedPath,
     cipher: &Cipher,
-) -> Result<(), DecryptFilesError> {
+) {
     let root_remote_file_id =
         remote_files_selectors::get_file_id(mount_id, &remote_path.to_lowercase());
 
@@ -428,8 +408,6 @@ pub fn decrypt_files(
 
         state.repo_files.files.remove(&file_id);
     }
-
-    Ok(())
 }
 
 pub fn decrypt_file(

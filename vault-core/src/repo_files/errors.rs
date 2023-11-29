@@ -3,7 +3,7 @@ use thiserror::Error;
 use crate::{
     cipher::errors::DecryptFilenameError,
     remote::{ApiErrorCode, RemoteError},
-    repos::errors::{RepoLockedError, RepoNotFoundError},
+    repos::errors::{GetCipherError, RepoLockedError, RepoNotFoundError},
     user_error::UserError,
 };
 
@@ -85,16 +85,6 @@ impl UserError for FileNameError {
 }
 
 #[derive(Error, Debug, Clone, PartialEq)]
-pub enum DecryptFilesError {
-    #[error("{0}")]
-    RepoNotFound(#[from] RepoNotFoundError),
-    #[error("{0}")]
-    RepoLocked(#[from] RepoLockedError),
-    #[error("{0}")]
-    DecryptFilenameError(#[from] DecryptFilenameError),
-}
-
-#[derive(Error, Debug, Clone, PartialEq)]
 pub enum UploadFileReaderError {
     #[error("{0}")]
     RepoNotFound(#[from] RepoNotFoundError),
@@ -116,6 +106,15 @@ impl UserError for UploadFileReaderError {
             Self::DecryptFilenameError(err) => err.user_error(),
             Self::Canceled => self.to_string(),
             Self::RemoteError(err) => err.user_error(),
+        }
+    }
+}
+
+impl From<GetCipherError> for UploadFileReaderError {
+    fn from(err: GetCipherError) -> Self {
+        match err {
+            GetCipherError::RepoNotFound(err) => Self::RepoNotFound(err),
+            GetCipherError::RepoLocked(err) => Self::RepoLocked(err),
         }
     }
 }
@@ -185,6 +184,15 @@ impl UserError for CreateDirError {
     }
 }
 
+impl From<GetCipherError> for CreateDirError {
+    fn from(err: GetCipherError) -> Self {
+        match err {
+            GetCipherError::RepoNotFound(err) => Self::RepoNotFound(err),
+            GetCipherError::RepoLocked(err) => Self::RepoLocked(err),
+        }
+    }
+}
+
 impl From<LoadFilesError> for CreateDirError {
     fn from(err: LoadFilesError) -> Self {
         match err {
@@ -221,6 +229,15 @@ impl UserError for CreateFileError {
                 ..
             }) => String::from("File with this name already exists."),
             Self::RemoteError(err) => err.user_error(),
+        }
+    }
+}
+
+impl From<GetCipherError> for CreateFileError {
+    fn from(err: GetCipherError) -> Self {
+        match err {
+            GetCipherError::RepoNotFound(err) => Self::RepoNotFound(err),
+            GetCipherError::RepoLocked(err) => Self::RepoLocked(err),
         }
     }
 }
@@ -295,6 +312,15 @@ impl UserError for RenameFileError {
             Self::DecryptFilenameError(err) => err.user_error(),
             Self::RenameRoot => "Cannot rename root folder".into(),
             Self::RemoteError(err) => err.user_error(),
+        }
+    }
+}
+
+impl From<GetCipherError> for RenameFileError {
+    fn from(err: GetCipherError) -> Self {
+        match err {
+            GetCipherError::RepoNotFound(err) => Self::RepoNotFound(err),
+            GetCipherError::RepoLocked(err) => Self::RepoLocked(err),
         }
     }
 }

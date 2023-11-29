@@ -1,7 +1,4 @@
-use std::{
-    collections::HashMap,
-    sync::{Arc, RwLock, RwLockReadGuard},
-};
+use std::sync::Arc;
 
 use lazy_static::lazy_static;
 
@@ -17,8 +14,8 @@ use crate::{
 
 use super::{
     errors::{
-        BuildCipherError, CreateRepoError, InvalidPasswordError, RemoveRepoError, RepoLockedError,
-        RepoNotFoundError, UnlockRepoError,
+        BuildCipherError, CreateRepoError, GetCipherError, InvalidPasswordError, LockRepoError,
+        RemoveRepoError, RepoNotFoundError, UnlockRepoError,
     },
     mutations,
     password_validator::{check_password_validator, generate_password_validator},
@@ -38,7 +35,6 @@ pub struct ReposService {
     remote: Arc<remote::Remote>,
     remote_files_service: Arc<RemoteFilesService>,
     store: Arc<store::Store>,
-    ciphers: Arc<RwLock<HashMap<RepoId, Arc<Cipher>>>>,
 }
 
 impl ReposService {
@@ -51,12 +47,7 @@ impl ReposService {
             remote,
             remote_files_service,
             store,
-            ciphers: Arc::new(RwLock::new(HashMap::new())),
         }
-    }
-
-    pub fn reset(&self) {
-        self.ciphers.write().unwrap().clear()
     }
 
     pub async fn load_repos(&self) -> Result<(), remote::RemoteError> {
@@ -77,26 +68,11 @@ impl ReposService {
         res_err
     }
 
-    pub fn lock_repo(&self, repo_id: &RepoId) -> Result<(), RepoNotFoundError> {
-        let cipher = self.ciphers.write().unwrap().remove(repo_id);
-
-        // match needs to be separate from self.ciphers.write() otherwise
-        // self.ciphers stays locked and we can deadlock
-        match cipher {
-            Some(cipher) => self
-                .store
-                .mutate(|state, notify, mutation_state, mutation_notify| {
-                    mutations::lock_repo(
-                        state,
-                        notify,
-                        mutation_state,
-                        mutation_notify,
-                        repo_id,
-                        cipher,
-                    )
-                }),
-            None => Err(RepoNotFoundError),
-        }
+    pub fn lock_repo(&self, repo_id: &RepoId) -> Result<(), LockRepoError> {
+        self.store
+            .mutate(|state, notify, mutation_state, mutation_notify| {
+                mutations::lock_repo(state, notify, mutation_state, mutation_notify, repo_id)
+            })
     }
 
     pub fn build_cipher(
@@ -130,30 +106,34 @@ impl ReposService {
         password: &str,
         mode: RepoUnlockMode,
     ) -> Result<(), UnlockRepoError> {
-        let cipher = self.build_cipher(repo_id, password)?;
-
-        if matches!(mode, RepoUnlockMode::Unlock) {
-            let cipher = Arc::new(cipher);
-
-            self.ciphers
-                .write()
-                .unwrap()
-                .insert(repo_id.to_owned(), cipher.clone());
-
-            self.store
-                .mutate(|state, notify, mutation_state, mutation_notify| {
-                    mutations::unlock_repo(
-                        state,
-                        notify,
-                        mutation_state,
-                        mutation_notify,
-                        repo_id,
-                        cipher,
-                    )
+        match mode {
+            RepoUnlockMode::Unlock => {
+                self.store.mutate(|state, _, _, _| {
+                    mutations::check_unlock_repo(state, repo_id).map(|_| ())
                 })?;
-        }
 
-        Ok(())
+                let cipher = Arc::new(self.build_cipher(repo_id, password)?);
+
+                self.store
+                    .mutate(|state, notify, mutation_state, mutation_notify| {
+                        mutations::unlock_repo(
+                            state,
+                            notify,
+                            mutation_state,
+                            mutation_notify,
+                            repo_id,
+                            cipher,
+                        )
+                    })?;
+
+                Ok(())
+            }
+            RepoUnlockMode::Verify => {
+                self.build_cipher(repo_id, password)?;
+
+                Ok(())
+            }
+        }
     }
 
     pub async fn create_repo(
@@ -226,7 +206,8 @@ impl ReposService {
     ) -> Result<(), RemoveRepoError> {
         let _ = self.build_cipher(repo_id, password)?;
 
-        self.remote
+        let res = self
+            .remote
             .remove_vault_repo(repo_id)
             .await
             .map_err(|e| match e {
@@ -235,20 +216,23 @@ impl ReposService {
                     ..
                 } => RemoveRepoError::RepoNotFound(RepoNotFoundError),
                 _ => RemoveRepoError::RemoteError(e),
-            })?;
-
-        self.ciphers.write().unwrap().remove(repo_id);
-
-        self.store
-            .mutate(|state, notify, mutation_state, mutation_notify| {
-                mutations::repo_removed(
-                    state,
-                    notify,
-                    mutation_state,
-                    mutation_notify,
-                    repo_id.to_owned(),
-                )
             });
+
+        match res {
+            Ok(()) | Err(RemoveRepoError::RepoNotFound(..)) => {
+                self.store
+                    .mutate(|state, notify, mutation_state, mutation_notify| {
+                        mutations::repo_removed(
+                            state,
+                            notify,
+                            mutation_state,
+                            mutation_notify,
+                            repo_id.to_owned(),
+                        )
+                    })?
+            }
+            _ => {}
+        }
 
         Ok(())
     }
@@ -280,14 +264,8 @@ impl ReposService {
         })
     }
 
-    pub fn get_ciphers(&self) -> RwLockReadGuard<'_, HashMap<RepoId, Arc<Cipher>>> {
-        self.ciphers.read().unwrap()
-    }
-
-    pub fn get_cipher(&self, repo_id: &RepoId) -> Result<Arc<Cipher>, RepoLockedError> {
-        let ciphers = self.get_ciphers();
-        let cipher = ciphers.get(repo_id).ok_or(RepoLockedError)?;
-
-        Ok(cipher.clone())
+    pub fn get_cipher(&self, repo_id: &RepoId) -> Result<Arc<Cipher>, GetCipherError> {
+        self.store
+            .with_state(|state| selectors::select_cipher_owned(state, repo_id))
     }
 }

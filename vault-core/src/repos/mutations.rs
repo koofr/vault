@@ -12,7 +12,10 @@ use crate::{
 };
 
 use super::{
-    errors::RepoNotFoundError,
+    errors::{
+        LockRepoError, RemoveRepoError, RepoLockedError, RepoNotFoundError, RepoUnlockedError,
+        UnlockRepoError,
+    },
     repo_tree::RepoTree,
     selectors,
     state::{Repo, RepoState},
@@ -121,7 +124,7 @@ pub fn repos_loaded(
                 repo_loaded(state, repo);
             }
 
-            remove_repos(state, mutation_state, &remove_repo_ids)
+            remove_repos(state, mutation_state, &remove_repo_ids);
         }
         Err(err) => {
             state.repos.status = Status::Error {
@@ -142,13 +145,13 @@ pub fn lock_repo(
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
     repo_id: &RepoId,
-    cipher: Arc<Cipher>,
-) -> Result<(), RepoNotFoundError> {
+) -> Result<(), LockRepoError> {
     let repo = selectors::select_repo_mut(state, repo_id)?;
 
-    if matches!(repo.state, RepoState::Locked) {
-        return Ok(());
-    }
+    let cipher = match &repo.state {
+        RepoState::Locked => return Err(LockRepoError::RepoLocked(RepoLockedError)),
+        RepoState::Unlocked { cipher } => cipher.clone(),
+    };
 
     repo.state = RepoState::Locked;
 
@@ -164,6 +167,19 @@ pub fn lock_repo(
     Ok(())
 }
 
+pub fn check_unlock_repo<'a>(
+    state: &'a mut store::State,
+    repo_id: &RepoId,
+) -> Result<&'a mut Repo, UnlockRepoError> {
+    let repo = selectors::select_repo_mut(state, repo_id)?;
+
+    if matches!(repo.state, RepoState::Unlocked { .. }) {
+        return Err(UnlockRepoError::RepoUnlocked(RepoUnlockedError));
+    }
+
+    Ok(repo)
+}
+
 pub fn unlock_repo(
     state: &mut store::State,
     notify: &store::Notify,
@@ -171,14 +187,12 @@ pub fn unlock_repo(
     mutation_notify: &store::MutationNotify,
     repo_id: &RepoId,
     cipher: Arc<Cipher>,
-) -> Result<(), RepoNotFoundError> {
-    let repo = selectors::select_repo_mut(state, repo_id)?;
+) -> Result<(), UnlockRepoError> {
+    let repo = check_unlock_repo(state, repo_id)?;
 
-    if matches!(repo.state, RepoState::Unlocked) {
-        return Ok(());
-    }
-
-    repo.state = RepoState::Unlocked;
+    repo.state = RepoState::Unlocked {
+        cipher: cipher.clone(),
+    };
 
     notify(store::Event::Repos);
 
@@ -196,24 +210,26 @@ pub fn remove_repos(
     state: &mut store::State,
     mutation_state: &mut store::MutationState,
     repo_ids: &[RepoId],
-) {
-    for repo_id in repo_ids {
-        if let Some(repo) = state.repos.repos_by_id.remove(repo_id) {
-            state
-                .repos
-                .repo_ids_by_remote_file_id
-                .remove(&remote_files_selectors::get_file_id(
-                    &repo.mount_id,
-                    &repo.path.to_lowercase(),
-                ));
+) -> Vec<Option<Repo>> {
+    repo_ids
+        .iter()
+        .map(|repo_id| match state.repos.repos_by_id.remove(repo_id) {
+            Some(repo) => {
+                state.repos.repo_ids_by_remote_file_id.remove(
+                    &remote_files_selectors::get_file_id(&repo.mount_id, &repo.path.to_lowercase()),
+                );
 
-            if let Some(repo_tree) = state.repos.mount_repo_trees.get_mut(&repo.mount_id) {
-                repo_tree.remove(&repo.path);
+                if let Some(repo_tree) = state.repos.mount_repo_trees.get_mut(&repo.mount_id) {
+                    repo_tree.remove(&repo.path);
+                }
+
+                mutation_state.repos.removed_repos.push(repo_id.to_owned());
+
+                Some(repo)
             }
-
-            mutation_state.repos.removed_repos.push(repo_id.to_owned());
-        }
-    }
+            None => None,
+        })
+        .collect()
 }
 
 pub fn repo_created(
@@ -236,10 +252,17 @@ pub fn repo_removed(
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
     repo_id: RepoId,
-) {
-    remove_repos(state, mutation_state, &[repo_id]);
+) -> Result<(), RemoveRepoError> {
+    let res = remove_repos(state, mutation_state, &[repo_id]);
 
-    notify(store::Event::Repos);
+    match res.into_iter().next().flatten() {
+        Some(_) => {
+            notify(store::Event::Repos);
 
-    mutation_notify(store::MutationEvent::Repos, state, mutation_state);
+            mutation_notify(store::MutationEvent::Repos, state, mutation_state);
+
+            Ok(())
+        }
+        None => Err(RemoveRepoError::RepoNotFound(RepoNotFoundError)),
+    }
 }

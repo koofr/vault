@@ -140,8 +140,6 @@ impl TransfersService {
 
         let is_retriable = uploadable.is_retriable().await?;
 
-        let cipher = self.repos_service.get_cipher(&repo_id)?;
-
         let result_receiver = self.store.mutate(|state, notify, _, _| {
             let result_receiver = match self.state.write().unwrap().transfers.get_mut(&id) {
                 Some(state) => {
@@ -163,21 +161,18 @@ impl TransfersService {
             let is_persistent = false;
             let is_openable = false;
 
-            mutations::create_transfer(
+            mutations::create_upload_transfer(
                 state,
                 notify,
                 id,
-                mutations::CreateTransferType::Upload {
-                    repo_id,
-                    parent_path,
-                    name,
-                    cipher,
-                },
+                repo_id,
+                parent_path,
+                name,
                 size,
                 is_persistent,
                 is_retriable,
                 is_openable,
-            );
+            )?;
 
             Ok(result_receiver)
         })?;
@@ -272,13 +267,11 @@ impl TransfersService {
                 None => return Err(TransferError::Aborted),
             };
 
-            mutations::create_transfer(
+            mutations::create_download_transfer(
                 state,
                 notify,
                 id,
-                mutations::CreateTransferType::Download {
-                    name: TransferDisplayName(name),
-                },
+                TransferDisplayName(name),
                 size,
                 is_persistent,
                 is_retriable,

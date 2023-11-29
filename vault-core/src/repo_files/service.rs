@@ -19,7 +19,7 @@ use crate::{
         errors::GetFilesReaderError, state::RepoFileReaderProvider, RepoFilesReadService,
     },
     repos::{
-        errors::{RepoLockedError, RepoNotFoundError},
+        errors::{GetCipherError, RepoNotFoundError},
         ReposService,
     },
     store,
@@ -61,10 +61,8 @@ impl RepoFilesService {
         store: Arc<store::Store>,
     ) -> Self {
         let remote_files_mutation_subscription_id = store.get_next_id();
-        let remote_files_mutation_repos_service = repos_service.clone();
 
         let repos_mutation_subscription_id = store.get_next_id();
-        let repos_mutation_repos_service = repos_service.clone();
 
         store.mutation_on(
             remote_files_mutation_subscription_id,
@@ -75,7 +73,6 @@ impl RepoFilesService {
                     notify,
                     mutation_state,
                     mutation_notify,
-                    &remote_files_mutation_repos_service.get_ciphers(),
                 );
             }),
         );
@@ -84,13 +81,7 @@ impl RepoFilesService {
             repos_mutation_subscription_id,
             &[store::MutationEvent::Repos],
             Box::new(move |state, notify, mutation_state, mutation_notify| {
-                mutations::handle_repos_mutation(
-                    state,
-                    notify,
-                    mutation_state,
-                    mutation_notify,
-                    &repos_mutation_repos_service.get_ciphers(),
-                );
+                mutations::handle_repos_mutation(state, notify, mutation_state, mutation_notify);
             }),
         );
 
@@ -149,7 +140,7 @@ impl RepoFilesService {
         &self,
         repo_id: &RepoId,
         name: &DecryptedName,
-    ) -> Result<EncryptedName, RepoLockedError> {
+    ) -> Result<EncryptedName, GetCipherError> {
         let cipher = self.repos_service.get_cipher(&repo_id)?;
 
         Ok(cipher.encrypt_filename(name))

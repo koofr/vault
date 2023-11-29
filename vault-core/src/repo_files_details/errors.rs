@@ -4,7 +4,7 @@ use crate::{
     cipher::errors::DecryptFilenameError,
     remote::RemoteError,
     repo_files::errors::{LoadFilesError, UploadFileReaderError},
-    repos::errors::{RepoLockedError, RepoNotFoundError},
+    repos::errors::{GetCipherError, RepoLockedError, RepoNotFoundError},
     transfers::errors::TransferError,
     user_error::UserError,
 };
@@ -105,6 +105,15 @@ impl UserError for SaveError {
             Self::Canceled => self.to_string(),
             Self::CannotSaveRoot => self.to_string(),
             Self::RemoteError(err) => err.user_error(),
+        }
+    }
+}
+
+impl From<GetCipherError> for SaveError {
+    fn from(err: GetCipherError) -> Self {
+        match err {
+            GetCipherError::RepoNotFound(err) => Self::RepoNotFound(err),
+            GetCipherError::RepoLocked(err) => Self::RepoLocked(err),
         }
     }
 }

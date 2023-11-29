@@ -10,17 +10,17 @@ use crate::{
 
 use super::{errors::RepoInfoError, repo_tree::RepoTree};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum RepoState {
     Locked,
-    Unlocked,
+    Unlocked { cipher: Arc<Cipher> },
 }
 
 impl RepoState {
     pub fn is_locked(&self) -> bool {
         match self {
             Self::Locked => true,
-            Self::Unlocked => false,
+            Self::Unlocked { .. } => false,
         }
     }
 

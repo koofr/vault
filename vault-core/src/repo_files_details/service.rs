@@ -98,18 +98,12 @@ impl RepoFilesDetailsService {
         );
 
         let mutation_subscription_id = store.get_next_id();
-        let mutation_repos_service = repos_service.clone();
 
         store.mutation_on(
             mutation_subscription_id,
             &[store::MutationEvent::RepoFiles, store::MutationEvent::Repos],
             Box::new(move |state, notify, mutation_state, _| {
-                mutations::handle_mutation(
-                    state,
-                    notify,
-                    mutation_state,
-                    &mutation_repos_service.get_ciphers(),
-                );
+                mutations::handle_mutation(state, notify, mutation_state);
             }),
         );
 
@@ -137,8 +131,6 @@ impl RepoFilesDetailsService {
     ) -> (u32, BoxFuture<'static, Result<(), LoadDetailsError>>) {
         let repo_files_subscription_id = self.store.get_next_id();
 
-        let cipher = self.repos_service.get_cipher(&repo_id).ok();
-
         let details_id = self.store.mutate(|state, notify, mutation_state, _| {
             mutations::create(
                 state,
@@ -149,7 +141,6 @@ impl RepoFilesDetailsService {
                 path,
                 is_editing,
                 repo_files_subscription_id,
-                cipher.as_deref(),
             )
         });
 
