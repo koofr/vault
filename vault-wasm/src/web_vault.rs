@@ -593,7 +593,15 @@ impl WebVault {
 
     #[wasm_bindgen(js_name = reposLockRepo)]
     pub fn repos_lock_repo(&self, repo_id: String) {
-        self.handle_result(self.vault.repos_lock_repo(&RepoId(repo_id)))
+        self.handle_result(
+            self.vault
+                .repos_lock_repo(&RepoId(repo_id))
+                .or_else(|err| match err {
+                    // ignore already locked
+                    vault_core::repos::errors::LockRepoError::RepoLocked(_) => Ok(()),
+                    _ => Err(err),
+                }),
+        )
     }
 
     // repo_create

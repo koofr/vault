@@ -36,7 +36,7 @@ use vault_core::{
     repo_files_read,
     repo_remove::state as repo_remove_state,
     repo_unlock::state as repo_unlock_state,
-    repos::{selectors as repos_selectors, state as repos_state},
+    repos::{self, selectors as repos_selectors, state as repos_state},
     selection::state as selection_state,
     sort::state as sort_state,
     store::{self, Event},
@@ -2229,7 +2229,15 @@ impl MobileVault {
 
     pub fn repos_lock_repo(&self, repo_id: String) {
         self.errors
-            .handle_result(self.vault.repos_lock_repo(&RepoId(repo_id)));
+            .handle_result(
+                self.vault
+                    .repos_lock_repo(&RepoId(repo_id))
+                    .or_else(|err| match err {
+                        // ignore already locked
+                        repos::errors::LockRepoError::RepoLocked(_) => Ok(()),
+                        _ => Err(err),
+                    }),
+            );
     }
 
     // repo_create
