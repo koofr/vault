@@ -33,7 +33,7 @@ export const mainAuthenticated = async () => {
   initConsole();
 
   streamSaver.mitm =
-    window.location.origin + '/streamsaver-2.0.6/mitm.html?version=2.0.0';
+    window.location.origin + '/streamsaver-2.0.6-34ea69e/mitm.html?version=2.0.0';
 
   const config = await configPromise;
 

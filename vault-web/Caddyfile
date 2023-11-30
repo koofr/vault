@@ -7,7 +7,7 @@
 	handle /favicon.png {
 		header Cache-Control "max-age=3600"
 	}
-	handle /streamsaver-2.0.6/* {
+	handle /streamsaver-2.0.6-34ea69e/* {
 		header Cache-Control "max-age=31536000"
 	}
 	handle /pdfjs-3.5.141/* {
