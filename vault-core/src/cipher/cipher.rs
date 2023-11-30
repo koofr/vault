@@ -83,6 +83,16 @@ impl Cipher {
         self.cipher.encrypt_data(data, out)
     }
 
+    pub fn encrypt_vec(&self, data: &[u8]) -> Result<Vec<u8>, std::io::Error> {
+        let mut buf = Vec::with_capacity(
+            vault_crypto::data_cipher::encrypted_size(data.len() as i64) as usize,
+        );
+
+        self.cipher.encrypt_data(data, &mut buf)?;
+
+        Ok(buf)
+    }
+
     pub fn decrypt_reader_async<R>(
         &self,
         reader: R,
@@ -99,5 +109,13 @@ impl Cipher {
 
     pub fn decrypt_data(&self, data: &[u8], out: &mut Vec<u8>) -> Result<usize, std::io::Error> {
         self.cipher.decrypt_data(data, out)
+    }
+
+    pub fn decrypt_vec(&self, data: &[u8]) -> Result<Vec<u8>, std::io::Error> {
+        let mut buf = Vec::with_capacity(data.len());
+
+        self.cipher.decrypt_data(data, &mut buf)?;
+
+        Ok(buf)
     }
 }
