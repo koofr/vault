@@ -1590,8 +1590,10 @@ impl WebVault {
 
     #[wasm_bindgen(js_name = repoFilesDetailsSetContent)]
     pub fn repo_files_details_set_content(&self, details_id: u32, content: Vec<u8>) {
-        self.vault
-            .repo_files_details_set_content(details_id, content);
+        self.handle_result(
+            self.vault
+                .repo_files_details_set_content(details_id, content),
+        );
     }
 
     #[wasm_bindgen(js_name = repoFilesDetailsSave)]

@@ -3259,8 +3259,10 @@ impl MobileVault {
     }
 
     pub fn repo_files_details_set_content(&self, details_id: u32, content: Vec<u8>) {
-        self.vault
-            .repo_files_details_set_content(details_id, content);
+        self.errors.handle_result(
+            self.vault
+                .repo_files_details_set_content(details_id, content),
+        );
     }
 
     pub fn repo_files_details_save(self: Arc<Self>, details_id: u32) {

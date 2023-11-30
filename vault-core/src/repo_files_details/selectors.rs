@@ -24,7 +24,8 @@ use super::{
     errors::SaveError,
     state::{
         RepoFilesDetails, RepoFilesDetailsContent, RepoFilesDetailsContentData,
-        RepoFilesDetailsContentLoading, RepoFilesDetailsInfo, RepoFilesDetailsLocation,
+        RepoFilesDetailsContentDataBytes, RepoFilesDetailsContentLoading, RepoFilesDetailsInfo,
+        RepoFilesDetailsLocation,
     },
 };
 
@@ -393,7 +394,12 @@ pub fn select_content_bytes_version<'a>(
                     .content
                     .data
                     .as_ref()
-                    .map(|data| data.bytes.as_ref()),
+                    .and_then(|data| match &data.bytes {
+                        RepoFilesDetailsContentDataBytes::Encrypted(_) => None,
+                        RepoFilesDetailsContentDataBytes::Decrypted(bytes, _) => {
+                            Some(bytes.as_ref())
+                        }
+                    }),
                 location.content.version,
             )
         })

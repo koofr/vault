@@ -885,10 +885,14 @@ impl Vault {
             .await
     }
 
-    pub fn repo_files_details_set_content(&self, details_id: u32, content: Vec<u8>) {
+    pub fn repo_files_details_set_content(
+        &self,
+        details_id: u32,
+        content: Vec<u8>,
+    ) -> Result<(), repo_files_details::errors::SetContentError> {
         self.repo_files_details_service
             .clone()
-            .set_content(details_id, content);
+            .set_content(details_id, content)
     }
 
     pub async fn repo_files_details_save(

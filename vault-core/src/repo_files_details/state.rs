@@ -1,7 +1,7 @@
-use std::{collections::HashMap, time::Duration};
+use std::{collections::HashMap, sync::Arc, time::Duration};
 
 use crate::{
-    cipher::errors::DecryptFilenameError,
+    cipher::{errors::DecryptFilenameError, Cipher},
     common::state::Status,
     eventstream::state::MountSubscription,
     files::{file_category::FileCategory, files_filter::FilesFilter},
@@ -41,9 +41,25 @@ pub struct RepoFilesDetailsInfo<'a> {
     pub is_locked: bool,
 }
 
+#[derive(Debug, Clone)]
+pub enum RepoFilesDetailsContentDataBytes {
+    Encrypted(Vec<u8>),
+    Decrypted(Vec<u8>, Arc<Cipher>),
+}
+
+impl PartialEq for RepoFilesDetailsContentDataBytes {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Encrypted(b1), Self::Encrypted(b2)) => b1 == b2,
+            (Self::Decrypted(b1, _), Self::Decrypted(b2, _)) => b1 == b2,
+            _ => false,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct RepoFilesDetailsContentData {
-    pub bytes: Vec<u8>,
+    pub bytes: RepoFilesDetailsContentDataBytes,
     pub remote_size: Option<i64>,
     pub remote_modified: Option<i64>,
     pub remote_hash: Option<String>,

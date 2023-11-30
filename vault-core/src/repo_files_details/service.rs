@@ -11,6 +11,7 @@ use futures::{
 };
 
 use crate::{
+    common::state::SizeInfo,
     dialogs::{self, state::DialogShowOptions},
     http::HttpError,
     remote::{ApiErrorCode, RemoteError},
@@ -34,9 +35,12 @@ use crate::{
 };
 
 use super::{
-    errors::{LoadContentError, LoadDetailsError, SaveError},
+    errors::{LoadContentError, LoadDetailsError, SaveError, SetContentError},
     mutations, selectors,
-    state::{RepoFilesDetailsContentData, RepoFilesDetailsOptions, SaveInitiator},
+    state::{
+        RepoFilesDetailsContentData, RepoFilesDetailsContentDataBytes, RepoFilesDetailsOptions,
+        SaveInitiator,
+    },
 };
 
 pub struct RepoFilesDetailsService {
@@ -291,6 +295,8 @@ impl RepoFilesDetailsService {
         let repo_id = file.repo_id.clone();
         let path = file.encrypted_path.clone();
 
+        let cipher = self.repos_service.get_cipher(&repo_id)?;
+
         let res = match match self
             .repo_files_read_service
             .clone()
@@ -300,14 +306,17 @@ impl RepoFilesDetailsService {
             Err(err) => Err(err),
         } {
             Ok(mut reader) => {
-                let mut buf = Vec::new();
+                let mut buf = match reader.size {
+                    SizeInfo::Exact(n) | SizeInfo::Estimate(n) => Vec::with_capacity(n as usize),
+                    SizeInfo::Unknown => Vec::new(),
+                };
 
                 match reader.reader.read_to_end(&mut buf).await {
                     Ok(_) => {
                         let remote_file = reader.remote_file.unwrap();
 
                         Ok(Some(RepoFilesDetailsContentData {
-                            bytes: buf,
+                            bytes: RepoFilesDetailsContentDataBytes::Decrypted(buf, cipher),
                             remote_size: remote_file.size,
                             remote_modified: remote_file.modified,
                             remote_hash: remote_file.hash,
@@ -504,12 +513,18 @@ impl RepoFilesDetailsService {
         Ok(())
     }
 
-    pub fn set_content(self: Arc<Self>, details_id: u32, content: Vec<u8>) {
+    pub fn set_content(
+        self: Arc<Self>,
+        details_id: u32,
+        content: Vec<u8>,
+    ) -> Result<(), SetContentError> {
         self.store.mutate(|state, notify, _, _| {
-            mutations::set_content(state, notify, details_id, content);
-        });
+            mutations::set_content(state, notify, details_id, content)
+        })?;
 
         self.autosave_schedule(details_id);
+
+        Ok(())
     }
 
     pub async fn save(self: Arc<Self>, details_id: u32) -> Result<(), SaveError> {
@@ -598,6 +613,15 @@ impl RepoFilesDetailsService {
         let mut parent_path = repo_encrypted_path_utils::parent_path(&path)
             .ok_or_else(|| SaveError::CannotSaveRoot)?;
 
+        let bytes = match &data.bytes {
+            RepoFilesDetailsContentDataBytes::Encrypted(bytes) => cipher
+                .decrypt_vec(&bytes)
+                .map_err(|err| SaveError::DecryptDataError(err.to_string()))?,
+            RepoFilesDetailsContentDataBytes::Decrypted(bytes, _) => bytes.clone(),
+        };
+
+        let size = Some(bytes.len() as i64);
+
         if is_deleted {
             self.save_deleted_confirm_new_location(&initiator, &original_name)
                 .await?;
@@ -620,8 +644,7 @@ impl RepoFilesDetailsService {
             let encrypted_name = cipher.encrypt_filename(&name);
             let path = repo_encrypted_path_utils::join_path_name(&parent_path, &encrypted_name);
 
-            let size = Some(data.bytes.len() as i64);
-            let reader = Box::pin(Cursor::new(data.bytes.clone()));
+            let reader = Box::pin(Cursor::new(bytes.clone()));
 
             return match self
                 .repo_files_service

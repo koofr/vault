@@ -42,6 +42,10 @@ impl From<LoadFilesError> for LoadDetailsError {
 #[derive(Error, Debug, Clone, PartialEq)]
 pub enum LoadContentError {
     #[error("{0}")]
+    RepoNotFound(#[from] RepoNotFoundError),
+    #[error("{0}")]
+    RepoLocked(#[from] RepoLockedError),
+    #[error("{0}")]
     TransferError(#[from] TransferError),
     #[error("file not found")]
     FileNotFound,
@@ -56,11 +60,22 @@ pub enum LoadContentError {
 impl UserError for LoadContentError {
     fn user_error(&self) -> String {
         match self {
+            Self::RepoNotFound(err) => err.user_error(),
+            Self::RepoLocked(err) => err.user_error(),
             Self::TransferError(err) => err.user_error(),
             Self::FileNotFound => "File not found".into(),
             Self::DecryptFilenameError(err) => err.user_error(),
             Self::AlreadyLoading => self.to_string(),
             Self::LoadFilterMismatch => self.to_string(),
+        }
+    }
+}
+
+impl From<GetCipherError> for LoadContentError {
+    fn from(err: GetCipherError) -> Self {
+        match err {
+            GetCipherError::RepoNotFound(err) => Self::RepoNotFound(err),
+            GetCipherError::RepoLocked(err) => Self::RepoLocked(err),
         }
     }
 }
@@ -73,6 +88,8 @@ pub enum SaveError {
     RepoLocked(#[from] RepoLockedError),
     #[error("{0}")]
     DecryptFilenameError(#[from] DecryptFilenameError),
+    #[error("{0}")]
+    DecryptDataError(String),
     #[error("already saving")]
     AlreadySaving,
     #[error("not dirty")]
@@ -97,6 +114,7 @@ impl UserError for SaveError {
             Self::RepoNotFound(err) => err.user_error(),
             Self::RepoLocked(err) => err.user_error(),
             Self::DecryptFilenameError(err) => err.user_error(),
+            Self::DecryptDataError(err) => err.clone(),
             Self::AlreadySaving => self.to_string(),
             Self::NotDirty => self.to_string(),
             Self::InvalidState => self.to_string(),
@@ -136,6 +154,20 @@ impl From<UploadFileReaderError> for SaveError {
             UploadFileReaderError::DecryptFilenameError(err) => Self::DecryptFilenameError(err),
             UploadFileReaderError::Canceled => Self::Canceled,
             UploadFileReaderError::RemoteError(err) => Self::RemoteError(err),
+        }
+    }
+}
+
+#[derive(Error, Debug, Clone, PartialEq)]
+pub enum SetContentError {
+    #[error("{0}")]
+    RepoLocked(#[from] RepoLockedError),
+}
+
+impl UserError for SetContentError {
+    fn user_error(&self) -> String {
+        match self {
+            Self::RepoLocked(err) => err.user_error(),
         }
     }
 }

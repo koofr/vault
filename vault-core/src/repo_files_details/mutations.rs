@@ -10,19 +10,20 @@ use crate::{
         state::{RepoFile, RepoFilesUploadResult},
     },
     repo_files_read::errors::GetFilesReaderError,
-    repos, store,
+    repos::{self, errors::RepoLockedError},
+    store,
     transfers::errors::TransferError,
     types::{EncryptedName, EncryptedPath, RepoId},
     utils::repo_encrypted_path_utils,
 };
 
 use super::{
-    errors::{LoadContentError, SaveError},
+    errors::{LoadContentError, SaveError, SetContentError},
     selectors,
     state::{
         RepoFilesDetails, RepoFilesDetailsContent, RepoFilesDetailsContentData,
-        RepoFilesDetailsContentLoading, RepoFilesDetailsLocation, RepoFilesDetailsOptions,
-        SaveInitiator,
+        RepoFilesDetailsContentDataBytes, RepoFilesDetailsContentLoading, RepoFilesDetailsLocation,
+        RepoFilesDetailsOptions, SaveInitiator,
     },
 };
 
@@ -226,18 +227,21 @@ pub fn update_details(state: &mut store::State, notify: &store::Notify, details_
         _ => return,
     };
 
-    let (repo_status, is_locked, cipher) = match &details.location {
+    let (repo_status, is_locked, cipher, repo_exists) = match &details.location {
         Some(loc) => {
             let (repo, status) = repos::selectors::select_repo_status(state, &loc.repo_id);
             let cipher = repos::selectors::select_cipher_owned(state, &loc.repo_id).ok();
 
             (
                 status,
-                repo.map(|repo| repo.state.is_locked()).unwrap_or(false),
+                repo.as_ref()
+                    .map(|repo| repo.state.is_locked())
+                    .unwrap_or(false),
                 cipher,
+                repo.is_ok(),
             )
         }
-        None => (Status::Initial, false, None),
+        None => (Status::Initial, false, None, false),
     };
 
     let details = match state.repo_files_details.details.get_mut(&details_id) {
@@ -250,7 +254,7 @@ pub fn update_details(state: &mut store::State, notify: &store::Notify, details_
     if let Some(location) = &mut details.location {
         let decrypted_name_is_some = location.decrypted_name.is_some();
 
-        match (decrypted_name_is_some, cipher) {
+        match (decrypted_name_is_some, &cipher) {
             (false, Some(cipher)) => {
                 location.decrypted_name = Some(cipher.decrypt_filename(&location.name));
 
@@ -262,6 +266,35 @@ pub fn update_details(state: &mut store::State, notify: &store::Notify, details_
                 dirty = true;
             }
             _ => {}
+        }
+    }
+
+    if let Some(location) = &mut details.location {
+        if let Some(data) = &mut location.content.data {
+            match (&mut data.bytes, &cipher) {
+                (RepoFilesDetailsContentDataBytes::Encrypted(bytes), Some(cipher)) => {
+                    if let Ok(decrypted) = cipher.decrypt_vec(&bytes) {
+                        data.bytes =
+                            RepoFilesDetailsContentDataBytes::Decrypted(decrypted, cipher.clone());
+
+                        location.content.version += 1;
+
+                        dirty = true;
+                    }
+                }
+                (RepoFilesDetailsContentDataBytes::Decrypted(bytes, cipher), None)
+                    if repo_exists =>
+                {
+                    if let Ok(encrypted) = cipher.encrypt_vec(&bytes) {
+                        data.bytes = RepoFilesDetailsContentDataBytes::Encrypted(encrypted);
+
+                        location.content.version += 1;
+
+                        dirty = true;
+                    }
+                }
+                _ => {}
+            }
         }
     }
 
@@ -504,27 +537,36 @@ pub fn set_content(
     notify: &store::Notify,
     details_id: u32,
     content: Vec<u8>,
-) {
+) -> Result<(), SetContentError> {
     let location = match selectors::select_details_location_mut(state, details_id) {
         Some(location) => location,
-        _ => return,
+        _ => return Ok(()),
     };
 
     if let Some(data) = &mut location.content.data {
-        if data.bytes != content {
-            data.bytes = content;
+        match &mut data.bytes {
+            RepoFilesDetailsContentDataBytes::Encrypted(_) => {
+                return Err(SetContentError::RepoLocked(RepoLockedError))
+            }
+            RepoFilesDetailsContentDataBytes::Decrypted(bytes, _) => {
+                if bytes != &content {
+                    *bytes = content;
 
-            location.content.version += 1;
+                    location.content.version += 1;
 
-            notify(store::Event::RepoFilesDetailsContentData);
+                    notify(store::Event::RepoFilesDetailsContentData);
 
-            if !location.is_dirty {
-                location.is_dirty = true;
+                    if !location.is_dirty {
+                        location.is_dirty = true;
 
-                notify(store::Event::RepoFilesDetails);
+                        notify(store::Event::RepoFilesDetails);
+                    }
+                }
             }
         }
     }
+
+    Ok(())
 }
 
 pub fn saving(

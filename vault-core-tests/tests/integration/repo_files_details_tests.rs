@@ -20,10 +20,11 @@ use vault_core::{
         self,
         state::{
             RepoFilesDetails, RepoFilesDetailsContent, RepoFilesDetailsContentData,
-            RepoFilesDetailsContentLoading, RepoFilesDetailsInfo, RepoFilesDetailsLocation,
-            RepoFilesDetailsOptions, RepoFilesDetailsState,
+            RepoFilesDetailsContentDataBytes, RepoFilesDetailsContentLoading, RepoFilesDetailsInfo,
+            RepoFilesDetailsLocation, RepoFilesDetailsOptions, RepoFilesDetailsState,
         },
     },
+    repos,
     repos::errors::{RepoInfoError, RepoLockedError, RepoNotFoundError},
     store,
     transfers::errors::{DownloadableError, TransferError},
@@ -45,6 +46,10 @@ use vault_store::{test_helpers::StateRecorder, NextId};
 fn test_content() {
     with_repo(|fixture| {
         async move {
+            let cipher = fixture.vault.store.with_state(|state| {
+                repos::selectors::select_cipher_owned(state, &fixture.repo_id).unwrap()
+            });
+
             let (upload_result, _) = fixture.upload_file("/file.txt", "test").await;
 
             // remove file from state so that it is loaded before the content is loaded to prevent flaky tests
@@ -149,7 +154,10 @@ fn test_content() {
                             if let Some(location) = details.location.as_mut() {
                                 location.content.status = Status::Loaded;
                                 location.content.data = Some(RepoFilesDetailsContentData {
-                                    bytes: "test".as_bytes().to_owned(),
+                                    bytes: RepoFilesDetailsContentDataBytes::Decrypted(
+                                        "test".as_bytes().to_owned(),
+                                        cipher.clone(),
+                                    ),
                                     remote_size: upload_result.remote_file.size,
                                     remote_modified: upload_result.remote_file.modified,
                                     remote_hash: upload_result.remote_file.hash.clone(),
@@ -960,6 +968,26 @@ fn test_repo_lock_unlock_remove() {
                     is_locked: false,
                 }
             );
+            assert_eq!(
+                state_before_lock
+                    .repo_files_details
+                    .details
+                    .get(&1)
+                    .unwrap()
+                    .location
+                    .as_ref()
+                    .unwrap()
+                    .content
+                    .data
+                    .as_ref()
+                    .unwrap()
+                    .bytes,
+                RepoFilesDetailsContentDataBytes::Decrypted(
+                    "test".as_bytes().to_owned(),
+                    repos::selectors::select_cipher_owned(&state_before_lock, &fixture.repo_id)
+                        .unwrap()
+                )
+            );
 
             fixture.lock();
 
@@ -995,6 +1023,22 @@ fn test_repo_lock_unlock_remove() {
                     is_locked: true,
                 }
             );
+            assert!(matches!(
+                state_after_lock
+                    .repo_files_details
+                    .details
+                    .get(&1)
+                    .expect("a")
+                    .location
+                    .as_ref()
+                    .expect("b")
+                    .content
+                    .data
+                    .as_ref()
+                    .expect("c")
+                    .bytes,
+                RepoFilesDetailsContentDataBytes::Encrypted(_)
+            ));
 
             unlock_wait_for_details_loaded(&fixture).await;
 
@@ -1002,6 +1046,26 @@ fn test_repo_lock_unlock_remove() {
             assert_eq!(
                 select_info(&state_after_unlock),
                 select_info(&state_before_lock)
+            );
+            assert_eq!(
+                state_after_unlock
+                    .repo_files_details
+                    .details
+                    .get(&1)
+                    .unwrap()
+                    .location
+                    .as_ref()
+                    .unwrap()
+                    .content
+                    .data
+                    .as_ref()
+                    .unwrap()
+                    .bytes,
+                RepoFilesDetailsContentDataBytes::Decrypted(
+                    "test".as_bytes().to_owned(),
+                    repos::selectors::select_cipher_owned(&state_after_unlock, &fixture.repo_id)
+                        .unwrap()
+                )
             );
 
             fixture.remove().await;
@@ -1040,6 +1104,26 @@ fn test_repo_lock_unlock_remove() {
                     },
                     is_locked: false,
                 }
+            );
+            assert_eq!(
+                state_after_remove
+                    .repo_files_details
+                    .details
+                    .get(&1)
+                    .unwrap()
+                    .location
+                    .as_ref()
+                    .unwrap()
+                    .content
+                    .data
+                    .as_ref()
+                    .unwrap()
+                    .bytes,
+                RepoFilesDetailsContentDataBytes::Decrypted(
+                    "test".as_bytes().to_owned(),
+                    repos::selectors::select_cipher_owned(&state_after_unlock, &fixture.repo_id)
+                        .unwrap()
+                )
             );
 
             fixture
@@ -1199,7 +1283,12 @@ fn test_eventstream() {
                     .content
                     .data
                     .as_ref()
-                    .map(|x| String::from_utf8(x.bytes.clone()) == Ok("test1".to_string()))
+                    .filter(|x| match &x.bytes {
+                        RepoFilesDetailsContentDataBytes::Encrypted(_) => false,
+                        RepoFilesDetailsContentDataBytes::Decrypted(bytes, _) => {
+                            bytes.as_slice() == "test1".as_bytes()
+                        }
+                    })
                     .is_some()
             })
             .await;
