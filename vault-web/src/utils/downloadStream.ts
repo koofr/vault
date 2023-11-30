@@ -5,11 +5,13 @@ import { FileStream } from '../vault-wasm/vault-wasm';
 
 export function downloadStream(stream: FileStream) {
   if (stream.stream !== undefined) {
+    const size =
+      stream.size.type === 'Exact'
+        ? parseInt(stream.size.size as any, 10)
+        : undefined;
+
     const fileStream = streamSaver.createWriteStream(stream.name, {
-      size:
-        stream.size !== undefined
-          ? parseInt(stream.size as any, 10)
-          : undefined,
+      size,
     });
 
     stream.stream.pipeTo(fileStream).catch(() => {});
