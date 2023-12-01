@@ -91,11 +91,21 @@ public struct RepoUnlockScreen: View {
                             cb: RepoUnlockUnlockedFn(onUnlock))
                     })
 
-                if vm.canSetupBiometricUnlock && vm.setupBiometricUnlockVisible {
+                if vm.canSetupBiometricUnlock {
+                    if vm.setupBiometricUnlockVisible {
+                        Button {
+                            vm.setupBiometricUnlock(onUnlock: onUnlock)
+                        } label: {
+                            Text("Setup biometric unlock").padding(.top, 15).padding(.bottom, 15)
+                        }
+                    }
+                } else {
                     Button {
-                        vm.setupBiometricUnlock(onUnlock: onUnlock)
+                        DispatchQueue.global().async {
+                            vm.biometricUnlock(onUnlock: onUnlock)
+                        }
                     } label: {
-                        Text("Setup biometric unlock").padding(.top, 15).padding(.bottom, 15)
+                        Text("Biometric unlock").padding(.top, 15).padding(.bottom, 15)
                     }
                 }
             }

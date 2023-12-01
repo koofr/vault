@@ -182,11 +182,19 @@ fun RepoUnlockScreen(
 
             Spacer(modifier = Modifier.weight(1.0f))
 
-            if (vm.canSetupBiometricUnlock.value && setupBiometricUnlockVisible) {
+            if (vm.canSetupBiometricUnlock.value) {
+                if (setupBiometricUnlockVisible) {
+                    TextButton(onClick = {
+                        vm.setupBiometricUnlockVisible.value = true
+                    }) {
+                        Text("SETUP BIOMETRIC UNLOCK")
+                    }
+                }
+            } else {
                 TextButton(onClick = {
-                    vm.setupBiometricUnlockVisible.value = true
+                    vm.biometricUnlock(activity, onUnlock)
                 }) {
-                    Text("SETUP BIOMETRIC UNLOCK")
+                    Text("BIOMETRIC UNLOCK")
                 }
             }
 
