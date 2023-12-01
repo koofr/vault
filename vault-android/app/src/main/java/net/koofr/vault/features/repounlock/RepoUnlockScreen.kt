@@ -22,9 +22,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -52,7 +55,10 @@ class RepoUnlockScreenViewModel @Inject constructor(
 ) : ViewModel() {
     private val repoId: String = savedStateHandle.get<String>("repoId")!!
 
-    val unlockId = mobileVault.repoUnlockCreate(repoId = repoId, options = RepoUnlockOptions(RepoUnlockMode.UNLOCK)).also {
+    val unlockId = mobileVault.repoUnlockCreate(
+        repoId = repoId,
+        options = RepoUnlockOptions(RepoUnlockMode.UNLOCK),
+    ).also {
         addCloseable {
             mobileVault.repoUnlockDestroy(unlockId = it)
         }
@@ -159,13 +165,31 @@ fun RepoUnlockScreen(
     val activity = LocalContext.current.getActivity()
     val coroutineScope = rememberCoroutineScope()
 
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+
+    DisposableEffect(lifecycle, onUnlock) {
+        val lifecycleObserver = object : DefaultLifecycleObserver {
+            override fun onResume(owner: LifecycleOwner) {
+                vm.biometricUnlock(activity, onUnlock)
+            }
+        }
+
+        lifecycle.addObserver(lifecycleObserver)
+
+        onDispose {
+            lifecycle.removeObserver(lifecycleObserver)
+        }
+    }
+
     val info = subscribe(
         { v, cb -> v.repoUnlockInfoSubscribe(unlockId = vm.unlockId, cb = cb) },
         { v, id -> v.repoUnlockInfoData(id = id) },
     )
 
     DisposableEffect(Unit) {
-        vm.biometricUnlock(activity, onUnlock)
+        if (vm.mobileVault.isAppVisible()) {
+            vm.biometricUnlock(activity, onUnlock)
+        }
 
         onDispose {
             vm.biometricPromptCancel()

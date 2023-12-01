@@ -60,11 +60,38 @@ public class RepoUnlockScreenViewModel: ObservableObject {
     }
 }
 
+class RepoUnlockScreenVisible: NSObject {
+    var onVisible: (() -> Void)? = nil
+
+    override init() {
+        super.init()
+
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(willEnterForeground),
+            name: UIApplication.willEnterForegroundNotification, object: nil)
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(
+            self, name: UIApplication.willEnterForegroundNotification, object: nil)
+    }
+
+    @objc func willEnterForeground() {
+        DispatchQueue.main.async {
+            if let onVisible = self.onVisible {
+                onVisible()
+            }
+        }
+    }
+}
+
 public struct RepoUnlockScreen: View {
     @ObservedObject var vm: RepoUnlockScreenViewModel
     public let onUnlock: () -> Void
 
     @ObservedObject private var info: Subscription<RepoUnlockInfo>
+
+    let visible: RepoUnlockScreenVisible
 
     public init(vm: RepoUnlockScreenViewModel, onUnlock: @escaping () -> Void) {
         self.vm = vm
@@ -78,6 +105,8 @@ public struct RepoUnlockScreen: View {
             getData: { v, id in
                 v.repoUnlockInfoData(id: id)
             })
+
+        self.visible = RepoUnlockScreenVisible()
     }
 
     public var body: some View {
@@ -112,11 +141,23 @@ public struct RepoUnlockScreen: View {
         }
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            visible.onVisible = {
+                DispatchQueue.global().async {
+                    vm.biometricUnlock(onUnlock: onUnlock)
+                }
+            }
+        }
+        .onDisappear {
+            visible.onVisible = nil
+        }
         .task {
             let vm = self.vm
 
-            Task.detached {
-                vm.biometricUnlock(onUnlock: onUnlock)
+            if vm.container.mobileVault.isAppVisible() {
+                Task.detached {
+                    vm.biometricUnlock(onUnlock: onUnlock)
+                }
             }
         }
     }
