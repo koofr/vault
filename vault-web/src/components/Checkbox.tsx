@@ -10,8 +10,9 @@ export type CheckboxValue = 'unchecked' | 'checked' | 'indeterminate';
 
 export const Checkbox = memo<{
   value: CheckboxValue;
+  small?: boolean;
   onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
-}>(({ value, onClick }) => {
+}>(({ value, small, onClick }) => {
   const theme = useTheme();
 
   return (
@@ -28,8 +29,8 @@ export const Checkbox = memo<{
       className={cx(
         css`
           ${buttonReset}
-          width: 32px;
-          height: 32px;
+          width: ${small === true ? '15px' : '32px'};
+          height: ${small === true ? '15px' : '32px'};
           transition: color;
         `,
         value === 'checked'
