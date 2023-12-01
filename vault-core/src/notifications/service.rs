@@ -2,7 +2,7 @@ use std::{sync::Arc, time::Duration};
 
 use crate::{runtime, store};
 
-use super::state::Notification;
+use super::mutations;
 
 pub struct NotificationsService {
     store: Arc<store::Store>,
@@ -15,24 +15,14 @@ impl NotificationsService {
     }
 
     pub fn show(&self, message: String) {
-        log::debug!("NotificationsService show: {}", message);
-
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::Notifications);
-
-            let id = state.notifications.next_id.next();
-
-            let notification = Notification { id, message };
-
-            state.notifications.notifications.insert(id, notification);
+            mutations::show(state, notify, message);
         });
     }
 
     pub fn remove(&self, id: u32) {
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::Notifications);
-
-            state.notifications.notifications.remove(&id);
+            mutations::remove(state, notify, id);
         });
     }
 
@@ -44,9 +34,7 @@ impl NotificationsService {
 
     pub fn remove_all(&self) {
         self.store.mutate(|state, notify, _, _| {
-            notify(store::Event::Notifications);
-
-            state.notifications.notifications.clear();
+            mutations::remove_all(state, notify);
         });
     }
 }
