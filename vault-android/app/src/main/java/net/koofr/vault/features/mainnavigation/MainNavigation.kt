@@ -79,9 +79,11 @@ fun MainNavigation() {
 
             composable(
                 "repos/{repoId}/files?path={path}",
-                deepLinks = listOf(navDeepLink {
-                    uriPattern = "https://vault.koofr.net/mobile/repos/{repoId}"
-                }),
+                deepLinks = listOf(
+                    navDeepLink {
+                        uriPattern = "https://vault.koofr.net/mobile/repos/{repoId}"
+                    },
+                ),
                 arguments = listOf(
                     navArgument("repoId") {
                         type = NavType.StringType
