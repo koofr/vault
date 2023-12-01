@@ -3,16 +3,17 @@ use std::collections::HashMap;
 use crate::{
     common::state::Status,
     rclone,
-    remote::RemoteError,
     remote_files::state::RemoteFilesLocation,
     repos::{errors::CreateRepoError, state::RepoCreated},
     store::NextId,
     types::MountId,
 };
 
+use super::errors::CreateLoadError;
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct RepoCreateForm {
-    pub create_load_status: Status<RemoteError>,
+    pub create_load_status: Status<CreateLoadError>,
     pub primary_mount_id: Option<MountId>,
     pub location: Option<RemoteFilesLocation>,
     pub location_dir_picker_id: Option<u32>,

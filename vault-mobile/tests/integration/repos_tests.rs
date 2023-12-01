@@ -1,6 +1,6 @@
 use futures::FutureExt;
 use similar_asserts::assert_eq;
-use vault_mobile::{Repo, RepoState, Status};
+use vault_mobile::{Repo, RepoAutoLock, RepoAutoLockAfter, RepoState, Status};
 
 use crate::{
     fixtures::repo_fixture::RepoFixture,
@@ -41,6 +41,10 @@ fn test_repo() {
                     state: RepoState::Locked,
                     added: repo.added,
                     web_url: repo.web_url.clone(),
+                    auto_lock: RepoAutoLock {
+                        after: RepoAutoLockAfter::Inactive1Hour,
+                        on_app_hidden: false,
+                    },
                 }
             );
 
@@ -58,6 +62,10 @@ fn test_repo() {
                     state: RepoState::Unlocked,
                     added: repo.added,
                     web_url: repo.web_url.clone(),
+                    auto_lock: RepoAutoLock {
+                        after: RepoAutoLockAfter::Inactive1Hour,
+                        on_app_hidden: false,
+                    },
                 }
             );
         }

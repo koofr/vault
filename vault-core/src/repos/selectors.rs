@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use crate::{
     cipher::Cipher,
@@ -9,7 +9,7 @@ use crate::{
 
 use super::{
     errors::{GetCipherError, RepoInfoError, RepoLockedError, RepoNotFoundError},
-    state::{Repo, RepoInfo, RepoState},
+    state::{Repo, RepoAutoLock, RepoInfo, RepoState},
 };
 
 pub fn select_repos<'a>(state: &'a store::State) -> Vec<&'a Repo> {
@@ -74,10 +74,12 @@ pub fn select_repo_status<'a>(
 
 pub fn select_repo_info<'a>(state: &'a store::State, repo_id: &RepoId) -> RepoInfo<'a> {
     let (repo, status) = select_repo_status(state, repo_id);
+    let default_auto_lock = select_default_auto_lock(state);
 
     RepoInfo {
         status,
         repo: repo.ok(),
+        default_auto_lock,
     }
 }
 
@@ -110,4 +112,21 @@ pub fn select_cipher_owned(
             RepoState::Locked => Err(GetCipherError::RepoLocked(RepoLockedError)),
             RepoState::Unlocked { cipher } => Ok(cipher.clone()),
         })
+}
+
+pub fn select_auto_locks(state: &store::State) -> HashMap<RepoId, RepoAutoLock> {
+    state
+        .repos
+        .repos_by_id
+        .iter()
+        .filter_map(|(repo_id, repo)| {
+            repo.auto_lock
+                .clone()
+                .map(|auto_lock| (repo_id.to_owned(), auto_lock))
+        })
+        .collect()
+}
+
+pub fn select_default_auto_lock<'a>(state: &'a store::State) -> &'a RepoAutoLock {
+    &state.config.repos.default_auto_lock
 }

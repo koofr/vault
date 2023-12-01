@@ -11,7 +11,8 @@ public struct PreviewsData {
             state: RepoState.unlocked,
             added: 1_666_300_393_650,
             webUrl:
-                "https://app.koofr.net/app/storage/7ac98cb0-93d6-433a-878b-fee805e9d68f?path=%2FVault"
+                "https://app.koofr.net/app/storage/7ac98cb0-93d6-433a-878b-fee805e9d68f?path=%2FVault",
+            autoLock: RepoAutoLock(after: .inactive1Hour, onAppHidden: false)
         ),
         Repo(
             id: "ab72e550-64cf-4eaf-9f4c-4dda6459a045",
@@ -21,7 +22,8 @@ public struct PreviewsData {
             state: RepoState.locked,
             added: 1_666_300_428_883,
             webUrl:
-                "https://app.koofr.net/app/storage/7ac98cb0-93d6-433a-878b-fee805e9d68f?path=%2FVault%201"
+                "https://app.koofr.net/app/storage/7ac98cb0-93d6-433a-878b-fee805e9d68f?path=%2FVault%201",
+            autoLock: RepoAutoLock(after: .inactive1Hour, onAppHidden: false)
         ),
     ]
 

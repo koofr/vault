@@ -1,8 +1,8 @@
 use thiserror::Error;
 
 use crate::{
-    oauth2::errors::OAuth2Error, remote::RemoteError, secure_storage::errors::SecureStorageError,
-    user_error::UserError,
+    oauth2::errors::OAuth2Error, remote::RemoteError, repos::errors::LoadReposError,
+    secure_storage::errors::SecureStorageError, user_error::UserError,
 };
 
 #[derive(Error, Debug, Clone, PartialEq)]
@@ -27,7 +27,7 @@ pub enum OnLoginError {
     #[error("{0}")]
     LoadUserError(RemoteError),
     #[error("{0}")]
-    LoadReposError(RemoteError),
+    LoadReposError(LoadReposError),
     #[error("{0}")]
     LoadSpaceUsageError(RemoteError),
 }

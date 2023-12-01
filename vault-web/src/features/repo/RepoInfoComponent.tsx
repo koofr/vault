@@ -15,6 +15,7 @@ import { Repo } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
 
+import { RepoLock } from './RepoLock';
 import { RepoRemoveModal } from './RepoRemoveModal';
 import { RepoSpaceUsage } from './RepoSpaceUsage';
 
@@ -120,6 +121,14 @@ export const RepoInfoComponentRepo = memo<{ repo: Repo }>(({ repo }) => {
           >
             Destroy Safe Box...
           </Button>
+        </div>
+
+        <div
+          className={css`
+            margin-bottom: 50px;
+          `}
+        >
+          <RepoLock repo={repo} />
         </div>
 
         <div

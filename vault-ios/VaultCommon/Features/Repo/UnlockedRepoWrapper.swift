@@ -14,9 +14,16 @@ where Content: View {
         self.repoId = repoId
         self.content = content
 
-        repoGestureHandler = RepoGestureHandler(onLock: {
-            container.mobileVault.reposLockRepo(repoId: repoId)
-        })
+        container.mobileVault.reposTouchRepo(repoId: repoId)
+
+        repoGestureHandler = RepoGestureHandler(
+            onTouch: {
+                container.mobileVault.reposTouchRepo(repoId: repoId)
+            },
+            onLock: {
+                container.mobileVault.reposLockRepo(repoId: repoId)
+            }
+        )
     }
 
     var body: some View {
@@ -29,12 +36,14 @@ where Content: View {
 }
 
 class RepoGestureHandler: NSObject, UIGestureRecognizerDelegate {
+    let onTouch: () -> Void
     let onLock: () -> Void
 
     var window: UIWindow?
     var gesture: UILongPressGestureRecognizer?
 
-    init(onLock: @escaping () -> Void) {
+    init(onTouch: @escaping () -> Void, onLock: @escaping () -> Void) {
+        self.onTouch = onTouch
         self.onLock = onLock
     }
 
@@ -85,6 +94,8 @@ class RepoGestureHandler: NSObject, UIGestureRecognizerDelegate {
     public func gestureRecognizer(
         _ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch
     ) -> Bool {
+        onTouch()
+
         return true
     }
 

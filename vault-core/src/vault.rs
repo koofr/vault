@@ -6,8 +6,9 @@ use crate::{
     auth, config, dialogs, dir_pickers, eventstream, http, lifecycle, notifications, oauth2,
     rclone, relative_time, remote, remote_files, remote_files_browsers, remote_files_dir_pickers,
     repo_config_backup, repo_create, repo_files, repo_files_browsers, repo_files_details,
-    repo_files_dir_pickers, repo_files_list, repo_files_move, repo_files_read, repo_remove,
-    repo_space_usage, repo_unlock, repos, runtime, secure_storage, sort, space_usage, store,
+    repo_files_dir_pickers, repo_files_list, repo_files_move, repo_files_read, repo_locker,
+    repo_remove, repo_space_usage, repo_unlock, repos, runtime, secure_storage, sort, space_usage,
+    store,
     transfers::{self, downloadable::BoxDownloadable},
     types::{DecryptedName, EncryptedPath, RepoFileId, RepoId, TimeMillis},
     user,
@@ -31,6 +32,7 @@ pub struct Vault {
         Arc<remote_files_dir_pickers::RemoteFilesDirPickersService>,
     pub remote_files_browsers_service: Arc<remote_files_browsers::RemoteFilesBrowsersService>,
     pub repos_service: Arc<repos::ReposService>,
+    pub repo_locker_service: Arc<repo_locker::RepoLockerService>,
     pub repo_create_service: Arc<repo_create::RepoCreateService>,
     pub repo_unlock_service: Arc<repo_unlock::RepoUnlockService>,
     pub repo_remove_service: Arc<repo_remove::RepoRemoveService>,
@@ -114,8 +116,15 @@ impl Vault {
         let repos_service = Arc::new(repos::ReposService::new(
             remote.clone(),
             remote_files_service.clone(),
+            secure_storage_service.clone(),
             store.clone(),
+            runtime.clone(),
         ));
+        let repo_locker_service = repo_locker::RepoLockerService::new(
+            repos_service.clone(),
+            store.clone(),
+            runtime.clone(),
+        );
         let repo_unlock_service = Arc::new(repo_unlock::RepoUnlockService::new(
             repos_service.clone(),
             store.clone(),
@@ -222,6 +231,7 @@ impl Vault {
             remote_files_dir_pickers_service,
             remote_files_browsers_service,
             repos_service,
+            repo_locker_service,
             repo_create_service,
             repo_unlock_service,
             repo_remove_service,
@@ -439,7 +449,7 @@ impl Vault {
 
     // repos
 
-    pub async fn repos_load(&self) -> Result<(), remote::RemoteError> {
+    pub async fn repos_load(&self) -> Result<(), repos::errors::LoadReposError> {
         self.repos_service.load_repos().await
     }
 
@@ -447,13 +457,36 @@ impl Vault {
         self.repos_service.lock_repo(repo_id)
     }
 
+    pub fn repos_touch_repo(
+        &self,
+        repo_id: &RepoId,
+    ) -> Result<(), repos::errors::RepoNotFoundError> {
+        self.repos_service.touch_repo(repo_id)
+    }
+
+    pub fn repos_set_auto_lock(
+        &self,
+        repo_id: &RepoId,
+        auto_lock: repos::state::RepoAutoLock,
+    ) -> Result<(), repos::errors::SetAutoLockError> {
+        self.repos_service.set_auto_lock(repo_id, auto_lock)
+    }
+
     // repo_create
 
-    pub fn repo_create_create(&self) -> (u32, BoxFuture<'static, Result<(), remote::RemoteError>>) {
+    pub fn repo_create_create(
+        &self,
+    ) -> (
+        u32,
+        BoxFuture<'static, Result<(), repo_create::errors::CreateLoadError>>,
+    ) {
         self.repo_create_service.clone().create()
     }
 
-    pub async fn repo_create_create_load(&self, create_id: u32) -> Result<(), remote::RemoteError> {
+    pub async fn repo_create_create_load(
+        &self,
+        create_id: u32,
+    ) -> Result<(), repo_create::errors::CreateLoadError> {
         self.repo_create_service
             .clone()
             .create_load(create_id)

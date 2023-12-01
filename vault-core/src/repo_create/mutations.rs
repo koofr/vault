@@ -8,6 +8,7 @@ use crate::{
 };
 
 use super::{
+    errors::CreateLoadError,
     selectors,
     state::{RepoCreate, RepoCreateForm},
 };
@@ -39,7 +40,7 @@ pub fn create_loaded(
     state: &mut store::State,
     notify: &store::Notify,
     create_id: u32,
-    load_mount_res: Result<MountId, remote::RemoteError>,
+    res: Result<MountId, CreateLoadError>,
 ) {
     let no_existing_repos = state.repos.repos_by_id.is_empty();
 
@@ -50,12 +51,12 @@ pub fn create_loaded(
 
     notify(store::Event::RepoCreate);
 
-    let (create_load_status, primary_mount_id) = match load_mount_res {
+    let (create_load_status, primary_mount_id) = match res {
         Ok(mount_id) => (Status::Loaded, Some(mount_id)),
-        Err(remote::RemoteError::ApiError {
+        Err(CreateLoadError::LoadPrimaryMountError(remote::RemoteError::ApiError {
             code: remote::ApiErrorCode::NotFound,
             ..
-        }) => (
+        })) => (
             Status::Loading {
                 loaded: form.create_load_status.loaded(),
             },

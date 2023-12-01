@@ -34,6 +34,8 @@ fun UnlockedRepoWrapper(
                     awaitEachGesture {
                         awaitFirstDown(requireUnconsumed = false)
 
+                        vm.mobileVault.reposTouchRepo(repoId = repoId)
+
                         try {
                             withTimeout(5000) {
                                 waitForUpOrCancellation()

@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use lazy_static::lazy_static;
 
@@ -7,6 +7,8 @@ use crate::{
     rclone,
     remote::{self, models},
     remote_files::RemoteFilesService,
+    runtime,
+    secure_storage::{errors::SecureStorageError, SecureStorageService},
     store,
     types::{DecryptedName, MountId, RemoteName, RemotePath, RepoId},
     utils::remote_path_utils,
@@ -14,13 +16,13 @@ use crate::{
 
 use super::{
     errors::{
-        BuildCipherError, CreateRepoError, GetCipherError, InvalidPasswordError, LockRepoError,
-        RemoveRepoError, RepoNotFoundError, UnlockRepoError,
+        BuildCipherError, CreateRepoError, GetCipherError, InvalidPasswordError, LoadReposError,
+        LockRepoError, RemoveRepoError, RepoNotFoundError, SetAutoLockError, UnlockRepoError,
     },
     mutations,
     password_validator::{check_password_validator, generate_password_validator},
     selectors,
-    state::{RepoConfig, RepoCreated, RepoUnlockMode},
+    state::{Repo, RepoAutoLock, RepoConfig, RepoCreated, RepoUnlockMode},
 };
 
 lazy_static! {
@@ -31,26 +33,42 @@ lazy_static! {
     ];
 }
 
+type RepoAutoLocks = HashMap<RepoId, RepoAutoLock>;
+
+pub const REPO_AUTO_LOCKS_STORAGE_KEY: &str = "vaultRepoAutoLocks";
+
 pub struct ReposService {
     remote: Arc<remote::Remote>,
     remote_files_service: Arc<RemoteFilesService>,
+    secure_storage_service: Arc<SecureStorageService>,
     store: Arc<store::Store>,
+    runtime: Arc<runtime::BoxRuntime>,
 }
 
 impl ReposService {
     pub fn new(
         remote: Arc<remote::Remote>,
         remote_files_service: Arc<RemoteFilesService>,
+        secure_storage_service: Arc<SecureStorageService>,
         store: Arc<store::Store>,
+        runtime: Arc<runtime::BoxRuntime>,
     ) -> Self {
         Self {
             remote,
             remote_files_service,
+            secure_storage_service,
             store,
+            runtime,
         }
     }
 
-    pub async fn load_repos(&self) -> Result<(), remote::RemoteError> {
+    pub fn get_auto_locks(&self) -> Result<RepoAutoLocks, SecureStorageError> {
+        self.secure_storage_service
+            .get::<RepoAutoLocks>(REPO_AUTO_LOCKS_STORAGE_KEY)
+            .map(|x| x.unwrap_or_default())
+    }
+
+    pub async fn load_repos(&self) -> Result<(), LoadReposError> {
         self.store
             .mutate(|state, notify, mutation_state, mutation_notify| {
                 mutations::repos_loading(state, notify, mutation_state, mutation_notify);
@@ -58,11 +76,23 @@ impl ReposService {
 
         let res = self.remote.get_vault_repos().await.map(|res| res.repos);
 
-        let res_err = res.as_ref().map(|_| ()).map_err(|err| err.clone());
+        let res_err = res
+            .as_ref()
+            .map(|_| ())
+            .map_err(|err| LoadReposError::from(err.to_owned()));
+
+        let auto_locks = self.get_auto_locks()?;
 
         self.store
             .mutate(|state, notify, mutation_state, mutation_notify| {
-                mutations::repos_loaded(state, notify, mutation_state, mutation_notify, res);
+                mutations::repos_loaded(
+                    state,
+                    notify,
+                    mutation_state,
+                    mutation_notify,
+                    res,
+                    &auto_locks,
+                );
             });
 
         res_err
@@ -114,6 +144,8 @@ impl ReposService {
 
                 let cipher = Arc::new(self.build_cipher(repo_id, password)?);
 
+                let now = self.runtime.now();
+
                 self.store
                     .mutate(|state, notify, mutation_state, mutation_notify| {
                         mutations::unlock_repo(
@@ -123,6 +155,7 @@ impl ReposService {
                             mutation_notify,
                             repo_id,
                             cipher,
+                            now,
                         )
                     })?;
 
@@ -189,12 +222,15 @@ impl ReposService {
             }
         }
 
-        self.store
+        let config = self
+            .store
             .mutate(|state, notify, mutation_state, mutation_notify| {
                 mutations::repo_created(state, notify, mutation_state, mutation_notify, repo);
-            });
 
-        let config = self.get_repo_config(&repo_id, &password).unwrap();
+                let repo = selectors::select_repo(state, &repo_id).unwrap();
+
+                self.generate_repo_config(repo, &password)
+            });
 
         Ok(RepoCreated { repo_id, config })
     }
@@ -237,6 +273,31 @@ impl ReposService {
         Ok(())
     }
 
+    pub fn touch_repo(&self, repo_id: &RepoId) -> Result<(), RepoNotFoundError> {
+        let now = self.runtime.now();
+
+        self.store
+            .mutate(|state, _, _, _| mutations::touch_repo(state, repo_id, now))
+    }
+
+    pub fn set_auto_lock(
+        &self,
+        repo_id: &RepoId,
+        auto_lock: RepoAutoLock,
+    ) -> Result<(), SetAutoLockError> {
+        self.store.mutate(|state, notify, _, _| {
+            mutations::set_auto_lock(state, notify, repo_id, auto_lock)
+                .map_err(SetAutoLockError::RepoNotFound)?;
+
+            let auto_locks = selectors::select_auto_locks(state);
+
+            self.secure_storage_service
+                .set(REPO_AUTO_LOCKS_STORAGE_KEY, &auto_locks)?;
+
+            Ok(())
+        })
+    }
+
     pub fn get_repo_config(
         &self,
         repo_id: &RepoId,
@@ -247,21 +308,25 @@ impl ReposService {
         self.store.with_state(|state| {
             let repo = selectors::select_repo(state, repo_id)?;
 
-            let rclone_config = rclone::config::generate_config(&rclone::config::Config {
-                name: Some(repo.name.0.clone()),
-                path: repo.path.0.clone(),
-                password: password.to_owned(),
-                salt: repo.salt.clone(),
-            });
-
-            Ok(RepoConfig {
-                name: repo.name.clone(),
-                location: repo.get_location(),
-                password: password.to_owned(),
-                salt: repo.salt.clone(),
-                rclone_config,
-            })
+            Ok(self.generate_repo_config(&repo, password))
         })
+    }
+
+    fn generate_repo_config(&self, repo: &Repo, password: &str) -> RepoConfig {
+        let rclone_config = rclone::config::generate_config(&rclone::config::Config {
+            name: Some(repo.name.0.clone()),
+            path: repo.path.0.clone(),
+            password: password.to_owned(),
+            salt: repo.salt.clone(),
+        });
+
+        RepoConfig {
+            name: repo.name.clone(),
+            location: repo.get_location(),
+            password: password.to_owned(),
+            salt: repo.salt.clone(),
+            rclone_config,
+        }
     }
 
     pub fn get_cipher(&self, repo_id: &RepoId) -> Result<Arc<Cipher>, GetCipherError> {

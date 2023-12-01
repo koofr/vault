@@ -1,21 +1,9 @@
 use std::time::Duration;
 
-use crate::locale::{get_locale, BoxLocale};
-
-#[derive(Debug, Clone)]
-pub struct EventstreamConfig {
-    pub reconnect_duration: Duration,
-    pub ping_interval: Duration,
-}
-
-impl Default for EventstreamConfig {
-    fn default() -> Self {
-        Self {
-            reconnect_duration: Duration::from_secs(3),
-            ping_interval: Duration::from_secs(30),
-        }
-    }
-}
+use crate::{
+    locale::{get_locale, BoxLocale},
+    repos::state::{RepoAutoLock, RepoAutoLockAfter},
+};
 
 pub struct LocaleConfig {
     pub name: String,
@@ -61,11 +49,57 @@ impl Default for TransfersConfig {
 }
 
 #[derive(Debug, Clone)]
+pub struct EventstreamConfig {
+    pub reconnect_duration: Duration,
+    pub ping_interval: Duration,
+}
+
+impl Default for EventstreamConfig {
+    fn default() -> Self {
+        Self {
+            reconnect_duration: Duration::from_secs(3),
+            ping_interval: Duration::from_secs(30),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct ReposConfig {
+    pub default_auto_lock: RepoAutoLock,
+}
+
+impl Default for ReposConfig {
+    fn default() -> Self {
+        Self {
+            default_auto_lock: RepoAutoLock {
+                after: Some(RepoAutoLockAfter::Inactive1Hour),
+                on_app_hidden: false,
+            },
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct RepoLockerConfig {
+    pub lock_check_interval: Duration,
+}
+
+impl Default for RepoLockerConfig {
+    fn default() -> Self {
+        Self {
+            lock_check_interval: Duration::from_secs(10),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct ConfigState {
     pub base_url: String,
     pub locale: LocaleConfig,
     pub transfers: TransfersConfig,
     pub eventstream: EventstreamConfig,
+    pub repos: ReposConfig,
+    pub repo_locker: RepoLockerConfig,
 }
 
 impl Default for ConfigState {
@@ -78,6 +112,8 @@ impl Default for ConfigState {
             },
             transfers: TransfersConfig::default(),
             eventstream: EventstreamConfig::default(),
+            repos: ReposConfig::default(),
+            repo_locker: RepoLockerConfig::default(),
         }
     }
 }

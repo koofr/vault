@@ -1,4 +1,7 @@
-use std::{collections::HashSet, sync::Arc};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::Arc,
+};
 
 use urlencoding::encode;
 
@@ -8,7 +11,7 @@ use crate::{
     remote::{models, RemoteError},
     remote_files::selectors as remote_files_selectors,
     store,
-    types::{DecryptedName, RepoId},
+    types::{DecryptedName, RepoId, TimeMillis},
 };
 
 use super::{
@@ -18,10 +21,14 @@ use super::{
     },
     repo_tree::RepoTree,
     selectors,
-    state::{Repo, RepoState},
+    state::{Repo, RepoAutoLock, RepoState},
 };
 
-fn vault_repo_to_repo(repo: models::VaultRepo, base_url: &str) -> Repo {
+fn vault_repo_to_repo(
+    repo: models::VaultRepo,
+    base_url: &str,
+    auto_lock: Option<RepoAutoLock>,
+) -> Repo {
     let models::VaultRepo {
         id,
         name,
@@ -51,14 +58,17 @@ fn vault_repo_to_repo(repo: models::VaultRepo, base_url: &str) -> Repo {
         password_validator_encrypted,
         state: RepoState::Locked,
         web_url,
+        last_activity: None,
+        auto_lock,
     }
 }
 
-fn repo_loaded(state: &mut store::State, repo: models::VaultRepo) {
-    let mut repo = vault_repo_to_repo(repo, &state.config.base_url);
+fn repo_loaded(state: &mut store::State, repo: models::VaultRepo, auto_lock: Option<RepoAutoLock>) {
+    let mut repo = vault_repo_to_repo(repo, &state.config.base_url, auto_lock);
 
     if let Some(existing) = state.repos.repos_by_id.get(&repo.id) {
         repo.state = existing.state.clone();
+        repo.last_activity = existing.last_activity;
     }
 
     state.repos.repo_ids_by_remote_file_id.insert(
@@ -98,6 +108,7 @@ pub fn repos_loaded(
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
     res: Result<Vec<models::VaultRepo>, RemoteError>,
+    auto_locks: &HashMap<RepoId, RepoAutoLock>,
 ) {
     match res {
         Ok(repos) => {
@@ -121,7 +132,9 @@ pub fn repos_loaded(
             };
 
             for repo in repos {
-                repo_loaded(state, repo);
+                let auto_lock = auto_locks.get(&repo.id).cloned();
+
+                repo_loaded(state, repo, auto_lock);
             }
 
             remove_repos(state, mutation_state, &remove_repo_ids);
@@ -187,12 +200,14 @@ pub fn unlock_repo(
     mutation_notify: &store::MutationNotify,
     repo_id: &RepoId,
     cipher: Arc<Cipher>,
+    now: TimeMillis,
 ) -> Result<(), UnlockRepoError> {
     let repo = check_unlock_repo(state, repo_id)?;
 
     repo.state = RepoState::Unlocked {
         cipher: cipher.clone(),
     };
+    repo.last_activity = Some(now);
 
     notify(store::Event::Repos);
 
@@ -239,7 +254,7 @@ pub fn repo_created(
     mutation_notify: &store::MutationNotify,
     repo: models::VaultRepo,
 ) {
-    repo_loaded(state, repo);
+    repo_loaded(state, repo, None);
 
     notify(store::Event::Repos);
 
@@ -265,4 +280,35 @@ pub fn repo_removed(
         }
         None => Err(RemoveRepoError::RepoNotFound(RepoNotFoundError)),
     }
+}
+
+pub fn touch_repo(
+    state: &mut store::State,
+    repo_id: &RepoId,
+    now: TimeMillis,
+) -> Result<(), RepoNotFoundError> {
+    let repo = selectors::select_repo_mut(state, repo_id)?;
+
+    repo.last_activity = Some(now);
+
+    // notify is not called because last_activity is only checked by the repo
+    // locker and the repo locker does not need to be notified because it uses
+    // polling
+
+    Ok(())
+}
+
+pub fn set_auto_lock(
+    state: &mut store::State,
+    notify: &store::Notify,
+    repo_id: &RepoId,
+    auto_lock: RepoAutoLock,
+) -> Result<(), RepoNotFoundError> {
+    let repo = selectors::select_repo_mut(state, repo_id)?;
+
+    notify(store::Event::Repos);
+
+    repo.auto_lock = Some(auto_lock);
+
+    Ok(())
 }

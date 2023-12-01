@@ -10,6 +10,7 @@ object PreviewsData {
             state = RepoState.UNLOCKED,
             added = 1666300393650,
             webUrl = "https://app.koofr.net/app/storage/7ac98cb0-93d6-433a-878b-fee805e9d68f?path=%2FVault",
+            autoLock = RepoAutoLock(after = RepoAutoLockAfter.Inactive1Hour, onAppHidden = false),
         ),
         Repo(
             id = "ab72e550-64cf-4eaf-9f4c-4dda6459a045",
@@ -19,6 +20,7 @@ object PreviewsData {
             state = RepoState.LOCKED,
             added = 1666300428883,
             webUrl = "https://app.koofr.net/app/storage/7ac98cb0-93d6-433a-878b-fee805e9d68f?path=%2FVault%201",
+            autoLock = RepoAutoLock(after = RepoAutoLockAfter.Inactive1Hour, onAppHidden = false),
         ),
     )
 

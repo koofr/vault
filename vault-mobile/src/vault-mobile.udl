@@ -345,6 +345,24 @@ enum RepoState {
   "Unlocked",
 };
 
+dictionary RepoAutoLock {
+  RepoAutoLockAfter after;
+  boolean on_app_hidden;
+};
+
+[Enum]
+interface RepoAutoLockAfter {
+  NoLimit();
+  Inactive1Minute();
+  Inactive5Mininutes();
+  Inactive10Minutes();
+  Inactive30Minutes();
+  Inactive1Hour();
+  Inactive2Hours();
+  Inactive4Hours();
+  Custom(u64 seconds);
+};
+
 dictionary Repo {
   string id;
   string name;
@@ -353,6 +371,7 @@ dictionary Repo {
   RepoState state;
   i64 added;
   string web_url;
+  RepoAutoLock auto_lock;
 };
 
 dictionary Repos {
@@ -722,6 +741,8 @@ interface MobileVault {
   u32 repos_repo_subscribe(string repo_id, SubscriptionCallback cb);
   RepoInfo? repos_repo_data(u32 id);
   void repos_lock_repo(string repo_id);
+  void repos_touch_repo(string repo_id);
+  void repos_set_auto_lock(string repo_id, RepoAutoLock auto_lock);
 
   // repo_create
 

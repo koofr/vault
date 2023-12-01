@@ -1,6 +1,10 @@
 use thiserror::Error;
 
-use crate::{remote, user_error::UserError};
+use crate::{
+    remote::{self, RemoteError},
+    secure_storage::errors::SecureStorageError,
+    user_error::UserError,
+};
 
 #[derive(Error, Debug, Clone, PartialEq)]
 #[error("repo not found")]
@@ -80,6 +84,23 @@ impl UserError for LockRepoError {
         match self {
             Self::RepoNotFound(err) => err.user_error(),
             Self::RepoLocked(err) => err.user_error(),
+        }
+    }
+}
+
+#[derive(Error, Debug, Clone, PartialEq)]
+pub enum LoadReposError {
+    #[error("storage error: {0}")]
+    StorageError(#[from] SecureStorageError),
+    #[error("{0}")]
+    RemoteError(#[from] RemoteError),
+}
+
+impl UserError for LoadReposError {
+    fn user_error(&self) -> String {
+        match self {
+            Self::StorageError(err) => format!("Storage error: {}", err),
+            Self::RemoteError(err) => err.user_error(),
         }
     }
 }
@@ -177,6 +198,23 @@ impl From<BuildCipherError> for RemoveRepoError {
         match err {
             BuildCipherError::RepoNotFound(err) => Self::RepoNotFound(err),
             BuildCipherError::InvalidPassword(err) => Self::InvalidPassword(err),
+        }
+    }
+}
+
+#[derive(Error, Debug, Clone, PartialEq)]
+pub enum SetAutoLockError {
+    #[error("{0}")]
+    RepoNotFound(#[from] RepoNotFoundError),
+    #[error("storage error: {0}")]
+    StorageError(#[from] SecureStorageError),
+}
+
+impl UserError for SetAutoLockError {
+    fn user_error(&self) -> String {
+        match self {
+            Self::RepoNotFound(err) => err.user_error(),
+            Self::StorageError(err) => format!("Storage error: {}", err),
         }
     }
 }

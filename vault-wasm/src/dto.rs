@@ -439,6 +439,85 @@ impl From<&repos_state::RepoState> for RepoState {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+pub struct RepoAutoLock {
+    pub after: RepoAutoLockAfter,
+    #[serde(rename = "onAppHidden")]
+    pub on_app_hidden: bool,
+}
+
+impl From<&repos_state::RepoAutoLock> for RepoAutoLock {
+    fn from(auto_lock: &repos_state::RepoAutoLock) -> Self {
+        Self {
+            after: auto_lock.after.into(),
+            on_app_hidden: auto_lock.on_app_hidden,
+        }
+    }
+}
+
+impl Into<repos_state::RepoAutoLock> for RepoAutoLock {
+    fn into(self) -> repos_state::RepoAutoLock {
+        repos_state::RepoAutoLock {
+            after: self.after.into(),
+            on_app_hidden: self.on_app_hidden,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+#[serde(tag = "type")]
+pub enum RepoAutoLockAfter {
+    NoLimit,
+    Inactive1Minute,
+    Inactive5Mininutes,
+    Inactive10Minutes,
+    Inactive30Minutes,
+    Inactive1Hour,
+    Inactive2Hours,
+    Inactive4Hours,
+    Custom { seconds: f64 },
+}
+
+impl From<Option<repos_state::RepoAutoLockAfter>> for RepoAutoLockAfter {
+    fn from(auto_lock: Option<repos_state::RepoAutoLockAfter>) -> Self {
+        use repos_state::RepoAutoLockAfter;
+
+        match auto_lock {
+            Some(RepoAutoLockAfter::Inactive1Minute) => Self::Inactive1Minute,
+            Some(RepoAutoLockAfter::Inactive5Mininutes) => Self::Inactive5Mininutes,
+            Some(RepoAutoLockAfter::Inactive10Minutes) => Self::Inactive10Minutes,
+            Some(RepoAutoLockAfter::Inactive30Minutes) => Self::Inactive30Minutes,
+            Some(RepoAutoLockAfter::Inactive1Hour) => Self::Inactive1Hour,
+            Some(RepoAutoLockAfter::Inactive2Hours) => Self::Inactive2Hours,
+            Some(RepoAutoLockAfter::Inactive4Hours) => Self::Inactive4Hours,
+            Some(RepoAutoLockAfter::Custom(duration)) => Self::Custom {
+                seconds: duration.as_secs_f64(),
+            },
+            None => Self::NoLimit,
+        }
+    }
+}
+
+impl Into<Option<repos_state::RepoAutoLockAfter>> for RepoAutoLockAfter {
+    fn into(self) -> Option<repos_state::RepoAutoLockAfter> {
+        use repos_state::RepoAutoLockAfter;
+
+        match self {
+            Self::Inactive1Minute => Some(RepoAutoLockAfter::Inactive1Minute),
+            Self::Inactive5Mininutes => Some(RepoAutoLockAfter::Inactive5Mininutes),
+            Self::Inactive10Minutes => Some(RepoAutoLockAfter::Inactive10Minutes),
+            Self::Inactive30Minutes => Some(RepoAutoLockAfter::Inactive30Minutes),
+            Self::Inactive1Hour => Some(RepoAutoLockAfter::Inactive1Hour),
+            Self::Inactive2Hours => Some(RepoAutoLockAfter::Inactive2Hours),
+            Self::Inactive4Hours => Some(RepoAutoLockAfter::Inactive4Hours),
+            Self::Custom { seconds } => {
+                Some(RepoAutoLockAfter::Custom(Duration::from_secs_f64(seconds)))
+            }
+            Self::NoLimit => None,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub struct Repo {
     pub id: String,
     pub name: String,
@@ -449,10 +528,12 @@ pub struct Repo {
     pub added: f64,
     #[serde(rename = "webUrl")]
     pub web_url: String,
+    #[serde(rename = "autoLock")]
+    pub auto_lock: RepoAutoLock,
 }
 
-impl From<&repos_state::Repo> for Repo {
-    fn from(repo: &repos_state::Repo) -> Self {
+impl From<(&repos_state::Repo, &repos_state::RepoAutoLock)> for Repo {
+    fn from((repo, default_auto_lock): (&repos_state::Repo, &repos_state::RepoAutoLock)) -> Self {
         Self {
             id: repo.id.0.clone(),
             name: repo.name.0.clone(),
@@ -461,6 +542,7 @@ impl From<&repos_state::Repo> for Repo {
             state: (&repo.state).into(),
             added: repo.added as f64,
             web_url: repo.web_url.clone(),
+            auto_lock: repo.auto_lock.as_ref().unwrap_or(default_auto_lock).into(),
         }
     }
 }
@@ -473,11 +555,13 @@ pub struct Repos {
 
 impl From<&store::State> for Repos {
     fn from(state: &store::State) -> Self {
+        let default_auto_lock = repos_selectors::select_default_auto_lock(state);
+
         Self {
             status: (&state.repos.status).into(),
             repos: repos_selectors::select_repos(state)
                 .into_iter()
-                .map(Repo::from)
+                .map(|repo| (repo, default_auto_lock).into())
                 .collect(),
         }
     }
@@ -493,7 +577,7 @@ impl<'a> From<&repos_state::RepoInfo<'a>> for RepoInfo {
     fn from(info: &repos_state::RepoInfo<'a>) -> Self {
         Self {
             status: (&info.status).into(),
-            repo: info.repo.map(Into::into),
+            repo: info.repo.map(|repo| (repo, info.default_auto_lock).into()),
         }
     }
 }

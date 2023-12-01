@@ -29,6 +29,7 @@ pub fn create_repo(
         &mut mutation_state,
         &mutation_notify,
         Ok(vec![repo]),
+        &HashMap::new(),
     );
 
     let repo = selectors::select_repo(state, &repo_id).unwrap().clone();

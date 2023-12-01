@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use futures::{future::BoxFuture, FutureExt};
+use futures::{future::BoxFuture, join, FutureExt, TryFutureExt};
 use vault_crypto::random_password::random_password;
 
 use crate::{
@@ -18,7 +18,7 @@ use crate::{
     types::{MountId, RemoteFileId},
 };
 
-use super::{mutations, selectors};
+use super::{errors::CreateLoadError, mutations, selectors};
 
 pub struct RepoCreateService {
     repos_service: Arc<ReposService>,
@@ -42,7 +42,7 @@ impl RepoCreateService {
         }
     }
 
-    pub fn create(self: Arc<Self>) -> (u32, BoxFuture<'static, Result<(), remote::RemoteError>>) {
+    pub fn create(self: Arc<Self>) -> (u32, BoxFuture<'static, Result<(), CreateLoadError>>) {
         let salt = random_password(1024).unwrap();
 
         let create_id = self
@@ -54,27 +54,32 @@ impl RepoCreateService {
         (create_id, load_future)
     }
 
-    pub async fn create_load(&self, create_id: u32) -> Result<(), remote::RemoteError> {
-        let load_repos_res = self.repos_service.load_repos().await;
+    pub async fn create_load(&self, create_id: u32) -> Result<(), CreateLoadError> {
+        let load_repos_future = self
+            .repos_service
+            .load_repos()
+            .map_err(CreateLoadError::LoadReposError);
 
-        let load_mount_res = self
+        let load_mount_id = MountId("primary".into());
+        let load_mount_future = self
             .remote_files_service
-            .load_mount(&MountId("primary".into()))
-            .await;
+            .load_mount(&load_mount_id)
+            .map_err(CreateLoadError::LoadPrimaryMountError);
 
-        let load_mount_res: Result<MountId, remote::RemoteError> =
-            load_repos_res.and_then(|_| load_mount_res);
+        let (load_repos_res, load_mount_res) = join!(load_repos_future, load_mount_future);
 
-        let res = load_mount_res
-            .as_ref()
-            .map(|_| ())
-            .map_err(|err| err.to_owned());
+        let res = match load_repos_res {
+            Ok(()) => load_mount_res,
+            Err(err) => Err(err),
+        };
+
+        let res_err = res.as_ref().map(|_| ()).map_err(|err| err.clone());
 
         self.store.mutate(|state, notify, _, _| {
-            mutations::create_loaded(state, notify, create_id, load_mount_res);
+            mutations::create_loaded(state, notify, create_id, res);
         });
 
-        res
+        res_err
     }
 
     pub fn set_location(&self, create_id: u32, location: RemoteFilesLocation) {

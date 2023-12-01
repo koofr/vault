@@ -46,6 +46,8 @@ public struct RepoInfoScreen: View {
 
     @ObservedObject private var info: Subscription<RepoInfo>
 
+    @State private var autoLockAfterOptionsPresented = false
+
     public init(vm: RepoInfoScreenViewModel) {
         self.vm = vm
 
@@ -98,6 +100,16 @@ public struct RepoInfoScreen: View {
                     }
                 })
 
+            let repoAutoLockOnAppHidden = Binding(
+                get: {
+                    repo.autoLock.onAppHidden
+                },
+                set: { value in
+                    vm.container.mobileVault.reposSetAutoLock(
+                        repoId: vm.repoId,
+                        autoLock: RepoAutoLock(after: repo.autoLock.after, onAppHidden: value))
+                })
+
             List {
                 Section {
                     HStack {
@@ -123,6 +135,48 @@ public struct RepoInfoScreen: View {
                     }
                     .padding(.vertical, 2)
 
+                    Button {
+                        autoLockAfterOptionsPresented = true
+                    } label: {
+                        VStack(alignment: .leading) {
+                            Text("Automatically lock after").padding(.bottom, 0.5)
+                                .foregroundColor(Color(.label))
+
+                            Text(repoAutoLockAfterDisplay(repo.autoLock.after)).font(
+                                .system(.footnote)
+                            ).foregroundColor(Color(.secondaryLabel))
+                        }
+                    }
+                    .padding(.vertical, 2)
+                    .confirmationDialog(
+                        "Automatically lock after", isPresented: $autoLockAfterOptionsPresented
+                    ) {
+                        ForEach(
+                            getRepoAutoLockAfterOptions(current: repo.autoLock.after), id: \.self
+                        ) { option in
+                            Button(repoAutoLockAfterDisplay(option)) {
+                                vm.container.mobileVault.reposSetAutoLock(
+                                    repoId: vm.repoId,
+                                    autoLock: RepoAutoLock(
+                                        after: option, onAppHidden: repo.autoLock.onAppHidden))
+                            }
+                        }
+                    }
+
+                    HStack {
+                        Toggle(isOn: repoAutoLockOnAppHidden) {
+                            VStack(alignment: .leading) {
+                                Text("Lock when app hidden").padding(.bottom, 0.5)
+                                Text("When switching apps or locking the screen").font(
+                                    .system(.footnote)
+                                ).foregroundColor(Color(.secondaryLabel))
+                            }
+                        }
+                    }
+                    .padding(.vertical, 2)
+                }
+
+                Section {
                     HStack {
                         Button {
                             vm.navController.push(.repoRemove(repoId: vm.repoId))
@@ -141,5 +195,39 @@ public struct RepoInfoScreen: View {
             }
             .navigationTitle(repo.name)
         }
+    }
+
+    func repoAutoLockAfterDisplay(_ after: RepoAutoLockAfter) -> String {
+        switch after {
+        case .noLimit: return "No time limit"
+        case .inactive1Minute: return "1 minute of inactivity"
+        case .inactive5Mininutes: return "5 minutes of inactivity"
+        case .inactive10Minutes: return "10 minutes of inactivity"
+        case .inactive30Minutes: return "30 minutes of inactivity"
+        case .inactive1Hour: return "1 hour of inactivity"
+        case .inactive2Hours: return "2 hours of inactivity"
+        case .inactive4Hours: return "4 hours of inactivity"
+        case .custom(let seconds): return "Custom (\(seconds) seconds)"
+        }
+    }
+
+    func getRepoAutoLockAfterOptions(current: RepoAutoLockAfter) -> [RepoAutoLockAfter] {
+        var options: [RepoAutoLockAfter] = [
+            .noLimit,
+            .inactive1Minute,
+            .inactive5Mininutes,
+            .inactive10Minutes,
+            .inactive30Minutes,
+            .inactive1Hour,
+            .inactive2Hours,
+            .inactive4Hours,
+        ]
+
+        switch current {
+        case .custom(_): options.append(current)
+        default: ()
+        }
+
+        return options
     }
 }

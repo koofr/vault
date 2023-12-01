@@ -77,6 +77,9 @@ extern "C" {
     #[wasm_bindgen(typescript_type = "Repos")]
     pub type Repos;
 
+    #[wasm_bindgen(typescript_type = "RepoAutoLock")]
+    pub type RepoAutoLock;
+
     #[wasm_bindgen(typescript_type = "RepoCreateInfo | undefined")]
     pub type RepoCreateInfoOption;
 
@@ -612,6 +615,22 @@ impl WebVault {
                     _ => Err(err),
                 }),
         )
+    }
+
+    #[wasm_bindgen(js_name = reposTouchRepo)]
+    pub fn repos_touch_repo(&self, repo_id: String) {
+        self.handle_result(self.vault.repos_touch_repo(&RepoId(repo_id)));
+    }
+
+    #[wasm_bindgen(js_name = reposSetAutoLock)]
+    pub fn repos_set_auto_lock(&self, repo_id: String, auto_lock: RepoAutoLock) {
+        let auto_lock: dto::RepoAutoLock =
+            serde_wasm_bindgen::from_value(auto_lock.into()).unwrap();
+
+        self.handle_result(
+            self.vault
+                .repos_set_auto_lock(&RepoId(repo_id), auto_lock.into()),
+        );
     }
 
     // repo_create
