@@ -1,4 +1,5 @@
 import { css } from '@emotion/css';
+import { useTheme } from '@emotion/react';
 import format from 'date-fns/format';
 import { memo, useCallback } from 'react';
 
@@ -18,6 +19,7 @@ import { RepoRemoveModal } from './RepoRemoveModal';
 import { RepoSpaceUsage } from './RepoSpaceUsage';
 
 export const RepoInfoComponentRepo = memo<{ repo: Repo }>(({ repo }) => {
+  const theme = useTheme();
   const isMobile = useIsMobile();
   const removeModal = useModal<Repo>();
   const removeModalShow = removeModal.show;
@@ -38,15 +40,28 @@ export const RepoInfoComponentRepo = memo<{ repo: Repo }>(({ repo }) => {
             : undefined
         }
       >
-        <h1
-          className={css`
-            font-size: 32px;
-            font-weight: normal;
-            margin: 0;
-          `}
-        >
-          {repo.name}
-        </h1>
+        <div>
+          <h1
+            className={css`
+              display: inline;
+              font-size: 32px;
+              font-weight: normal;
+              margin: 0;
+            `}
+          >
+            {repo.name}
+          </h1>
+          <small
+            className={css`
+              font-size: 13px;
+              font-weight: normal;
+              color: ${theme.colors.textLight};
+              margin-left: 10px;
+            `}
+          >
+            {repo.state === 'Locked' ? 'LOCKED' : 'UNLOCKED'}
+          </small>
+        </div>
         <p
           className={css`
             margin: 0 0 25px;
