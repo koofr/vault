@@ -140,6 +140,20 @@ impl LifecycleService {
 
         Ok(())
     }
+
+    pub fn app_visible(&self) {
+        self.store
+            .mutate(|state, notify, mutation_state, mutation_notify| {
+                mutations::app_visible(state, notify, mutation_state, mutation_notify);
+            })
+    }
+
+    pub fn app_hidden(&self) {
+        self.store
+            .mutate(|state, notify, mutation_state, mutation_notify| {
+                mutations::app_hidden(state, notify, mutation_state, mutation_notify);
+            })
+    }
 }
 
 impl Drop for LifecycleService {

@@ -47,17 +47,28 @@ final class ShareViewController: UIViewController {
         NotificationCenter.default.addObserver(
             self, selector: #selector(willEnterForeground),
             name: NSNotification.Name.NSExtensionHostWillEnterForeground, object: nil)
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(didEnterBackground),
+            name: NSNotification.Name.NSExtensionHostDidEnterBackground, object: nil)
     }
 
     deinit {
         NotificationCenter.default.removeObserver(
             self, name: NSNotification.Name.NSExtensionHostWillEnterForeground, object: nil)
+        NotificationCenter.default.removeObserver(
+            self, name: NSNotification.Name.NSExtensionHostDidEnterBackground, object: nil)
     }
 
     @objc func willEnterForeground() {
+        container?.mobileVault.appVisible()
+
         // if the user is not authenticated, then opens the app, logs in and
         // comes back here we should call load again
         container?.mobileVault.load()
+    }
+
+    @objc func didEnterBackground() {
+        container?.mobileVault.appHidden()
     }
 
     private func getItemProviders() -> [NSItemProvider] {

@@ -61,6 +61,14 @@ export const mainAuthenticated = async () => {
     webVault.load();
   }
 
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      webVault.appVisible();
+    } else {
+      webVault.appHidden();
+    }
+  });
+
   const router = createRouter();
 
   (window as any).router = router;

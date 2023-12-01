@@ -1,8 +1,8 @@
 use crate::{
     config::state::ConfigState, dialogs::state::DialogsState, dir_pickers::state::DirPickersState,
-    eventstream::state::EventstreamState, notifications::state::NotificationsState,
-    oauth2::state::OAuth2State, remote_files::state::RemoteFilesState,
-    remote_files_browsers::state::RemoteFilesBrowsersState,
+    eventstream::state::EventstreamState, lifecycle::state::LifecycleState,
+    notifications::state::NotificationsState, oauth2::state::OAuth2State,
+    remote_files::state::RemoteFilesState, remote_files_browsers::state::RemoteFilesBrowsersState,
     repo_config_backup::state::RepoConfigBackupsState, repo_create::state::RepoCreatesState,
     repo_files::state::RepoFilesState, repo_files_browsers::state::RepoFilesBrowsersState,
     repo_files_details::state::RepoFilesDetailsState, repo_files_move::state::RepoFilesMoveState,
@@ -14,6 +14,7 @@ use crate::{
 #[derive(Debug, Clone, Default)]
 pub struct State {
     pub config: ConfigState,
+    pub lifecycle: LifecycleState,
     pub notifications: NotificationsState,
     pub dialogs: DialogsState,
     pub oauth2: OAuth2State,
@@ -39,6 +40,7 @@ pub struct State {
 impl State {
     pub fn reset(&mut self) {
         // config is kept
+        self.lifecycle.reset();
         // notifications are kept so that any errors are displayed after logout
         self.dialogs.reset();
         self.oauth2.reset();

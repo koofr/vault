@@ -276,6 +276,14 @@ impl Vault {
         self.lifecycle_service.logout()
     }
 
+    pub fn app_visible(&self) {
+        self.lifecycle_service.app_visible()
+    }
+
+    pub fn app_hidden(&self) {
+        self.lifecycle_service.app_hidden()
+    }
+
     // relative_time
 
     pub fn relative_time(

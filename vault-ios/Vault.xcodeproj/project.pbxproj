@@ -135,6 +135,7 @@
 		A1AD934C2A828DDE006172BF /* VaultShareExt.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A1AD93422A828DDE006172BF /* VaultShareExt.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A1AD93592A82D568006172BF /* CommonAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1AD92F32A8285A7006172BF /* CommonAssets.xcassets */; };
 		A1AEB7DE2ABA07AE00B50AB1 /* UIColorRGB.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AEB7DD2ABA07AE00B50AB1 /* UIColorRGB.swift */; };
+		A1B7A9E42B19F56000C6F98E /* LifecycleHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B7A9E32B19F56000C6F98E /* LifecycleHandler.swift */; };
 		A1C8654E2ABF721F0032F64B /* WindowUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C8654D2ABF721F0032F64B /* WindowUtils.swift */; };
 		A1CC129E2A8AA0EA00C0E1A0 /* ImageData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1CC129D2A8AA0EA00C0E1A0 /* ImageData.swift */; };
 		A1CC12A02A8BB69900C0E1A0 /* ShareTargetFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1CC129F2A8BB69900C0E1A0 /* ShareTargetFile.swift */; };
@@ -374,6 +375,7 @@
 		A1AD93512A828DF1006172BF /* ShareExtScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareExtScreen.swift; sourceTree = "<group>"; };
 		A1AEB7DD2ABA07AE00B50AB1 /* UIColorRGB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorRGB.swift; sourceTree = "<group>"; };
 		A1B6D00C2941DA4600CBF5FC /* KeychainRepoPasswordStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainRepoPasswordStorage.swift; sourceTree = "<group>"; };
+		A1B7A9E32B19F56000C6F98E /* LifecycleHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifecycleHandler.swift; sourceTree = "<group>"; };
 		A1C8654D2ABF721F0032F64B /* WindowUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowUtils.swift; sourceTree = "<group>"; };
 		A1CC129D2A8AA0EA00C0E1A0 /* ImageData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageData.swift; sourceTree = "<group>"; };
 		A1CC129F2A8BB69900C0E1A0 /* ShareTargetFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareTargetFile.swift; sourceTree = "<group>"; };
@@ -652,6 +654,7 @@
 				A1A77F9D2A83ADF3001F6CF2 /* Vault.entitlements */,
 				A18A8CED2917988200B8F8B9 /* Assets.xcassets */,
 				A19FB1E629227E5B00E3C37B /* Info.plist */,
+				A1B7A9E32B19F56000C6F98E /* LifecycleHandler.swift */,
 				A18A8CEF2917988200B8F8B9 /* Preview Content */,
 				A17A7597291BE27C0037A015 /* Vault-Bridging-Header.h */,
 				A18A8CE92917988100B8F8B9 /* VaultApp.swift */,
@@ -1250,6 +1253,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A18A8CEA2917988100B8F8B9 /* VaultApp.swift in Sources */,
+				A1B7A9E42B19F56000C6F98E /* LifecycleHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -9,8 +9,11 @@ struct VaultApp: App {
         oauth2AuthBaseURL: ProcessInfo.processInfo.environment["VAULT_OAUTH2_AUTH_BASE_URL"],
         secureStorageJson: ProcessInfo.processInfo.environment["VAULT_SECURE_STORAGE"]
     )
+    let lifecycleHandler: LifecycleHandler
 
     init() {
+        lifecycleHandler = LifecycleHandler(container: container)
+
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback)
         } catch {

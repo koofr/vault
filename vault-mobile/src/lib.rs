@@ -24,6 +24,7 @@ use vault_core::{
     common::state as common_state,
     dialogs::state as dialogs_state,
     files::{self, file_category, files_filter},
+    lifecycle,
     notifications::state as notifications_state,
     oauth2::OAuth2Config,
     relative_time,
@@ -1803,6 +1804,19 @@ impl MobileVault {
 
     pub fn logout(&self) {
         self.errors.handle_result(self.vault.logout());
+    }
+
+    pub fn app_visible(&self) {
+        self.vault.app_visible()
+    }
+
+    pub fn app_hidden(&self) {
+        self.vault.app_hidden()
+    }
+
+    pub fn is_app_visible(&self) -> bool {
+        self.vault
+            .with_state(|state| lifecycle::selectors::select_is_visible(state))
     }
 
     // relative_time

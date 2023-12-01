@@ -646,6 +646,9 @@ interface MobileVault {
   [Self=ByArc]
   void load();
   void logout();
+  void app_visible();
+  void app_hidden();
+  boolean is_app_visible();
 
   // relative_time
 

@@ -307,6 +307,16 @@ impl WebVault {
         self.handle_result(self.vault.logout());
     }
 
+    #[wasm_bindgen(js_name = appVisible)]
+    pub fn app_visible(&self) {
+        self.vault.app_visible()
+    }
+
+    #[wasm_bindgen(js_name = appHidden)]
+    pub fn app_hidden(&self) {
+        self.vault.app_hidden()
+    }
+
     // relative_time
 
     #[wasm_bindgen(js_name = relativeTime)]
