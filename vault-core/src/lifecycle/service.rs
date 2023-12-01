@@ -3,8 +3,7 @@ use std::sync::Arc;
 use futures::{join, TryFutureExt};
 
 use crate::{
-    common::state::Status,
-    eventstream::{self, EventStreamService},
+    eventstream::EventStreamService,
     notifications::NotificationsService,
     oauth2::{state::FinishFlowResult, OAuth2Service},
     remote::Remote,
@@ -15,8 +14,9 @@ use crate::{
     user::UserService,
 };
 
-use super::errors::{
-    LoadError, LogoutError, OAuth2FinishFlowUrlError, OnLoginError, OnLogoutError,
+use super::{
+    errors::{LoadError, LogoutError, OAuth2FinishFlowUrlError, OnLoginError, OnLogoutError},
+    mutations,
 };
 
 pub struct LifecycleService {
@@ -118,16 +118,7 @@ impl LifecycleService {
         self.eventstream_service.disconnect();
 
         self.store.mutate(|state, notify, _, _| {
-            state.reset();
-
-            state.oauth2.status = Status::Initial;
-
-            // state.reset() sets connection_state to Initial
-            state.eventstream.connection_state = eventstream::state::ConnectionState::Disconnected;
-
-            for event in store::Event::all() {
-                notify(event);
-            }
+            mutations::on_logout(state, notify);
         });
 
         self.secure_storage_service
