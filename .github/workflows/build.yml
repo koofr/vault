@@ -140,7 +140,10 @@ jobs:
         run: |
           ../fake_remote &
 
-          sleep 1
+          while ! curl -s http://127.0.0.1:3080/health > /dev/null; do
+            echo "Waiting for fake remote to start..."
+            sleep 1
+          done
 
           scripts/use-fake-remote.sh ../vault-web/public/config.json
           scripts/use-fake-remote.sh ../vault-web/dist/config.json
