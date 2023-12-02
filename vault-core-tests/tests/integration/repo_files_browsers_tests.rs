@@ -63,10 +63,7 @@ fn test_repo_not_loaded() {
                                 field: RepoFilesSortField::Name,
                                 direction: SortDirection::Asc
                             },
-                            status: Status::Error {
-                                error: LoadFilesError::RepoNotFound(RepoNotFoundError),
-                                loaded: false
-                            },
+                            status: Status::Loading { loaded: false },
                             title: None,
                             total_count: 0,
                             total_size: 0,
@@ -93,10 +90,7 @@ fn test_repo_not_loaded() {
                                 field: RepoFilesSortField::Name,
                                 direction: SortDirection::Asc
                             },
-                            status: Status::Error {
-                                error: LoadFilesError::RepoNotFound(RepoNotFoundError),
-                                loaded: false
-                            },
+                            status: Status::Loading { loaded: false },
                             title: None,
                             total_count: 0,
                             total_size: 0,
@@ -922,6 +916,78 @@ fn test_eventstream() {
                 fixture.vault.store.clone(),
                 &fixture.mount_id,
                 &fixture.path,
+            )
+            .await;
+
+            fixture1.upload_file("/file.txt", "test").await;
+
+            let wait_for_store = fixture.vault.store.clone();
+            store::wait_for(
+                wait_for_store.clone(),
+                &[store::Event::RepoFilesBrowsers],
+                move |_| {
+                    wait_for_store.with_state(|state| {
+                        repo_files_browsers::selectors::select_info(state, browser_id)
+                            .filter(|info| {
+                                info.items
+                                    .iter()
+                                    .find(|item| item.file.name_lower_force() == "file.txt")
+                                    .is_some()
+                            })
+                            .map(|_| ())
+                    })
+                },
+            )
+            .await;
+
+            fixture.vault.remote_files_browsers_destroy(browser_id);
+        }
+        .boxed()
+    });
+}
+
+#[test]
+fn test_eventstream_not_loaded() {
+    with_user(|fixture| {
+        async move {
+            let fixture = RepoFixture::create(fixture).await;
+            let vault_load_future = fixture.vault.load().unwrap();
+
+            let fixture1 = fixture.new_session();
+            fixture1.user_fixture.login();
+            fixture1.user_fixture.load().await;
+            fixture1.unlock();
+
+            let (browser_id, load_future) = fixture.vault.repo_files_browsers_create(
+                fixture.repo_id.clone(),
+                &EncryptedPath("/".into()),
+                RepoFilesBrowserOptions { select_name: None },
+            );
+            load_future.await.unwrap();
+
+            vault_load_future.await.unwrap();
+
+            eventstream_wait_registered(
+                fixture.vault.store.clone(),
+                &fixture.mount_id,
+                &fixture.path,
+            )
+            .await;
+
+            fixture.unlock();
+
+            // wait until loaded after unlock to prevent flaky tests
+            let wait_for_store = fixture.vault.store.clone();
+            store::wait_for(
+                wait_for_store.clone(),
+                &[store::Event::RepoFilesBrowsers],
+                move |_| {
+                    wait_for_store.with_state(|state| {
+                        repo_files_browsers::selectors::select_info(state, browser_id)
+                            .filter(|info| matches!(info.status, Status::Loaded))
+                            .map(|_| ())
+                    })
+                },
             )
             .await;
 

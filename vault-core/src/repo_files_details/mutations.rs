@@ -2,7 +2,10 @@ use std::collections::HashMap;
 
 use crate::{
     common::state::Status,
-    eventstream::mutations::{add_mount_subscriber, remove_mount_subscriber},
+    eventstream::{
+        mutations::{add_mount_subscriber, remove_mount_subscriber},
+        state::MountSubscription,
+    },
     remote_files::errors::RemoteFilesErrors,
     repo_files::{
         errors::{DeleteFileError, LoadFilesError},
@@ -27,6 +30,28 @@ use super::{
     },
 };
 
+pub fn create_location_eventstream_mount_subscription(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
+    repo_id: &RepoId,
+    details_id: u32,
+) -> Option<MountSubscription> {
+    repos::selectors::select_repo(state, &repo_id)
+        .ok()
+        .map(|repo| (repo.mount_id.clone(), repo.path.clone()))
+        .map(|(mount_id, path)| {
+            add_mount_subscriber(
+                state,
+                notify,
+                mutation_state,
+                mount_id,
+                path,
+                selectors::get_eventstream_mount_subscriber(details_id),
+            )
+        })
+}
+
 pub fn create_location(
     state: &mut store::State,
     notify: &store::Notify,
@@ -46,19 +71,13 @@ pub fn create_location(
         .ok()
         .map(|cipher| cipher.decrypt_filename(&name));
 
-    let eventstream_mount_subscription = repos::selectors::select_repo(state, &repo_id)
-        .ok()
-        .map(|repo| (repo.mount_id.clone(), repo.path.clone()))
-        .map(|(mount_id, path)| {
-            add_mount_subscriber(
-                state,
-                notify,
-                mutation_state,
-                mount_id,
-                path,
-                selectors::get_eventstream_mount_subscriber(details_id),
-            )
-        });
+    let eventstream_mount_subscription = create_location_eventstream_mount_subscription(
+        state,
+        notify,
+        mutation_state,
+        &repo_id,
+        details_id,
+    );
 
     Ok(RepoFilesDetailsLocation {
         repo_id,
@@ -138,7 +157,7 @@ pub fn create(
 
     state.repo_files_details.details.insert(details_id, details);
 
-    update_details(state, notify, details_id);
+    update_details(state, notify, mutation_state, details_id);
 
     details_id
 }
@@ -221,7 +240,12 @@ pub fn loaded(
     }
 }
 
-pub fn update_details(state: &mut store::State, notify: &store::Notify, details_id: u32) {
+pub fn update_details(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
+    details_id: u32,
+) {
     let details = match state.repo_files_details.details.get(&details_id) {
         Some(details) => details,
         _ => return,
@@ -244,10 +268,34 @@ pub fn update_details(state: &mut store::State, notify: &store::Notify, details_
         None => (Status::Initial, false, None, false),
     };
 
+    let eventstream_mount_subscription =
+        match details
+            .location
+            .as_ref()
+            .and_then(|loc| match loc.eventstream_mount_subscription {
+                Some(_) => None,
+                None => Some(loc.repo_id.clone()),
+            }) {
+            Some(repo_id) => create_location_eventstream_mount_subscription(
+                state,
+                notify,
+                mutation_state,
+                &repo_id,
+                details_id,
+            ),
+            _ => None,
+        };
+
     let details = match state.repo_files_details.details.get_mut(&details_id) {
         Some(details) => details,
         _ => return,
     };
+
+    if let Some(eventstream_mount_subscription) = eventstream_mount_subscription {
+        if let Some(location) = &mut details.location {
+            location.eventstream_mount_subscription = Some(eventstream_mount_subscription);
+        }
+    }
 
     let mut dirty = false;
 
@@ -773,6 +821,6 @@ pub fn handle_mutation(
         .map(ToOwned::to_owned)
         .collect::<Vec<_>>()
     {
-        update_details(state, notify, details_id)
+        update_details(state, notify, mutation_state, details_id)
     }
 }

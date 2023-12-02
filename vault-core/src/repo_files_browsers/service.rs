@@ -51,27 +51,25 @@ impl RepoFilesBrowsersService {
             repos_subscription_id,
             &[store::Event::Repos],
             Box::new(move |mutation_state, add_side_effect| {
-                if !mutation_state.repos.unlocked_repos.is_empty() {
-                    for browser_id in repos_subscription_store.with_state(|state| {
-                        selectors::select_unlocked_browsers(state, mutation_state)
-                    }) {
-                        let repo_files_service = repos_subscription_repo_files_service.clone();
-                        let store = repos_subscription_store.clone();
-                        let runtime = repos_subscription_runtime.clone();
+                for browser_id in repos_subscription_store
+                    .with_state(|state| selectors::select_browsers_to_load(state, mutation_state))
+                {
+                    let repo_files_service = repos_subscription_repo_files_service.clone();
+                    let store = repos_subscription_store.clone();
+                    let runtime = repos_subscription_runtime.clone();
 
-                        add_side_effect(Box::new(move || {
-                            // load errors are displayed inside browser
-                            runtime.spawn(
-                                Self::load_files_inner(
-                                    repo_files_service.clone(),
-                                    store.clone(),
-                                    browser_id,
-                                )
-                                .map(|_| ())
-                                .boxed(),
+                    add_side_effect(Box::new(move || {
+                        // load errors are displayed inside browser
+                        runtime.spawn(
+                            Self::load_files_inner(
+                                repo_files_service.clone(),
+                                store.clone(),
+                                browser_id,
                             )
-                        }))
-                    }
+                            .map(|_| ())
+                            .boxed(),
+                        )
+                    }))
                 }
             }),
         );
@@ -81,8 +79,8 @@ impl RepoFilesBrowsersService {
         store.mutation_on(
             mutation_subscription_id,
             &[store::MutationEvent::RepoFiles, store::MutationEvent::Repos],
-            Box::new(move |state, notify, _, _| {
-                mutations::handle_mutation(state, notify);
+            Box::new(move |state, notify, mutation_state, _| {
+                mutations::handle_mutation(state, notify, mutation_state);
             }),
         );
 
@@ -152,10 +150,11 @@ impl RepoFilesBrowsersService {
 
             let res = repo_files_service.load_files(&repo_id, &path).await;
 
-            store.mutate(|state, notify, _, _| {
+            store.mutate(|state, notify, mutation_state, _| {
                 mutations::loaded(
                     state,
                     notify,
+                    mutation_state,
                     browser_id,
                     &repo_id,
                     &path,
@@ -206,8 +205,8 @@ impl RepoFilesBrowsersService {
         field: RepoFilesSortField,
         direction: Option<SortDirection>,
     ) {
-        self.store.mutate(|state, notify, _, _| {
-            mutations::sort_by(state, notify, browser_id, field, direction);
+        self.store.mutate(|state, notify, mutation_state, _| {
+            mutations::sort_by(state, notify, mutation_state, browser_id, field, direction);
         });
     }
 

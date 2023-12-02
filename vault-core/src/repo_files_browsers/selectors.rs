@@ -130,20 +130,25 @@ pub fn select_status<'a>(
     browser: &RepoFilesBrowser,
 ) -> Status<LoadFilesError> {
     match &browser.location {
-        Some(location) => match repos_selectors::select_repo(state, &location.repo_id) {
-            Ok(repo) => {
-                if matches!(repo.state, RepoState::Locked) {
-                    Status::Error {
-                        error: LoadFilesError::RepoLocked(RepoLockedError),
-                        loaded: false,
-                    }
-                } else {
-                    browser.status.clone()
-                }
+        Some(location) => match state.repos.status {
+            Status::Initial | Status::Loading { loaded: false } => {
+                Status::Loading { loaded: false }
             }
-            Err(err) => Status::Error {
-                error: LoadFilesError::RepoNotFound(err.clone()),
-                loaded: false,
+            _ => match repos_selectors::select_repo(state, &location.repo_id) {
+                Ok(repo) => {
+                    if matches!(repo.state, RepoState::Locked) {
+                        Status::Error {
+                            error: LoadFilesError::RepoLocked(RepoLockedError),
+                            loaded: false,
+                        }
+                    } else {
+                        browser.status.clone()
+                    }
+                }
+                Err(err) => Status::Error {
+                    error: LoadFilesError::RepoNotFound(err.clone()),
+                    loaded: false,
+                },
             },
         },
         None => browser.status.clone(),
@@ -232,17 +237,32 @@ pub fn select_root_file<'a>(state: &'a store::State, browser_id: u32) -> Option<
         .and_then(|file_id| repo_files_selectors::select_file(state, &file_id))
 }
 
-pub fn select_unlocked_browsers(
+pub fn select_browsers_to_load(
     state: &store::State,
     mutation_state: &store::MutationState,
 ) -> Vec<u32> {
     let mut browser_ids = vec![];
 
-    for (repo_id, _) in &mutation_state.repos.unlocked_repos {
-        for browser in state.repo_files_browsers.browsers.values() {
+    if !mutation_state.repos.unlocked_repos.is_empty() {
+        for (repo_id, _) in &mutation_state.repos.unlocked_repos {
+            for browser in state.repo_files_browsers.browsers.values() {
+                if let Some(location) = &browser.location {
+                    if &location.repo_id == repo_id {
+                        browser_ids.push(browser.id);
+                    }
+                }
+            }
+        }
+    }
+
+    for browser in state.repo_files_browsers.browsers.values() {
+        if matches!(browser.status, Status::Initial) {
             if let Some(location) = &browser.location {
-                if &location.repo_id == repo_id {
-                    browser_ids.push(browser.id);
+                match repos_selectors::select_repo(state, &location.repo_id) {
+                    Ok(repo) if repo.state.is_unlocked() && !browser_ids.contains(&browser.id) => {
+                        browser_ids.push(browser.id);
+                    }
+                    _ => {}
                 }
             }
         }

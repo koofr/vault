@@ -2,7 +2,10 @@ use std::collections::HashSet;
 
 use crate::{
     common::state::Status,
-    eventstream::mutations::{add_mount_subscriber, remove_mount_subscriber},
+    eventstream::{
+        mutations::{add_mount_subscriber, remove_mount_subscriber},
+        state::MountSubscription,
+    },
     remote_files::errors::RemoteFilesErrors,
     repo_files::{
         errors::LoadFilesError, selectors as repo_files_selectors, state::RepoFilesSortField,
@@ -20,18 +23,14 @@ use super::{
     state::{RepoFilesBrowser, RepoFilesBrowserLocation, RepoFilesBrowserOptions},
 };
 
-fn create_location(
+pub fn create_location_eventstream_mount_subscription(
     state: &mut store::State,
     notify: &store::Notify,
     mutation_state: &mut store::MutationState,
-    repo_id: RepoId,
-    path: &EncryptedPath,
+    repo_id: &RepoId,
     browser_id: u32,
-) -> Result<RepoFilesBrowserLocation, LoadFilesError> {
-    let path = repo_encrypted_path_utils::normalize_path(path)
-        .map_err(|_| LoadFilesError::RemoteError(RemoteFilesErrors::invalid_path()))?;
-
-    let eventstream_mount_subscription = repos::selectors::select_repo(state, &repo_id)
+) -> Option<MountSubscription> {
+    repos::selectors::select_repo(state, &repo_id)
         .ok()
         .map(|repo| (repo.mount_id.clone(), repo.path.clone()))
         .map(|(mount_id, path)| {
@@ -43,7 +42,27 @@ fn create_location(
                 path,
                 selectors::get_eventstream_mount_subscriber(browser_id),
             )
-        });
+        })
+}
+
+fn create_location(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
+    repo_id: RepoId,
+    path: &EncryptedPath,
+    browser_id: u32,
+) -> Result<RepoFilesBrowserLocation, LoadFilesError> {
+    let path = repo_encrypted_path_utils::normalize_path(path)
+        .map_err(|_| LoadFilesError::RemoteError(RemoteFilesErrors::invalid_path()))?;
+
+    let eventstream_mount_subscription = create_location_eventstream_mount_subscription(
+        state,
+        notify,
+        mutation_state,
+        &repo_id,
+        browser_id,
+    );
 
     Ok(RepoFilesBrowserLocation {
         repo_id,
@@ -57,12 +76,15 @@ fn create_status(
     location: Result<&RepoFilesBrowserLocation, &LoadFilesError>,
 ) -> Status<LoadFilesError> {
     match location {
-        Ok(location) => Status::Loading {
-            loaded: repo_files_selectors::select_is_root_loaded(
-                state,
-                &location.repo_id,
-                &location.path,
-            ),
+        Ok(location) => match repos::selectors::select_repo(state, &location.repo_id) {
+            Ok(_) => Status::Loading {
+                loaded: repo_files_selectors::select_is_root_loaded(
+                    state,
+                    &location.repo_id,
+                    &location.path,
+                ),
+            },
+            Err(_) => Status::Initial,
         },
         Err(err) => Status::Error {
             error: err.clone(),
@@ -105,7 +127,7 @@ pub fn create(
         .browsers
         .insert(browser_id, browser);
 
-    update_browser(state, notify, browser_id);
+    update_browser(state, notify, mutation_state, browser_id);
 
     browser_id
 }
@@ -148,6 +170,7 @@ pub fn loading(state: &mut store::State, notify: &store::Notify, browser_id: u32
 pub fn loaded(
     state: &mut store::State,
     notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
     browser_id: u32,
     repo_id: &RepoId,
     path: &EncryptedPath,
@@ -177,10 +200,15 @@ pub fn loaded(
         }
     }
 
-    update_browser(state, notify, browser_id);
+    update_browser(state, notify, mutation_state, browser_id);
 }
 
-pub fn update_browser(state: &mut store::State, notify: &store::Notify, browser_id: u32) {
+pub fn update_browser(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
+    browser_id: u32,
+) {
     let browser = match state.repo_files_browsers.browsers.get(&browser_id) {
         Some(browser) => browser,
         _ => return,
@@ -228,10 +256,34 @@ pub fn update_browser(state: &mut store::State, notify: &store::Notify, browser_
 
     let file_ids_set: HashSet<RepoFileId> = file_ids.iter().cloned().collect();
 
+    let eventstream_mount_subscription =
+        match browser
+            .location
+            .as_ref()
+            .and_then(|loc| match loc.eventstream_mount_subscription {
+                Some(_) => None,
+                None => Some(loc.repo_id.clone()),
+            }) {
+            Some(repo_id) => create_location_eventstream_mount_subscription(
+                state,
+                notify,
+                mutation_state,
+                &repo_id,
+                browser_id,
+            ),
+            _ => None,
+        };
+
     let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
         _ => return,
     };
+
+    if let Some(eventstream_mount_subscription) = eventstream_mount_subscription {
+        if let Some(location) = &mut browser.location {
+            location.eventstream_mount_subscription = Some(eventstream_mount_subscription);
+        }
+    }
 
     let mut dirty = false;
 
@@ -389,6 +441,7 @@ pub fn set_selection(
 pub fn sort_by(
     state: &mut store::State,
     notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
     browser_id: u32,
     field: RepoFilesSortField,
     direction: Option<SortDirection>,
@@ -416,10 +469,14 @@ pub fn sort_by(
 
     state.repo_files_browsers.last_sort = browser.sort.clone();
 
-    update_browser(state, notify, browser_id);
+    update_browser(state, notify, mutation_state, browser_id);
 }
 
-pub fn handle_mutation(state: &mut store::State, notify: &store::Notify) {
+pub fn handle_mutation(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
+) {
     for browser_id in state
         .repo_files_browsers
         .browsers
@@ -427,6 +484,6 @@ pub fn handle_mutation(state: &mut store::State, notify: &store::Notify) {
         .map(ToOwned::to_owned)
         .collect::<Vec<_>>()
     {
-        update_browser(state, notify, browser_id)
+        update_browser(state, notify, mutation_state, browser_id)
     }
 }

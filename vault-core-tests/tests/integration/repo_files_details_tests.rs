@@ -1302,3 +1302,83 @@ fn test_eventstream() {
         .boxed()
     });
 }
+
+#[test]
+fn test_eventstream_not_loaded() {
+    with_user(|fixture| {
+        async move {
+            let fixture = RepoFixture::create(fixture).await;
+            let vault_load_future = fixture.vault.load().unwrap();
+
+            let fixture1 = fixture.new_session();
+            fixture1.user_fixture.login();
+            fixture1.user_fixture.load().await;
+            fixture1.unlock();
+
+            fixture1.upload_file("/file.txt", "test").await;
+
+            let (details_id, load_future) = fixture.vault.repo_files_details_create(
+                fixture.repo_id.clone(),
+                &fixture.encrypt_path("/file.txt"),
+                false,
+                RepoFilesDetailsOptions {
+                    autosave_interval: Duration::from_secs(20),
+                    load_content: FilesFilter {
+                        categories: vec![FileCategory::Text],
+                        exts: vec![],
+                    },
+                },
+            );
+            load_future.await.unwrap();
+
+            vault_load_future.await.unwrap();
+
+            eventstream_wait_registered(
+                fixture.vault.store.clone(),
+                &fixture.mount_id,
+                &fixture.path,
+            )
+            .await;
+
+            fixture.unlock();
+
+            details_wait(fixture.vault.store.clone(), 1, |details| {
+                matches!(
+                    details.location.as_ref().unwrap().content.status,
+                    Status::Loaded
+                )
+            })
+            .await;
+
+            fixture1.upload_file("/file.txt", "test1").await;
+
+            details_wait(fixture.vault.store.clone(), 1, |details| {
+                matches!(
+                    details.location.as_ref().unwrap().content.status,
+                    Status::Loaded
+                ) && details
+                    .location
+                    .as_ref()
+                    .unwrap()
+                    .content
+                    .data
+                    .as_ref()
+                    .filter(|x| match &x.bytes {
+                        RepoFilesDetailsContentDataBytes::Encrypted(_) => false,
+                        RepoFilesDetailsContentDataBytes::Decrypted(bytes, _) => {
+                            bytes.as_slice() == "test1".as_bytes()
+                        }
+                    })
+                    .is_some()
+            })
+            .await;
+
+            fixture
+                .vault
+                .repo_files_details_destroy(details_id)
+                .await
+                .unwrap();
+        }
+        .boxed()
+    });
+}
