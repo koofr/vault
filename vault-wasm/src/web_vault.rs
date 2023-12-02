@@ -302,7 +302,10 @@ impl WebVault {
 
     #[wasm_bindgen(js_name = load)]
     pub async fn load(&self) {
-        self.handle_result(self.vault.load().await)
+        self.handle_result(match self.vault.load() {
+            Ok(load_future) => load_future.await,
+            Err(err) => Err(err),
+        })
     }
 
     #[wasm_bindgen(js_name = logout)]

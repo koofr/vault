@@ -278,8 +278,13 @@ impl Vault {
 
     // lifecycle
 
-    pub async fn load(&self) -> Result<(), lifecycle::errors::LoadError> {
-        self.lifecycle_service.load().await
+    pub fn load(
+        &self,
+    ) -> Result<
+        BoxFuture<'static, Result<(), lifecycle::errors::LoadError>>,
+        lifecycle::errors::LoadError,
+    > {
+        self.lifecycle_service.clone().load()
     }
 
     pub fn logout(&self) -> Result<(), lifecycle::errors::LogoutError> {

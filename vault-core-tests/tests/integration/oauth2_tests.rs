@@ -12,7 +12,7 @@ use vault_core_tests::{
 fn test_load() {
     with_vault(|vault_fixture| {
         async move {
-            vault_fixture.vault.load().await.unwrap();
+            vault_fixture.vault.load().unwrap().await.unwrap();
         }
         .boxed()
     });
@@ -30,10 +30,13 @@ fn test_load_get_item_error() {
             let user_fixture = UserFixture::create(vault_fixture.clone());
             let oauth2_fixture = OAuth2Fixture::create(user_fixture.clone());
 
-            assert_eq!(
-                vault_fixture.vault.load().await.unwrap_err().to_string(),
-                "storage error: secure storage error: secure storage get error"
-            );
+            match vault_fixture.vault.load() {
+                Ok(_) => panic!(),
+                Err(err) => assert_eq!(
+                    err.to_string(),
+                    "storage error: secure storage error: secure storage get error"
+                ),
+            }
 
             match oauth2_fixture.get_status() {
                 Status::Error { error, .. } => assert_eq!(
@@ -90,7 +93,7 @@ fn test_oauth2_logout_not_logged_in() {
             let user_fixture = UserFixture::create(vault_fixture.clone());
             let oauth2_fixture = OAuth2Fixture::create(user_fixture.clone());
 
-            vault_fixture.vault.load().await.unwrap();
+            vault_fixture.vault.load().unwrap().await.unwrap();
 
             oauth2_fixture.logout().await;
 
@@ -142,7 +145,7 @@ fn test_oauth2_logout_clear_error() {
 fn test_internal_logout_not_logged_in() {
     with_vault(|vault_fixture| {
         async move {
-            vault_fixture.vault.load().await.unwrap();
+            vault_fixture.vault.load().unwrap().await.unwrap();
 
             vault_fixture.vault.logout().unwrap();
 

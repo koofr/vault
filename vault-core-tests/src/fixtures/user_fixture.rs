@@ -110,7 +110,7 @@ impl UserFixture {
     }
 
     pub async fn load(&self) {
-        self.vault.load().await.unwrap();
+        self.vault.load().unwrap().await.unwrap();
     }
 
     pub fn get_remote_file_id(&self, path: &str) -> RemoteFileId {

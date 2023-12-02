@@ -1879,8 +1879,10 @@ impl MobileVault {
     // lifecycle
 
     pub fn load(self: Arc<Self>) {
-        self.clone()
-            .spawn_result(async move { self.vault.load().await })
+        match self.vault.load() {
+            Ok(load_future) => self.clone().spawn_result(load_future),
+            Err(err) => self.errors.handle_error(err),
+        }
     }
 
     pub fn logout(&self) {

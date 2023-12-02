@@ -56,7 +56,7 @@ fn test_lock_after() {
             }
 
             // reload repos to test if auto_lock and last_activity are retained
-            fixture.vault.load().await.unwrap();
+            fixture.vault.load().unwrap().await.unwrap();
 
             let wait_store = fixture.vault.store.clone();
             timeout(
@@ -125,7 +125,7 @@ fn test_lock_after_set_already_unlocked() {
             }
 
             // reload repos to test if auto_lock and last_activity are retained
-            fixture.vault.load().await.unwrap();
+            fixture.vault.load().unwrap().await.unwrap();
 
             let wait_store = fixture.vault.store.clone();
             timeout(
@@ -166,7 +166,7 @@ fn test_lock_on_app_hidden() {
                 .unwrap();
 
             // reload repos to test if auto_lock is retained
-            fixture.vault.load().await.unwrap();
+            fixture.vault.load().unwrap().await.unwrap();
 
             let is_locked = || {
                 fixture.vault.store.with_state(|state| {

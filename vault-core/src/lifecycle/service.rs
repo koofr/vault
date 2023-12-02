@@ -1,6 +1,9 @@
 use std::sync::Arc;
 
-use futures::{join, TryFutureExt};
+use futures::{
+    future::{self, BoxFuture},
+    join, FutureExt, TryFutureExt,
+};
 
 use crate::{
     eventstream::EventStreamService,
@@ -66,16 +69,29 @@ impl LifecycleService {
         lifecycle_service
     }
 
-    pub async fn load(&self) -> Result<(), LoadError> {
+    /// BoxFuture is used so that calling load immediately loads oauth2 service
+    /// and then loads the rest asynchronously
+    pub fn load(self: Arc<Self>) -> Result<BoxFuture<'static, Result<(), LoadError>>, LoadError> {
         self.oauth2_service
             .load()
             .map_err(LoadError::OAuth2LoadError)?;
 
-        if self.oauth2_service.is_authenticated() {
-            self.on_login().await.map_err(LoadError::OnLoginError)?;
-        }
+        let load_future: BoxFuture<'static, Result<(), LoadError>> =
+            if self.oauth2_service.is_authenticated() {
+                let on_login_self = self.clone();
 
-        Ok(())
+                async move {
+                    on_login_self
+                        .on_login()
+                        .map_err(LoadError::OnLoginError)
+                        .await
+                }
+                .boxed()
+            } else {
+                future::ready(Ok(())).boxed()
+            };
+
+        Ok(load_future)
     }
 
     pub async fn on_login(&self) -> Result<(), OnLoginError> {
