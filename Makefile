@@ -11,12 +11,20 @@ deps-web:
 deps-web-tests:
 	cd vault-web-tests && npm ci && npx playwright install
 
+# run
+
+run-web:
+	cd vault-web && node_modules/.bin/vite
+
+run-fake-remote:
+	cargo run --bin fake_remote
+
 # build
 
 build: build-web build-wasm-web build-wasm-web-tests
 
 build-web: build-wasm-web
-	cd vault-web && vite
+	cd vault-web && node_modules/.bin/vite build
 
 build-wasm-web:
 	cd vault-wasm && wasm-pack build --target web --out-dir ../vault-web/src/vault-wasm --out-name vault-wasm
@@ -53,6 +61,9 @@ build-android-assemble-release: build-android-bindings build-android-library-rel
 
 build-android-bundle-release: build-android-bindings build-android-library-release
 	cd vault-android && ./gradlew bundleRelease
+
+build-fake-remote:
+	cargo build --bin fake_remote
 
 # format
 
@@ -115,8 +126,13 @@ test-rust-force:
 	fd -E target -g '*.rs' -x touch
 	make test-rust
 
-test-web-tests: build-wasm-web build-wasm-web-tests
+test-web-tests-prepare: build-wasm-web build-wasm-web-tests
 	cd vault-web-tests && scripts/use-fake-remote.sh ../vault-web/public/config.json && scripts/use-fake-remote.sh ../vault-web/dist/config.json
+
+test-web-tests: test-web-tests-prepare
+	cd vault-web-tests && npx playwright test --project=chromium
+
+test-web-tests-headed: test-web-tests-prepare
 	cd vault-web-tests && npx playwright test --headed --project=chromium
 
 test-ios-unit:
