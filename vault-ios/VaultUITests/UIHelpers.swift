@@ -54,6 +54,10 @@ extension XCUIApplication {
 
     // repo info
 
+    func reposRepoInfoBackTap() {
+        navigationBars.buttons["Vault"].tap()
+    }
+
     func repoInfoBiometricUnlockTap() {
         let button = switches["Biometric unlock, Use biometrics to unlock the Safe Box"].switches
             .firstMatch
@@ -61,12 +65,48 @@ extension XCUIApplication {
         button.tap()
     }
 
-    func repoInfoUnlockedTap() -> XCUIElement {
+    func repoInfoUnlockedTap() {
         let button = switches["Unlocked, Unlock or lock the Safe Box"].switches.firstMatch
         XCTAssertTrue(button.waitForExistence(timeout: 10))
         button.tap()
+    }
 
+    func repoInfoUnlockedAssertLocked(locked: Bool) {
+        let button = switches["Unlocked, Unlock or lock the Safe Box"].switches.firstMatch
+        XCTAssertTrue(button.waitForExistence(timeout: 10))
+
+        XCTAssertEqual(button.value as? String, locked ? "0" : "1")
+    }
+
+    func reposRepoInfoLockAfterWait(after: String) -> XCUIElement {
+        let button = collectionViews.buttons["Automatically lock after, \(after)"]
+        XCTAssertTrue(button.waitForExistence(timeout: 10))
         return button
+    }
+
+    func reposRepoInfoLockAfterTap(currentAfter: String = "1 hour of inactivity") {
+        let button = reposRepoInfoLockAfterWait(after: currentAfter)
+
+        button.tap()
+    }
+
+    func reposRepoInfoLockAfterChoiceTap(choice: String) {
+        buttons[choice].tap()
+    }
+
+    func reposRepoInfoLockOnAppHiddenTap() {
+        let button = switches["Lock when app hidden, When switching apps or locking the screen"]
+            .switches.firstMatch
+        XCTAssertTrue(button.waitForExistence(timeout: 10))
+        button.tap()
+    }
+
+    func repoInfoUnlockedExpectEnabled(enabled: Bool) {
+        let button = switches["Lock when app hidden, When switching apps or locking the screen"]
+            .switches.firstMatch
+        XCTAssertTrue(button.waitForExistence(timeout: 10))
+
+        XCTAssertEqual(button.value as? String, enabled ? "1" : "0")
     }
 
     // repo create
@@ -183,6 +223,11 @@ extension XCUIApplication {
 
     func repoFilesEditModeWait() {
         XCTAssertTrue(navigationBars["Selected items"].waitForExistence(timeout: 10))
+    }
+
+    func repoFilesEditModeWaitSelected(count: Int) {
+        XCTAssertTrue(
+            navigationBars[count == 1 ? "1 item" : "\(count) items"].waitForExistence(timeout: 10))
     }
 
     func repoFilesEditModeWaitDisabled() {
@@ -325,5 +370,11 @@ extension XCUIApplication {
         if element.waitForExistence(timeout: 5) {
             element.tap()
         }
+    }
+
+    // buttons
+
+    func homeButtonPress() {
+        XCUIDevice.shared.press(.home)
     }
 }

@@ -13,6 +13,7 @@ import { Dialogs } from './dialogs';
 import { joinParentName } from './pathUtils';
 import {
   filesTableClickFile,
+  filesTableFileSelected,
   filesTableRowLocator,
   filesTableRowNameLocator,
   filesTableSelectFile,
@@ -82,14 +83,7 @@ export class TextEditor {
   }
 
   encryptName(name: string): string {
-    const encryptedName = this.webVaultClient.webVault.repoFilesEncryptName(
-      this.repo.id,
-      name,
-    );
-    if (encryptedName === undefined) {
-      throw new Error(`Failed to encrypted name: ${name}`);
-    }
-    return encryptedName;
+    return this.webVaultClient.encryptFilename(this.repo.id, name);
   }
 
   setCurrentName(name: string) {
@@ -356,9 +350,7 @@ export class TextEditor {
   }
 
   async expectFileBrowserFileSelected() {
-    await expect(
-      filesTableRowLocator(this.page, 'File', this.currentName),
-    ).toHaveAttribute('aria-selected', 'true');
+    await filesTableFileSelected(this.page, 'File', this.currentName);
   }
 
   async expectServerContent(expectedContent: string) {

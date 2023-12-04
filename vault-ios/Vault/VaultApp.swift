@@ -7,7 +7,9 @@ struct VaultApp: App {
     let container = Container(
         baseURL: ProcessInfo.processInfo.environment["VAULT_BASE_URL"],
         oauth2AuthBaseURL: ProcessInfo.processInfo.environment["VAULT_OAUTH2_AUTH_BASE_URL"],
-        secureStorageJson: ProcessInfo.processInfo.environment["VAULT_SECURE_STORAGE"]
+        secureStorageJson: ProcessInfo.processInfo.environment["VAULT_SECURE_STORAGE"],
+        reposSetDefaultAutoLock: ProcessInfo.processInfo.environment[
+            "VAULT_REPOS_SET_DEFAULT_AUTO_LOCK"]
     )
     let lifecycleHandler: LifecycleHandler
 

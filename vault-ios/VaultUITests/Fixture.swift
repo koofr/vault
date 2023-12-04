@@ -95,11 +95,17 @@ class Fixture {
         }
     }
 
-    func launchApp() -> XCUIApplication {
+    func launchApp(extra: [String: String]? = nil) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchEnvironment["VAULT_BASE_URL"] = baseUrl
         app.launchEnvironment["VAULT_OAUTH2_AUTH_BASE_URL"] = oauth2AuthBaseUrl
         app.launchEnvironment["VAULT_SECURE_STORAGE"] = secureStorageJson
+
+        if let extra = extra {
+            for (key, value) in extra {
+                app.launchEnvironment[key] = value
+            }
+        }
 
         app.launch()
 

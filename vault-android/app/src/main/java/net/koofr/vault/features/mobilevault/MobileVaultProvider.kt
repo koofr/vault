@@ -10,6 +10,8 @@ import dagger.hilt.components.SingletonComponent
 import net.koofr.vault.BuildConfig
 import net.koofr.vault.LoggerLevel
 import net.koofr.vault.MobileVault
+import net.koofr.vault.RepoAutoLock
+import net.koofr.vault.RepoAutoLockAfter
 import net.koofr.vault.setLogger
 import org.json.JSONObject
 import javax.inject.Singleton
@@ -18,6 +20,7 @@ data class Config(
     val baseUrl: String,
     val oauth2AuthBaseUrl: String,
     val secureStorageJSON: String?,
+    val reposSetDefaultAutoLock: String?,
 )
 
 class MobileVaultProvider constructor(private val secureStorage: AndroidSecureStorage) {
@@ -30,6 +33,7 @@ class MobileVaultProvider constructor(private val secureStorage: AndroidSecureSt
         baseUrl = "https://app.koofr.net",
         oauth2AuthBaseUrl = "https://app.koofr.net",
         secureStorageJSON = null,
+        reposSetDefaultAutoLock = null,
     )
 
     @Synchronized
@@ -68,6 +72,7 @@ class MobileVaultProvider constructor(private val secureStorage: AndroidSecureSt
             oauth2AuthBaseUrl = intent.getStringExtra("vaultOAuth2AuthBaseUrl")
                 ?: defaultConfig.oauth2AuthBaseUrl,
             secureStorageJSON = intent.getStringExtra("vaultSecureStorage"),
+            reposSetDefaultAutoLock = intent.getStringExtra("vaultReposSetDefaultAutoLock"),
         )
     }
 
@@ -99,6 +104,16 @@ class MobileVaultProvider constructor(private val secureStorage: AndroidSecureSt
                 oauth2RedirectUri,
                 secureStorage,
             )
+
+        config.reposSetDefaultAutoLock?.let { autoLock ->
+            if (autoLock == "onapphidden") {
+                mobileVault.reposSetDefaultAutoLock(autoLock = RepoAutoLock(after = RepoAutoLockAfter.NoLimit, onAppHidden = true))
+            } else {
+                autoLock.toIntOrNull()?.let { seconds ->
+                    mobileVault.reposSetDefaultAutoLock(autoLock = RepoAutoLock(after = RepoAutoLockAfter.Custom(seconds = seconds.toULong()), onAppHidden = false))
+                }
+            }
+        }
 
         mobileVault.load()
 

@@ -80,6 +80,28 @@ class UIHelpers(private val device: UiDevice) {
         device.wait(Until.findObject(repoInfoLockedSelector), 10000).click()
     }
 
+    val reposRepoInfoLockAfterSelector = By.text("Automatically lock after")
+
+    fun reposRepoInfoLockAfterClick() {
+        device.wait(Until.findObject(reposRepoInfoLockAfterSelector), 10000).click()
+    }
+
+    val reposRepoInfoLockAfterValueSelector = By.desc("Automatically lock after value")
+
+    fun reposRepoInfoLockAfterValue(): String {
+        return device.wait(Until.findObject(reposRepoInfoLockAfterValueSelector), 10000).text
+    }
+
+    val reposRepoInfoLockOnAppHiddenSelector = By.checkable(true).desc("Lock when app hidden")
+
+    fun reposRepoInfoLockOnAppHiddenClick() {
+        device.wait(Until.findObject(reposRepoInfoLockOnAppHiddenSelector), 10000).click()
+    }
+
+    fun reposRepoInfoLockAfterChecked(): Boolean {
+        return device.wait(Until.findObject(reposRepoInfoLockOnAppHiddenSelector), 10000).isChecked
+    }
+
     // repo create
 
     val repoCreateTitleSelector = By.text("Create a new Safe Box")
@@ -145,6 +167,12 @@ class UIHelpers(private val device: UiDevice) {
     }
 
     // repo files
+
+    val repoFilesEmptyFolderSelector = By.text("Folder is empty")
+
+    fun repoFilesEmptyFolderWait() {
+        device.wait(Until.findObject(repoFilesEmptyFolderSelector), 10000)
+    }
 
     fun repoFilesFileRowSelector(fileName: String) =
         By.clickable(true).hasDescendant(

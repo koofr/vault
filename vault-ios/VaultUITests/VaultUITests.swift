@@ -50,8 +50,47 @@ final class VaultUITests: XCTestCase {
 
             app.repoUnlock()
 
-            let unlocked = app.repoInfoUnlockedTap()
-            XCTAssertEqual(unlocked.value as? String, "1")
+            app.repoInfoUnlockedTap()
+
+            app.repoInfoUnlockedAssertLocked(locked: false)
+        }
+    }
+
+    func testRepoInfoAutoLockAfter() async throws {
+        let fixture = try await Fixture.build()
+
+        await MainActor.run {
+            let app = fixture.launchApp()
+
+            app.reposRepoInfoTap()
+
+            app.reposRepoInfoLockAfterTap()
+
+            app.reposRepoInfoLockAfterChoiceTap(choice: "10 minutes of inactivity")
+
+            app.reposRepoInfoBackTap()
+
+            app.reposRepoInfoTap()
+
+            let _ = app.reposRepoInfoLockAfterWait(after: "10 minutes of inactivity")
+        }
+    }
+
+    func testRepoInfoAutoLockOnAppHidden() async throws {
+        let fixture = try await Fixture.build()
+
+        await MainActor.run {
+            let app = fixture.launchApp()
+
+            app.reposRepoInfoTap()
+
+            app.reposRepoInfoLockOnAppHiddenTap()
+
+            app.reposRepoInfoBackTap()
+
+            app.reposRepoInfoTap()
+
+            app.repoInfoUnlockedExpectEnabled(enabled: true)
         }
     }
 
@@ -130,6 +169,75 @@ final class VaultUITests: XCTestCase {
 
             app.repoFilesFileWaitNotExist(fileName: "Foo")
             app.repoFilesEditModeWaitDisabled()
+        }
+    }
+
+    func testRepoFilesAutoLockAfter() async throws {
+        let fixture = try await Fixture.build()
+
+        await MainActor.run {
+            let app = fixture.launchApp(extra: [
+                "VAULT_REPOS_SET_DEFAULT_AUTO_LOCK": "3"
+            ])
+
+            app.reposRepoTap()
+            app.repoUnlock()
+
+            for _ in 1...5 {
+                app.staticTexts["Folder is Empty"].tap()
+
+                sleep(1)
+            }
+
+            sleep(5)
+
+            app.repoUnlockWait()
+        }
+    }
+
+    func testRepoFilesAutoLockOnAppHidden() async throws {
+        let fixture = try await Fixture.build()
+
+        await MainActor.run {
+            let app = fixture.launchApp(extra: [
+                "VAULT_REPOS_SET_DEFAULT_AUTO_LOCK": "onapphidden"
+            ])
+
+            app.reposRepoTap()
+            app.repoUnlock()
+
+            app.homeButtonPress()
+
+            app.activate()
+
+            app.repoUnlockWait()
+        }
+    }
+
+    func testRepoFilesKeepSelectionOnLock() async throws {
+        let fixture = try await Fixture.build()
+
+        let repo = await fixture.mobileVaultHelper.waitForRepoUnlock()
+        let _ = await fixture.mobileVaultHelper.uploadFile(
+            repo: repo, encryptedParentPath: "/", name: "file.txt", content: "test")
+
+        await MainActor.run {
+            let app = fixture.launchApp()
+
+            app.reposRepoTap()
+            app.repoUnlock()
+
+            app.repoFilesMenuTap()
+            app.repoFilesMenuSelectTap()
+
+            app.repoFilesEditModeWait()
+            app.repoFilesFileTap(fileName: "file.txt")
+
+            app.navigationBars["1 item"].press(forDuration: 6)
+
+            app.repoUnlock()
+
+            app.repoFilesEditModeWaitSelected(count: 1)
         }
     }
 

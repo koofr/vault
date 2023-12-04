@@ -24,7 +24,7 @@ export class DebugClient {
   async queueNext(status?: number): Promise<void> {
     await this.request.get(
       `${this.baseUrl}/debug/queue/next` +
-        (status !== undefined ? `?status=${status}` : '')
+        (status !== undefined ? `?status=${status}` : ''),
     );
   }
 
@@ -41,7 +41,7 @@ export class DebugClient {
 
   async withQueue(
     callback: (request: { method: string; url: string }) => Promise<boolean>,
-    meanwhile?: () => Promise<void>
+    meanwhile?: () => Promise<void>,
   ) {
     await this.queueEnable();
 
@@ -71,7 +71,9 @@ export class DebugClient {
     await runPromise;
   }
 
-  async createTestVaultRepo(): Promise<void> {
-    await this.request.get(`${this.baseUrl}/debug/vault/repos/create`);
+  async createTestVaultRepo(): Promise<string> {
+    return await this.request
+      .get(`${this.baseUrl}/debug/vault/repos/create`)
+      .then((res) => res.text());
   }
 }

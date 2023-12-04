@@ -18,7 +18,8 @@ public class Container: ObservableObject {
     public let uploadHelper: UploadHelper
 
     public init(
-        baseURL: String? = nil, oauth2AuthBaseURL: String? = nil, secureStorageJson: String? = nil
+        baseURL: String? = nil, oauth2AuthBaseURL: String? = nil, secureStorageJson: String? = nil,
+        reposSetDefaultAutoLock: String? = nil
     ) {
         let baseURL = baseURL ?? "https://app.koofr.net"
         let appName = "vault-ios"
@@ -56,6 +57,19 @@ public class Container: ObservableObject {
             baseUrl: baseURL, appName: appName, oauth2AuthBaseUrl: oauth2AuthBaseURL,
             oauth2ClientId: oauth2ClientId, oauth2ClientSecret: oauth2ClientSecret,
             oauth2RedirectUri: oauth2RedirectUri, secureStorage: keychainSecureStorage)
+
+        if let reposSetDefaultAutoLock = reposSetDefaultAutoLock {
+            if reposSetDefaultAutoLock == "onapphidden" {
+                mobileVault.reposSetDefaultAutoLock(
+                    autoLock: RepoAutoLock(after: RepoAutoLockAfter.noLimit, onAppHidden: true))
+            } else if let seconds = UInt64(reposSetDefaultAutoLock) {
+                mobileVault.reposSetDefaultAutoLock(
+                    autoLock: RepoAutoLock(
+                        after: RepoAutoLockAfter.custom(seconds: seconds), onAppHidden: false))
+            } else {
+                print("Invalid reposSetDefaultAutoLock: \(reposSetDefaultAutoLock)")
+            }
+        }
 
         mobileVault.load()
 

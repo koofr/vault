@@ -1,4 +1,4 @@
-import { Locator, Page } from '@playwright/test';
+import { Locator, Page, expect } from '@playwright/test';
 
 export function filesTableLocator(page: Page): Locator {
   return page.getByLabel('Files list');
@@ -7,17 +7,17 @@ export function filesTableLocator(page: Page): Locator {
 export function filesTableRowLocator(
   page: Page,
   type: 'Dir' | 'File',
-  name: string
+  name: string,
 ): Locator {
   return filesTableLocator(page).getByLabel(
-    `${type === 'Dir' ? 'Folder' : 'File'} ${name}`
+    `${type === 'Dir' ? 'Folder' : 'File'} ${name}`,
   );
 }
 
 export function filesTableRowNameLocator(
   page: Page,
   type: 'Dir' | 'File',
-  name: string
+  name: string,
 ): Locator {
   return filesTableRowLocator(page, type, name)
     .getByRole('cell')
@@ -28,7 +28,7 @@ export function filesTableRowNameLocator(
 export function filesTableRowSizeLocator(
   page: Page,
   type: 'Dir' | 'File',
-  name: string
+  name: string,
 ): Locator {
   return filesTableRowLocator(page, type, name).getByRole('cell').nth(3);
 }
@@ -36,7 +36,7 @@ export function filesTableRowSizeLocator(
 export async function filesTableClickFile(
   page: Page,
   type: 'Dir' | 'File',
-  name: string
+  name: string,
 ) {
   await filesTableRowNameLocator(page, type, name).click();
 }
@@ -44,9 +44,20 @@ export async function filesTableClickFile(
 export async function filesTableSelectFile(
   page: Page,
   type: 'Dir' | 'File',
-  name: string
+  name: string,
 ) {
   await filesTableRowSizeLocator(page, type, name).click();
+}
+
+export async function filesTableFileSelected(
+  page: Page,
+  type: 'Dir' | 'File',
+  name: string,
+) {
+  await expect(filesTableRowLocator(page, type, name)).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
 }
 
 export async function uploadFile(
@@ -57,7 +68,7 @@ export async function uploadFile(
         name: string;
         mimeType: string;
         buffer: Buffer;
-      }
+      },
 ) {
   await page.getByLabel('Upload file').setInputFiles(file);
 }
@@ -65,7 +76,7 @@ export async function uploadFile(
 export async function uploadTextFile(
   page: Page,
   name: string,
-  content: string
+  content: string,
 ) {
   await uploadFile(page, {
     name: name,
@@ -81,7 +92,7 @@ export function fileBrowserUrl(repoId: string, encryptedPath: string) {
 export async function openFileBrowser(
   page: Page,
   repoId: string,
-  encryptedPath: string
+  encryptedPath: string,
 ) {
   await page.goto(fileBrowserUrl(repoId, encryptedPath));
 }

@@ -194,13 +194,35 @@ export class WebVaultClient {
     });
 
     try {
-      await this.webVault.repoUnlockUnlock(unlockId, password);
+      this.webVault.repoUnlockUnlock(unlockId, password);
     } finally {
       this.webVault.repoUnlockDestroy(unlockId);
     }
   }
 
+  encryptFilename(repoId: string, name: string): string {
+    const encryptedName = this.webVault.repoFilesEncryptName(repoId, name);
+    if (encryptedName === undefined) {
+      throw new Error(`Failed to encrypted name: ${name}`);
+    }
+    return encryptedName;
+  }
+
   // repo files
+
+  async uploadFile(
+    repo: Repo,
+    encryptedParentPath: string,
+    name: string,
+    file: File | Blob,
+  ) {
+    await this.webVault.transfersUpload(
+      repo.id,
+      encryptedParentPath,
+      name,
+      file,
+    );
+  }
 
   async getFileContent(
     repo: Repo,

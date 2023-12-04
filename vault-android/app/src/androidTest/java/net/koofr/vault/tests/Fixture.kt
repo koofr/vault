@@ -21,7 +21,17 @@ class Fixture constructor(
     val mobileVaultHelper: MobileVaultHelper,
     val secureStorageJSON: String,
 ) : Closeable {
+    private var intentExtra: Map<String, String>? = null
+
     private var activity: Activity? = null
+
+    private val instrumentation = InstrumentationRegistry.getInstrumentation()
+    private val context = instrumentation.context
+    private val packageManager = context.packageManager
+    private val targetContext = instrumentation.targetContext
+    private val appPackageName = targetContext.packageName
+    private val device = UiDevice.getInstance(instrumentation)
+    private val launcherPackage = getLauncherPackageName()
 
     companion object {
         private const val LAUNCH_TIMEOUT = 5000L
@@ -121,33 +131,49 @@ class Fixture constructor(
         }
     }
 
-    fun launchApp(): UiDevice {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val context = instrumentation.context
-        val targetContext = instrumentation.targetContext
-
-        val device = UiDevice.getInstance(instrumentation)
+    fun launchApp(intentExtra: Map<String, String>? = null): UiDevice {
+        this.intentExtra = intentExtra
 
         device.pressHome()
 
-        val launcherPackage = getLauncherPackageName()
-
         device.wait(Until.hasObject(By.pkg(launcherPackage).depth(0)), LAUNCH_TIMEOUT)
 
-        val packageManager = context.packageManager
+        val intent = buildIntent(appPackageName, clear = true)
 
-        val appPackageName = targetContext.packageName
+        activity = instrumentation.startActivitySync(intent)
 
+        return device
+    }
+
+    private fun buildIntent(appPackageName: String, clear: Boolean): Intent {
         val intent = checkNotNull(packageManager.getLaunchIntentForPackage(appPackageName)) {
             "Failed to create launch intent"
         }
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+
+        if (clear) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        }
+
         intent.putExtra("vaultBaseUrl", baseURL)
         intent.putExtra("vaultOAuth2AuthBaseUrl", oauth2AuthBaseURL)
         intent.putExtra("vaultSecureStorage", secureStorageJSON)
 
-        activity = instrumentation.startActivitySync(intent)
+        intentExtra?.let {
+            for ((key, value) in it) {
+                intent.putExtra(key, value)
+            }
+        }
 
+        return intent
+    }
+
+    fun activateApp() {
+        val intent = buildIntent(appPackageName, clear = false)
+
+        targetContext.startActivity(intent)
+    }
+
+    private fun waitForLaunched() {
         device.wait(
             Until.hasObject(
                 By.pkg(appPackageName)
@@ -155,8 +181,6 @@ class Fixture constructor(
             ),
             LAUNCH_TIMEOUT,
         )
-
-        return device
     }
 
     private fun stopApp() {

@@ -76,6 +76,7 @@ export const RepoLock = memo<{ repo: Repo }>(({ repo }) => {
       >
         <select
           value={autoLock.after.type}
+          aria-label="Lock Safe Box after"
           onChange={(e) => {
             const afterType = e.currentTarget
               .value as RepoAutoLockAfter['type'];
@@ -130,6 +131,7 @@ export const RepoLock = memo<{ repo: Repo }>(({ repo }) => {
             flex-direction: row;
             align-items: center;
           `}
+          aria-label="Lock Safe Box on app hidden"
         >
           <Checkbox
             value={autoLock.onAppHidden ? 'checked' : 'unchecked'}

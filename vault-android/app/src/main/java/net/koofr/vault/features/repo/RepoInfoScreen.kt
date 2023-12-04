@@ -220,6 +220,9 @@ fun RepoInfoScreen(
                                 text = repoAutoLockAfterDisplay(repo.autoLock.after),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.semantics {
+                                    contentDescription = "Automatically lock after value"
+                                },
                             )
                         }
                     }
@@ -256,7 +259,7 @@ fun RepoInfoScreen(
                             )
                         },
                         modifier = Modifier.semantics {
-                            contentDescription = "Biometric unlock"
+                            contentDescription = "Lock when app hidden"
                         },
                     )
                 }
