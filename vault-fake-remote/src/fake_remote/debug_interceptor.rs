@@ -269,13 +269,13 @@ pub fn get_debug_interceptor(
                             user_agent: None,
                         };
 
-                        app_state
+                        let repo = app_state
                             .vault_repos_create_service
                             .create_test_vault_repo(&context)
                             .await
                             .unwrap();
 
-                        Some((StatusCode::OK, "ok").into_response())
+                        Some((StatusCode::OK, repo.id.0).into_response())
                     }
                     .boxed(),
                 );
