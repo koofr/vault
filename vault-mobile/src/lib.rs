@@ -2349,6 +2349,10 @@ impl MobileVault {
         );
     }
 
+    pub fn repos_set_default_auto_lock(&self, auto_lock: RepoAutoLock) {
+        self.vault.repos_set_default_auto_lock(auto_lock.into());
+    }
+
     // repo_create
 
     pub fn repo_create_create(self: Arc<Self>) -> u32 {

@@ -477,6 +477,10 @@ impl Vault {
         self.repos_service.set_auto_lock(repo_id, auto_lock)
     }
 
+    pub fn repos_set_default_auto_lock(&self, auto_lock: repos::state::RepoAutoLock) {
+        self.repos_service.set_default_auto_lock(auto_lock)
+    }
+
     // repo_create
 
     pub fn repo_create_create(

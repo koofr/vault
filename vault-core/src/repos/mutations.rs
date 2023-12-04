@@ -1,6 +1,7 @@
 use std::{
     collections::{HashMap, HashSet},
     sync::Arc,
+    time::Duration,
 };
 
 use urlencoding::encode;
@@ -311,4 +312,99 @@ pub fn set_auto_lock(
     repo.auto_lock = Some(auto_lock);
 
     Ok(())
+}
+
+pub fn set_default_auto_lock(
+    state: &mut store::State,
+    notify: &store::Notify,
+    auto_lock: RepoAutoLock,
+) {
+    state.config.repos.default_auto_lock = auto_lock;
+
+    if let Some(after) = state.config.repos.default_auto_lock.after {
+        let duration: Duration = after.into();
+
+        let check_interval = duration / 2;
+
+        if check_interval < state.config.repo_locker.lock_check_interval {
+            state.config.repo_locker.lock_check_interval = check_interval;
+        }
+    }
+
+    notify(store::Event::Repos);
+}
+
+#[cfg(test)]
+mod tests {
+    use std::time::Duration;
+
+    use similar_asserts::assert_eq;
+
+    use crate::{
+        repos::state::{RepoAutoLock, RepoAutoLockAfter},
+        store::{self, test_helpers as store_test_helpers},
+    };
+
+    use super::set_default_auto_lock;
+
+    #[test]
+    fn test_set_default_auto_lock() {
+        let mut state: store::State = store::State::default();
+
+        assert_eq!(
+            state.config.repos.default_auto_lock,
+            RepoAutoLock {
+                after: Some(RepoAutoLockAfter::Inactive1Hour),
+                on_app_hidden: false,
+            }
+        );
+        assert_eq!(
+            state.config.repo_locker.lock_check_interval,
+            Duration::from_secs(10)
+        );
+
+        let (notify, _, _) = store_test_helpers::mutation();
+        set_default_auto_lock(
+            &mut state,
+            &notify,
+            RepoAutoLock {
+                after: Some(RepoAutoLockAfter::Custom(Duration::from_secs(30))),
+                on_app_hidden: false,
+            },
+        );
+
+        assert_eq!(
+            state.config.repos.default_auto_lock,
+            RepoAutoLock {
+                after: Some(RepoAutoLockAfter::Custom(Duration::from_secs(30))),
+                on_app_hidden: false,
+            }
+        );
+        assert_eq!(
+            state.config.repo_locker.lock_check_interval,
+            Duration::from_secs(10)
+        );
+
+        let (notify, _, _) = store_test_helpers::mutation();
+        set_default_auto_lock(
+            &mut state,
+            &notify,
+            RepoAutoLock {
+                after: Some(RepoAutoLockAfter::Custom(Duration::from_secs(10))),
+                on_app_hidden: false,
+            },
+        );
+
+        assert_eq!(
+            state.config.repos.default_auto_lock,
+            RepoAutoLock {
+                after: Some(RepoAutoLockAfter::Custom(Duration::from_secs(10))),
+                on_app_hidden: false,
+            }
+        );
+        assert_eq!(
+            state.config.repo_locker.lock_check_interval,
+            Duration::from_secs(5)
+        );
+    }
 }

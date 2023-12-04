@@ -298,6 +298,12 @@ impl ReposService {
         })
     }
 
+    pub fn set_default_auto_lock(&self, auto_lock: RepoAutoLock) {
+        self.store.mutate(|state, notify, _, _| {
+            mutations::set_default_auto_lock(state, notify, auto_lock);
+        });
+    }
+
     pub fn get_repo_config(
         &self,
         repo_id: &RepoId,

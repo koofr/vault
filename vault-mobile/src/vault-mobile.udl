@@ -743,6 +743,7 @@ interface MobileVault {
   void repos_lock_repo(string repo_id);
   void repos_touch_repo(string repo_id);
   void repos_set_auto_lock(string repo_id, RepoAutoLock auto_lock);
+  void repos_set_default_auto_lock(RepoAutoLock auto_lock);
 
   // repo_create
 

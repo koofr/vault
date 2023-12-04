@@ -31,13 +31,13 @@ impl RepoState {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RepoAutoLock {
     pub after: Option<RepoAutoLockAfter>,
     pub on_app_hidden: bool,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum RepoAutoLockAfter {
     Inactive1Minute,
     Inactive5Mininutes,
