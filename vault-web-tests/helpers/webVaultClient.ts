@@ -7,7 +7,7 @@ import vaultWasm, {
 import { BrowserEventstreamWebSocketDelegate } from '../vault-wasm-nodejs/vault-wasm.js';
 
 import { splitParentName } from './pathUtils';
-import { sleep } from './time';
+import { waitFor } from './time';
 
 const { initConsole, WebVault } = vaultWasm;
 
@@ -249,31 +249,33 @@ export class WebVaultClient {
     timeoutMs: number,
     sleepMs = 25,
   ): Promise<void> {
-    const deadline = Date.now() + timeoutMs;
-
     let lastErr: unknown;
 
-    while (Date.now() < deadline) {
-      try {
-        const content = await this.getFileContent(
-          repo,
-          encryptedPath,
-          timeoutMs,
-        );
+    try {
+      await waitFor(
+        async () => {
+          try {
+            const content = await this.getFileContent(
+              repo,
+              encryptedPath,
+              timeoutMs,
+            );
 
-        if (content === expectedContent) {
-          return;
-        }
-      } catch (e) {
-        lastErr = e;
-      }
+            if (content === expectedContent) {
+              return true;
+            }
+          } catch (e) {
+            lastErr = e;
+          }
 
-      await sleep(sleepMs);
+          return false;
+        },
+        timeoutMs,
+        sleepMs,
+      );
+    } catch (e: unknown) {
+      throw new Error(`${e}: ${lastErr}`);
     }
-
-    throw new Error(
-      `waitForFileContent timeout in ${timeoutMs} ms: ${lastErr}`,
-    );
   }
 
   async setFileContent(
