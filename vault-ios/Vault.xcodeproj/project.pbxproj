@@ -14,6 +14,7 @@
 		A10A8C872ADCFA8C005A081D /* RepoUnlockSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10A8C862ADCFA8C005A081D /* RepoUnlockSheet.swift */; };
 		A10A8C892ADD1B4B005A081D /* RepoFilesDetailsScreenContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10A8C882ADD1B4B005A081D /* RepoFilesDetailsScreenContent.swift */; };
 		A10A8C8B2ADD1B8C005A081D /* RepoFilesDetailsScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10A8C8A2ADD1B8C005A081D /* RepoFilesDetailsScreenViewModel.swift */; };
+		A1149A232B1F18FA0058BC84 /* libvault_mobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1699A9D2AC3194300D58F6B /* libvault_mobile.a */; };
 		A1265C9A2AA1E2A700CEAA5C /* SheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1265C992AA1E2A700CEAA5C /* SheetView.swift */; };
 		A1265C9C2AA1E2B800CEAA5C /* SheetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1265C9B2AA1E2B800CEAA5C /* SheetsView.swift */; };
 		A1265C9E2AA1E2C900CEAA5C /* Sheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1265C9D2AA1E2C900CEAA5C /* Sheet.swift */; };
@@ -54,7 +55,6 @@
 		A18269692AA0B8520072F531 /* VaultUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18269682AA0B8520072F531 /* VaultUITests.swift */; };
 		A182697D2AA0E6AB0072F531 /* VaultMobile.h in Headers */ = {isa = PBXBuildFile; fileRef = A182697C2AA0E6AB0072F531 /* VaultMobile.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A18269852AA0E6E60072F531 /* vault_mobile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A17A7599291BE2EF0037A015 /* vault_mobile.swift */; };
-		A18269882AA0E8BD0072F531 /* libvault_mobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1AD933C2A828C7C006172BF /* libvault_mobile.a */; settings = {ATTRIBUTES = (Required, ); }; };
 		A182698E2AA0EABD0072F531 /* vault_mobileFFI.h in Headers */ = {isa = PBXBuildFile; fileRef = A17A7598291BE2E40037A015 /* vault_mobileFFI.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A182698F2AA0EB7F0072F531 /* Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = A17A75A4291D44D80037A015 /* Subscription.swift */; };
 		A18A8CEA2917988100B8F8B9 /* VaultApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18A8CE92917988100B8F8B9 /* VaultApp.swift */; };
@@ -368,7 +368,6 @@
 		A1AD92DD2A828283006172BF /* VaultCommon.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = VaultCommon.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1AD92DF2A828283006172BF /* VaultCommon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VaultCommon.h; sourceTree = "<group>"; };
 		A1AD92F32A8285A7006172BF /* CommonAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = CommonAssets.xcassets; sourceTree = "<group>"; };
-		A1AD933C2A828C7C006172BF /* libvault_mobile.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvault_mobile.a; path = VaultCommon/libvault_mobile.a; sourceTree = "<group>"; };
 		A1AD93422A828DDE006172BF /* VaultShareExt.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VaultShareExt.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1AD93442A828DDE006172BF /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		A1AD93492A828DDE006172BF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -403,7 +402,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A18269882AA0E8BD0072F531 /* libvault_mobile.a in Frameworks */,
+				A1149A232B1F18FA0058BC84 /* libvault_mobile.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -590,7 +589,6 @@
 			isa = PBXGroup;
 			children = (
 				A1699A9D2AC3194300D58F6B /* libvault_mobile.a */,
-				A1AD933C2A828C7C006172BF /* libvault_mobile.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
