@@ -167,7 +167,7 @@ fun RepoUnlockScreen(
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
-    DisposableEffect(lifecycle, onUnlock) {
+    DisposableEffect(activity, lifecycle, onUnlock) {
         val lifecycleObserver = object : DefaultLifecycleObserver {
             override fun onResume(owner: LifecycleOwner) {
                 vm.biometricUnlock(activity, onUnlock)
@@ -186,11 +186,13 @@ fun RepoUnlockScreen(
         { v, id -> v.repoUnlockInfoData(id = id) },
     )
 
-    DisposableEffect(Unit) {
+    LaunchedEffect(activity) {
         if (vm.mobileVault.isAppVisible()) {
             vm.biometricUnlock(activity, onUnlock)
         }
+    }
 
+    DisposableEffect(Unit) {
         onDispose {
             vm.biometricPromptCancel()
         }
