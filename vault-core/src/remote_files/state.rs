@@ -210,6 +210,7 @@ pub struct RemoteFile {
     pub size: Option<i64>,
     pub modified: Option<i64>,
     pub hash: Option<String>,
+    pub tags: HashMap<String, Vec<String>>,
     pub unique_id: String,
     pub category: FileCategory,
 }

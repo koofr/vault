@@ -41,6 +41,7 @@ pub fn mount_to_remote_file(id: RemoteFileId, mount_id: MountId) -> RemoteFile {
         size,
         modified,
         hash,
+        tags: HashMap::new(),
         unique_id,
         category,
     }
@@ -81,6 +82,7 @@ pub fn files_file_to_remote_file(
         size,
         modified,
         hash: file.hash,
+        tags: file.tags,
         unique_id,
         category,
     }
@@ -121,6 +123,7 @@ pub fn bundle_file_to_remote_file(
         size,
         modified,
         hash: file.hash,
+        tags: file.tags,
         unique_id,
         category,
     }
@@ -151,6 +154,7 @@ fn bookmark_to_remote_file(id: RemoteFileId, bookmark: models::Bookmark) -> Remo
         size,
         modified,
         hash,
+        tags: HashMap::new(),
         unique_id,
         category,
     }
@@ -188,6 +192,7 @@ fn shared_file_to_remote_file(id: RemoteFileId, shared_file: models::SharedFile)
         size,
         modified,
         hash,
+        tags: HashMap::new(),
         unique_id,
         category,
     }
