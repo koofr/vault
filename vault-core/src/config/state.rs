@@ -91,6 +91,18 @@ impl Default for RepoLockerConfig {
         }
     }
 }
+#[derive(Debug, Clone)]
+pub struct RepoFilesTagsConfig {
+    pub set_tags_max_retries: usize,
+}
+
+impl Default for RepoFilesTagsConfig {
+    fn default() -> Self {
+        Self {
+            set_tags_max_retries: 5,
+        }
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct ConfigState {
@@ -100,6 +112,7 @@ pub struct ConfigState {
     pub eventstream: EventstreamConfig,
     pub repos: ReposConfig,
     pub repo_locker: RepoLockerConfig,
+    pub repo_files_tags: RepoFilesTagsConfig,
 }
 
 impl Default for ConfigState {
@@ -114,6 +127,7 @@ impl Default for ConfigState {
             eventstream: EventstreamConfig::default(),
             repos: ReposConfig::default(),
             repo_locker: RepoLockerConfig::default(),
+            repo_files_tags: RepoFilesTagsConfig::default(),
         }
     }
 }

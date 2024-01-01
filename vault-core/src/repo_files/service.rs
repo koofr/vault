@@ -18,6 +18,7 @@ use crate::{
     repo_files_read::{
         errors::GetFilesReaderError, state::RepoFileReaderProvider, RepoFilesReadService,
     },
+    repo_files_tags::RepoFilesTagsService,
     repos::{
         errors::{GetCipherError, RepoNotFoundError},
         ReposService,
@@ -27,7 +28,7 @@ use crate::{
         DecryptedName, EncryptedName, EncryptedPath, MountId, RemoteName, RemotePath, RepoFileId,
         RepoId,
     },
-    utils::{name_utils, repo_encrypted_path_utils},
+    utils::{md5_reader, name_utils, repo_encrypted_path_utils},
 };
 
 use super::{
@@ -43,6 +44,7 @@ use super::{
 pub struct RepoFilesService {
     repos_service: Arc<ReposService>,
     remote_files_service: Arc<RemoteFilesService>,
+    repo_files_tags_service: Arc<RepoFilesTagsService>,
     repo_files_read_service: Arc<RepoFilesReadService>,
     dialogs_service: Arc<dialogs::DialogsService>,
     store: Arc<store::Store>,
@@ -56,6 +58,7 @@ impl RepoFilesService {
     pub fn new(
         repos_service: Arc<ReposService>,
         remote_files_service: Arc<RemoteFilesService>,
+        repo_files_tags_service: Arc<RepoFilesTagsService>,
         repo_files_read_service: Arc<RepoFilesReadService>,
         dialogs_service: Arc<dialogs::DialogsService>,
         store: Arc<store::Store>,
@@ -88,6 +91,7 @@ impl RepoFilesService {
         Self {
             repos_service,
             remote_files_service,
+            repo_files_tags_service,
             repo_files_read_service,
             dialogs_service,
             store: store.clone(),
@@ -180,8 +184,10 @@ impl RepoFilesService {
 
         let (mount_id, remote_parent_path) = self.get_repo_mount_path(repo_id, parent_path)?;
 
+        let (md5_reader, md5_digest_future) = md5_reader::MD5Reader::new(reader);
+
         let encrypted_size = size.map(encrypted_size);
-        let encrypted_reader = cipher.encrypt_reader_async(reader);
+        let encrypted_reader = cipher.encrypt_reader_async(md5_reader);
 
         let (_, remote_file) = self
             .remote_files_service
@@ -201,6 +207,21 @@ impl RepoFilesService {
         let name = cipher.decrypt_filename(&encrypted_name)?;
         let path = repo_encrypted_path_utils::join_path_name(parent_path, &encrypted_name);
         let file_id = selectors::get_file_id(repo_id, &path);
+
+        if let Ok(hash) = md5_digest_future.await.map(|hash| hash.to_vec()) {
+            if let Some(remote_file_hash) = remote_file.hash.clone() {
+                if let Err(err) = self
+                    .repo_files_tags_service
+                    .set_tags_hash(repo_id, &path, remote_file_hash, hash)
+                    .await
+                {
+                    log::warn!(
+                        "RepoFilesService upload_file_reader failed to set tags: {}",
+                        err,
+                    );
+                }
+            }
+        }
 
         Ok(RepoFilesUploadResult {
             file_id,

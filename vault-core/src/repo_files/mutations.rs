@@ -12,6 +12,7 @@ use crate::{
         selectors as remote_files_selectors,
         state::{RemoteFile, RemoteFileType},
     },
+    repo_files_tags::mutations::decrypt_tags,
     repos, store,
     types::{
         DecryptedName, DecryptedPath, EncryptedName, EncryptedPath, MountId, RemotePath,
@@ -122,6 +123,19 @@ pub fn handle_remote_files_mutation(
                 remote_path_utils::parent_path(new_path)
                     .map(|new_parent_path| (mount_id, new_parent_path))
             });
+    let remote_tags_updated = mutation_state
+        .remote_files
+        .tags_updated
+        .iter()
+        .map(|(mount_id, path)| (mount_id, path.to_owned()));
+    let remote_tags_updated_parents =
+        mutation_state
+            .remote_files
+            .tags_updated
+            .iter()
+            .filter_map(|(mount_id, path)| {
+                remote_path_utils::parent_path(path).map(|parent_path| (mount_id, parent_path))
+            });
 
     let files_to_decrypt: HashSet<(MountId, RemotePath, RepoId, EncryptedPath)> =
         remote_files_to_repo_files(
@@ -134,7 +148,9 @@ pub fn handle_remote_files_mutation(
                 .chain(remote_moved_from_files)
                 .chain(remote_moved_from_files_parents)
                 .chain(remote_moved_to_files)
-                .chain(remote_moved_to_files_parents),
+                .chain(remote_moved_to_files_parents)
+                .chain(remote_tags_updated)
+                .chain(remote_tags_updated_parents),
         )
         .collect();
 
@@ -456,6 +472,7 @@ pub fn decrypt_file(
             error: DecryptSizeError::DecryptSizeError(err),
         },
     });
+    let tags = decrypt_tags(remote_file, cipher);
     let (ext, content_type, category) = match &remote_file.typ {
         RemoteFileType::File => match &name {
             RepoFileName::Decrypted { name_lower, .. } => {
@@ -480,6 +497,7 @@ pub fn decrypt_file(
         typ: (&remote_file.typ).into(),
         size,
         modified: remote_file.modified,
+        tags,
         unique_name,
         remote_hash: remote_file.hash.clone(),
         category,
@@ -507,6 +525,7 @@ pub fn get_root_file(repo_id: &RepoId, remote_file: &RemoteFile) -> RepoFile {
         typ: super::state::RepoFileType::Dir,
         size: None,
         modified: None,
+        tags: None,
         unique_name,
         remote_hash: None,
         category: FileCategory::Folder,
@@ -576,6 +595,7 @@ mod tests {
                 typ: RepoFileType::Dir,
                 size: None,
                 modified: None,
+                tags: None,
                 unique_name: String::from("2b6bea08149b89711b061f1291492d46"),
                 remote_hash: None,
                 category: FileCategory::Folder,
@@ -626,6 +646,7 @@ mod tests {
                 typ: RepoFileType::Dir,
                 size: None,
                 modified: None,
+                tags: None,
                 unique_name: String::from("4d6bb967e30d7a5d36c3e6b607d71cf2"),
                 remote_hash: None,
                 category: FileCategory::Folder,
@@ -673,6 +694,7 @@ mod tests {
                 typ: RepoFileType::Dir,
                 size: None,
                 modified: None,
+                tags: None,
                 unique_name: String::from("a2216f6522ef8e23512f13d37592b43b"),
                 remote_hash: None,
                 category: FileCategory::Folder,
@@ -724,6 +746,7 @@ mod tests {
                 typ: RepoFileType::File,
                 size: Some(RepoFileSize::Decrypted { size: 52 }),
                 modified: Some(1),
+                tags: None,
                 unique_name: String::from("c7f010983b2f25f3e1d604c2870d82c8.jpg"),
                 remote_hash: Some(String::from("hash")),
                 category: FileCategory::Image,
@@ -777,6 +800,7 @@ mod tests {
                     )
                 }),
                 modified: Some(1),
+                tags: None,
                 unique_name: String::from("de40e3afb025fe16012fd421e246c711"),
                 remote_hash: Some(String::from("hash")),
                 category: FileCategory::Generic,
@@ -835,6 +859,7 @@ mod tests {
                 typ: RepoFileType::File,
                 size: Some(RepoFileSize::Decrypted { size: 52 }),
                 modified: Some(1),
+                tags: None,
                 unique_name: String::from("2516f2ba5aeeaa8479cd8db7070ff615"),
                 remote_hash: Some(String::from("hash")),
                 category: FileCategory::Generic,

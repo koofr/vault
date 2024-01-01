@@ -6,9 +6,9 @@ use crate::{
     auth, config, dialogs, dir_pickers, eventstream, http, lifecycle, notifications, oauth2,
     rclone, relative_time, remote, remote_files, remote_files_browsers, remote_files_dir_pickers,
     repo_config_backup, repo_create, repo_files, repo_files_browsers, repo_files_details,
-    repo_files_dir_pickers, repo_files_list, repo_files_move, repo_files_read, repo_locker,
-    repo_remove, repo_space_usage, repo_unlock, repos, runtime, secure_storage, sort, space_usage,
-    store,
+    repo_files_dir_pickers, repo_files_list, repo_files_move, repo_files_read, repo_files_tags,
+    repo_locker, repo_remove, repo_space_usage, repo_unlock, repos, runtime, secure_storage, sort,
+    space_usage, store,
     transfers::{self, downloadable::BoxDownloadable},
     types::{DecryptedName, EncryptedPath, RepoFileId, RepoId, TimeMillis},
     user,
@@ -39,6 +39,7 @@ pub struct Vault {
     pub repo_config_backup_service: Arc<repo_config_backup::RepoConfigBackupService>,
     pub repo_space_usage_service: Arc<repo_space_usage::RepoSpaceUsageService>,
     pub repo_files_list_service: Arc<repo_files_list::RepoFilesListService>,
+    pub repo_files_tags_service: Arc<repo_files_tags::RepoFilesTagsService>,
     pub repo_files_read_service: Arc<repo_files_read::RepoFilesReadService>,
     pub repo_files_service: Arc<repo_files::RepoFilesService>,
     pub repo_files_dir_pickers_service: Arc<repo_files_dir_pickers::RepoFilesDirPickersService>,
@@ -144,16 +145,23 @@ impl Vault {
             repos_service.clone(),
             remote_files_service.clone(),
         ));
+        let repo_files_tags_service = Arc::new(repo_files_tags::RepoFilesTagsService::new(
+            repos_service.clone(),
+            remote_files_service.clone(),
+            store.clone(),
+        ));
         let repo_files_read_service = Arc::new(repo_files_read::RepoFilesReadService::new(
             repos_service.clone(),
             remote_files_service.clone(),
             repo_files_list_service.clone(),
+            repo_files_tags_service.clone(),
             store.clone(),
             runtime.clone(),
         ));
         let repo_files_service = Arc::new(repo_files::RepoFilesService::new(
             repos_service.clone(),
             remote_files_service.clone(),
+            repo_files_tags_service.clone(),
             repo_files_read_service.clone(),
             dialogs_service.clone(),
             store.clone(),
@@ -238,6 +246,7 @@ impl Vault {
             repo_config_backup_service,
             repo_space_usage_service,
             repo_files_list_service,
+            repo_files_tags_service,
             repo_files_read_service,
             repo_files_service,
             repo_files_dir_pickers_service,
