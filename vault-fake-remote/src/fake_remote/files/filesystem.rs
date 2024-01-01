@@ -1,7 +1,12 @@
 use std::collections::HashMap;
 
 use http::StatusCode;
-use vault_core::{remote::models, types::RemoteName, utils::name_utils};
+use vault_core::{
+    remote::{models, remote::RemoteFileTagsSetConditions},
+    remote_files_tags::set_tags::set_tags,
+    types::RemoteName,
+    utils::name_utils,
+};
 
 use crate::fake_remote::errors::{ApiErrorCode, FakeRemoteError};
 
@@ -60,6 +65,13 @@ pub struct MoveFileConditions {
     pub if_modified: Option<i64>,
     pub if_size: Option<i64>,
     pub if_hash: Option<String>,
+}
+
+pub struct FilesTagsSetConditions {
+    pub if_size: Option<i64>,
+    pub if_modified: Option<i64>,
+    pub if_hash: Option<String>,
+    pub if_old_tags: Option<HashMap<String, Vec<String>>>,
 }
 
 #[derive(Debug, Clone)]
@@ -208,7 +220,7 @@ impl Filesystem {
         modified: i64,
         size: i64,
         hash: String,
-        tags: HashMap<String, Vec<String>>,
+        new_tags: HashMap<String, Vec<String>>,
         conflict_resolution: &CreateFileConflictResolution,
         object_id: String,
     ) -> Result<models::FilesFile, FakeRemoteError> {
@@ -227,14 +239,16 @@ impl Filesystem {
 
         let full_path = parent_path.join_name(&name);
 
-        match conflict_resolution {
+        let existing_file = match conflict_resolution {
             CreateFileConflictResolution::Overwrite { .. } => {
                 if self.files.contains_key(&full_path.normalize()) {
-                    self.delete_file(&full_path, false)?;
+                    Some(self.delete_file(&full_path, false)?)
+                } else {
+                    None
                 }
             }
-            _ => {}
-        }
+            _ => None,
+        };
 
         let ext = name.ext();
         let content_type = ext
@@ -242,6 +256,21 @@ impl Filesystem {
                 vault_core::files::content_type::ext_to_content_type(&ext).map(str::to_string)
             })
             .unwrap_or_else(|| "application/octet-stream".into());
+
+        let mut tags = existing_file
+            .map(|file| file.tags.clone())
+            .unwrap_or_else(Default::default);
+
+        for (key, mut new_values) in new_tags {
+            match tags.get_mut(&key) {
+                Some(values) => {
+                    values.append(&mut new_values);
+                }
+                None => {
+                    tags.insert(key, new_values);
+                }
+            }
+        }
 
         let parent_file = self.get_file_mut(&parent_path.normalize())?;
 
@@ -471,7 +500,7 @@ impl Filesystem {
                 return Err(FakeRemoteError::ApiError(
                     StatusCode::CONFLICT,
                     ApiErrorCode::Conflict,
-                    "Overwrite if modified does not match".into(),
+                    "Move if modified does not match".into(),
                     None,
                 ));
             }
@@ -481,7 +510,7 @@ impl Filesystem {
                 return Err(FakeRemoteError::ApiError(
                     StatusCode::CONFLICT,
                     ApiErrorCode::Conflict,
-                    "Overwrite if size does not match".into(),
+                    "Move if size does not match".into(),
                     None,
                 ));
             }
@@ -491,7 +520,7 @@ impl Filesystem {
                 return Err(FakeRemoteError::ApiError(
                     StatusCode::CONFLICT,
                     ApiErrorCode::Conflict,
-                    "Overwrite if hash does not match".into(),
+                    "Move if hash does not match".into(),
                     None,
                 ));
             }
@@ -517,5 +546,33 @@ impl Filesystem {
         self.delete_file(path, false)?;
 
         Ok(to_file)
+    }
+
+    pub fn tags_set(
+        &mut self,
+        path: &Path,
+        tags: HashMap<String, Vec<String>>,
+        conditions: FilesTagsSetConditions,
+    ) -> Result<models::FilesFile, FakeRemoteError> {
+        let file = self.get_file_mut(&path.normalize())?;
+
+        set_tags(
+            Some(file.file.size),
+            Some(file.file.modified),
+            file.file.hash.as_deref(),
+            &mut file.file.tags,
+            tags,
+            &RemoteFileTagsSetConditions {
+                if_size: conditions.if_size,
+                if_modified: conditions.if_modified,
+                if_hash: conditions.if_hash,
+                if_old_tags: conditions.if_old_tags,
+            },
+        )
+        .map_err(|err| {
+            FakeRemoteError::ApiError(StatusCode::CONFLICT, ApiErrorCode::Conflict, err, None)
+        })?;
+
+        Ok(file.file.clone())
     }
 }

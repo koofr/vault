@@ -24,7 +24,7 @@ use crate::fake_remote::{
 };
 
 use super::{
-    filesystem::{CreateFileConflictResolution, MoveFileConditions},
+    filesystem::{CreateFileConflictResolution, FilesTagsSetConditions, MoveFileConditions},
     objects::object_provider::{BoxObjectProvider, ObjectProviderError},
     Filesystem, FilesystemFile, Name, NormalizedPath, Path,
 };
@@ -407,6 +407,34 @@ impl FilesService {
                 mount_id: MountId(mount_id.to_owned()),
                 path: RemotePath(path.to_owned().0),
                 new_path: RemotePath(to_path.clone().0),
+                file: file.clone(),
+                user_agent: context.user_agent.clone(),
+            })
+            .await;
+
+        Ok(())
+    }
+
+    pub async fn tags_set(
+        &self,
+        context: &Context,
+        mount_id: &str,
+        path: &Path,
+        tags: HashMap<String, Vec<String>>,
+        conditions: FilesTagsSetConditions,
+    ) -> Result<(), FakeRemoteError> {
+        let file = {
+            let mut state = self.state.write().unwrap();
+
+            let fs = self.get_filesystem_mut(&mut state, &mount_id)?;
+
+            fs.tags_set(path, tags, conditions)?
+        };
+
+        self.eventstream_listeners
+            .process_event(eventstream::Event::FileTagsUpdatedEvent {
+                mount_id: MountId(mount_id.to_owned()),
+                path: RemotePath(path.to_owned().0),
                 file: file.clone(),
                 user_agent: context.user_agent.clone(),
             })

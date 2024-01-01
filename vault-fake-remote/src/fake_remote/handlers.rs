@@ -497,6 +497,41 @@ pub async fn files_move(
 }
 
 #[derive(Deserialize)]
+pub struct FilesTagsSetQuery {
+    path: files::Path,
+}
+
+pub async fn files_tags_set(
+    ExtractState(state): ExtractState,
+    ExtractFilesService(files_service): ExtractFilesService,
+    context: Context,
+    Path(mountable): Path<String>,
+    Query(query): Query<FilesTagsSetQuery>,
+    Json(data): Json<models::FilesTagsSet>,
+) -> Result<StatusCode, FakeRemoteError> {
+    let mount_id = {
+        let state = state.read().unwrap();
+
+        resolve_mount_id(&context, &state, mountable)
+    };
+
+    let path = query.path;
+
+    let conditions = files::filesystem::FilesTagsSetConditions {
+        if_modified: data.if_modified,
+        if_size: data.if_size,
+        if_hash: data.if_hash,
+        if_old_tags: data.if_old_tags,
+    };
+
+    files_service
+        .tags_set(&context, &mount_id, &path, data.tags, conditions)
+        .await?;
+
+    Ok(StatusCode::OK)
+}
+
+#[derive(Deserialize)]
 pub struct FilesGetQuery {
     path: files::Path,
 }
