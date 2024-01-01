@@ -771,6 +771,43 @@ impl Remote {
 
         Ok(())
     }
+
+    pub async fn file_set_tags(
+        &self,
+        mount_id: &MountId,
+        path: &RemotePath,
+        tags: HashMap<String, Vec<String>>,
+        conditions: RemoteFileTagsSetConditions,
+    ) -> Result<(), RemoteError> {
+        let (req_body, req_headers) = req_json(&models::FilesTagsSet {
+            tags,
+            if_modified: conditions.if_modified,
+            if_size: conditions.if_size,
+            if_hash: conditions.if_hash,
+            if_old_tags: conditions.if_old_tags,
+        });
+
+        let res = self
+            .request(HttpRequest {
+                method: String::from("POST"),
+                url: format!(
+                    "/api/v2.1/mounts/{}/files/tags/set?path={}",
+                    &mount_id.0,
+                    encode(&path.0)
+                ),
+                headers: req_headers,
+                body: req_body,
+                is_retriable: true,
+                ..Default::default()
+            })
+            .await?;
+
+        if res.status_code() != 200 {
+            return res_error(res).await;
+        }
+
+        Ok(())
+    }
 }
 
 pub fn req_json<T>(value: &T) -> (Option<HttpRequestBody>, HeaderMap)

@@ -3,7 +3,8 @@ use std::collections::HashMap;
 use crate::{
     eventstream,
     files::file_category::FileCategory,
-    remote::models,
+    remote::{models, remote::RemoteFileTagsSetConditions},
+    remote_files_tags::set_tags::set_tags,
     store,
     types::{
         MountId, RemoteFileId, RemoteName, RemoteNameLower, RemotePath, REMOTE_PATH_LOWER_ROOT,
@@ -701,6 +702,43 @@ pub fn file_moved(
     ));
 
     mutation_notify(store::MutationEvent::RemoteFiles, state, mutation_state);
+}
+
+pub fn file_tags_set(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
+    mutation_notify: &store::MutationNotify,
+    mount_id: &MountId,
+    path: &RemotePath,
+    tags: HashMap<String, Vec<String>>,
+    conditions: &RemoteFileTagsSetConditions,
+) {
+    let file_id = selectors::get_file_id(mount_id, &path.to_lowercase());
+
+    let Some(file) = state.remote_files.files.get_mut(&file_id) else {
+        return;
+    };
+
+    if set_tags(
+        file.size,
+        file.modified,
+        file.hash.as_deref(),
+        &mut file.tags,
+        tags,
+        conditions,
+    )
+    .is_ok()
+    {
+        notify(store::Event::RemoteFiles);
+
+        mutation_state
+            .remote_files
+            .tags_updated
+            .push((mount_id.to_owned(), path.to_owned()));
+
+        mutation_notify(store::MutationEvent::RemoteFiles, state, mutation_state);
+    }
 }
 
 pub fn file_tags_updated(
