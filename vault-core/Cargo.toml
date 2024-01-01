@@ -18,8 +18,12 @@ md5 = "0.7.0"
 phf = { version = "0.11.2", features = ["macros"] }
 pin-project-lite = "0.2.13"
 rand_core = "0.6.4"
+rmp = "0.8.12"
+rmp-serde = "1.1.2"
+rmpv = { version = "1.0.1", features = ["with-serde"] }
 rust-ini = "0.19.0"
 serde = { version = "1.0.188", features = ["derive"] }
+serde_bytes = "0.11.13"
 serde_json = "1.0.107"
 serde_urlencoded = "0.7.1"
 slug = "0.1.4"
