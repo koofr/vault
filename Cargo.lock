@@ -2838,6 +2838,7 @@ dependencies = [
  "data-encoding",
  "futures",
  "futures-test",
+ "hex",
  "http",
  "http-body",
  "lazy_static",

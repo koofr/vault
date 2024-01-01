@@ -10,6 +10,7 @@ bytes = "1.5.0"
 chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
 data-encoding = "2.4.0"
 futures = { version = "0.3.28", features = ["executor"] }
+hex = "0.4.3"
 http = "0.2.9"
 http-body = "0.4.5"
 lazy_static = "1.4.0"
