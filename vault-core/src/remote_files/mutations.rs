@@ -486,6 +486,22 @@ pub fn handle_eventstream_events_mutation(
                         file,
                     );
                 }
+                eventstream::Event::FileTagsUpdatedEvent {
+                    mount_id,
+                    path,
+                    file,
+                    ..
+                } => {
+                    file_tags_updated(
+                        state,
+                        notify,
+                        mutation_state,
+                        mutation_notify,
+                        &mount_id,
+                        &remote_path_utils::join_paths(&mount_listener.path, &path),
+                        file,
+                    );
+                }
                 _ => {}
             }
         }
@@ -683,6 +699,38 @@ pub fn file_moved(
         old_path.to_owned(),
         new_path.to_owned(),
     ));
+
+    mutation_notify(store::MutationEvent::RemoteFiles, state, mutation_state);
+}
+
+pub fn file_tags_updated(
+    state: &mut store::State,
+    notify: &store::Notify,
+    mutation_state: &mut store::MutationState,
+    mutation_notify: &store::MutationNotify,
+    mount_id: &MountId,
+    path: &RemotePath,
+    file: models::FilesFile,
+) {
+    notify(store::Event::RemoteFiles);
+
+    let file_id = selectors::get_file_id(mount_id, &path.to_lowercase());
+
+    state.remote_files.files.insert(
+        file_id.clone(),
+        files_file_to_remote_file(file_id.clone(), mount_id.to_owned(), path.to_owned(), file),
+    );
+
+    if let Some(parent_path) = remote_path_utils::parent_path(path) {
+        let parent_id = selectors::get_file_id(mount_id, &parent_path.to_lowercase());
+
+        add_child(state, &parent_id, file_id);
+    }
+
+    mutation_state
+        .remote_files
+        .tags_updated
+        .push((mount_id.to_owned(), path.to_owned()));
 
     mutation_notify(store::MutationEvent::RemoteFiles, state, mutation_state);
 }
