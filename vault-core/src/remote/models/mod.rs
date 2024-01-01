@@ -12,6 +12,7 @@ pub mod files_list_recursive_item;
 pub mod files_move;
 pub mod files_move_result;
 pub mod files_rename;
+pub mod files_tags_set;
 pub mod mount;
 pub mod places;
 pub mod shared;
@@ -27,7 +28,7 @@ pub use self::{
     files_copy_result::FilesCopyResult, files_file::FilesFile,
     files_folder_create::FilesFolderCreate, files_list_recursive_item::FilesListRecursiveItem,
     files_move::FilesMove, files_move_result::FilesMoveResult, files_rename::FilesRename,
-    mount::Mount, places::Places, shared::Shared, shared_file::SharedFile, user::User,
-    vault_repo::VaultRepo, vault_repo_create::VaultRepoCreate,
+    files_tags_set::FilesTagsSet, mount::Mount, places::Places, shared::Shared,
+    shared_file::SharedFile, user::User, vault_repo::VaultRepo, vault_repo_create::VaultRepoCreate,
     vault_repos_bundle::VaultReposBundle,
 };
