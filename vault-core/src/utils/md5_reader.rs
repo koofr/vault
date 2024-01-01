@@ -1,4 +1,5 @@
 use futures::{
+    channel::oneshot,
     ready,
     task::{Context, Poll},
     AsyncRead,
@@ -6,28 +7,43 @@ use futures::{
 use pin_project_lite::pin_project;
 use std::{io::Result, pin::Pin};
 
+struct Container {
+    md5_context: md5::Context,
+    sender: Option<oneshot::Sender<md5::Digest>>,
+}
+
+impl Drop for Container {
+    fn drop(&mut self) {
+        let digest = self.md5_context.clone().compute();
+
+        if let Some(sender) = self.sender.take() {
+            let _ = sender.send(digest);
+        }
+    }
+}
+
 pin_project! {
     pub struct MD5Reader<R> {
         #[pin]
         inner: R,
-        md5_context: md5::Context,
+        container: Container,
     }
 }
 
 impl<R> MD5Reader<R> {
-    pub fn new(inner: R) -> Self {
-        Self {
-            inner,
-            md5_context: md5::Context::new(),
-        }
-    }
+    pub fn new(inner: R) -> (Self, oneshot::Receiver<md5::Digest>) {
+        let (sender, receiver) = oneshot::channel();
 
-    pub fn digest(self) -> md5::Digest {
-        self.md5_context.compute()
-    }
-
-    pub fn hex_digest(self) -> String {
-        format!("{:x}", self.digest())
+        (
+            Self {
+                inner,
+                container: Container {
+                    md5_context: md5::Context::new(),
+                    sender: Some(sender),
+                },
+            },
+            receiver,
+        )
     }
 }
 
@@ -42,7 +58,7 @@ impl<R: AsyncRead> AsyncRead for MD5Reader<R> {
         let n = ready!(this.inner.as_mut().poll_read(cx, buf))?;
 
         if n > 0 {
-            this.md5_context.consume(&buf[..n]);
+            this.container.md5_context.consume(&buf[..n]);
         }
 
         Poll::Ready(Ok(n))
