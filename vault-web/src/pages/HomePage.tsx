@@ -1,6 +1,7 @@
 import { memo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { DashboardError } from '../components/dashboard/DashboardError';
 import { DashboardLoading } from '../components/dashboard/DashboardLoading';
 import { useSubscribe } from '../webVault/useSubscribe';
 import { useWebVault } from '../webVault/useWebVault';
@@ -15,7 +16,7 @@ export const HomePage = memo(() => {
   );
 
   useEffect(() => {
-    if (repos.status.type !== 'Loading') {
+    if (repos.status.type !== 'Loading' && repos.status.type !== 'Error') {
       webVault.load();
     }
 
@@ -27,6 +28,17 @@ export const HomePage = memo(() => {
       }
     }
   }, [webVault, repos, navigate]);
+
+  if (repos.status.type === 'Error') {
+    return (
+      <DashboardError
+        error={repos.status.error}
+        onRetry={() => {
+          webVault.load();
+        }}
+      />
+    );
+  }
 
   return <DashboardLoading />;
 });
