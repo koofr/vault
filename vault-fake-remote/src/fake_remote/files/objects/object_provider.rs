@@ -27,7 +27,7 @@ pub trait ObjectProvider: Debug {
         &self,
         object_id: String,
         reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
-    ) -> Result<(u64, String), ObjectProviderError>;
+    ) -> Result<u64, ObjectProviderError>;
     async fn delete(&self, object_id: String) -> Result<(), ObjectProviderError>;
 }
 

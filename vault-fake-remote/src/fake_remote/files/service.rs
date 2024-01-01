@@ -6,10 +6,12 @@ use std::{
 };
 
 use futures::AsyncRead;
+use hex::ToHex;
 use http::StatusCode;
 use vault_core::{
     remote::models,
     types::{MountId, RemoteName, RemotePath},
+    utils::md5_reader::MD5Reader,
 };
 
 use crate::fake_remote::{
@@ -173,7 +175,14 @@ impl FilesService {
 
         let object_id = uuid::Uuid::new_v4().to_string();
 
-        let (size, hash) = self.object_provider.put(object_id.clone(), reader).await?;
+        let (md5_reader, md5_digest_future) = MD5Reader::new(reader);
+
+        let size = self
+            .object_provider
+            .put(object_id.clone(), Box::pin(md5_reader))
+            .await?;
+
+        let hash = md5_digest_future.await.unwrap().encode_hex();
 
         let file = {
             let mut state = self.state.write().unwrap();

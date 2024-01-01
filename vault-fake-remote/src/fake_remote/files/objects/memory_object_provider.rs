@@ -2,7 +2,6 @@ use std::{collections::HashMap, io::SeekFrom, ops::RangeInclusive, pin::Pin, syn
 
 use async_trait::async_trait;
 use futures::{io::Cursor, AsyncRead, AsyncReadExt, AsyncSeekExt};
-use vault_core::utils::md5_reader;
 
 use super::object_provider::{ObjectProvider, ObjectProviderError};
 
@@ -58,21 +57,17 @@ impl ObjectProvider for MemoryObjectProvider {
     async fn put(
         &self,
         object_id: String,
-        reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
-    ) -> Result<(u64, String), ObjectProviderError> {
-        let mut md5_reader = md5_reader::MD5Reader::new(reader);
-
+        mut reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
+    ) -> Result<u64, ObjectProviderError> {
         let mut buf = Vec::new();
 
-        md5_reader.read_to_end(&mut buf).await?;
+        reader.read_to_end(&mut buf).await?;
 
         let size = buf.len() as u64;
 
-        let hash = md5_reader.hex_digest();
-
         self.objects.lock().unwrap().insert(object_id, buf);
 
-        Ok((size, hash))
+        Ok(size)
     }
 
     async fn delete(&self, object_id: String) -> Result<(), ObjectProviderError> {
