@@ -86,6 +86,23 @@ export const RepoFileInfoGeneral = memo<{ file: RepoFile }>(({ file }) => {
       ) : null}
       <Item label="Path">{file.decryptedPath ?? '???'}</Item>
       <Item label="Encrypted path">{file.encryptedPath}</Item>
+      {file.type === 'File' ? (
+        <>
+          <Item label="MD5">{file.tags.hash ?? '???'}</Item>
+          <Item label="Encrypted MD5">{file.remoteHash ?? '???'}</Item>
+        </>
+      ) : null}
+      {file.tags.error !== undefined ? (
+        <Item label="Tags error">
+          <span
+            className={css`
+              color: ${theme.colors.destructive};
+            `}
+          >
+            {file.tags.error}
+          </span>
+        </Item>
+      ) : null}
     </div>
   );
 });

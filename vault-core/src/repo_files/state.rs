@@ -5,6 +5,7 @@ use crate::{
     files::{file_category::FileCategory, file_icon::FileIconAttrs},
     remote::RemoteFileUploadConflictResolution,
     remote_files::state::{RemoteFile, RemoteFileType},
+    repo_files_tags::{errors::DecryptTagsError, state::RepoFileTags},
     sort::state::SortDirection,
     types::{
         DecryptedName, DecryptedPath, EncryptedName, EncryptedPath, MountId, RemotePath,
@@ -140,6 +141,7 @@ pub struct RepoFile {
     pub typ: RepoFileType,
     pub size: Option<RepoFileSize>,
     pub modified: Option<i64>,
+    pub tags: Option<Result<RepoFileTags, DecryptTagsError>>,
     pub unique_name: String,
     pub remote_hash: Option<String>,
     pub category: FileCategory,
@@ -177,6 +179,13 @@ impl RepoFile {
             Some(RepoFileSize::DecryptError { encrypted_size, .. }) => encrypted_size,
             None => 0,
         }
+    }
+
+    pub fn hash(&self) -> Option<String> {
+        self.tags
+            .as_ref()
+            .and_then(|tags| tags.as_ref().ok())
+            .and_then(|tags| tags.hash_hex())
     }
 
     pub fn file_icon_attrs(&self) -> FileIconAttrs {

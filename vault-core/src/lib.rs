@@ -27,6 +27,7 @@ pub mod repo_files_dir_pickers;
 pub mod repo_files_list;
 pub mod repo_files_move;
 pub mod repo_files_read;
+pub mod repo_files_tags;
 pub mod repo_locker;
 pub mod repo_remove;
 pub mod repo_space_usage;

@@ -16,10 +16,11 @@ use crate::{
     repo_files_list::{
         errors::GetListRecursiveError, state::RepoFilesListRecursiveItem, RepoFilesListService,
     },
+    repo_files_tags::RepoFilesTagsService,
     repos::ReposService,
     runtime, store,
     types::{DecryptedName, DecryptedPath, MountId, RemotePath, RepoFileId},
-    utils::{repo_path_utils, sender_writer::SenderWriter},
+    utils::{md5_reader, on_end_reader::OnEndReader, repo_path_utils, sender_writer::SenderWriter},
 };
 
 use super::{
@@ -32,6 +33,7 @@ pub struct RepoFilesReadService {
     repos_service: Arc<ReposService>,
     remote_files_service: Arc<RemoteFilesService>,
     repo_files_list_service: Arc<RepoFilesListService>,
+    repo_files_tags_service: Arc<RepoFilesTagsService>,
     store: Arc<store::Store>,
     runtime: Arc<runtime::BoxRuntime>,
 }
@@ -41,6 +43,7 @@ impl RepoFilesReadService {
         repos_service: Arc<ReposService>,
         remote_files_service: Arc<RemoteFilesService>,
         repo_files_list_service: Arc<RepoFilesListService>,
+        repo_files_tags_service: Arc<RepoFilesTagsService>,
         store: Arc<store::Store>,
         runtime: Arc<runtime::BoxRuntime>,
     ) -> Self {
@@ -48,6 +51,7 @@ impl RepoFilesReadService {
             repos_service,
             remote_files_service,
             repo_files_list_service,
+            repo_files_tags_service,
             store,
             runtime,
         }
@@ -90,15 +94,69 @@ impl RepoFilesReadService {
 
         let cipher = self.repos_service.get_cipher(&file.repo_id)?;
 
-        self.get_remote_file_reader(
-            &file.mount_id,
-            &file.remote_path,
-            name,
-            file.content_type.as_deref(),
-            Some(&file.unique_name),
-            &cipher,
-        )
-        .await
+        let reader = self
+            .get_remote_file_reader(
+                &file.mount_id,
+                &file.remote_path,
+                name,
+                file.content_type.as_deref(),
+                Some(&file.unique_name),
+                &cipher,
+            )
+            .await?;
+
+        if file.hash().is_none() {
+            if let Some(remote_file_hash) = reader
+                .remote_file
+                .as_ref()
+                .and_then(|file| file.hash.clone())
+            {
+                return Ok(reader.wrap_reader(|reader| {
+                    self.generate_missing_hash_reader(file, remote_file_hash, reader)
+                }));
+            }
+        }
+
+        Ok(reader)
+    }
+
+    fn generate_missing_hash_reader(
+        &self,
+        file: &RepoFile,
+        remote_file_hash: String,
+        reader: BoxAsyncRead,
+    ) -> BoxAsyncRead {
+        let runtime = self.runtime.clone();
+        let repo_files_tags_service = self.repo_files_tags_service.clone();
+        let repo_id = file.repo_id.clone();
+        let path = file.encrypted_path.clone();
+        let (md5_reader, md5_digest_future) = md5_reader::MD5Reader::new(reader);
+
+        Box::pin(OnEndReader::new(
+            md5_reader,
+            Box::new(move |res| {
+                if res.is_ok() {
+                    runtime.spawn(Box::pin(async move {
+                        let repo_id = repo_id;
+                        let path = path;
+
+                        if let Ok(hash) = md5_digest_future.await.map(|hash| hash.to_vec()) {
+                            if let Err(err) = repo_files_tags_service.set_tags_hash(
+                                &repo_id,
+                                &path,
+                                remote_file_hash,
+                                hash,
+                            ).await {
+                                log::warn!(
+                                    "RepoFilesReadService generate_missing_hash_reader failed to set tags: {}",
+                                    err,
+                                );
+                            }
+                        }
+                    }));
+                }
+            }),
+        ))
     }
 
     fn get_file_reader_file_provider(

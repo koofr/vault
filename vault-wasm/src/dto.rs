@@ -21,6 +21,7 @@ use vault_core::{
     repo_files_browsers::state as repo_files_browsers_state,
     repo_files_details::state as repo_files_details_state,
     repo_files_move::state as repo_files_move_state,
+    repo_files_tags,
     repo_remove::state as repo_remove_state,
     repo_space_usage::state as repo_space_usage_state,
     repo_unlock::state as repo_unlock_state,
@@ -837,6 +838,38 @@ impl From<&repo_files_state::RepoFileType> for RepoFileType {
     }
 }
 
+#[derive(Clone, Debug, PartialEq, Default, Serialize, Deserialize, Tsify)]
+pub struct RepoFileTags {
+    hash: Option<String>,
+    error: Option<String>,
+}
+
+impl
+    From<
+        &Option<
+            Result<repo_files_tags::state::RepoFileTags, repo_files_tags::errors::DecryptTagsError>,
+        >,
+    > for RepoFileTags
+{
+    fn from(
+        tags: &Option<
+            Result<repo_files_tags::state::RepoFileTags, repo_files_tags::errors::DecryptTagsError>,
+        >,
+    ) -> Self {
+        match tags {
+            Some(Ok(tags)) => Self {
+                hash: tags.hash_hex(),
+                ..Default::default()
+            },
+            Some(Err(err)) => RepoFileTags {
+                error: Some(err.user_error()),
+                ..Default::default()
+            },
+            None => Default::default(),
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub struct RepoFile {
     pub id: String,
@@ -857,6 +890,7 @@ pub struct RepoFile {
     #[serde(rename = "sizeDisplay")]
     pub size_display: String,
     pub modified: Option<f64>,
+    pub tags: RepoFileTags,
     #[serde(rename = "remoteHash")]
     pub remote_hash: Option<String>,
     pub category: FileCategory,
@@ -895,6 +929,7 @@ impl From<&repo_files_state::RepoFile> for RepoFile {
                 None => "".into(),
             },
             modified: file.modified.map(|modified| modified as f64),
+            tags: (&file.tags).into(),
             remote_hash: file.remote_hash.clone(),
             category: (&file.category).into(),
             file_icon_attrs: file.file_icon_attrs().into(),
