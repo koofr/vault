@@ -277,6 +277,7 @@ pub struct RemoteFilesMutationState {
     pub created_files: Vec<(MountId, RemotePath)>,
     pub removed_files: Vec<(MountId, RemotePath)>,
     pub moved_files: Vec<(MountId, RemotePath, RemotePath)>,
+    pub tags_updated: Vec<(MountId, RemotePath)>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
