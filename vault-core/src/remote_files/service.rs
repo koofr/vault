@@ -1,10 +1,11 @@
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use crate::{
     common::state::BoxAsyncRead,
     dialogs,
     remote::{
-        remote::ListRecursiveItemStream, Remote, RemoteError, RemoteFileUploadConflictResolution,
+        remote::{ListRecursiveItemStream, RemoteFileTagsSetConditions},
+        Remote, RemoteError, RemoteFileUploadConflictResolution,
     },
     store,
     types::{MountId, RemoteFileId, RemoteName, RemotePath},
@@ -368,6 +369,34 @@ impl RemoteFilesService {
         self.remote.rename_file(mount_id, path, new_name).await?;
 
         // state is updated by eventstream event
+
+        Ok(())
+    }
+
+    pub async fn set_tags(
+        &self,
+        mount_id: &MountId,
+        path: &RemotePath,
+        tags: HashMap<String, Vec<String>>,
+        conditions: RemoteFileTagsSetConditions,
+    ) -> Result<(), RemoteError> {
+        self.remote
+            .file_set_tags(mount_id, path, tags.clone(), conditions.clone())
+            .await?;
+
+        self.store
+            .mutate(|state, notify, mutation_state, mutation_notify| {
+                mutations::file_tags_set(
+                    state,
+                    notify,
+                    mutation_state,
+                    mutation_notify,
+                    mount_id,
+                    path,
+                    tags,
+                    &conditions,
+                );
+            });
 
         Ok(())
     }
