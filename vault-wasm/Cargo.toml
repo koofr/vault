@@ -25,6 +25,7 @@ thiserror = "1.0.56"
 tsify = { version = "0.4.5", features = ["js"] }
 vault-core = { path = "../vault-core" }
 vault-crypto = { path = "../vault-crypto" }
+vault-web-api = { path = "../vault-web-api" }
 vault-file-icon = { path = "../vault-file-icon", default-features = false }
 wasm-bindgen = "0.2.90"
 wasm-bindgen-futures = "0.4.40"

@@ -2965,6 +2965,7 @@ dependencies = [
  "vault-core",
  "vault-crypto",
  "vault-file-icon",
+ "vault-web-api",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "wasm-streams 0.4.0",
