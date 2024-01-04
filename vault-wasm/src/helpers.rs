@@ -5,7 +5,6 @@ use futures::{
     AsyncRead, AsyncReadExt,
 };
 use thiserror::Error;
-use vault_crypto::constants::BLOCK_SIZE;
 use wasm_bindgen::{prelude::*, JsCast};
 use wasm_bindgen_futures::JsFuture;
 use wasm_streams::ReadableStream;
@@ -17,8 +16,8 @@ use vault_core::{
     utils::on_end_reader::OnEndReader,
     Vault,
 };
-
-use crate::dto;
+use vault_crypto::constants::BLOCK_SIZE;
+use vault_web_api::dto;
 
 #[wasm_bindgen(module = "/js/helpers.js")]
 extern "C" {

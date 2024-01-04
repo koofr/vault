@@ -4,7 +4,6 @@ pub mod browser_runtime;
 pub mod browser_secure_storage;
 pub mod browser_uploadable;
 pub mod console;
-pub mod dto;
 pub mod helpers;
 pub mod web_errors;
 pub mod web_subscription;
