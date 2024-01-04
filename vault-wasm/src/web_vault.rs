@@ -15,6 +15,7 @@ use vault_core::{
     transfers,
     types::{DecryptedName, EncryptedPath, RepoFileId, RepoId, TimeMillis},
 };
+use vault_web_api::dto;
 
 use crate::{
     browser_eventstream_websocket_client::{
@@ -24,7 +25,7 @@ use crate::{
     browser_runtime::{now, BrowserRuntime},
     browser_secure_storage::BrowserSecureStorage,
     browser_uploadable::BrowserUploadable,
-    dto, helpers,
+    helpers,
     web_errors::WebErrors,
     web_subscription::WebSubscription,
 };
@@ -1151,6 +1152,7 @@ impl WebVault {
                             selectors::select_duration(state, now),
                         ),
                         is_transferring: selectors::select_is_transferring(state),
+                        is_all_done: selectors::select_is_all_done(state),
                         can_retry_all: selectors::select_can_retry_all(state),
                         can_abort_all: selectors::select_can_abort_all(state),
                     }
