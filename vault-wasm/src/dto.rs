@@ -2,7 +2,6 @@ use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
 use tsify::Tsify;
-use wasm_bindgen::prelude::*;
 
 use vault_core::{
     common::state as common_state,
@@ -975,15 +974,7 @@ impl From<repo_files_state::RepoFilesSortField> for RepoFilesSortField {
     }
 }
 
-#[wasm_bindgen]
-#[derive(PartialEq, Eq, Hash)]
-pub enum RepoFilesSortFieldArg {
-    Name,
-    Size,
-    Modified,
-}
-
-impl Into<repo_files_state::RepoFilesSortField> for RepoFilesSortFieldArg {
+impl Into<repo_files_state::RepoFilesSortField> for RepoFilesSortField {
     fn into(self) -> repo_files_state::RepoFilesSortField {
         match self {
             Self::Name => repo_files_state::RepoFilesSortField::Name,
@@ -1217,8 +1208,7 @@ impl<'a> From<&repo_files_details_state::RepoFilesDetailsInfo<'a>> for RepoFiles
     }
 }
 
-#[wasm_bindgen]
-#[derive(PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub enum RepoFilesMoveMode {
     Copy,
     Move,

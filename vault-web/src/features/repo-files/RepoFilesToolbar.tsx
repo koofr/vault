@@ -21,10 +21,7 @@ import {
   ToolbarItem,
 } from '../../components/toolbar/Toolbar';
 import { useIsMobile } from '../../components/useIsMobile';
-import {
-  RepoFilesBrowserInfo,
-  RepoFilesMoveMode,
-} from '../../vault-wasm/vault-wasm';
+import { RepoFilesBrowserInfo } from '../../vault-wasm/vault-wasm';
 import { useWebVault } from '../../webVault/useWebVault';
 
 import { useRepoFilesBrowserId } from './RepoFilesBrowserId';
@@ -74,10 +71,7 @@ export const RepoFilesToolbar = memo<{
           icon={<FilesToolbarCopyIcon role="img" />}
           iconHover={<FilesToolbarCopyHoverIcon role="img" />}
           onClick={() => {
-            webVault.repoFilesBrowsersMoveSelected(
-              browserId,
-              RepoFilesMoveMode.Copy,
-            );
+            webVault.repoFilesBrowsersMoveSelected(browserId, 'Copy');
           }}
         >
           Copy
@@ -88,10 +82,7 @@ export const RepoFilesToolbar = memo<{
           icon={<FilesToolbarMoveIcon role="img" />}
           iconHover={<FilesToolbarMoveHoverIcon role="img" />}
           onClick={() => {
-            webVault.repoFilesBrowsersMoveSelected(
-              browserId,
-              RepoFilesMoveMode.Move,
-            );
+            webVault.repoFilesBrowsersMoveSelected(browserId, 'Move');
           }}
         >
           Move
