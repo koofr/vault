@@ -19,8 +19,8 @@ export const AuthGuard = memo(() => {
   const locationRelUrl = location.pathname + location.search;
   const needsRedirectToLogin =
     locationRelUrl !== '/' &&
-    oauth2Status.type !== 'Loading' &&
-    oauth2Status.type !== 'Loaded';
+    oauth2Status?.type !== 'Loading' &&
+    oauth2Status?.type !== 'Loaded';
 
   useEffect(() => {
     if (needsRedirectToLogin) {
@@ -36,9 +36,9 @@ export const AuthGuard = memo(() => {
 
   if (needsRedirectToLogin) {
     return null;
-  } else if (oauth2Status.type === 'Loading') {
+  } else if (oauth2Status?.type === 'Loading') {
     return <DashboardLoading />;
-  } else if (oauth2Status.type === 'Loaded') {
+  } else if (oauth2Status?.type === 'Loaded') {
     return <Outlet />;
   } else {
     return <LandingPageLazy />;

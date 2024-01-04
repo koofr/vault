@@ -16,11 +16,11 @@ export const HomePage = memo(() => {
   );
 
   useEffect(() => {
-    if (repos.status.type !== 'Loading' && repos.status.type !== 'Error') {
+    if (repos?.status.type !== 'Loading' && repos?.status.type !== 'Error') {
       webVault.load();
     }
 
-    if (repos.status.type === 'Loaded') {
+    if (repos?.status.type === 'Loaded') {
       if (repos.repos.length === 0) {
         navigate('/repos/create', { replace: true });
       } else {
@@ -29,7 +29,7 @@ export const HomePage = memo(() => {
     }
   }, [webVault, repos, navigate]);
 
-  if (repos.status.type === 'Error') {
+  if (repos?.status.type === 'Error') {
     return (
       <DashboardError
         error={repos.status.error}

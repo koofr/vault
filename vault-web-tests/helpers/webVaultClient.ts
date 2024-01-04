@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Agent } from 'undici';
 
 import vaultWasm, {
@@ -174,7 +175,7 @@ export class WebVaultClient {
     await this.waitFor(
       (v, cb) => v.reposSubscribe(cb),
       (v) => v.reposData,
-      (repos) => repos.status.type === 'Loaded',
+      (repos) => repos?.status.type === 'Loaded',
     );
   }
 
@@ -182,10 +183,10 @@ export class WebVaultClient {
     const repos = await this.waitFor(
       (v, cb) => v.reposSubscribe(cb),
       (v) => v.reposData,
-      (repos) => repos.status.type === 'Loaded' && repos.repos.length > 0,
+      (repos) => repos?.status.type === 'Loaded' && repos.repos.length > 0,
     );
 
-    return repos.repos[0];
+    return repos!.repos[0];
   }
 
   async unlockRepo(repo: Repo, password = 'password'): Promise<void> {
@@ -403,14 +404,12 @@ export class WebVaultClient {
   }
 
   async confirmDialog(inputValue?: string) {
-    const dialogId = (
-      await this.waitFor(
-        (v, cb) => v.dialogsSubscribe(cb),
-        (v) => v.dialogsData,
-        (dialogs) => dialogs.length > 0,
-        5000,
-      )
-    )[0];
+    const dialogId = (await this.waitFor(
+      (v, cb) => v.dialogsSubscribe(cb),
+      (v) => v.dialogsData,
+      (dialogs) => dialogs !== undefined && dialogs.length > 0,
+      5000,
+    ))![0];
 
     await this.waitFor(
       (v, cb) => v.dialogsDialogSubscribe(dialogId, cb),
@@ -438,7 +437,7 @@ export class WebVaultClient {
       (v, cb) => v.notificationsSubscribe(cb),
       (v) => v.notificationsData,
       (notifications) => {
-        if (notifications.length > 0) {
+        if (notifications !== undefined && notifications.length > 0) {
           const notification = notifications[0];
           console.warn(`WebVault notification: ${notification.message}`);
           this.webVault.notificationsRemove(notification.id);

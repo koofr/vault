@@ -15,7 +15,7 @@ export const LoginPage: React.FC<{}> = () => {
   );
 
   useEffect(() => {
-    if (oauth2Status.type === 'Loaded') {
+    if (oauth2Status?.type === 'Loaded') {
       navigate('/', {
         replace: true,
       });

@@ -171,14 +171,14 @@ export const RepoInfoComponent = memo<{ repoId: string }>(({ repoId }) => {
     [repoId],
   );
 
-  if (info.status.type === 'Error') {
+  if (info?.status.type === 'Error') {
     return (
       <DashboardError
         error={info.status.error}
         onRetry={() => webVault.load()}
       />
     );
-  } else if (info.repo !== undefined) {
+  } else if (info?.repo !== undefined) {
     return <RepoInfoComponentRepo repo={info.repo} />;
   } else {
     return <DashboardLoading />;

@@ -295,7 +295,7 @@ export const Repos = memo(() => {
           padding: 0;
         `}
       >
-        {repos.repos.map((repo) => (
+        {repos?.repos.map((repo) => (
           <RepoItem
             key={repo.id}
             repo={repo}

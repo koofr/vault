@@ -19,7 +19,7 @@ export const TransfersList = memo(() => {
         flex-direction: column;
       `}
     >
-      {transfers.transfers.map((transfer) => (
+      {transfers?.transfers.map((transfer) => (
         <TransfersListTransfer key={transfer.id} transfer={transfer} />
       ))}
     </div>
