@@ -17,20 +17,7 @@ export const TransfersSummary = memo<{
 }>(({ areDetailsVisible, toggleDetailsVisible }) => {
   const theme = useTheme();
   const webVault = useWebVault();
-  const [
-    {
-      totalCount,
-      doneCount,
-      failedCount,
-      sizeProgressDisplay,
-      percentage,
-      remainingTimeDisplay,
-      speedDisplay,
-      isTransferring,
-      canRetryAll,
-      canAbortAll,
-    },
-  ] = useSubscribe(
+  const [transfersSummary] = useSubscribe(
     (v, cb) => v.transfersSummarySubscribe(cb),
     (v) => v.transfersSummaryData,
     [],
@@ -59,6 +46,23 @@ export const TransfersSummary = memo<{
     event.stopPropagation();
     setSpeedVisible((isVisible) => !isVisible);
   }, []);
+
+  if (transfersSummary === undefined) {
+    return null;
+  }
+
+  const {
+    totalCount,
+    doneCount,
+    failedCount,
+    sizeProgressDisplay,
+    percentage,
+    remainingTimeDisplay,
+    speedDisplay,
+    isTransferring,
+    canRetryAll,
+    canAbortAll,
+  } = transfersSummary;
 
   return (
     <div

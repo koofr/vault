@@ -16,7 +16,7 @@ export const Notifications = memo<{}>(() => {
     (v) => v.notificationsData,
     [],
   );
-  const hasRemoveAll = notifications.length > 1;
+  const hasRemoveAll = notifications !== undefined && notifications.length > 1;
   const remove = useCallback(
     (id: number) => {
       webVault.notificationsRemove(id);
@@ -33,7 +33,7 @@ export const Notifications = memo<{}>(() => {
     webVault.notificationsRemoveAll();
   }, [webVault]);
 
-  if (notifications.length === 0) {
+  if (notifications === undefined || notifications.length === 0) {
     return null;
   }
 

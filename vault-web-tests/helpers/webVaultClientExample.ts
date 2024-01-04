@@ -33,8 +33,12 @@ async function main() {
   const repos = await client.waitFor(
     (v, cb) => v.reposSubscribe(cb),
     (v) => v.reposData,
-    (repos) => repos.status.type === 'Loaded',
+    (repos) => repos?.status.type === 'Loaded',
   );
+
+  if (repos === undefined) {
+    return;
+  }
 
   console.log('Repos', repos);
 

@@ -11,7 +11,7 @@ export const Dialogs = memo<{}>(() => {
     [],
   );
 
-  if (dialogIds.length === 0) {
+  if (dialogIds === undefined || dialogIds.length === 0) {
     return null;
   }
 

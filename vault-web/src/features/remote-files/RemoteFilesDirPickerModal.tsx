@@ -19,11 +19,7 @@ import { DirPicker } from '../../components/dirpicker/DirPicker';
 
 export const RemoteFilesDirPickerModalContent = memo<{
   dirPickerId: number;
-  onClick: (
-    pickerId: number,
-    itemId: string,
-    isArrow: boolean,
-  ) => Promise<void>;
+  onClick: (pickerId: number, itemId: string, isArrow: boolean) => void;
   canSelect: boolean;
   select: () => void;
   cancel: () => void;
@@ -104,11 +100,7 @@ export const RemoteFilesDirPickerModalContent = memo<{
 
 export const RemoteFilesDirPickerModal = memo<{
   dirPickerId?: number;
-  onClick: (
-    pickerId: number,
-    itemId: string,
-    isArrow: boolean,
-  ) => Promise<void>;
+  onClick: (pickerId: number, itemId: string, isArrow: boolean) => void;
   canSelect: boolean;
   select: () => void;
   cancel: () => void;

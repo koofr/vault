@@ -103,9 +103,9 @@ export const RepoConfigBackup = memo<{ repoId: string }>(({ repoId }) => {
     [repoId],
   );
 
-  if (info.status.type === 'Error') {
+  if (info?.status.type === 'Error') {
     return <DashboardError error={info.status.error} />;
-  } else if (info.repo !== undefined) {
+  } else if (info?.repo !== undefined) {
     return <RepoConfigBackupRepo repo={info.repo} />;
   } else {
     return <DashboardLoading />;

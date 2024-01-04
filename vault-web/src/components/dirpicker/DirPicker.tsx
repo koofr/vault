@@ -21,11 +21,7 @@ const spinner = keyframes`
 
 export const DirPicker = memo<{
   pickerId: number;
-  onClick: (
-    pickerId: number,
-    itemId: string,
-    isArrow: boolean,
-  ) => Promise<void>;
+  onClick: (pickerId: number, itemId: string, isArrow: boolean) => void;
 }>(({ pickerId, onClick }) => {
   const isMobile = useIsMobile();
   const theme = useTheme();
@@ -34,7 +30,7 @@ export const DirPicker = memo<{
     (v) => v.dirPickersItemsData,
     [pickerId],
   );
-  const selectedItemId = items.find((item) => item.isSelected)?.id;
+  const selectedItemId = items?.find((item) => item.isSelected)?.id;
   const nextScrollToItemId = useRef<string>();
   useMemo(() => {
     nextScrollToItemId.current = selectedItemId;
@@ -53,7 +49,7 @@ export const DirPicker = memo<{
             `
       }
     >
-      {items.map((item) => (
+      {items?.map((item) => (
         <div
           key={item.id}
           className={cx(

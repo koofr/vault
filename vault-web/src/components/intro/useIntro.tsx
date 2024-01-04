@@ -19,7 +19,7 @@ export const useIntro = (): {
   );
 
   useEffect(() => {
-    if (repos.status.type === 'Loaded') {
+    if (repos?.status.type === 'Loaded') {
       if (repos.repos.length === 0) {
         try {
           if (localStorage.getItem(introSeenKey) !== 'true') {
