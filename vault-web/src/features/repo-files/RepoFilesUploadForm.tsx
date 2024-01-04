@@ -54,6 +54,10 @@ export const RepoFilesUploadForm = memo(() => {
         const files = Array.from(event.currentTarget.files);
         Promise.all(uploadFiles(files));
       }
+      if (uploadFormRef.current !== null) {
+        // reset the form so that the same file can be uploaded again
+        uploadFormRef.current.reset();
+      }
     },
     [uploadFiles],
   );
