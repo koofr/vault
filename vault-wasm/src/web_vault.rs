@@ -110,6 +110,9 @@ extern "C" {
     #[wasm_bindgen(typescript_type = "RepoFilesBrowserOptions")]
     pub type RepoFilesBrowserOptions;
 
+    #[wasm_bindgen(typescript_type = "RepoFilesSortField")]
+    pub type RepoFilesSortField;
+
     #[wasm_bindgen(typescript_type = "RepoFilesBrowserInfo | undefined")]
     pub type RepoFilesBrowserInfoOption;
 
@@ -121,6 +124,9 @@ extern "C" {
 
     #[wasm_bindgen(typescript_type = "RepoFilesDetailsInfo | undefined")]
     pub type RepoFilesDetailsInfoOption;
+
+    #[wasm_bindgen(typescript_type = "RepoFilesMoveMode")]
+    pub type RepoFilesMoveMode;
 
     #[wasm_bindgen(typescript_type = "RepoFilesMoveInfo | undefined")]
     pub type RepoFilesMoveInfoOption;
@@ -1358,7 +1364,9 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = repoFilesBrowsersSortBy)]
-    pub fn repo_files_browsers_sort_by(&self, browser_id: u32, field: dto::RepoFilesSortFieldArg) {
+    pub fn repo_files_browsers_sort_by(&self, browser_id: u32, field: RepoFilesSortField) {
+        let field: dto::RepoFilesSortField = serde_wasm_bindgen::from_value(field.into()).unwrap();
+
         self.vault
             .repo_files_browsers_sort_by(browser_id, field.into(), None)
     }
@@ -1433,8 +1441,10 @@ impl WebVault {
     pub async fn repo_files_browsers_move_selected(
         &self,
         browser_id: u32,
-        mode: dto::RepoFilesMoveMode,
+        mode: RepoFilesMoveMode,
     ) {
+        let mode: dto::RepoFilesMoveMode = serde_wasm_bindgen::from_value(mode.into()).unwrap();
+
         self.handle_result(
             self.vault
                 .repo_files_browsers_move_selected(browser_id, mode.into())

@@ -21,7 +21,6 @@ import {
   RepoFile,
   RepoFilesBrowserInfo,
   RepoFilesBrowserItem,
-  RepoFilesSortFieldArg,
 } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
@@ -289,22 +288,13 @@ export const RepoFilesTable = memo<{
     (_: MouseEvent, columnName: string) => {
       switch (columnName) {
         case 'name':
-          webVault.repoFilesBrowsersSortBy(
-            browserId,
-            RepoFilesSortFieldArg.Name,
-          );
+          webVault.repoFilesBrowsersSortBy(browserId, 'Name');
           break;
         case 'size':
-          webVault.repoFilesBrowsersSortBy(
-            browserId,
-            RepoFilesSortFieldArg.Size,
-          );
+          webVault.repoFilesBrowsersSortBy(browserId, 'Size');
           break;
         case 'modified':
-          webVault.repoFilesBrowsersSortBy(
-            browserId,
-            RepoFilesSortFieldArg.Modified,
-          );
+          webVault.repoFilesBrowsersSortBy(browserId, 'Modified');
           break;
       }
     },
