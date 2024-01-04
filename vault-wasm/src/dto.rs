@@ -129,6 +129,12 @@ impl From<relative_time::RelativeTime> for RelativeTime {
     }
 }
 
+#[derive(Clone)]
+pub struct Versioned<T> {
+    pub value: T,
+    pub version: u32,
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub enum FileCategory {
     Generic,
