@@ -1,0 +1,13 @@
+[package]
+name = "vault-web-api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+futures = "0.3.28"
+log = "0.4.20"
+serde = { version = "1.0.195", features = ["derive"] }
+tsify = { version = "0.4.5" }
+vault-core = { path = "../vault-core" }
+vault-file-icon = { path = "../vault-file-icon", default-features = false }
+wasm-bindgen = "0.2.90"

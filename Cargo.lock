@@ -2972,6 +2972,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "vault-web-api"
+version = "0.1.0"
+dependencies = [
+ "futures",
+ "log",
+ "serde",
+ "tsify",
+ "vault-core",
+ "vault-file-icon",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "version_check"
 version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"

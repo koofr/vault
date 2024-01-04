@@ -11,6 +11,7 @@ members = [
   "vault-store",
   "vault-version",
   "vault-wasm",
+  "vault-web-api",
 ]
 
 [profile.release]
