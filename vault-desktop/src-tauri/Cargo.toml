@@ -1,0 +1,23 @@
+[package]
+name = "vault-desktop"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+futures = "0.3.30"
+serde = { version = "1.0.195", features = ["derive"] }
+serde_json = "1.0.111"
+tauri = { version = "1.6.8", features = ["shell-open", "dialog"] }
+tokio = { version = "1.35.1", features = ["rt-multi-thread"] }
+vault-core = { path = "../../vault-core" }
+vault-desktop-server = { path = "../../vault-desktop-server" }
+vault-native = { path = "../../vault-native" }
+vault-web-api = { path = "../../vault-web-api" }
+
+[build-dependencies]
+tauri-build = { version = "1.5.2", features = [] }
+
+[features]
+# this feature is used for production builds or when `devPath` points to the filesystem
+# DO NOT REMOVE!!
+custom-protocol = ["tauri/custom-protocol"]

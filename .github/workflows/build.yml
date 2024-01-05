@@ -80,6 +80,10 @@ jobs:
         with:
           path: target
           key: cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install dev libraries
+        run: |
+          sudo apt update
+          sudo apt install libwebkit2gtk-4.0-dev build-essential curl wget file libssl-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev
       - name: Install rust
         uses: dtolnay/rust-toolchain@b44cb146d03e8d870c57ab64b80f04586349ca5d
         with:

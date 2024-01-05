@@ -4,6 +4,7 @@ members = [
   "vault-core",
   "vault-crypto",
   "vault-desktop-server",
+  "vault-desktop/src-tauri",
   "vault-fake-remote",
   "vault-file-icon",
   "vault-mobile",
