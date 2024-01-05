@@ -1,8 +1,6 @@
 import { CacheProvider } from '@emotion/react';
 import { DndProvider } from 'react-dnd';
-import ReactDOM from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
-import streamSaver from 'streamsaver';
 
 import { RemoveAppLoading } from './RemoveAppLoading';
 import { DocumentScrollProvider } from './components/DocumentScroll';
@@ -19,47 +17,11 @@ import { createRouter } from './router';
 import { GlobalStyles } from './styles/GlobalStyles';
 import { emotionCache } from './styles/emotionCache';
 import { DynamicThemeProvider } from './theme/DynamicThemeProvider';
-import init, { WebVault, initConsole } from './vault-wasm/vault-wasm';
-import { BrowserEventstreamWebSocketDelegateImpl } from './webVault/BrowserEventstreamWebSocketDelegateImpl';
-import { BrowserHttpClientDelegateImpl } from './webVault/BrowserHttpClientDelegateImpl';
 import { WebVaultContext } from './webVault/webVaultContext';
+import { WebVault } from './vault-wasm/vault-wasm';
 
-export const mainAuthenticated = async () => {
-  const configPromise = fetch('/config.json').then(
-    (res) => res.json() as Promise<Config>,
-  );
-
-  await init();
-  initConsole();
-
-  streamSaver.mitm =
-    window.location.origin +
-    '/streamsaver-2.0.6-34ea69e/mitm.html?version=2.0.0';
-
-  const config = await configPromise;
-
-  const baseUrl = config.baseUrl;
-  const oauth2ClientId = config.oauth2ClientId;
-  const oauth2ClientSecret = config.oauth2ClientSecret;
-  const oauth2RedirectUri = window.location.origin + '/oauth2callback';
-
-  const webVault = new WebVault(
-    baseUrl,
-    baseUrl,
-    oauth2ClientId,
-    oauth2ClientSecret,
-    oauth2RedirectUri,
-    new BrowserHttpClientDelegateImpl(),
-    new BrowserEventstreamWebSocketDelegateImpl(),
-    localStorage,
-  );
-
+export function getApp(config: Config, webVault: WebVault): React.ReactNode {
   (window as any).webVault = webVault;
-
-  // don't load the app on oauth2 login or logout
-  if (document.location.pathname !== '/oauth2callback') {
-    webVault.load();
-  }
 
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
@@ -73,7 +35,7 @@ export const mainAuthenticated = async () => {
 
   (window as any).router = router;
 
-  ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+  return (
     <ConfigContext.Provider value={config}>
       <WebVaultContext.Provider value={webVault}>
         <CacheProvider value={emotionCache}>
@@ -105,6 +67,6 @@ export const mainAuthenticated = async () => {
           </DocumentSizeProvider>
         </CacheProvider>
       </WebVaultContext.Provider>
-    </ConfigContext.Provider>,
+    </ConfigContext.Provider>
   );
-};
+}
