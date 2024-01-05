@@ -1,6 +1,6 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 
-import { mainUnauthenticated } from './mainUnauthenticated';
+import { mainUnauthenticated } from './mainWebUnauthenticated';
 import { NotSupportedPage } from './pages/NotSupportedPage';
 
 export const mainNotSupported = () => {
