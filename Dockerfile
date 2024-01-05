@@ -24,7 +24,8 @@ RUN cd /tmp \
 
 FROM wasm-rust-stage AS wasm-chef-planner-stage
 COPY . .
-RUN sed -i 's/# lto = true/lto = true/' Cargo.toml
+RUN sed -i 's/# lto = true/lto = true/' Cargo.toml \
+  && sed -i 's/# opt-level = "s"/opt-level = "s"/' Cargo.toml
 RUN cargo chef prepare --recipe-path recipe.json
 
 FROM wasm-rust-stage AS wasm-stage
@@ -38,7 +39,8 @@ ARG GIT_RELEASE=
 ENV GIT_REVISION=${GIT_REVISION}
 ENV GIT_RELEASE=${GIT_RELEASE}
 COPY . .
-RUN sed -i 's/# lto = true/lto = true/' Cargo.toml
+RUN sed -i 's/# lto = true/lto = true/' Cargo.toml \
+  && sed -i 's/# opt-level = "s"/opt-level = "s"/' Cargo.toml
 RUN cd vault-wasm \
   && wasm-pack build --target web --out-name vault-wasm --out-dir vault-wasm-web \
   && wasm-pack build --target nodejs --out-name vault-wasm --out-dir vault-wasm-nodejs \
