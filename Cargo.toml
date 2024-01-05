@@ -17,8 +17,14 @@ members = [
 [profile.release]
 # lto = true
 
+[profile.release.package.vault-core]
+# opt-level = "s"
+
+[profile.release.package.vault-web-api]
+# opt-level = "s"
+
 [profile.release.package.vault-wasm]
-opt-level = "s"
+# opt-level = "s"
 
 # dev optimization
 
