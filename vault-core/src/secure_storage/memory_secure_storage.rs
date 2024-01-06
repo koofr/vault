@@ -12,8 +12,12 @@ pub struct MemorySecureStorage {
 
 impl MemorySecureStorage {
     pub fn new() -> Self {
+        Self::new_with_data(HashMap::new())
+    }
+
+    pub fn new_with_data(data: HashMap<String, String>) -> Self {
         Self {
-            data: Arc::new(RwLock::new(HashMap::new())),
+            data: Arc::new(RwLock::new(data)),
         }
     }
 
