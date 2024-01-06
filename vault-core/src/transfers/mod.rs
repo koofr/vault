@@ -1,3 +1,4 @@
+pub mod bytes_uploadable;
 pub mod downloadable;
 pub mod errors;
 pub mod mutations;
