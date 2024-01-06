@@ -4,7 +4,7 @@ import { ImageViewer } from '../../components/ImageViewer';
 import { LoadingCircle } from '../../components/LoadingCircle';
 import { Status } from '../../vault-wasm/vault-wasm';
 
-import { useRepoFilesDetailsBlobUrl } from './useRepoFilesDetailsBlobUrl';
+import { useRepoFilesDetailsFileUrl } from './useRepoFilesDetailsFileUrl';
 
 export const RepoFilesDetailsImageViewer = memo<{
   detailsId: number;
@@ -13,18 +13,13 @@ export const RepoFilesDetailsImageViewer = memo<{
   width: number;
   height: number;
 }>(({ detailsId, fileName, contentStatus, width, height }) => {
-  const blobUrl = useRepoFilesDetailsBlobUrl(detailsId);
+  const url = useRepoFilesDetailsFileUrl(detailsId);
 
   return contentStatus === undefined ||
     (contentStatus.type === 'Loading' && !contentStatus.loaded) ||
-    blobUrl === undefined ? (
+    url === undefined ? (
     <LoadingCircle />
   ) : (
-    <ImageViewer
-      fileName={fileName}
-      blobUrl={blobUrl}
-      width={width}
-      height={height}
-    />
+    <ImageViewer fileName={fileName} url={url} width={width} height={height} />
   );
 });

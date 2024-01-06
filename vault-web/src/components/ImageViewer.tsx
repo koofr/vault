@@ -3,13 +3,13 @@ import { memo } from 'react';
 
 export interface ImageViewerProps {
   fileName: string;
-  blobUrl: string;
+  url: string;
   width: number;
   height: number;
 }
 
 export const ImageViewer = memo<ImageViewerProps>(
-  ({ fileName, blobUrl, width, height }) => {
+  ({ fileName, url, width, height }) => {
     return (
       <div
         className={cx(css`
@@ -25,7 +25,7 @@ export const ImageViewer = memo<ImageViewerProps>(
         }}
       >
         <img
-          src={blobUrl}
+          src={url}
           alt={fileName}
           className={css`
             width: 100%;
