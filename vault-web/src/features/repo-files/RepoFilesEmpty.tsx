@@ -4,7 +4,7 @@ import { memo } from 'react';
 
 import emptyFolderImage from '../../assets/images/empty-folder@2x.png';
 
-import { useRepoFilesUploadApi } from './RepoFilesUploadForm';
+import { useRepoFilesUploadApi } from './RepoFilesUploadApi';
 
 export const RepoFilesEmpty = memo(() => {
   const theme = useTheme();
