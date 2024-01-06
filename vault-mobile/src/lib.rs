@@ -1,18 +1,19 @@
 pub mod download_stream_writer;
 pub mod memory_secure_storage;
-pub mod mobile_downloadable;
 pub mod mobile_errors;
 pub mod mobile_logger;
 pub mod mobile_secure_storage;
 pub mod mobile_spawn;
 pub mod mobile_subscription;
-pub mod mobile_uploadable;
+pub mod stream_downloadable;
+pub mod stream_uploadable;
 pub mod upload_stream_reader;
 
 use std::{
     collections::{hash_map, HashMap},
     fmt::Debug,
     future::Future,
+    path::PathBuf,
     sync::{Arc, Mutex},
     time::Duration,
 };
@@ -42,8 +43,11 @@ use vault_core::{
     sort::state as sort_state,
     store::{self, Event},
     transfers::{
-        self, downloadable, errors::TransferError, selectors as transfers_selectors,
-        state as transfers_state,
+        self,
+        bytes_uploadable::BytesUploadable,
+        downloadable,
+        errors::{DownloadableError, TransferError},
+        selectors as transfers_selectors, state as transfers_state,
     },
     types::{
         DecryptedName, EncryptedPath, MountId, RemoteName, RemotePath, RepoFileId, RepoId,
@@ -53,12 +57,19 @@ use vault_core::{
     user_error::UserError,
     Vault,
 };
-use vault_native::{native_runtime::now, vault::build_vault};
+use vault_native::{
+    native_runtime::now,
+    transfers::{
+        file_downloadable::FileDownloadable, file_uploadable::FileUploadable,
+        temp_file_downloadable::TempFileDownloadable,
+    },
+    vault::build_vault,
+};
 
 use crate::{
-    mobile_downloadable::MobileDownloadable, mobile_errors::MobileErrors,
-    mobile_secure_storage::MobileSecureStorage, mobile_spawn::MobileSpawn,
-    mobile_subscription::MobileSubscription, mobile_uploadable::MobileUploadable,
+    mobile_errors::MobileErrors, mobile_secure_storage::MobileSecureStorage,
+    mobile_spawn::MobileSpawn, mobile_subscription::MobileSubscription,
+    stream_downloadable::StreamDownloadable, stream_uploadable::StreamUploadable,
 };
 
 // logging
@@ -1439,8 +1450,38 @@ pub trait TransfersDownloadOpen: Send + Sync + Debug {
     fn on_open(&self, local_file_path: String, content_type: Option<String>);
 }
 
+pub fn transfers_download_open_to_on_open(
+    on_open: Box<dyn TransfersDownloadOpen>,
+) -> Box<dyn Fn(PathBuf, Option<String>) -> Result<(), DownloadableError> + Send + Sync + 'static> {
+    Box::new(move |path, content_type| {
+        let path = path
+            .to_str()
+            .map(str::to_string)
+            .ok_or_else(|| std::io::Error::from(std::io::ErrorKind::InvalidInput))?;
+
+        on_open.on_open(path, content_type);
+
+        Ok(())
+    })
+}
+
 pub trait TransfersDownloadDone: Send + Sync + Debug {
     fn on_done(&self, local_file_path: String, content_type: Option<String>);
+}
+
+pub fn transfers_download_done_to_on_done(
+    on_done: Box<dyn TransfersDownloadDone>,
+) -> Box<dyn Fn(PathBuf, Option<String>) -> Result<(), DownloadableError> + Send + Sync + 'static> {
+    Box::new(move |path, content_type| {
+        let path = path
+            .to_str()
+            .map(str::to_string)
+            .ok_or_else(|| std::io::Error::from(std::io::ErrorKind::InvalidInput))?;
+
+        on_done.on_done(path, content_type);
+
+        Ok(())
+    })
 }
 
 // repo_files_browsers
@@ -2758,10 +2799,23 @@ impl MobileVault {
         local_file_path: String,
         remove_file_after_upload: bool,
     ) {
-        let uploadable = Box::new(MobileUploadable::File {
-            path: local_file_path,
-            remove_file_after_upload,
-            tokio_runtime: self.tokio_runtime.clone(),
+        let local_file_path = PathBuf::from(local_file_path);
+        let tokio_runtime = self.tokio_runtime.clone();
+
+        let uploadable = Box::new(FileUploadable {
+            path: local_file_path.clone(),
+            cleanup: Some(Box::new(move || {
+                if remove_file_after_upload {
+                    tokio_runtime.spawn(async move {
+                        if let Err(err) = tokio::fs::remove_file(local_file_path).await {
+                            log::warn!(
+                                "transfers_upload_file cleanup failed to remove file: {}",
+                                err
+                            );
+                        }
+                    });
+                }
+            })),
         });
 
         self.clone().transfers_upload_uploadable(
@@ -2779,7 +2833,7 @@ impl MobileVault {
         name: String,
         stream_provider: Box<dyn UploadStreamProvider>,
     ) {
-        let uploadable = Box::new(MobileUploadable::Stream {
+        let uploadable = Box::new(StreamUploadable {
             stream_provider: Arc::new(stream_provider),
             tokio_runtime: self.tokio_runtime.clone(),
         });
@@ -2799,7 +2853,7 @@ impl MobileVault {
         name: String,
         bytes: Vec<u8>,
     ) {
-        let uploadable = Box::new(MobileUploadable::Bytes { bytes });
+        let uploadable = Box::new(BytesUploadable { bytes });
 
         self.clone().transfers_upload_uploadable(
             RepoId(repo_id),
@@ -2847,12 +2901,12 @@ impl MobileVault {
         self.transfers_download(
             RepoId(repo_id),
             EncryptedPath(encrypted_path),
-            Box::new(MobileDownloadable::File {
+            Box::new(FileDownloadable {
                 original_path: local_file_path.into(),
                 append_name,
                 autorename,
-                on_open,
-                on_done,
+                on_open: on_open.map(transfers_download_open_to_on_open),
+                on_done: transfers_download_done_to_on_done(on_done),
                 path: None,
                 content_type: None,
             }),
@@ -2870,10 +2924,10 @@ impl MobileVault {
         self.transfers_download(
             RepoId(repo_id),
             EncryptedPath(encrypted_path),
-            Box::new(MobileDownloadable::TempFile {
+            Box::new(TempFileDownloadable {
                 base_path: local_base_path.into(),
-                on_open,
-                on_done,
+                on_open: on_open.map(transfers_download_open_to_on_open),
+                on_done: transfers_download_done_to_on_done(on_done),
                 parent_path: None,
                 temp_path: None,
                 path: None,
@@ -2891,7 +2945,7 @@ impl MobileVault {
         self.clone().transfers_download(
             RepoId(repo_id),
             EncryptedPath(encrypted_path),
-            Box::new(MobileDownloadable::Stream {
+            Box::new(StreamDownloadable {
                 stream_provider: Arc::new(stream_provider),
                 tokio_runtime: self.tokio_runtime.clone(),
             }),
@@ -3121,12 +3175,12 @@ impl MobileVault {
                 }
             };
 
-            let downloadable = Box::new(MobileDownloadable::File {
+            let downloadable = Box::new(FileDownloadable {
                 original_path: local_file_path.into(),
                 append_name,
                 autorename,
-                on_open,
-                on_done,
+                on_open: on_open.map(transfers_download_open_to_on_open),
+                on_done: transfers_download_done_to_on_done(on_done),
                 path: None,
                 content_type: None,
             });
@@ -3154,7 +3208,7 @@ impl MobileVault {
                 }
             };
 
-            let downloadable = Box::new(MobileDownloadable::Stream {
+            let downloadable = Box::new(StreamDownloadable {
                 stream_provider: Arc::new(stream_provider),
                 tokio_runtime: self.tokio_runtime.clone(),
             });
@@ -3337,10 +3391,10 @@ impl MobileVault {
         on_done: Box<dyn TransfersDownloadDone>,
     ) {
         self.clone().spawn(async move {
-            let downloadable = Box::new(MobileDownloadable::TempFile {
+            let downloadable = Box::new(TempFileDownloadable {
                 base_path: local_base_path.into(),
                 on_open: None,
-                on_done,
+                on_done: transfers_download_done_to_on_done(on_done),
                 parent_path: None,
                 temp_path: None,
                 path: None,
