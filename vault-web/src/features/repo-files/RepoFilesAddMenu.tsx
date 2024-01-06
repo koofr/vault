@@ -10,7 +10,7 @@ import { useMenuUpdate } from '../../components/menu/useMenuUpdate';
 import { useWebVault } from '../../webVault/useWebVault';
 
 import { useRepoFilesBrowserId } from './RepoFilesBrowserId';
-import { useRepoFilesUploadApi } from './RepoFilesUploadForm';
+import { useRepoFilesUploadApi } from './RepoFilesUploadApi';
 import { repoFilesDetailsLink } from './selectors';
 
 export const UploadFileItem = memo<{

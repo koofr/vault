@@ -24,8 +24,8 @@ import { RepoFilesNavbarLeft } from './RepoFilesNavbarLeft';
 import {
   RepoFilesUploadApi,
   RepoFilesUploadApiContext,
-  RepoFilesUploadForm,
-} from './RepoFilesUploadForm';
+} from './RepoFilesUploadApi';
+import { RepoFilesUploadForm } from './RepoFilesUploadForm';
 import { useBrowser } from './useBrowser';
 import { useRepoFileInfo } from './useRepoFileInfo';
 import { useSelectName } from './useSelectName';
