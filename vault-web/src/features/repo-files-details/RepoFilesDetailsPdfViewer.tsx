@@ -3,17 +3,17 @@ import { memo } from 'react';
 import { LoadingCircle } from '../../components/LoadingCircle';
 import { PdfViewer } from '../../components/PdfViewer';
 
-import { useRepoFilesDetailsBlobUrl } from './useRepoFilesDetailsBlobUrl';
+import { useRepoFilesDetailsFileUrl } from './useRepoFilesDetailsFileUrl';
 
 export const RepoFilesDetailsPdfViewer = memo<{
   detailsId: number;
   width: number;
   height: number;
 }>(({ detailsId, width, height }) => {
-  const blobUrl = useRepoFilesDetailsBlobUrl(detailsId);
+  const url = useRepoFilesDetailsFileUrl(detailsId);
 
-  return blobUrl !== undefined ? (
-    <PdfViewer url={blobUrl} width={width} height={height} />
+  return url !== undefined ? (
+    <PdfViewer url={url} width={width} height={height} />
   ) : (
     <LoadingCircle />
   );

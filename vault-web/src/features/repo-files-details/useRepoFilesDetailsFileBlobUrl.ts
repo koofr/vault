@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
 
-export function useRepoFilesDetailsBlobUrl(
+export function useRepoFilesDetailsFileBlobUrl(
   detailsId: number,
 ): string | undefined {
   const webVault = useWebVault();
@@ -32,28 +32,31 @@ export function useRepoFilesDetailsBlobUrl(
     return abortLastAbortController;
   }, [abortLastAbortController]);
 
-  const loadFile = useCallback(async () => {
-    abortLastAbortController();
+  const loadFile = useCallback(
+    async (remoteHash: string | undefined) => {
+      abortLastAbortController();
 
-    const abortController = new AbortController();
-    lastAbortController.current = abortController;
+      const abortController = new AbortController();
+      lastAbortController.current = abortController;
 
-    const stream = await webVault.repoFilesDetailsGetFileStream(
-      detailsId,
-      true,
-      abortController.signal,
-    );
+      const stream = await webVault.repoFilesDetailsGetFileStream(
+        detailsId,
+        true,
+        abortController.signal,
+      );
 
-    const blobUrl =
-      stream !== undefined && stream.blob !== undefined
-        ? URL.createObjectURL(stream.blob)
-        : undefined;
+      const blobUrl =
+        stream !== undefined && stream.blob !== undefined
+          ? URL.createObjectURL(stream.blob)
+          : undefined;
 
-    revokeLastBlobUrl();
+      revokeLastBlobUrl();
 
-    lastBlobUrl.current = blobUrl;
-    setBlobUrl(blobUrl);
-  }, [webVault, detailsId, abortLastAbortController, revokeLastBlobUrl]);
+      lastBlobUrl.current = blobUrl;
+      setBlobUrl(blobUrl);
+    },
+    [webVault, detailsId, abortLastAbortController, revokeLastBlobUrl],
+  );
 
   useSubscribe(
     (v, cb) => v.repoFilesDetailsFileSubscribe(detailsId, cb),
@@ -62,7 +65,7 @@ export function useRepoFilesDetailsBlobUrl(
 
       if (file !== undefined) {
         // load file on change if file exists
-        loadFile();
+        loadFile(file.remoteHash);
       }
     },
     [detailsId, loadFile],
