@@ -409,6 +409,12 @@ pub fn transfer_failed(
     err: TransferError,
     now: TimeMillis,
 ) {
+    if matches!(err, TransferError::Aborted) {
+        abort(state, notify, id);
+
+        return;
+    }
+
     let is_err_not_retriable = matches!(err, TransferError::NotRetriable);
 
     if let Some(transfer) = state.transfers.transfers.get_mut(&id) {

@@ -40,6 +40,8 @@ pub enum DownloadableError {
     NotOpenable,
     #[error("download not retriable")]
     NotRetriable,
+    #[error("aborted")]
+    Aborted,
 }
 
 impl UserError for DownloadableError {
@@ -48,6 +50,7 @@ impl UserError for DownloadableError {
             Self::LocalFileError(_) => self.to_string(),
             Self::NotOpenable => self.to_string(),
             Self::NotRetriable => self.to_string(),
+            Self::Aborted => self.to_string(),
         }
     }
 }
@@ -184,6 +187,7 @@ impl From<DownloadableError> for TransferError {
             DownloadableError::LocalFileError(err) => TransferError::LocalFileError(err),
             DownloadableError::NotOpenable => TransferError::NotOpenable,
             DownloadableError::NotRetriable => TransferError::NotRetriable,
+            DownloadableError::Aborted => TransferError::Aborted,
         }
     }
 }
