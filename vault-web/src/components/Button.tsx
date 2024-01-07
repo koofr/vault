@@ -36,6 +36,7 @@ export const BaseLinkButton = BaseButton.withComponent(Link);
 export const BaseAnchorButton = BaseButton.withComponent('a');
 
 export type ButtonVariant =
+  | 'inline'
   | 'primary'
   | 'primary-inline'
   | 'destructive'
@@ -48,6 +49,8 @@ export function buttonVariantStyle(
   theme: Theme,
 ): string | undefined {
   switch (variant) {
+    case 'inline':
+      return buttonInlineStyle(theme.colors.text, theme.colors.text);
     case 'primary':
       return buttonStyle(
         theme.colors.primary,
