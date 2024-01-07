@@ -5,6 +5,9 @@ import { memo } from 'react';
 import { ModalClose, ModalCloseContext } from '../../components/modal/Modal';
 import { useNavbarSticky } from '../../components/navbar/NavbarSticky';
 import { RepoFile } from '../../vault-wasm/vault-wasm';
+import { useSubscribe } from '../../webVault/useSubscribe';
+
+import { TRANSFERS_SUMMARY_HEIGHT } from '../transfers/TransfersSummary';
 
 import { RepoFileInfoGeneral } from './RepoFileInfoGeneral';
 import { RepoFileInfoImage } from './RepoFileInfoImage';
@@ -16,6 +19,12 @@ export const RepoFileInfoSheet = memo<{
   const theme = useTheme();
   const isVisible = file !== undefined;
   const isSticky = useNavbarSticky();
+  const [transfersIsActive] = useSubscribe(
+    (v, cb) => v.transfersIsActiveSubscribe(cb),
+    (v) => v.transfersIsActiveData,
+    [],
+  );
+  const bottom = transfersIsActive ? TRANSFERS_SUMMARY_HEIGHT : 0;
 
   return (
     <div
@@ -24,10 +33,10 @@ export const RepoFileInfoSheet = memo<{
           flex-direction: column;
           position: fixed;
           background-color: #fff;
-          z-index: ${theme.zindex.dashboardMenu};
+          z-index: ${theme.zindex.fileInfoSheet};
           display: flex;
           top: 70px;
-          bottom: 0;
+          bottom: ${bottom}px;
           left: -250px;
           width: 250px;
           border-right: 1px solid ${theme.colors.borderLight};
