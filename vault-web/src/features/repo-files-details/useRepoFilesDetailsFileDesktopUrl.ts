@@ -1,12 +1,12 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 
-import { WebVaultClientContext } from '../../desktopVault/WebVaultClientContext';
+import { useWebVaultDesktop } from '../../desktopVault/useWebVaultDesktop';
 import { useSubscribe } from '../../webVault/useSubscribe';
 
 export function useRepoFilesDetailsFileDesktopUrl(
   detailsId: number,
 ): string | undefined {
-  const webVaultClient = useContext(WebVaultClientContext);
+  const webVault = useWebVaultDesktop();
 
   const [fileUrl, setFileUrl] = useState<string>();
 
@@ -18,7 +18,7 @@ export function useRepoFilesDetailsFileDesktopUrl(
       if (file !== undefined) {
         // load file on change if file exists
         setFileUrl(
-          webVaultClient.getUrl('repoFilesDetailsGetFileStream', {
+          webVault.client.getUrl('repoFilesDetailsGetFileStream', {
             detailsId: detailsId,
             hash: file.remoteHash,
           }),
