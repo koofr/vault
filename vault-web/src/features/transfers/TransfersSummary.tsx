@@ -60,6 +60,7 @@ export const TransfersSummary = memo<{
     remainingTimeDisplay,
     speedDisplay,
     isTransferring,
+    isAllDone,
     canRetryAll,
     canAbortAll,
   } = transfersSummary;
@@ -275,17 +276,31 @@ export const TransfersSummary = memo<{
           </Button>
         ) : null}
         {canAbortAll ? (
-          <Button
-            type="button"
-            variant="destructive-inline"
-            className={css`
-              flex-shrink: 0;
-            `}
-            onClick={onAbortAllClick}
-            title="Cancel all transfers"
-          >
-            Cancel
-          </Button>
+          isAllDone ? (
+            <Button
+              type="button"
+              variant="inline"
+              className={css`
+                flex-shrink: 0;
+              `}
+              onClick={onAbortAllClick}
+              title="Clear all transfers"
+            >
+              Clear
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="destructive-inline"
+              className={css`
+                flex-shrink: 0;
+              `}
+              onClick={onAbortAllClick}
+              title="Cancel all transfers"
+            >
+              Cancel
+            </Button>
+          )
         ) : null}
       </div>
     </div>

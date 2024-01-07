@@ -707,6 +707,11 @@ impl WebVault {
         self.base.transfers_retry_all();
     }
 
+    #[wasm_bindgen(js_name = transfersOpen)]
+    pub fn transfers_open(&self, id: u32) {
+        self.base.transfers_open(id);
+    }
+
     // dir_pickers
 
     #[wasm_bindgen(js_name = dirPickersItemsSubscribe)]

@@ -6,6 +6,9 @@ import { Button } from '../../components/Button';
 import { FileIcon } from '../../components/file-icon/FileIcon';
 import { Transfer } from '../../vault-wasm/vault-wasm';
 import { useWebVault } from '../../webVault/useWebVault';
+import TransfersClearHoverIcon from '../../assets/images/transfers-clear-hover.svg?react';
+import TransfersClearIcon from '../../assets/images/transfers-clear.svg?react';
+import { buttonReset } from '../../styles/mixins/buttons';
 
 export const TransfersListTransfer = memo<{ transfer: Transfer }>(
   ({ transfer }) => {
@@ -17,6 +20,9 @@ export const TransfersListTransfer = memo<{ transfer: Transfer }>(
     }, [webVault, id]);
     const abort = useCallback(() => {
       webVault.transfersAbort(id);
+    }, [webVault, id]);
+    const open = useCallback(() => {
+      webVault.transfersOpen(id);
     }, [webVault, id]);
 
     let text = '';
@@ -90,6 +96,18 @@ export const TransfersListTransfer = memo<{ transfer: Transfer }>(
           >
             {text}
           </div>
+          {transfer.canOpen ? (
+            <Button
+              type="button"
+              variant="primary-inline"
+              className={css`
+                flex-shrink: 0;
+              `}
+              onClick={open}
+            >
+              Open
+            </Button>
+          ) : null}
           {transfer.canRetry ? (
             <Button
               type="button"
@@ -102,16 +120,57 @@ export const TransfersListTransfer = memo<{ transfer: Transfer }>(
               Retry
             </Button>
           ) : null}
-          <Button
-            type="button"
-            variant="destructive-inline"
-            className={css`
-              flex-shrink: 0;
-            `}
-            onClick={abort}
-          >
-            Cancel
-          </Button>
+          {transfer.state.type === 'Done' ? (
+            <button
+              type="button"
+              className={css`
+                ${buttonReset}
+                width: 32px;
+                height: 32px;
+                flex-shrink: 0;
+              `}
+              onClick={abort}
+              aria-label="Clear"
+            >
+              <div
+                className={css`
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                `}
+              >
+                <TransfersClearIcon
+                  className={css`
+                    button:hover > div > & {
+                      display: none;
+                    }
+                  `}
+                  role="img"
+                />
+                <TransfersClearHoverIcon
+                  className={css`
+                    display: none;
+
+                    button:hover > div > & {
+                      display: inline;
+                    }
+                  `}
+                  role="img"
+                />
+              </div>
+            </button>
+          ) : (
+            <Button
+              type="button"
+              variant="destructive-inline"
+              className={css`
+                flex-shrink: 0;
+              `}
+              onClick={abort}
+            >
+              Cancel
+            </Button>
+          )}
         </div>
       </div>
     );
