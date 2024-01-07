@@ -26,7 +26,7 @@ import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
 
 import { useRepoFilesBrowserId } from './RepoFilesBrowserId';
-import { downloadFile } from './repoFilesActions';
+import { openFile } from './repoFilesActions';
 import {
   fileHasDetails,
   repoFilesDetailsLink,
@@ -42,7 +42,7 @@ const FileName = memo<{ file: RepoFile }>(({ file }) => {
   const theme = useTheme();
   const webVault = useWebVault();
   const onClick = useCallback(() => {
-    downloadFile(webVault, file.repoId, file.encryptedPath, isMobile);
+    openFile(webVault, file.repoId, file.encryptedPath, isMobile);
   }, [webVault, file, isMobile]);
   const renameFile = useCallback(() => {
     webVault.repoFilesRenameFile(file.repoId, file.encryptedPath);

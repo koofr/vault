@@ -1,5 +1,24 @@
-import { downloadStream } from '../../utils/downloadStream';
 import { WebVault } from '../../vault-wasm/vault-wasm';
+
+import {
+  downloadFileDesktop,
+  downloadSelectedDesktop,
+  openFileDesktop,
+} from './repoFilesActionsDesktop';
+import { downloadFileWeb, downloadSelectedWeb } from './repoFilesActionsWeb';
+
+export const openFile = async (
+  webVault: WebVault,
+  repoId: string,
+  encryptedPath: string,
+  isMobile: boolean,
+) => {
+  if (import.meta.env.VITE_VAULT_APP === 'desktop') {
+    openFileDesktop(webVault, repoId, encryptedPath);
+  } else {
+    downloadFileWeb(webVault, repoId, encryptedPath, isMobile);
+  }
+};
 
 export const downloadFile = async (
   webVault: WebVault,
@@ -7,18 +26,11 @@ export const downloadFile = async (
   encryptedPath: string,
   isMobile: boolean,
 ) => {
-  const forceBlob = isMobile;
-  const stream = await webVault.repoFilesGetFileStream(
-    repoId,
-    encryptedPath,
-    forceBlob,
-  );
-
-  if (stream === undefined) {
-    return;
+  if (import.meta.env.VITE_VAULT_APP === 'desktop') {
+    downloadFileDesktop(webVault, repoId, encryptedPath);
+  } else {
+    downloadFileWeb(webVault, repoId, encryptedPath, isMobile);
   }
-
-  downloadStream(stream);
 };
 
 export const downloadSelected = async (
@@ -26,15 +38,9 @@ export const downloadSelected = async (
   browserId: number,
   isMobile: boolean,
 ) => {
-  const forceBlob = isMobile;
-  const stream = await webVault.repoFilesBrowsersGetSelectedStream(
-    browserId,
-    forceBlob,
-  );
-
-  if (stream === undefined) {
-    return;
+  if (import.meta.env.VITE_VAULT_APP === 'desktop') {
+    downloadSelectedDesktop(webVault, browserId);
+  } else {
+    downloadSelectedWeb(webVault, browserId, isMobile);
   }
-
-  downloadStream(stream);
 };
