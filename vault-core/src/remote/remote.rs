@@ -1,4 +1,7 @@
-use std::sync::{Arc, RwLock};
+use std::{
+    collections::HashMap,
+    sync::{Arc, RwLock},
+};
 
 use futures::{
     stream::{BoxStream, TryStreamExt},
@@ -54,6 +57,14 @@ pub struct RemoteFileMoveConditions {
     pub if_size: Option<i64>,
     pub if_modified: Option<i64>,
     pub if_hash: Option<String>,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct RemoteFileTagsSetConditions {
+    pub if_size: Option<i64>,
+    pub if_modified: Option<i64>,
+    pub if_hash: Option<String>,
+    pub if_old_tags: Option<HashMap<String, Vec<String>>>,
 }
 
 pub type Logout = Box<dyn Fn() + Send + Sync + 'static>;
