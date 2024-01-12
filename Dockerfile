@@ -1,7 +1,7 @@
 ### wasm
 
-# FROM rust:1.71.1-alpine AS wasm-rust-stage
-FROM rust@sha256:b268f672259624c22ccc24d61391aade1382ab44ed84e2bfc198d32da2611ec6 AS wasm-rust-stage
+# FROM rust:1.75.0-alpine AS wasm-rust-stage
+FROM rust@sha256:7cfbe91942d2673d2b5e3bcfa3b0036b8009d822dc3bfeb1a90b2aaea86eca5d AS wasm-rust-stage
 WORKDIR /app
 
 ENV CI=true
