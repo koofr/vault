@@ -11,8 +11,8 @@ export const Progress = memo<{
     severity === 'Critical'
       ? theme.colors.destructive
       : severity === 'Warn'
-      ? theme.colors.warning
-      : theme.colors.successful;
+        ? theme.colors.warning
+        : theme.colors.successful;
 
   return (
     <div

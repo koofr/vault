@@ -364,8 +364,8 @@ export const Table = memo<TableProps>(
                           selectionSummary === 'None'
                             ? 'unchecked'
                             : selectionSummary === 'Partial'
-                            ? 'indeterminate'
-                            : 'checked'
+                              ? 'indeterminate'
+                              : 'checked'
                         }
                         onClick={onHeadCheckboxClick}
                       />
