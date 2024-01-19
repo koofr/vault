@@ -23,8 +23,8 @@ export const Checkbox = memo<{
         value === 'checked'
           ? 'true'
           : value === 'indeterminate'
-          ? 'mixed'
-          : 'false'
+            ? 'mixed'
+            : 'false'
       }
       className={cx(
         css`
