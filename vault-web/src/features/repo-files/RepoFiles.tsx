@@ -16,7 +16,7 @@ import { RepoFileInfoSheet } from './RepoFileInfoSheet';
 import { RepoFilesBreadcrumbs } from './RepoFilesBreadcrumbs';
 import { RepoFilesBrowserIdContext } from './RepoFilesBrowserId';
 import { RepoFilesContent } from './RepoFilesContent';
-import { RepoFilesDropZoneComponent } from './RepoFilesDropZone';
+import { RepoFilesDropZone } from './RepoFilesDropZone';
 import { RepoFilesMoveModal } from './RepoFilesMoveModal';
 import { RepoFilesNav } from './RepoFilesNav';
 import { RepoFilesNavbarExtra } from './RepoFilesNavbarExtra';
@@ -85,7 +85,7 @@ export const RepoFilesInfo = memo<{
           {info !== undefined ? <RepoFilesContent info={info} /> : null}
 
           <RepoFilesMoveModal />
-          <RepoFilesDropZoneComponent />
+          <RepoFilesDropZone />
           <RepoFilesUploadForm />
           <RepoFileInfoSheet
             file={infoSheetVisible ? info?.selectedFile : undefined}
