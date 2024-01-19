@@ -7,6 +7,7 @@ import DirPickerItemHostedHoverIcon from '../../assets/images/dir-picker-item-ho
 import DirPickerItemHostedIcon from '../../assets/images/dir-picker-item-hosted.svg?react';
 import LogoutHoverIcon from '../../assets/images/logout-hover.svg?react';
 import LogoutIcon from '../../assets/images/logout.svg?react';
+import { WebVaultDesktop } from '../../desktopVault/WebVaultDesktop';
 import { UserIcon } from '../../features/user/UserIcon';
 import { allStates } from '../../styles/mixins/hover';
 import { useSubscribe } from '../../webVault/useSubscribe';
@@ -87,10 +88,14 @@ export const DashboardMenu = memo(() => {
   });
   useMenuUpdate(show, popper);
   const logout = useCallback(() => {
-    const url = webVault.oauth2StartLogoutFlow();
+    if (import.meta.env.VITE_VAULT_APP === 'desktop') {
+      (webVault as WebVaultDesktop).oauth2Logout();
+    } else {
+      const url = webVault.oauth2StartLogoutFlow();
 
-    if (url !== undefined) {
-      document.location.href = url;
+      if (url !== undefined) {
+        document.location.href = url;
+      }
     }
   }, [webVault]);
 

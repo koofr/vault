@@ -13,14 +13,19 @@ import { Config, ConfigContext } from './config';
 import { Dialogs } from './features/dialogs/Dialogs';
 import { Notifications } from './features/notifications/Notifications';
 import { TransfersPreventUnload } from './features/transfers/TransfersPreventUnload';
+import { LandingPageContext } from './landingPageContext';
 import { createRouter } from './router';
 import { GlobalStyles } from './styles/GlobalStyles';
 import { emotionCache } from './styles/emotionCache';
 import { DynamicThemeProvider } from './theme/DynamicThemeProvider';
-import { WebVaultContext } from './webVault/webVaultContext';
 import { WebVault } from './vault-wasm/vault-wasm';
+import { WebVaultContext } from './webVault/webVaultContext';
 
-export function getApp(config: Config, webVault: WebVault): React.ReactNode {
+export function getApp(
+  config: Config,
+  webVault: WebVault,
+  landingPage: React.ReactNode,
+): React.ReactNode {
   (window as any).webVault = webVault;
 
   document.addEventListener('visibilitychange', () => {
@@ -31,41 +36,43 @@ export function getApp(config: Config, webVault: WebVault): React.ReactNode {
     }
   });
 
-  const router = createRouter();
+  const router = createRouter(landingPage);
 
   (window as any).router = router;
 
   return (
     <ConfigContext.Provider value={config}>
       <WebVaultContext.Provider value={webVault}>
-        <CacheProvider value={emotionCache}>
-          <DocumentSizeProvider>
-            <DocumentScrollProvider>
-              <NavbarStickyProvider>
-                <DynamicThemeProvider>
-                  <DndProvider backend={FolderAwareHTML5Backend}>
-                    <FileIconCacheProvider>
-                      <>
-                        <GlobalStyles />
+        <LandingPageContext.Provider value={landingPage}>
+          <CacheProvider value={emotionCache}>
+            <DocumentSizeProvider>
+              <DocumentScrollProvider>
+                <NavbarStickyProvider>
+                  <DynamicThemeProvider>
+                    <DndProvider backend={FolderAwareHTML5Backend}>
+                      <FileIconCacheProvider>
+                        <>
+                          <GlobalStyles />
 
-                        <RemoveAppLoading />
+                          <RemoveAppLoading />
 
-                        <ModalsProvider>
-                          <RouterProvider router={router} />
+                          <ModalsProvider>
+                            <RouterProvider router={router} />
 
-                          <Dialogs />
-                        </ModalsProvider>
+                            <Dialogs />
+                          </ModalsProvider>
 
-                        <Notifications />
-                        <TransfersPreventUnload />
-                      </>
-                    </FileIconCacheProvider>
-                  </DndProvider>
-                </DynamicThemeProvider>
-              </NavbarStickyProvider>
-            </DocumentScrollProvider>
-          </DocumentSizeProvider>
-        </CacheProvider>
+                          <Notifications />
+                          <TransfersPreventUnload />
+                        </>
+                      </FileIconCacheProvider>
+                    </DndProvider>
+                  </DynamicThemeProvider>
+                </NavbarStickyProvider>
+              </DocumentScrollProvider>
+            </DocumentSizeProvider>
+          </CacheProvider>
+        </LandingPageContext.Provider>
       </WebVaultContext.Provider>
     </ConfigContext.Provider>
   );

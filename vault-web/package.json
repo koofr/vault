@@ -23,6 +23,8 @@
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
     "@types/streamsaver": "^2.0.4",
+    "@types/uuid": "^9.0.7",
+    "base64-arraybuffer": "^1.0.2",
     "date-fns": "^2.30.0",
     "embla-carousel-react": "^7.1.0",
     "file-saver": "^2.0.5",
@@ -37,7 +39,10 @@
     "react-monaco-editor": "^0.54.0",
     "react-router-dom": "^6.21.3",
     "streamsaver": "^2.0.6",
-    "typewriter-effect": "^2.21.0"
+    "tweetnacl": "^1.0.3",
+    "tweetnacl-util": "^0.15.1",
+    "typewriter-effect": "^2.21.0",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",

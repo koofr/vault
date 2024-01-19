@@ -2,7 +2,6 @@ import { createBrowserRouter } from 'react-router-dom';
 
 import { AuthGuardLazy } from './pages/AuthGuardLazy';
 import { HomePageLazy } from './pages/HomePageLazy';
-import { LandingPageLazy } from './pages/LandingPageLazy';
 import { LoginPageLazy } from './pages/LoginPageLazy';
 import { MobilePageLazy } from './pages/MobilePageLazy';
 import { NotFoundPageLazy } from './pages/NotFoundPageLazy';
@@ -13,7 +12,7 @@ import { RepoFilesDetailsPageLazy } from './pages/RepoFilesDetailsPageLazy';
 import { RepoFilesPageLazy } from './pages/RepoFilesPageLazy';
 import { RepoInfoPageLazy } from './pages/RepoInfoPageLazy';
 
-export const createRouter = () => {
+export const createRouter = (landingPage: React.ReactNode) => {
   return createBrowserRouter([
     {
       path: '/',
@@ -55,7 +54,7 @@ export const createRouter = () => {
     },
     {
       path: '/landing',
-      element: <LandingPageLazy />,
+      element: landingPage,
     },
     {
       path: '/mobile',
