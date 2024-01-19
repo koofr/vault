@@ -51,3 +51,11 @@ caddy run
 ```sh
 find src/assets -name '*.svg' | xargs -n1 scripts/optimize-svg.js
 ```
+
+## Maintenance
+
+### Upgrade dependencies
+
+```sh
+npm update --save
+```
