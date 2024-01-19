@@ -48,8 +48,8 @@ RUN cd vault-wasm \
 
 ### frontend
 
-# FROM node:17-alpine3.14 AS frontend-stage
-FROM node@sha256:0eb54d5716d8cf0dd313a8658dae30bf553edcac2d73f85ceee1a78abf7fdaa5 AS frontend-stage
+# FROM node:20.11-alpine3.19 AS frontend-stage
+FROM node@sha256:201a9b31be9fb5148ca40c9e727d5e559c659ed9521b3175ba73847026257e32 AS frontend-stage
 WORKDIR /app
 ARG GIT_REVISION=unknown
 ARG GIT_RELEASE=
