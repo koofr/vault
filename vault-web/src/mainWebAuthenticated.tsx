@@ -3,6 +3,7 @@ import streamSaver from 'streamsaver';
 
 import { getApp } from './App';
 import { Config } from './config';
+import { LandingPageLazy } from './pages/LandingPageLazy';
 import init, { WebVault, initConsole } from './vault-wasm/vault-wasm';
 import { BrowserEventstreamWebSocketDelegateImpl } from './webVault/BrowserEventstreamWebSocketDelegateImpl';
 import { BrowserHttpClientDelegateImpl } from './webVault/BrowserHttpClientDelegateImpl';
@@ -42,7 +43,9 @@ export const mainAuthenticated = async () => {
     webVault.load();
   }
 
-  const app = getApp(config, webVault);
+  const landingPage = <LandingPageLazy />;
+
+  const app = getApp(config, webVault, landingPage);
 
   ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     app,

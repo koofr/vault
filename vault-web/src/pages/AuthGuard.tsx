@@ -1,13 +1,14 @@
-import { memo, useEffect } from 'react';
+import { memo, useContext, useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import { DashboardLoading } from '../components/dashboard/DashboardLoading';
+import { LandingPageContext } from '../landingPageContext';
 import { useSubscribe } from '../webVault/useSubscribe';
 
-import { LandingPageLazy } from './LandingPageLazy';
 import { setLoginRedirect } from './loginRedirect';
 
 export const AuthGuard = memo(() => {
+  const landingPage = useContext(LandingPageContext);
   const [oauth2Status] = useSubscribe(
     (v, cb) => v.oauth2StatusSubscribe(cb),
     (v) => v.oauth2StatusData,
@@ -18,9 +19,11 @@ export const AuthGuard = memo(() => {
   const location = useLocation();
   const locationRelUrl = location.pathname + location.search;
   const needsRedirectToLogin =
-    locationRelUrl !== '/' &&
-    oauth2Status?.type !== 'Loading' &&
-    oauth2Status?.type !== 'Loaded';
+    import.meta.env.VITE_VAULT_APP === 'desktop'
+      ? false
+      : locationRelUrl !== '/' &&
+        oauth2Status?.type !== 'Loading' &&
+        oauth2Status?.type !== 'Loaded';
 
   useEffect(() => {
     if (needsRedirectToLogin) {
@@ -41,6 +44,6 @@ export const AuthGuard = memo(() => {
   } else if (oauth2Status?.type === 'Loaded') {
     return <Outlet />;
   } else {
-    return <LandingPageLazy />;
+    return landingPage;
   }
 });
