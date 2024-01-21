@@ -10,26 +10,26 @@ crate-type = ["cdylib"]
 default = ["console_error_panic_hook"]
 
 [dependencies]
-async-trait = "0.1.71"
+async-trait = "0.1.77"
 console_error_panic_hook = { version = "0.1.7", optional = true }
 console_log = "1.0.0"
-futures = "0.3.28"
-getrandom = { version = "0.2.10", features = ["js"] }
+futures = "0.3.30"
+getrandom = { version = "0.2.12", features = ["js"] }
 gloo-timers = { version = "0.3.0", features = ["futures"] }
-http = "0.2.9"
-js-sys = "0.3.64"
+http = "0.2.11"
+js-sys = "0.3.67"
 log = "0.4.20"
-serde = { version = "1.0.188", features = ["derive"] }
-serde-wasm-bindgen = "0.6.0"
-thiserror = "1.0.49"
+serde = { version = "1.0.195", features = ["derive"] }
+serde-wasm-bindgen = "0.6.3"
+thiserror = "1.0.56"
 tsify = { version = "0.4.5", features = ["js"] }
 vault-core = { path = "../vault-core" }
 vault-crypto = { path = "../vault-crypto" }
 vault-file-icon = { path = "../vault-file-icon", default-features = false }
-wasm-bindgen = "0.2.87"
-wasm-bindgen-futures = "0.4.37"
+wasm-bindgen = "0.2.90"
+wasm-bindgen-futures = "0.4.40"
 wasm-streams = "0.4.0"
-web-sys = { version = "0.3.64", features = [
+web-sys = { version = "0.3.67", features = [
   'AbortController',
   'AbortSignal',
   'Blob',

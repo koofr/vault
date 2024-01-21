@@ -4,22 +4,22 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-async-trait = "0.1.73"
+async-trait = "0.1.77"
 axum = { version = "0.6.20", features = ["ws", "multipart", "http2"] }
-env_logger = "0.10.0"
-futures = "0.3.28"
+env_logger = "0.11.0"
+futures = "0.3.30"
 hex = "0.4.3"
 log = "0.4.20"
 md5 = "0.7.0"
-reqwest = { version = "0.11.21", default-features = false, features = [
+reqwest = { version = "0.11.23", default-features = false, features = [
   "rustls-tls",
   "stream",
 ] }
-serde = "1.0.188"
-serde_json = "1.0.107"
+serde = "1.0.195"
+serde_json = "1.0.111"
 similar-asserts = "1.5.0"
-tokio = { version = "1.32.0", features = ["full"] }
-uuid = { version = "1.4.1", features = ["v4", "fast-rng"] }
+tokio = { version = "1.35.1", features = ["full"] }
+uuid = { version = "1.7.0", features = ["v4", "fast-rng"] }
 vault-core = { path = "../vault-core" }
 vault-crypto = { path = "../vault-crypto" }
 vault-fake-remote = { path = "../vault-fake-remote" }
