@@ -5,14 +5,14 @@ edition = "2021"
 
 [dependencies]
 async_zip_futures = { version = "0.0.12", features = ["chrono"] }
-async-trait = "0.1.73"
+async-trait = "0.1.77"
 bytes = "1.5.0"
 chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
-data-encoding = "2.4.0"
-futures = { version = "0.3.28", features = ["executor"] }
+data-encoding = "2.5.0"
+futures = { version = "0.3.30", features = ["executor"] }
 hex = "0.4.3"
-http = "0.2.9"
-http-body = "0.4.5"
+http = "0.2.11"
+http-body = "0.4.6"
 lazy_static = "1.4.0"
 log = "0.4.20"
 md5 = "0.7.0"
@@ -23,19 +23,19 @@ rmp = "0.8.12"
 rmp-serde = "1.1.2"
 rmpv = { version = "1.0.1", features = ["with-serde"] }
 rust-ini = "0.19.0"
-serde = { version = "1.0.188", features = ["derive"] }
-serde_bytes = "0.11.13"
-serde_json = "1.0.107"
+serde = { version = "1.0.195", features = ["derive"] }
+serde_bytes = "0.11.14"
+serde_json = "1.0.111"
 serde_urlencoded = "0.7.1"
-slug = "0.1.4"
-thiserror = "1.0.49"
-url = "2.4.1"
+slug = "0.1.5"
+thiserror = "1.0.56"
+url = "2.5.0"
 urlencoding = "2.1.3"
-uuid = { version = "1.4.1", features = ["v4", "fast-rng"] }
+uuid = { version = "1.7.0", features = ["v4", "fast-rng"] }
 vault-crypto = { path = "../vault-crypto" }
 vault-store = { path = "../vault-store" }
 
 [dev-dependencies]
-futures-test = "0.3.28"
+futures-test = "0.3.30"
 similar-asserts = "1.5.0"
-regex = "1.9.6"
+regex = "1.10.3"

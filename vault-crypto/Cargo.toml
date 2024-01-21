@@ -6,16 +6,16 @@ edition = "2021"
 [dependencies]
 # eme-mode 0.2.1 does not compile with aes 0.8.1
 aes = { version = "0.7.5", features = ["ctr"] }
-data-encoding = "2.4.0"
+data-encoding = "2.5.0"
 # eme-mode 0.3 is not correct for inputs longer than 16 bytes
 eme-mode = "0.2.1"
-futures = { version = "0.3.28", features = ["executor"] }
+futures = { version = "0.3.30", features = ["executor"] }
 pin-project-lite = "0.2.13"
 rand_core = "0.6.4"
 # scrypt > 0.6 limits key len to 64, but we need 80, let's keep 0.2, it works
 scrypt = { version = "0.2", default-features = false }
-thiserror = "1.0.49"
+thiserror = "1.0.56"
 xsalsa20poly1305 = "0.9.1"
 
 [dev-dependencies]
-futures-test = "0.3.28"
+futures-test = "0.3.30"
