@@ -40,6 +40,7 @@ import net.koofr.vault.LocalSnackbarHostState
 import net.koofr.vault.MobileVault
 import net.koofr.vault.RepoAutoLockAfter
 import net.koofr.vault.RepoState
+import net.koofr.vault.SecureStorage
 import net.koofr.vault.features.mobilevault.AndroidSecureStorage
 import net.koofr.vault.features.mobilevault.subscribe
 import net.koofr.vault.features.navigation.LocalNavController
@@ -50,13 +51,13 @@ import javax.inject.Inject
 @HiltViewModel
 class RepoInfoScreenViewModel @Inject constructor(
     val mobileVault: MobileVault,
-    androidSecureStorage: AndroidSecureStorage,
+    secureStorage: SecureStorage,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     val repoId: String = savedStateHandle.get<String>("repoId")!!
 
     private val biometricsHelper: RepoPasswordBiometricsHelper =
-        RepoPasswordBiometricsHelper(repoId, androidSecureStorage)
+        RepoPasswordBiometricsHelper(repoId, secureStorage)
 
     val biometricUnlockEnabled = mutableStateOf(biometricsHelper.isBiometricUnlockEnabled())
 

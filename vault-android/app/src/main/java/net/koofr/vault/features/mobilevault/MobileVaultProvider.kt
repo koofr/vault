@@ -12,6 +12,7 @@ import net.koofr.vault.LoggerLevel
 import net.koofr.vault.MobileVault
 import net.koofr.vault.RepoAutoLock
 import net.koofr.vault.RepoAutoLockAfter
+import net.koofr.vault.SecureStorage
 import net.koofr.vault.setLogger
 import org.json.JSONObject
 import javax.inject.Singleton
@@ -23,7 +24,7 @@ data class Config(
     val reposSetDefaultAutoLock: String?,
 )
 
-class MobileVaultProvider constructor(private val secureStorage: AndroidSecureStorage) {
+class MobileVaultProvider constructor(private val secureStorage: SecureStorage) {
     private var config: Config? = null
 
     private var mobileVault: MobileVault? = null
@@ -126,7 +127,7 @@ class MobileVaultProvider constructor(private val secureStorage: AndroidSecureSt
 object MobileVaultProviderModule {
     @Singleton
     @Provides
-    fun provideMobileVaultProvider(secureStorage: AndroidSecureStorage): MobileVaultProvider {
+    fun provideMobileVaultProvider(secureStorage: SecureStorage): MobileVaultProvider {
         setLogger(LoggerLevel.DEBUG, AndroidLogger())
 
         return MobileVaultProvider(secureStorage)

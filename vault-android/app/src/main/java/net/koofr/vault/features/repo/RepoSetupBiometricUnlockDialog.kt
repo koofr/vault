@@ -30,7 +30,7 @@ import net.koofr.vault.MobileVault
 import net.koofr.vault.RepoUnlockMode
 import net.koofr.vault.RepoUnlockOptions
 import net.koofr.vault.RepoUnlockUnlocked
-import net.koofr.vault.features.mobilevault.AndroidSecureStorage
+import net.koofr.vault.SecureStorage
 import net.koofr.vault.features.mobilevault.subscribe
 import net.koofr.vault.features.repounlock.RepoUnlockForm
 import net.koofr.vault.features.repounlock.RepoUnlockFormViewModel
@@ -40,7 +40,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RepoSetupBiometricUnlockDialogViewModel @Inject constructor(
     val mobileVault: MobileVault,
-    androidSecureStorage: AndroidSecureStorage,
+    secureStorage: SecureStorage,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val repoId: String = savedStateHandle.get<String>("repoId")!!
@@ -52,7 +52,7 @@ class RepoSetupBiometricUnlockDialogViewModel @Inject constructor(
     }
 
     private val biometricsHelper: RepoPasswordBiometricsHelper =
-        RepoPasswordBiometricsHelper(repoId, androidSecureStorage)
+        RepoPasswordBiometricsHelper(repoId, secureStorage)
 
     private var biometricPrompt: BiometricPrompt? = null
 

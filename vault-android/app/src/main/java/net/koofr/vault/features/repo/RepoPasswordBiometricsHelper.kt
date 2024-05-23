@@ -5,6 +5,7 @@ import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.security.keystore.KeyProperties
 import android.util.Base64
 import androidx.biometric.BiometricPrompt
+import net.koofr.vault.SecureStorage
 import net.koofr.vault.features.mobilevault.AndroidSecureStorage
 import java.security.KeyStore
 import javax.crypto.Cipher
@@ -14,7 +15,7 @@ import javax.crypto.spec.IvParameterSpec
 
 class RepoPasswordBiometricsHelper constructor(
     private val repoId: String,
-    private val androidSecureStorage: AndroidSecureStorage,
+    private val secureStorage: SecureStorage,
 ) {
     private val keyName = "vaultRepoPassword_${repoId}_v1"
 
@@ -25,7 +26,7 @@ class RepoPasswordBiometricsHelper constructor(
         .build()
 
     fun isBiometricUnlockEnabled(): Boolean {
-        return androidSecureStorage.getItem(
+        return secureStorage.getItem(
             keyName,
         ) != null
     }
@@ -46,14 +47,14 @@ class RepoPasswordBiometricsHelper constructor(
             )
         val value = "$ivStr|$encryptedPasswordStr"
 
-        androidSecureStorage.setItem(
+        secureStorage.setItem(
             keyName,
             value,
         )
     }
 
     fun getEncryptedPasswordIv(): Pair<ByteArray, ByteArray>? {
-        return androidSecureStorage.getItem(
+        return secureStorage.getItem(
             keyName,
         )?.let { value ->
             val valueParts = value.split('|')
@@ -75,7 +76,7 @@ class RepoPasswordBiometricsHelper constructor(
     }
 
     fun removeBiometricUnlock() {
-        androidSecureStorage.removeItem(
+        secureStorage.removeItem(
             keyName,
         )
     }
