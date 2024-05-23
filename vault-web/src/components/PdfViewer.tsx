@@ -2,7 +2,7 @@ import { css } from '@emotion/css';
 import { memo } from 'react';
 
 export const pdfViewerUrl = (fileUrl: string): string =>
-  '/pdfjs-3.5.141/web/viewer.html?file=' + encodeURIComponent(fileUrl);
+  '/pdfjs-4.2.67/web/viewer.html?file=' + encodeURIComponent(fileUrl);
 
 export const PdfViewer = memo<{
   url: string;
