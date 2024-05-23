@@ -1,6 +1,7 @@
 package net.koofr.vault.features.mobilevault
 
 import android.content.Context
+import android.util.Log
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,6 +18,12 @@ object SecureStorageModule {
     fun provideSecureStorage(
         @ApplicationContext appContext: Context,
     ): SecureStorage {
-        return AndroidSecureStorage(appContext)
+        return try {
+            AndroidSecureStorage(appContext)
+        } catch (e: Exception) {
+            Log.e("Vault", "Failed to build android secure storage", e)
+
+            ErrorSecureStorage(Exception("Failed to read encrypted preferences. Please clear data for the application in system settings and try again. $e"))
+        }
     }
 }
