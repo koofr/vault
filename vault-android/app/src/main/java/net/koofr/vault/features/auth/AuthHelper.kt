@@ -3,6 +3,7 @@ package net.koofr.vault.features.auth
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.browser.customtabs.CustomTabsIntent
 import dagger.Module
 import dagger.Provides
@@ -15,17 +16,21 @@ class AuthHelper constructor(private val mobileVault: MobileVault) {
     fun login(
         context: Context,
     ) {
-        val url = Uri.parse(mobileVault.oauth2StartLoginFlow() + "&platform=android")
+        mobileVault.oauth2StartLoginFlow()?.let {
+            val url = Uri.parse("$it&platform=android")
 
-        startFlow(context, url)
+            startFlow(context, url)
+        }
     }
 
     fun logout(
         context: Context,
     ) {
-        val url = Uri.parse(mobileVault.oauth2StartLogoutFlow() + "&platform=android")
+        mobileVault.oauth2StartLogoutFlow()?.let {
+            val url = Uri.parse("$it&platform=android")
 
-        startFlow(context, url)
+            startFlow(context, url)
+        }
     }
 
     private fun startFlow(
@@ -49,7 +54,13 @@ class AuthHelper constructor(private val mobileVault: MobileVault) {
             Uri.parse("android-app://" + context.packageName),
         )
 
-        intent.launchUrl(context, url)
+        try {
+            intent.launchUrl(context, url)
+        } catch (e: Exception) {
+            Log.e("Vault", "Failed to launch custom tab for auth", e)
+
+            mobileVault.notificationsShow("Failed to launch a browser app. Please make sure you have a web browser app installed.")
+        }
     }
 }
 
