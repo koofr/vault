@@ -8,7 +8,6 @@ import { ToolbarItem, ToolbarItemProps } from '../toolbar/Toolbar';
 export const NavbarNavToolbar = styled.nav`
   display: flex;
   align-items: center;
-  margin-right: -8px;
 `;
 
 export function NavbarNavToolbarItem<
@@ -26,6 +25,10 @@ export function NavbarNavToolbarItem<
       className={cx(
         css`
           margin: 0;
+
+          &:last-of-type {
+            padding: 0;
+          }
         `,
         props.className,
       )}
