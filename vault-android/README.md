@@ -84,3 +84,20 @@ emulator -list-avds
 # start an emulator
 emulator @Pixel_4_API_30
 ```
+
+## Libs
+
+### PhotoView
+
+PhotoView library is not hosted on Maven Central and there were problems with
+jitpack.io. The library was built locally and jar was added to libs.
+
+```sh
+git clone https://github.com/Baseflow/PhotoView.git
+cd PhotoView
+git checkout 565505d
+# use java 8
+export ANDROID_HOME=$HOME/Library/Android/sdk
+sed -i "s/version = '2.3.0'/version = '565505d5cb'/" photoview/build.gradle
+./gradlew --no-daemon -Dmaven.repo.local=/PATH/TO/vault-android/app/libs publishToMavenLocal
+```

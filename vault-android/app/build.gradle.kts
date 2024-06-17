@@ -117,7 +117,7 @@ dependencies {
     implementation("io.coil-kt:coil-compose-base:2.4.0")
     implementation("io.coil-kt:coil-gif:2.4.0")
     implementation("io.coil-kt:coil-svg:2.4.0")
-    implementation("com.github.chrisbanes:PhotoView:565505d5cb84f5977771b5d2ccb7726338e77224")
+    implementation("com.github.chrisbanes:PhotoView:565505d5cb")
 //    implementation("com.davemorrissey.labs:subsampling-scale-image-view-androidx:3.10.0")
     implementation("androidx.media3:media3-exoplayer:1.1.1")
     implementation("androidx.media3:media3-ui:1.1.1")

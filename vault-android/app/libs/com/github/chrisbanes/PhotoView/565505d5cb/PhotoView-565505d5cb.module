@@ -1,0 +1,68 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.github.chrisbanes",
+    "module": "PhotoView",
+    "version": "565505d5cb",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "6.8",
+      "buildId": "dzp6rhk7sfcnbjtosbezjqlxmi"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "files": [
+        {
+          "name": "PhotoView-565505d5cb.aar",
+          "url": "PhotoView-565505d5cb.aar",
+          "size": 37262,
+          "sha512": "68677fe74d9bf777ccf9bb068a598e440080b8029e35d7823a13e7022d87b1e3bae51a3930a9df53b22f6f9ec1d99ebe09359ba08649020f800f16118ea18d37",
+          "sha256": "ea614445372fb43816191006d33aaffffad631d16ec64bb465de068b73f6d1fa",
+          "sha1": "011b11c9300952fb87b492b6bba189fd1ecc4a59",
+          "md5": "b3f73c0cc780ceb6a363b3b0191692de"
+        }
+      ]
+    },
+    {
+      "name": "releaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.appcompat",
+          "module": "appcompat",
+          "version": {
+            "requires": "1.1.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "PhotoView-565505d5cb.aar",
+          "url": "PhotoView-565505d5cb.aar",
+          "size": 37262,
+          "sha512": "68677fe74d9bf777ccf9bb068a598e440080b8029e35d7823a13e7022d87b1e3bae51a3930a9df53b22f6f9ec1d99ebe09359ba08649020f800f16118ea18d37",
+          "sha256": "ea614445372fb43816191006d33aaffffad631d16ec64bb465de068b73f6d1fa",
+          "sha1": "011b11c9300952fb87b492b6bba189fd1ecc4a59",
+          "md5": "b3f73c0cc780ceb6a363b3b0191692de"
+        }
+      ]
+    }
+  ]
+}
