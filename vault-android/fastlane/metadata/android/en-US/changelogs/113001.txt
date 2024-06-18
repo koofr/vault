@@ -1,0 +1,1 @@
+This release fixes a bug where the app failed to open after the device was restored from a backup.

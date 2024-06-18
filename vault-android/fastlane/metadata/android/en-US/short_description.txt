@@ -1,0 +1,1 @@
+Open source, client-side, zero-knowledge encrypted storage application by Koofr

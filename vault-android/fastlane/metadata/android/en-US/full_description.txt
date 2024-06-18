@@ -1,0 +1,21 @@
+Koofr Vault is an open source, client-side, zero-knowledge encrypted storage application by Koofr. Unlock enhanced security for your files. Discover a better way to securely store and access your photos, videos and documents.
+
+Included in all Koofr plans, even in the free one.
+
+Start using Koofr Vault now to make your life more secure. First time users must create a free Koofr account. Access everything through the Koofr Vault mobile app for Android.
+
+With Koofr Vault for Android you can:
+
+• create new Safe Boxes,
+• upload files or folders to your Safe Boxes,
+• download your files to your phone or open them in different apps,
+• take a photo and store it in your Safe Box,
+• use biometrics to unlock Safe Boxes.
+
+All Safe Box files are encrypted or decrypted by your device on demand as you access them.
+
+Since your Safe Key, only known to you, is required to decrypt cloud content, only you can access the files.
+
+Neither your Safe key nor any other unencrypted file data or metadata is sent to or stored by Koofr.
+
+The cloud has never been safer!

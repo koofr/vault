@@ -1,0 +1,17 @@
+default_platform(:android)
+
+platform :android do
+  desc "Build"
+  lane :build do
+    gradle(task: "clean")
+    gradle(task: "generateUniFFIBindings")
+    gradle(task: "cargoBuild")
+    gradle(task: "assembleRelease")
+  end
+
+  desc "Deploy a new version to the Google Play"
+  lane :deploy do
+    build
+    upload_to_play_store
+  end
+end
