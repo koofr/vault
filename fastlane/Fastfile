@@ -1,0 +1,19 @@
+default_platform(:android)
+
+platform :android do
+  desc "Build"
+  lane :build do
+    gradle(task: "clean", project_dir: "./vault-android")
+    gradle(task: "generateUniFFIBindings", project_dir: "./vault-android")
+    gradle(task: "cargoBuild", project_dir: "./vault-android")
+    gradle(task: "assembleRelease", project_dir: "./vault-android")
+  end
+
+  desc "Deploy a new version to the Google Play"
+  lane :deploy do
+    build
+    upload_to_play_store(
+      aab: "./vault-android/app/build/outputs/bundle/release/app-release.aab"
+    )
+  end
+end
