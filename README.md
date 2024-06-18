@@ -88,7 +88,7 @@ cd vault-android
 source .profile
 ./gradlew clean
 ./gradlew generateUniFFIBindings
-GRADLE_CARGO_PROFILE=release ./gradlew cargoBuild
+./gradlew cargoBuild
 ./gradlew bundleRelease
 ```
 

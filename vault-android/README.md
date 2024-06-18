@@ -24,10 +24,10 @@ source .profile
 ./gradlew generateUniFFIBindings
 
 # build rust library (debug)
-./gradlew cargoBuild
+GRADLE_CARGO_PROFILE=debug ./gradlew cargoBuild
 
 # build rust library (release)
-GRADLE_CARGO_PROFILE=release ./gradlew cargoBuild
+./gradlew cargoBuild
 
 # build apk (debug)
 ./gradlew assembleDebug

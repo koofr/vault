@@ -195,7 +195,7 @@ extensions.configure(com.nishtahir.CargoExtension::class) {
 //    targets = listOf("x86")
     targetDirectory = "../../target"
     pythonCommand = "python3"
-    profile = System.getenv("GRADLE_CARGO_PROFILE") ?: "debug"
+    profile = System.getenv("GRADLE_CARGO_PROFILE") ?: "release"
     exec = { spec, _ ->
         spec.environment("GIT_REVISION", getGitRevision())
         spec.environment("GIT_RELEASE", getGitRelease())
