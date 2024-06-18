@@ -59,3 +59,19 @@ find src/assets -name '*.svg' | xargs -n1 scripts/optimize-svg.js
 ```sh
 npm update --save
 ```
+
+## Upgrade pdf.js
+
+When upgrading pdf.js you have to patch file origin check for the desktop app.
+Search for `file origin does not match viewer`.
+
+```js
+if (
+  fileOrigin !== viewerOrigin &&
+  !/^https?:\/\/127.0.0.1$|^https?:\/\/127.0.0.1:|^https?:\/\/localhost$|^https?:\/\/localhost:/.test(
+    fileOrigin
+  )
+) {
+  throw new Error("file origin does not match viewer's");
+}
+```
