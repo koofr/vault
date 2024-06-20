@@ -1,7 +1,6 @@
+import React, { lazy } from 'react';
 import { type TextEditorProps } from './TextEditor';
-import { lazyLoadingComponent } from './lazyLoadingComponent';
 
-export const TextEditorLazy = lazyLoadingComponent<TextEditorProps>(
-  () => import('./TextEditor').then((mod) => mod.TextEditor),
-  false,
+export const TextEditorLazy = lazy<React.FC<TextEditorProps>>(() =>
+  import('./TextEditor').then((mod) => ({ default: mod.TextEditor })),
 );

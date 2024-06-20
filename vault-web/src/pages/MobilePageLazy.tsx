@@ -1,6 +1,5 @@
-import { lazyLoadingComponent } from '../components/lazyLoadingComponent';
+import { lazy } from 'react';
 
-export const MobilePageLazy = lazyLoadingComponent<{}>(
-  () => import('./MobilePage').then((mod) => mod.MobilePage),
-  true,
+export const MobilePageLazy = lazy(() =>
+  import('./MobilePage').then((mod) => ({ default: mod.MobilePage })),
 );

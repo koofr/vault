@@ -1,6 +1,5 @@
-import { lazyLoadingComponent } from '../components/lazyLoadingComponent';
+import { lazy } from 'react';
 
-export const LandingPageLazy = lazyLoadingComponent<{}>(
-  () => import('./LandingPage').then((mod) => mod.LandingPage),
-  false,
+export const LandingPageLazy = lazy(() =>
+  import('./LandingPage').then((mod) => ({ default: mod.LandingPage })),
 );

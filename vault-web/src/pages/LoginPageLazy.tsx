@@ -1,6 +1,5 @@
-import { lazyLoadingComponent } from '../components/lazyLoadingComponent';
+import { lazy } from 'react';
 
-export const LoginPageLazy = lazyLoadingComponent<{}>(
-  () => import('./LoginPage').then((mod) => mod.LoginPage),
-  false,
+export const LoginPageLazy = lazy(() =>
+  import('./LoginPage').then((mod) => ({ default: mod.LoginPage })),
 );
