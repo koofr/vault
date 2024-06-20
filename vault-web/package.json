@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev-desktop": "cross-env VAULT_APP=desktop vite --clearScreen=false --port=1420 --strictPort",
     "build": "tsc && vite build",
+    "build-desktop": "tsc && cross-env VAULT_APP=desktop vite build",
     "preview": "vite preview --port 5173",
     "eslint": "eslint src",
     "tsc": "tsc",
@@ -48,6 +50,7 @@
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",
     "cheerio": "^1.0.0-rc.12",
+    "cross-env": "^7.0.3",
     "eslint": "^8.56.0",
     "eslint-config-react-app": "^7.0.1",
     "prettier": "^3.2.4",
