@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "cd ../vault-web && VAULT_APP=desktop node_modules/.bin/vite --clearScreen=false --port=1420 --strictPort",
-    "build": "cd ../vault-web && node_modules/.bin/tsc && VAULT_APP=desktop node_modules/.bin/vite build",
-    "preview": "cd ../vault-web && node_modules/.bin/vite preview",
-    "tauri": "node_modules/.bin/tauri"
+    "dev": "cd ../vault-web && npm run dev-desktop",
+    "build": "cd ../vault-web && npm run build-desktop",
+    "preview": "cd ../vault-web && npm run vite preview",
+    "tauri": "tauri"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1.5.9"

@@ -1,0 +1,80 @@
+name: build-vault-desktop
+
+on: push
+
+jobs:
+  build-vault-desktop:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        settings:
+          - platform: 'macos-latest' # for Arm based macs (M1 and above).
+            args: '--target aarch64-apple-darwin'
+          - platform: 'macos-latest' # for Intel based macs.
+            args: '--target x86_64-apple-darwin'
+          - platform: 'ubuntu-20.04'
+            args: ''
+          - platform: 'windows-latest'
+            args: ''
+
+    runs-on: ${{ matrix.settings.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install OS dependencies
+        if: matrix.settings.platform == 'ubuntu-20.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.0-dev build-essential curl wget file libssl-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev patchelf
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'npm'
+          cache-dependency-path: |
+            vault-web/package-lock.json
+            vault-desktop/package-lock.json
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.75.0"
+          targets: wasm32-unknown-unknown ${{ matrix.settings.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Install wasm-pack
+        run: |
+          npm install -g wasm-pack@0.12.1
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install frontend dependencies
+        run: |
+          cd vault-web
+          npm install
+          cd ..
+          cd vault-desktop
+          npm install
+
+      - name: Generate TypeScript definitions
+        run: |
+          cd vault-wasm
+          # we can use --dev to speed things up. we don't use the generated wasm file, just the .d.ts files
+          wasm-pack build --target web --out-dir ../vault-web/src/vault-wasm --out-name vault-wasm --dev
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: vault-desktop
+          tagName: vault-desktop-v__VERSION__
+          releaseName: 'vault-desktop v__VERSION__'
+          releaseBody: 'See the assets to download this version and install.'
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.settings.args }}
