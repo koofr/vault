@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'react';
+import { Suspense, memo, useCallback } from 'react';
 
 import { ErrorComponent } from '../../components/ErrorComponent';
 import { LoadingCircle } from '../../components/LoadingCircle';
@@ -41,13 +41,15 @@ export const RepoFilesDetailsTextEditor = memo<{
     text === undefined ? (
     <LoadingCircle />
   ) : (
-    <TextEditorLazy
-      fileName={fileName}
-      text={text}
-      isEditing={isEditing}
-      width={width}
-      height={height}
-      onChange={onChange}
-    />
+    <Suspense>
+      <TextEditorLazy
+        fileName={fileName}
+        text={text}
+        isEditing={isEditing}
+        width={width}
+        height={height}
+        onChange={onChange}
+      />
+    </Suspense>
   );
 });
