@@ -1,6 +1,5 @@
-import { lazyLoadingComponent } from '../components/lazyLoadingComponent';
+import { lazy } from 'react';
 
-export const AuthGuardLazy = lazyLoadingComponent<{}>(
-  () => import('./AuthGuard').then((mod) => mod.AuthGuard),
-  true,
+export const AuthGuardLazy = lazy(() =>
+  import('./AuthGuard').then((mod) => ({ default: mod.AuthGuard })),
 );

@@ -1,9 +1,7 @@
-import { lazyLoadingComponent } from '../../components/lazyLoadingComponent';
+import { lazy } from 'react';
 
-export const RepoFilesDropZoneDesktopLazy = lazyLoadingComponent<{}>(
-  () =>
-    import('./RepoFilesDropZoneDesktop').then(
-      (mod) => mod.RepoFilesDropZoneDesktop,
-    ),
-  false,
+export const RepoFilesDropZoneDesktopLazy = lazy(() =>
+  import('./RepoFilesDropZoneDesktop').then((mod) => ({
+    default: mod.RepoFilesDropZoneDesktop,
+  })),
 );

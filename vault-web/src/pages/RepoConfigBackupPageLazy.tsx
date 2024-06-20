@@ -1,7 +1,7 @@
-import { lazyLoadingComponent } from '../components/lazyLoadingComponent';
+import { lazy } from 'react';
 
-export const RepoConfigBackupPageLazy = lazyLoadingComponent<{}>(
-  () =>
-    import('./RepoConfigBackupPage').then((mod) => mod.RepoConfigBackupPage),
-  true,
+export const RepoConfigBackupPageLazy = lazy(() =>
+  import('./RepoConfigBackupPage').then((mod) => ({
+    default: mod.RepoConfigBackupPage,
+  })),
 );

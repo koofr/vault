@@ -1,6 +1,7 @@
-import { lazyLoadingComponent } from '../components/lazyLoadingComponent';
+import { lazy } from 'react';
 
-export const OAuth2CallbackPageLazy = lazyLoadingComponent<{}>(
-  () => import('./OAuth2CallbackPage').then((mod) => mod.OAuth2CallbackPage),
-  true,
+export const OAuth2CallbackPageLazy = lazy(() =>
+  import('./OAuth2CallbackPage').then((mod) => ({
+    default: mod.OAuth2CallbackPage,
+  })),
 );

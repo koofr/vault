@@ -1,6 +1,7 @@
-import { lazyLoadingComponent } from '../components/lazyLoadingComponent';
+import { lazy } from 'react';
 
-export const NotSupportedPageLazy = lazyLoadingComponent<{}>(
-  () => import('./NotSupportedPage').then((mod) => mod.NotSupportedPage),
-  true,
+export const NotSupportedPageLazy = lazy(() =>
+  import('./NotSupportedPage').then((mod) => ({
+    default: mod.NotSupportedPage,
+  })),
 );

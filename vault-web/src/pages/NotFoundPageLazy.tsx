@@ -1,6 +1,5 @@
-import { lazyLoadingComponent } from '../components/lazyLoadingComponent';
+import { lazy } from 'react';
 
-export const NotFoundPageLazy = lazyLoadingComponent<{}>(
-  () => import('./NotFoundPage').then((mod) => mod.NotFoundPage),
-  true,
+export const NotFoundPageLazy = lazy(() =>
+  import('./NotFoundPage').then((mod) => ({ default: mod.NotFoundPage })),
 );
