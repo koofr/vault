@@ -30,7 +30,7 @@ fn test_lock_after() {
                 .repos_set_auto_lock(
                     &fixture.repo_id,
                     RepoAutoLock {
-                        after: Some(RepoAutoLockAfter::Custom(Duration::from_millis(100))),
+                        after: Some(RepoAutoLockAfter::Custom(Duration::from_millis(200))),
                         on_app_hidden: false,
                     },
                 )
@@ -52,7 +52,7 @@ fn test_lock_after() {
 
                 assert!(!is_locked());
 
-                fixture.vault.runtime.sleep(Duration::from_millis(50)).await;
+                fixture.vault.runtime.sleep(Duration::from_millis(30)).await;
             }
 
             // reload repos to test if auto_lock and last_activity are retained

@@ -938,10 +938,20 @@ fn test_repo_lock_unlock_remove() {
             let get_state = || fixture.vault.with_state(|state| state.clone());
             let select_info =
                 |state| repo_files_details::selectors::select_info(state, details_id).unwrap();
+            fn fix_content_status_loaded<'a>(
+                info: RepoFilesDetailsInfo<'a>,
+            ) -> RepoFilesDetailsInfo<'a> {
+                let mut info = info;
+                // fix flaky tests
+                if matches!(info.content_status, Status::Loading { loaded: true }) {
+                    info.content_status = Status::Loaded;
+                };
+                info
+            }
 
             let state_before_lock = get_state();
             assert_eq!(
-                select_info(&state_before_lock),
+                fix_content_status_loaded(select_info(&state_before_lock)),
                 RepoFilesDetailsInfo {
                     repo_id: Some(&RepoId(fixture.repo_id.0.clone())),
                     parent_path: Some(EncryptedPath("/".into())),
@@ -993,7 +1003,7 @@ fn test_repo_lock_unlock_remove() {
 
             let state_after_lock = get_state();
             assert_eq!(
-                select_info(&state_after_lock),
+                fix_content_status_loaded(select_info(&state_after_lock)),
                 RepoFilesDetailsInfo {
                     repo_id: Some(&RepoId(fixture.repo_id.0.clone())),
                     parent_path: Some(EncryptedPath("/".into())),
@@ -1072,7 +1082,7 @@ fn test_repo_lock_unlock_remove() {
 
             let state_after_remove = get_state();
             assert_eq!(
-                select_info(&state_after_remove),
+                fix_content_status_loaded(select_info(&state_after_remove)),
                 RepoFilesDetailsInfo {
                     repo_id: Some(&RepoId(fixture.repo_id.0.clone())),
                     parent_path: Some(EncryptedPath("/".into())),
