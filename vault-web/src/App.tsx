@@ -1,10 +1,12 @@
 import { CacheProvider } from '@emotion/react';
+import { Suspense } from 'react';
 import { DndProvider } from 'react-dnd';
 import { RouterProvider } from 'react-router-dom';
 
 import { RemoveAppLoading } from './RemoveAppLoading';
 import { DocumentScrollProvider } from './components/DocumentScroll';
 import { DocumentSizeProvider } from './components/DocumentSize';
+import { LoadingCircle } from './components/LoadingCircle';
 import { FolderAwareHTML5Backend } from './components/dnd/backend';
 import { FileIconCacheProvider } from './components/file-icon/FileIcon';
 import { ModalsProvider } from './components/modal/Modals';
@@ -57,7 +59,9 @@ export function getApp(
                           <RemoveAppLoading />
 
                           <ModalsProvider>
-                            <RouterProvider router={router} />
+                            <Suspense fallback={<LoadingCircle />}>
+                              <RouterProvider router={router} />
+                            </Suspense>
 
                             <Dialogs />
                           </ModalsProvider>
