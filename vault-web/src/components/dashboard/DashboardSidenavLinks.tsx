@@ -1,6 +1,6 @@
 import { css } from '@emotion/css';
 import { useTheme } from '@emotion/react';
-import { memo } from 'react';
+import { Suspense, memo } from 'react';
 import { Link } from 'react-router-dom';
 
 import { buttonReset } from '../../styles/mixins/buttons';
@@ -99,7 +99,9 @@ export const DashboardSidenavLinks = memo(() => {
         </div>
       </footer>
 
-      <IntroModalLazy isVisible={intro.isVisible} hide={intro.hide} />
+      <Suspense>
+        <IntroModalLazy isVisible={intro.isVisible} hide={intro.hide} />
+      </Suspense>
     </>
   );
 });
