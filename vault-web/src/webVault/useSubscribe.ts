@@ -16,6 +16,18 @@ export function useSubscribe<T>(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setVersion] = useState(0);
   const data = useRef<T>(undefined as T);
+  const mountedResolve = useRef<() => void>();
+  const mountedPromise = useRef<Promise<void>>(
+    undefined as any as Promise<void>,
+  );
+  if (mountedPromise.current === undefined) {
+    mountedPromise.current = new Promise<void>((resolve) => {
+      mountedResolve.current = resolve;
+    });
+  }
+  useEffect(() => {
+    mountedResolve.current?.();
+  });
 
   useMemo(
     () => {
@@ -41,7 +53,10 @@ export function useSubscribe<T>(
         }
 
         data.current = getData.call(webVault, subscriptionId!);
-        setVersion((version) => version + 1);
+
+        mountedPromise.current.then(() => {
+          setVersion((version) => version + 1);
+        });
       });
 
       currentSubscriptionId.current = subscriptionId;
