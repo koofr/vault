@@ -4,10 +4,12 @@
 use std::sync::Arc;
 
 use futures::{channel::oneshot, FutureExt, TryFutureExt};
-use tauri::api::dialog::FileDialogBuilder;
+use tauri::{api::dialog::FileDialogBuilder, RunEvent};
 use vault_core::oauth2::OAuth2Config;
 use vault_desktop_server::{
-    app::app, encryption::Encryption, file_handlers::FileHandlers,
+    app::app,
+    encryption::Encryption,
+    file_handlers::FileHandlers,
     init_secure_storage::{init_file_secure_storage, init_keyring_secure_storage},
 };
 use vault_native::vault::build_vault;
@@ -121,7 +123,12 @@ fn main() {
         ])
         .build(tauri::generate_context!())
         .expect("error while running tauri application")
-        .run(|_app, _events| {});
+        .run(|_app, event| match event {
+            RunEvent::Ready => {
+                fix_current_dir();
+            }
+            _ => {}
+        });
 }
 
 #[tauri::command]
@@ -132,4 +139,16 @@ fn get_desktop_server_url(state: tauri::State<TauriState>) -> Result<String, Str
 #[tauri::command]
 fn get_app_secret(state: tauri::State<TauriState>) -> Result<String, String> {
     Ok(state.app_secret.clone())
+}
+
+fn fix_current_dir() {
+    // fix login (open::that) on Linux with AppImage
+    // https://github.com/AppImage/AppImageKit/issues/1293#issuecomment-1800047206
+    if let Ok(current_dir) = std::env::current_dir() {
+        if current_dir.starts_with("/tmp/") {
+            if let Ok(home) = std::env::var("HOME") {
+                let _ = std::env::set_current_dir(home);
+            }
+        }
+    }
 }
