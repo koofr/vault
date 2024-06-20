@@ -7,15 +7,7 @@ pub fn handle_path(
     upload: Box<dyn Fn(PathBuf, TransferUploadRelativeName) + Send + Sync + 'static>,
     on_error: Box<dyn Fn(PathBuf, std::io::Error) + Send + Sync + 'static>,
 ) {
-    let file = match fs::File::open(&path) {
-        Ok(file) => file,
-        Err(err) => {
-            on_error(path, err);
-            return;
-        }
-    };
-
-    let metadata = match file.metadata() {
+    let metadata = match fs::metadata(&path) {
         Ok(metadata) => metadata,
         Err(err) => {
             on_error(path, err);
