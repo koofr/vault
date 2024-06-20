@@ -71,17 +71,21 @@ export const DashboardSidenavLinks = memo(() => {
           >
             Legal
           </a>
-          <br />
-          <Link
-            to="/landing"
-            className={css`
-              ${allStates} {
-                color: ${theme.colors.text};
-              }
-            `}
-          >
-            Landing page
-          </Link>
+          {import.meta.env.VITE_VAULT_APP === 'desktop' ? null : (
+            <>
+              <br />
+              <Link
+                to="/landing"
+                className={css`
+                  ${allStates} {
+                    color: ${theme.colors.text};
+                  }
+                `}
+              >
+                Landing page
+              </Link>
+            </>
+          )}
         </div>
 
         <div
