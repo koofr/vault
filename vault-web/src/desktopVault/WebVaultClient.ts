@@ -64,16 +64,16 @@ export class WebVaultClient {
   }
 
   handleResponse(request: XMLHttpRequest, bytes: boolean) {
+    if (request.status === 204) {
+      return undefined;
+    }
+
     const { body } = this.requestEncryption.decryptResponse(
       request.responseText,
     );
 
     if (request.status !== 200 && request.status !== 204) {
       throw new Error(`Call error: ${request.status}: ${body}`);
-    }
-
-    if (request.status === 204) {
-      return undefined;
     }
 
     if (bytes) {
