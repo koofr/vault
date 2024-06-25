@@ -6,6 +6,7 @@ export interface Config {
   oauth2ClientSecret: string;
   appStoreUrl?: string;
   googlePlayUrl?: string;
+  fDroidUrl?: string;
 }
 
 export async function loadConfig(): Promise<Config> {

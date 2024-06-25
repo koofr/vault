@@ -10,13 +10,15 @@ import {
   useState,
 } from 'react';
 
+import appStoreImage from '../../assets/images/apps/app-store.png';
+import appStore2xImage from '../../assets/images/apps/app-store@2x.png';
+import fDroidImage from '../../assets/images/apps/f-droid.png';
+import fDroid2xImage from '../../assets/images/apps/f-droid@2x.png';
+import googlePlayImage from '../../assets/images/apps/google-play.png';
+import googlePlay2xImage from '../../assets/images/apps/google-play@2x.png';
 import intro01Image from '../../assets/images/intro/intro-01.png';
 import intro012xImage from '../../assets/images/intro/intro-01@2x.png';
 import intro02Image from '../../assets/images/intro/intro-02.png';
-import googlePlayImage from '../../assets/images/apps/google-play.png';
-import googlePlay2xImage from '../../assets/images/apps/google-play@2x.png';
-import appStoreImage from '../../assets/images/apps/app-store.png';
-import appStore2xImage from '../../assets/images/apps/app-store@2x.png';
 import intro022xImage from '../../assets/images/intro/intro-02@2x.png';
 import intro03Image from '../../assets/images/intro/intro-03.png';
 import intro032xImage from '../../assets/images/intro/intro-03@2x.png';
@@ -36,6 +38,7 @@ import introEndImage from '../../assets/images/intro/intro-end.png';
 import introEnd2xImage from '../../assets/images/intro/intro-end@2x.png';
 import introStartImage from '../../assets/images/intro/intro-start.png';
 import introStart2xImage from '../../assets/images/intro/intro-start@2x.png';
+import { useConfig } from '../../config';
 import { buttonStyle } from '../../styles/mixins/buttons';
 import { imgRetinaBase } from '../../styles/mixins/images';
 
@@ -51,7 +54,6 @@ import {
   ModalHeader,
   ModalTitle,
 } from '../modal/Modal';
-import { useConfig } from '../../config';
 
 const introButtonColor = '#2286f7';
 const introButtonColorHover = '#0870e6';
@@ -322,7 +324,8 @@ const IntroStep5 = memo(() => {
         </p>
       </div>
       {config.appStoreUrl !== undefined ||
-      config.googlePlayUrl !== undefined ? (
+      config.googlePlayUrl !== undefined ||
+      config.fDroidUrl !== undefined ? (
         <div
           className={css`
             ${bp.small} {
@@ -359,11 +362,36 @@ const IntroStep5 = memo(() => {
           ) : null}
 
           {config.appStoreUrl !== undefined ? (
-            <a href={config.appStoreUrl} target="_blank" rel="noreferrer">
+            <a
+              href={config.appStoreUrl}
+              target="_blank"
+              rel="noreferrer"
+              className={css`
+                margin-right: 20px;
+              `}
+            >
               <RetinaImage
                 image={appStoreImage}
                 image2x={appStore2xImage}
                 width={117}
+                height={36}
+              />
+            </a>
+          ) : null}
+
+          {config.fDroidUrl !== undefined ? (
+            <a
+              href={config.fDroidUrl}
+              target="_blank"
+              rel="noreferrer"
+              className={css`
+                margin-right: 20px;
+              `}
+            >
+              <RetinaImage
+                image={fDroidImage}
+                image2x={fDroid2xImage}
+                width={123}
                 height={36}
               />
             </a>

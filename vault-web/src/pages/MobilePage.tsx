@@ -4,6 +4,8 @@ import { useLocation } from 'react-router-dom';
 
 import appStoreImage from '../assets/images/apps/app-store.png';
 import appStore2xImage from '../assets/images/apps/app-store@2x.png';
+import fDroidImage from '../assets/images/apps/f-droid.png';
+import fDroid2xImage from '../assets/images/apps/f-droid@2x.png';
 import googlePlayImage from '../assets/images/apps/google-play.png';
 import googlePlay2xImage from '../assets/images/apps/google-play@2x.png';
 import { LinkButton } from '../components/Button';
@@ -75,12 +77,13 @@ export const MobilePage = memo(() => {
         </p>
 
         {config.appStoreUrl !== undefined ||
-        config.googlePlayUrl !== undefined ? (
+        config.googlePlayUrl !== undefined ||
+        config.fDroidUrl !== undefined ? (
           <div
             className={css`
               display: flex;
-              flex-direction: row;
-              margin: 0 0 30px;
+              flex-direction: column;
+              margin: 0 0 20px;
             `}
           >
             {config.googlePlayUrl !== undefined ? (
@@ -89,7 +92,7 @@ export const MobilePage = memo(() => {
                 target="_blank"
                 rel="noreferrer"
                 className={css`
-                  margin-right: 20px;
+                  margin-bottom: 15px;
                 `}
               >
                 <RetinaImage
@@ -102,11 +105,29 @@ export const MobilePage = memo(() => {
             ) : null}
 
             {config.appStoreUrl !== undefined ? (
-              <a href={config.appStoreUrl} target="_blank" rel="noreferrer">
+              <a
+                href={config.appStoreUrl}
+                target="_blank"
+                rel="noreferrer"
+                className={css`
+                  margin-bottom: 15px;
+                `}
+              >
                 <RetinaImage
                   image={appStoreImage}
                   image2x={appStore2xImage}
                   width={117}
+                  height={36}
+                />
+              </a>
+            ) : null}
+
+            {config.fDroidUrl !== undefined ? (
+              <a href={config.fDroidUrl} target="_blank" rel="noreferrer">
+                <RetinaImage
+                  image={fDroidImage}
+                  image2x={fDroid2xImage}
+                  width={123}
                   height={36}
                 />
               </a>
