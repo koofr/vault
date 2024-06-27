@@ -8,6 +8,13 @@ https://vault.koofr.net
 
 Koofr Vault is an open-source, client-side encrypted folder for your Koofr cloud storage offering an extra layer of security for your most sensitive files. The encryption is compatible with [rclone](https://rclone.org/).
 
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+     alt="Get it on F-Droid"
+     height="80">](https://f-droid.org/packages/net.koofr.vault/)
+[<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
+     alt="Get it on Google Play"
+     height="80">](https://play.google.com/store/apps/details?id=net.koofr.vault)
+
 ## Tech stack
 
 Koofr Vault is divided into two parts: the engine and the UI. The engine, made up of `vault-core` and `vault-wasm`, is written in Rust and compiled to WebAssembly. The UI, `vault-web`, is written in React and uses Vite for frontend tooling. There is no server component; Koofr Vault only uses the public Koofr REST API.
