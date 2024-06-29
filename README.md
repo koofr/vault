@@ -11,6 +11,9 @@ Koofr Vault is an open-source, client-side encrypted folder for your Koofr cloud
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
      alt="Get it on F-Droid"
      height="80">](https://f-droid.org/packages/net.koofr.vault/)
+[<img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png"
+     alt="Get it on the App Store"
+     height="60">](https://apps.apple.com/app/koofr-vault/id6468869124)
 [<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
      alt="Get it on Google Play"
      height="80">](https://play.google.com/store/apps/details?id=net.koofr.vault)
