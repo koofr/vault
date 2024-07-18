@@ -19,3 +19,5 @@ Since your Safe Key, only known to you, is required to decrypt cloud content, on
 Neither your Safe key nor any other unencrypted file data or metadata is sent to or stored by Koofr.
 
 The cloud has never been safer!
+
+Need help? Contact our support team at support@koofr.net.
