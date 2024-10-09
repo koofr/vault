@@ -322,7 +322,13 @@ export const LandingPageOfficial = memo(() => {
               className={css`
                 display: flex;
                 flex-direction: row;
+                flex-wrap: wrap;
+                gap: 20px;
                 margin-top: 32px;
+
+                ${bp.smmd} {
+                  justify-content: center;
+                }
               `}
             >
               {config.googlePlayUrl !== undefined ? (
@@ -330,9 +336,6 @@ export const LandingPageOfficial = memo(() => {
                   href={config.googlePlayUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className={css`
-                    margin-right: 20px;
-                  `}
                 >
                   <RetinaImage
                     image={googlePlayImage}
@@ -348,9 +351,6 @@ export const LandingPageOfficial = memo(() => {
                   href={config.appStoreUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className={css`
-                    margin-right: 20px;
-                  `}
                 >
                   <RetinaImage
                     image={appStoreImage}
@@ -366,9 +366,6 @@ export const LandingPageOfficial = memo(() => {
                   href={config.fDroidUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className={css`
-                    margin-right: 20px;
-                  `}
                 >
                   <RetinaImage
                     image={fDroidImage}
