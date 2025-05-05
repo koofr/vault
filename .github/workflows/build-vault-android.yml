@@ -53,13 +53,13 @@ jobs:
           ./gradlew bundleRelease
 
           ./gradlew assembleRelease
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: vault-android.aab
           path: vault-android/app/build/outputs/bundle/release/app-release.aab
           retention-days: 30
           if-no-files-found: error
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: vault-android-unsigned.apk
           path: vault-android/app/build/outputs/apk/release/app-release-unsigned.apk

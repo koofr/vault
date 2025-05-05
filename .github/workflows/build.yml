@@ -20,12 +20,12 @@ jobs:
           docker run --rm vault-static cat vault-web.tar.gz > vault-web.tar.gz
           sha256sum vault-web.tar.gz | awk '{print $1}' > vault-web.tar.gz.sha256
           docker run --rm vault-static cat vault-wasm-nodejs.tar.gz > vault-wasm-nodejs.tar.gz
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: vault-web
           path: vault-web.tar.gz*
           retention-days: 30
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: vault-wasm-nodejs
           path: vault-wasm-nodejs.tar.gz*
@@ -56,7 +56,7 @@ jobs:
       - name: Build fake-remote
         run: cargo build --bin fake_remote
         working-directory: vault-fake-remote
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: vault-fake-remote
           path: target/debug/fake_remote
@@ -154,7 +154,7 @@ jobs:
 
           npx playwright test
         working-directory: vault-web-tests
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
