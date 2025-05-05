@@ -5,7 +5,7 @@ on: push
 jobs:
   build-vault-android:
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v3
