@@ -21,10 +21,10 @@ impl runtime::Runtime for BrowserRuntime {
 
     fn sleep(&self, duration: Duration) -> BoxFuture<'static, ()> {
         Box::into_pin(unsafe {
-            Box::from_raw(
-                Box::into_raw(Box::new(sleep(duration)) as Box<dyn Future<Output = ()>>)
-                    as *mut (dyn Future<Output = ()> + Send + Sync),
-            )
+            std::mem::transmute::<
+                Box<dyn Future<Output = ()>>,
+                Box<dyn Future<Output = ()> + Send + Sync>,
+            >(Box::new(sleep(duration)) as Box<dyn Future<Output = ()>>)
         })
     }
 

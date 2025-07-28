@@ -112,9 +112,8 @@ pub fn stream_to_reader(stream: web_sys::ReadableStream) -> BoxAsyncRead {
         .into_async_read();
 
     Box::into_pin(unsafe {
-        Box::from_raw(
-            Box::into_raw(Box::new(reader) as Box<dyn AsyncRead + 'static>)
-                as *mut (dyn AsyncRead + Send + Sync + 'static),
+        std::mem::transmute::<Box<dyn AsyncRead>, Box<dyn AsyncRead + Send + Sync + 'static>>(
+            Box::new(reader) as Box<dyn AsyncRead + 'static>,
         )
     })
 }
@@ -185,9 +184,8 @@ pub fn transfers_download_reader_abort_signal(
         drop(on_abort_closure);
     });
     let cleanup = unsafe {
-        Box::from_raw(
-            Box::into_raw(Box::new(cleanup) as Box<dyn FnOnce() + 'static>)
-                as *mut (dyn FnOnce() + Send + Sync + 'static),
+        std::mem::transmute::<Box<dyn FnOnce() + 'static>, Box<dyn FnOnce() + Send + Sync + 'static>>(
+            Box::new(cleanup) as Box<dyn FnOnce() + 'static>,
         )
     };
 

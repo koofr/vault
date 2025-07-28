@@ -153,7 +153,7 @@ pub fn to_cb(callback: js_sys::Function) -> Box<dyn Fn() + Send + Sync + 'static
     });
 
     let callback: Box<dyn Fn() + Send + Sync + 'static> = unsafe {
-        Box::from_raw(Box::into_raw(callback) as *mut (dyn Fn() + Send + Sync + 'static))
+        std::mem::transmute::<Box<dyn Fn()>, Box<dyn Fn() + Send + Sync + 'static>>(callback)
     };
 
     callback

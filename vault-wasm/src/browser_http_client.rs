@@ -203,11 +203,11 @@ impl BrowserHttpClient {
 impl HttpClient for BrowserHttpClient {
     async fn request(&self, http_request: HttpRequest) -> Result<BoxHttpResponse, HttpError> {
         let future = Box::into_pin(unsafe {
-            Box::from_raw(Box::into_raw(Box::new(self.request_js(http_request))
+            std::mem::transmute::<
+                Box<dyn Future<Output = Result<Box<dyn HttpResponse>, HttpError>>>,
+                Box<dyn Future<Output = Result<BoxHttpResponse, HttpError>> + Send>,
+            >(Box::new(self.request_js(http_request))
                 as Box<dyn Future<Output = Result<Box<dyn HttpResponse>, HttpError>>>)
-                as *mut (dyn Future<Output = Result<BoxHttpResponse, HttpError>>
-                     + Send
-                     + Sync))
         });
 
         future.await
@@ -302,10 +302,12 @@ impl HttpResponse for FetchHttpResponse {
 
     async fn bytes(self: Box<Self>) -> Result<Vec<u8>, HttpError> {
         let future = Box::into_pin(unsafe {
-            Box::from_raw(Box::into_raw(
+            std::mem::transmute::<
+                Box<dyn Future<Output = Result<Vec<u8>, HttpError>>>,
+                Box<dyn Future<Output = Result<Vec<u8>, HttpError>> + Send>,
+            >(
                 Box::new(self.bytes_js()) as Box<dyn Future<Output = Result<Vec<u8>, HttpError>>>
             )
-                as *mut (dyn Future<Output = Result<Vec<u8>, HttpError>> + Send))
         });
 
         future.await
@@ -313,8 +315,10 @@ impl HttpResponse for FetchHttpResponse {
 
     fn bytes_stream(self: Box<Self>) -> HttpResponseBytesStream {
         Box::into_pin(unsafe {
-            Box::from_raw(Box::into_raw(self.bytes_stream_js())
-                as *mut (dyn Stream<Item = Result<Vec<u8>, HttpError>> + Send + Sync))
+            std::mem::transmute::<
+                Box<dyn Stream<Item = Result<Vec<u8>, HttpError>>>,
+                Box<dyn Stream<Item = Result<Vec<u8>, HttpError>> + Send + Sync>,
+            >(self.bytes_stream_js())
         })
     }
 }
