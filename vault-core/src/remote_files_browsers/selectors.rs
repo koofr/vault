@@ -318,7 +318,10 @@ pub fn select_selection_summary(state: &store::State, browser_id: u32) -> Select
         .unwrap_or(SelectionSummary::None)
 }
 
-pub fn select_info<'a>(state: &'a store::State, browser_id: u32) -> Option<RemoteFilesBrowserInfo> {
+pub fn select_info<'a>(
+    state: &'a store::State,
+    browser_id: u32,
+) -> Option<RemoteFilesBrowserInfo<'a>> {
     select_browser(state, browser_id).map(|browser| {
         let breadcrumbs = select_breadcrumbs(state, browser_id);
         let last_breadcrumb: Option<&RemoteFilesBrowserBreadcrumb> = breadcrumbs.last();

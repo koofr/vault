@@ -155,7 +155,10 @@ pub fn select_status<'a>(
     }
 }
 
-pub fn select_info<'a>(state: &'a store::State, browser_id: u32) -> Option<RepoFilesBrowserInfo> {
+pub fn select_info<'a>(
+    state: &'a store::State,
+    browser_id: u32,
+) -> Option<RepoFilesBrowserInfo<'a>> {
     select_browser(state, browser_id).map(|browser| {
         let repo_id = browser.location.as_ref().map(|loc| &loc.repo_id);
         let path = browser.location.as_ref().map(|loc| &loc.path);

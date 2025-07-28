@@ -224,7 +224,10 @@ pub fn content_loading_matches_remote_file(
         && loading.remote_hash == remote_file.hash
 }
 
-pub fn select_info<'a>(state: &'a store::State, details_id: u32) -> Option<RepoFilesDetailsInfo> {
+pub fn select_info<'a>(
+    state: &'a store::State,
+    details_id: u32,
+) -> Option<RepoFilesDetailsInfo<'a>> {
     select_details(state, details_id).map(|details| {
         let location = details.location.as_ref();
         let repo_id = location.map(|loc| &loc.repo_id);

@@ -58,7 +58,7 @@ pub fn select_mount<'a>(state: &'a store::State, mount_id: &MountId) -> Option<&
     state.remote_files.mounts.get(mount_id)
 }
 
-pub fn remote_file_sort_key<'a>(file: &'a RemoteFile) -> (&'a RemoteFileType, &RemoteNameLower) {
+pub fn remote_file_sort_key<'a>(file: &'a RemoteFile) -> (&'a RemoteFileType, &'a RemoteNameLower) {
     (&file.typ, &file.name_lower)
 }
 
