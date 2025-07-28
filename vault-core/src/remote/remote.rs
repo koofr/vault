@@ -1,5 +1,6 @@
 use std::{
     collections::HashMap,
+    fmt::Display,
     sync::{Arc, RwLock},
 };
 
@@ -65,6 +66,42 @@ pub struct RemoteFileTagsSetConditions {
     pub if_modified: Option<i64>,
     pub if_hash: Option<String>,
     pub if_old_tags: Option<HashMap<String, Vec<String>>>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum SearchSortField {
+    Name,
+    Type,
+    Size,
+    Modified,
+    ContentType,
+}
+
+impl Display for SearchSortField {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Name => write!(f, "name"),
+            Self::Type => write!(f, "type"),
+            Self::Size => write!(f, "size"),
+            Self::Modified => write!(f, "modified"),
+            Self::ContentType => write!(f, "contentType"),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum SearchSortDir {
+    Asc,
+    Desc,
+}
+
+impl Display for SearchSortDir {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Asc => write!(f, "asc"),
+            Self::Desc => write!(f, "desc"),
+        }
+    }
 }
 
 pub type Logout = Box<dyn Fn() + Send + Sync + 'static>;
@@ -807,6 +844,47 @@ impl Remote {
         }
 
         Ok(())
+    }
+
+    pub async fn search(
+        &self,
+        limit: usize,
+        offset: Option<usize>,
+        sort_field: SearchSortField,
+        sort_dir: SearchSortDir,
+        mount_id: Option<&MountId>,
+        path: Option<&RemotePath>,
+    ) -> Result<models::SearchResult, RemoteError> {
+        let mut url = format!(
+            "/api/v2.1/search?limit={}&offset={}&sortField={}&sortDir={}",
+            limit,
+            offset.unwrap_or_default(),
+            sort_field,
+            sort_dir,
+        );
+
+        if let Some(mount_id) = mount_id {
+            url = format!("{}&mountId={}", url, encode(&mount_id.0));
+        }
+
+        if let Some(path) = path {
+            url = format!("{}&path={}", url, encode(&path.0));
+        }
+
+        let res = self
+            .request(HttpRequest {
+                method: String::from("GET"),
+                url,
+                is_retriable: true,
+                ..Default::default()
+            })
+            .await?;
+
+        if res.status_code() != 200 {
+            return res_error(res).await;
+        }
+
+        res_json(res).await
     }
 }
 
