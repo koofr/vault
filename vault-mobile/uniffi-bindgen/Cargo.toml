@@ -4,4 +4,4 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-uniffi = { version = "0.24.3", features = ["build", "cli"] }
+uniffi = { version = "0.29.4", features = ["build", "cli"] }
