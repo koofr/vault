@@ -98,7 +98,7 @@ class DownloadOutputStreamProvider constructor(
         }
     }
 
-    override fun open() {
+    override fun openFile() {
         downloaded?.let { (uri, contentType) ->
             onOpen(uri, contentType)
         }

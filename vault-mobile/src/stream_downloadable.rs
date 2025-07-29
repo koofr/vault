@@ -93,7 +93,7 @@ impl Downloadable for StreamDownloadable {
     }
 
     async fn open(&self) -> Result<(), DownloadableError> {
-        self.blocking(move |stream_provider| stream_provider.open())
+        self.blocking(move |stream_provider| stream_provider.open_file())
             .await
     }
 }

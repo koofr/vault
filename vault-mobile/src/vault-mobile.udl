@@ -186,7 +186,7 @@ callback interface DownloadStreamProvider {
   void done(string? error);
 
   [Throws=StreamError]
-  void open();
+  void open_file();
 
   [Throws=StreamError]
   void dispose();

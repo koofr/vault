@@ -528,7 +528,7 @@ pub trait DownloadStreamProvider: Send + Sync + Debug {
         unique_name: Option<String>,
     ) -> Result<Box<dyn DownloadStream>, StreamError>;
     fn done(&self, error: Option<String>) -> Result<(), StreamError>;
-    fn open(&self) -> Result<(), StreamError>;
+    fn open_file(&self) -> Result<(), StreamError>;
     fn dispose(&self) -> Result<(), StreamError>;
 }
 
