@@ -15,7 +15,7 @@ public enum ReposListItem: Hashable {
     }
 }
 
-public enum RedirecToRepoCreate: Equatable {
+public enum RedirectToRepoCreate: Equatable {
     case loading
     case notNeeded
     case shouldRedirect
@@ -31,7 +31,7 @@ public class ReposScreenViewModel: ObservableObject {
 
     @Published public var appearCount: Int = 0
 
-    @Published public var redirecToRepoCreate: RedirecToRepoCreate = .loading
+    @Published public var redirectToRepoCreate: RedirectToRepoCreate = .loading
 
     init(container: Container, navController: MainNavController) {
         self.container = container
@@ -53,11 +53,11 @@ public class ReposScreenViewModel: ObservableObject {
                 var items = [ReposListItem]()
 
                 if let data = data {
-                    if redirecToRepoCreate == .loading && data.status == .loaded {
+                    if redirectToRepoCreate == .loading && data.status == .loaded {
                         if data.repos.isEmpty {
-                            redirecToRepoCreate = .shouldRedirect
+                            redirectToRepoCreate = .shouldRedirect
                         } else {
-                            redirecToRepoCreate = .notNeeded
+                            redirectToRepoCreate = .notNeeded
                         }
                     }
 
@@ -76,8 +76,8 @@ public class ReposScreenViewModel: ObservableObject {
     }
 
     func checkRedirectToCreate() {
-        if redirecToRepoCreate == .shouldRedirect {
-            redirecToRepoCreate = .redirected
+        if redirectToRepoCreate == .shouldRedirect {
+            redirectToRepoCreate = .redirected
 
             navController.push(.repoCreate)
         }
@@ -165,7 +165,7 @@ public struct ReposScreen: View {
 
             vm.checkRedirectToCreate()
         }
-        .onChange(of: vm.redirecToRepoCreate) { _ in
+        .onChange(of: vm.redirectToRepoCreate) { _ in
             vm.checkRedirectToCreate()
         }
     }
