@@ -43,10 +43,45 @@ pub struct RepoFilesBrowserInfo<'a> {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct RepoFilesBrowserLocation {
-    pub repo_id: RepoId,
-    pub path: EncryptedPath,
-    pub eventstream_mount_subscription: Option<MountSubscription>,
+pub enum RepoFilesBrowserLocation {
+    Storage {
+        repo_id: RepoId,
+        path: EncryptedPath,
+        eventstream_mount_subscription: Option<MountSubscription>,
+    },
+}
+
+impl RepoFilesBrowserLocation {
+    pub fn repo_id(&self) -> &RepoId {
+        match self {
+            Self::Storage { repo_id, .. } => repo_id,
+        }
+    }
+
+    pub fn eq_ignore_transient(&self, other: &Self) -> bool {
+        match (self, other) {
+            (
+                Self::Storage {
+                    repo_id: self_repo_id,
+                    path: self_path,
+                    ..
+                },
+                Self::Storage {
+                    repo_id: other_repo_id,
+                    path: other_path,
+                    ..
+                },
+            ) => self_repo_id == other_repo_id && self_path == other_path,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum RepoFilesBrowserSource {
+    Storage {
+        repo_id: RepoId,
+        encrypted_path: EncryptedPath,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq)]

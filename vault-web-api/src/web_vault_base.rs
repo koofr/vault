@@ -957,15 +957,12 @@ impl WebVaultBase {
 
     pub fn repo_files_browsers_create(
         &self,
-        repo_id: String,
-        encrypted_path: String,
+        source: dto::RepoFilesBrowserSource,
         options: dto::RepoFilesBrowserOptions,
     ) -> u32 {
-        let (browser_id, load_future) = self.vault.repo_files_browsers_create(
-            RepoId(repo_id),
-            &EncryptedPath(encrypted_path),
-            options.into(),
-        );
+        let (browser_id, load_future) = self
+            .vault
+            .repo_files_browsers_create(source.into(), options.into());
 
         let errors = self.errors.clone();
 

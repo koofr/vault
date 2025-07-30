@@ -13,6 +13,7 @@ use crate::{
         },
         state::{RepoFile, RepoFilesSortField},
     },
+    repo_files_browsers::state::{RepoFilesBrowserLocation, RepoFilesBrowserSource},
     repo_files_move::{RepoFilesMoveService, errors::ShowError, state::RepoFilesMoveMode},
     repo_files_read::{
         RepoFilesReadService, errors::GetFilesReaderError, state::RepoFileReaderProvider,
@@ -20,7 +21,7 @@ use crate::{
     runtime::runtime,
     sort::state::SortDirection,
     store,
-    types::{DecryptedName, EncryptedPath, RepoFileId, RepoId},
+    types::{DecryptedName, EncryptedPath, RepoFileId},
 };
 
 use super::{mutations, selectors, state::RepoFilesBrowserOptions};
@@ -96,12 +97,11 @@ impl RepoFilesBrowsersService {
 
     pub fn create(
         self: Arc<Self>,
-        repo_id: RepoId,
-        path: &EncryptedPath,
+        source: RepoFilesBrowserSource,
         options: RepoFilesBrowserOptions,
     ) -> (u32, BoxFuture<'static, Result<(), LoadFilesError>>) {
         let browser_id = self.store.mutate(|state, notify, mutation_state, _| {
-            mutations::create(state, notify, mutation_state, options, repo_id, path)
+            mutations::create(state, notify, mutation_state, source, options)
         });
 
         let load_future: BoxFuture<'static, Result<(), LoadFilesError>> = if self
@@ -141,14 +141,18 @@ impl RepoFilesBrowsersService {
         store: Arc<store::Store>,
         browser_id: u32,
     ) -> Result<(), LoadFilesError> {
-        if let Some((repo_id, path)) =
-            store.with_state(|state| selectors::select_repo_id_path_owned(state, browser_id))
+        if let Some(location) =
+            store.with_state(|state| selectors::select_browser_location_owned(state, browser_id))
         {
             store.mutate(|state, notify, _, _| {
                 mutations::loading(state, notify, browser_id);
             });
 
-            let res = repo_files_service.load_files(&repo_id, &path).await;
+            let res = match &location {
+                RepoFilesBrowserLocation::Storage { repo_id, path, .. } => {
+                    repo_files_service.load_files(repo_id, path).await
+                }
+            };
 
             store.mutate(|state, notify, mutation_state, _| {
                 mutations::loaded(
@@ -156,8 +160,7 @@ impl RepoFilesBrowsersService {
                     notify,
                     mutation_state,
                     browser_id,
-                    &repo_id,
-                    &path,
+                    &location,
                     res.as_ref().err(),
                 );
             });

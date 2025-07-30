@@ -25,10 +25,15 @@ pub fn get_eventstream_mount_subscriber(browser_id: u32) -> String {
 
 pub fn select_file_ids<'a>(
     state: &'a store::State,
-    repo_id: &RepoId,
-    path: &EncryptedPath,
-) -> impl Iterator<Item = &'a RepoFileId> {
-    repo_files_selectors::select_files(state, repo_id, path).map(|file| &file.id)
+    location: &RepoFilesBrowserLocation,
+) -> Vec<RepoFileId> {
+    match location {
+        RepoFilesBrowserLocation::Storage { repo_id, path, .. } => {
+            repo_files_selectors::select_files(state, repo_id, path)
+                .map(|file| file.id.clone())
+                .collect()
+        }
+    }
 }
 
 pub fn select_browser<'a>(
@@ -45,21 +50,20 @@ pub fn select_browser_location<'a>(
     select_browser(state, browser_id).and_then(|browser| browser.location.as_ref())
 }
 
-pub fn select_repo_id<'a>(state: &'a store::State, browser_id: u32) -> Option<&'a RepoId> {
-    select_browser_location(state, browser_id).map(|loc| &loc.repo_id)
-}
-
-pub fn select_repo_id_path_owned(
+pub fn select_browser_location_owned(
     state: &store::State,
     browser_id: u32,
-) -> Option<(RepoId, EncryptedPath)> {
-    select_browser_location(state, browser_id).map(|loc| (loc.repo_id.clone(), loc.path.clone()))
+) -> Option<RepoFilesBrowserLocation> {
+    select_browser_location(state, browser_id).cloned()
+}
+
+pub fn select_repo_id<'a>(state: &'a store::State, browser_id: u32) -> Option<&'a RepoId> {
+    select_browser_location(state, browser_id).map(|loc| loc.repo_id())
 }
 
 pub fn select_repo<'a>(state: &'a store::State, browser_id: u32) -> Option<&'a Repo> {
-    select_browser(state, browser_id)
-        .and_then(|browser| browser.location.as_ref())
-        .and_then(|loc| repos_selectors::select_repo(state, &loc.repo_id).ok())
+    select_repo_id(state, browser_id)
+        .and_then(|repo_id| repos_selectors::select_repo(state, repo_id).ok())
 }
 
 pub fn select_repo_state<'a>(state: &'a store::State, browser_id: u32) -> Option<&'a RepoState> {
@@ -134,7 +138,7 @@ pub fn select_status<'a>(
             Status::Initial | Status::Loading { loaded: false } => {
                 Status::Loading { loaded: false }
             }
-            _ => match repos_selectors::select_repo(state, &location.repo_id) {
+            _ => match repos_selectors::select_repo(state, location.repo_id()) {
                 Ok(repo) => {
                     if matches!(repo.state, RepoState::Locked) {
                         Status::Error {
@@ -160,8 +164,10 @@ pub fn select_info<'a>(
     browser_id: u32,
 ) -> Option<RepoFilesBrowserInfo<'a>> {
     select_browser(state, browser_id).map(|browser| {
-        let repo_id = browser.location.as_ref().map(|loc| &loc.repo_id);
-        let path = browser.location.as_ref().map(|loc| &loc.path);
+        let repo_id = browser.location.as_ref().map(|loc| loc.repo_id());
+        let path = browser.location.as_ref().and_then(|loc| match loc {
+            RepoFilesBrowserLocation::Storage { path, .. } => Some(path),
+        });
         let selection_summary = select_selection_summary(state, browser_id);
         let sort = browser.sort.clone();
         let items = select_items(state, browser_id);
@@ -231,8 +237,11 @@ pub fn select_breadcrumbs<'a>(
 }
 
 pub fn select_root_file_id(state: &store::State, browser_id: u32) -> Option<RepoFileId> {
-    select_browser_location(state, browser_id)
-        .map(|loc| repo_files_selectors::get_file_id(&loc.repo_id, &loc.path))
+    select_browser_location(state, browser_id).and_then(|loc| match loc {
+        RepoFilesBrowserLocation::Storage { repo_id, path, .. } => {
+            Some(repo_files_selectors::get_file_id(repo_id, path))
+        }
+    })
 }
 
 pub fn select_root_file<'a>(state: &'a store::State, browser_id: u32) -> Option<&'a RepoFile> {
@@ -247,10 +256,10 @@ pub fn select_browsers_to_load(
     let mut browser_ids = vec![];
 
     if !mutation_state.repos.unlocked_repos.is_empty() {
-        for (repo_id, _) in &mutation_state.repos.unlocked_repos {
+        for (unlocked_repo_id, _) in &mutation_state.repos.unlocked_repos {
             for browser in state.repo_files_browsers.browsers.values() {
-                if let Some(location) = &browser.location {
-                    if &location.repo_id == repo_id {
+                if let Some(browser_repo_id) = browser.location.as_ref().map(|loc| loc.repo_id()) {
+                    if browser_repo_id == unlocked_repo_id {
                         browser_ids.push(browser.id);
                     }
                 }
@@ -260,8 +269,8 @@ pub fn select_browsers_to_load(
 
     for browser in state.repo_files_browsers.browsers.values() {
         if matches!(browser.status, Status::Initial) {
-            if let Some(location) = &browser.location {
-                match repos_selectors::select_repo(state, &location.repo_id) {
+            if let Some(browser_repo_id) = browser.location.as_ref().map(|loc| loc.repo_id()) {
+                match repos_selectors::select_repo(state, browser_repo_id) {
                     Ok(repo) if repo.state.is_unlocked() && !browser_ids.contains(&browser.id) => {
                         browser_ids.push(browser.id);
                     }

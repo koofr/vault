@@ -22,7 +22,7 @@ public class RepoFilesMoveScreenViewModel: ObservableObject, WithRepoGuardViewMo
         self.encryptedPath = encryptedPath
 
         let browserId = container.mobileVault.repoFilesBrowsersCreate(
-            repoId: repoId, encryptedPath: encryptedPath,
+            source: .storage(repoId: repoId, encryptedPath: encryptedPath),
             options: RepoFilesBrowserOptions(selectName: nil))
 
         self.browserId = browserId

@@ -25,9 +25,16 @@ export function useBrowser(
       return lastBrowserId.current;
     }
 
-    const browserId = webVault.repoFilesBrowsersCreate(repoId, encryptedPath, {
-      selectName,
-    });
+    const browserId = webVault.repoFilesBrowsersCreate(
+      {
+        type: 'Storage',
+        repoId,
+        encryptedPath,
+      },
+      {
+        selectName,
+      },
+    );
 
     lastRepoId.current = repoId;
     lastEncryptedPath.current = encryptedPath;

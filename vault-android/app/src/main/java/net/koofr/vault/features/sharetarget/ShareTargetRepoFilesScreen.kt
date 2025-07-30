@@ -27,6 +27,7 @@ import net.koofr.vault.MobileVault
 import net.koofr.vault.RepoFilesBrowserDirCreated
 import net.koofr.vault.RepoFilesBrowserItem
 import net.koofr.vault.RepoFilesBrowserOptions
+import net.koofr.vault.RepoFilesBrowserSource
 import net.koofr.vault.composables.EmptyFolderView
 import net.koofr.vault.composables.RefreshableList
 import net.koofr.vault.features.fileicon.FileIconCache
@@ -52,8 +53,7 @@ class ShareTargetRepoFilesViewModel @Inject constructor(
     private var repoGuardViewModel: RepoGuardViewModel? = null
 
     val browserId = mobileVault.repoFilesBrowsersCreate(
-        repoId = repoId,
-        encryptedPath = encryptedPath,
+        source = RepoFilesBrowserSource.Storage(repoId = repoId, encryptedPath = encryptedPath),
         options = RepoFilesBrowserOptions(
             selectName = null,
         ),

@@ -538,6 +538,11 @@ callback interface TransfersDownloadDone {
 
 // repo_files_browsers
 
+[Enum]
+interface RepoFilesBrowserSource {
+  Storage(string repo_id, string encrypted_path);
+};
+
 dictionary RepoFilesBrowserOptions {
   string? select_name;
 };
@@ -822,7 +827,7 @@ interface MobileVault {
   // repo_files_browsers
 
   [Self=ByArc]
-  u32 repo_files_browsers_create(string repo_id, string encrypted_path, RepoFilesBrowserOptions options);
+  u32 repo_files_browsers_create(RepoFilesBrowserSource source, RepoFilesBrowserOptions options);
   void repo_files_browsers_destroy(u32 browser_id);
   u32 repo_files_browsers_info_subscribe(u32 browser_id, SubscriptionCallback cb);
   RepoFilesBrowserInfo? repo_files_browsers_info_data(u32 id);

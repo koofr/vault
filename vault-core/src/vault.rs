@@ -752,8 +752,7 @@ impl Vault {
 
     pub fn repo_files_browsers_create(
         &self,
-        repo_id: RepoId,
-        path: &EncryptedPath,
+        source: repo_files_browsers::state::RepoFilesBrowserSource,
         options: repo_files_browsers::state::RepoFilesBrowserOptions,
     ) -> (
         u32,
@@ -761,7 +760,7 @@ impl Vault {
     ) {
         self.repo_files_browsers_service
             .clone()
-            .create(repo_id, path, options)
+            .create(source, options)
     }
 
     pub fn repo_files_browsers_destroy(&self, browser_id: u32) {

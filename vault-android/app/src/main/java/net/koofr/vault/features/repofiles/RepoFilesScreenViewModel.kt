@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import net.koofr.vault.MobileVault
 import net.koofr.vault.RepoFile
 import net.koofr.vault.RepoFilesBrowserOptions
+import net.koofr.vault.RepoFilesBrowserSource
 import net.koofr.vault.features.downloads.DownloadHelper
 import net.koofr.vault.features.fileicon.FileIconCache
 import net.koofr.vault.features.mobilevault.Subscription
@@ -46,8 +47,7 @@ class RepoFilesScreenViewModel @Inject constructor(
     val sortSheetState = mutableStateOf(SheetState(false, SheetValue.Hidden, { true }, false))
 
     val browserId = mobileVault.repoFilesBrowsersCreate(
-        repoId = repoId,
-        encryptedPath = encryptedPath,
+        source = RepoFilesBrowserSource.Storage(repoId = repoId, encryptedPath = encryptedPath),
         options = RepoFilesBrowserOptions(
             selectName = null,
         ),

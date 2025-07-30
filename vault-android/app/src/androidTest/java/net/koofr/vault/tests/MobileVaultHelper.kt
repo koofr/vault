@@ -4,6 +4,7 @@ import net.koofr.vault.MobileVault
 import net.koofr.vault.Repo
 import net.koofr.vault.RepoFile
 import net.koofr.vault.RepoFilesBrowserOptions
+import net.koofr.vault.RepoFilesBrowserSource
 import net.koofr.vault.RepoUnlockMode
 import net.koofr.vault.RepoUnlockOptions
 import net.koofr.vault.RepoUnlockUnlocked
@@ -125,8 +126,7 @@ class MobileVaultHelper constructor(private val mobileVault: MobileVault) {
 
     fun uploadFile(repo: Repo, encryptedParentPath: String, name: String, content: String): RepoFile {
         val browserId = mobileVault.repoFilesBrowsersCreate(
-            repoId = repo.id,
-            encryptedPath = encryptedParentPath,
+            source = RepoFilesBrowserSource.Storage(repoId = repo.id, encryptedPath = encryptedParentPath),
             options = RepoFilesBrowserOptions(selectName = null),
         )
 

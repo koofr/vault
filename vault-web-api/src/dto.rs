@@ -30,7 +30,7 @@ use vault_core::{
     space_usage::state as space_usage_state,
     store,
     transfers::{selectors as transfers_selectors, state as transfers_state},
-    types::{DecryptedName, TimeMillis},
+    types::{DecryptedName, EncryptedPath, RepoId, TimeMillis},
     user::state as user_state,
     user_error::UserError,
 };
@@ -1017,6 +1017,31 @@ impl From<repo_files_state::RepoFilesUploadResult> for RepoFilesUploadResult {
         Self {
             file_id: result.file_id.0,
             name: result.name.0,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+#[serde(tag = "type")]
+pub enum RepoFilesBrowserSource {
+    Storage {
+        #[serde(rename = "repoId")]
+        repo_id: String,
+        #[serde(rename = "encryptedPath")]
+        encrypted_path: String,
+    },
+}
+
+impl Into<repo_files_browsers_state::RepoFilesBrowserSource> for RepoFilesBrowserSource {
+    fn into(self) -> repo_files_browsers_state::RepoFilesBrowserSource {
+        match self {
+            RepoFilesBrowserSource::Storage {
+                repo_id,
+                encrypted_path,
+            } => repo_files_browsers_state::RepoFilesBrowserSource::Storage {
+                repo_id: RepoId(repo_id),
+                encrypted_path: EncryptedPath(encrypted_path),
+            },
         }
     }
 }

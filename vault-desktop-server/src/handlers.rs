@@ -1134,9 +1134,9 @@ pub async fn dir_pickers_items_data(
 
 pub async fn repo_files_browsers_create(
     ExtractBase(base): ExtractBase,
-    Json((repo_id, encrypted_path, options)): Json<(String, String, dto::RepoFilesBrowserOptions)>,
+    Json((source, options)): Json<(dto::RepoFilesBrowserSource, dto::RepoFilesBrowserOptions)>,
 ) -> Json<u32> {
-    Json(base.repo_files_browsers_create(repo_id, encrypted_path, options))
+    Json(base.repo_files_browsers_create(source, options))
 }
 
 pub async fn repo_files_browsers_destroy(

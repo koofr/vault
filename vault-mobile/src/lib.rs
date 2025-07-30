@@ -1487,6 +1487,28 @@ pub fn transfers_download_done_to_on_done(
 // repo_files_browsers
 
 #[derive(Clone, Debug, PartialEq)]
+pub enum RepoFilesBrowserSource {
+    Storage {
+        repo_id: String,
+        encrypted_path: String,
+    },
+}
+
+impl Into<repo_files_browsers_state::RepoFilesBrowserSource> for RepoFilesBrowserSource {
+    fn into(self) -> repo_files_browsers_state::RepoFilesBrowserSource {
+        match self {
+            RepoFilesBrowserSource::Storage {
+                repo_id,
+                encrypted_path,
+            } => repo_files_browsers_state::RepoFilesBrowserSource::Storage {
+                repo_id: RepoId(repo_id),
+                encrypted_path: EncryptedPath(encrypted_path),
+            },
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
 pub struct RepoFilesBrowserOptions {
     pub select_name: Option<String>,
 }
@@ -3025,15 +3047,12 @@ impl MobileVault {
 
     pub fn repo_files_browsers_create(
         self: Arc<Self>,
-        repo_id: String,
-        encrypted_path: String,
+        source: RepoFilesBrowserSource,
         options: RepoFilesBrowserOptions,
     ) -> u32 {
-        let (browser_id, load_future) = self.vault.repo_files_browsers_create(
-            RepoId(repo_id),
-            &EncryptedPath(encrypted_path),
-            options.into(),
-        );
+        let (browser_id, load_future) = self
+            .vault
+            .repo_files_browsers_create(source.into(), options.into());
 
         self.clone().spawn_result(async move { load_future.await });
 

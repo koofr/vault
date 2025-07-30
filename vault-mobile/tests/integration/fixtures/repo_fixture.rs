@@ -144,8 +144,10 @@ impl RepoFixture {
         let f = Arc::new(f);
 
         let browser_id = self.mobile_vault.clone().repo_files_browsers_create(
-            self.repo_id.clone(),
-            path.to_owned(),
+            vault_mobile::RepoFilesBrowserSource::Storage {
+                repo_id: self.repo_id.clone(),
+                encrypted_path: path.to_owned(),
+            },
             RepoFilesBrowserOptions { select_name: None },
         );
 

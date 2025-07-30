@@ -40,6 +40,7 @@ import net.koofr.vault.MobileVault
 import net.koofr.vault.RepoFilesBrowserDirCreated
 import net.koofr.vault.RepoFilesBrowserItem
 import net.koofr.vault.RepoFilesBrowserOptions
+import net.koofr.vault.RepoFilesBrowserSource
 import net.koofr.vault.RepoFilesMoveMode
 import net.koofr.vault.composables.EmptyFolderView
 import net.koofr.vault.composables.RefreshableList
@@ -66,8 +67,7 @@ class RepoFilesMoveScreenViewModel @Inject constructor(
     private var repoGuardViewModel: RepoGuardViewModel? = null
 
     val browserId = mobileVault.repoFilesBrowsersCreate(
-        repoId = repoId,
-        encryptedPath = encryptedPath,
+        source = RepoFilesBrowserSource.Storage(repoId = repoId, encryptedPath = encryptedPath),
         options = RepoFilesBrowserOptions(
             selectName = null,
         ),
