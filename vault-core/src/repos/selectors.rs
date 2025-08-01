@@ -8,8 +8,8 @@ use crate::{
 };
 
 use super::{
-    errors::{GetCipherError, RepoInfoError, RepoLockedError, RepoNotFoundError},
-    state::{Repo, RepoAutoLock, RepoInfo, RepoState},
+    errors::{GetCipherError, RepoInfoError, RepoNotFoundError},
+    state::{Repo, RepoAutoLock, RepoInfo},
 };
 
 pub fn select_repos<'a>(state: &'a store::State) -> Vec<&'a Repo> {
@@ -96,10 +96,7 @@ pub fn select_cipher<'a>(
 ) -> Result<&'a Cipher, GetCipherError> {
     select_repo(state, repo_id)
         .map_err(Into::into)
-        .and_then(|repo| match &repo.state {
-            RepoState::Locked => Err(GetCipherError::RepoLocked(RepoLockedError)),
-            RepoState::Unlocked { cipher } => Ok(cipher.as_ref()),
-        })
+        .and_then(|repo| repo.get_cipher().map(|x| x.as_ref()))
 }
 
 pub fn select_cipher_owned(
@@ -108,10 +105,7 @@ pub fn select_cipher_owned(
 ) -> Result<Arc<Cipher>, GetCipherError> {
     select_repo(state, repo_id)
         .map_err(Into::into)
-        .and_then(|repo| match &repo.state {
-            RepoState::Locked => Err(GetCipherError::RepoLocked(RepoLockedError)),
-            RepoState::Unlocked { cipher } => Ok(cipher.clone()),
-        })
+        .and_then(|repo| repo.get_cipher().cloned())
 }
 
 pub fn select_auto_locks(state: &store::State) -> HashMap<RepoId, RepoAutoLock> {

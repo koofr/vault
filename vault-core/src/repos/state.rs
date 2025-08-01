@@ -7,6 +7,7 @@ use crate::{
     common::state::Status,
     remote::RemoteError,
     remote_files::state::RemoteFilesLocation,
+    repos::errors::{GetCipherError, RepoLockedError},
     types::{DecryptedName, MountId, RemoteFileId, RemotePath, RepoId, TimeMillis},
 };
 
@@ -126,6 +127,13 @@ impl Repo {
         RemoteFilesLocation {
             mount_id: self.mount_id.clone(),
             path: self.path.clone(),
+        }
+    }
+
+    pub fn get_cipher(&self) -> Result<&Arc<Cipher>, GetCipherError> {
+        match &self.state {
+            RepoState::Locked => Err(GetCipherError::RepoLocked(RepoLockedError)),
+            RepoState::Unlocked { cipher } => Ok(cipher),
         }
     }
 }
