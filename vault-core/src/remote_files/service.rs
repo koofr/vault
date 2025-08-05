@@ -5,7 +5,9 @@ use crate::{
     dialogs,
     remote::{
         Remote, RemoteError, RemoteFileUploadConflictResolution,
-        remote::{ListRecursiveItemStream, RemoteFileTagsSetConditions},
+        remote::{
+            ListRecursiveItemStream, RemoteFileTagsSetConditions, SearchSortDir, SearchSortField,
+        },
     },
     store,
     types::{MountId, RemoteFileId, RemoteName, RemotePath},
@@ -395,6 +397,42 @@ impl RemoteFilesService {
                     path,
                     tags,
                     &conditions,
+                );
+            });
+
+        Ok(())
+    }
+
+    pub async fn load_recent(
+        &self,
+        mount_id: &MountId,
+        path: &RemotePath,
+        limit: usize,
+        offset: Option<usize>,
+    ) -> Result<(), RemoteError> {
+        let result = self
+            .remote
+            .search(
+                limit,
+                offset,
+                SearchSortField::Modified,
+                SearchSortDir::Desc,
+                Some(mount_id),
+                Some(path),
+            )
+            .await?;
+
+        self.store
+            .mutate(|state, notify, mutation_state, mutation_notify| {
+                notify(store::Event::RemoteFiles);
+
+                mutations::recent_loaded(
+                    state,
+                    mutation_state,
+                    mutation_notify,
+                    mount_id,
+                    path,
+                    result,
                 );
             });
 

@@ -201,6 +201,43 @@ fn shared_file_to_remote_file(id: RemoteFileId, shared_file: models::SharedFile)
     }
 }
 
+pub fn search_hit_to_remote_file(hit: models::SearchHit) -> RemoteFile {
+    let mount_id = hit.mount_id;
+    let path = hit.path;
+    let id = selectors::get_file_id(&mount_id, &path.to_lowercase());
+    let name = hit.name;
+    let name_lower = name.to_lowercase();
+    let typ = hit.typ.as_str().into();
+    let (ext, category) = match &typ {
+        RemoteFileType::Dir => (None, FileCategory::Folder),
+        RemoteFileType::File => selectors::get_file_ext_category(&name_lower),
+    };
+    let size = match &typ {
+        RemoteFileType::Dir => None,
+        RemoteFileType::File => Some(hit.size),
+    };
+    let modified = hit.modified;
+    let tags = hit.tags;
+    let unique_id =
+        selectors::get_file_unique_id(&mount_id, &path.to_lowercase(), size, Some(modified), None);
+
+    RemoteFile {
+        id,
+        mount_id,
+        path,
+        name,
+        name_lower,
+        ext,
+        typ,
+        size,
+        modified: Some(modified),
+        hash: None,
+        tags,
+        unique_id,
+        category,
+    }
+}
+
 pub fn mount_loaded(state: &mut store::State, mount: models::Mount) {
     state
         .remote_files
@@ -560,6 +597,9 @@ pub fn file_removed(
     notify(store::Event::RemoteFiles);
 
     let file_id = selectors::get_file_id(mount_id, &path.to_lowercase());
+    let file_id_prefix = selectors::get_file_id_prefix(&file_id);
+
+    // Update files
 
     if let Some(parent_path) = remote_path_utils::parent_path(path) {
         let parent_id = selectors::get_file_id(mount_id, &parent_path.to_lowercase());
@@ -567,7 +607,24 @@ pub fn file_removed(
         remove_child(state, &parent_id, &file_id);
     }
 
-    cleanup_file(state, &file_id);
+    cleanup_file(state, &file_id, &file_id_prefix);
+
+    // Update recent
+
+    state.remote_files.recent.remove(&file_id);
+
+    state
+        .remote_files
+        .recent
+        .retain(|root_file_id, _| !root_file_id.0.starts_with(&file_id_prefix));
+
+    for (_, recent_file_ids) in &mut state.remote_files.recent {
+        recent_file_ids.retain(|recent_file_id| {
+            !(recent_file_id == &file_id || recent_file_id.0.starts_with(&file_id_prefix))
+        });
+    }
+
+    // Mutation notify
 
     mutation_state
         .remote_files
@@ -577,26 +634,20 @@ pub fn file_removed(
     mutation_notify(store::MutationEvent::RemoteFiles, state, mutation_state);
 }
 
-pub fn cleanup_file(state: &mut store::State, file_id: &RemoteFileId) {
+pub fn cleanup_file(state: &mut store::State, file_id: &RemoteFileId, file_id_prefix: &str) {
     state.remote_files.files.remove(file_id);
-
-    let file_id_prefix = if file_id.0.ends_with('/') {
-        file_id.0.to_owned()
-    } else {
-        format!("{}/", file_id.0)
-    };
 
     state
         .remote_files
         .files
-        .retain(|file_id, _| !file_id.0.starts_with(&file_id_prefix));
+        .retain(|file_id, _| !file_id.0.starts_with(file_id_prefix));
 
     state.remote_files.children.remove(file_id);
 
     state
         .remote_files
         .children
-        .retain(|file_id, _| !file_id.0.starts_with(&file_id_prefix));
+        .retain(|file_id, _| !file_id.0.starts_with(file_id_prefix));
 }
 
 pub fn file_copied(
@@ -651,7 +702,9 @@ pub fn file_moved(
 ) {
     notify(store::Event::RemoteFiles);
 
+    let old_path_prefix = selectors::get_path_prefix(&old_path);
     let old_file_id = selectors::get_file_id(mount_id, &old_path.to_lowercase());
+    let old_file_id_prefix = selectors::get_file_id_prefix(&old_file_id);
     let old_parent_path = match remote_path_utils::parent_path(old_path) {
         Some(old_parent_path) => old_parent_path,
         None => {
@@ -660,13 +713,18 @@ pub fn file_moved(
     };
     let old_parent_id = selectors::get_file_id(mount_id, &old_parent_path.to_lowercase());
 
+    let new_path_prefix = selectors::get_path_prefix(&new_path);
     let new_file_id = selectors::get_file_id(mount_id, &new_path.to_lowercase());
+    let new_file_id_prefix = selectors::get_file_id_prefix(&new_file_id);
     let new_parent_path = match remote_path_utils::parent_path(new_path) {
         Some(new_parent_path) => new_parent_path,
         None => {
             return;
         }
     };
+    let new_parent_id = selectors::get_file_id(mount_id, &new_parent_path.to_lowercase());
+
+    // Update files
 
     ensure_dirs(
         state,
@@ -676,8 +734,6 @@ pub fn file_moved(
         mount_id,
         &new_parent_path,
     );
-
-    let new_parent_id = selectors::get_file_id(mount_id, &new_parent_path.to_lowercase());
 
     if let Some(_) = state.remote_files.files.remove(&old_file_id) {
         file_children_change_parent_path(state, &old_file_id, new_path);
@@ -696,6 +752,77 @@ pub fn file_moved(
     remove_child(state, &old_parent_id, &old_file_id);
 
     add_child(state, &new_parent_id, new_file_id.clone());
+
+    // Update files that were not loaded as children
+
+    let mut move_file_ids = vec![];
+
+    for (file_id, file) in &state.remote_files.files {
+        if file_id.0.starts_with(&old_file_id_prefix) {
+            let new_root_file_id = RemoteFileId(format!(
+                "{}{}",
+                new_file_id_prefix,
+                &file_id.0[old_file_id_prefix.len()..],
+            ));
+            let new_path = RemotePath(format!(
+                "{}{}",
+                new_path_prefix,
+                &file.path.0[old_path_prefix.len()..],
+            ));
+
+            move_file_ids.push((file_id.clone(), new_root_file_id.clone(), new_path.clone()));
+        }
+    }
+
+    for (old_file_id, new_file_id, new_path) in move_file_ids {
+        if let Some(mut file) = state.remote_files.files.remove(&old_file_id) {
+            file.id = new_file_id.clone();
+            file.path = new_path;
+
+            state.remote_files.files.insert(new_file_id, file);
+        }
+    }
+
+    // Update recent
+
+    let mut recent_move_root_file_ids = vec![(old_file_id.clone(), new_file_id.clone())];
+
+    for (root_file_id, _) in &state.remote_files.recent {
+        if root_file_id.0.starts_with(&old_file_id_prefix) {
+            let new_root_file_id = RemoteFileId(format!(
+                "{}{}",
+                new_file_id_prefix,
+                &root_file_id.0[old_file_id_prefix.len()..],
+            ));
+
+            recent_move_root_file_ids.push((root_file_id.clone(), new_root_file_id.clone()));
+        }
+    }
+
+    for (old_root_file_id, new_root_file_id) in recent_move_root_file_ids {
+        if let Some(recent_file_ids) = state.remote_files.recent.remove(&old_root_file_id) {
+            state
+                .remote_files
+                .recent
+                .insert(new_root_file_id, recent_file_ids);
+        }
+    }
+
+    for (_, recent_file_ids) in &mut state.remote_files.recent {
+        for recent_file_id in recent_file_ids {
+            if recent_file_id == &old_file_id {
+                *recent_file_id = new_file_id.clone();
+            } else if recent_file_id.0.starts_with(&old_file_id_prefix) {
+                *recent_file_id = RemoteFileId(format!(
+                    "{}{}",
+                    new_file_id_prefix,
+                    &recent_file_id.0[old_file_id_prefix.len()..],
+                ));
+            }
+        }
+    }
+
+    // Mutation notify
 
     mutation_state.remote_files.moved_files.push((
         mount_id.to_owned(),
@@ -770,6 +897,46 @@ pub fn file_tags_updated(
     mutation_state
         .remote_files
         .tags_updated
+        .push((mount_id.to_owned(), path.to_owned()));
+
+    mutation_notify(store::MutationEvent::RemoteFiles, state, mutation_state);
+}
+
+pub fn recent_loaded(
+    state: &mut store::State,
+    mutation_state: &mut store::MutationState,
+    mutation_notify: &store::MutationNotify,
+    mount_id: &MountId,
+    path: &RemotePath,
+    result: models::SearchResult,
+) {
+    let root_file_id = selectors::get_file_id(mount_id, &path.to_lowercase());
+
+    let models::SearchResult {
+        hits: result_hits, ..
+    } = result;
+
+    let mut remote_file_ids = Vec::new();
+
+    for hit in result_hits {
+        let remote_file = search_hit_to_remote_file(hit);
+
+        remote_file_ids.push(remote_file.id.clone());
+
+        state
+            .remote_files
+            .files
+            .insert(remote_file.id.clone(), remote_file);
+    }
+
+    state
+        .remote_files
+        .recent
+        .insert(root_file_id, remote_file_ids);
+
+    mutation_state
+        .remote_files
+        .loaded_recent
         .push((mount_id.to_owned(), path.to_owned()));
 
     mutation_notify(store::MutationEvent::RemoteFiles, state, mutation_state);

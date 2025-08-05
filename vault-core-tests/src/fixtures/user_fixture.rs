@@ -1,4 +1,4 @@
-use std::{sync::Arc, time::Duration};
+use std::{collections::HashMap, sync::Arc, time::Duration};
 
 use futures::io::Cursor;
 use vault_core::{
@@ -121,6 +121,9 @@ impl UserFixture {
     }
 
     pub async fn create_remote_dir(&self, path: &str) -> RemoteFile {
+        // sleep 1 ms to ensure order of files (modified)
+        tokio::time::sleep(Duration::from_millis(1)).await;
+
         let path = RemotePath(path.to_owned());
         let (parent_path, name) = remote_path_utils::split_parent_name(&path).unwrap();
 
@@ -145,6 +148,9 @@ impl UserFixture {
     }
 
     pub async fn upload_remote_file(&self, path: &str, content: &str) -> RemoteFile {
+        // sleep 1 ms to ensure order of files (modified)
+        tokio::time::sleep(Duration::from_millis(1)).await;
+
         let path = RemotePath(path.to_owned());
         let (parent_path, name) = remote_path_utils::split_parent_name(&path).unwrap();
 
@@ -169,5 +175,16 @@ impl UserFixture {
             .unwrap();
 
         remote_file
+    }
+
+    pub fn get_remote_files_recent(&self) -> HashMap<RemoteFileId, Vec<RemoteFileId>> {
+        self.vault.store.with_state(|state| {
+            state
+                .remote_files
+                .recent
+                .iter()
+                .map(|(x, y)| (x.clone(), y.clone()))
+                .collect()
+        })
     }
 }

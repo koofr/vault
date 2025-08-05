@@ -258,6 +258,7 @@ pub struct RemoteFilesState {
     pub online_place_mount_ids: Vec<MountId>,
     pub files: HashMap<RemoteFileId, RemoteFile>,
     pub children: HashMap<RemoteFileId, Vec<RemoteFileId>>,
+    pub recent: HashMap<RemoteFileId, Vec<RemoteFileId>>,
     pub loaded_roots: HashSet<RemoteFileId>,
     pub bookmarks_loaded: bool,
     pub bookmark_file_ids: Vec<RemoteFileId>,
@@ -274,6 +275,7 @@ impl RemoteFilesState {
 #[derive(Debug, Clone, Default)]
 pub struct RemoteFilesMutationState {
     pub loaded_roots: Vec<(MountId, RemotePath)>,
+    pub loaded_recent: Vec<(MountId, RemotePath)>,
     pub created_files: Vec<(MountId, RemotePath)>,
     pub removed_files: Vec<(MountId, RemotePath)>,
     pub moved_files: Vec<(MountId, RemotePath, RemotePath)>,

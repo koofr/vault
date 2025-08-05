@@ -18,6 +18,22 @@ pub fn get_file_id(mount_id: &MountId, path: &RemotePathLower) -> RemoteFileId {
     RemoteFileId(format!("{}:{}", mount_id.0, path.0))
 }
 
+pub fn get_path_prefix(path: &RemotePath) -> String {
+    if path.0.ends_with('/') {
+        path.0.to_owned()
+    } else {
+        format!("{}/", path.0)
+    }
+}
+
+pub fn get_file_id_prefix(file_id: &RemoteFileId) -> String {
+    if file_id.0.ends_with('/') {
+        file_id.0.to_owned()
+    } else {
+        format!("{}/", file_id.0)
+    }
+}
+
 pub fn get_file_unique_id(
     mount_id: &MountId,
     path: &RemotePathLower,
@@ -78,6 +94,14 @@ pub fn select_files<'a>(
         Some(ids) => ids.iter().filter_map(|id| select_file(state, id)).collect(),
         None => vec![],
     }
+}
+
+pub fn select_recent<'a>(
+    state: &'a store::State,
+    mount_id: &MountId,
+    path: &RemotePathLower,
+) -> Option<&'a Vec<RemoteFileId>> {
+    state.remote_files.recent.get(&get_file_id(mount_id, path))
 }
 
 pub fn select_file<'a>(state: &'a store::State, file_id: &RemoteFileId) -> Option<&'a RemoteFile> {
