@@ -60,15 +60,16 @@ pub fn files_file_to_remote_file(
         RemoteFileType::Dir => (None, FileCategory::Folder),
         RemoteFileType::File => selectors::get_file_ext_category(&name_lower),
     };
-    let (size, modified) = match &typ {
-        RemoteFileType::Dir => (None, None),
-        RemoteFileType::File => (Some(file.size), Some(file.modified)),
+    let size = match &typ {
+        RemoteFileType::Dir => None,
+        RemoteFileType::File => Some(file.size),
     };
+    let modified = file.modified;
     let unique_id = selectors::get_file_unique_id(
         &mount_id,
         &path.to_lowercase(),
         size,
-        modified,
+        Some(modified),
         file.hash.as_deref(),
     );
 
@@ -81,7 +82,7 @@ pub fn files_file_to_remote_file(
         ext,
         typ,
         size,
-        modified,
+        modified: Some(modified),
         hash: file.hash,
         tags: file.tags,
         unique_id,
@@ -101,15 +102,16 @@ pub fn bundle_file_to_remote_file(
         RemoteFileType::Dir => (None, FileCategory::Folder),
         RemoteFileType::File => selectors::get_file_ext_category(&name_lower),
     };
-    let (size, modified) = match &typ {
-        RemoteFileType::Dir => (None, None),
-        RemoteFileType::File => (Some(file.size), Some(file.modified)),
+    let size = match &typ {
+        RemoteFileType::Dir => None,
+        RemoteFileType::File => Some(file.size),
     };
+    let modified = file.modified;
     let unique_id = selectors::get_file_unique_id(
         &mount_id,
         &path.to_lowercase(),
         size,
-        modified,
+        Some(modified),
         file.hash.as_deref(),
     );
 
@@ -122,7 +124,7 @@ pub fn bundle_file_to_remote_file(
         ext,
         typ,
         size,
-        modified,
+        modified: Some(modified),
         hash: file.hash,
         tags: file.tags,
         unique_id,

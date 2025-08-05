@@ -596,7 +596,7 @@ mod tests {
                 size: None,
                 modified: None,
                 tags: None,
-                unique_name: String::from("2b6bea08149b89711b061f1291492d46"),
+                unique_name: String::from("b3278dc2a959498ee943d7dbe02ae093"),
                 remote_hash: None,
                 category: FileCategory::Folder,
             }
@@ -645,9 +645,9 @@ mod tests {
                 content_type: None,
                 typ: RepoFileType::Dir,
                 size: None,
-                modified: None,
+                modified: Some(1),
                 tags: None,
-                unique_name: String::from("4d6bb967e30d7a5d36c3e6b607d71cf2"),
+                unique_name: String::from("0d54d1cb1830c80318d2bde653bda396"),
                 remote_hash: None,
                 category: FileCategory::Folder,
             }
@@ -693,9 +693,9 @@ mod tests {
                 content_type: None,
                 typ: RepoFileType::Dir,
                 size: None,
-                modified: None,
+                modified: Some(1),
                 tags: None,
-                unique_name: String::from("a2216f6522ef8e23512f13d37592b43b"),
+                unique_name: String::from("f8a02d0ff4cb571f2c17c05dc8bdf626"),
                 remote_hash: None,
                 category: FileCategory::Folder,
             }
