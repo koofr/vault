@@ -367,24 +367,7 @@ pub fn decrypt_files(
         remote_files_selectors::get_file_id(mount_id, &remote_path.to_lowercase());
 
     if let Some(root_remote_file) = remote_files.files.get(&root_remote_file_id) {
-        let root_repo_file = if encrypted_path.is_root() {
-            get_root_file(repo, root_remote_file)
-        } else {
-            let encrypted_parent_path = EncryptedPath(
-                path_utils::parent_path(&encrypted_path.0)
-                    .unwrap()
-                    .to_owned(),
-            );
-            let decrypted_parent_path = cipher.decrypt_path(&encrypted_parent_path);
-
-            decrypt_file(
-                repo,
-                &encrypted_parent_path,
-                &decrypted_parent_path,
-                root_remote_file,
-                &cipher,
-            )
-        };
+        let root_repo_file = decrypt_file_path(repo, encrypted_path, root_remote_file, cipher);
         let root_repo_file_id = root_repo_file.id.clone();
 
         repo_files
@@ -433,6 +416,32 @@ pub fn decrypt_files(
         let file_id = selectors::get_file_id(&repo.id, &encrypted_path);
 
         repo_files.files.remove(&file_id);
+    }
+}
+
+pub fn decrypt_file_path(
+    repo: RepoIdNameRef,
+    encrypted_path: &EncryptedPath,
+    remote_file: &RemoteFile,
+    cipher: &Cipher,
+) -> RepoFile {
+    if encrypted_path.is_root() {
+        get_root_file(repo, remote_file)
+    } else {
+        let encrypted_parent_path = EncryptedPath(
+            path_utils::parent_path(&encrypted_path.0)
+                .unwrap()
+                .to_owned(),
+        );
+        let decrypted_parent_path = cipher.decrypt_path(&encrypted_parent_path);
+
+        decrypt_file(
+            repo,
+            &encrypted_parent_path,
+            &decrypted_parent_path,
+            remote_file,
+            &cipher,
+        )
     }
 }
 
