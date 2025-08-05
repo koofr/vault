@@ -3,7 +3,8 @@ use crate::{
     remote::{RemoteError, models},
     remote_files::{mutations as remote_files_mutations, selectors as remote_files_selectors},
     repo_files::mutations as repo_files_mutations,
-    types::{DecryptedPath, EncryptedPath, MountId, RemotePath, RepoId},
+    repos::state::RepoIdNameRef,
+    types::{DecryptedPath, EncryptedPath, MountId, RemotePath},
     utils::{path_utils, remote_path_utils, repo_path_utils},
 };
 
@@ -12,7 +13,7 @@ use super::{errors::FilesListRecursiveItemError, state::RepoFilesListRecursiveIt
 pub fn decrypt_files_list_recursive_item(
     mount_id: &MountId,
     root_remote_path: &RemotePath,
-    repo_id: &RepoId,
+    repo: RepoIdNameRef,
     encrypted_root_path: &EncryptedPath,
     root_path: &Result<DecryptedPath, DecryptFilenameError>,
     item: models::FilesListRecursiveItem,
@@ -34,7 +35,7 @@ pub fn decrypt_files_list_recursive_item(
             );
             let (repo_file, relative_repo_path) = if remote_item_path.is_root() {
                 (
-                    repo_files_mutations::get_root_file(repo_id, &remote_file),
+                    repo_files_mutations::get_root_file(repo, &remote_file),
                     Ok(DecryptedPath("/".into())),
                 )
             } else {
@@ -56,7 +57,7 @@ pub fn decrypt_files_list_recursive_item(
                     (_, Err(err)) => Err(err.to_owned()),
                 };
                 let repo_file = repo_files_mutations::decrypt_file(
-                    repo_id,
+                    repo,
                     &encrypted_parent_path,
                     &parent_path,
                     &remote_file,
@@ -96,14 +97,17 @@ pub fn decrypt_files_list_recursive_item(
 
 #[cfg(test)]
 mod tests {
+    use std::sync::Arc;
+
     use similar_asserts::assert_eq;
 
     use crate::{
-        cipher::{errors::DecryptFilenameError, test_helpers::create_cipher},
+        cipher::{Cipher, errors::DecryptFilenameError, test_helpers::create_cipher},
         files::file_category::FileCategory,
         remote::test_helpers as remote_test_helpers,
         repo_files::state::{RepoFile, RepoFileName, RepoFilePath, RepoFileSize, RepoFileType},
         repo_files_list::state::RepoFilesListRecursiveItem,
+        repos::state::{Repo, RepoState},
         types::{
             DecryptedName, DecryptedPath, EncryptedName, EncryptedPath, MountId, RemotePath,
             RepoFileId, RepoId,
@@ -112,16 +116,34 @@ mod tests {
 
     use super::decrypt_files_list_recursive_item;
 
+    fn create_dummy_repo(cipher: Arc<Cipher>) -> Repo {
+        Repo {
+            id: RepoId("r1".into()),
+            name: DecryptedName("My safe box".into()),
+            mount_id: MountId("m1".into()),
+            path: RemotePath("/Vault".into()),
+            salt: None,
+            added: 3,
+            password_validator: "".into(),
+            password_validator_encrypted: "".into(),
+            state: RepoState::Unlocked { cipher },
+            web_url: "".into(),
+            last_activity: None,
+            auto_lock: None,
+        }
+    }
+
     #[test]
     fn test_decrypt_files_list_recursive_item_root() {
-        let cipher = create_cipher();
+        let cipher = Arc::new(create_cipher());
+        let repo = create_dummy_repo(cipher.clone());
         let item = remote_test_helpers::create_files_list_recursive_item_dir("/", "");
 
         assert_eq!(
             decrypt_files_list_recursive_item(
                 &MountId("m1".into()),
                 &RemotePath("/Vault".into()),
-                &RepoId("r1".into()),
+                repo.get_id_name_ref(),
                 &EncryptedPath("/".into()),
                 &Ok(DecryptedPath("/".into())),
                 item,
@@ -139,14 +161,14 @@ mod tests {
                         path: DecryptedPath("/".into())
                     },
                     name: RepoFileName::Decrypted {
-                        name: DecryptedName("".into()),
-                        name_lower: String::from("")
+                        name: DecryptedName("My safe box".into()),
+                        name_lower: String::from("my safe box")
                     },
                     ext: None,
                     content_type: None,
                     typ: RepoFileType::Dir,
                     size: None,
-                    modified: None,
+                    modified: Some(3),
                     tags: None,
                     unique_name: String::from("b3278dc2a959498ee943d7dbe02ae093"),
                     remote_hash: None,
@@ -158,7 +180,8 @@ mod tests {
 
     #[test]
     fn test_decrypt_files_list_recursive_item_dir() {
-        let cipher = create_cipher();
+        let cipher = Arc::new(create_cipher());
+        let repo = create_dummy_repo(cipher.clone());
         let item = remote_test_helpers::create_files_list_recursive_item_dir(
             &format!(
                 "/{}",
@@ -171,7 +194,7 @@ mod tests {
             decrypt_files_list_recursive_item(
                 &MountId("m1".into()),
                 &RemotePath("/Vault".into()),
-                &RepoId("r1".into()),
+                repo.get_id_name_ref(),
                 &EncryptedPath("/".into()),
                 &Ok(DecryptedPath("/".into())),
                 item,
@@ -217,14 +240,15 @@ mod tests {
 
     #[test]
     fn test_decrypt_files_list_recursive_item_dir_decrypt_error() {
-        let cipher = create_cipher();
+        let cipher = Arc::new(create_cipher());
+        let repo = create_dummy_repo(cipher.clone());
         let item = remote_test_helpers::create_files_list_recursive_item_dir("/D1", "D1");
 
         assert_eq!(
             decrypt_files_list_recursive_item(
                 &MountId("m1".into()),
                 &RemotePath("/Vault".into()),
-                &RepoId("r1".into()),
+                repo.get_id_name_ref(),
                 &EncryptedPath("/".into()),
                 &Ok(DecryptedPath("/".into())),
                 item,
@@ -274,7 +298,8 @@ mod tests {
 
     #[test]
     fn test_decrypt_files_list_recursive_item_file() {
-        let cipher = create_cipher();
+        let cipher = Arc::new(create_cipher());
+        let repo = create_dummy_repo(cipher.clone());
         let item = remote_test_helpers::create_files_list_recursive_item_file(
             &format!(
                 "/{}",
@@ -287,7 +312,7 @@ mod tests {
             decrypt_files_list_recursive_item(
                 &MountId("m1".into()),
                 &RemotePath("/Vault".into()),
-                &RepoId("r1".into()),
+                repo.get_id_name_ref(),
                 &EncryptedPath("/".into()),
                 &Ok(DecryptedPath("/".into())),
                 item,
@@ -333,7 +358,8 @@ mod tests {
 
     #[test]
     fn test_decrypt_files_list_recursive_item_file_non_root() {
-        let cipher = create_cipher();
+        let cipher = Arc::new(create_cipher());
+        let repo = create_dummy_repo(cipher.clone());
         let item = remote_test_helpers::create_files_list_recursive_item_file(
             &format!(
                 "/{}",
@@ -349,7 +375,7 @@ mod tests {
                     "/Vault/{}",
                     cipher.encrypt_filename(&DecryptedName("D1".into())).0
                 )),
-                &RepoId("r1".into()),
+                repo.get_id_name_ref(),
                 &EncryptedPath(format!(
                     "/{}",
                     cipher.encrypt_filename(&DecryptedName("D1".into())).0
@@ -401,14 +427,15 @@ mod tests {
 
     #[test]
     fn test_decrypt_files_list_recursive_item_file_decrypt_error() {
-        let cipher = create_cipher();
+        let cipher = Arc::new(create_cipher());
+        let repo = create_dummy_repo(cipher.clone());
         let item = remote_test_helpers::create_files_list_recursive_item_file("/F1", "F1");
 
         assert_eq!(
             decrypt_files_list_recursive_item(
                 &MountId("m1".into()),
                 &RemotePath("/Vault".into()),
-                &RepoId("r1".into()),
+                repo.get_id_name_ref(),
                 &EncryptedPath("/".into()),
                 &Ok(DecryptedPath("/".into())),
                 item,
@@ -458,7 +485,8 @@ mod tests {
 
     #[test]
     fn test_decrypt_files_list_recursive_item_file_decrypt_parent_path_error() {
-        let cipher = create_cipher();
+        let cipher = Arc::new(create_cipher());
+        let repo = create_dummy_repo(cipher.clone());
         let item = remote_test_helpers::create_files_list_recursive_item_file(
             &format!(
                 "/D1/{}",
@@ -471,7 +499,7 @@ mod tests {
             decrypt_files_list_recursive_item(
                 &MountId("m1".into()),
                 &RemotePath("/Vault".into()),
-                &RepoId("r1".into()),
+                repo.get_id_name_ref(),
                 &EncryptedPath("/".into()),
                 &Ok(DecryptedPath("/".into())),
                 item,
@@ -525,14 +553,15 @@ mod tests {
 
     #[test]
     fn test_decrypt_files_list_recursive_item_file_decrypt_parent_path_file_error() {
-        let cipher = create_cipher();
+        let cipher = Arc::new(create_cipher());
+        let repo = create_dummy_repo(cipher.clone());
         let item = remote_test_helpers::create_files_list_recursive_item_file("/D1/F1", "F1");
 
         assert_eq!(
             decrypt_files_list_recursive_item(
                 &MountId("m1".into()),
                 &RemotePath("/Vault".into()),
-                &RepoId("r1".into()),
+                repo.get_id_name_ref(),
                 &EncryptedPath("/".into()),
                 &Ok(DecryptedPath("/".into())),
                 item,
@@ -582,14 +611,15 @@ mod tests {
 
     #[test]
     fn test_decrypt_files_list_recursive_item_file_decrypt_root_parent_path_file_error() {
-        let cipher = create_cipher();
+        let cipher = Arc::new(create_cipher());
+        let repo = create_dummy_repo(cipher.clone());
         let item = remote_test_helpers::create_files_list_recursive_item_file("/D1/F1", "F1");
 
         assert_eq!(
             decrypt_files_list_recursive_item(
                 &MountId("m1".into()),
                 &RemotePath("/Vault".into()),
-                &RepoId("r1".into()),
+                repo.get_id_name_ref(),
                 &EncryptedPath("/".into()),
                 &Err(DecryptFilenameError::DecryptFilenameError(
                     vault_crypto::errors::DecryptFilenameError::DecodeError(

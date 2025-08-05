@@ -14,10 +14,11 @@ use crate::{
     },
     repo_files::state::RepoFilesState,
     repo_files_tags::mutations::decrypt_tags,
-    repos, store,
+    repos::{self, state::RepoIdNameRef},
+    store,
     types::{
-        DecryptedName, DecryptedPath, ENCRYPTED_PATH_ROOT, EncryptedName, EncryptedPath, MountId,
-        RemotePath, RemotePathLower, RepoFileId, RepoId,
+        DecryptedPath, ENCRYPTED_PATH_ROOT, EncryptedName, EncryptedPath, MountId, RemotePath,
+        RemotePathLower, RepoFileId, RepoId,
     },
     utils::{path_utils, remote_path_utils, repo_path_utils},
 };
@@ -158,18 +159,20 @@ pub fn handle_remote_files_mutation(
     let mut repo_files_dirty = false;
 
     for (mount_id, remote_path, repo_id, path) in files_to_decrypt {
-        if let Ok(cipher) = repos::selectors::select_cipher_owned(state, &repo_id) {
-            let _ = decrypt_files(
-                &state.remote_files,
-                &mut state.repo_files,
-                &mount_id,
-                &remote_path,
-                &repo_id,
-                &path,
-                &cipher,
-            );
+        if let Some(repo) = state.repos.repos_by_id.get(&repo_id) {
+            if let Ok(cipher) = repos::selectors::select_cipher_owned(state, &repo_id) {
+                let _ = decrypt_files(
+                    &state.remote_files,
+                    &mut state.repo_files,
+                    &mount_id,
+                    &remote_path,
+                    repo.get_id_name_ref(),
+                    &path,
+                    &cipher,
+                );
 
-            repo_files_dirty = true;
+                repo_files_dirty = true;
+            }
         }
     }
 
@@ -327,18 +330,20 @@ pub fn handle_repos_mutation(
     }
 
     for (mount_id, remote_path, repo_id, path) in files_to_decrypt {
-        if let Ok(cipher) = repos::selectors::select_cipher_owned(state, &repo_id) {
-            let _ = decrypt_files(
-                &state.remote_files,
-                &mut state.repo_files,
-                &mount_id,
-                &remote_path,
-                &repo_id,
-                &path,
-                &cipher,
-            );
+        if let Some(repo) = state.repos.repos_by_id.get(&repo_id) {
+            if let Ok(cipher) = repos::selectors::select_cipher_owned(state, &repo_id) {
+                let _ = decrypt_files(
+                    &state.remote_files,
+                    &mut state.repo_files,
+                    &mount_id,
+                    &remote_path,
+                    repo.get_id_name_ref(),
+                    &path,
+                    &cipher,
+                );
 
-            repo_files_dirty = true;
+                repo_files_dirty = true;
+            }
         }
     }
 
@@ -354,7 +359,7 @@ pub fn decrypt_files(
     repo_files: &mut RepoFilesState,
     mount_id: &MountId,
     remote_path: &RemotePath,
-    repo_id: &RepoId,
+    repo: RepoIdNameRef,
     encrypted_path: &EncryptedPath,
     cipher: &Cipher,
 ) {
@@ -363,7 +368,7 @@ pub fn decrypt_files(
 
     if let Some(root_remote_file) = remote_files.files.get(&root_remote_file_id) {
         let root_repo_file = if encrypted_path.is_root() {
-            get_root_file(repo_id, root_remote_file)
+            get_root_file(repo, root_remote_file)
         } else {
             let encrypted_parent_path = EncryptedPath(
                 path_utils::parent_path(&encrypted_path.0)
@@ -373,7 +378,7 @@ pub fn decrypt_files(
             let decrypted_parent_path = cipher.decrypt_path(&encrypted_parent_path);
 
             decrypt_file(
-                repo_id,
+                repo,
                 &encrypted_parent_path,
                 &decrypted_parent_path,
                 root_remote_file,
@@ -395,8 +400,7 @@ pub fn decrypt_files(
                 .iter()
                 .filter_map(|id| remote_files.files.get(id))
             {
-                let repo_child =
-                    decrypt_file(repo_id, encrypted_path, &path, remote_child, &cipher);
+                let repo_child = decrypt_file(repo, encrypted_path, &path, remote_child, &cipher);
 
                 children.push(repo_child.id.clone());
 
@@ -426,14 +430,14 @@ pub fn decrypt_files(
             repo_files.loaded_roots.insert(root_repo_file_id.clone());
         }
     } else {
-        let file_id = selectors::get_file_id(repo_id, &encrypted_path);
+        let file_id = selectors::get_file_id(&repo.id, &encrypted_path);
 
         repo_files.files.remove(&file_id);
     }
 }
 
 pub fn decrypt_file(
-    repo_id: &RepoId,
+    repo: RepoIdNameRef,
     encrypted_parent_path: &EncryptedPath,
     parent_path: &Result<DecryptedPath, DecryptFilenameError>,
     remote_file: &RemoteFile,
@@ -444,7 +448,7 @@ pub fn decrypt_file(
         &remote_file.name.0,
     ));
     let encrypted_name = EncryptedName(remote_file.name.0.clone());
-    let id = selectors::get_file_id(repo_id, &encrypted_path);
+    let id = selectors::get_file_id(&repo.id, &encrypted_path);
     let name = match cipher.decrypt_filename(&encrypted_name) {
         Ok(name) => {
             let name_lower = name.to_lowercase().0;
@@ -494,7 +498,7 @@ pub fn decrypt_file(
         id,
         mount_id: remote_file.mount_id.clone(),
         remote_path: remote_file.path.clone(),
-        repo_id: repo_id.to_owned(),
+        repo_id: repo.id.clone(),
         encrypted_path,
         path,
         name,
@@ -510,27 +514,26 @@ pub fn decrypt_file(
     }
 }
 
-pub fn get_root_file(repo_id: &RepoId, remote_file: &RemoteFile) -> RepoFile {
+pub fn get_root_file(repo: RepoIdNameRef, remote_file: &RemoteFile) -> RepoFile {
     let unique_name = selectors::get_file_unique_name(&remote_file.unique_id, None);
+    let name = repo.name.clone();
+    let name_lower = name.to_lowercase().0;
 
     RepoFile {
-        id: selectors::get_file_id(repo_id, &ENCRYPTED_PATH_ROOT),
+        id: selectors::get_file_id(&repo.id, &ENCRYPTED_PATH_ROOT),
         mount_id: remote_file.mount_id.clone(),
         remote_path: remote_file.path.clone(),
-        repo_id: repo_id.to_owned(),
+        repo_id: repo.id.clone(),
         encrypted_path: EncryptedPath("/".into()),
         path: RepoFilePath::Decrypted {
             path: DecryptedPath("/".into()),
         },
-        name: RepoFileName::Decrypted {
-            name: DecryptedName("".into()),
-            name_lower: "".into(),
-        },
+        name: RepoFileName::Decrypted { name, name_lower },
         ext: None,
         content_type: None,
         typ: super::state::RepoFileType::Dir,
         size: None,
-        modified: None,
+        modified: Some(*repo.added),
         tags: None,
         unique_name,
         remote_hash: None,
@@ -560,27 +563,53 @@ pub fn cleanup_file(repo_files: &mut RepoFilesState, file_id: &RepoFileId) {
 
 #[cfg(test)]
 mod tests {
+    use std::sync::Arc;
+
     use similar_asserts::assert_eq;
 
     use crate::{
         cipher::{
+            Cipher,
             errors::{DecryptFilenameError, DecryptSizeError},
             test_helpers::create_cipher,
         },
         files::file_category::FileCategory,
         remote_files::test_helpers as remote_files_test_helpers,
         repo_files::state::{RepoFile, RepoFileName, RepoFilePath, RepoFileSize, RepoFileType},
-        types::{DecryptedName, DecryptedPath, EncryptedName, EncryptedPath, RepoFileId, RepoId},
+        repos::state::{Repo, RepoState},
+        types::{
+            DecryptedName, DecryptedPath, EncryptedName, EncryptedPath, MountId, RemotePath,
+            RepoFileId, RepoId,
+        },
     };
 
     use super::{decrypt_file, get_root_file};
 
+    fn create_dummy_repo(cipher: Arc<Cipher>) -> Repo {
+        Repo {
+            id: RepoId("r1".into()),
+            name: DecryptedName("My safe box".into()),
+            mount_id: MountId("m1".into()),
+            path: RemotePath("/Vault".into()),
+            salt: None,
+            added: 3,
+            password_validator: "".into(),
+            password_validator_encrypted: "".into(),
+            state: RepoState::Unlocked { cipher },
+            web_url: "".into(),
+            last_activity: None,
+            auto_lock: None,
+        }
+    }
+
     #[test]
     fn test_get_root_file() {
+        let cipher = Arc::new(create_cipher());
+        let repo = create_dummy_repo(cipher.clone());
         let remote_file = remote_files_test_helpers::create_dir("m1", "/Vault");
 
         assert_eq!(
-            get_root_file(&RepoId("r1".into()), &remote_file),
+            get_root_file(repo.get_id_name_ref(), &remote_file),
             RepoFile {
                 id: RepoFileId("r1:/".into()),
                 mount_id: remote_file.mount_id.clone(),
@@ -591,14 +620,14 @@ mod tests {
                     path: DecryptedPath("/".into())
                 },
                 name: RepoFileName::Decrypted {
-                    name: DecryptedName("".into()),
-                    name_lower: String::from("")
+                    name: DecryptedName("My safe box".into()),
+                    name_lower: String::from("my safe box")
                 },
                 ext: None,
                 content_type: None,
                 typ: RepoFileType::Dir,
                 size: None,
-                modified: None,
+                modified: Some(3),
                 tags: None,
                 unique_name: String::from("b3278dc2a959498ee943d7dbe02ae093"),
                 remote_hash: None,
@@ -609,7 +638,8 @@ mod tests {
 
     #[test]
     fn test_decrypt_file_dir() {
-        let cipher = create_cipher();
+        let cipher = Arc::new(create_cipher());
+        let repo = create_dummy_repo(cipher.clone());
         let remote_file = remote_files_test_helpers::create_dir(
             "m1",
             &format!(
@@ -620,7 +650,7 @@ mod tests {
 
         assert_eq!(
             decrypt_file(
-                &RepoId("r1".into()),
+                repo.get_id_name_ref(),
                 &EncryptedPath("/".into()),
                 &Ok(DecryptedPath("/".into())),
                 &remote_file,
@@ -660,12 +690,13 @@ mod tests {
 
     #[test]
     fn test_decrypt_file_dir_decrypt_error() {
-        let cipher = create_cipher();
+        let cipher = Arc::new(create_cipher());
+        let repo = create_dummy_repo(cipher.clone());
         let remote_file = remote_files_test_helpers::create_dir("m1", "/Vault/D1");
 
         assert_eq!(
             decrypt_file(
-                &RepoId("r1".into()),
+                repo.get_id_name_ref(),
                 &EncryptedPath("/".into()),
                 &Ok(DecryptedPath("/".into())),
                 &remote_file,
@@ -708,7 +739,8 @@ mod tests {
 
     #[test]
     fn test_decrypt_file_file() {
-        let cipher = create_cipher();
+        let cipher = Arc::new(create_cipher());
+        let repo = create_dummy_repo(cipher.clone());
         let remote_file = remote_files_test_helpers::create_file(
             "m1",
             &format!(
@@ -721,7 +753,7 @@ mod tests {
 
         assert_eq!(
             decrypt_file(
-                &RepoId("r1".into()),
+                repo.get_id_name_ref(),
                 &EncryptedPath("/".into()),
                 &Ok(DecryptedPath("/".into())),
                 &remote_file,
@@ -760,13 +792,14 @@ mod tests {
 
     #[test]
     fn test_decrypt_file_file_decrypt_error() {
-        let cipher = create_cipher();
+        let cipher = Arc::new(create_cipher());
+        let repo = create_dummy_repo(cipher.clone());
         let mut remote_file = remote_files_test_helpers::create_file("m1", "/Vault/F1");
         remote_file.size = Some(10);
 
         assert_eq!(
             decrypt_file(
-                &RepoId("r1".into()),
+                repo.get_id_name_ref(),
                 &EncryptedPath("/".into()),
                 &Ok(DecryptedPath("/".into())),
                 &remote_file,
@@ -814,7 +847,8 @@ mod tests {
 
     #[test]
     fn test_decrypt_file_parent_path_error() {
-        let cipher = create_cipher();
+        let cipher = Arc::new(create_cipher());
+        let repo = create_dummy_repo(cipher.clone());
         let remote_file = remote_files_test_helpers::create_file(
             "m1",
             &format!(
@@ -825,7 +859,7 @@ mod tests {
 
         assert_eq!(
             decrypt_file(
-                &RepoId("r1".into()),
+                repo.get_id_name_ref(),
                 &EncryptedPath("/dir".into()),
                 &Err(DecryptFilenameError::DecryptFilenameError(
                     vault_crypto::errors::DecryptFilenameError::DecodeError(

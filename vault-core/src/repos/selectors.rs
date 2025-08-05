@@ -3,6 +3,7 @@ use std::{collections::HashMap, sync::Arc};
 use crate::{
     cipher::Cipher,
     common::state::Status,
+    repos::state::RepoIdName,
     store,
     types::{DecryptedName, RepoId},
 };
@@ -88,6 +89,13 @@ pub fn select_repo_name<'a>(
     repo_id: &RepoId,
 ) -> Option<&'a DecryptedName> {
     select_repo(state, repo_id).ok().map(|repo| &repo.name)
+}
+
+pub fn select_repo_id_name(
+    state: &store::State,
+    repo_id: &RepoId,
+) -> Result<RepoIdName, RepoNotFoundError> {
+    select_repo(state, repo_id).map(|repo| repo.get_id_name())
 }
 
 pub fn select_cipher<'a>(

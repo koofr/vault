@@ -144,6 +144,7 @@ impl Vault {
         let repo_files_list_service = Arc::new(repo_files_list::RepoFilesListService::new(
             repos_service.clone(),
             remote_files_service.clone(),
+            store.clone(),
         ));
         let repo_files_tags_service = Arc::new(repo_files_tags::RepoFilesTagsService::new(
             repos_service.clone(),

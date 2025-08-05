@@ -1,7 +1,8 @@
 use crate::{
     cipher::Cipher,
     remote::test_helpers as remote_test_helpers,
-    types::{DecryptedPath, MountId, RemotePath, RepoId},
+    repos::state::Repo,
+    types::{DecryptedPath, MountId, RemotePath},
     utils::{path_utils, remote_path_utils},
 };
 
@@ -10,7 +11,7 @@ use super::{mutations::decrypt_files_list_recursive_item, state::RepoFilesListRe
 pub fn create_list_recursive_item_dir(
     mount_id: &str,
     remote_repo_path: &str,
-    repo_id: &str,
+    repo: &Repo,
     root_path: &str,
     item_path: &str,
     cipher: &Cipher,
@@ -30,7 +31,7 @@ pub fn create_list_recursive_item_dir(
             &RemotePath(remote_repo_path.to_owned()),
             &RemotePath(cipher.encrypt_path(&DecryptedPath(root_path.to_owned())).0),
         ),
-        &RepoId(repo_id.to_owned()),
+        repo.get_id_name_ref(),
         &encrypted_root_path,
         &Ok(DecryptedPath(root_path.to_owned())),
         remote_item,
@@ -41,7 +42,7 @@ pub fn create_list_recursive_item_dir(
 pub fn create_list_recursive_item_file(
     mount_id: &str,
     remote_repo_path: &str,
-    repo_id: &str,
+    repo: &Repo,
     root_path: &str,
     item_path: &str,
     cipher: &Cipher,
@@ -61,7 +62,7 @@ pub fn create_list_recursive_item_file(
             &RemotePath(remote_repo_path.to_owned()),
             &RemotePath(cipher.encrypt_path(&DecryptedPath(root_path.to_owned())).0),
         ),
-        &RepoId(repo_id.to_owned()),
+        repo.get_id_name_ref(),
         &encrypted_root_path,
         &Ok(DecryptedPath(root_path.to_owned())),
         remote_item,

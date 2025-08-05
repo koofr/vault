@@ -2,7 +2,12 @@ use std::sync::Arc;
 
 use futures::{StreamExt, stream::BoxStream};
 
-use crate::{remote_files::RemoteFilesService, repo_files::state::RepoFile, repos::ReposService};
+use crate::{
+    remote_files::RemoteFilesService,
+    repo_files::state::RepoFile,
+    repos::{ReposService, selectors as repos_selectors},
+    store,
+};
 
 use super::{
     errors::{FilesListRecursiveItemError, GetListRecursiveError},
@@ -15,16 +20,19 @@ pub type RepoFilesListRecursiveItemStream = BoxStream<'static, RepoFilesListRecu
 pub struct RepoFilesListService {
     repos_service: Arc<ReposService>,
     remote_files_service: Arc<RemoteFilesService>,
+    store: Arc<store::Store>,
 }
 
 impl RepoFilesListService {
     pub fn new(
         repos_service: Arc<ReposService>,
         remote_files_service: Arc<RemoteFilesService>,
+        store: Arc<store::Store>,
     ) -> Self {
         Self {
             repos_service,
             remote_files_service,
+            store,
         }
     }
 
@@ -39,6 +47,9 @@ impl RepoFilesListService {
         let root_path = file.decrypted_path().map(ToOwned::to_owned);
 
         let cipher = self.repos_service.get_cipher(&file.repo_id)?;
+        let repo = self
+            .store
+            .with_state(|state| repos_selectors::select_repo_id_name(state, &repo_id))?;
 
         let remote_items_stream = self
             .remote_files_service
@@ -50,7 +61,7 @@ impl RepoFilesListService {
                 Ok(item) => mutations::decrypt_files_list_recursive_item(
                     &mount_id,
                     &root_remote_path,
-                    &repo_id,
+                    repo.get_id_name_ref(),
                     &encrypted_root_path,
                     &root_path,
                     item,

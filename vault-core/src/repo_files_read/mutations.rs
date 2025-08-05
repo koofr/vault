@@ -123,10 +123,12 @@ pub fn file_to_remote_zip_entry(file: &RepoFile) -> Result<RemoteZipEntry, GetFi
 
 #[cfg(test)]
 mod tests {
+    use std::sync::Arc;
+
     use chrono::{Datelike, Timelike};
 
     use crate::{
-        cipher::{errors::DecryptFilenameError, test_helpers as cipher_test_helpers},
+        cipher::{Cipher, errors::DecryptFilenameError, test_helpers::create_cipher},
         http::HttpError,
         remote::RemoteError,
         remote_files::test_helpers as remote_files_test_helpers,
@@ -136,6 +138,7 @@ mod tests {
             test_helpers as repo_files_list_test_helpers,
         },
         repo_files_read::{errors::GetFilesReaderError, state::RemoteZipEntry},
+        repos::state::{Repo, RepoState},
         types::{DecryptedName, DecryptedPath, EncryptedPath, MountId, RemotePath, RepoId},
     };
 
@@ -143,6 +146,23 @@ mod tests {
         file_to_remote_zip_entry, list_recursive_items_to_remote_zip_entries,
         zip_date_time_from_millis,
     };
+
+    fn create_dummy_repo(cipher: Arc<Cipher>) -> Repo {
+        Repo {
+            id: RepoId("r1".into()),
+            name: DecryptedName("My safe box".into()),
+            mount_id: MountId("m1".into()),
+            path: RemotePath("/Vault".into()),
+            salt: None,
+            added: 3,
+            password_validator: "".into(),
+            password_validator_encrypted: "".into(),
+            state: RepoState::Unlocked { cipher },
+            web_url: "".into(),
+            last_activity: None,
+            auto_lock: None,
+        }
+    }
 
     #[test]
     fn test_zip_date_time_from_millis() {
@@ -178,9 +198,10 @@ mod tests {
 
     #[test]
     fn test_list_recursive_items_to_remote_zip_entries() {
-        let cipher = cipher_test_helpers::create_cipher();
+        let cipher = Arc::new(create_cipher());
+        let repo = create_dummy_repo(cipher.clone());
         let mut file_path_error = repo_files_list_test_helpers::create_list_recursive_item_file(
-            "m1", "/Vault", "r1", "/D1", "/INVALID", &cipher,
+            "m1", "/Vault", &repo, "/D1", "/INVALID", &cipher,
         );
         match &mut file_path_error {
             RepoFilesListRecursiveItem::File {
@@ -197,7 +218,7 @@ mod tests {
         assert_eq!(
             list_recursive_items_to_remote_zip_entries(vec![
                 repo_files_list_test_helpers::create_list_recursive_item_file(
-                    "m1", "/Vault", "r1", "/D1", "/", &cipher,
+                    "m1", "/Vault", &repo, "/D1", "/", &cipher,
                 ),
                 file_path_error,
                 RepoFilesListRecursiveItem::Error {
@@ -212,13 +233,13 @@ mod tests {
                     )
                 },
                 repo_files_list_test_helpers::create_list_recursive_item_file(
-                    "m1", "/Vault", "r1", "/D1", "/F1", &cipher,
+                    "m1", "/Vault", &repo, "/D1", "/F1", &cipher,
                 ),
                 repo_files_list_test_helpers::create_list_recursive_item_dir(
-                    "m1", "/Vault", "r1", "/D1", "/D2", &cipher,
+                    "m1", "/Vault", &repo, "/D1", "/D2", &cipher,
                 ),
                 repo_files_list_test_helpers::create_list_recursive_item_file(
-                    "m1", "/Vault", "r1", "/D1", "/D2/F2", &cipher,
+                    "m1", "/Vault", &repo, "/D1", "/D2/F2", &cipher,
                 ),
             ])
             .unwrap(),
@@ -269,14 +290,15 @@ mod tests {
 
     #[test]
     fn test_list_recursive_items_to_remote_zip_entries_remote_error() {
-        let cipher = cipher_test_helpers::create_cipher();
+        let cipher = Arc::new(create_cipher());
+        let repo = create_dummy_repo(cipher.clone());
         assert_eq!(
             list_recursive_items_to_remote_zip_entries(vec![
                 repo_files_list_test_helpers::create_list_recursive_item_file(
-                    "m1", "/Vault", "r1", "/D1", "/", &cipher,
+                    "m1", "/Vault", &repo, "/D1", "/", &cipher,
                 ),
                 repo_files_list_test_helpers::create_list_recursive_item_file(
-                    "m1", "/Vault", "r1", "/D1", "/F1", &cipher,
+                    "m1", "/Vault", &repo, "/D1", "/F1", &cipher,
                 ),
                 RepoFilesListRecursiveItem::Error {
                     mount_id: MountId("m1".into()),
@@ -293,7 +315,8 @@ mod tests {
 
     #[test]
     fn test_file_to_remote_zip_entry() {
-        let cipher = cipher_test_helpers::create_cipher();
+        let cipher = Arc::new(create_cipher());
+        let repo = create_dummy_repo(cipher.clone());
         let remote_file = remote_files_test_helpers::create_file(
             "m1",
             &format!(
@@ -302,7 +325,7 @@ mod tests {
             ),
         );
         let file = decrypt_file(
-            &RepoId("r1".into()),
+            repo.get_id_name_ref(),
             &EncryptedPath("/".into()),
             &Ok(DecryptedPath("/".into())),
             &remote_file,
@@ -327,10 +350,11 @@ mod tests {
 
     #[test]
     fn test_file_to_remote_zip_entry_decrypt_error() {
-        let cipher = cipher_test_helpers::create_cipher();
+        let cipher = Arc::new(create_cipher());
+        let repo = create_dummy_repo(cipher.clone());
         let remote_file = remote_files_test_helpers::create_file("m1", "/Vault/F1");
         let file = decrypt_file(
-            &RepoId("r1".into()),
+            repo.get_id_name_ref(),
             &EncryptedPath("/".into()),
             &Ok(DecryptedPath("/".into())),
             &remote_file,

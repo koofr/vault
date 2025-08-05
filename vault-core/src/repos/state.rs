@@ -106,6 +106,13 @@ impl<'de> Deserialize<'de> for RepoAutoLockAfter {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct RepoIdNameRef<'a> {
+    pub id: &'a RepoId,
+    pub name: &'a DecryptedName,
+    pub added: &'a i64,
+}
+
 #[derive(Debug, Clone)]
 pub struct Repo {
     pub id: RepoId,
@@ -123,6 +130,22 @@ pub struct Repo {
 }
 
 impl Repo {
+    pub fn get_id_name(&self) -> RepoIdName {
+        RepoIdName {
+            id: self.id.clone(),
+            name: self.name.clone(),
+            added: self.added,
+        }
+    }
+
+    pub fn get_id_name_ref<'a>(&'a self) -> RepoIdNameRef<'a> {
+        RepoIdNameRef {
+            id: &self.id,
+            name: &self.name,
+            added: &self.added,
+        }
+    }
+
     pub fn get_location(&self) -> RemoteFilesLocation {
         RemoteFilesLocation {
             mount_id: self.mount_id.clone(),
@@ -134,6 +157,23 @@ impl Repo {
         match &self.state {
             RepoState::Locked => Err(GetCipherError::RepoLocked(RepoLockedError)),
             RepoState::Unlocked { cipher } => Ok(cipher),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct RepoIdName {
+    pub id: RepoId,
+    pub name: DecryptedName,
+    pub added: i64,
+}
+
+impl RepoIdName {
+    pub fn get_id_name_ref<'a>(&'a self) -> RepoIdNameRef<'a> {
+        RepoIdNameRef {
+            id: &self.id,
+            name: &self.name,
+            added: &self.added,
         }
     }
 }
