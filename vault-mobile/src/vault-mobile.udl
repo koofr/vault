@@ -541,6 +541,7 @@ callback interface TransfersDownloadDone {
 [Enum]
 interface RepoFilesBrowserSource {
   Storage(string repo_id, string encrypted_path);
+  Recent(string repo_id);
 };
 
 dictionary RepoFilesBrowserOptions {
