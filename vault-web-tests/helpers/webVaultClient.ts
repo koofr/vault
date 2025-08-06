@@ -353,8 +353,11 @@ export class WebVaultClient {
     const [encryptedParentPath] = splitParentName(encryptedPath);
 
     const browserId = this.webVault.repoFilesBrowsersCreate(
-      repo.id,
-      encryptedParentPath,
+      {
+        type: 'Storage',
+        repoId: repo.id,
+        encryptedPath: encryptedParentPath,
+      },
       {
         selectName: undefined,
       },

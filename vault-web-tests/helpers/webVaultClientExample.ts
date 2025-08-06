@@ -56,9 +56,16 @@ async function main() {
   await client.webVault.repoUnlockUnlock(unlockId, 'password');
   client.webVault.repoUnlockDestroy(unlockId);
 
-  const browserId = client.webVault.repoFilesBrowsersCreate(repo.id, '/', {
-    selectName: undefined,
-  });
+  const browserId = client.webVault.repoFilesBrowsersCreate(
+    {
+      type: 'Storage',
+      repoId: repo.id,
+      encryptedPath: '/',
+    },
+    {
+      selectName: undefined,
+    },
+  );
 
   await client.waitFor(
     (v, cb) => v.repoFilesBrowsersInfoSubscribe(browserId, cb),

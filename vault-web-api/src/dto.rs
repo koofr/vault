@@ -1030,6 +1030,10 @@ pub enum RepoFilesBrowserSource {
         #[serde(rename = "encryptedPath")]
         encrypted_path: String,
     },
+    Recent {
+        #[serde(rename = "repoId")]
+        repo_id: String,
+    },
 }
 
 impl Into<repo_files_browsers_state::RepoFilesBrowserSource> for RepoFilesBrowserSource {
@@ -1042,6 +1046,11 @@ impl Into<repo_files_browsers_state::RepoFilesBrowserSource> for RepoFilesBrowse
                 repo_id: RepoId(repo_id),
                 encrypted_path: EncryptedPath(encrypted_path),
             },
+            RepoFilesBrowserSource::Recent { repo_id } => {
+                repo_files_browsers_state::RepoFilesBrowserSource::Recent {
+                    repo_id: RepoId(repo_id),
+                }
+            }
         }
     }
 }
