@@ -114,7 +114,7 @@ pub fn create(
     let sort = match &source {
         RepoFilesBrowserSource::Storage { .. } => state
             .repo_files_browsers
-            .last_sort
+            .last_storage_sort
             .clone()
             .unwrap_or_else(|| RepoFilesSort {
                 field: RepoFilesSortField::Name,
@@ -488,7 +488,12 @@ pub fn sort_by(
     browser.sort.field = field;
     browser.sort.direction = direction;
 
-    state.repo_files_browsers.last_sort = browser.sort.clone();
+    if matches!(
+        browser.location,
+        Some(RepoFilesBrowserLocation::Storage { .. })
+    ) {
+        state.repo_files_browsers.last_storage_sort = Some(browser.sort.clone());
+    }
 
     update_browser(state, notify, mutation_state, browser_id);
 }
