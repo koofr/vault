@@ -77,6 +77,20 @@ fn create_location(
                 eventstream_mount_subscription,
             })
         }
+        RepoFilesBrowserSource::Recent { repo_id } => {
+            let eventstream_mount_subscription = create_location_eventstream_mount_subscription(
+                state,
+                notify,
+                mutation_state,
+                &repo_id,
+                browser_id,
+            );
+
+            Ok(RepoFilesBrowserLocation::Recent {
+                repo_id,
+                eventstream_mount_subscription,
+            })
+        }
     }
 }
 
@@ -89,6 +103,14 @@ fn create_status(
             match repos::selectors::select_repo(state, &repo_id) {
                 Ok(_) => Status::Loading {
                     loaded: repo_files_selectors::select_is_root_loaded(state, &repo_id, &path),
+                },
+                Err(_) => Status::Initial,
+            }
+        }
+        Ok(RepoFilesBrowserLocation::Recent { repo_id, .. }) => {
+            match repos::selectors::select_repo(state, &repo_id) {
+                Ok(_) => Status::Loading {
+                    loaded: repo_files_selectors::select_is_recent_loaded(state, &repo_id),
                 },
                 Err(_) => Status::Initial,
             }
@@ -121,6 +143,11 @@ pub fn create(
                 direction: SortDirection::Asc,
                 grouping: SortGrouping::DirsFirst,
             }),
+        RepoFilesBrowserSource::Recent { .. } => RepoFilesSort {
+            field: RepoFilesSortField::Modified,
+            direction: SortDirection::Desc,
+            grouping: SortGrouping::NoGrouping,
+        },
     };
 
     let location = create_location(state, notify, mutation_state, source, browser_id);
@@ -168,6 +195,7 @@ pub fn destroy(
                     remove_mount_subscriber(state, notify, mutation_state, mount_subscription);
                 }
             }
+            Some(RepoFilesBrowserLocation::Recent { .. }) => {}
             None => {}
         }
     }
@@ -256,6 +284,9 @@ pub fn update_browser(
             Some(RepoFilesBrowserLocation::Storage { repo_id, path, .. }) => Some(
                 repo_files_selectors::select_breadcrumbs(state, repo_id, path, &cipher),
             ),
+            Some(RepoFilesBrowserLocation::Recent { repo_id, .. }) => {
+                Some(repo_files_selectors::get_recent_breadcrumbs(repo_id))
+            }
             None => None,
         }),
         (Some(_), None) => Some(None),
@@ -284,6 +315,13 @@ pub fn update_browser(
                 Some(_) => None,
                 None => Some(repo_id.clone()),
             },
+            RepoFilesBrowserLocation::Recent {
+                repo_id,
+                eventstream_mount_subscription,
+            } => match eventstream_mount_subscription {
+                Some(_) => None,
+                None => Some(repo_id.clone()),
+            },
         }) {
             Some(repo_id) => create_location_eventstream_mount_subscription(
                 state,
@@ -303,6 +341,12 @@ pub fn update_browser(
     if let Some(new_eventstream_mount_subscription) = new_eventstream_mount_subscription {
         match &mut browser.location {
             Some(RepoFilesBrowserLocation::Storage {
+                eventstream_mount_subscription,
+                ..
+            }) => {
+                *eventstream_mount_subscription = Some(new_eventstream_mount_subscription);
+            }
+            Some(RepoFilesBrowserLocation::Recent {
                 eventstream_mount_subscription,
                 ..
             }) => {
@@ -339,6 +383,7 @@ pub fn update_browser(
                         &repo_encrypted_path_utils::join_path_name(&path, &name),
                     ))
                 }
+                RepoFilesBrowserLocation::Recent { .. } => None,
             })
             .filter(|file_id| file_ids_set.contains(file_id));
 

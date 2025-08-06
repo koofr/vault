@@ -66,6 +66,20 @@ pub fn select_files<'a>(
     }
 }
 
+pub fn select_recent<'a>(state: &'a store::State, repo_id: &RepoId) -> Option<&'a Vec<RepoFileId>> {
+    state.repo_files.recent.get(repo_id)
+}
+
+pub fn select_recent_files<'a>(
+    state: &'a store::State,
+    repo_id: &RepoId,
+) -> impl Iterator<Item = &'a RepoFile> {
+    match select_recent(state, repo_id) {
+        Some(ids) => select_files_from_ids(state, ids),
+        None => select_files_from_ids(state, &[]),
+    }
+}
+
 pub fn select_files_from_ids<'a>(
     state: &'a store::State,
     ids: &'a [RepoFileId],
@@ -154,6 +168,10 @@ pub fn select_is_root_loaded(state: &store::State, repo_id: &RepoId, path: &Encr
         .contains(&get_file_id(&repo_id, &path))
 }
 
+pub fn select_is_recent_loaded(state: &store::State, repo_id: &RepoId) -> bool {
+    state.repo_files.recent.contains_key(repo_id)
+}
+
 pub fn check_name_valid(name: &DecryptedName) -> Result<(), RemoteError> {
     name_utils::validate_name(&name.0).map_err(|_| RepoFilesErrors::invalid_path())
 }
@@ -238,6 +256,16 @@ pub fn select_breadcrumbs(
             }
         })
         .collect()
+}
+
+pub fn get_recent_breadcrumbs(repo_id: &RepoId) -> Vec<RepoFilesBreadcrumb> {
+    vec![RepoFilesBreadcrumb {
+        id: RepoFileId(format!("recent:{}", repo_id.0)),
+        repo_id: repo_id.to_owned(),
+        path: EncryptedPath("/".into()),
+        name: "Recent".into(),
+        last: true,
+    }]
 }
 
 pub fn select_sorted_files(

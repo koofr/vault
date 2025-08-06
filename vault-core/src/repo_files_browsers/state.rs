@@ -49,12 +49,17 @@ pub enum RepoFilesBrowserLocation {
         path: EncryptedPath,
         eventstream_mount_subscription: Option<MountSubscription>,
     },
+    Recent {
+        repo_id: RepoId,
+        eventstream_mount_subscription: Option<MountSubscription>,
+    },
 }
 
 impl RepoFilesBrowserLocation {
     pub fn repo_id(&self) -> &RepoId {
         match self {
             Self::Storage { repo_id, .. } => repo_id,
+            Self::Recent { repo_id, .. } => repo_id,
         }
     }
 
@@ -72,6 +77,17 @@ impl RepoFilesBrowserLocation {
                     ..
                 },
             ) => self_repo_id == other_repo_id && self_path == other_path,
+            (
+                Self::Recent {
+                    repo_id: self_repo_id,
+                    ..
+                },
+                Self::Recent {
+                    repo_id: other_repo_id,
+                    ..
+                },
+            ) => self_repo_id == other_repo_id,
+            _ => false,
         }
     }
 }
@@ -81,6 +97,9 @@ pub enum RepoFilesBrowserSource {
     Storage {
         repo_id: RepoId,
         encrypted_path: EncryptedPath,
+    },
+    Recent {
+        repo_id: RepoId,
     },
 }
 

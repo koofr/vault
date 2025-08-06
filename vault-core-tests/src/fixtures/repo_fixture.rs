@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use futures::io::Cursor;
 use vault_core::{
@@ -197,5 +197,16 @@ impl RepoFixture {
         });
 
         (result, repo_file)
+    }
+
+    pub fn get_recent(&self) -> HashMap<RepoId, Vec<RepoFileId>> {
+        self.vault.store.with_state(|state| {
+            state
+                .repo_files
+                .recent
+                .iter()
+                .map(|(x, y)| (x.clone(), y.clone()))
+                .collect()
+        })
     }
 }

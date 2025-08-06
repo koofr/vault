@@ -649,6 +649,23 @@ impl RepoFilesService {
             selectors::get_unused_name(used_names, name)
         }))
     }
+
+    pub async fn load_recent(
+        &self,
+        repo_id: &RepoId,
+        limit: usize,
+        offset: Option<usize>,
+    ) -> Result<(), LoadFilesError> {
+        let (mount_id, remote_path) =
+            self.get_repo_mount_path(repo_id, &EncryptedPath("/".into()))?;
+
+        self.remote_files_service
+            .load_recent(&mount_id, &remote_path, limit, offset)
+            .await
+            .map_err(LoadFilesError::RemoteError)?;
+
+        Ok(())
+    }
 }
 
 impl Drop for RepoFilesService {

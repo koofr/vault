@@ -33,6 +33,11 @@ pub fn select_file_ids<'a>(
                 .map(|file| file.id.clone())
                 .collect()
         }
+        RepoFilesBrowserLocation::Recent { repo_id, .. } => {
+            repo_files_selectors::select_recent_files(state, repo_id)
+                .map(|file| file.id.clone())
+                .collect()
+        }
     }
 }
 
@@ -167,6 +172,7 @@ pub fn select_info<'a>(
         let repo_id = browser.location.as_ref().map(|loc| loc.repo_id());
         let path = browser.location.as_ref().and_then(|loc| match loc {
             RepoFilesBrowserLocation::Storage { path, .. } => Some(path),
+            RepoFilesBrowserLocation::Recent { .. } => None,
         });
         let selection_summary = select_selection_summary(state, browser_id);
         let sort = browser.sort.clone();
@@ -241,6 +247,7 @@ pub fn select_root_file_id(state: &store::State, browser_id: u32) -> Option<Repo
         RepoFilesBrowserLocation::Storage { repo_id, path, .. } => {
             Some(repo_files_selectors::get_file_id(repo_id, path))
         }
+        RepoFilesBrowserLocation::Recent { .. } => None,
     })
 }
 

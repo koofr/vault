@@ -760,6 +760,7 @@ fn expected_browsers_state(
                     eventstream_mount_subscription,
                     ..
                 } => eventstream_mount_subscription.clone(),
+                RepoFilesBrowserLocation::Recent { .. } => unreachable!(),
             },
         }),
         status: Status::Initial,

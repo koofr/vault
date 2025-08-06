@@ -165,7 +165,13 @@ pub fn handle_remote_files_mutation(
 
     let mut repo_files_dirty = false;
 
+    let mut touched_repo_ids = HashSet::new();
+
     for (mount_id, remote_path, repo_id, path) in files_to_decrypt {
+        if !touched_repo_ids.contains(&repo_id) {
+            touched_repo_ids.insert(repo_id.clone());
+        }
+
         if let Some(repo) = state.repos.repos_by_id.get(&repo_id) {
             if let Ok(cipher) = repos::selectors::select_cipher_owned(state, &repo_id) {
                 let _ = decrypt_files(
@@ -180,6 +186,29 @@ pub fn handle_remote_files_mutation(
 
                 repo_files_dirty = true;
             }
+        }
+    }
+
+    for (_, _, repo_id, path) in remote_files_to_repo_files(
+        state,
+        mutation_state
+            .remote_files
+            .loaded_recent
+            .iter()
+            .map(|(mount_id, path)| (mount_id, path.to_owned())),
+    )
+    .collect::<Vec<_>>()
+    {
+        if path.is_root() {
+            if decrypt_recent_files_repo(state, &repo_id) {
+                repo_files_dirty = true;
+            }
+        }
+    }
+
+    for repo_id in touched_repo_ids {
+        if decrypt_recent_files_repo(state, &repo_id) {
+            repo_files_dirty = true;
         }
     }
 
@@ -258,6 +287,9 @@ pub fn handle_repos_mutation(
 ) {
     let mut repo_files_dirty = false;
 
+    // Remove repo files (files, children, loaded_roots, recent) for locked or
+    // removed repos
+
     for repo_id in mutation_state
         .repos
         .locked_repos
@@ -282,8 +314,20 @@ pub fn handle_repos_mutation(
             .loaded_roots
             .retain(|key| !key.0.starts_with(&file_id_prefix));
 
+        state.repo_files.recent.retain(|key, _| key != repo_id);
+
         repo_files_dirty = true;
     }
+
+    // Decrypt recent for unlocked repos
+
+    for (repo_id, _) in mutation_state.repos.unlocked_repos.iter() {
+        if decrypt_recent_files_repo(state, repo_id) {
+            repo_files_dirty = true;
+        }
+    }
+
+    // Decrypt files for unlocked repos
 
     let mut files_to_decrypt = Vec::new();
 
@@ -316,6 +360,8 @@ pub fn handle_repos_mutation(
         }
     }
 
+    // Recursively collect repo files to for each unlocked repo
+
     for (repo_id, _) in mutation_state.repos.unlocked_repos.iter() {
         if let Some(repo) = state.repos.repos_by_id.get(repo_id) {
             files_to_decrypt.push((
@@ -325,6 +371,7 @@ pub fn handle_repos_mutation(
                 EncryptedPath("/".to_owned()),
             ));
 
+            // Recursively collect repo files to decrypt from repo root
             handle_path(
                 state,
                 &mut files_to_decrypt,
@@ -335,6 +382,8 @@ pub fn handle_repos_mutation(
             );
         }
     }
+
+    // Decrypt the collected repo files.
 
     for (mount_id, remote_path, repo_id, path) in files_to_decrypt {
         if let Some(repo) = state.repos.repos_by_id.get(&repo_id) {
@@ -528,6 +577,59 @@ pub fn decrypt_file(
         remote_hash: remote_file.hash.clone(),
         category,
     }
+}
+
+pub fn decrypt_recent_files_repo(state: &mut store::State, repo_id: &RepoId) -> bool {
+    let mut decrypted = false;
+
+    if let Some(repo) = state.repos.repos_by_id.get(repo_id) {
+        if let Ok(cipher) = repos::selectors::select_cipher_owned(state, &repo_id) {
+            if let Some(remote_file_ids) = remote_files_selectors::select_recent(
+                state,
+                &repo.mount_id,
+                &repo.path.to_lowercase(),
+            )
+            .cloned()
+            {
+                let repo_path_len = repo.path.0.len();
+
+                let mut repo_file_ids = Vec::new();
+
+                for remote_file_id in remote_file_ids {
+                    if let Some(remote_file) = state.remote_files.files.get(&remote_file_id) {
+                        let encrypted_path = if remote_file.path.0.len() == repo_path_len {
+                            EncryptedPath("/".to_owned())
+                        } else {
+                            EncryptedPath(remote_file.path.0[repo_path_len..].to_owned())
+                        };
+                        let repo_file = decrypt_file_path(
+                            repo.get_id_name_ref(),
+                            &encrypted_path,
+                            remote_file,
+                            &cipher,
+                        );
+                        let repo_file_id = repo_file.id.clone();
+
+                        state
+                            .repo_files
+                            .files
+                            .insert(repo_file_id.clone(), repo_file);
+
+                        repo_file_ids.push(repo_file_id);
+                    }
+                }
+
+                state
+                    .repo_files
+                    .recent
+                    .insert(repo_id.clone(), repo_file_ids);
+
+                decrypted = true;
+            }
+        }
+    }
+
+    decrypted
 }
 
 pub fn get_root_file(repo: RepoIdNameRef, remote_file: &RemoteFile) -> RepoFile {

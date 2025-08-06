@@ -213,6 +213,7 @@ pub struct RepoFilesState {
     pub files: HashMap<RepoFileId, RepoFile>,
     pub children: HashMap<RepoFileId, Vec<RepoFileId>>,
     pub loaded_roots: HashSet<RepoFileId>,
+    pub recent: HashMap<RepoId, Vec<RepoFileId>>,
 }
 
 impl RepoFilesState {

@@ -152,6 +152,12 @@ impl RepoFilesBrowsersService {
                 RepoFilesBrowserLocation::Storage { repo_id, path, .. } => {
                     repo_files_service.load_files(repo_id, path).await
                 }
+                RepoFilesBrowserLocation::Recent { repo_id, .. } => {
+                    let limit = 1000;
+                    let offset = None;
+
+                    repo_files_service.load_recent(repo_id, limit, offset).await
+                }
             };
 
             store.mutate(|state, notify, mutation_state, _| {
