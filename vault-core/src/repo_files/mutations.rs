@@ -10,8 +10,9 @@ use crate::{
     files::file_category::FileCategory,
     remote_files::{
         selectors as remote_files_selectors,
-        state::{RemoteFile, RemoteFileType},
+        state::{RemoteFile, RemoteFileType, RemoteFilesState},
     },
+    repo_files::state::RepoFilesState,
     repo_files_tags::mutations::decrypt_tags,
     repos, store,
     types::{
@@ -26,11 +27,11 @@ use super::{
     state::{RepoFile, RepoFileName, RepoFilePath, RepoFileSize},
 };
 
-pub fn sort_children(state: &mut store::State, file_id: RepoFileId) {
-    if let Some(children_ids) = state.repo_files.children.get(&file_id) {
-        state.repo_files.children.insert(
+pub fn sort_children(repo_files: &mut RepoFilesState, file_id: RepoFileId) {
+    if let Some(children_ids) = repo_files.children.get(&file_id) {
+        repo_files.children.insert(
             file_id,
-            selectors::select_sorted_files(state, &children_ids, &Default::default()),
+            selectors::select_sorted_files(repo_files, &children_ids, &Default::default()),
         );
     }
 }
@@ -158,7 +159,15 @@ pub fn handle_remote_files_mutation(
 
     for (mount_id, remote_path, repo_id, path) in files_to_decrypt {
         if let Ok(cipher) = repos::selectors::select_cipher_owned(state, &repo_id) {
-            let _ = decrypt_files(state, &mount_id, &remote_path, &repo_id, &path, &cipher);
+            let _ = decrypt_files(
+                &state.remote_files,
+                &mut state.repo_files,
+                &mount_id,
+                &remote_path,
+                &repo_id,
+                &path,
+                &cipher,
+            );
 
             repo_files_dirty = true;
         }
@@ -319,7 +328,15 @@ pub fn handle_repos_mutation(
 
     for (mount_id, remote_path, repo_id, path) in files_to_decrypt {
         if let Ok(cipher) = repos::selectors::select_cipher_owned(state, &repo_id) {
-            let _ = decrypt_files(state, &mount_id, &remote_path, &repo_id, &path, &cipher);
+            let _ = decrypt_files(
+                &state.remote_files,
+                &mut state.repo_files,
+                &mount_id,
+                &remote_path,
+                &repo_id,
+                &path,
+                &cipher,
+            );
 
             repo_files_dirty = true;
         }
@@ -333,7 +350,8 @@ pub fn handle_repos_mutation(
 }
 
 pub fn decrypt_files(
-    state: &mut store::State,
+    remote_files: &RemoteFilesState,
+    repo_files: &mut RepoFilesState,
     mount_id: &MountId,
     remote_path: &RemotePath,
     repo_id: &RepoId,
@@ -343,7 +361,7 @@ pub fn decrypt_files(
     let root_remote_file_id =
         remote_files_selectors::get_file_id(mount_id, &remote_path.to_lowercase());
 
-    if let Some(root_remote_file) = state.remote_files.files.get(&root_remote_file_id) {
+    if let Some(root_remote_file) = remote_files.files.get(&root_remote_file_id) {
         let root_repo_file = if encrypted_path.is_root() {
             get_root_file(repo_id, root_remote_file)
         } else {
@@ -364,65 +382,53 @@ pub fn decrypt_files(
         };
         let root_repo_file_id = root_repo_file.id.clone();
 
-        state
-            .repo_files
+        repo_files
             .files
             .insert(root_repo_file_id.clone(), root_repo_file);
 
-        if let Some(remote_children_ids) = state.remote_files.children.get(&root_remote_file_id) {
+        if let Some(remote_children_ids) = remote_files.children.get(&root_remote_file_id) {
             let path = cipher.decrypt_path(encrypted_path);
 
             let mut children = Vec::with_capacity(remote_children_ids.len());
 
             for remote_child in remote_children_ids
                 .iter()
-                .filter_map(|id| state.remote_files.files.get(id))
+                .filter_map(|id| remote_files.files.get(id))
             {
                 let repo_child =
                     decrypt_file(repo_id, encrypted_path, &path, remote_child, &cipher);
 
                 children.push(repo_child.id.clone());
 
-                state
-                    .repo_files
-                    .files
-                    .insert(repo_child.id.clone(), repo_child);
+                repo_files.files.insert(repo_child.id.clone(), repo_child);
             }
 
             let children_set: HashSet<RepoFileId> = children.clone().into_iter().collect();
 
-            if let Some(old_children) = state.repo_files.children.get(&root_repo_file_id) {
+            if let Some(old_children) = repo_files.children.get(&root_repo_file_id) {
                 let old_children = old_children.clone();
 
                 for old_child in old_children {
                     if !children_set.contains(&old_child) {
-                        cleanup_file(state, &old_child);
+                        cleanup_file(repo_files, &old_child);
                     }
                 }
             }
 
-            state
-                .repo_files
+            repo_files
                 .children
                 .insert(root_repo_file_id.clone(), children);
 
-            sort_children(state, root_repo_file_id.clone());
+            sort_children(repo_files, root_repo_file_id.clone());
         }
 
-        if state
-            .remote_files
-            .loaded_roots
-            .contains(&root_remote_file_id)
-        {
-            state
-                .repo_files
-                .loaded_roots
-                .insert(root_repo_file_id.clone());
+        if remote_files.loaded_roots.contains(&root_remote_file_id) {
+            repo_files.loaded_roots.insert(root_repo_file_id.clone());
         }
     } else {
         let file_id = selectors::get_file_id(repo_id, &encrypted_path);
 
-        state.repo_files.files.remove(&file_id);
+        repo_files.files.remove(&file_id);
     }
 }
 
@@ -532,8 +538,8 @@ pub fn get_root_file(repo_id: &RepoId, remote_file: &RemoteFile) -> RepoFile {
     }
 }
 
-pub fn cleanup_file(state: &mut store::State, file_id: &RepoFileId) {
-    state.repo_files.files.remove(file_id);
+pub fn cleanup_file(repo_files: &mut RepoFilesState, file_id: &RepoFileId) {
+    repo_files.files.remove(file_id);
 
     let file_id_prefix = if file_id.0.ends_with('/') {
         file_id.0.clone()
@@ -541,15 +547,13 @@ pub fn cleanup_file(state: &mut store::State, file_id: &RepoFileId) {
         format!("{}/", file_id.0)
     };
 
-    state
-        .repo_files
+    repo_files
         .files
         .retain(|file_id, _| !file_id.0.starts_with(&file_id_prefix));
 
-    state.repo_files.children.remove(file_id);
+    repo_files.children.remove(file_id);
 
-    state
-        .repo_files
+    repo_files
         .children
         .retain(|file_id, _| !file_id.0.starts_with(&file_id_prefix));
 }

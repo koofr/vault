@@ -8,6 +8,7 @@ use crate::{
     },
     remote::RemoteError,
     remote_files::{selectors as remote_files_selectors, state::RemoteFile},
+    repo_files::state::RepoFilesState,
     repos::{errors::RepoNotFoundError, selectors as repos_selectors},
     store,
     types::{
@@ -239,7 +240,7 @@ pub fn select_breadcrumbs(
 }
 
 pub fn select_sorted_files(
-    state: &store::State,
+    repo_files: &RepoFilesState,
     file_ids: &[RepoFileId],
     sort: &RepoFilesSort,
 ) -> Vec<RepoFileId> {
@@ -247,7 +248,7 @@ pub fn select_sorted_files(
 
     let (mut dirs, mut files): (Vec<_>, Vec<_>) = file_ids
         .iter()
-        .filter_map(|id| state.repo_files.files.get(id))
+        .filter_map(|id| repo_files.files.get(id))
         .partition(|f| f.typ == RepoFileType::Dir);
 
     match field {
