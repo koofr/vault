@@ -10,6 +10,7 @@ import { RepoConfigBackupPageLazy } from './pages/RepoConfigBackupPageLazy';
 import { RepoCreatePageLazy } from './pages/RepoCreatePageLazy';
 import { RepoFilesDetailsPageLazy } from './pages/RepoFilesDetailsPageLazy';
 import { RepoFilesPageLazy } from './pages/RepoFilesPageLazy';
+import { RepoFilesRecentPageLazy } from './pages/RepoFilesRecentPageLazy';
 import { RepoInfoPageLazy } from './pages/RepoInfoPageLazy';
 
 export const createRouter = (landingPage: React.ReactNode) => {
@@ -29,6 +30,10 @@ export const createRouter = (landingPage: React.ReactNode) => {
         {
           path: '/repos/:repoId',
           element: <RepoFilesPageLazy />,
+        },
+        {
+          path: '/repos/:repoId/recent',
+          element: <RepoFilesRecentPageLazy />,
         },
         {
           path: '/repos/:repoId/details',

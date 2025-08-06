@@ -25,7 +25,11 @@ export const RepoFilesBreadcrumbs = memo<{
         return {
           id: breadcrumb.id,
           name: breadcrumb.name,
-          link: repoFilesLink(breadcrumb.repoId, breadcrumb.path),
+          link: /^recent:/.test(breadcrumb.id)
+            ? {
+                pathname: `/repos/${breadcrumb.repoId}/recent`,
+              }
+            : repoFilesLink(breadcrumb.repoId, breadcrumb.path),
           isClickable: true,
           hasCaret: false,
           isLast: i === visibleBreadcrumbs.length - 1,

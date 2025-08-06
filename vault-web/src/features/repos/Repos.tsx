@@ -9,6 +9,8 @@ import InfoHoverIcon from '../../assets/images/info-hover.svg?react';
 import InfoIcon from '../../assets/images/info.svg?react';
 import LockedHoverIcon from '../../assets/images/locked-hover.svg?react';
 import LockedIcon from '../../assets/images/locked.svg?react';
+import RecentHoverIcon from '../../assets/images/recent-hover.svg?react';
+import RecentIcon from '../../assets/images/recent.svg?react';
 import UnlockedHoverIcon from '../../assets/images/unlocked-hover.svg?react';
 import UnlockedIcon from '../../assets/images/unlocked.svg?react';
 import { buttonReset } from '../../styles/mixins/buttons';
@@ -19,6 +21,7 @@ import { useWebVault } from '../../webVault/useWebVault';
 
 export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
   ({ repo, isActive }) => {
+    const location = useLocation();
     const theme = useTheme();
     const webVault = useWebVault();
     const lockRepo = useCallback(
@@ -27,6 +30,10 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
       },
       [webVault],
     );
+
+    const isRecentActive = isActive && location.pathname.endsWith('/recent');
+    const isInfoActive = isActive && location.pathname.endsWith('/info');
+    const isRepoActive = isActive && !isRecentActive;
 
     return (
       <li>
@@ -42,7 +49,7 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
                 background-color: ${theme.colors.hover};
               }
             `,
-            isActive &&
+            isRepoActive &&
               css`
                 background-color: ${theme.colors.hover};
               `,
@@ -140,7 +147,7 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
                   text-decoration: none;
                 }
               `,
-              isActive &&
+              isRepoActive &&
                 css`
                   font-weight: 600;
                 `,
@@ -168,26 +175,138 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
             `}
             aria-label="Safe Box info"
           >
-            <InfoIcon
-              className={css`
-                a:hover > & {
-                  display: none;
-                }
-              `}
-              role="img"
-            />
-            <InfoHoverIcon
-              className={css`
-                display: none;
+            {isInfoActive ? (
+              <InfoHoverIcon role="img" />
+            ) : (
+              <>
+                <InfoIcon
+                  className={css`
+                    a:hover > & {
+                      display: none;
+                    }
+                  `}
+                  role="img"
+                />
+                <InfoHoverIcon
+                  className={css`
+                    display: none;
 
-                a:hover > & {
-                  display: inline;
-                }
-              `}
-              role="img"
-            />
+                    a:hover > & {
+                      display: inline;
+                    }
+                  `}
+                  role="img"
+                />
+              </>
+            )}
           </Link>
         </div>
+        {isActive ? (
+          <ul
+            className={css`
+              list-style: none;
+              margin: 0;
+              padding: 0;
+              transition: height 0.3s ease-out;
+              overflow: hidden;
+            `}
+          >
+            <li>
+              <div
+                className={cx(
+                  css`
+                    display: flex;
+                    align-items: center;
+                    height: 36px;
+                    padding: 0 0 0 35px;
+
+                    &:hover {
+                      background-color: ${theme.colors.hover};
+                    }
+                  `,
+                  isRecentActive &&
+                    css`
+                      background-color: ${theme.colors.hover};
+                    `,
+                )}
+              >
+                <Link
+                  to={`/repos/${repo.id}/recent`}
+                  className={css`
+                    width: 36px;
+                    height: 36px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    flex-shrink: 0;
+                    margin-right: 7px;
+                  `}
+                  aria-label="Recent"
+                >
+                  {isRecentActive ? (
+                    <RecentHoverIcon role="img" />
+                  ) : (
+                    <>
+                      <RecentIcon
+                        className={css`
+                          a:hover > & {
+                            display: none;
+                          }
+                        `}
+                        role="img"
+                      />
+                      <RecentHoverIcon
+                        className={css`
+                          display: none;
+
+                          a:hover > & {
+                            display: inline;
+                          }
+                        `}
+                        role="img"
+                      />
+                    </>
+                  )}
+                </Link>
+                <Link
+                  to={`/repos/${repo.id}/recent`}
+                  className={cx(
+                    css`
+                      text-decoration: none;
+                      flex-grow: 1;
+                      font-size: 14px;
+                      font-weight: normal;
+                      height: 32px;
+                      display: flex;
+                      flex-direction: row;
+                      align-items: center;
+                      overflow: hidden;
+
+                      ${allStates} {
+                        color: ${theme.colors.text};
+                        text-decoration: none;
+                      }
+                    `,
+                    isRecentActive &&
+                      css`
+                        font-weight: 600;
+                      `,
+                  )}
+                >
+                  <span
+                    className={css`
+                      text-overflow: ellipsis;
+                      white-space: nowrap;
+                      overflow: hidden;
+                    `}
+                  >
+                    Recent
+                  </span>
+                </Link>
+              </div>
+            </li>
+          </ul>
+        ) : null}
       </li>
     );
   },
