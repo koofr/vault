@@ -1,12 +1,14 @@
 import { css } from '@emotion/css';
 import { memo, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
 
 import { DashboardLayout } from '../../components/dashboard/DashboardLayout';
 import { DashboardLoading } from '../../components/dashboard/DashboardLoading';
 import { useIsMobile } from '../../components/useIsMobile';
 import { useDocumentTitle } from '../../utils/useDocumentTitle';
-import { RepoFilesBrowserInfo } from '../../vault-wasm/vault-wasm';
+import {
+  RepoFilesBrowserInfo,
+  RepoFilesBrowserSource,
+} from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
 
 import { RepoGuard } from '../repo/RepoGuard';
@@ -28,7 +30,6 @@ import {
 import { RepoFilesUploadForm } from './RepoFilesUploadForm';
 import { useBrowser } from './useBrowser';
 import { useRepoFileInfo } from './useRepoFileInfo';
-import { useSelectName } from './useSelectName';
 
 export const RepoFilesInfo = memo<{
   browserId: number;
@@ -61,7 +62,7 @@ export const RepoFilesInfo = memo<{
               <RepoFilesBreadcrumbs breadcrumbs={info.breadcrumbs} />
             ) : undefined
           }
-          navbarNav={<RepoFilesNav />}
+          navbarNav={<RepoFilesNav info={info} />}
           navbarExtra={
             <RepoFilesNavbarExtra info={info} onInfoClick={onInfoClick} />
           }
@@ -85,7 +86,7 @@ export const RepoFilesInfo = memo<{
           {info !== undefined ? <RepoFilesContent info={info} /> : null}
 
           <RepoFilesMoveModal />
-          <RepoFilesDropZone />
+          {info?.encryptedPath !== undefined ? <RepoFilesDropZone /> : null}
           <RepoFilesUploadForm />
           <RepoFileInfoSheet
             file={infoSheetVisible ? info?.selectedFile : undefined}
@@ -98,12 +99,11 @@ export const RepoFilesInfo = memo<{
   );
 });
 
-export const RepoFiles = memo<{ repoId: string }>(({ repoId }) => {
-  const [searchParams] = useSearchParams();
-  const path = searchParams.get('path') ?? undefined;
-
-  const selectName = useSelectName(repoId, path);
-  const browserId = useBrowser(repoId, path ?? '/', selectName);
+export const RepoFiles = memo<{
+  source: RepoFilesBrowserSource;
+  selectName: string | undefined;
+}>(({ source, selectName }) => {
+  const browserId = useBrowser(source, selectName);
 
   const [info] = useSubscribe(
     (v, cb) => v.repoFilesBrowsersInfoSubscribe(browserId, cb),
@@ -111,13 +111,13 @@ export const RepoFiles = memo<{ repoId: string }>(({ repoId }) => {
     [browserId],
   );
 
-  if (info === undefined) {
+  if (info === undefined || info.repoId === undefined) {
     return <DashboardLoading />;
   }
 
   return (
     <RepoGuard
-      repoId={repoId}
+      repoId={info.repoId}
       repoStatus={info.repoStatus}
       isLocked={info.isLocked}
     >

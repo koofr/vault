@@ -1,23 +1,22 @@
+import isEqual from 'lodash/isEqual';
 import { useEffect, useMemo, useRef } from 'react';
 
+import { RepoFilesBrowserSource } from '../../vault-wasm/vault-wasm';
 import { useWebVault } from '../../webVault/useWebVault';
 
 export function useBrowser(
-  repoId: string,
-  encryptedPath: string,
+  source: RepoFilesBrowserSource,
   selectName: string | undefined,
 ): number {
   const webVault = useWebVault();
 
-  const lastRepoId = useRef<string>(repoId);
-  const lastEncryptedPath = useRef<string>(encryptedPath);
+  const lastSource = useRef<RepoFilesBrowserSource>(source);
   const lastBrowserId = useRef<number>();
 
   const browserId = useMemo(() => {
     if (
       lastBrowserId.current !== undefined &&
-      repoId === lastRepoId.current &&
-      encryptedPath === lastEncryptedPath.current &&
+      isEqual(source, lastSource.current) &&
       selectName === undefined
     ) {
       // if selectName was set and then changed to undefined, use the same
@@ -25,23 +24,15 @@ export function useBrowser(
       return lastBrowserId.current;
     }
 
-    const browserId = webVault.repoFilesBrowsersCreate(
-      {
-        type: 'Storage',
-        repoId,
-        encryptedPath,
-      },
-      {
-        selectName,
-      },
-    );
+    const browserId = webVault.repoFilesBrowsersCreate(source, {
+      selectName,
+    });
 
-    lastRepoId.current = repoId;
-    lastEncryptedPath.current = encryptedPath;
+    lastSource.current = source;
     lastBrowserId.current = browserId;
 
     return browserId;
-  }, [webVault, repoId, encryptedPath, selectName]);
+  }, [webVault, source, selectName]);
 
   useEffect(() => {
     return () => {

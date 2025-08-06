@@ -7,6 +7,7 @@ import { memo, useState } from 'react';
 import AddInverseIcon from '../../assets/images/add-inverse.svg?react';
 import { NavbarNav } from '../../components/navbar/NavbarNav';
 import { NavbarNavItem } from '../../components/navbar/NavbarNavItem';
+import { RepoFilesBrowserInfo } from '../../vault-wasm/vault-wasm';
 
 import { RepoFilesAddMenu } from './RepoFilesAddMenu';
 
@@ -46,10 +47,12 @@ export const AddButtonDropdown = memo(() => {
   );
 });
 
-export const RepoFilesNav = memo(() => {
-  return (
-    <NavbarNav>
-      <AddButtonDropdown />
-    </NavbarNav>
-  );
-});
+export const RepoFilesNav = memo<{ info?: RepoFilesBrowserInfo }>(
+  ({ info }) => {
+    return (
+      <NavbarNav>
+        {info?.encryptedPath !== undefined ? <AddButtonDropdown /> : null}
+      </NavbarNav>
+    );
+  },
+);
