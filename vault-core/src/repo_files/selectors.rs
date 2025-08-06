@@ -10,6 +10,7 @@ use crate::{
     remote_files::{selectors as remote_files_selectors, state::RemoteFile},
     repo_files::state::RepoFilesState,
     repos::{errors::RepoNotFoundError, selectors as repos_selectors},
+    sort::state::SortGrouping,
     store,
     types::{
         DecryptedName, DecryptedNameLower, EncryptedName, EncryptedPath, MountId, RemotePath,
@@ -244,33 +245,66 @@ pub fn select_sorted_files(
     file_ids: &[RepoFileId],
     sort: &RepoFilesSort,
 ) -> Vec<RepoFileId> {
-    let RepoFilesSort { field, direction } = sort;
+    let RepoFilesSort {
+        field,
+        direction,
+        grouping,
+    } = sort;
 
-    let (mut dirs, mut files): (Vec<_>, Vec<_>) = file_ids
-        .iter()
-        .filter_map(|id| repo_files.files.get(id))
-        .partition(|f| f.typ == RepoFileType::Dir);
+    match grouping {
+        SortGrouping::DirsFirst => {
+            let (mut dirs, mut files): (Vec<_>, Vec<_>) = file_ids
+                .iter()
+                .filter_map(|id| repo_files.files.get(id))
+                .partition(|f| f.typ == RepoFileType::Dir);
 
-    match field {
-        RepoFilesSortField::Name => {
-            dirs.sort_by(|a, b| direction.ordering(a.name_lower_force().cmp(b.name_lower_force())));
-            files
-                .sort_by(|a, b| direction.ordering(a.name_lower_force().cmp(b.name_lower_force())));
+            match field {
+                RepoFilesSortField::Name => {
+                    dirs.sort_by(|a, b| {
+                        direction.ordering(a.name_lower_force().cmp(b.name_lower_force()))
+                    });
+                    files.sort_by(|a, b| {
+                        direction.ordering(a.name_lower_force().cmp(b.name_lower_force()))
+                    });
+                }
+                RepoFilesSortField::Size => {
+                    dirs.sort_by(|a, b| a.name_lower_force().cmp(b.name_lower_force()));
+                    files.sort_by(|a, b| direction.ordering(a.size_force().cmp(&b.size_force())));
+                }
+                RepoFilesSortField::Modified => {
+                    dirs.sort_by(|a, b| a.name_lower_force().cmp(b.name_lower_force()));
+                    files.sort_by(|a, b| direction.ordering(a.modified.cmp(&b.modified)));
+                }
+            }
+
+            dirs.into_iter()
+                .map(|file| file.id.clone())
+                .chain(files.into_iter().map(|file| file.id.clone()))
+                .collect()
         }
-        RepoFilesSortField::Size => {
-            dirs.sort_by(|a, b| a.name_lower_force().cmp(b.name_lower_force()));
-            files.sort_by(|a, b| direction.ordering(a.size_force().cmp(&b.size_force())));
-        }
-        RepoFilesSortField::Modified => {
-            dirs.sort_by(|a, b| a.name_lower_force().cmp(b.name_lower_force()));
-            files.sort_by(|a, b| direction.ordering(a.modified.cmp(&b.modified)));
+        SortGrouping::NoGrouping => {
+            let mut files: Vec<_> = file_ids
+                .iter()
+                .filter_map(|id| repo_files.files.get(id))
+                .collect();
+
+            match field {
+                RepoFilesSortField::Name => {
+                    files.sort_by(|a, b| {
+                        direction.ordering(a.name_lower_force().cmp(b.name_lower_force()))
+                    });
+                }
+                RepoFilesSortField::Size => {
+                    files.sort_by(|a, b| direction.ordering(a.size_force().cmp(&b.size_force())));
+                }
+                RepoFilesSortField::Modified => {
+                    files.sort_by(|a, b| direction.ordering(a.modified.cmp(&b.modified)));
+                }
+            }
+
+            files.into_iter().map(|file| file.id.clone()).collect()
         }
     }
-
-    dirs.iter()
-        .map(|file| file.id.clone())
-        .chain(files.iter().map(|file| file.id.clone()))
-        .collect()
 }
 
 pub fn select_used_names(

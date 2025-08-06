@@ -8,12 +8,14 @@ use crate::{
     },
     remote_files::errors::RemoteFilesErrors,
     repo_files::{
-        errors::LoadFilesError, selectors as repo_files_selectors, state::RepoFilesSortField,
+        errors::LoadFilesError,
+        selectors as repo_files_selectors,
+        state::{RepoFilesSort, RepoFilesSortField},
     },
     repo_files_browsers::state::RepoFilesBrowserSource,
     repos,
     selection::{mutations as selection_mutations, state::Selection},
-    sort::state::SortDirection,
+    sort::state::{SortDirection, SortGrouping},
     store,
     types::{RepoFileId, RepoId},
     utils::repo_encrypted_path_utils,
@@ -109,6 +111,18 @@ pub fn create(
 
     let browser_id = state.repo_files_browsers.next_id.next();
 
+    let sort = match &source {
+        RepoFilesBrowserSource::Storage { .. } => state
+            .repo_files_browsers
+            .last_sort
+            .clone()
+            .unwrap_or_else(|| RepoFilesSort {
+                field: RepoFilesSortField::Name,
+                direction: SortDirection::Asc,
+                grouping: SortGrouping::DirsFirst,
+            }),
+    };
+
     let location = create_location(state, notify, mutation_state, source, browser_id);
 
     let status = create_status(state, location.as_ref());
@@ -121,7 +135,7 @@ pub fn create(
         breadcrumbs: None,
         file_ids: Vec::new(),
         selection: Selection::default(),
-        sort: state.repo_files_browsers.last_sort.clone(),
+        sort,
         repo_status: Status::Initial,
         is_locked: false,
     };

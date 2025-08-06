@@ -25,3 +25,9 @@ impl SortDirection {
         }
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SortGrouping {
+    DirsFirst,
+    NoGrouping,
+}

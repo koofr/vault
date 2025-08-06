@@ -12,9 +12,10 @@ use crate::{
         selectors as remote_files_selectors,
         state::{RemoteFile, RemoteFileType, RemoteFilesState},
     },
-    repo_files::state::RepoFilesState,
+    repo_files::state::{RepoFilesSort, RepoFilesSortField, RepoFilesState},
     repo_files_tags::mutations::decrypt_tags,
     repos::{self, state::RepoIdNameRef},
+    sort::state::{SortDirection, SortGrouping},
     store,
     types::{
         DecryptedPath, ENCRYPTED_PATH_ROOT, EncryptedName, EncryptedPath, MountId, RemotePath,
@@ -28,11 +29,17 @@ use super::{
     state::{RepoFile, RepoFileName, RepoFilePath, RepoFileSize},
 };
 
+const SORT_CHILDREN_DEFAULT_SORT: RepoFilesSort = RepoFilesSort {
+    field: RepoFilesSortField::Name,
+    direction: SortDirection::Asc,
+    grouping: SortGrouping::DirsFirst,
+};
+
 pub fn sort_children(repo_files: &mut RepoFilesState, file_id: RepoFileId) {
     if let Some(children_ids) = repo_files.children.get(&file_id) {
         repo_files.children.insert(
             file_id,
-            selectors::select_sorted_files(repo_files, &children_ids, &Default::default()),
+            selectors::select_sorted_files(repo_files, &children_ids, &SORT_CHILDREN_DEFAULT_SORT),
         );
     }
 }

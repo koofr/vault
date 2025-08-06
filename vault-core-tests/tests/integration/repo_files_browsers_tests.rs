@@ -16,7 +16,7 @@ use vault_core::{
     },
     repos::errors::{RepoInfoError, RepoLockedError, RepoNotFoundError},
     selection::state::SelectionSummary,
-    sort::state::SortDirection,
+    sort::state::{SortDirection, SortGrouping},
     store,
     types::{EncryptedName, EncryptedPath, RepoFileId},
 };
@@ -63,7 +63,8 @@ fn test_repo_not_loaded() {
                             selection_summary: SelectionSummary::None,
                             sort: RepoFilesSort {
                                 field: RepoFilesSortField::Name,
-                                direction: SortDirection::Asc
+                                direction: SortDirection::Asc,
+                                grouping: SortGrouping::DirsFirst,
                             },
                             status: Status::Loading { loaded: false },
                             title: None,
@@ -90,7 +91,8 @@ fn test_repo_not_loaded() {
                             selection_summary: SelectionSummary::None,
                             sort: RepoFilesSort {
                                 field: RepoFilesSortField::Name,
-                                direction: SortDirection::Asc
+                                direction: SortDirection::Asc,
+                                grouping: SortGrouping::DirsFirst,
                             },
                             status: Status::Loading { loaded: false },
                             title: None,
@@ -117,7 +119,8 @@ fn test_repo_not_loaded() {
                             selection_summary: SelectionSummary::None,
                             sort: RepoFilesSort {
                                 field: RepoFilesSortField::Name,
-                                direction: SortDirection::Asc
+                                direction: SortDirection::Asc,
+                                grouping: SortGrouping::DirsFirst,
                             },
                             status: Status::Error {
                                 error: LoadFilesError::RepoLocked(RepoLockedError),
@@ -186,7 +189,8 @@ fn test_repo_locked_unlock() {
                             selection_summary: SelectionSummary::None,
                             sort: RepoFilesSort {
                                 field: RepoFilesSortField::Name,
-                                direction: SortDirection::Asc
+                                direction: SortDirection::Asc,
+                                grouping: SortGrouping::DirsFirst,
                             },
                             status: Status::Error {
                                 error: LoadFilesError::RepoLocked(RepoLockedError),
@@ -216,7 +220,8 @@ fn test_repo_locked_unlock() {
                             selection_summary: SelectionSummary::None,
                             sort: RepoFilesSort {
                                 field: RepoFilesSortField::Name,
-                                direction: SortDirection::Asc
+                                direction: SortDirection::Asc,
+                                grouping: SortGrouping::DirsFirst,
                             },
                             status: Status::Loading { loaded: false },
                             title: Some("My safe box".into()),
@@ -249,7 +254,8 @@ fn test_repo_locked_unlock() {
                             selection_summary: SelectionSummary::None,
                             sort: RepoFilesSort {
                                 field: RepoFilesSortField::Name,
-                                direction: SortDirection::Asc
+                                direction: SortDirection::Asc,
+                                grouping: SortGrouping::DirsFirst,
                             },
                             status: Status::Loaded,
                             title: Some("My safe box".into()),
@@ -315,7 +321,8 @@ fn test_repo_lock_unlock_remove() {
                     selection_summary: SelectionSummary::None,
                     sort: RepoFilesSort {
                         field: RepoFilesSortField::Name,
-                        direction: SortDirection::Asc
+                        direction: SortDirection::Asc,
+                        grouping: SortGrouping::DirsFirst,
                     },
                     status: Status::Loaded,
                     title: Some("My safe box".into()),
@@ -361,7 +368,8 @@ fn test_repo_lock_unlock_remove() {
                     selection_summary: SelectionSummary::None,
                     sort: RepoFilesSort {
                         field: RepoFilesSortField::Name,
-                        direction: SortDirection::Asc
+                        direction: SortDirection::Asc,
+                        grouping: SortGrouping::DirsFirst,
                     },
                     status: Status::Error {
                         error: LoadFilesError::RepoLocked(RepoLockedError),
@@ -407,7 +415,8 @@ fn test_repo_lock_unlock_remove() {
                     selection_summary: SelectionSummary::None,
                     sort: RepoFilesSort {
                         field: RepoFilesSortField::Name,
-                        direction: SortDirection::Asc
+                        direction: SortDirection::Asc,
+                        grouping: SortGrouping::DirsFirst,
                     },
                     status: Status::Error {
                         error: LoadFilesError::RepoNotFound(RepoNotFoundError),
@@ -476,7 +485,8 @@ fn test_repo_decrypt_path_error() {
                     selection_summary: SelectionSummary::None,
                     sort: RepoFilesSort {
                         field: RepoFilesSortField::Name,
-                        direction: SortDirection::Asc
+                        direction: SortDirection::Asc,
+                        grouping: SortGrouping::DirsFirst,
                     },
                     status: Status::Loaded,
                     title: Some("dir".into()),
@@ -762,7 +772,11 @@ fn expected_browsers_state(
         }]),
         file_ids: vec![],
         selection: Default::default(),
-        sort: Default::default(),
+        sort: RepoFilesSort {
+            field: RepoFilesSortField::Name,
+            direction: SortDirection::Asc,
+            grouping: SortGrouping::DirsFirst,
+        },
         repo_status: Status::Loaded,
         is_locked: false,
     };

@@ -6,7 +6,7 @@ use crate::{
     remote::RemoteFileUploadConflictResolution,
     remote_files::state::{RemoteFile, RemoteFileType},
     repo_files_tags::{errors::DecryptTagsError, state::RepoFileTags},
-    sort::state::SortDirection,
+    sort::state::{SortDirection, SortGrouping},
     types::{
         DecryptedName, DecryptedPath, EncryptedName, EncryptedPath, MountId, RemotePath,
         RepoFileId, RepoId,
@@ -268,14 +268,9 @@ pub enum RepoFilesSortField {
     Modified,
 }
 
-impl Default for RepoFilesSortField {
-    fn default() -> Self {
-        Self::Name
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct RepoFilesSort {
     pub field: RepoFilesSortField,
     pub direction: SortDirection,
+    pub grouping: SortGrouping,
 }
