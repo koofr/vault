@@ -464,7 +464,7 @@ dictionary RepoFile {
   string? ext;
   string? content_type;
   RepoFileType typ;
-  string size_display;
+  string? size_display;
   i64? modified;
   FileCategory category;
   FileIconAttrs file_icon_attrs;

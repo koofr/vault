@@ -1228,7 +1228,7 @@ pub struct RepoFile {
     pub ext: Option<String>,
     pub content_type: Option<String>,
     pub typ: RepoFileType,
-    pub size_display: String,
+    pub size_display: Option<String>,
     pub modified: Option<i64>,
     pub category: FileCategory,
     pub file_icon_attrs: FileIconAttrs,
@@ -1261,13 +1261,13 @@ impl From<&repo_files_state::RepoFile> for RepoFile {
             typ: (&file.typ).into(),
             size_display: match &file.size {
                 Some(repo_files_state::RepoFileSize::Decrypted { size }) => {
-                    vault_core::files::file_size::size_display(*size)
+                    Some(vault_core::files::file_size::size_display(*size))
                 }
                 Some(repo_files_state::RepoFileSize::DecryptError {
                     encrypted_size: _,
                     error: _,
-                }) => String::from("???"),
-                None => "".into(),
+                }) => Some(String::from("???")),
+                None => None,
             },
             modified: file.modified,
             category: (&file.category).into(),
