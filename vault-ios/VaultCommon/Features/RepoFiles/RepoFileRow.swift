@@ -13,7 +13,7 @@ public struct RepoFileRow: View {
             },
             name: file.name,
             sizeDisplay: file.sizeDisplay,
-            modified: file.modified,
+            modified: file.typ == .file ? file.modified : nil,
             isError: file.nameError != nil
         )
     }

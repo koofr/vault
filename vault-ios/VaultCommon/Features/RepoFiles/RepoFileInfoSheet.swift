@@ -72,16 +72,18 @@ struct RepoFileInfoSheet: View {
 
                     Divider().padding(.bottom, 10)
 
-                    if !file.sizeDisplay.isEmpty {
-                        HStack {
-                            Text("Size").font(.system(size: 15)).foregroundColor(
-                                Color(.systemGray2))
-                            Spacer()
-                            Text(file.sizeDisplay).font(.system(size: 15))
-                        }
-                        .padding(.bottom, 10)
+                    if let sizeDisplay = file.sizeDisplay {
+                        if !sizeDisplay.isEmpty {
+                            HStack {
+                                Text("Size").font(.system(size: 15)).foregroundColor(
+                                    Color(.systemGray2))
+                                Spacer()
+                                Text(sizeDisplay).font(.system(size: 15))
+                            }
+                            .padding(.bottom, 10)
 
-                        Divider().padding(.bottom, 10)
+                            Divider().padding(.bottom, 10)
+                        }
                     }
 
                     if let modified = file.modified {

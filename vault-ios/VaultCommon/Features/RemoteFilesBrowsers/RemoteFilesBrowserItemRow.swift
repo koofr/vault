@@ -6,6 +6,13 @@ public struct RemoteFilesBrowserItemRow: View {
     public var item: RemoteFilesBrowserItem
 
     public var body: some View {
+        let modified: Int64? = {
+            if case .file(typ: let fileType, _) = item.typ {
+                return fileType == .file ? item.modified : nil
+            }
+            return nil
+        }()
+
         FileRow(
             mobileVault: container.mobileVault,
             fileIcon: {
@@ -14,7 +21,7 @@ public struct RemoteFilesBrowserItemRow: View {
             },
             name: item.name,
             sizeDisplay: item.sizeDisplay,
-            modified: item.modified,
+            modified: modified,
             isError: false
         )
     }
