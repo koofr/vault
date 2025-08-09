@@ -135,6 +135,7 @@
 		A1AD934C2A828DDE006172BF /* VaultShareExt.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A1AD93422A828DDE006172BF /* VaultShareExt.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A1AD93592A82D568006172BF /* CommonAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1AD92F32A8285A7006172BF /* CommonAssets.xcassets */; };
 		A1AEB7DE2ABA07AE00B50AB1 /* UIColorRGB.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AEB7DD2ABA07AE00B50AB1 /* UIColorRGB.swift */; };
+		A1B280472E47727000C1696A /* RecentRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B280462E47727000C1696A /* RecentRow.swift */; };
 		A1B7A9E42B19F56000C6F98E /* LifecycleHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B7A9E32B19F56000C6F98E /* LifecycleHandler.swift */; };
 		A1C8654E2ABF721F0032F64B /* WindowUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C8654D2ABF721F0032F64B /* WindowUtils.swift */; };
 		A1CC129E2A8AA0EA00C0E1A0 /* ImageData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1CC129D2A8AA0EA00C0E1A0 /* ImageData.swift */; };
@@ -373,6 +374,7 @@
 		A1AD93492A828DDE006172BF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1AD93512A828DF1006172BF /* ShareExtScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareExtScreen.swift; sourceTree = "<group>"; };
 		A1AEB7DD2ABA07AE00B50AB1 /* UIColorRGB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorRGB.swift; sourceTree = "<group>"; };
+		A1B280462E47727000C1696A /* RecentRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentRow.swift; sourceTree = "<group>"; };
 		A1B6D00C2941DA4600CBF5FC /* KeychainRepoPasswordStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainRepoPasswordStorage.swift; sourceTree = "<group>"; };
 		A1B7A9E32B19F56000C6F98E /* LifecycleHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifecycleHandler.swift; sourceTree = "<group>"; };
 		A1C8654D2ABF721F0032F64B /* WindowUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowUtils.swift; sourceTree = "<group>"; };
@@ -683,6 +685,7 @@
 				A1228E7D2A7BE9DA00AC1148 /* MainNavigation */,
 				A18AB2CA2A77DEEC0037156B /* Notifications */,
 				A1265CA52AAD8E0300CEAA5C /* Overlays */,
+				A1B280452E47725500C1696A /* Recent */,
 				A16D933A2A7A787900FB3249 /* RelativeTime */,
 				A1287A4E2A838F9500855708 /* RemoteFiles */,
 				A1287A4F2A838FB100855708 /* RemoteFilesBrowsers */,
@@ -927,6 +930,14 @@
 				A1AD93492A828DDE006172BF /* Info.plist */,
 			);
 			path = VaultShareExt;
+			sourceTree = "<group>";
+		};
+		A1B280452E47725500C1696A /* Recent */ = {
+			isa = PBXGroup;
+			children = (
+				A1B280462E47727000C1696A /* RecentRow.swift */,
+			);
+			path = Recent;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1364,6 +1375,7 @@
 				A1287A4D2A83855500855708 /* RepoCreateRow.swift in Sources */,
 				A1AD93092A828657006172BF /* RepoInfoScreen.swift in Sources */,
 				A1AD93052A828647006172BF /* MainRoute.swift in Sources */,
+				A1B280472E47727000C1696A /* RecentRow.swift in Sources */,
 				A1AD93372A828732006172BF /* TimeUtils.swift in Sources */,
 				A1287A492A837FD700855708 /* RepoCreateScreen.swift in Sources */,
 				A12D0A592AB474F10010CF38 /* RepoCreateCreatedView.swift in Sources */,

@@ -126,7 +126,10 @@ public struct ReposScreen: View {
                     FrozenList(vm.items, id: \.id) { item in
                         switch item {
                         case .repo(let repo):
-                            ReposRepoRow(vm: vm, repo: repo)
+                            Section {
+                                ReposRepoRow(vm: vm, repo: repo)
+                                ReposRecentRow(vm: vm, repo: repo)
+                            }
                         case .create:
                             Button {
                                 vm.navController.push(.repoCreate)
@@ -135,6 +138,7 @@ public struct ReposScreen: View {
                             }
                         }
                     }
+                    .listStyle(.grouped)
                 }
             }
         }
@@ -190,6 +194,21 @@ struct ReposRepoRow: View {
                 Image(systemName: "info.circle").onTapGesture {
                     vm.navController.push(.repoInfo(repoId: repo.id))
                 }
+            }
+        }
+    }
+}
+
+struct ReposRecentRow: View {
+    let vm: ReposScreenViewModel
+    var repo: Repo
+
+    var body: some View {
+        HStack {
+            Button {
+                vm.navController.push(.repoFilesRecent(repoId: repo.id))
+            } label: {
+                RecentRow()
             }
         }
     }

@@ -6,8 +6,6 @@ import VaultMobile
 public class RepoFilesScreenViewModel: ObservableObject, WithRepoGuardViewModel {
     public let container: Container
     public let navController: MainNavController
-    public let repoId: String
-    public let encryptedPath: String
 
     public let browserId: UInt32
 
@@ -27,16 +25,13 @@ public class RepoFilesScreenViewModel: ObservableObject, WithRepoGuardViewModel 
     private var isUpdatingSelection: Bool = false
 
     public init(
-        container: Container, navController: MainNavController, repoId: String,
-        encryptedPath: String
+        container: Container, navController: MainNavController, source: RepoFilesBrowserSource
     ) {
         self.container = container
         self.navController = navController
-        self.repoId = repoId
-        self.encryptedPath = encryptedPath
 
         let browserId = container.mobileVault.repoFilesBrowsersCreate(
-            source: .storage(repoId: repoId, encryptedPath: encryptedPath),
+            source: source,
             options: RepoFilesBrowserOptions(selectName: nil))
 
         self.browserId = browserId
@@ -50,8 +45,14 @@ public class RepoFilesScreenViewModel: ObservableObject, WithRepoGuardViewModel 
                 v.repoFilesBrowsersInfoData(id: id)
             })
 
-        repoGuardViewModel = RepoGuardViewModel(
-            container: container, repoId: repoId, setupBiometricUnlockVisible: true)
+        switch source {
+        case .storage(let repoId, _):
+            repoGuardViewModel = RepoGuardViewModel(
+                container: container, repoId: repoId, setupBiometricUnlockVisible: true)
+        case .recent(let repoId):
+            repoGuardViewModel = RepoGuardViewModel(
+                container: container, repoId: repoId, setupBiometricUnlockVisible: true)
+        }
 
         selectionChangedCancellable = self.$selection.sink { [weak self] selection in
             if let self = self {

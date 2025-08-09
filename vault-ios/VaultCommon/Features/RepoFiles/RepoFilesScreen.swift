@@ -40,8 +40,10 @@ public struct RepoFilesScreen: View {
                     },
                     empty: {
                         EmptyFolderView()
-                            .contextMenu {
-                                RepoFilesListSummaryMenu(vm: vm)
+                            .if(info.encryptedPath != nil) { view in
+                                view.contextMenu {
+                                    RepoFilesListSummaryMenu(vm: vm)
+                                }
                             }
                     }
                 ) {
@@ -153,8 +155,15 @@ struct RepoFilesNavMenuButton: View {
             case .success(let urls):
                 Task(priority: .background) {
                     do {
-                        try vm.container.uploadHelper.uploadSecurityScopedResources(
-                            repoId: vm.repoId, encryptedParentPath: vm.encryptedPath, urls: urls)
+                        if let info = vm.info.data {
+                            if let repoId = info.repoId {
+                                if let encryptedPath = info.encryptedPath {
+                                    try vm.container.uploadHelper.uploadSecurityScopedResources(
+                                        repoId: repoId, encryptedParentPath: encryptedPath,
+                                        urls: urls)
+                                }
+                            }
+                        }
                     } catch {
                         vm.container.mobileVault.notificationsShow(message: "\(error)")
                     }
@@ -186,38 +195,38 @@ struct RepoFilesNavMenu: View {
                     Label("Select", systemImage: "checkmark.circle")
                 }
             }
-        }
 
-        Button {
-            vm.container.mobileVault.repoFilesBrowsersCreateDir(
-                browserId: vm.browserId, cb: RepoFilesBrowserDirCreatedFn { _ in })
-        } label: {
-            Label("New folder", systemImage: "folder.badge.plus")
-        }
+            if info.encryptedPath != nil {
+                Button {
+                    vm.container.mobileVault.repoFilesBrowsersCreateDir(
+                        browserId: vm.browserId, cb: RepoFilesBrowserDirCreatedFn { _ in })
+                } label: {
+                    Label("New folder", systemImage: "folder.badge.plus")
+                }
 
-        Button {
-            vm.container.sheets.show(name: "repoFilesImagePicker") { _, hide in
-                RepoFilesImagePicker(vm: vm, onDismiss: hide)
+                Button {
+                    vm.container.sheets.show(name: "repoFilesImagePicker") { _, hide in
+                        RepoFilesImagePicker(vm: vm, onDismiss: hide)
+                    }
+                } label: {
+                    Label("Upload photo", systemImage: "photo")
+                }
+
+                Button {
+                    vm.uploadFiles()
+                } label: {
+                    Label("Upload files", systemImage: "doc.on.doc")
+                }
+
+                Button {
+                    vm.uploadFolder()
+                } label: {
+                    Label("Upload a folder", systemImage: "folder")
+                }
             }
-        } label: {
-            Label("Upload photo", systemImage: "photo")
-        }
 
-        Button {
-            vm.uploadFiles()
-        } label: {
-            Label("Upload files", systemImage: "doc.on.doc")
-        }
+            Divider()
 
-        Button {
-            vm.uploadFolder()
-        } label: {
-            Label("Upload a folder", systemImage: "folder")
-        }
-
-        Divider()
-
-        if let info = info.data {
             let (items, selected) = RepoFilesSortFieldItem.getItems(selected: info.sort.field)
 
             let pickerSelection = Binding(

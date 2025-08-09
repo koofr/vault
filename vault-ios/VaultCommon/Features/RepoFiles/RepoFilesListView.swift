@@ -44,7 +44,7 @@ public struct RepoFilesListView: View {
                                     trailing: fileRowInsetTrailing))
                     case .summary:
                         RepoFilesListSummary(
-                            vm: vm, itemsCount: info.items.count,
+                            vm: vm, info: info,
                             listHeight: listGeometry.size.height)
                     }
                 }
@@ -55,12 +55,12 @@ public struct RepoFilesListView: View {
 
 struct RepoFilesListSummary: View {
     let vm: RepoFilesScreenViewModel
-    let itemsCount: Int
+    let info: RepoFilesBrowserInfo
     let listHeight: Double
 
-    init(vm: RepoFilesScreenViewModel, itemsCount: Int, listHeight: Double) {
+    init(vm: RepoFilesScreenViewModel, info: RepoFilesBrowserInfo, listHeight: Double) {
         self.vm = vm
-        self.itemsCount = itemsCount
+        self.info = info
         self.listHeight = listHeight
     }
 
@@ -84,17 +84,20 @@ struct RepoFilesListSummary: View {
                 Spacer()
                 HStack {
                     Spacer()
-                    Text(itemsCount == 1 ? "1 item" : "\(itemsCount) items").bold().padding()
+                    Text(info.items.count == 1 ? "1 item" : "\(info.items.count) items").bold()
+                        .padding()
                     Spacer()
                 }
                 .frame(height: repoFilesListSummaryHeight)
             }
         }
-        .frame(height: getSummaryHeight(itemsCount: itemsCount, listHeight: listHeight))
+        .frame(height: getSummaryHeight(itemsCount: info.items.count, listHeight: listHeight))
         .listRowSeparator(.hidden)
         .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
-        .contextMenu {
-            RepoFilesListSummaryMenu(vm: vm)
+        .if(info.encryptedPath != nil) { item in
+            item.contextMenu {
+                RepoFilesListSummaryMenu(vm: vm)
+            }
         }
     }
 }
@@ -119,8 +122,14 @@ struct RepoFilesListSummaryMenu: View {
                 let files = await vm.container.uploadHelper.itemProvidersToFiles(
                     itemProviders: itemProviders, loadFileRepresentation: false)
 
-                vm.container.uploadHelper.uploadFiles(
-                    repoId: vm.repoId, encryptedParentPath: vm.encryptedPath, files: files)
+                if let info = vm.info.data {
+                    if let repoId = info.repoId {
+                        if let encryptedPath = info.encryptedPath {
+                            vm.container.uploadHelper.uploadFiles(
+                                repoId: repoId, encryptedParentPath: encryptedPath, files: files)
+                        }
+                    }
+                }
             }
         }
     }

@@ -58,8 +58,14 @@ public struct RepoFilesImagePicker: UIViewControllerRepresentable {
             let files = await vm.container.uploadHelper.itemProvidersToFiles(
                 itemProviders: itemProviders, loadFileRepresentation: true)
 
-            self.vm.container.uploadHelper.uploadFiles(
-                repoId: vm.repoId, encryptedParentPath: vm.encryptedPath, files: files)
+            if let info = vm.info.data {
+                if let repoId = info.repoId {
+                    if let encryptedPath = info.encryptedPath {
+                        self.vm.container.uploadHelper.uploadFiles(
+                            repoId: repoId, encryptedParentPath: encryptedPath, files: files)
+                    }
+                }
+            }
         }
     }
 }

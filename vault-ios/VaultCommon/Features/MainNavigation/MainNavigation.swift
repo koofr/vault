@@ -24,7 +24,17 @@ public struct MainNavigation: View {
                         navController.ensureViewModel(routeContainer: routeContainer) {
                             RepoFilesScreenViewModel(
                                 container: container, navController: navController,
-                                repoId: repoId, encryptedPath: encryptedPath)
+                                source: .storage(repoId: repoId, encryptedPath: encryptedPath))
+                        }
+                    ) { vm in
+                        RepoFilesScreen(vm: vm)
+                    }
+                case .repoFilesRecent(let repoId):
+                    RepoGuard(
+                        navController.ensureViewModel(routeContainer: routeContainer) {
+                            RepoFilesScreenViewModel(
+                                container: container, navController: navController,
+                                source: .recent(repoId: repoId))
                         }
                     ) { vm in
                         RepoFilesScreen(vm: vm)
