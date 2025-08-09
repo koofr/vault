@@ -33,7 +33,10 @@ fun RepoFileRow(
             RepoFileType.FILE -> "File ${file.name}"
         },
         sizeDisplay = file.sizeDisplay,
-        modifiedDisplay = modifiedDisplay,
+        modifiedDisplay = when (file.typ) {
+            RepoFileType.DIR -> null
+            RepoFileType.FILE -> modifiedDisplay
+        },
         isError = file.nameError != null,
         onClick = onClick,
         onLongClick = onLongClick,

@@ -126,11 +126,13 @@ fun RepoFileInfoSheet(
                         },
                     )
 
-                    if (file.sizeDisplay.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(20.dp))
+                    file.sizeDisplay?.let { sizeDisplay ->
+                        if (sizeDisplay.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(20.dp))
 
-                        Label("Size")
-                        Value(file.sizeDisplay)
+                            Label("Size")
+                            Value(sizeDisplay)
+                        }
                     }
 
                     file.modified?.let { modified ->

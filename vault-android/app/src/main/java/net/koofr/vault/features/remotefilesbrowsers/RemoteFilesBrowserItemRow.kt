@@ -39,7 +39,16 @@ fun RemoteFilesBrowserItemRow(
             }
         },
         sizeDisplay = item.sizeDisplay,
-        modifiedDisplay = modifiedDisplay,
+        modifiedDisplay = item.typ.let {
+            when (it) {
+                is RemoteFilesBrowserItemType.File -> when (it.typ) {
+                    RemoteFileType.DIR -> null
+                    RemoteFileType.FILE -> modifiedDisplay
+                }
+
+                else -> null
+            }
+        },
         isError = false,
         onClick = onClick,
         onLongClick = onLongClick,
