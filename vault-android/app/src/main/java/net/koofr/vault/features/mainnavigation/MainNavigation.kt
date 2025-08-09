@@ -19,8 +19,9 @@ import net.koofr.vault.features.repo.RepoInfoScreen
 import net.koofr.vault.features.repocreate.RepoCreateLocationPickerDelegateImpl
 import net.koofr.vault.features.repocreate.RepoCreateScreen
 import net.koofr.vault.features.repocreate.RepoCreateViewModel
+import net.koofr.vault.features.repofiles.RepoFilesRecentScreenViewModel
 import net.koofr.vault.features.repofiles.RepoFilesScreen
-import net.koofr.vault.features.repofiles.RepoFilesScreenViewModel
+import net.koofr.vault.features.repofiles.RepoFilesStorageScreenViewModel
 import net.koofr.vault.features.repofilesdetails.RepoFilesDetailsScreen
 import net.koofr.vault.features.repofilesdetails.RepoFilesDetailsScreenViewModel
 import net.koofr.vault.features.repofilesmove.RepoFilesMoveScreen
@@ -100,7 +101,24 @@ fun MainNavigation() {
                 ),
             ) {
                 val repoGuardViewModel: RepoGuardViewModel = hiltViewModel()
-                val vm: RepoFilesScreenViewModel = hiltViewModel()
+                val vm: RepoFilesStorageScreenViewModel = hiltViewModel()
+                vm.setRepoGuardViewModel(repoGuardViewModel)
+
+                RepoGuard(repoGuardViewModel, setupBiometricUnlockVisible = true) {
+                    RepoFilesScreen(vm)
+                }
+            }
+
+            composable(
+                "repos/{repoId}/recent?path={path}",
+                arguments = listOf(
+                    navArgument("repoId") {
+                        type = NavType.StringType
+                    },
+                ),
+            ) {
+                val repoGuardViewModel: RepoGuardViewModel = hiltViewModel()
+                val vm: RepoFilesRecentScreenViewModel = hiltViewModel()
                 vm.setRepoGuardViewModel(repoGuardViewModel)
 
                 RepoGuard(repoGuardViewModel, setupBiometricUnlockVisible = true) {

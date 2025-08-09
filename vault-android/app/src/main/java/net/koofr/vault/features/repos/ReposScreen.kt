@@ -36,6 +36,7 @@ import net.koofr.vault.Status
 import net.koofr.vault.composables.RefreshableList
 import net.koofr.vault.features.mobilevault.subscribe
 import net.koofr.vault.features.navigation.LocalNavController
+import net.koofr.vault.features.recent.RecentRow
 import net.koofr.vault.features.transfers.TransfersButton
 import javax.inject.Inject
 
@@ -138,11 +139,17 @@ fun ReposListScreen(
                 },
             ) {
                 items(repos.repos, { repo -> repo.id }) { repo ->
-                    RepoRow(repo, onClick = {
-                        navController.navigate("repos/${repo.id}/files")
-                    }, onMoreClick = {
-                        navController.navigate("repos/${repo.id}")
-                    })
+                    Column {
+                        RepoRow(repo, onClick = {
+                            navController.navigate("repos/${repo.id}/files")
+                        }, onMoreClick = {
+                            navController.navigate("repos/${repo.id}")
+                        })
+                        RecentRow(repoName = repo.id) {
+                            navController.navigate("repos/${repo.id}/recent")
+                        }
+                        Spacer(modifier = Modifier.height(15.dp))
+                    }
                 }
 
                 // we need this spacer because the floating button can cover row

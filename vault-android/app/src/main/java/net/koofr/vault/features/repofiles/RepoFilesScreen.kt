@@ -162,27 +162,31 @@ fun RepoFilesScreen(
             },
         )
     }, floatingActionButton = {
-        MultiAddButton(
-            listOf(
-                MultiAddButtonItem("New folder") {
-                    vm.mobileVault.repoFilesBrowsersCreateDir(
-                        browserId = vm.browserId,
-                        cb = object : RepoFilesBrowserDirCreated {
-                            override fun onCreated(encryptedPath: String) {}
+        vm.info.data.value?.let { info ->
+            if (info.encryptedPath != null) {
+                MultiAddButton(
+                    listOf(
+                        MultiAddButtonItem("New folder") {
+                            vm.mobileVault.repoFilesBrowsersCreateDir(
+                                browserId = vm.browserId,
+                                cb = object : RepoFilesBrowserDirCreated {
+                                    override fun onCreated(encryptedPath: String) {}
+                                },
+                            )
                         },
-                    )
-                },
-                MultiAddButtonItem("Upload file") {
-                    uploadFile()
-                },
-                MultiAddButtonItem("Upload folder") {
-                    uploadFolder()
-                },
-                MultiAddButtonItem("Take photo") {
-                    takePicture.takePicture()
-                },
-            ),
-        )
+                        MultiAddButtonItem("Upload file") {
+                            uploadFile()
+                        },
+                        MultiAddButtonItem("Upload folder") {
+                            uploadFolder()
+                        },
+                        MultiAddButtonItem("Take photo") {
+                            takePicture.takePicture()
+                        },
+                    ),
+                )
+            }
+        }
     }, snackbarHost = { SnackbarHost(LocalSnackbarHostState.current) }) { paddingValues ->
         vm.info.data.value?.let { info ->
             RefreshableList(
