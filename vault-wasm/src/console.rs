@@ -1,6 +1,5 @@
 use std::panic;
 
-use console_log;
 use log::Level;
 use wasm_bindgen::prelude::*;
 use web_sys::console;
@@ -9,7 +8,40 @@ use web_sys::console;
 pub fn init_console() {
     panic::set_hook(Box::new(panic_hook));
 
-    console_log::init_with_level(Level::Debug).unwrap();
+    log::set_logger(&LOGGER).unwrap();
+    log::set_max_level(Level::Debug.to_level_filter());
+}
+
+// Copied from
+// https://github.com/iamcodemaker/console_log/blob/1ad307b4ca079fadeab3690a9493c542ae67465f/src/lib.rs
+
+static LOGGER: WebConsoleLogger = WebConsoleLogger {};
+
+struct WebConsoleLogger {}
+
+impl log::Log for WebConsoleLogger {
+    #[inline]
+    fn enabled(&self, metadata: &log::Metadata) -> bool {
+        metadata.level() <= log::max_level()
+    }
+
+    fn log(&self, record: &log::Record) {
+        if !self.enabled(record.metadata()) {
+            return;
+        }
+
+        let console_log = match record.level() {
+            Level::Error => console::error_1,
+            Level::Warn => console::warn_1,
+            Level::Info => console::info_1,
+            Level::Debug => console::log_1,
+            Level::Trace => console::debug_1,
+        };
+
+        console_log(&format!("{}", record.args()).into());
+    }
+
+    fn flush(&self) {}
 }
 
 // Copied from
