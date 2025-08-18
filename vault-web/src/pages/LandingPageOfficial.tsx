@@ -332,11 +332,7 @@ export const LandingPageOfficial = memo(() => {
               `}
             >
               {config.googlePlayUrl !== undefined ? (
-                <a
-                  href={config.googlePlayUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
+                <a href={config.googlePlayUrl} target="_blank" rel="noreferrer">
                   <RetinaImage
                     image={googlePlayImage}
                     image2x={googlePlay2xImage}
@@ -347,11 +343,7 @@ export const LandingPageOfficial = memo(() => {
               ) : null}
 
               {config.appStoreUrl !== undefined ? (
-                <a
-                  href={config.appStoreUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
+                <a href={config.appStoreUrl} target="_blank" rel="noreferrer">
                   <RetinaImage
                     image={appStoreImage}
                     image2x={appStore2xImage}
@@ -362,11 +354,7 @@ export const LandingPageOfficial = memo(() => {
               ) : null}
 
               {config.fDroidUrl !== undefined ? (
-                <a
-                  href={config.fDroidUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
+                <a href={config.fDroidUrl} target="_blank" rel="noreferrer">
                   <RetinaImage
                     image={fDroidImage}
                     image2x={fDroid2xImage}

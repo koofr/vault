@@ -21,4 +21,3 @@ class ErrorSecureStorage(exception: Exception) : SecureStorage {
         throw exception
     }
 }
-

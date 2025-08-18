@@ -6,7 +6,6 @@ import android.security.keystore.KeyProperties
 import android.util.Base64
 import androidx.biometric.BiometricPrompt
 import net.koofr.vault.SecureStorage
-import net.koofr.vault.features.mobilevault.AndroidSecureStorage
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator

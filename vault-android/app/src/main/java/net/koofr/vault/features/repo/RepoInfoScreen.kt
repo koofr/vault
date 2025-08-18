@@ -41,7 +41,6 @@ import net.koofr.vault.MobileVault
 import net.koofr.vault.RepoAutoLockAfter
 import net.koofr.vault.RepoState
 import net.koofr.vault.SecureStorage
-import net.koofr.vault.features.mobilevault.AndroidSecureStorage
 import net.koofr.vault.features.mobilevault.subscribe
 import net.koofr.vault.features.navigation.LocalNavController
 import net.koofr.vault.features.repounlock.RepoUnlockDialog

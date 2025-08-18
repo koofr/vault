@@ -6,15 +6,9 @@ import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import androidx.security.crypto.MasterKey.Builder
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
 import net.koofr.vault.SecureStorage
 import java.security.GeneralSecurityException
 import java.security.KeyStore
-import javax.inject.Singleton
 
 class AndroidSecureStorage(context: Context) : SecureStorage {
     private var sharedPreferences: SharedPreferences
