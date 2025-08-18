@@ -17,20 +17,20 @@ futures = "0.3.30"
 getrandom = { version = "0.2.12", features = ["js"] }
 gloo-timers = { version = "0.3.0", features = ["futures"] }
 http = "0.2.11"
-js-sys = "0.3.67"
+js-sys = "0.3.77"
 log = "0.4.20"
 serde = { version = "1.0.195", features = ["derive"] }
-serde-wasm-bindgen = "0.6.3"
+serde-wasm-bindgen = "0.6.5"
 thiserror = "1.0.56"
-tsify = { version = "0.4.5", features = ["js"] }
+tsify = { version = "0.5.5", features = ["js"] }
 vault-core = { path = "../vault-core" }
 vault-crypto = { path = "../vault-crypto" }
 vault-web-api = { path = "../vault-web-api" }
 vault-file-icon = { path = "../vault-file-icon", default-features = false }
-wasm-bindgen = "0.2.90"
-wasm-bindgen-futures = "0.4.40"
-wasm-streams = "0.4.0"
-web-sys = { version = "0.3.67", features = [
+wasm-bindgen = "0.2.100"
+wasm-bindgen-futures = "0.4.50"
+wasm-streams = "0.4.2"
+web-sys = { version = "0.3.77", features = [
   'AbortController',
   'AbortSignal',
   'Blob',

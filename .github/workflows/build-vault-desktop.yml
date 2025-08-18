@@ -46,7 +46,7 @@ jobs:
 
       - name: Install wasm-pack
         run: |
-          npm install -g wasm-pack@0.12.1
+          npm install -g wasm-pack@0.13.1
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2

@@ -7,7 +7,7 @@
 Install `wasm-pack`:
 
 ```sh
-cargo install --version 0.12.1 wasm-pack
+cargo install --version 0.13.1 wasm-pack
 ```
 
 ## vault-wasm-web

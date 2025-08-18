@@ -18,9 +18,9 @@ RUN cd /tmp \
   && mv cargo-chef /usr/local/bin/cargo-chef
 
 RUN cd /tmp \
-  && wget https://github.com/rustwasm/wasm-pack/releases/download/v0.12.1/wasm-pack-v0.12.1-x86_64-unknown-linux-musl.tar.gz \
-  && tar xf wasm-pack-v0.12.1-x86_64-unknown-linux-musl.tar.gz \
-  && mv wasm-pack-v0.12.1-x86_64-unknown-linux-musl/wasm-pack /usr/local/bin/wasm-pack
+  && wget https://github.com/rustwasm/wasm-pack/releases/download/v0.13.1/wasm-pack-v0.13.1-x86_64-unknown-linux-musl.tar.gz \
+  && tar xf wasm-pack-v0.13.1-x86_64-unknown-linux-musl.tar.gz \
+  && mv wasm-pack-v0.13.1-x86_64-unknown-linux-musl/wasm-pack /usr/local/bin/wasm-pack
 
 FROM wasm-rust-stage AS wasm-chef-planner-stage
 COPY . .

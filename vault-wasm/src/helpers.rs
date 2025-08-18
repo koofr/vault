@@ -50,11 +50,11 @@ pub fn bytes_to_blob(bytes: &[u8], content_type: Option<&str>) -> JsValue {
 
     blob_parts_array.push(&array);
 
-    let mut options = web_sys::BlobPropertyBag::new();
+    let options = web_sys::BlobPropertyBag::new();
 
     match content_type {
         Some(content_type) => {
-            options.type_(content_type);
+            options.set_type(content_type);
         }
         None => {}
     };

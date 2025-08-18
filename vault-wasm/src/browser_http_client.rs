@@ -72,17 +72,17 @@ impl BrowserHttpClient {
     async fn get_request(&self, http_request: HttpRequest, abort_signal: AbortSignal) -> Request {
         let mut http_request = http_request;
 
-        let mut opts = RequestInit::new();
+        let opts = RequestInit::new();
 
-        opts.method(&http_request.method.clone());
+        opts.set_method(&http_request.method.clone());
 
-        opts.signal(Some(&abort_signal));
+        opts.set_signal(Some(&abort_signal));
 
         match http_request.body {
             Some(HttpRequestBody::Bytes(bytes)) => {
                 let blob = helpers::bytes_to_blob(&bytes, None);
 
-                opts.body(Some(&blob));
+                opts.set_body(&blob);
             }
             Some(HttpRequestBody::Reader(reader)) => {
                 let on_body_progress = Arc::new(http_request.on_body_progress.take());
@@ -99,7 +99,7 @@ impl BrowserHttpClient {
                     ReadableStream::from_async_read(progress_reader, BLOCK_SIZE).into_raw();
                 let stream_value = JsValue::from(stream);
 
-                opts.body(Some(&stream_value));
+                opts.set_body(&stream_value);
 
                 js_sys::Reflect::set(
                     opts.as_ref(),
