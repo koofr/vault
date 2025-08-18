@@ -18,6 +18,7 @@ use crate::{
     browser_secure_storage::BrowserSecureStorage,
     browser_uploadable::BrowserUploadable,
     helpers,
+    timers::set_timeout,
 };
 
 #[wasm_bindgen(typescript_custom_section)]
@@ -139,12 +140,6 @@ pub fn to_js<In: serde::ser::Serialize + ?Sized, Out: From<JsValue> + Into<JsVal
     value: &In,
 ) -> Out {
     serde_wasm_bindgen::to_value(value).unwrap().into()
-}
-
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_name = "setTimeout", catch)]
-    fn set_timeout(handler: &js_sys::Function, timeout: i32) -> Result<JsValue, JsValue>;
 }
 
 pub fn to_cb(callback: js_sys::Function) -> Box<dyn Fn() + Send + Sync + 'static> {

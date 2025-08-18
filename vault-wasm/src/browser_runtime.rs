@@ -1,10 +1,11 @@
 use std::time::Duration;
 
 use futures::{Future, future::BoxFuture};
-use gloo_timers::future::sleep;
 use wasm_bindgen_futures::spawn_local;
 
 use vault_core::{runtime, types::TimeMillis};
+
+use crate::timers::sleep;
 
 pub struct BrowserRuntime {}
 

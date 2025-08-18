@@ -5,4 +5,5 @@ pub mod browser_secure_storage;
 pub mod browser_uploadable;
 pub mod console;
 pub mod helpers;
+pub mod timers;
 pub mod web_vault;

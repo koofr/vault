@@ -10,7 +10,6 @@ crate-type = ["cdylib"]
 async-trait = "0.1.77"
 futures = "0.3.30"
 getrandom = { version = "0.2.12", features = ["js"] }
-gloo-timers = { version = "0.3.0", features = ["futures"] }
 http = "0.2.11"
 js-sys = "0.3.77"
 log = "0.4.20"
