@@ -311,7 +311,7 @@ impl RepoFilesReadService {
                     for mut item in &mut items {
                         match &mut item {
                             RepoFilesListRecursiveItem::File {
-                                ref mut relative_repo_path,
+                                relative_repo_path,
                                 ..
                             } => match relative_repo_path {
                                 Ok(relative_repo_path) => {

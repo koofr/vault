@@ -42,8 +42,8 @@ impl AsyncRead for UploadStreamReader {
         let this = self.get_mut();
 
         loop {
-            match this.state {
-                Idle(ref mut stream_buf_cell) => {
+            match &mut this.state {
+                Idle(stream_buf_cell) => {
                     let mut written = 0;
 
                     if let Some((stream_buf, mut pos)) = stream_buf_cell.take() {
@@ -71,7 +71,7 @@ impl AsyncRead for UploadStreamReader {
                         return Poll::Ready(Ok(written));
                     }
                 }
-                Busy(ref mut rx) => match ready!(Pin::new(rx).poll(cx))? {
+                Busy(rx) => match ready!(Pin::new(rx).poll(cx))? {
                     Ok(buf) => {
                         if buf.is_empty() {
                             this.state = Done;

@@ -43,7 +43,7 @@ impl UserService {
         self.store.mutate(|state, notify, _, _| {
             notify(store::Event::User);
 
-            if let Some(ref mut user) = state.user.user {
+            if let Some(user) = &mut state.user.user {
                 user.profile_picture_status = Status::Loading {
                     loaded: user.profile_picture_status.loaded(),
                 };
@@ -60,7 +60,7 @@ impl UserService {
                 self.store.mutate(|state, notify, _, _| {
                     notify(store::Event::User);
 
-                    if let Some(ref mut user) = state.user.user {
+                    if let Some(user) = &mut state.user.user {
                         user.profile_picture_status = Status::Error {
                             error: err.clone(),
                             loaded: user.profile_picture_status.loaded(),
@@ -75,7 +75,7 @@ impl UserService {
         self.store.mutate(|state, notify, _, _| {
             notify(store::Event::User);
 
-            if let Some(ref mut user) = state.user.user {
+            if let Some(user) = &mut state.user.user {
                 user.profile_picture_status = Status::Loaded;
                 user.profile_picture_bytes = profile_picture_bytes;
             }

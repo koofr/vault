@@ -92,7 +92,7 @@ fn handle_queue(
     let mut state = state.write().unwrap();
 
     match get_queue(&mut state) {
-        Some(ref mut queue) => {
+        Some(queue) => {
             let (sender, receiver) = oneshot::channel();
 
             queue
@@ -154,7 +154,7 @@ pub fn get_debug_interceptor(
                 return InterceptorResult::Response((StatusCode::OK, "ok").into_response());
             }
             "/debug/queue/next" => {
-                if let Some(ref mut queue) = state.write().unwrap().queue {
+                if let Some(queue) = &mut state.write().unwrap().queue {
                     if let Some((method, uri, sender)) = queue.requests.pop_front() {
                         let response = parts
                             .uri

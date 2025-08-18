@@ -63,7 +63,7 @@ impl TransferType {
 
     pub fn upload_transfer_mut(&mut self) -> Option<&mut UploadTransfer> {
         match self {
-            Self::Upload(ref mut upload_transfer) => Some(upload_transfer),
+            Self::Upload(upload_transfer) => Some(upload_transfer),
             _ => None,
         }
     }

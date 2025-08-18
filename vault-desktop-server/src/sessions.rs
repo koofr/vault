@@ -73,13 +73,13 @@ impl Sessions {
         }
     }
 
-    pub fn create_session(&self) -> impl Stream<Item = SessionMessage> {
+    pub fn create_session(&self) -> impl Stream<Item = SessionMessage> + use<> {
         let session = Session::new();
 
         let session_id = session.id.clone();
 
-        let callbacks_stream = session
-            .callbacks
+        let callbacks = session.callbacks.clone();
+        let callbacks_stream = callbacks
             .stream()
             .map(|callback_id| SessionMessage::Callback { callback_id });
 

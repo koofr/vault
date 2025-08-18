@@ -35,7 +35,7 @@ impl Callbacks {
         })
     }
 
-    pub fn stream(&self) -> impl Stream<Item = String> {
+    pub fn stream(&self) -> impl Stream<Item = String> + use<> {
         let callbacks_senders = self.senders.clone();
 
         let (callbacks_sender, callbacks_receiver) = mpsc::unbounded();

@@ -182,9 +182,9 @@ mod tests {
         let mut file_path_error = repo_files_list_test_helpers::create_list_recursive_item_file(
             "m1", "/Vault", "r1", "/D1", "/INVALID", &cipher,
         );
-        match file_path_error {
+        match &mut file_path_error {
             RepoFilesListRecursiveItem::File {
-                ref mut relative_repo_path,
+                relative_repo_path,
                 ..
             } => {
                 *relative_repo_path = Err(DecryptFilenameError::DecryptFilenameError(

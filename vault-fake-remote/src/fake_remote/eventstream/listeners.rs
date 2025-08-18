@@ -111,7 +111,7 @@ impl Listeners {
 
         for listener_id in listener_ids {
             if let Some(subject_id) = state.listeners_to_subjects.remove(&listener_id) {
-                let is_empty = if let Some(ref mut listeners) =
+                let is_empty = if let Some(listeners) =
                     state.listeners_by_subjects.get_mut(&subject_id)
                 {
                     listeners.remove(&listener_id);

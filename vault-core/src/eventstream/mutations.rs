@@ -100,10 +100,10 @@ pub fn handle_registered(
     request_id: u32,
     listener_id: i64,
 ) {
-    match state.eventstream.connection_state {
+    match &mut state.eventstream.connection_state {
         ConnectionState::Connected {
-            ref mut request_id_to_mount_listener_id,
-            ref mut listener_id_to_mount_listener_id,
+            request_id_to_mount_listener_id,
+            listener_id_to_mount_listener_id,
             ..
         } => {
             if let Some(mount_listener_id) = request_id_to_mount_listener_id.remove(&request_id) {
@@ -181,10 +181,10 @@ pub fn register_mount(
     mutation_state: &mut store::MutationState,
     mount_listener_id: u32,
 ) {
-    match state.eventstream.connection_state {
+    match &mut state.eventstream.connection_state {
         ConnectionState::Connected {
-            ref mut next_request_id,
-            ref mut request_id_to_mount_listener_id,
+            next_request_id,
+            request_id_to_mount_listener_id,
             ..
         } => {
             if let Some(mount_listener) = state
@@ -222,9 +222,9 @@ pub fn deregister_mount(
     mutation_state: &mut store::MutationState,
     mount_listener_id: u32,
 ) {
-    match state.eventstream.connection_state {
+    match &mut state.eventstream.connection_state {
         ConnectionState::Connected {
-            ref mut listener_id_to_mount_listener_id,
+            listener_id_to_mount_listener_id,
             ..
         } => {
             if let Some(mount_listener) = state
@@ -232,18 +232,18 @@ pub fn deregister_mount(
                 .mount_listeners
                 .get_mut(&mount_listener_id)
             {
-                match mount_listener.state {
+                match &mut mount_listener.state {
                     MountListenerState::Registered { listener_id } => {
                         notify(store::Event::Eventstream);
 
-                        listener_id_to_mount_listener_id.remove(&listener_id);
+                        listener_id_to_mount_listener_id.remove(listener_id);
 
                         mutation_state
                             .eventstream
                             .requests
-                            .push(Request::Deregister { listener_id });
+                            .push(Request::Deregister { listener_id: *listener_id });
                     }
-                    MountListenerState::Registering { ref mut canceled } => {
+                    MountListenerState::Registering { canceled } => {
                         notify(store::Event::Eventstream);
 
                         *canceled = true;

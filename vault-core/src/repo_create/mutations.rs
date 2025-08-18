@@ -45,7 +45,7 @@ pub fn create_loaded(
     let no_existing_repos = state.repos.repos_by_id.is_empty();
 
     let form = match state.repo_creates.creates.get_mut(&create_id) {
-        Some(RepoCreate::Form(ref mut form)) => form,
+        Some(RepoCreate::Form(form)) => form,
         _ => return,
     };
 
@@ -97,7 +97,7 @@ pub fn set_location(
     location: RemoteFilesLocation,
 ) {
     let form = match state.repo_creates.creates.get_mut(&create_id) {
-        Some(RepoCreate::Form(ref mut form)) => form,
+        Some(RepoCreate::Form(form)) => form,
         _ => return,
     };
 
@@ -116,7 +116,7 @@ pub fn location_dir_picker_show(
     location_dir_picker_id: u32,
 ) {
     let form = match state.repo_creates.creates.get_mut(&create_id) {
-        Some(RepoCreate::Form(ref mut form)) => form,
+        Some(RepoCreate::Form(form)) => form,
         _ => return,
     };
 
@@ -131,7 +131,7 @@ pub fn location_dir_picker_cancel(
     create_id: u32,
 ) -> Option<u32> {
     let form = match state.repo_creates.creates.get_mut(&create_id) {
-        Some(RepoCreate::Form(ref mut form)) => form,
+        Some(RepoCreate::Form(form)) => form,
         _ => return None,
     };
 
@@ -154,7 +154,7 @@ pub fn set_password(
     password: String,
 ) {
     let form = match state.repo_creates.creates.get_mut(&create_id) {
-        Some(RepoCreate::Form(ref mut form)) => form,
+        Some(RepoCreate::Form(form)) => form,
         _ => return,
     };
 
@@ -170,7 +170,7 @@ pub fn set_salt(
     salt: Option<String>,
 ) {
     let form = match state.repo_creates.creates.get_mut(&create_id) {
-        Some(RepoCreate::Form(ref mut form)) => form,
+        Some(RepoCreate::Form(form)) => form,
         _ => return,
     };
 
@@ -186,7 +186,7 @@ pub fn fill_from_rclone_config(
     config: Result<rclone::config::Config, rclone::config::ParseConfigError>,
 ) {
     let form = match state.repo_creates.creates.get_mut(&create_id) {
-        Some(RepoCreate::Form(ref mut form)) => form,
+        Some(RepoCreate::Form(form)) => form,
         _ => return,
     };
 
@@ -229,7 +229,7 @@ pub fn repo_creating(
     }
 
     let form = match state.repo_creates.creates.get_mut(&create_id) {
-        Some(RepoCreate::Form(ref mut form)) => form,
+        Some(RepoCreate::Form(form)) => form,
         _ => return None,
     };
 
@@ -259,7 +259,7 @@ pub fn repo_created(
         }
         Err(err) => {
             match state.repo_creates.creates.get_mut(&create_id) {
-                Some(RepoCreate::Form(ref mut form)) => {
+                Some(RepoCreate::Form(form)) => {
                     form.create_repo_status = Status::Error {
                         error: err,
                         loaded: form.create_repo_status.loaded(),

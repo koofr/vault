@@ -38,7 +38,7 @@ jobs:
       - name: Install rust
         uses: dtolnay/rust-toolchain@b44cb146d03e8d870c57ab64b80f04586349ca5d
         with:
-          toolchain: "1.75.0"
+          toolchain: "1.89.0"
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
       - name: Build vault-android
         run: |

@@ -30,7 +30,7 @@ pub fn show(
 }
 
 pub fn set_dest_path(state: &mut store::State, notify: &store::Notify, dest_path: EncryptedPath) {
-    if let Some(ref mut repo_files_move) = state.repo_files_move {
+    if let Some(repo_files_move) = &mut state.repo_files_move {
         notify(store::Event::RepoFilesMove);
 
         repo_files_move.dest_path = dest_path;

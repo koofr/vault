@@ -157,7 +157,7 @@ impl<E: Send + Sync + 'static> DirPickersHelper<E> {
         picker_id: u32,
         item_id: &DirPickerItemId,
         force: bool,
-    ) -> BoxFuture<Result<(), E>> {
+    ) -> BoxFuture<'_, Result<(), E>> {
         let item = match self.get_item(picker_id, item_id) {
             Some(item) => item,
             None => return futures::future::ready(Ok(())).boxed(),
@@ -171,7 +171,7 @@ impl<E: Send + Sync + 'static> DirPickersHelper<E> {
         picker_id: u32,
         item: DirPickerItem,
         force: bool,
-    ) -> BoxFuture<Result<(), E>> {
+    ) -> BoxFuture<'_, Result<(), E>> {
         if item.is_open && !force {
             return futures::future::ready(Ok(())).boxed();
         }

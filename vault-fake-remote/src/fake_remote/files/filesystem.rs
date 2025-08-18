@@ -385,7 +385,7 @@ impl Filesystem {
 
     fn delete_child(&mut self, file: &FilesystemFile) {
         if let Some(object_id) = &file.object_id {
-            if let Some(ref mut object) = self.objects.get_mut(object_id) {
+            if let Some(object) = self.objects.get_mut(object_id) {
                 object.refs -= 1;
             }
         }
@@ -461,7 +461,7 @@ impl Filesystem {
         }
 
         if let Some(object_id) = &to_file.object_id {
-            if let Some(ref mut object) = self.objects.get_mut(object_id) {
+            if let Some(object) = self.objects.get_mut(object_id) {
                 object.refs += 1;
             }
         }

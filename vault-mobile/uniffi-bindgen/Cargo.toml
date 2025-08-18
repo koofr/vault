@@ -1,7 +1,7 @@
 [package]
 name = "uniffi-bindgen"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 
 [dependencies]
 uniffi = { version = "0.29.4", features = ["build", "cli"] }

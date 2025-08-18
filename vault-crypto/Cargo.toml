@@ -1,7 +1,7 @@
 [package]
 name = "vault-crypto"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 
 [dependencies]
 # eme-mode 0.2.1 does not compile with aes 0.8.1

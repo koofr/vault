@@ -55,7 +55,7 @@ impl AsyncWrite for DownloadStreamWriter {
 
                     return Poll::Ready(Ok(written));
                 }
-                Busy(ref mut rx) => match ready!(Pin::new(rx).poll(cx))? {
+                Busy(rx) => match ready!(Pin::new(rx).poll(cx))? {
                     Ok(()) => {
                         this.state = Idle;
                     }
@@ -81,7 +81,7 @@ impl AsyncWrite for DownloadStreamWriter {
         loop {
             match &mut this.state {
                 Idle => return Poll::Ready(Ok(())),
-                Busy(ref mut rx) => match ready!(Pin::new(rx).poll(cx))? {
+                Busy(rx) => match ready!(Pin::new(rx).poll(cx))? {
                     Ok(()) => {
                         this.state = Idle;
                     }
@@ -111,7 +111,7 @@ impl AsyncWrite for DownloadStreamWriter {
 
                     this.state = Closing(this.runtime.spawn_blocking(move || stream.close()), None);
                 }
-                Busy(ref mut rx) => match ready!(Pin::new(rx).poll(cx))? {
+                Busy(rx) => match ready!(Pin::new(rx).poll(cx))? {
                     Ok(()) => {
                         this.state = Idle;
                     }
@@ -127,7 +127,7 @@ impl AsyncWrite for DownloadStreamWriter {
                         Some(err.clone()),
                     );
                 }
-                Closing(ref mut rx, write_err) => {
+                Closing(rx, write_err) => {
                     match (ready!(Pin::new(rx).poll(cx))?, write_err.clone()) {
                         (Ok(()), None) => {
                             this.state = Closed;

@@ -1,7 +1,6 @@
 ### wasm
 
-# FROM rust:1.75.0-alpine AS wasm-rust-stage
-FROM rust@sha256:7cfbe91942d2673d2b5e3bcfa3b0036b8009d822dc3bfeb1a90b2aaea86eca5d AS wasm-rust-stage
+FROM rust:1.89.0-alpine@sha256:4b800f2e72e04be908e5f634c504c741bd943b763d1d8ad7b096cc340e1b5b46 AS wasm-rust-stage
 WORKDIR /app
 
 ENV CI=true
@@ -13,7 +12,7 @@ RUN apk add --no-cache musl-dev zip
 RUN rustup target add wasm32-unknown-unknown
 
 RUN cd /tmp \
-  && wget https://github.com/LukeMathWalker/cargo-chef/releases/download/v0.1.62/cargo-chef-x86_64-unknown-linux-musl.tar.gz \
+  && wget https://github.com/LukeMathWalker/cargo-chef/releases/download/v0.1.72/cargo-chef-x86_64-unknown-linux-musl.tar.gz \
   && tar xf cargo-chef-x86_64-unknown-linux-musl.tar.gz \
   && mv cargo-chef /usr/local/bin/cargo-chef
 
@@ -50,8 +49,7 @@ RUN cd vault-wasm \
 
 ### frontend
 
-# FROM node:20.11-alpine3.19 AS frontend-stage
-FROM node@sha256:201a9b31be9fb5148ca40c9e727d5e559c659ed9521b3175ba73847026257e32 AS frontend-stage
+FROM node:20.11-alpine3.19@sha256:201a9b31be9fb5148ca40c9e727d5e559c659ed9521b3175ba73847026257e32 AS frontend-stage
 WORKDIR /app
 ARG GIT_REVISION=unknown
 ARG GIT_RELEASE=
@@ -68,16 +66,14 @@ RUN echo -n ${GIT_RELEASE} > vault-web/dist/gitrelease.txt
 
 ### static
 
-# FROM busybox:1.34.1 AS static-stage
-FROM busybox@sha256:d345780059f4b200c1ebfbcfb141c67212e1ad4ea7538dcff759895bfcf99e6e AS static-stage
+FROM busybox:1.34.1@sha256:d345780059f4b200c1ebfbcfb141c67212e1ad4ea7538dcff759895bfcf99e6e AS static-stage
 COPY --from=frontend-stage /app/vault-web/dist/ /vault-web
 RUN cd vault-web && tar cvzpf ../vault-web.tar.gz .
 COPY --from=wasm-stage /app/vault-wasm/vault-wasm-nodejs.tar.gz /vault-wasm-nodejs.tar.gz
 
 ### caddy
 
-# FROM caddy:2.6.2-alpine AS caddy-stage
-FROM caddy@sha256:7992b931b7da3cf0840dd69ea74b2c67d423faf03408da8abdc31b7590a239a7 AS caddy-stage
+FROM caddy:2.6.2-alpine@sha256:7992b931b7da3cf0840dd69ea74b2c67d423faf03408da8abdc31b7590a239a7 AS caddy-stage
 WORKDIR /app
 COPY --from=frontend-stage /app/vault-web/dist /app/dist
 COPY vault-web/Caddyfile .

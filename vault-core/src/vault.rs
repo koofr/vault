@@ -1015,6 +1015,7 @@ impl Vault {
     }
 }
 
+#[allow(dead_code)]
 const _: () = {
     fn assert_send<T: Send>() {}
     fn assert_sync<T: Sync>() {}
