@@ -1,7 +1,7 @@
 use crate::{
     cipher::Cipher,
     common::state::SizeInfo,
-    files::file_category::{ext_to_file_category, FileCategory},
+    files::file_category::{FileCategory, ext_to_file_category},
     repo_files, repos, store,
     types::{DecryptedName, DecryptedPath, EncryptedName, EncryptedPath, RepoId, TimeMillis},
     utils::{name_utils, path_utils},

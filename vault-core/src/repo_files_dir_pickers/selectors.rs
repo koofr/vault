@@ -8,7 +8,7 @@ use crate::{
         state::{RepoFile, RepoFileType},
     },
     store,
-    types::{RepoFileId, RepoId, ENCRYPTED_PATH_ROOT},
+    types::{ENCRYPTED_PATH_ROOT, RepoFileId, RepoId},
 };
 
 use super::state::Options;

@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
-    repos::{errors::UnlockRepoError, ReposService},
+    repos::{ReposService, errors::UnlockRepoError},
     store,
     types::RepoId,
 };

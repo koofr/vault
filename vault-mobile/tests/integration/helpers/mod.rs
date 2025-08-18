@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use futures::{future::BoxFuture, FutureExt};
+use futures::{FutureExt, future::BoxFuture};
 use vault_core_tests::helpers::{wait_for_async, with_fake_remote};
 
 use crate::fixtures::{

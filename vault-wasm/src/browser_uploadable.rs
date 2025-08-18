@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use wasm_bindgen::{prelude::*, JsCast};
+use wasm_bindgen::{JsCast, prelude::*};
 use web_sys::{Blob, File, ReadableStream};
 
 use vault_core::{

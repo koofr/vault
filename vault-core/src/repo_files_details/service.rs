@@ -4,10 +4,10 @@ use std::{
 };
 
 use futures::{
+    AsyncReadExt, FutureExt,
     future::{self, BoxFuture},
     io::Cursor,
     stream::{AbortHandle, Abortable},
-    AsyncReadExt, FutureExt,
 };
 
 use crate::{
@@ -17,18 +17,18 @@ use crate::{
     remote::{ApiErrorCode, RemoteError},
     remote_files::errors::RemoteFilesErrors,
     repo_files::{
+        RepoFilesService,
         errors::{DeleteFileError, UploadFileReaderError},
         state::{RepoFile, RepoFilesUploadConflictResolution, RepoFilesUploadResult},
-        RepoFilesService,
     },
     repo_files_read::{
+        RepoFilesReadService,
         errors::GetFilesReaderError,
         state::{RepoFileReader, RepoFileReaderBuilder, RepoFileReaderProvider},
-        RepoFilesReadService,
     },
     repos::ReposService,
     runtime, store,
-    transfers::{downloadable::BoxDownloadable, errors::TransferError, TransfersService},
+    transfers::{TransfersService, downloadable::BoxDownloadable, errors::TransferError},
     types::{DecryptedName, EncryptedName, EncryptedPath, RepoId},
     user_error::UserError,
     utils::{on_end_reader::OnEndReader, repo_encrypted_path_utils},
@@ -211,7 +211,10 @@ impl RepoFilesDetailsService {
             match self.clone().edit_cancel(details_id).await {
                 Ok(()) => {}
                 Err(err) => {
-                    let message = format!("File could not be saved ({}). Do you want to Try again or Discard the changes?", err.user_error());
+                    let message = format!(
+                        "File could not be saved ({}). Do you want to Try again or Discard the changes?",
+                        err.user_error()
+                    );
 
                     match self
                         .dialogs_service
@@ -694,7 +697,10 @@ impl RepoFilesDetailsService {
     ) -> Result<(), SaveError> {
         match &initiator {
             SaveInitiator::User => {
-                let message = format!("File {} is no longer accessible. Probably it was deleted or you no longer have access to it. Do you want to Save the file to a new location?", name.0);
+                let message = format!(
+                    "File {} is no longer accessible. Probably it was deleted or you no longer have access to it. Do you want to Save the file to a new location?",
+                    name.0
+                );
 
                 match self
                     .dialogs_service
@@ -716,7 +722,10 @@ impl RepoFilesDetailsService {
                 Err(SaveError::Canceled)
             }
             SaveInitiator::Cancel => {
-                let message = format!("File {} is no longer accessible. Probably it was deleted or you no longer have access to it. Do you want to Save the file to a new location or Discard the changes?", name.0);
+                let message = format!(
+                    "File {} is no longer accessible. Probably it was deleted or you no longer have access to it. Do you want to Save the file to a new location or Discard the changes?",
+                    name.0
+                );
 
                 match self
                     .dialogs_service
@@ -768,7 +777,9 @@ impl RepoFilesDetailsService {
     async fn save_handle_conflict(&self, initiator: &SaveInitiator) -> Result<bool, SaveError> {
         match &initiator {
             SaveInitiator::User => {
-                let message = String::from("Saving into the existing file is not possible. Do you want to Save your changes as a new file?");
+                let message = String::from(
+                    "Saving into the existing file is not possible. Do you want to Save your changes as a new file?",
+                );
 
                 match self
                     .dialogs_service
@@ -789,7 +800,9 @@ impl RepoFilesDetailsService {
             }
             SaveInitiator::Autosave => panic!("unreachable"),
             SaveInitiator::Cancel => {
-                let message = String::from("Saving into the existing file is not possible. Do you want to Save your changes as a new file or Discard them?");
+                let message = String::from(
+                    "Saving into the existing file is not possible. Do you want to Save your changes as a new file or Discard them?",
+                );
 
                 match self
                     .dialogs_service
@@ -885,7 +898,10 @@ impl RepoFilesDetailsService {
                 None
             }
         }) {
-            let message = format!("File {} is no longer accessible. Probably it was deleted or you no longer have access to it.", file_name.0);
+            let message = format!(
+                "File {} is no longer accessible. Probably it was deleted or you no longer have access to it.",
+                file_name.0
+            );
 
             self.dialogs_service
                 .show(DialogShowOptions {

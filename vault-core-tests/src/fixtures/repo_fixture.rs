@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use futures::io::Cursor;
 use vault_core::{
+    Vault,
     repo_files::{
         self,
         state::{RepoFile, RepoFilesUploadConflictResolution, RepoFilesUploadResult},
@@ -9,7 +10,6 @@ use vault_core::{
     repos::state::RepoUnlockMode,
     types::{DecryptedPath, EncryptedName, EncryptedPath, MountId, RemotePath, RepoFileId, RepoId},
     utils::repo_encrypted_path_utils,
-    Vault,
 };
 use vault_crypto::Cipher;
 use vault_fake_remote::fake_remote::context::Context;

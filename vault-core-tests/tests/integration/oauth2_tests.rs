@@ -59,9 +59,11 @@ fn test_login() {
 
             oauth2_fixture.login().await;
 
-            assert!(vault_fixture
-                .vault
-                .with_state(|state| { state.user.user.is_some() }));
+            assert!(
+                vault_fixture
+                    .vault
+                    .with_state(|state| { state.user.user.is_some() })
+            );
         }
         .boxed()
     });
@@ -78,9 +80,11 @@ fn test_oauth2_logout() {
 
             oauth2_fixture.logout().await;
 
-            assert!(vault_fixture
-                .vault
-                .with_state(|state| { state.user.user.is_none() }));
+            assert!(
+                vault_fixture
+                    .vault
+                    .with_state(|state| { state.user.user.is_none() })
+            );
         }
         .boxed()
     });
@@ -97,9 +101,11 @@ fn test_oauth2_logout_not_logged_in() {
 
             oauth2_fixture.logout().await;
 
-            assert!(vault_fixture
-                .vault
-                .with_state(|state| { state.user.user.is_none() }));
+            assert!(
+                vault_fixture
+                    .vault
+                    .with_state(|state| { state.user.user.is_none() })
+            );
         }
         .boxed()
     });
@@ -149,9 +155,11 @@ fn test_internal_logout_not_logged_in() {
 
             vault_fixture.vault.logout().unwrap();
 
-            assert!(vault_fixture
-                .vault
-                .with_state(|state| { state.user.user.is_none() }));
+            assert!(
+                vault_fixture
+                    .vault
+                    .with_state(|state| { state.user.user.is_none() })
+            );
         }
         .boxed()
     });

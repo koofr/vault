@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use futures::{future::BoxFuture, Future};
+use futures::{Future, future::BoxFuture};
 use gloo_timers::future::sleep;
 use wasm_bindgen_futures::spawn_local;
 

@@ -5,8 +5,8 @@ use std::{
 
 use axum::response::{IntoResponse, Response};
 use futures::{
-    future::{BoxFuture, Shared},
     FutureExt,
+    future::{BoxFuture, Shared},
 };
 use http::StatusCode;
 use tokio::sync::oneshot::{self, Sender};

@@ -4,7 +4,7 @@ use std::{
     task::{Context, Poll},
 };
 
-use futures::{channel::mpsc::Sender, ready, AsyncWrite};
+use futures::{AsyncWrite, channel::mpsc::Sender, ready};
 use pin_project_lite::pin_project;
 
 pin_project! {

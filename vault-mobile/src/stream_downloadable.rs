@@ -11,7 +11,7 @@ use vault_core::{
 };
 use vault_native::file_utils;
 
-use crate::{download_stream_writer::DownloadStreamWriter, DownloadStreamProvider, StreamError};
+use crate::{DownloadStreamProvider, StreamError, download_stream_writer::DownloadStreamWriter};
 
 pub struct StreamDownloadable {
     pub stream_provider: Arc<Box<dyn DownloadStreamProvider>>,

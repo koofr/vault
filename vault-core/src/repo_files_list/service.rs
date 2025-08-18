@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use futures::{stream::BoxStream, StreamExt};
+use futures::{StreamExt, stream::BoxStream};
 
 use crate::{remote_files::RemoteFilesService, repo_files::state::RepoFile, repos::ReposService};
 

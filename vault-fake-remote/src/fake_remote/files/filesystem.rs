@@ -10,7 +10,7 @@ use vault_core::{
 
 use crate::fake_remote::errors::{ApiErrorCode, FakeRemoteError};
 
-use super::{path::NormalizedPath, Name, Path};
+use super::{Name, Path, path::NormalizedPath};
 
 #[derive(Debug)]
 pub enum CreateFileConflictResolution {

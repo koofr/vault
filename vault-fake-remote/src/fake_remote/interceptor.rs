@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use axum::{
     extract::State,
-    http::{request, Request},
+    http::{Request, request},
     middleware::Next,
     response::Response,
 };

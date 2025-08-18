@@ -4,7 +4,7 @@ use std::{
 };
 
 use axum::Router;
-use axum_server::{tls_rustls::RustlsConfig, Handle};
+use axum_server::{Handle, tls_rustls::RustlsConfig};
 use futures::FutureExt;
 use tokio::{sync::oneshot, task::JoinHandle};
 

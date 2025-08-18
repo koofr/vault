@@ -1,7 +1,7 @@
 use std::{collections::HashMap, io::SeekFrom, ops::RangeInclusive, pin::Pin, sync::Mutex};
 
 use async_trait::async_trait;
-use futures::{io::Cursor, AsyncRead, AsyncReadExt, AsyncSeekExt};
+use futures::{AsyncRead, AsyncReadExt, AsyncSeekExt, io::Cursor};
 
 use super::object_provider::{ObjectProvider, ObjectProviderError};
 

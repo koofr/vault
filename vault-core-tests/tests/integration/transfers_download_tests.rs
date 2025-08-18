@@ -1,12 +1,12 @@
 use std::{
     sync::{
-        atomic::{AtomicBool, AtomicUsize, Ordering},
         Arc,
+        atomic::{AtomicBool, AtomicUsize, Ordering},
     },
     time::Duration,
 };
 
-use futures::{future, FutureExt};
+use futures::{FutureExt, future};
 use similar_asserts::assert_eq;
 
 use vault_core::{
@@ -24,8 +24,8 @@ use vault_core::{
     utils::memory_writer::MemoryWriter,
 };
 use vault_core_tests::helpers::transfers::{
-    download_delay_response_body, download_string, patch_transfer, transfer_abort_when,
-    transfer_do_when, transfers_recorder, with_transfers, TestDownloadable,
+    TestDownloadable, download_delay_response_body, download_string, patch_transfer,
+    transfer_abort_when, transfer_do_when, transfers_recorder, with_transfers,
 };
 use vault_fake_remote::fake_remote::interceptor::InterceptorResult;
 

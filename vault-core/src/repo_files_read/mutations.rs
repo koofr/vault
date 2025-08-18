@@ -184,8 +184,7 @@ mod tests {
         );
         match &mut file_path_error {
             RepoFilesListRecursiveItem::File {
-                relative_repo_path,
-                ..
+                relative_repo_path, ..
             } => {
                 *relative_repo_path = Err(DecryptFilenameError::DecryptFilenameError(
                     vault_crypto::errors::DecryptFilenameError::DecodeError(

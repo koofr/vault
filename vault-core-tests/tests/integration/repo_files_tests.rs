@@ -1,4 +1,4 @@
-use futures::{io::Cursor, FutureExt};
+use futures::{FutureExt, io::Cursor};
 use similar_asserts::assert_eq;
 use vault_core::{
     cipher::errors::DecryptFilenameError,

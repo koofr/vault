@@ -1,9 +1,8 @@
 /// Based on rclone implementation
 /// https://github.com/rclone/rclone/blob/7be9855a706d1e09504f17949a90c54cd56fb2a5/fs/config/obscure/obscure.go
 use aes::{
-    self,
-    cipher::{generic_array::GenericArray, FromBlockCipher, StreamCipher},
-    NewBlockCipher,
+    self, NewBlockCipher,
+    cipher::{FromBlockCipher, StreamCipher, generic_array::GenericArray},
 };
 use data_encoding::BASE64URL_NOPAD;
 use rand_core::{OsRng, RngCore};

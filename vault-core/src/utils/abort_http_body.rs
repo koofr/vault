@@ -5,7 +5,7 @@ use std::{
 };
 
 use bytes::Bytes;
-use http_body::{combinators::UnsyncBoxBody, Body};
+use http_body::{Body, combinators::UnsyncBoxBody};
 
 pub struct AbortHttpBody<F, E> {
     build_error: F,

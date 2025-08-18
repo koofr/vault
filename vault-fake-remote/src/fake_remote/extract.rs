@@ -5,7 +5,7 @@ use std::{
 
 use async_trait::async_trait;
 use axum::extract::FromRequestParts;
-use http::{header, request::Parts, HeaderMap};
+use http::{HeaderMap, header, request::Parts};
 
 use super::{
     app_state::AppState,
@@ -57,7 +57,7 @@ pub fn get_user_id_by_access_token<'a>(
         None => {
             return Err(FakeRemoteError::Unauthorized(
                 "user id not found for access token".into(),
-            ))
+            ));
         }
     }
 }

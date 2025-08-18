@@ -3,8 +3,8 @@ use std::{
     task::{Context, Poll},
 };
 
-use futures::{ready, Future};
-use http_body::{combinators::UnsyncBoxBody, Body};
+use futures::{Future, ready};
+use http_body::{Body, combinators::UnsyncBoxBody};
 use pin_project_lite::pin_project;
 
 pin_project! {

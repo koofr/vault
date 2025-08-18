@@ -5,9 +5,9 @@ use futures::future::BoxFuture;
 use crate::{
     dir_pickers,
     dir_pickers::state::{DirPickerItem, DirPickerItemId},
-    repo_files::{errors::LoadFilesError, selectors as repo_files_selectors, RepoFilesService},
+    repo_files::{RepoFilesService, errors::LoadFilesError, selectors as repo_files_selectors},
     store,
-    types::{EncryptedPath, RepoFileId, RepoId, ENCRYPTED_PATH_ROOT},
+    types::{ENCRYPTED_PATH_ROOT, EncryptedPath, RepoFileId, RepoId},
     utils::repo_encrypted_path_utils,
 };
 

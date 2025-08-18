@@ -1,8 +1,8 @@
 use std::{collections::HashMap, sync::Arc};
 
 use axum::{
-    response::{IntoResponse, Response},
     Json,
+    response::{IntoResponse, Response},
 };
 use http::{HeaderName, HeaderValue, StatusCode};
 use thiserror::Error;

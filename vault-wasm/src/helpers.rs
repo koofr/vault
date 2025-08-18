@@ -1,20 +1,20 @@
 use std::sync::Arc;
 
 use futures::{
-    stream::{StreamExt, TryStreamExt},
     AsyncRead, AsyncReadExt,
+    stream::{StreamExt, TryStreamExt},
 };
 use thiserror::Error;
-use wasm_bindgen::{prelude::*, JsCast};
+use wasm_bindgen::{JsCast, prelude::*};
 use wasm_bindgen_futures::JsFuture;
 use wasm_streams::ReadableStream;
 use web_sys::AbortSignal;
 
 use vault_core::{
+    Vault,
     common::state::{BoxAsyncRead, SizeInfo},
     user_error::UserError,
     utils::on_end_reader::OnEndReader,
-    Vault,
 };
 use vault_crypto::constants::BLOCK_SIZE;
 use vault_web_api::dto;

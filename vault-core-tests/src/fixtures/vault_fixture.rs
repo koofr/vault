@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
 use vault_core::{
+    Vault,
     oauth2::OAuth2Config,
     secure_storage::{MemorySecureStorage, SecureStorage},
-    Vault,
 };
 use vault_native::vault::build_vault;
 

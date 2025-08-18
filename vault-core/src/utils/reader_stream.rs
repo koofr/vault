@@ -1,5 +1,5 @@
 use bytes::Bytes;
-use futures::{stream::Stream, AsyncRead};
+use futures::{AsyncRead, stream::Stream};
 use pin_project_lite::pin_project;
 use std::{
     pin::Pin,

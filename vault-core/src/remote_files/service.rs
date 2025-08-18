@@ -4,8 +4,8 @@ use crate::{
     common::state::BoxAsyncRead,
     dialogs,
     remote::{
-        remote::{ListRecursiveItemStream, RemoteFileTagsSetConditions},
         Remote, RemoteError, RemoteFileUploadConflictResolution,
+        remote::{ListRecursiveItemStream, RemoteFileTagsSetConditions},
     },
     store,
     types::{MountId, RemoteFileId, RemoteName, RemotePath},

@@ -67,11 +67,11 @@ impl RepoFileReaderProvider {
     pub fn wrap_reader_builder(
         self,
         f: impl Fn(
-                Arc<RepoFileReaderBuilder>,
-            ) -> BoxFuture<'static, Result<RepoFileReader, GetFilesReaderError>>
-            + Send
-            + Sync
-            + 'static,
+            Arc<RepoFileReaderBuilder>,
+        ) -> BoxFuture<'static, Result<RepoFileReader, GetFilesReaderError>>
+        + Send
+        + Sync
+        + 'static,
     ) -> Self {
         let reader_builder = Arc::new(self.reader_builder);
         let f = Arc::new(f);

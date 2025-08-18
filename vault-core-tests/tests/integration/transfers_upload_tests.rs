@@ -1,13 +1,13 @@
 use std::{
     sync::{
-        atomic::{AtomicBool, AtomicUsize, Ordering},
         Arc,
+        atomic::{AtomicBool, AtomicUsize, Ordering},
     },
     time::Duration,
 };
 
 use axum::{http::StatusCode, response::IntoResponse};
-use futures::{future, io::Cursor, FutureExt};
+use futures::{FutureExt, future, io::Cursor};
 use similar_asserts::assert_eq;
 
 use vault_core::{
@@ -26,8 +26,8 @@ use vault_core::{
 use vault_core_tests::{
     fixtures::repo_fixture::RepoFixture,
     helpers::transfers::{
-        capture_upload_uri, patch_transfer, transfer_abort_when, transfer_do_when,
-        transfers_recorder, uploaded_server_error, with_transfers, TestUploadable,
+        TestUploadable, capture_upload_uri, patch_transfer, transfer_abort_when, transfer_do_when,
+        transfers_recorder, uploaded_server_error, with_transfers,
     },
 };
 use vault_fake_remote::fake_remote::interceptor::InterceptorResult;
@@ -52,12 +52,14 @@ fn test_upload() {
             let res = future.await.unwrap();
             assert_eq!(res.name.0, "file.txt");
 
-            assert!(upload_uri_receiver
-                .await
-                .unwrap()
-                .query()
-                .unwrap()
-                .contains("&size=52"));
+            assert!(
+                upload_uri_receiver
+                    .await
+                    .unwrap()
+                    .query()
+                    .unwrap()
+                    .contains("&size=52")
+            );
 
             recorder.check_recorded(
                 |len| assert_eq!(len, 6),
@@ -289,12 +291,14 @@ fn test_upload_size_estimate() {
             let res = future.await.unwrap();
             assert_eq!(res.name.0, "file.txt");
 
-            assert!(!upload_uri_receiver
-                .await
-                .unwrap()
-                .query()
-                .unwrap()
-                .contains("&size="));
+            assert!(
+                !upload_uri_receiver
+                    .await
+                    .unwrap()
+                    .query()
+                    .unwrap()
+                    .contains("&size=")
+            );
 
             let patch = |t: &mut Transfer| {
                 t.size = SizeInfo::Estimate(4);
@@ -370,12 +374,14 @@ fn test_upload_size_unknown() {
             let res = future.await.unwrap();
             assert_eq!(res.name.0, "file.txt");
 
-            assert!(!upload_uri_receiver
-                .await
-                .unwrap()
-                .query()
-                .unwrap()
-                .contains("&size="));
+            assert!(
+                !upload_uri_receiver
+                    .await
+                    .unwrap()
+                    .query()
+                    .unwrap()
+                    .contains("&size=")
+            );
 
             let patch = |t: &mut Transfer| {
                 t.size = SizeInfo::Unknown;
@@ -467,12 +473,14 @@ fn test_upload_size_unknown_to_estimate() {
             let res = future.await.unwrap();
             assert_eq!(res.name.0, "file.txt");
 
-            assert!(!upload_uri_receiver
-                .await
-                .unwrap()
-                .query()
-                .unwrap()
-                .contains("&size="));
+            assert!(
+                !upload_uri_receiver
+                    .await
+                    .unwrap()
+                    .query()
+                    .unwrap()
+                    .contains("&size=")
+            );
 
             recorder.check_recorded(
                 |len| assert_eq!(len, 6),
@@ -554,12 +562,14 @@ fn test_upload_size_unknown_to_exact() {
             let res = future.await.unwrap();
             assert_eq!(res.name.0, "file.txt");
 
-            assert!(upload_uri_receiver
-                .await
-                .unwrap()
-                .query()
-                .unwrap()
-                .contains("&size=52"));
+            assert!(
+                upload_uri_receiver
+                    .await
+                    .unwrap()
+                    .query()
+                    .unwrap()
+                    .contains("&size=52")
+            );
 
             recorder.check_recorded(
                 |len| assert_eq!(len, 6),
@@ -633,12 +643,14 @@ fn test_upload_size_estimate_to_exact() {
             let res = future.await.unwrap();
             assert_eq!(res.name.0, "file.txt");
 
-            assert!(upload_uri_receiver
-                .await
-                .unwrap()
-                .query()
-                .unwrap()
-                .contains("&size=52"));
+            assert!(
+                upload_uri_receiver
+                    .await
+                    .unwrap()
+                    .query()
+                    .unwrap()
+                    .contains("&size=52")
+            );
 
             recorder.check_recorded(
                 |len| assert_eq!(len, 6),

@@ -2,9 +2,7 @@ use super::Cipher;
 
 #[macro_export]
 macro_rules! assert_reader_pending {
-    ($reader:expr) => {{
-        assert_reader_pending!($reader, 100000)
-    }};
+    ($reader:expr) => {{ assert_reader_pending!($reader, 100000) }};
     ($reader:expr, $buf_size:expr) => {{
         let mut cx = futures_test::task::noop_context();
         let mut buf = vec![0; $buf_size];
@@ -21,9 +19,7 @@ pub use assert_reader_pending;
 
 #[macro_export]
 macro_rules! assert_reader_ready {
-    ($reader:expr) => {{
-        assert_reader_ready!($reader, 100000)
-    }};
+    ($reader:expr) => {{ assert_reader_ready!($reader, 100000) }};
     ($reader:expr, $buf_size:expr) => {{
         let mut cx = futures_test::task::noop_context();
         let mut buf = vec![0; $buf_size];

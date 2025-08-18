@@ -104,7 +104,7 @@ pub fn generate_config(config: &Config) -> String {
 pub mod tests {
     use regex::Regex;
 
-    use super::{generate_config, parse_config, Config};
+    use super::{Config, generate_config, parse_config};
 
     #[test]
     fn test_parse_config() {

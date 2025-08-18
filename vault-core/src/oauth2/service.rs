@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::Arc, time::Duration};
 
 use data_encoding::BASE64URL_NOPAD;
 use futures::lock::Mutex as AsyncMutex;
-use http::{header::CONTENT_TYPE, HeaderMap, HeaderValue};
+use http::{HeaderMap, HeaderValue, header::CONTENT_TYPE};
 use rand_core::{OsRng, RngCore};
 use serde::Deserialize;
 use url::Url;
@@ -11,7 +11,7 @@ use crate::{
     auth::errors::AuthError,
     http::{HttpClient, HttpError, HttpRequest, HttpRequestBody},
     runtime,
-    secure_storage::{errors::SecureStorageError, SecureStorageService},
+    secure_storage::{SecureStorageService, errors::SecureStorageError},
     store,
 };
 

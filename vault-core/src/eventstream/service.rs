@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use crate::{auth, runtime, store};
 
-use super::{mutations, Message, Request, WebSocketClient};
+use super::{Message, Request, WebSocketClient, mutations};
 
 pub struct EventStreamService {
     base_url: String,

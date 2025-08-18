@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 
-use super::{errors::AuthError, AuthProvider};
+use super::{AuthProvider, errors::AuthError};
 
 pub struct MockAuthProvider {
     on_get_authorization: Box<dyn Fn(bool) -> Result<String, AuthError> + Send + Sync>,

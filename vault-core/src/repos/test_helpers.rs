@@ -1,7 +1,7 @@
 use std::{collections::HashMap, rc::Rc, sync::Arc};
 
 use crate::{
-    cipher::{test_helpers as cipher_test_helpers, Cipher},
+    cipher::{Cipher, test_helpers as cipher_test_helpers},
     remote::test_helpers as remote_test_helpers,
     store,
     types::RepoId,

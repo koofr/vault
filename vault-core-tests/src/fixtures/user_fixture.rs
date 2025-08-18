@@ -2,12 +2,12 @@ use std::{sync::Arc, time::Duration};
 
 use futures::io::Cursor;
 use vault_core::{
+    Vault,
     oauth2::{service::TOKEN_STORAGE_KEY, state::OAuth2Token},
     remote::RemoteFileUploadConflictResolution,
     remote_files::{self, state::RemoteFile},
     types::{MountId, RemoteFileId, RemotePath},
     utils::remote_path_utils,
-    Vault,
 };
 use vault_fake_remote::fake_remote::context::Context;
 use vault_native::native_runtime::now;

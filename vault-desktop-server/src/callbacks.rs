@@ -4,7 +4,7 @@ use std::{
 };
 
 use drop_stream::DropStream;
-use futures::{channel::mpsc, Stream};
+use futures::{Stream, channel::mpsc};
 use serde::{Deserialize, Serialize};
 
 use vault_web_api::web_vault_base::Callback;

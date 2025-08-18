@@ -1,14 +1,15 @@
 use std::sync::Arc;
 
 use futures::{
+    FutureExt, TryFutureExt,
     future::{self, BoxFuture},
-    join, FutureExt, TryFutureExt,
+    join,
 };
 
 use crate::{
     eventstream::EventStreamService,
     notifications::NotificationsService,
-    oauth2::{state::FinishFlowResult, OAuth2Service},
+    oauth2::{OAuth2Service, state::FinishFlowResult},
     remote::Remote,
     repos::ReposService,
     secure_storage::SecureStorageService,

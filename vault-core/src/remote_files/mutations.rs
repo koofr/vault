@@ -7,7 +7,7 @@ use crate::{
     remote_files_tags::set_tags::set_tags,
     store,
     types::{
-        MountId, RemoteFileId, RemoteName, RemoteNameLower, RemotePath, REMOTE_PATH_LOWER_ROOT,
+        MountId, REMOTE_PATH_LOWER_ROOT, RemoteFileId, RemoteName, RemoteNameLower, RemotePath,
     },
     utils::remote_path_utils,
 };

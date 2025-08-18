@@ -1,16 +1,16 @@
 use std::sync::Arc;
 
-use futures::{future::BoxFuture, join, FutureExt, TryFutureExt};
+use futures::{FutureExt, TryFutureExt, future::BoxFuture, join};
 use vault_crypto::random_password::random_password;
 
 use crate::{
     dir_pickers::{selectors as dir_pickers_selectors, state::DirPickerItemId},
     rclone, remote,
     remote_files::{
+        RemoteFilesService,
         errors::{CreateDirError, RemoteFilesErrors},
         selectors as remote_files_selectors,
         state::RemoteFilesLocation,
-        RemoteFilesService,
     },
     remote_files_dir_pickers::{self, RemoteFilesDirPickersService},
     repos::ReposService,

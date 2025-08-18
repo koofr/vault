@@ -189,7 +189,13 @@ pub fn get_save_error(status: &Status<SaveError>) -> Option<String> {
 pub fn get_load_error(status: &Status<LoadFilesError>) -> Option<String> {
     match status {
         Status::Error { error, .. } => match error {
-            LoadFilesError::RemoteError(error) if error.is_api_error_code(ApiErrorCode::NotFound) => Some(String::from("This file is no longer accessible. Probably it was deleted or you no longer have access to it.")),
+            LoadFilesError::RemoteError(error)
+                if error.is_api_error_code(ApiErrorCode::NotFound) =>
+            {
+                Some(String::from(
+                    "This file is no longer accessible. Probably it was deleted or you no longer have access to it.",
+                ))
+            }
             _ => Some(error.user_error()),
         },
         _ => None,
@@ -199,7 +205,13 @@ pub fn get_load_error(status: &Status<LoadFilesError>) -> Option<String> {
 pub fn get_content_error(status: &Status<TransferError>) -> Option<String> {
     match status {
         Status::Error { error, .. } => match error {
-            TransferError::RemoteError(error) if error.is_api_error_code(ApiErrorCode::NotFound) => Some(String::from("This file is no longer accessible. Probably it was deleted or you no longer have access to it.")),
+            TransferError::RemoteError(error)
+                if error.is_api_error_code(ApiErrorCode::NotFound) =>
+            {
+                Some(String::from(
+                    "This file is no longer accessible. Probably it was deleted or you no longer have access to it.",
+                ))
+            }
             _ => Some(error.user_error()),
         },
         _ => None,

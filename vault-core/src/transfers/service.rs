@@ -4,18 +4,18 @@ use std::{
 };
 
 use futures::{
+    AsyncWriteExt, FutureExt, TryFutureExt,
     channel::oneshot::{self, Sender},
     io::{self, BufReader},
     stream::{AbortHandle, AbortRegistration, Abortable, Aborted},
-    AsyncWriteExt, FutureExt, TryFutureExt,
 };
 
 use crate::{
     common::state::SizeInfo,
     remote::ApiErrorCode,
     repo_files::{
-        errors::LoadFilesError, selectors as repo_files_selectors,
-        state::RepoFilesUploadConflictResolution, RepoFilesService,
+        RepoFilesService, errors::LoadFilesError, selectors as repo_files_selectors,
+        state::RepoFilesUploadConflictResolution,
     },
     repo_files_read::state::{RepoFileReader, RepoFileReaderProvider},
     repos::ReposService,
@@ -232,7 +232,7 @@ impl TransfersService {
                         Err(err) => {
                             return Err(err.into());
                         }
-                    }
+                    };
                 }
                 Ok(false) => {}
                 Err(err) => {

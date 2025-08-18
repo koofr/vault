@@ -1,12 +1,12 @@
 use std::sync::Arc;
 
-use vault_core::{oauth2::OAuth2Config, secure_storage::SecureStorage, Vault};
+use vault_core::{Vault, oauth2::OAuth2Config, secure_storage::SecureStorage};
 
 use crate::{
     native_eventstream_websocket_client::{
-        get_tokio_tungstenite_connector, NativeEventstreamWebSocketClient,
+        NativeEventstreamWebSocketClient, get_tokio_tungstenite_connector,
     },
-    native_http_client::{get_reqwest_client, NativeHttpClient},
+    native_http_client::{NativeHttpClient, get_reqwest_client},
     native_runtime::NativeRuntime,
 };
 

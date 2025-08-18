@@ -3,7 +3,7 @@ use std::{collections::HashMap, str::FromStr, sync::Arc};
 use axum::{
     body::Body,
     extract::State,
-    http::{header, request, Method, Request, StatusCode},
+    http::{Method, Request, StatusCode, header, request},
     middleware::Next,
     response::{IntoResponse, Response},
 };
@@ -199,12 +199,12 @@ mod tests {
     use std::{collections::HashMap, convert::Infallible, sync::Arc};
 
     use axum::{
+        Router,
         body::Body,
         extract,
-        http::{header, Method, Request, StatusCode},
+        http::{Method, Request, StatusCode, header},
         response::{IntoResponse, Response},
         routing::{get, post},
-        Router,
     };
     use futures::StreamExt;
     use http_body_util::BodyExt;
@@ -218,7 +218,7 @@ mod tests {
     };
 
     use super::{
-        encryption_middleware, EncryptedRequest, EncryptedResponse, EncryptionMiddlewareState,
+        EncryptedRequest, EncryptedResponse, EncryptionMiddlewareState, encryption_middleware,
     };
 
     async fn get_handler(req: extract::Request) -> Response {

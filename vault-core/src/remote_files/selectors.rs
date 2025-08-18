@@ -1,10 +1,10 @@
 use crate::{
-    files::file_category::{ext_to_file_category, FileCategory},
+    files::file_category::{FileCategory, ext_to_file_category},
     remote::RemoteError,
     store,
     types::{
-        MountId, RemoteFileId, RemoteName, RemoteNameLower, RemotePath, RemotePathLower,
-        REMOTE_PATH_LOWER_ROOT,
+        MountId, REMOTE_PATH_LOWER_ROOT, RemoteFileId, RemoteName, RemoteNameLower, RemotePath,
+        RemotePathLower,
     },
     utils::{name_utils, remote_path_utils},
 };

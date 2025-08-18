@@ -9,12 +9,13 @@ use axum::{
     response::IntoResponse,
 };
 use futures::{
+    FutureExt,
     channel::oneshot::{self, Sender},
     future::{self, BoxFuture},
     io::Cursor,
-    FutureExt,
 };
 use vault_core::{
+    Vault,
     common::state::{BoxAsyncRead, BoxAsyncWrite, SizeInfo},
     store,
     transfers::{
@@ -25,7 +26,6 @@ use vault_core::{
     },
     types::{DecryptedPath, RepoId},
     utils::memory_writer::MemoryWriter,
-    Vault,
 };
 use vault_fake_remote::fake_remote::interceptor::InterceptorResult;
 use vault_store::test_helpers::{StateRecorder, StoreWatcher};

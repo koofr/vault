@@ -126,8 +126,7 @@ mod tests {
         let cipher = Cipher::new(vault_crypto::Cipher::new("testpassword", None));
 
         let password_validator = "508ddd3f-f18e-4514-932b-b2c1f0c8b291";
-        let password_validator_encrypted =
-            "v2:UkNMT05FAAA-YjvGKKxTpiFekFYVMNO2UnG2u-Z16MMHAB-ipQYycVTmPSNk0mbnYeZrZ2I-Kh0lTmh4Kt2UxhdYWEXd9YQvyODrWMWWHZaLhL7e";
+        let password_validator_encrypted = "v2:UkNMT05FAAA-YjvGKKxTpiFekFYVMNO2UnG2u-Z16MMHAB-ipQYycVTmPSNk0mbnYeZrZ2I-Kh0lTmh4Kt2UxhdYWEXd9YQvyODrWMWWHZaLhL7e";
 
         assert!(check_password_validator(
             &cipher,

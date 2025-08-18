@@ -7,9 +7,8 @@ use std::{
 };
 
 use futures::{
-    ready,
+    AsyncRead, ready,
     task::{Context, Poll},
-    AsyncRead,
 };
 use pin_project_lite::pin_project;
 use xsalsa20poly1305::XSalsa20Poly1305;
@@ -255,7 +254,7 @@ impl<R: AsyncRead> AsyncRead for AsyncEncryptReader<R> {
 mod tests {
     use std::{io::Result, sync::Arc, task::Poll};
 
-    use futures::{stream::TryStreamExt, AsyncRead};
+    use futures::{AsyncRead, stream::TryStreamExt};
     use xsalsa20poly1305::XSalsa20Poly1305;
 
     use crate::{

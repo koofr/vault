@@ -24,9 +24,9 @@ use crate::fake_remote::{
 };
 
 use super::{
+    Filesystem, FilesystemFile, Name, NormalizedPath, Path,
     filesystem::{CreateFileConflictResolution, FilesTagsSetConditions, MoveFileConditions},
     objects::object_provider::{BoxObjectProvider, ObjectProviderError},
-    Filesystem, FilesystemFile, Name, NormalizedPath, Path,
 };
 
 pub struct FilesService {

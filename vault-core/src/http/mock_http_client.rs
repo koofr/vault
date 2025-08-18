@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use futures::stream;
-use http::{header::CONTENT_TYPE, HeaderMap, HeaderValue};
+use http::{HeaderMap, HeaderValue, header::CONTENT_TYPE};
 
 use super::{
     BoxHttpResponse, HttpClient, HttpError, HttpRequest, HttpResponse, HttpResponseBytesStream,

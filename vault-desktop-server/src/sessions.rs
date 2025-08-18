@@ -5,7 +5,7 @@ use std::{
 use thiserror::Error;
 
 use drop_stream::DropStream;
-use futures::{stream, Stream, StreamExt};
+use futures::{Stream, StreamExt, stream};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 

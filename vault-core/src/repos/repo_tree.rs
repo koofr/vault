@@ -141,7 +141,7 @@ fn path_to_key_tail<'a>(path: &'a str) -> (String, &'a str) {
 mod tests {
     use crate::types::{EncryptedPath, RemotePath, RepoId};
 
-    use super::{path_to_key_tail, RepoTree};
+    use super::{RepoTree, path_to_key_tail};
 
     #[test]
     fn test_repo_tree() {

@@ -4,7 +4,7 @@ use crate::{
     cipher::Cipher,
     files::{
         content_type::ext_to_content_type,
-        file_category::{ext_to_file_category, FileCategory},
+        file_category::{FileCategory, ext_to_file_category},
     },
     remote::RemoteError,
     remote_files::{selectors as remote_files_selectors, state::RemoteFile},

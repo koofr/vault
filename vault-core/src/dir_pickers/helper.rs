@@ -3,7 +3,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use futures::{future::BoxFuture, FutureExt};
+use futures::{FutureExt, future::BoxFuture};
 use serde::Serialize;
 
 use crate::{dir_pickers::state::DirPicker, store};

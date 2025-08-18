@@ -7,7 +7,7 @@ use vault_core::{
     transfers::{errors::UploadableError, uploadable::Uploadable},
 };
 
-use crate::{upload_stream_reader::UploadStreamReader, StreamError, UploadStreamProvider};
+use crate::{StreamError, UploadStreamProvider, upload_stream_reader::UploadStreamReader};
 
 pub struct StreamUploadable {
     pub stream_provider: Arc<Box<dyn UploadStreamProvider>>,

@@ -5,9 +5,9 @@ use std::{
 };
 
 use futures::{
+    FutureExt,
     channel::oneshot,
     future::{self, BoxFuture},
-    FutureExt,
 };
 
 use super::Store;

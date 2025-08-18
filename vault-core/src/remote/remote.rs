@@ -4,10 +4,10 @@ use std::{
 };
 
 use futures::{
-    stream::{BoxStream, TryStreamExt},
     AsyncBufReadExt, StreamExt,
+    stream::{BoxStream, TryStreamExt},
 };
-use http::{header, HeaderMap, HeaderValue};
+use http::{HeaderMap, HeaderValue, header};
 use serde::Serialize;
 use urlencoding::encode;
 
@@ -21,9 +21,9 @@ use crate::{
 };
 
 use super::{
+    ApiErrorCode,
     errors::RemoteError,
     models::{self, ApiError},
-    ApiErrorCode,
 };
 
 pub type ListRecursiveItemStream =
@@ -889,22 +889,22 @@ pub mod tests {
     use std::{
         collections::HashMap,
         sync::{
-            atomic::{AtomicUsize, Ordering},
             Arc,
+            atomic::{AtomicUsize, Ordering},
         },
     };
 
-    use futures::{executor::block_on, stream, StreamExt};
+    use futures::{StreamExt, executor::block_on, stream};
     use http::HeaderMap;
 
     use crate::{
-        auth::{errors::AuthError, mock_auth_provider::MockAuthProvider, AuthProvider},
+        auth::{AuthProvider, errors::AuthError, mock_auth_provider::MockAuthProvider},
         http::{
-            mock_http_client::{MockHttpClient, MockHttpResponse},
             HttpClient, HttpError, HttpRequest,
+            mock_http_client::{MockHttpClient, MockHttpResponse},
         },
         oauth2::errors::OAuth2Error,
-        remote::{models, RemoteError},
+        remote::{RemoteError, models},
         types::{MountId, RemoteName, RemotePath},
     };
 

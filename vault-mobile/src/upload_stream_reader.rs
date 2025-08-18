@@ -1,9 +1,8 @@
 use std::{cmp, pin::Pin, sync::Arc};
 
 use futures::{
-    ready,
+    AsyncRead, Future, ready,
     task::{Context, Poll},
-    AsyncRead, Future,
 };
 use tokio::{runtime::Runtime, task::JoinHandle};
 

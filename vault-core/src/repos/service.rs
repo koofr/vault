@@ -8,7 +8,7 @@ use crate::{
     remote::{self, models},
     remote_files::RemoteFilesService,
     runtime,
-    secure_storage::{errors::SecureStorageError, SecureStorageService},
+    secure_storage::{SecureStorageService, errors::SecureStorageError},
     store,
     types::{DecryptedName, MountId, RemoteName, RemotePath, RepoId},
     utils::remote_path_utils,

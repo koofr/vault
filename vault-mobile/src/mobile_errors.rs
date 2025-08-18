@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use vault_core::{user_error::UserError, Vault};
+use vault_core::{Vault, user_error::UserError};
 
 pub struct MobileErrors {
     vault: Arc<Vault>,

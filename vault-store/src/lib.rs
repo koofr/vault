@@ -17,6 +17,6 @@ pub use self::{
     notify::Notify,
     remove_listener::RemoveListener,
     store::{OnMutationCallback, Store},
-    subscription::{update_if, Subscription},
+    subscription::{Subscription, update_if},
     wait::wait_for,
 };

@@ -1,7 +1,7 @@
 use futures::{
+    AsyncRead,
     stream::AbortHandle,
     task::{Context, Poll},
-    AsyncRead,
 };
 use pin_project_lite::pin_project;
 use std::{io::Result, pin::Pin};

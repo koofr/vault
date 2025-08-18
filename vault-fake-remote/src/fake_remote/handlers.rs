@@ -1,14 +1,14 @@
 use std::{collections::HashMap, ops::RangeInclusive};
 
 use axum::{
+    Form, Json,
     body::StreamBody,
     extract::{BodyStream, Path, Query},
     http::StatusCode,
     response::{IntoResponse, Response},
-    Form, Json,
 };
 use futures::TryStreamExt;
-use http::{header, HeaderMap, HeaderName, HeaderValue};
+use http::{HeaderMap, HeaderName, HeaderValue, header};
 use serde::{Deserialize, Serialize};
 use urlencoding::encode;
 use vault_core::{
@@ -589,7 +589,7 @@ pub async fn content_files_get(
                 ApiErrorCode::Other,
                 "Invalid range".into(),
                 Some([(header::CONTENT_RANGE, format!("bytes */{}", file_size))].into()),
-            ))
+            ));
         }
         None => None,
     };

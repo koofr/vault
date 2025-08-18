@@ -1,12 +1,12 @@
 use std::{collections::HashMap, sync::Arc};
 
 use futures::{
-    channel::mpsc, io::BufReader, AsyncWrite, FutureExt, SinkExt, StreamExt, TryStreamExt,
+    AsyncWrite, FutureExt, SinkExt, StreamExt, TryStreamExt, channel::mpsc, io::BufReader,
 };
 use vault_crypto::data_cipher::decrypt_size;
 
 use crate::{
-    cipher::{errors::DecryptSizeError, Cipher},
+    cipher::{Cipher, errors::DecryptSizeError},
     common::state::{BoxAsyncRead, SizeInfo},
     remote_files::RemoteFilesService,
     repo_files::{
@@ -14,7 +14,7 @@ use crate::{
         state::{RepoFile, RepoFileType},
     },
     repo_files_list::{
-        errors::GetListRecursiveError, state::RepoFilesListRecursiveItem, RepoFilesListService,
+        RepoFilesListService, errors::GetListRecursiveError, state::RepoFilesListRecursiveItem,
     },
     repo_files_tags::RepoFilesTagsService,
     repos::ReposService,
@@ -311,8 +311,7 @@ impl RepoFilesReadService {
                     for mut item in &mut items {
                         match &mut item {
                             RepoFilesListRecursiveItem::File {
-                                relative_repo_path,
-                                ..
+                                relative_repo_path, ..
                             } => match relative_repo_path {
                                 Ok(relative_repo_path) => {
                                     *relative_repo_path = repo_path_utils::join_paths(

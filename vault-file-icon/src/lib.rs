@@ -7,4 +7,4 @@ pub use file_icon::{
 };
 
 #[cfg(feature = "render")]
-pub use render::{render_png, RenderPngError};
+pub use render::{RenderPngError, render_png};

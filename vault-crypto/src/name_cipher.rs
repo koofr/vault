@@ -1,6 +1,6 @@
 use aes::Aes256;
 use data_encoding::BASE32HEX_NOPAD;
-use eme_mode::{block_modes::BlockMode, block_padding::Pkcs7, Eme};
+use eme_mode::{Eme, block_modes::BlockMode, block_padding::Pkcs7};
 
 use super::{constants::NAME_CIPHER_BLOCK_SIZE, errors::DecryptFilenameError};
 

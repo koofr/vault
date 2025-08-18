@@ -1,6 +1,6 @@
 use std::{pin::Pin, sync::Arc};
 
-use futures::{lock::Mutex, Sink, SinkExt, StreamExt};
+use futures::{Sink, SinkExt, StreamExt, lock::Mutex};
 use tokio_tungstenite::{
     connect_async_tls_with_config,
     tungstenite::{Error, Message},

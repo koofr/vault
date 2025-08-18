@@ -12,7 +12,7 @@ use crate::{
         state::{MountOrigin, MountType, RemoteFile, RemoteFileExtType, RemoteFileType},
     },
     store,
-    types::{RemoteFileId, RemoteNameLower, REMOTE_PATH_LOWER_ROOT},
+    types::{REMOTE_PATH_LOWER_ROOT, RemoteFileId, RemoteNameLower},
 };
 
 use super::state::Options;

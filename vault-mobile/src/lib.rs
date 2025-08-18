@@ -10,7 +10,7 @@ pub mod stream_uploadable;
 pub mod upload_stream_reader;
 
 use std::{
-    collections::{hash_map, HashMap},
+    collections::{HashMap, hash_map},
     fmt::Debug,
     future::Future,
     path::PathBuf,
@@ -22,6 +22,7 @@ use lazy_static::lazy_static;
 use thiserror::Error;
 
 use vault_core::{
+    Vault,
     common::state as common_state,
     dialogs::state as dialogs_state,
     files::{self, file_category, files_filter},
@@ -55,7 +56,6 @@ use vault_core::{
     },
     user::state as user_state,
     user_error::UserError,
-    Vault,
 };
 use vault_native::{
     native_runtime::now,
@@ -1897,9 +1897,9 @@ impl MobileVault {
         callback: Box<dyn SubscriptionCallback>,
         subscription_data: Arc<Mutex<HashMap<u32, T>>>,
         generate_data: impl Fn(Arc<vault_core::Vault>, hash_map::Entry<'_, u32, T>) -> bool
-            + Send
-            + Sync
-            + 'static,
+        + Send
+        + Sync
+        + 'static,
     ) -> u32 {
         self.subscription
             .subscribe_changed(events, callback, subscription_data, generate_data)

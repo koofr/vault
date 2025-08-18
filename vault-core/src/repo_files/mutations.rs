@@ -4,8 +4,8 @@ use vault_crypto::data_cipher::decrypt_size;
 
 use crate::{
     cipher::{
-        errors::{DecryptFilenameError, DecryptSizeError},
         Cipher,
+        errors::{DecryptFilenameError, DecryptSizeError},
     },
     files::file_category::FileCategory,
     remote_files::{
@@ -15,8 +15,8 @@ use crate::{
     repo_files_tags::mutations::decrypt_tags,
     repos, store,
     types::{
-        DecryptedName, DecryptedPath, EncryptedName, EncryptedPath, MountId, RemotePath,
-        RemotePathLower, RepoFileId, RepoId, ENCRYPTED_PATH_ROOT,
+        DecryptedName, DecryptedPath, ENCRYPTED_PATH_ROOT, EncryptedName, EncryptedPath, MountId,
+        RemotePath, RemotePathLower, RepoFileId, RepoId,
     },
     utils::{path_utils, remote_path_utils, repo_path_utils},
 };

@@ -3,8 +3,8 @@ use std::{
     hash::Hash,
     rc::Rc,
     sync::{
-        atomic::{AtomicUsize, Ordering},
         Arc, Mutex,
+        atomic::{AtomicUsize, Ordering},
     },
 };
 

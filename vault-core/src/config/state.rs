@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use crate::{
-    locale::{get_locale, BoxLocale},
+    locale::{BoxLocale, get_locale},
     repos::state::{RepoAutoLock, RepoAutoLockAfter},
 };
 

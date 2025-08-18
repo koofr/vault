@@ -10,7 +10,7 @@ use vault_core::{
 use super::{
     context::Context,
     errors::{ApiErrorCode, FakeRemoteError},
-    files::{self, service::FilesService, Path},
+    files::{self, Path, service::FilesService},
     state::FakeRemoteState,
     utils::now_ms,
 };
@@ -67,7 +67,7 @@ impl VaultReposCreateService {
                     ApiErrorCode::VaultReposLocationNotFound,
                     "Vault repo location not found.".into(),
                     None,
-                ))
+                ));
             }
             Err(err) => return Err(err),
         }

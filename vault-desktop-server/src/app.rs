@@ -1,8 +1,8 @@
 use std::{net::SocketAddr, sync::Arc};
 
 use axum::{
-    http::{header::CONTENT_TYPE, Method},
     Router, ServiceExt,
+    http::{Method, header::CONTENT_TYPE},
 };
 use tower::Layer;
 use tower_http::cors::{Any, CorsLayer};
@@ -13,7 +13,7 @@ use crate::{
     encryption::Encryption,
     file_handlers::FileHandlers,
     handlers::register_routes,
-    request_encryption::{encryption_middleware, EncryptionMiddlewareState},
+    request_encryption::{EncryptionMiddlewareState, encryption_middleware},
     sessions::Sessions,
 };
 

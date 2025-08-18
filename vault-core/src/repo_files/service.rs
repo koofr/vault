@@ -4,9 +4,9 @@ use std::{
 };
 
 use futures::{
+    FutureExt,
     future::{BoxFuture, Shared},
     io::Cursor,
-    FutureExt,
 };
 use vault_crypto::data_cipher::encrypted_size;
 
@@ -16,12 +16,12 @@ use crate::{
     dialogs, remote,
     remote_files::RemoteFilesService,
     repo_files_read::{
-        errors::GetFilesReaderError, state::RepoFileReaderProvider, RepoFilesReadService,
+        RepoFilesReadService, errors::GetFilesReaderError, state::RepoFileReaderProvider,
     },
     repo_files_tags::RepoFilesTagsService,
     repos::{
-        errors::{GetCipherError, RepoNotFoundError},
         ReposService,
+        errors::{GetCipherError, RepoNotFoundError},
     },
     store,
     types::{

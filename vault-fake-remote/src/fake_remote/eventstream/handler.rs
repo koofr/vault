@@ -9,8 +9,8 @@ use axum::{
     response::Response,
 };
 use futures::{
-    stream::{SplitSink, SplitStream},
     SinkExt, StreamExt,
+    stream::{SplitSink, SplitStream},
 };
 use http::StatusCode;
 use tokio::sync::mpsc;
@@ -18,8 +18,8 @@ use tokio::sync::mpsc;
 use crate::fake_remote::{
     errors::{ApiErrorCode, FakeRemoteError},
     extract::{
-        get_authorization_access_token, get_user_id_by_access_token, ExtractEventstreamListeners,
-        ExtractState,
+        ExtractEventstreamListeners, ExtractState, get_authorization_access_token,
+        get_user_id_by_access_token,
     },
     files::Path,
     state::FakeRemoteState,

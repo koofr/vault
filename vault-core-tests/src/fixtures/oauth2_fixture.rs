@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
 use vault_core::{
+    Vault,
     common::state::Status,
     oauth2::{self, errors::OAuth2Error},
-    Vault,
 };
 
 use crate::fake_remote::FakeRemote;

@@ -1,9 +1,9 @@
 use std::{sync::Arc, task::Poll};
 
 use async_trait::async_trait;
-use futures::{stream::poll_fn, Future, Stream, StreamExt};
-use http::{header::HeaderName, HeaderMap};
-use wasm_bindgen::{prelude::*, JsCast};
+use futures::{Future, Stream, StreamExt, stream::poll_fn};
+use http::{HeaderMap, header::HeaderName};
+use wasm_bindgen::{JsCast, prelude::*};
 use wasm_bindgen_futures::JsFuture;
 use wasm_streams::ReadableStream;
 use web_sys::{AbortController, AbortSignal, Request, RequestInit, Response};

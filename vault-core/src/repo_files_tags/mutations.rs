@@ -38,7 +38,7 @@ pub fn decrypt_tags(
             return Some(Err(DecryptTagsError::EncryptedHashMismatch {
                 expected_encrypted_hash: tags_encrypted_hash_hex,
                 encrypted_hash: None,
-            }))
+            }));
         }
     }
 

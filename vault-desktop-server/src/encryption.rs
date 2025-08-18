@@ -2,10 +2,10 @@ use rand_core::{OsRng, RngCore};
 use thiserror::Error;
 
 use vault_crypto::{
-    constants::{DATA_KEY_LEN, FILE_NONCE_SIZE},
-    data_cipher::{decrypt_block, encrypt_block, get_data_cipher, XSalsa20Poly1305},
-    nonce::Nonce,
     CipherError,
+    constants::{DATA_KEY_LEN, FILE_NONCE_SIZE},
+    data_cipher::{XSalsa20Poly1305, decrypt_block, encrypt_block, get_data_cipher},
+    nonce::Nonce,
 };
 
 #[derive(Error, Debug, Clone)]

@@ -1,13 +1,13 @@
 use std::sync::{Arc, Mutex};
 
 use futures::{
+    FutureExt,
     channel::oneshot,
     future::{self, BoxFuture},
-    FutureExt,
 };
 use vault_core_tests::fixtures::fake_remote_fixture::FakeRemoteFixture;
 use vault_mobile::{
-    memory_secure_storage::MemorySecureStorage, MobileVault, Status, SubscriptionCallback,
+    MobileVault, Status, SubscriptionCallback, memory_secure_storage::MemorySecureStorage,
 };
 
 pub struct MobileVaultFixture {

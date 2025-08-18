@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-use futures::{channel::oneshot, future::BoxFuture, FutureExt};
+use futures::{FutureExt, channel::oneshot, future::BoxFuture};
 use vault_core_tests::fake_remote::FakeRemote;
 use vault_crypto::Cipher;
 use vault_mobile::{

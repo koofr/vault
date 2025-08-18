@@ -1,8 +1,7 @@
 use core::mem;
 use futures::{
-    ready,
+    AsyncRead, ready,
     task::{Context, Poll},
-    AsyncRead,
 };
 use pin_project_lite::pin_project;
 use std::{
@@ -14,10 +13,10 @@ use std::{
 use xsalsa20poly1305::XSalsa20Poly1305;
 
 use super::{
+    CipherError,
     constants::{BLOCK_HEADER_SIZE, BLOCK_SIZE, FILE_MAGIC, FILE_MAGIC_SIZE, FILE_NONCE_SIZE},
     data_cipher::decrypt_block,
     nonce::Nonce,
-    CipherError,
 };
 
 #[derive(Debug)]
@@ -285,7 +284,7 @@ impl<R: AsyncRead> AsyncRead for AsyncDecryptReader<R> {
 mod tests {
     use std::{io::Result, sync::Arc, task::Poll};
 
-    use futures::{channel::mpsc, stream::TryStreamExt, AsyncRead};
+    use futures::{AsyncRead, channel::mpsc, stream::TryStreamExt};
     use xsalsa20poly1305::XSalsa20Poly1305;
 
     use crate::{

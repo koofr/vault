@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
-use futures::{future, StreamExt};
+use futures::{StreamExt, future};
 
 use crate::{
-    remote::{models::FilesListRecursiveItem, RemoteError},
+    remote::{RemoteError, models::FilesListRecursiveItem},
     remote_files::RemoteFilesService,
     store,
     types::RepoId,

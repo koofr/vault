@@ -25,7 +25,7 @@ impl FileSecureStorage {
         let data_json = match fs::read_to_string(path) {
             Ok(data_json) => data_json,
             Err(err) if matches!(err.kind(), std::io::ErrorKind::NotFound) => {
-                return Ok(HashMap::new())
+                return Ok(HashMap::new());
             }
             Err(err) => return Err(err.to_string())?,
         };

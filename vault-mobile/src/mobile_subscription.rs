@@ -1,9 +1,9 @@
 use std::{
-    collections::{hash_map, HashMap},
+    collections::{HashMap, hash_map},
     sync::{Arc, Mutex},
 };
 
-use vault_core::{store::Subscription, Vault};
+use vault_core::{Vault, store::Subscription};
 
 use crate::SubscriptionCallback;
 
@@ -43,9 +43,9 @@ impl MobileSubscription {
         callback: Box<dyn SubscriptionCallback>,
         subscription_data: Arc<Mutex<HashMap<u32, T>>>,
         generate_data: impl Fn(Arc<vault_core::Vault>, hash_map::Entry<'_, u32, T>) -> bool
-            + Send
-            + Sync
-            + 'static,
+        + Send
+        + Sync
+        + 'static,
     ) -> u32 {
         let callback = Box::new(move || callback.on_change());
         let vault = self.vault.clone();

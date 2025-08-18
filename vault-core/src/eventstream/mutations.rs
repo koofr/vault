@@ -6,9 +6,8 @@ use crate::{
 };
 
 use super::{
-    selectors,
+    Event, Request, selectors,
     state::{ConnectionState, MountListener, MountListenerState, MountSubscription},
-    Event, Request,
 };
 
 pub fn connect(state: &mut store::State, notify: &store::Notify) -> bool {
@@ -241,7 +240,9 @@ pub fn deregister_mount(
                         mutation_state
                             .eventstream
                             .requests
-                            .push(Request::Deregister { listener_id: *listener_id });
+                            .push(Request::Deregister {
+                                listener_id: *listener_id,
+                            });
                     }
                     MountListenerState::Registering { canceled } => {
                         notify(store::Event::Eventstream);

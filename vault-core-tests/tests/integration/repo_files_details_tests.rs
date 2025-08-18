@@ -1,8 +1,8 @@
 use std::{
     future,
     sync::{
-        atomic::{AtomicUsize, Ordering},
         Arc,
+        atomic::{AtomicUsize, Ordering},
     },
     time::Duration,
 };
@@ -40,7 +40,7 @@ use vault_core_tests::{
     },
 };
 use vault_fake_remote::fake_remote::interceptor::InterceptorResult;
-use vault_store::{test_helpers::StateRecorder, NextId};
+use vault_store::{NextId, test_helpers::StateRecorder};
 
 #[test]
 fn test_content() {

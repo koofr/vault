@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-use futures::{join, FutureExt};
+use futures::{FutureExt, join};
 use similar_asserts::assert_eq;
 use vault_core::{
-    remote::{remote::RemoteFileTagsSetConditions, RemoteFileMoveConditions},
+    remote::{RemoteFileMoveConditions, remote::RemoteFileTagsSetConditions},
     store,
     types::RemotePath,
 };
@@ -57,21 +57,31 @@ fn test_file_moved() {
             let state = get_state();
 
             assert!(state.files.contains_key(&fixture.get_remote_file_id("/")));
-            assert!(state
-                .files
-                .contains_key(&fixture.get_remote_file_id("/dir1")));
-            assert!(state
-                .files
-                .contains_key(&fixture.get_remote_file_id("/dir1/dir12")));
-            assert!(state
-                .files
-                .contains_key(&fixture.get_remote_file_id("/dir1/dir12/file121.txt")));
-            assert!(state
-                .files
-                .contains_key(&fixture.get_remote_file_id("/dir2")));
-            assert!(!state
-                .files
-                .contains_key(&fixture.get_remote_file_id("/dir2/dir22")));
+            assert!(
+                state
+                    .files
+                    .contains_key(&fixture.get_remote_file_id("/dir1"))
+            );
+            assert!(
+                state
+                    .files
+                    .contains_key(&fixture.get_remote_file_id("/dir1/dir12"))
+            );
+            assert!(
+                state
+                    .files
+                    .contains_key(&fixture.get_remote_file_id("/dir1/dir12/file121.txt"))
+            );
+            assert!(
+                state
+                    .files
+                    .contains_key(&fixture.get_remote_file_id("/dir2"))
+            );
+            assert!(
+                !state
+                    .files
+                    .contains_key(&fixture.get_remote_file_id("/dir2/dir22"))
+            );
 
             let eventstream_subscription = eventstream_subscribe(
                 fixture.vault.store.clone(),
@@ -110,30 +120,46 @@ fn test_file_moved() {
             let state = get_state();
 
             assert!(state.files.contains_key(&fixture.get_remote_file_id("/")));
-            assert!(!state
-                .files
-                .contains_key(&fixture.get_remote_file_id("/dir1")));
-            assert!(!state
-                .files
-                .contains_key(&fixture.get_remote_file_id("/dir1/dir12")));
-            assert!(!state
-                .files
-                .contains_key(&fixture.get_remote_file_id("/dir1/dir12/file121.txt")));
-            assert!(state
-                .files
-                .contains_key(&fixture.get_remote_file_id("/dir2")));
-            assert!(state
-                .files
-                .contains_key(&fixture.get_remote_file_id("/dir2/dir22")));
-            assert!(state
-                .files
-                .contains_key(&fixture.get_remote_file_id("/dir2/dir22/dir222")));
-            assert!(state
-                .files
-                .contains_key(&fixture.get_remote_file_id("/dir2/dir22/dir222/dir12")));
-            assert!(state
-                .files
-                .contains_key(&fixture.get_remote_file_id("/dir2/dir22/dir222/dir12/file121.txt")));
+            assert!(
+                !state
+                    .files
+                    .contains_key(&fixture.get_remote_file_id("/dir1"))
+            );
+            assert!(
+                !state
+                    .files
+                    .contains_key(&fixture.get_remote_file_id("/dir1/dir12"))
+            );
+            assert!(
+                !state
+                    .files
+                    .contains_key(&fixture.get_remote_file_id("/dir1/dir12/file121.txt"))
+            );
+            assert!(
+                state
+                    .files
+                    .contains_key(&fixture.get_remote_file_id("/dir2"))
+            );
+            assert!(
+                state
+                    .files
+                    .contains_key(&fixture.get_remote_file_id("/dir2/dir22"))
+            );
+            assert!(
+                state
+                    .files
+                    .contains_key(&fixture.get_remote_file_id("/dir2/dir22/dir222"))
+            );
+            assert!(
+                state
+                    .files
+                    .contains_key(&fixture.get_remote_file_id("/dir2/dir22/dir222/dir12"))
+            );
+            assert!(
+                state.files.contains_key(
+                    &fixture.get_remote_file_id("/dir2/dir22/dir222/dir12/file121.txt")
+                )
+            );
         }
         .boxed()
     });
@@ -167,12 +193,14 @@ fn test_set_tags() {
 
             let state = get_state();
 
-            assert!(state
-                .files
-                .get(&fixture.get_remote_file_id("/file.txt"))
-                .unwrap()
-                .tags
-                .is_empty());
+            assert!(
+                state
+                    .files
+                    .get(&fixture.get_remote_file_id("/file.txt"))
+                    .unwrap()
+                    .tags
+                    .is_empty()
+            );
 
             let eventstream_subscription = eventstream_subscribe(
                 fixture.vault.store.clone(),

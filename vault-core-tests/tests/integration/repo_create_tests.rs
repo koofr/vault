@@ -18,7 +18,7 @@ use vault_core_tests::{
     fixtures::user_fixture::UserFixture,
     helpers::{with_repo, with_user},
 };
-use vault_store::{test_helpers::StateRecorder, NextId};
+use vault_store::{NextId, test_helpers::StateRecorder};
 
 #[test]
 fn test_create() {

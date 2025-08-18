@@ -1,4 +1,4 @@
-use scrypt::{scrypt, ScryptParams};
+use scrypt::{ScryptParams, scrypt};
 
 use super::constants::{DATA_KEY_LEN, DEFAULT_SALT, KEY_LEN, NAME_CIPHER_BLOCK_SIZE, NAME_KEY_LEN};
 
@@ -25,7 +25,7 @@ pub fn derive_keys(password: &str, salt: Option<&str>) -> DerivedKeys {
                 name_tweak: [
                     65, 118, 9, 95, 187, 173, 125, 201, 140, 51, 253, 117, 149, 91, 75, 41,
                 ],
-            }
+            };
         }
         _ => {}
     }

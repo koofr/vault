@@ -1,13 +1,13 @@
 use std::{
-    collections::{hash_map, HashMap},
+    collections::{HashMap, hash_map},
     sync::{Arc, Mutex},
     time::Duration,
 };
 
-use futures::{future::BoxFuture, FutureExt};
+use futures::{FutureExt, future::BoxFuture};
 
 use vault_core::{
-    common, dialogs,
+    Vault, common, dialogs,
     dir_pickers::state::DirPickerItemId,
     files, notifications, oauth2, remote_files, repo_config_backup, repo_create, repo_files,
     repo_files_browsers, repo_files_details, repo_files_move, repo_remove, repo_space_usage,
@@ -17,7 +17,6 @@ use vault_core::{
     types::{DecryptedName, EncryptedPath, RepoFileId, RepoId, TimeMillis},
     user_error,
     user_error::UserError,
-    Vault,
 };
 
 use crate::{dto, web_errors::WebErrors};

@@ -1,21 +1,21 @@
 use std::sync::Arc;
 
 use futures::{
-    future::{self, BoxFuture},
     FutureExt,
+    future::{self, BoxFuture},
 };
 
 use crate::{
     repo_files::{
+        RepoFilesService,
         errors::{
             CreateDirError, CreateFileError, DeleteFileError, LoadFilesError, RepoFilesErrors,
         },
         state::{RepoFile, RepoFilesSortField},
-        RepoFilesService,
     },
-    repo_files_move::{errors::ShowError, state::RepoFilesMoveMode, RepoFilesMoveService},
+    repo_files_move::{RepoFilesMoveService, errors::ShowError, state::RepoFilesMoveMode},
     repo_files_read::{
-        errors::GetFilesReaderError, state::RepoFileReaderProvider, RepoFilesReadService,
+        RepoFilesReadService, errors::GetFilesReaderError, state::RepoFileReaderProvider,
     },
     runtime::runtime,
     sort::state::SortDirection,

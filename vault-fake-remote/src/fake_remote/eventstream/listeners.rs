@@ -8,9 +8,9 @@ use tokio::sync::mpsc;
 use crate::fake_remote::files::Path;
 
 use super::{
+    Event, Message,
     event::{event_relative_to, event_subject_id},
     subject::Subject,
-    Event, Message,
 };
 
 #[derive(Debug, Clone)]
@@ -111,15 +111,14 @@ impl Listeners {
 
         for listener_id in listener_ids {
             if let Some(subject_id) = state.listeners_to_subjects.remove(&listener_id) {
-                let is_empty = if let Some(listeners) =
-                    state.listeners_by_subjects.get_mut(&subject_id)
-                {
-                    listeners.remove(&listener_id);
+                let is_empty =
+                    if let Some(listeners) = state.listeners_by_subjects.get_mut(&subject_id) {
+                        listeners.remove(&listener_id);
 
-                    listeners.is_empty()
-                } else {
-                    false
-                };
+                        listeners.is_empty()
+                    } else {
+                        false
+                    };
 
                 if is_empty {
                     state.listeners_by_subjects.remove(&subject_id);

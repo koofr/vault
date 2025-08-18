@@ -6,7 +6,7 @@ use std::{
 use xsalsa20poly1305::XSalsa20Poly1305;
 
 use super::{
-    cipher_keys::{derive_keys, DerivedKeys},
+    cipher_keys::{DerivedKeys, derive_keys},
     constants::{DATA_KEY_LEN, NAME_CIPHER_BLOCK_SIZE, NAME_KEY_LEN},
     data_cipher::get_data_cipher,
     decrypt_reader::{AsyncDecryptReader, SyncDecryptReader},
@@ -136,11 +136,15 @@ mod tests {
             "hvrag3t30d3av1c31lp7j7klq95j12ru932ujf4hmaf6b4h2f2ooro1gnprne2itnibamt67h7j5a2bn1c0gkqni2n4pb17937rg22g"
         );
         assert_eq!(
-            cipher.encrypt_filename("testfilenametestfilenametestfilenametestfilenametestfilename".into()),
+            cipher.encrypt_filename(
+                "testfilenametestfilenametestfilenametestfilenametestfilename".into()
+            ),
             "013kcoiml8e3017c34132bdri58a77qea5i5f56npucna727c9tttepfe468e1aj1dmr0aqmn6rtbe2e3j8cgt7qr2rpfrpr4p12vj8"
         );
         assert_eq!(
-            cipher.encrypt_filename("testfilenametestfilenametestfilenametestfilenametestfilenametestfilename".into()),
+            cipher.encrypt_filename(
+                "testfilenametestfilenametestfilenametestfilenametestfilenametestfilename".into()
+            ),
             "shcqqn35vr6ehsn5dqft11fpmr7em9krg0hvlbts0a5jb1nok9pc706c5jrjt0kug67oto6rt2o7bpqidtddvj16p2js37cgautb0856f7cnk6b4jluu3rvii0q4s87e"
         );
         assert_eq!(

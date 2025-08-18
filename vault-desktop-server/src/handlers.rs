@@ -1,18 +1,18 @@
 use std::{path::PathBuf, sync::Arc, time::Duration};
 
 use axum::{
+    Json, Router,
     body::Body,
     extract::{Query, State},
     http::{
-        header::{self, CONTENT_TYPE},
         StatusCode,
+        header::{self, CONTENT_TYPE},
     },
-    response::{sse::Event, IntoResponse, Response, Sse},
+    response::{IntoResponse, Response, Sse, sse::Event},
     routing::{get, post},
-    Json, Router,
 };
 use data_encoding::BASE64;
-use futures::{future::BoxFuture, FutureExt, Stream, StreamExt};
+use futures::{FutureExt, Stream, StreamExt, future::BoxFuture};
 use serde::Deserialize;
 use thiserror::Error;
 

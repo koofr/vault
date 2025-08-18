@@ -1,9 +1,8 @@
 use axum::{
-    middleware,
+    Router, middleware,
     routing::{delete, get, post, put},
-    Router,
 };
-use http::{header, Method};
+use http::{Method, header};
 use tower::ServiceBuilder;
 use tower_http::cors;
 

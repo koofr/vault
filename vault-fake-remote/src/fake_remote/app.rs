@@ -3,6 +3,7 @@ use std::{net::SocketAddr, sync::Arc};
 use futures::FutureExt;
 
 use super::{
+    CERT_PEM, KEY_PEM,
     app_state::AppState,
     context::Context,
     debug_interceptor::get_debug_interceptor,
@@ -10,7 +11,6 @@ use super::{
     files::objects::object_provider::BoxObjectProvider,
     router::build_router,
     server::{FakeRemoteServer, FakeRemoteServerListener},
-    CERT_PEM, KEY_PEM,
 };
 
 #[derive(Debug, Clone)]

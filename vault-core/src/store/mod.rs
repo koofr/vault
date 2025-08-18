@@ -8,7 +8,7 @@ use std::sync::Arc;
 
 use futures::future::BoxFuture;
 
-pub use vault_store::{update_if, AddSideEffect, NextId, SideEffect};
+pub use vault_store::{AddSideEffect, NextId, SideEffect, update_if};
 
 pub use self::{
     event::Event, mutation_event::MutationEvent, mutation_state::MutationState, state::State,

@@ -2,7 +2,7 @@ use crate::{
     remote_files::state::{RemoteFile, RemoteFilesLocation},
     remote_files_dir_pickers::selectors as remote_files_dir_pickers_selectors,
     store,
-    types::{RemotePath, REMOTE_PATH_LOWER_ROOT},
+    types::{REMOTE_PATH_LOWER_ROOT, RemotePath},
 };
 
 use super::state::{RepoCreate, RepoCreateForm};

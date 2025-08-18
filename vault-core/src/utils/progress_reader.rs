@@ -1,7 +1,6 @@
 use futures::{
-    ready,
+    AsyncRead, ready,
     task::{Context, Poll},
-    AsyncRead,
 };
 use pin_project_lite::pin_project;
 use std::{io::Result, pin::Pin};

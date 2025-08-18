@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-use futures::{io::Cursor, FutureExt};
+use futures::{FutureExt, io::Cursor};
 use similar_asserts::assert_eq;
 use vault_core::{
-    remote::{models, remote::RemoteFileTagsSetConditions, RemoteFileUploadConflictResolution},
+    remote::{RemoteFileUploadConflictResolution, models, remote::RemoteFileTagsSetConditions},
     remote_files, repo_files,
     repo_files_tags::{self, errors::DecryptTagsError, state::RepoFileTags},
     types::{DecryptedName, EncryptedPath, RemoteName},

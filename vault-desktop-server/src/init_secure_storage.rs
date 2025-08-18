@@ -2,7 +2,7 @@ use vault_core::secure_storage::{MemorySecureStorage, SecureStorage};
 
 use crate::{
     data_path::get_data_path,
-    file_secure_storage::{get_file_secure_storage_path, FileSecureStorage},
+    file_secure_storage::{FileSecureStorage, get_file_secure_storage_path},
     keyring_secure_storage::KeyringSecureStorage,
 };
 

@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc, time::Duration};
 
 use crate::{
-    cipher::{errors::DecryptFilenameError, Cipher},
+    cipher::{Cipher, errors::DecryptFilenameError},
     common::state::Status,
     eventstream::state::MountSubscription,
     files::{file_category::FileCategory, files_filter::FilesFilter},

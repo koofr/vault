@@ -3,8 +3,8 @@ use std::sync::Arc;
 use crate::{
     dir_pickers::{selectors as dir_pickers_selectors, state::DirPickerItemId},
     repo_files::{
-        errors::{CreateDirError, MoveFileError, RepoFilesErrors},
         RepoFilesService,
+        errors::{CreateDirError, MoveFileError, RepoFilesErrors},
     },
     repo_files_dir_pickers::RepoFilesDirPickersService,
     store,

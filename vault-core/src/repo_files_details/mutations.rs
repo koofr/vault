@@ -594,7 +594,7 @@ pub fn set_content(
     if let Some(data) = &mut location.content.data {
         match &mut data.bytes {
             RepoFilesDetailsContentDataBytes::Encrypted(_) => {
-                return Err(SetContentError::RepoLocked(RepoLockedError))
+                return Err(SetContentError::RepoLocked(RepoLockedError));
             }
             RepoFilesDetailsContentDataBytes::Decrypted(bytes, _) => {
                 if bytes != &content {

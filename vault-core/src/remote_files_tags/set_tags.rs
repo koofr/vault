@@ -40,14 +40,21 @@ pub fn set_tags(
                 match old_values {
                     Some(old_values) => {
                         if old_values.len() != if_values.len() {
-                            return Err(format!("Set tags if old tags number of old tags does not match the expected tags: {} != {}", old_values.len(), if_values.len()));
+                            return Err(format!(
+                                "Set tags if old tags number of old tags does not match the expected tags: {} != {}",
+                                old_values.len(),
+                                if_values.len()
+                            ));
                         }
 
                         let old_values_set = old_values.iter().collect::<HashSet<_>>();
 
                         for if_value in if_values {
                             if !old_values_set.contains(if_value) {
-                                return Err(format!("Set tags if old tags old value does not match the new value: {}", if_key));
+                                return Err(format!(
+                                    "Set tags if old tags old value does not match the new value: {}",
+                                    if_key
+                                ));
                             }
                         }
                     }
@@ -55,7 +62,7 @@ pub fn set_tags(
                         return Err(format!(
                             "Set tags if old tags expected non-empty tags for key: {}",
                             if_key
-                        ))
+                        ));
                     }
                 }
             }

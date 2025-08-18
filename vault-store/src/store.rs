@@ -9,8 +9,8 @@ use std::{
 use crate::event_emitter::OnCallback;
 
 use super::{
-    event_emitter::EventEmitter, mutation_event_emitter::MutationEventEmitter, next_id::NextId,
-    MutationNotify, Notify,
+    MutationNotify, Notify, event_emitter::EventEmitter,
+    mutation_event_emitter::MutationEventEmitter, next_id::NextId,
 };
 
 pub type OnMutationCallback<State, Event, MutationState, MutationEvent> = Box<

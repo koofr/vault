@@ -1,16 +1,17 @@
 use std::sync::Arc;
 
 use futures::{
+    FutureExt,
     future::{self, BoxFuture},
-    join, FutureExt,
+    join,
 };
 
 use crate::{
     remote,
     remote_files::{
+        RemoteFilesService,
         errors::{CreateDirError, RemoteFilesErrors},
         state::RemoteFilesSortField,
-        RemoteFilesService,
     },
     sort::state::SortDirection,
     store,

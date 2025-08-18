@@ -9,7 +9,7 @@ use urlencoding::encode;
 use crate::{
     cipher::Cipher,
     common::state::Status,
-    remote::{models, RemoteError},
+    remote::{RemoteError, models},
     remote_files::selectors as remote_files_selectors,
     store,
     types::{DecryptedName, RepoId, TimeMillis},

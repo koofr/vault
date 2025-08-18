@@ -1,4 +1,4 @@
-use futures::{join, FutureExt};
+use futures::{FutureExt, join};
 use similar_asserts::assert_eq;
 use vault_core::{
     common::state::Status,
@@ -24,7 +24,7 @@ use vault_core_tests::{
     fixtures::repo_fixture::RepoFixture,
     helpers::{eventstream::eventstream_wait_registered, with_repo, with_user},
 };
-use vault_store::{test_helpers::StateRecorder, NextId};
+use vault_store::{NextId, test_helpers::StateRecorder};
 
 #[test]
 fn test_repo_not_loaded() {
