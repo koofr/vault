@@ -8,15 +8,15 @@ https://vault.koofr.net
 
 Koofr Vault is an open-source, client-side encrypted folder for your Koofr cloud storage offering an extra layer of security for your most sensitive files. The encryption is compatible with [rclone](https://rclone.org/).
 
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+[<img src="vault-web/src/assets/images/apps/f-droid@2x.png"
      alt="Get it on F-Droid"
-     height="80">](https://f-droid.org/packages/net.koofr.vault/)
-[<img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png"
+     height="50">](https://f-droid.org/packages/net.koofr.vault/)
+[<img src="vault-web/src/assets/images/apps/app-store@2x.png"
      alt="Get it on the App Store"
-     height="60">](https://apps.apple.com/app/koofr-vault/id6468869124)
-[<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
+     height="50">](https://apps.apple.com/app/koofr-vault/id6468869124)
+[<img src="vault-web/src/assets/images/apps/google-play@2x.png"
      alt="Get it on Google Play"
-     height="80">](https://play.google.com/store/apps/details?id=net.koofr.vault)
+     height="50">](https://play.google.com/store/apps/details?id=net.koofr.vault)
 
 ## Tech stack
 
