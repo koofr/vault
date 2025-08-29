@@ -308,9 +308,7 @@ impl ReposService {
         &self,
         repo_id: &RepoId,
         password: &str,
-    ) -> Result<RepoConfig, UnlockRepoError> {
-        self.unlock_repo(repo_id, password, RepoUnlockMode::Verify)?;
-
+    ) -> Result<RepoConfig, RepoNotFoundError> {
         self.store.with_state(|state| {
             let repo = selectors::select_repo(state, repo_id)?;
 
@@ -329,7 +327,6 @@ impl ReposService {
         RepoConfig {
             name: repo.name.clone(),
             location: repo.get_location(),
-            password: password.to_owned(),
             salt: repo.salt.clone(),
             rclone_config,
         }

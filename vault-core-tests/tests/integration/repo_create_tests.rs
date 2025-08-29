@@ -501,7 +501,6 @@ fn expected_create_created(
                 mount_id: fixture.mount_id.clone(),
                 path: RemotePath("/My safe box".into()),
             },
-            password: "password".into(),
             salt: state_created.config.salt.clone(),
             rclone_config: state_created.config.rclone_config.clone(),
         },

@@ -63,10 +63,6 @@ fun RepoConfigInfo(config: RepoConfig, onSave: () -> Unit) {
             normal("true")
             normal("\n\n")
 
-            bold("Safe Key (password): ")
-            normal(config.password)
-            normal("\n\n")
-
             bold("Salt (password2): ")
             normal(config.salt ?: "")
             normal("\n\n")

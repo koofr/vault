@@ -9,9 +9,8 @@ use futures::{FutureExt, future::BoxFuture};
 use vault_core::{
     Vault, common, dialogs,
     dir_pickers::state::DirPickerItemId,
-    files, notifications, oauth2, remote_files, repo_config_backup, repo_create, repo_files,
-    repo_files_browsers, repo_files_details, repo_files_move, repo_remove, repo_space_usage,
-    repo_unlock, repos,
+    files, notifications, oauth2, remote_files, repo_create, repo_files, repo_files_browsers,
+    repo_files_details, repo_files_move, repo_remove, repo_space_usage, repo_unlock, repos,
     store::{self, Event, Subscription},
     transfers,
     types::{DecryptedName, EncryptedPath, RepoFileId, RepoId, TimeMillis},
@@ -38,7 +37,6 @@ pub struct SubscriptionData {
     pub repo_create_info: Data<Option<dto::RepoCreateInfo>>,
     pub repo_unlock_info: Data<Option<dto::RepoUnlockInfo>>,
     pub repo_remove_info: Data<Option<dto::RepoRemoveInfo>>,
-    pub repo_config_backup_info: Data<Option<dto::RepoConfigBackupInfo>>,
     pub repo_space_usage_info: Data<Option<dto::RepoSpaceUsageInfo>>,
     pub repo_files_file: Data<Option<dto::RepoFile>>,
     pub transfers_is_active: Data<bool>,
@@ -468,6 +466,23 @@ impl WebVaultBase {
         self.vault.repos_set_default_auto_lock(auto_lock.into());
     }
 
+    pub fn repos_get_repo_config(
+        &self,
+        repo_id: String,
+        password: String,
+    ) -> Option<dto::RepoConfig> {
+        match self
+            .vault
+            .repos_get_repo_config(&RepoId(repo_id), &password)
+        {
+            Ok(config) => Some((&config).into()),
+            Err(err) => {
+                self.handle_error(err);
+                None
+            }
+        }
+    }
+
     // repo_create
 
     pub fn repo_create_create(&self) -> u32 {
@@ -700,40 +715,6 @@ impl WebVaultBase {
 
     pub fn repo_remove_destroy(&self, remove_id: u32) {
         self.vault.repo_remove_destroy(remove_id);
-    }
-
-    // repo_config_backup
-
-    pub fn repo_config_backup_create(&self, repo_id: String) -> u32 {
-        self.vault.repo_config_backup_create(RepoId(repo_id))
-    }
-
-    pub fn repo_config_backup_info_subscribe(&self, backup_id: u32, cb: Callback) -> u32 {
-        self.subscribe(
-            &[Event::RepoConfigBackup],
-            cb,
-            self.subscription_data.repo_config_backup_info.clone(),
-            move |vault| {
-                vault.with_state(|state| {
-                    repo_config_backup::selectors::select_info(state, backup_id)
-                        .as_ref()
-                        .map(Into::into)
-                })
-            },
-        )
-    }
-
-    pub fn repo_config_backup_info_data(&self, id: u32) -> Option<dto::RepoConfigBackupInfo> {
-        self.get_data(id, self.subscription_data.repo_config_backup_info.clone())
-            .flatten()
-    }
-
-    pub fn repo_config_backup_generate(&self, backup_id: u32, password: String) {
-        let _ = self.vault.repo_config_backup_generate(backup_id, &password);
-    }
-
-    pub fn repo_config_backup_destroy(&self, backup_id: u32) {
-        self.vault.repo_config_backup_destroy(backup_id);
     }
 
     // repo_space_usage

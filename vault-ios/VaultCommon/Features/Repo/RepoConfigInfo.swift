@@ -37,10 +37,6 @@ public struct RepoConfigInfo: View {
         info.append(normal("true"))
         info.append(normal("\n\n"))
 
-        info.append(bold("Safe Key (password): "))
-        info.append(normal(config.password))
-        info.append(normal("\n\n"))
-
         info.append(bold("Salt (password2): "))
         info.append(normal(config.salt ?? ""))
         info.append(normal("\n\n"))

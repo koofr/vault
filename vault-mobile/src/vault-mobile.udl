@@ -387,7 +387,6 @@ dictionary RepoInfo {
 dictionary RepoConfig {
   string name;
   RemoteFilesLocation location;
-  string password;
   string? salt;
   string rclone_config;
 };

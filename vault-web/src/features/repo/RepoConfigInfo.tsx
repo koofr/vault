@@ -52,9 +52,6 @@ export const RepoConfigInfo = memo<{ config: RepoConfig }>(({ config }) => {
           <strong>Encrypt directory names:</strong> true
         </p>
         <p>
-          <strong>Safe Key (password):</strong> {config.password}
-        </p>
-        <p>
           <strong>Salt (password2):</strong> {config.salt}
         </p>
         <p>

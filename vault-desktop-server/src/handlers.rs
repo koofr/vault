@@ -145,6 +145,7 @@ pub fn register_routes(router: Router<AppState>) -> Router<AppState> {
             "/WebVault/reposSetDefaultAutoLock",
             post(repos_set_default_auto_lock),
         )
+        .route("/WebVault/reposGetRepoConfig", post(repos_get_repo_config))
         .route("/WebVault/repoCreateCreate", post(repo_create_create))
         .route(
             "/WebVault/repoCreateInfoSubscribe",
@@ -201,26 +202,6 @@ pub fn register_routes(router: Router<AppState>) -> Router<AppState> {
         .route("/WebVault/repoRemoveInfoData", post(repo_remove_info_data))
         .route("/WebVault/repoRemoveRemove", post(repo_remove_remove))
         .route("/WebVault/repoRemoveDestroy", post(repo_remove_destroy))
-        .route(
-            "/WebVault/repoConfigBackupCreate",
-            post(repo_config_backup_create),
-        )
-        .route(
-            "/WebVault/repoConfigBackupInfoSubscribe",
-            post(repo_config_backup_info_subscribe),
-        )
-        .route(
-            "/WebVault/repoConfigBackupInfoData",
-            post(repo_config_backup_info_data),
-        )
-        .route(
-            "/WebVault/repoConfigBackupGenerate",
-            post(repo_config_backup_generate),
-        )
-        .route(
-            "/WebVault/repoConfigBackupDestroy",
-            post(repo_config_backup_destroy),
-        )
         .route(
             "/WebVault/repoSpaceUsageCreate",
             post(repo_space_usage_create),
@@ -774,6 +755,13 @@ pub async fn repos_set_default_auto_lock(
     base.repos_set_default_auto_lock(auto_lock);
 }
 
+pub async fn repos_get_repo_config(
+    ExtractBase(base): ExtractBase,
+    Json((repo_id, password)): Json<(String, String)>,
+) -> Json<Option<dto::RepoConfig>> {
+    Json(base.repos_get_repo_config(repo_id, password))
+}
+
 // repo_create
 
 pub async fn repo_create_create(ExtractBase(base): ExtractBase) -> Json<u32> {
@@ -930,44 +918,6 @@ pub async fn repo_remove_remove(
 
 pub async fn repo_remove_destroy(ExtractBase(base): ExtractBase, Json((remove_id,)): Json<(u32,)>) {
     base.repo_remove_destroy(remove_id);
-}
-
-// repo_config_backup
-
-pub async fn repo_config_backup_create(
-    ExtractBase(base): ExtractBase,
-    Json((repo_id,)): Json<(String,)>,
-) -> Json<u32> {
-    Json(base.repo_config_backup_create(repo_id))
-}
-
-pub async fn repo_config_backup_info_subscribe(
-    ExtractBase(base): ExtractBase,
-    ExtractCallbacks(callbacks): ExtractCallbacks,
-    Json((backup_id, cb)): Json<(u32, CallbackId)>,
-) -> Json<u32> {
-    Json(base.repo_config_backup_info_subscribe(backup_id, callbacks.cb(cb)))
-}
-
-pub async fn repo_config_backup_info_data(
-    ExtractBase(base): ExtractBase,
-    Json((id,)): Json<(u32,)>,
-) -> Json<Option<dto::RepoConfigBackupInfo>> {
-    Json(base.repo_config_backup_info_data(id))
-}
-
-pub async fn repo_config_backup_generate(
-    ExtractBase(base): ExtractBase,
-    Json((backup_id, password)): Json<(u32, String)>,
-) {
-    base.repo_config_backup_generate(backup_id, password);
-}
-
-pub async fn repo_config_backup_destroy(
-    ExtractBase(base): ExtractBase,
-    Json((backup_id,)): Json<(u32,)>,
-) {
-    base.repo_config_backup_destroy(backup_id);
 }
 
 // repo_space_usage

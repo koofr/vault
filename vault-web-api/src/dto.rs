@@ -15,7 +15,6 @@ use vault_core::{
     notifications::state as notifications_state,
     relative_time,
     remote_files::state as remote_files_state,
-    repo_config_backup::state as repo_config_backup_state,
     repo_files::state as repo_files_state,
     repo_files_browsers::state as repo_files_browsers_state,
     repo_files_details::state as repo_files_details_state,
@@ -608,7 +607,6 @@ impl From<&remote_files_state::RemoteFilesLocation> for RemoteFilesLocation {
 pub struct RepoConfig {
     pub name: String,
     pub location: RemoteFilesLocation,
-    pub password: String,
     pub salt: Option<String>,
     #[serde(rename = "rcloneConfig")]
     pub rclone_config: String,
@@ -619,7 +617,6 @@ impl From<&repos_state::RepoConfig> for RepoConfig {
         Self {
             name: config.name.0.clone(),
             location: (&config.location).into(),
-            password: config.password.clone(),
             salt: config.salt.clone(),
             rclone_config: config.rclone_config.clone(),
         }
@@ -750,22 +747,6 @@ impl<'a> From<&repo_remove_state::RepoRemoveInfo<'a>> for RepoRemoveInfo {
         Self {
             status: info.status.into(),
             repo_name: info.repo_name.map(|x| x.0.to_owned()),
-        }
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
-pub struct RepoConfigBackupInfo {
-    #[serde(rename = "unlockInfo")]
-    pub unlock_info: RepoUnlockInfo,
-    pub config: Option<RepoConfig>,
-}
-
-impl<'a> From<&repo_config_backup_state::RepoConfigBackupInfo<'a>> for RepoConfigBackupInfo {
-    fn from(info: &repo_config_backup_state::RepoConfigBackupInfo<'a>) -> Self {
-        Self {
-            unlock_info: (&info.unlock_info).into(),
-            config: info.config.map(Into::into),
         }
     }
 }

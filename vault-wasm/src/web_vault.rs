@@ -69,6 +69,9 @@ extern "C" {
     #[wasm_bindgen(typescript_type = "RepoAutoLock")]
     pub type RepoAutoLock;
 
+    #[wasm_bindgen(typescript_type = "RepoConfig | undefined")]
+    pub type RepoConfigOption;
+
     #[wasm_bindgen(typescript_type = "RepoCreateInfo | undefined")]
     pub type RepoCreateInfoOption;
 
@@ -438,6 +441,11 @@ impl WebVault {
             .repos_set_default_auto_lock(serde_wasm_bindgen::from_value(auto_lock.into()).unwrap());
     }
 
+    #[wasm_bindgen(js_name = reposGetRepoConfig)]
+    pub fn repos_get_repo_config(&self, repo_id: String, password: String) -> RepoConfigOption {
+        to_js(&self.base.repos_get_repo_config(repo_id, password))
+    }
+
     // repo_create
 
     #[wasm_bindgen(js_name = repoCreateCreate)]
@@ -568,34 +576,6 @@ impl WebVault {
     #[wasm_bindgen(js_name = repoRemoveDestroy)]
     pub fn repo_remove_destroy(&self, remove_id: u32) {
         self.base.repo_remove_destroy(remove_id);
-    }
-
-    // repo_config_backup
-
-    #[wasm_bindgen(js_name = repoConfigBackupCreate)]
-    pub fn repo_config_backup_create(&self, repo_id: String) -> u32 {
-        self.base.repo_config_backup_create(repo_id)
-    }
-
-    #[wasm_bindgen(js_name = repoConfigBackupInfoSubscribe)]
-    pub fn repo_config_backup_info_subscribe(&self, backup_id: u32, cb: js_sys::Function) -> u32 {
-        self.base
-            .repo_config_backup_info_subscribe(backup_id, to_cb(cb))
-    }
-
-    #[wasm_bindgen(js_name = repoConfigBackupInfoData)]
-    pub fn repo_config_backup_info_data(&self, id: u32) -> RepoConfigBackupInfoOption {
-        to_js(&self.base.repo_config_backup_info_data(id))
-    }
-
-    #[wasm_bindgen(js_name = repoConfigBackupGenerate)]
-    pub fn repo_config_backup_generate(&self, backup_id: u32, password: String) {
-        self.base.repo_config_backup_generate(backup_id, password);
-    }
-
-    #[wasm_bindgen(js_name = repoConfigBackupDestroy)]
-    pub fn repo_config_backup_destroy(&self, backup_id: u32) {
-        self.base.repo_config_backup_destroy(backup_id);
     }
 
     // repo_space_usage

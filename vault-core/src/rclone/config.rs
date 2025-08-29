@@ -79,7 +79,11 @@ pub fn generate_config(config: &Config) -> String {
 
     let section_name = slugify(config.name.as_deref().unwrap_or("vault"));
     let remote = format!("koofr:{}", config.path);
-    let obscured_password = obscure(&config.password).unwrap();
+    let obscured_password = if config.password.is_empty() {
+        "".into()
+    } else {
+        obscure(&config.password).unwrap()
+    };
 
     {
         i.with_section(Some(&section_name))

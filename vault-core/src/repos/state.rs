@@ -189,7 +189,6 @@ pub struct RepoInfo<'a> {
 pub struct RepoConfig {
     pub name: DecryptedName,
     pub location: RemoteFilesLocation,
-    pub password: String,
     pub salt: Option<String>,
     pub rclone_config: String,
 }

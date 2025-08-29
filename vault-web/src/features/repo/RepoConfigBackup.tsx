@@ -1,6 +1,7 @@
-import { css } from '@emotion/css';
-import { memo, useCallback, useEffect, useMemo } from 'react';
+import { css, cx } from '@emotion/css';
+import { memo, useMemo, useState } from 'react';
 
+import { TextInput } from '../../components/TextInput';
 import { DashboardError } from '../../components/dashboard/DashboardError';
 import { DashboardLayout } from '../../components/dashboard/DashboardLayout';
 import { DashboardLoading } from '../../components/dashboard/DashboardLoading';
@@ -13,31 +14,15 @@ import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
 
 import { RepoConfigInfo } from './RepoConfigInfo';
-import { RepoUnlockForm } from './RepoUnlockForm';
 
 export const RepoConfigBackupRepo = memo<{ repo: Repo }>(({ repo }) => {
   const repoId = repo.id;
   const isMobile = useIsMobile();
   const webVault = useWebVault();
-  let backupId = useMemo(
-    () => webVault.repoConfigBackupCreate(repoId),
-    [webVault, repoId],
-  );
-  useEffect(() => {
-    return () => {
-      webVault.repoConfigBackupDestroy(backupId);
-    };
-  }, [webVault, backupId]);
-  const [info] = useSubscribe(
-    (v, cb) => v.repoConfigBackupInfoSubscribe(backupId, cb),
-    (v) => v.repoConfigBackupInfoData,
-    [backupId],
-  );
-  const onUnlock = useCallback(
-    (password: string) => {
-      webVault.repoConfigBackupGenerate(backupId, password);
-    },
-    [webVault, backupId],
+  const [password, setPassword] = useState('');
+  const config = useMemo(
+    () => webVault.reposGetRepoConfig(repoId, password),
+    [webVault, repoId, password],
   );
   const breadcrumbs = useMemo(
     (): NavbarBreadcrumbInfo[] => [
@@ -65,32 +50,56 @@ export const RepoConfigBackupRepo = memo<{ repo: Repo }>(({ repo }) => {
     <DashboardLayout
       navbarHeader={<NavbarBreadcrumbs breadcrumbs={breadcrumbs} />}
     >
-      {info !== undefined ? (
-        info.config === undefined ? (
-          <RepoUnlockForm info={info.unlockInfo} onUnlock={onUnlock} />
-        ) : (
-          <div
-            className={
-              isMobile
-                ? css`
-                    padding: 0 15px;
-                  `
-                : undefined
-            }
+      {config !== undefined ? (
+        <div
+          className={
+            isMobile
+              ? css`
+                  padding: 0 15px;
+                `
+              : undefined
+          }
+        >
+          <h1
+            className={css`
+              font-size: 32px;
+              font-weight: normal;
+              margin: 0 0 20px;
+            `}
           >
-            <h1
+            Backup config
+          </h1>
+
+          <div
+            className={css`
+              margin: 0 0 40px;
+            `}
+          >
+            <div
               className={css`
-                font-size: 32px;
-                font-weight: normal;
-                margin: 0 0 20px;
+                margin: 0 0 10px;
               `}
             >
-              Backup config
-            </h1>
-
-            <RepoConfigInfo config={info.config} />
+              To generate your rclone config, please type your Safe Key. Make
+              sure it's correct.
+            </div>
+            <TextInput
+              type="text"
+              name="password"
+              value={password}
+              placeholder="Your Safe Key"
+              onChange={(event) => setPassword(event.currentTarget.value)}
+              className={cx(css`
+                font-size: 16px;
+                width: 250px;
+                padding-right: 38px;
+              `)}
+              aria-label={'Safe Key'}
+            />
           </div>
-        )
+
+          <RepoConfigInfo config={config} />
+        </div>
       ) : null}
     </DashboardLayout>
   );

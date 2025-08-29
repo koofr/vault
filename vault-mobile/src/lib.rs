@@ -1087,7 +1087,6 @@ impl<'a> From<&repos_state::RepoInfo<'a>> for RepoInfo {
 pub struct RepoConfig {
     pub name: String,
     pub location: RemoteFilesLocation,
-    pub password: String,
     pub salt: Option<String>,
     pub rclone_config: String,
 }
@@ -1097,7 +1096,6 @@ impl From<&repos_state::RepoConfig> for RepoConfig {
         Self {
             name: config.name.0.clone(),
             location: (&config.location).into(),
-            password: config.password.clone(),
             salt: config.salt.clone(),
             rclone_config: config.rclone_config.clone(),
         }

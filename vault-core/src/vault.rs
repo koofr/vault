@@ -5,10 +5,9 @@ use futures::future::BoxFuture;
 use crate::{
     auth, config, dialogs, dir_pickers, eventstream, http, lifecycle, notifications, oauth2,
     rclone, relative_time, remote, remote_files, remote_files_browsers, remote_files_dir_pickers,
-    repo_config_backup, repo_create, repo_files, repo_files_browsers, repo_files_details,
-    repo_files_dir_pickers, repo_files_list, repo_files_move, repo_files_read, repo_files_tags,
-    repo_locker, repo_remove, repo_space_usage, repo_unlock, repos, runtime, secure_storage, sort,
-    space_usage, store,
+    repo_create, repo_files, repo_files_browsers, repo_files_details, repo_files_dir_pickers,
+    repo_files_list, repo_files_move, repo_files_read, repo_files_tags, repo_locker, repo_remove,
+    repo_space_usage, repo_unlock, repos, runtime, secure_storage, sort, space_usage, store,
     transfers::{self, downloadable::BoxDownloadable},
     types::{DecryptedName, EncryptedPath, RepoFileId, RepoId, TimeMillis},
     user,
@@ -36,7 +35,6 @@ pub struct Vault {
     pub repo_create_service: Arc<repo_create::RepoCreateService>,
     pub repo_unlock_service: Arc<repo_unlock::RepoUnlockService>,
     pub repo_remove_service: Arc<repo_remove::RepoRemoveService>,
-    pub repo_config_backup_service: Arc<repo_config_backup::RepoConfigBackupService>,
     pub repo_space_usage_service: Arc<repo_space_usage::RepoSpaceUsageService>,
     pub repo_files_list_service: Arc<repo_files_list::RepoFilesListService>,
     pub repo_files_tags_service: Arc<repo_files_tags::RepoFilesTagsService>,
@@ -134,9 +132,6 @@ impl Vault {
             repos_service.clone(),
             store.clone(),
         ));
-        let repo_config_backup_service = Arc::new(
-            repo_config_backup::RepoConfigBackupService::new(repos_service.clone(), store.clone()),
-        );
         let repo_space_usage_service = Arc::new(repo_space_usage::RepoSpaceUsageService::new(
             remote_files_service.clone(),
             store.clone(),
@@ -244,7 +239,6 @@ impl Vault {
             repo_create_service,
             repo_unlock_service,
             repo_remove_service,
-            repo_config_backup_service,
             repo_space_usage_service,
             repo_files_list_service,
             repo_files_tags_service,
@@ -491,6 +485,14 @@ impl Vault {
         self.repos_service.set_default_auto_lock(auto_lock)
     }
 
+    pub fn repos_get_repo_config(
+        &self,
+        repo_id: &RepoId,
+        password: &str,
+    ) -> Result<repos::state::RepoConfig, repos::errors::RepoNotFoundError> {
+        self.repos_service.get_repo_config(repo_id, password)
+    }
+
     // repo_create
 
     pub fn repo_create_create(
@@ -622,25 +624,6 @@ impl Vault {
 
     pub fn repo_remove_destroy(&self, remove_id: u32) {
         self.repo_remove_service.destroy(remove_id)
-    }
-
-    // repo_config_backup
-
-    pub fn repo_config_backup_create(&self, repo_id: RepoId) -> u32 {
-        self.repo_config_backup_service.create(repo_id)
-    }
-
-    pub fn repo_config_backup_generate(
-        &self,
-        backup_id: u32,
-        password: &str,
-    ) -> Result<(), repos::errors::UnlockRepoError> {
-        self.repo_config_backup_service
-            .generate(backup_id, password)
-    }
-
-    pub fn repo_config_backup_destroy(&self, backup_id: u32) {
-        self.repo_config_backup_service.destroy(backup_id)
     }
 
     // repo_space_usage

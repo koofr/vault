@@ -30,7 +30,6 @@ object PreviewsData {
             mountId = "c1450ad8-1f79-4f2f-938d-0a4bfd927313",
             path = "/My safe box",
         ),
-        password = "password",
         salt = "salt",
         rcloneConfig = "[my-safe-box]\ntype=crypt\nremote=koofr:/My safe box\npassword=QRnSVJm14OpUhFyUOMjlelemU14sXMIV\npassword2=ntSsq_groe8-AMAKUEjGbapCTQU",
     )
