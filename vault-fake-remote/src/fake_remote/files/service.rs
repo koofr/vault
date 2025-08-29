@@ -550,4 +550,36 @@ impl FilesService {
 
         Ok(())
     }
+
+    pub fn recent(
+        &self,
+        limit: usize,
+        offset: Option<usize>,
+        mount_id: &str,
+        path: &Path,
+    ) -> Result<Vec<models::SearchHit>, FakeRemoteError> {
+        let state = self.state.read().unwrap();
+
+        let fs = self.get_filesystem(&state, &mount_id)?;
+
+        let hits = fs
+            .get_recent(&path.normalize())
+            .into_iter()
+            .skip(offset.unwrap_or_default())
+            .take(limit)
+            .map(|(path, file)| models::SearchHit {
+                mount_id: MountId(mount_id.to_owned()),
+                path: RemotePath(path.0.clone()),
+                score: 0.0,
+                name: file.file.name.clone(),
+                typ: file.file.typ.clone(),
+                modified: file.file.modified,
+                size: file.file.size,
+                content_type: file.file.content_type.clone(),
+                tags: file.file.tags.clone(),
+            })
+            .collect();
+
+        Ok(hits)
+    }
 }

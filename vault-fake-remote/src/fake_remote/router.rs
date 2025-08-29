@@ -83,6 +83,7 @@ pub fn build_router(app_state: AppState) -> Router {
             "/api/v2.1/mounts/:mount_id/files/tags/set",
             post(handlers::files_tags_set),
         )
+        .route("/api/v2.1/search", get(handlers::search))
         .route(
             "/content/api/v2.1/mounts/:mount_id/files/get",
             get(handlers::content_files_get),

@@ -532,6 +532,57 @@ pub async fn files_tags_set(
 }
 
 #[derive(Deserialize)]
+pub struct SearchQuery {
+    limit: usize,
+    offset: Option<usize>,
+    #[serde(rename = "sortField")]
+    sort_field: Option<String>,
+    #[serde(rename = "sortDir")]
+    sort_dir: Option<String>,
+    #[serde(rename = "mountId")]
+    mount_id: Option<String>,
+    path: Option<files::Path>,
+}
+
+pub async fn search(
+    ExtractState(state): ExtractState,
+    ExtractFilesService(files_service): ExtractFilesService,
+    context: Context,
+    Query(query): Query<SearchQuery>,
+) -> Result<Json<models::SearchResult>, FakeRemoteError> {
+    if query.limit == 0 {
+        return Err(FakeRemoteError::BadRequest("Limit cannot be zero".into()));
+    }
+    if query.sort_field.as_deref() != Some("modified") {
+        return Err(FakeRemoteError::BadRequest(
+            "Sort field must be modified".into(),
+        ));
+    }
+    if query.sort_dir.as_deref() != Some("desc") {
+        return Err(FakeRemoteError::BadRequest("Sort dir must be desc".into()));
+    }
+    let mount_id = match query.mount_id {
+        Some(mountable) if mountable != "" => {
+            let state = state.read().unwrap();
+
+            resolve_mount_id(&context, &state, mountable)
+        }
+        _ => return Err(FakeRemoteError::BadRequest("Mount id is required".into())),
+    };
+    let path = match query.path {
+        Some(path) if path.0 != "" => path,
+        _ => return Err(FakeRemoteError::BadRequest("Path is required".into())),
+    };
+
+    let hits = files_service.recent(query.limit, query.offset, &mount_id, &path)?;
+
+    Ok(Json(models::SearchResult {
+        hits: hits,
+        mounts: HashMap::new(),
+    }))
+}
+
+#[derive(Deserialize)]
 pub struct FilesGetQuery {
     path: files::Path,
 }

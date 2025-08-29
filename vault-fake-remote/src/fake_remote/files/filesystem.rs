@@ -575,4 +575,22 @@ impl Filesystem {
 
         Ok(file.file.clone())
     }
+
+    pub fn get_recent(&self, path: &NormalizedPath) -> Vec<(&NormalizedPath, &FilesystemFile)> {
+        let path_prefix = if path.0.ends_with('/') {
+            path.0.to_owned()
+        } else {
+            format!("{}/", path.0)
+        };
+
+        let mut files = self
+            .files
+            .iter()
+            .filter(|(file_path, _)| file_path.0 == path.0 || file_path.0.starts_with(&path_prefix))
+            .collect::<Vec<_>>();
+
+        files.sort_by_key(|(_, file)| -file.file.modified);
+
+        files
+    }
 }
