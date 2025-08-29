@@ -2,22 +2,23 @@ import java.io.ByteArrayOutputStream
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("kotlin-kapt")
-    id("com.google.dagger.hilt.android")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.compose.compiler)
 }
 
-val localProperties = gradleLocalProperties(rootDir)
+val localProperties = gradleLocalProperties(rootDir, providers)
 
 android {
     namespace = "net.koofr.vault"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "net.koofr.vault"
         minSdk = 23
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 116001
         versionName = "0.1.16"
 
@@ -87,58 +88,64 @@ android {
     ndkVersion = localProperties.getProperty("android.ndkVersion")
     sourceSets {
         getByName("debug") {
-            jniLibs.srcDir(file("$buildDir/rustJniLibs/android"))
+            jniLibs.srcDir(layout.buildDirectory.dir("rustJniLibs/android"))
         }
         getByName("release") {
-            jniLibs.srcDir(file("$buildDir/rustJniLibs/android"))
+            jniLibs.srcDir(layout.buildDirectory.dir("rustJniLibs/android"))
         }
     }
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
-    implementation("androidx.activity:activity-compose:1.7.2")
-    implementation(platform("androidx.compose:compose-bom:2023.10.00"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.material:material-icons-extended")
-    implementation("androidx.browser:browser:1.6.0")
-    implementation("androidx.security:security-crypto:1.1.0-alpha06")
-    implementation("androidx.navigation:navigation-compose:2.7.4")
-    implementation("net.java.dev.jna:jna:5.13.0@aar")
-    implementation("com.google.dagger:hilt-android:2.46.1")
-    implementation("androidx.hilt:hilt-navigation-compose:1.1.0-beta01")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("androidx.biometric:biometric:1.1.0")
-    implementation("com.google.accompanist:accompanist-permissions:0.30.1")
-    implementation("io.coil-kt:coil-compose-base:2.4.0")
-    implementation("io.coil-kt:coil-gif:2.4.0")
-    implementation("io.coil-kt:coil-svg:2.4.0")
-    implementation("com.github.chrisbanes:PhotoView:565505d5cb")
-//    implementation("com.davemorrissey.labs:subsampling-scale-image-view-androidx:3.10.0")
-    implementation("androidx.media3:media3-exoplayer:1.1.1")
-    implementation("androidx.media3:media3-ui:1.1.1")
-    kapt("com.google.dagger:hilt-compiler:2.48")
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.10.00"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0-alpha04")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons)
+
+    implementation(libs.androidx.browser)
+    implementation(libs.androidx.security.crypto)
+    implementation(libs.androidx.navigation.compose)
+    implementation(variantOf(libs.jna) { artifactType("aar") })
+
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
+
+    implementation(libs.androidx.appcompat)
+
+    implementation(libs.androidx.biometric)
+
+    implementation(libs.accompanist.permissions)
+
+    implementation(libs.coil.compose.base)
+    implementation(libs.coil.gif)
+    implementation(libs.coil.svg)
+
+    implementation(libs.photoview)
+
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
+
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.androidx.uiautomator)
+
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
 
-kapt {
-    correctErrorTypes = true
-}
+val uniFFIBindingsDir = layout.buildDirectory.dir("generated/source/uniffi/java")
 
-val uniFFIBindingsDir = "${buildDir}/generated/source/uniffi/java"
-
-task<Exec>("generateUniFFIBindings") {
+tasks.register<Exec>("generateUniFFIBindings") {
     inputs.file("${project.projectDir}/../../vault-mobile/src/vault-mobile.udl")
     outputs.dir(uniFFIBindingsDir)
 
@@ -151,7 +158,7 @@ task<Exec>("generateUniFFIBindings") {
         "--language",
         "kotlin",
         "--out-dir",
-        uniFFIBindingsDir
+        uniFFIBindingsDir.get().asFile
     )
 
     doLast {
@@ -212,15 +219,17 @@ extensions.configure(com.nishtahir.CargoExtension::class) {
 //    }
 //}
 
+val mergedJniLibsDir = layout.buildDirectory.dir("intermediates/merged_jni_libs")
+
 // mergeDebugNativeLibs and mergeReleaseNativeLibs don't update the .so files in
 // build/intermediates/merged_jni_libs. if we manually delete this folder before
 // cargoBuild the new libraries will be copied correctly without needing to run
 // clean task
-task<Delete>("cleanupMergedJniLibs") {
-    delete(file("${buildDir}/intermediates/merged_jni_libs"))
+tasks.register<Delete>("cleanupMergedJniLibs") {
+    delete(mergedJniLibsDir)
 
     doLast {
-        println("Deleted '${buildDir}/intermediates/merged_jni_libs'")
+        println("Deleted '${mergedJniLibsDir.get().asFile}'")
     }
 }
 
