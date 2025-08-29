@@ -132,7 +132,7 @@ export const LandingPageDesktop = memo<{ onLogin: () => void }>(
               className={css`
                 font-size: 18px;
                 color: #011722;
-                margin: 0 0 43px;
+                margin: 0 0 38px;
                 text-align: center;
               `}
             >

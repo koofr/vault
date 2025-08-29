@@ -9,10 +9,6 @@ import fDroidImage from '../assets/images/apps/f-droid.png';
 import fDroid2xImage from '../assets/images/apps/f-droid@2x.png';
 import googlePlayImage from '../assets/images/apps/google-play.png';
 import googlePlay2xImage from '../assets/images/apps/google-play@2x.png';
-import arrowDownImage from '../assets/images/landing/arrow-down.png';
-import arrowDown2xImage from '../assets/images/landing/arrow-down@2x.png';
-import arrowRightImage from '../assets/images/landing/arrow-right.png';
-import arrowRight2xImage from '../assets/images/landing/arrow-right@2x.png';
 import graphic1Image from '../assets/images/landing/graphic-1.png';
 import graphic12xImage from '../assets/images/landing/graphic-1@2x.png';
 import graphic2Image from '../assets/images/landing/graphic-2.png';
@@ -194,7 +190,7 @@ export const LandingPageOfficial = memo(() => {
         className={css`
           display: flex;
           flex-direction: row;
-          margin-bottom: 41px;
+          margin-bottom: 70px;
 
           ${bp.sm} {
             padding-left: 15px;
@@ -276,7 +272,7 @@ export const LandingPageOfficial = memo(() => {
             className={css`
               font-size: 18px;
               color: #011722;
-              margin: 0 0 43px;
+              margin: 0 0 38px;
 
               ${bp.sm} {
                 font-size: 14px;
@@ -449,7 +445,7 @@ export const LandingPageOfficial = memo(() => {
             font-size: 30px;
             font-weight: 700;
             color: #011722;
-            margin: 0 0 30px;
+            margin: 0 0 23px;
           `}
         >
           Extra strong protection
@@ -512,7 +508,6 @@ export const LandingPageOfficial = memo(() => {
             <div
               className={css`
                 height: 150px;
-                border: 1px solid #d4d6d7;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
@@ -527,6 +522,16 @@ export const LandingPageOfficial = memo(() => {
                 height={86}
               />
             </div>
+            <h3
+              className={css`
+                font-size: 18px;
+                font-weight: 600;
+                color: #011722;
+                margin: 0 0 10px;
+              `}
+            >
+              Private Safe Key
+            </h3>
             <p
               className={css`
                 font-size: 18px;
@@ -534,48 +539,8 @@ export const LandingPageOfficial = memo(() => {
                 margin: 0;
               `}
             >
-              Choose a special Safe Key to create a Safe Box in your Koofr
-              Vault.
+              Choose a Safe Key to create a Safe Box in your Koofr Vault.
             </p>
-          </div>
-
-          <div
-            className={css`
-              height: 152px;
-              display: flex;
-              flex-direction: column;
-              justify-content: center;
-              align-items: center;
-            `}
-          >
-            <div
-              className={css`
-                ${bp.lgxl} {
-                  display: none;
-                }
-              `}
-            >
-              <RetinaImage
-                image={arrowDownImage}
-                image2x={arrowDown2xImage}
-                width={18}
-                height={74}
-              />
-            </div>
-            <div
-              className={css`
-                ${bp.smmd} {
-                  display: none;
-                }
-              `}
-            >
-              <RetinaImage
-                image={arrowRightImage}
-                image2x={arrowRight2xImage}
-                width={74}
-                height={18}
-              />
-            </div>
           </div>
 
           <div
@@ -596,7 +561,6 @@ export const LandingPageOfficial = memo(() => {
             <div
               className={css`
                 height: 150px;
-                border: 1px solid #d4d6d7;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
@@ -611,6 +575,16 @@ export const LandingPageOfficial = memo(() => {
                 height={86}
               />
             </div>
+            <h3
+              className={css`
+                font-size: 18px;
+                font-weight: 600;
+                color: #011722;
+                margin: 0 0 10px;
+              `}
+            >
+              It all stays in your browser
+            </h3>
             <p
               className={css`
                 font-size: 18px;
@@ -618,48 +592,9 @@ export const LandingPageOfficial = memo(() => {
                 margin: 0;
               `}
             >
-              Your Safe Box files are encrypted or decrypted by your device on
-              demand as you access them.
+              Your Safe Box files are encrypted or decrypted on demand, on your
+              device.
             </p>
-          </div>
-
-          <div
-            className={css`
-              height: 152px;
-              display: flex;
-              flex-direction: column;
-              justify-content: center;
-              align-items: center;
-            `}
-          >
-            <div
-              className={css`
-                ${bp.lgxl} {
-                  display: none;
-                }
-              `}
-            >
-              <RetinaImage
-                image={arrowDownImage}
-                image2x={arrowDown2xImage}
-                width={18}
-                height={74}
-              />
-            </div>
-            <div
-              className={css`
-                ${bp.smmd} {
-                  display: none;
-                }
-              `}
-            >
-              <RetinaImage
-                image={arrowRightImage}
-                image2x={arrowRight2xImage}
-                width={74}
-                height={18}
-              />
-            </div>
           </div>
 
           <div
@@ -680,7 +615,6 @@ export const LandingPageOfficial = memo(() => {
             <div
               className={css`
                 height: 150px;
-                border: 1px solid #d4d6d7;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
@@ -695,6 +629,16 @@ export const LandingPageOfficial = memo(() => {
                 height={86}
               />
             </div>
+            <h3
+              className={css`
+                font-size: 18px;
+                font-weight: 600;
+                color: #011722;
+                margin: 0 0 10px;
+              `}
+            >
+              Only you have access
+            </h3>
             <p
               className={css`
                 font-size: 18px;
@@ -702,8 +646,8 @@ export const LandingPageOfficial = memo(() => {
                 margin: 0;
               `}
             >
-              Cloud content is always encrypted and never accessible without
-              your Safe Key.
+              Cloud content is encrypted and never accessible without your Safe
+              Key.
             </p>
           </div>
         </div>
