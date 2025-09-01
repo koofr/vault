@@ -16,6 +16,23 @@ use vault_core::{
 use vault_core_tests::helpers::{eventstream::eventstream_subscribe, with_repo};
 
 #[test]
+fn test_dir_created() {
+    with_repo(|fixture| {
+        async move {
+            let get_state = || fixture.vault.with_state(|state| state.repo_files.clone());
+
+            fixture.create_dir("/dir1").await;
+
+            let state = get_state();
+
+            assert!(state.files.contains_key(&fixture.get_file_id("/dir1")));
+            assert!(state.children.contains_key(&fixture.get_file_id("/")));
+        }
+        .boxed()
+    });
+}
+
+#[test]
 fn test_repo_lock_unlock_remove() {
     with_repo(|fixture| {
         async move {

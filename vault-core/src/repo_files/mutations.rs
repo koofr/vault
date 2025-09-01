@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use vault_crypto::data_cipher::decrypt_size;
 
@@ -21,7 +21,7 @@ use crate::{
         DecryptedPath, ENCRYPTED_PATH_ROOT, EncryptedName, EncryptedPath, MountId, RemotePath,
         RemotePathLower, RepoFileId, RepoId,
     },
-    utils::{path_utils, remote_path_utils, repo_path_utils},
+    utils::{path_utils, remote_path_utils, repo_encrypted_path_utils, repo_path_utils},
 };
 
 use super::{
@@ -39,7 +39,11 @@ pub fn sort_children(repo_files: &mut RepoFilesState, file_id: RepoFileId) {
     if let Some(children_ids) = repo_files.children.get(&file_id) {
         repo_files.children.insert(
             file_id,
-            selectors::select_sorted_files(repo_files, &children_ids, &SORT_CHILDREN_DEFAULT_SORT),
+            selectors::select_sorted_files(
+                &repo_files.files,
+                children_ids,
+                &SORT_CHILDREN_DEFAULT_SORT,
+            ),
         );
     }
 }
@@ -167,6 +171,8 @@ pub fn handle_remote_files_mutation(
 
     let mut touched_repo_ids = HashSet::new();
 
+    let mut parents_to_new_children: HashMap<RepoFileId, HashSet<RepoFileId>> = HashMap::new();
+
     for (mount_id, remote_path, repo_id, path) in files_to_decrypt {
         if !touched_repo_ids.contains(&repo_id) {
             touched_repo_ids.insert(repo_id.clone());
@@ -174,7 +180,7 @@ pub fn handle_remote_files_mutation(
 
         if let Some(repo) = state.repos.repos_by_id.get(&repo_id) {
             if let Ok(cipher) = repos::selectors::select_cipher_owned(state, &repo_id) {
-                let _ = decrypt_files(
+                decrypt_files(
                     &state.remote_files,
                     &mut state.repo_files,
                     &mount_id,
@@ -184,9 +190,50 @@ pub fn handle_remote_files_mutation(
                     &cipher,
                 );
 
+                if let Some(parent_path) = repo_encrypted_path_utils::parent_path(&path) {
+                    let parent_id = selectors::get_file_id(&repo_id, &parent_path);
+                    let file_id = selectors::get_file_id(&repo_id, &path);
+
+                    parents_to_new_children
+                        .entry(parent_id)
+                        .or_default()
+                        .insert(file_id);
+                }
+
                 repo_files_dirty = true;
             }
         }
+    }
+
+    // Add the decrypted files to their parents' children
+
+    for (parent_id, mut new_children) in parents_to_new_children {
+        let new_sorted_children = match state.repo_files.children.get_mut(&parent_id) {
+            Some(children) => {
+                for child in children.iter() {
+                    new_children.remove(child);
+                }
+                for child in new_children {
+                    children.push(child);
+                }
+
+                selectors::select_sorted_files(
+                    &state.repo_files.files,
+                    children,
+                    &SORT_CHILDREN_DEFAULT_SORT,
+                )
+            }
+            None => selectors::select_sorted_files(
+                &state.repo_files.files,
+                new_children.iter(),
+                &SORT_CHILDREN_DEFAULT_SORT,
+            ),
+        };
+
+        state
+            .repo_files
+            .children
+            .insert(parent_id, new_sorted_children);
     }
 
     for (_, _, repo_id, path) in remote_files_to_repo_files(
@@ -388,7 +435,7 @@ pub fn handle_repos_mutation(
     for (mount_id, remote_path, repo_id, path) in files_to_decrypt {
         if let Some(repo) = state.repos.repos_by_id.get(&repo_id) {
             if let Ok(cipher) = repos::selectors::select_cipher_owned(state, &repo_id) {
-                let _ = decrypt_files(
+                decrypt_files(
                     &state.remote_files,
                     &mut state.repo_files,
                     &mount_id,

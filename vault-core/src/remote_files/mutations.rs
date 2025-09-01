@@ -446,12 +446,19 @@ pub fn file_loaded(
 }
 
 pub fn add_child(state: &mut store::State, parent_id: &RemoteFileId, child_id: RemoteFileId) {
-    if let Some(children) = state.remote_files.children.get_mut(parent_id) {
-        if !children.contains(&child_id) {
-            children.push(child_id);
+    let children = match state.remote_files.children.get_mut(parent_id) {
+        Some(children) => children,
+        None => state
+            .remote_files
+            .children
+            .entry(parent_id.clone())
+            .or_default(),
+    };
 
-            sort_children(state, &parent_id);
-        }
+    if !children.contains(&child_id) {
+        children.push(child_id);
+
+        sort_children(state, &parent_id);
     }
 }
 

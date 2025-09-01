@@ -134,6 +134,17 @@ impl RepoFixture {
             .await
             .unwrap();
 
+        // When a dir is created, it's added to the state with modified set to
+        // Some(0) because Koofr's API does not return the created file info. We
+        // could wait for eventstream FileCreatedEvent or we can do a file info
+        // so that not all tests need to setup eventstream subcriber.
+        self.vault
+            .repo_files_service
+            .clone()
+            .load_file(&self.repo_id, &path)
+            .await
+            .unwrap();
+
         self.vault.with_state(|state| {
             state
                 .repo_files

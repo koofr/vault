@@ -299,7 +299,11 @@ pub fn update_browser(
         .map(|loc| {
             let file_ids = selectors::select_file_ids(state, loc);
 
-            repo_files_selectors::select_sorted_files(&state.repo_files, &file_ids, &browser.sort)
+            repo_files_selectors::select_sorted_files(
+                &state.repo_files.files,
+                &file_ids,
+                &browser.sort,
+            )
         })
         .unwrap_or(Default::default());
 

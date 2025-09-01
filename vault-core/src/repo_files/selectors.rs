@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use crate::{
     cipher::Cipher,
@@ -8,7 +8,6 @@ use crate::{
     },
     remote::RemoteError,
     remote_files::{selectors as remote_files_selectors, state::RemoteFile},
-    repo_files::state::RepoFilesState,
     repos::{errors::RepoNotFoundError, selectors as repos_selectors},
     sort::state::SortGrouping,
     store,
@@ -268,11 +267,15 @@ pub fn get_recent_breadcrumbs(repo_id: &RepoId) -> Vec<RepoFilesBreadcrumb> {
     }]
 }
 
-pub fn select_sorted_files(
-    repo_files: &RepoFilesState,
-    file_ids: &[RepoFileId],
+pub fn select_sorted_files<RFI, FI>(
+    repo_files_files: &HashMap<RepoFileId, RepoFile>,
+    file_ids: FI,
     sort: &RepoFilesSort,
-) -> Vec<RepoFileId> {
+) -> Vec<RepoFileId>
+where
+    RFI: std::ops::Deref<Target = RepoFileId>,
+    FI: IntoIterator<Item = RFI>,
+{
     let RepoFilesSort {
         field,
         direction,
@@ -282,8 +285,8 @@ pub fn select_sorted_files(
     match grouping {
         SortGrouping::DirsFirst => {
             let (mut dirs, mut files): (Vec<_>, Vec<_>) = file_ids
-                .iter()
-                .filter_map(|id| repo_files.files.get(id))
+                .into_iter()
+                .filter_map(|id| repo_files_files.get(&id))
                 .partition(|f| f.typ == RepoFileType::Dir);
 
             match field {
@@ -312,8 +315,8 @@ pub fn select_sorted_files(
         }
         SortGrouping::NoGrouping => {
             let mut files: Vec<_> = file_ids
-                .iter()
-                .filter_map(|id| repo_files.files.get(id))
+                .into_iter()
+                .filter_map(|id| repo_files_files.get(&id))
                 .collect();
 
             match field {

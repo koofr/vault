@@ -554,30 +554,24 @@ fn test_create() {
             fixture.vault.repo_files_browsers_destroy(browser_id);
 
             recorder.check_recorded(
-                |len| assert_eq!(len, 5),
+                |len| assert_eq!(len, 4),
                 |i, state| match i {
                     0 => assert_eq!(state, RepoFilesBrowsersState::default()),
                     1 => assert_eq!(
                         state,
                         expected_browsers_state(&fixture, &state, |browser| {
                             browser.status = Status::Loading { loaded: false };
-                        })
-                    ),
-                    2 => assert_eq!(
-                        state,
-                        expected_browsers_state(&fixture, &state, |browser| {
-                            browser.status = Status::Loading { loaded: false };
                             browser.file_ids = vec![file.id.clone()];
                         })
                     ),
-                    3 => assert_eq!(
+                    2 => assert_eq!(
                         state,
                         expected_browsers_state(&fixture, &state, |browser| {
                             browser.status = Status::Loaded;
                             browser.file_ids = vec![file.id.clone()];
                         })
                     ),
-                    4 => assert_eq!(
+                    3 => assert_eq!(
                         state,
                         RepoFilesBrowsersState {
                             next_id: NextId(2),
@@ -685,44 +679,38 @@ fn test_reload() {
             fixture.vault.repo_files_browsers_destroy(browser_id);
 
             recorder.check_recorded(
-                |len| assert_eq!(len, 7),
+                |len| assert_eq!(len, 6),
                 |i, state| match i {
                     0 => assert_eq!(state, RepoFilesBrowsersState::default()),
                     1 => assert_eq!(
                         state,
                         expected_browsers_state(&fixture, &state, |browser| {
                             browser.status = Status::Loading { loaded: false };
+                            browser.file_ids = vec![file.id.clone()];
                         })
                     ),
                     2 => assert_eq!(
                         state,
                         expected_browsers_state(&fixture, &state, |browser| {
-                            browser.status = Status::Loading { loaded: false };
+                            browser.status = Status::Loaded;
                             browser.file_ids = vec![file.id.clone()];
                         })
                     ),
                     3 => assert_eq!(
                         state,
                         expected_browsers_state(&fixture, &state, |browser| {
-                            browser.status = Status::Loaded;
+                            browser.status = Status::Loading { loaded: true };
                             browser.file_ids = vec![file.id.clone()];
                         })
                     ),
                     4 => assert_eq!(
                         state,
                         expected_browsers_state(&fixture, &state, |browser| {
-                            browser.status = Status::Loading { loaded: true };
-                            browser.file_ids = vec![file.id.clone()];
-                        })
-                    ),
-                    5 => assert_eq!(
-                        state,
-                        expected_browsers_state(&fixture, &state, |browser| {
                             browser.status = Status::Loaded;
                             browser.file_ids = vec![file.id.clone()];
                         })
                     ),
-                    6 => assert_eq!(
+                    5 => assert_eq!(
                         state,
                         RepoFilesBrowsersState {
                             next_id: NextId(2),
