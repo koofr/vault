@@ -101,7 +101,7 @@ fn test_lock_after_set_already_unlocked() {
                 .repos_set_auto_lock(
                     &fixture.repo_id,
                     RepoAutoLock {
-                        after: Some(RepoAutoLockAfter::Custom(Duration::from_millis(100))),
+                        after: Some(RepoAutoLockAfter::Custom(Duration::from_millis(200))),
                         on_app_hidden: false,
                     },
                 )
