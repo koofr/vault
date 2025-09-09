@@ -206,6 +206,10 @@ extensions.configure(com.nishtahir.CargoExtension::class) {
     exec = { spec, _ ->
         spec.environment("GIT_REVISION", getGitRevision())
         spec.environment("GIT_RELEASE", getGitRelease())
+
+        // Support 16 KB page sizes
+        // https://github.com/mozilla/rust-android-gradle/pull/151#issuecomment-2931056842
+        spec.environment("RUST_ANDROID_GRADLE_CC_LINK_ARG", "-Wl,-z,max-page-size=16384,-soname,libvault_mobile.so")
     }
 }
 

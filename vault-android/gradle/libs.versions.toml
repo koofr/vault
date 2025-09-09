@@ -27,7 +27,7 @@ coil = "2.7.0"
 photoView = "565505d5cb"
 
 # JNA
-jna = "5.13.0"
+jna = "5.17.0"
 
 # Testing
 junit = "4.13.2"
