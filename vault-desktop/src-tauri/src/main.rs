@@ -4,10 +4,11 @@
 use std::sync::Arc;
 
 use futures::{channel::oneshot, FutureExt, TryFutureExt};
-use tauri::{api::dialog::FileDialogBuilder, RunEvent};
+use tauri::RunEvent;
+use tauri_plugin_dialog::DialogExt;
 use vault_core::oauth2::OAuth2Config;
 use vault_desktop_server::{
-    app::app,
+    app::app as app_server,
     encryption::Encryption,
     file_handlers::FileHandlers,
     init_secure_storage::{init_file_secure_storage, init_keyring_secure_storage},
@@ -69,45 +70,80 @@ fn main() {
 
     web_vault.load();
 
+    let app = tauri::Builder::default()
+        .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_dialog::init())
+        .manage(TauriState { port, app_secret })
+        .invoke_handler(tauri::generate_handler![
+            get_desktop_server_url,
+            get_app_secret
+        ])
+        .build(tauri::generate_context!())
+        .expect("error while running tauri application");
+
+    let handle = app.handle().clone();
+
     let file_handlers = Arc::new(FileHandlers {
-        pick_files: Some(Arc::new(Box::new(|| {
+        pick_files: Some(Arc::new(Box::new(move || {
             let (sender, receiver) = oneshot::channel();
+            let handle = handle.clone();
 
-            FileDialogBuilder::new().pick_files(|res| {
-                let _ = sender.send(res);
+            handle.dialog().file().pick_files(move |res| {
+                let _ = sender.send(res.map(|files| {
+                    files
+                        .into_iter()
+                        .filter_map(|f| f.into_path().ok())
+                        .collect()
+                }));
             });
 
             receiver.unwrap_or_else(|_| None).boxed()
         }))),
-        pick_dirs: Some(Arc::new(Box::new(|| {
-            let (sender, receiver) = oneshot::channel();
+        pick_dirs: Some(Arc::new(Box::new({
+            let handle = app.handle().clone();
+            move || {
+                let (sender, receiver) = oneshot::channel();
+                let handle = handle.clone();
 
-            FileDialogBuilder::new().pick_folders(|res| {
-                let _ = sender.send(res);
-            });
+                handle.dialog().file().pick_folders(move |res| {
+                    let _ = sender.send(res.map(|folders| {
+                        folders
+                            .into_iter()
+                            .filter_map(|f| f.into_path().ok())
+                            .collect()
+                    }));
+                });
 
-            receiver.unwrap_or_else(|_| None).boxed()
+                receiver.unwrap_or_else(|_| None).boxed()
+            }
         }))),
-        save_file: Some(Arc::new(Box::new(|name| {
-            let (sender, receiver) = oneshot::channel();
+        save_file: Some(Arc::new(Box::new({
+            let handle = app.handle().clone();
+            move |name| {
+                let (sender, receiver) = oneshot::channel();
+                let handle = handle.clone();
 
-            let builder = FileDialogBuilder::new().set_file_name(&name);
+                let builder = handle.dialog().file().set_file_name(&name);
 
-            #[cfg(target_os = "windows")]
-            let builder = match vault_core::utils::name_utils::name_to_ext(&name) {
-                Some(ext) => builder.add_filter(format!("File (.{})", ext), &[ext]),
-                None => builder,
-            };
+                #[cfg(target_os = "windows")]
+                let builder = {
+                    if let Some(ext) = vault_core::utils::name_utils::name_to_ext(&name) {
+                        builder.add_filter(format!("File (.{})", ext), &[&ext])
+                    } else {
+                        builder
+                    }
+                };
 
-            builder.save_file(|res| {
-                let _ = sender.send(res);
-            });
+                builder.save_file(move |res| {
+                    let _ = sender.send(res.and_then(|f| f.into_path().ok()));
+                });
 
-            receiver.unwrap_or_else(|_| None).boxed()
+                receiver.unwrap_or_else(|_| None).boxed()
+            }
         }))),
     });
 
-    tauri::async_runtime::spawn(app(
+    tauri::async_runtime::spawn(app_server(
         port,
         web_vault,
         tokio_runtime,
@@ -115,20 +151,12 @@ fn main() {
         file_handlers,
     ));
 
-    tauri::Builder::default()
-        .manage(TauriState { port, app_secret })
-        .invoke_handler(tauri::generate_handler![
-            get_desktop_server_url,
-            get_app_secret
-        ])
-        .build(tauri::generate_context!())
-        .expect("error while running tauri application")
-        .run(|_app, event| match event {
-            RunEvent::Ready => {
-                fix_current_dir();
-            }
-            _ => {}
-        });
+    app.run(|_app, event| match event {
+        RunEvent::Ready => {
+            fix_current_dir();
+        }
+        _ => {}
+    });
 }
 
 #[tauri::command]

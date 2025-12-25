@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 import ReactDOM from 'react-dom/client';
 
 import { getApp } from './App';
@@ -12,7 +12,7 @@ import { createProxy } from './desktopVault/webVaultProxy';
 import { LandingPageDesktop } from './pages/LandingPageDesktop';
 
 export const mainDesktop = async () => {
-  const isTauri = window.__TAURI_METADATA__ !== undefined;
+  const isTauri = (window as any).__TAURI_INTERNALS__ !== undefined;
 
   const configPromise = fetch('/config.json').then(
     (res) => res.json() as Promise<Config>,

@@ -1,4 +1,4 @@
-import { appWindow } from '@tauri-apps/api/window';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import { memo, useEffect, useState } from 'react';
 
 import { DropZone } from '../../components/dnd/DropZone';
@@ -16,8 +16,8 @@ export const RepoFilesDropZoneDesktop = memo(() => {
   const canDrop = isOver;
 
   useEffect(() => {
-    const unlistenPromise = appWindow.onFileDropEvent((event) => {
-      if (event.payload.type === 'hover') {
+    const unlistenPromise = getCurrentWindow().onDragDropEvent((event) => {
+      if (event.payload.type === 'enter' || event.payload.type === 'over') {
         setIsOver(true);
       } else if (event.payload.type === 'drop') {
         setIsOver(false);

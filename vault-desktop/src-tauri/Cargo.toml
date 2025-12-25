@@ -7,7 +7,9 @@ edition = "2021"
 futures = "0.3.30"
 serde = { version = "1.0.195", features = ["derive"] }
 serde_json = "1.0.111"
-tauri = { version = "1.6.8", features = ["shell-open", "dialog"] }
+tauri = { version = "2.9.5", features = [] }
+tauri-plugin-dialog = "2.4.2"
+tauri-plugin-shell = "2.3.3"
 tokio = { version = "1.35.1", features = ["rt-multi-thread"] }
 vault-core = { path = "../../vault-core" }
 vault-desktop-server = { path = "../../vault-desktop-server" }
@@ -15,7 +17,7 @@ vault-native = { path = "../../vault-native" }
 vault-web-api = { path = "../../vault-web-api" }
 
 [build-dependencies]
-tauri-build = { version = "1.5.2", features = [] }
+tauri-build = { version = "2.5.3", features = [] }
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
