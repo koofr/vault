@@ -21,7 +21,7 @@ pub struct Vault {
     pub notifications_service: Arc<notifications::NotificationsService>,
     pub dialogs_service: Arc<dialogs::DialogsService>,
     pub oauth2_service: Arc<oauth2::OAuth2Service>,
-    pub auth_provider: Arc<Box<(dyn auth::AuthProvider + Send + Sync)>>,
+    pub auth_provider: Arc<Box<dyn auth::AuthProvider + Send + Sync>>,
     pub remote: Arc<remote::Remote>,
     pub user_service: Arc<user::UserService>,
     pub eventstream_service: Arc<eventstream::EventStreamService>,
@@ -81,7 +81,7 @@ impl Vault {
             store.clone(),
             runtime.clone(),
         ));
-        let auth_provider: Arc<Box<(dyn auth::AuthProvider + Send + Sync + 'static)>> = Arc::new(
+        let auth_provider: Arc<Box<dyn auth::AuthProvider + Send + Sync + 'static>> = Arc::new(
             Box::new(oauth2::OAuth2AuthProvider::new(oauth2_service.clone())),
         );
         let remote = Arc::new(remote::Remote::new(

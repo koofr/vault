@@ -1,6 +1,6 @@
 ### wasm
 
-FROM rust:1.89.0-alpine@sha256:4b800f2e72e04be908e5f634c504c741bd943b763d1d8ad7b096cc340e1b5b46 AS wasm-rust-stage
+FROM rust:1.92.0-alpine@sha256:f6c22e0a256c05d44fca23bf530120b5d4a6249a393734884281ca80782329bc AS wasm-rust-stage
 WORKDIR /app
 
 ENV CI=true
