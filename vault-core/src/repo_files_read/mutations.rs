@@ -37,7 +37,9 @@ pub fn zip_date_time_from_millis(millis: i64) -> async_zip_futures::ZipDateTime 
     }
 
     let modified = chrono::DateTime::from_naive_utc_and_offset(
-        chrono::NaiveDateTime::from_timestamp_millis(millis).unwrap(),
+        chrono::DateTime::from_timestamp_millis(millis)
+            .unwrap()
+            .naive_utc(),
         chrono::Utc,
     );
 
@@ -173,7 +175,9 @@ mod tests {
 
         let dt = zip_date_time_from_millis(1678358492000);
         let chrono_dt: chrono::DateTime<chrono::Utc> = chrono::DateTime::from_naive_utc_and_offset(
-            chrono::NaiveDateTime::from_timestamp_millis(1678358492000).unwrap(),
+            chrono::DateTime::from_timestamp_millis(1678358492000)
+                .unwrap()
+                .naive_utc(),
             chrono::Utc,
         );
         assert_eq!(
