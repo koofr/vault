@@ -19,7 +19,7 @@ npm install
 
 ### Windows
 
-See https://tauri.app/v1/guides/getting-started/prerequisites/#setting-up-windows
+See https://v2.tauri.app/start/prerequisites/#windows
 
 ### macOS
 
@@ -29,8 +29,19 @@ xcode-select --install
 
 ### Linux
 
+See https://v2.tauri.app/start/prerequisites/#linux
+
 ```sh
-sudo apt install libwebkit2gtk-4.0-dev build-essential curl wget file libssl-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev
+sudo apt update
+sudo apt install libwebkit2gtk-4.1-dev \
+  build-essential \
+  curl \
+  wget \
+  file \
+  libxdo-dev \
+  libssl-dev \
+  libayatana-appindicator3-dev \
+  librsvg2-dev
 ```
 
 ## Run
