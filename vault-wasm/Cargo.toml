@@ -15,7 +15,7 @@ js-sys = "0.3.77"
 log = "0.4.20"
 serde = { version = "1.0.195", features = ["derive"] }
 serde-wasm-bindgen = "0.6.5"
-thiserror = "1.0.56"
+thiserror = "2.0.17"
 tsify = { version = "0.5.5", features = ["js"] }
 vault-core = { path = "../vault-core" }
 vault-crypto = { path = "../vault-crypto" }

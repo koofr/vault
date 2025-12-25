@@ -14,7 +14,7 @@ pin-project-lite = "0.2.13"
 rand_core = "0.6.4"
 # scrypt > 0.6 limits key len to 64, but we need 80, let's keep 0.2, it works
 scrypt = { version = "0.2", default-features = false }
-thiserror = "1.0.56"
+thiserror = "2.0.17"
 xsalsa20poly1305 = "0.9.1"
 
 [dev-dependencies]
