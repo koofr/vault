@@ -5,7 +5,7 @@ Fake Koofr API server.
 ## Run
 
 ```sh
-cargo run --example fake_remote
+cargo run --bin fake_remote
 
 curl -v -k https://127.0.0.1:3443/health
 
