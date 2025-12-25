@@ -14,7 +14,12 @@ export const test = base.extend<{
 }>({
   debugClient: [
     async ({ request }, use) => {
-      const debugClient = new DebugClient(request, 'http://127.0.0.1:3080');
+      const debugClient = new DebugClient(
+        request,
+        process.env.FAKE_REMOTE_HTTP_ADDR
+          ? `http://${process.env.FAKE_REMOTE_HTTP_ADDR}`
+          : 'http://127.0.0.1:3080',
+      );
 
       await debugClient.reset();
 
@@ -54,7 +59,7 @@ export const test = base.extend<{
       oauth2ClientId,
       oauth2ClientSecret,
       oauth2RedirectUri,
-      ignoreHTTPSErrors
+      ignoreHTTPSErrors,
     );
 
     try {

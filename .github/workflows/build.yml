@@ -150,10 +150,19 @@ jobs:
         working-directory: vault-web-tests
       - name: Run Playwright tests
         run: |
-          ../fake_remote &
+          # Change port to 3081, 3080 is used by azure-proxy-agent
+          # (https://github.com/Azure/GuestProxyAgent)
+          export FAKE_REMOTE_HTTP_ADDR=127.0.0.1:3081
 
-          while ! curl -s http://127.0.0.1:3080/health > /dev/null; do
-            echo "Waiting for fake remote to start..."
+          ../fake_remote --http-addr "$FAKE_REMOTE_HTTP_ADDR" &
+
+          while ! curl -s "http://${FAKE_REMOTE_HTTP_ADDR}/health" > /dev/null; do
+            echo "Waiting for fake remote HTTP to start..."
+            sleep 1
+          done
+
+          while ! curl -s -k https://127.0.0.1:3443/health > /dev/null; do
+            echo "Waiting for fake remote HTTPS to start..."
             sleep 1
           done
 
