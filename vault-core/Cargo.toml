@@ -18,7 +18,11 @@ log = "0.4.20"
 md5 = "0.7.0"
 phf = { version = "0.11.2", features = ["macros"] }
 pin-project-lite = "0.2.16"
-rand_core = "0.6.4"
+# rand_core cannot be upgraded to > 0.6 because vault-crypto depends on
+# crypto_secretbox which depends on aead which depends on crypto-common which
+# depends on rand_core ^0.6 and we should not have multiple versions of
+# rand_core and getrandom in our WASM build
+rand_core = "=0.6.4"
 rmp = "0.8.12"
 rmp-serde = "1.1.2"
 rmpv = { version = "1.0.1", features = ["with-serde"] }

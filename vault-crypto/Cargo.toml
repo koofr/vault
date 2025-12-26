@@ -12,6 +12,9 @@ data-encoding = "2.9.0"
 eme-mode = "0.2.1"
 futures = { version = "0.3.31", features = ["executor"] }
 pin-project-lite = "0.2.16"
+# rand_core cannot be upgraded to > 0.6 because crypto_secretbox depends on aead
+# which depends on crypto-common which depends on rand_core ^0.6 and we should
+# not have multiple versions of rand_core and getrandom in our WASM build
 rand_core = "0.6.4"
 # scrypt > 0.6 limits key len to 64, but we need 80, let's keep 0.2, it works
 scrypt = { version = "0.2", default-features = false }
