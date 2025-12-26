@@ -1,16 +1,17 @@
 use core::mem;
-use futures::{
-    AsyncRead, ready,
-    task::{Context, Poll},
-};
-use pin_project_lite::pin_project;
 use std::{
     cmp,
     io::{Read, Result},
     pin::Pin,
     sync::Arc,
 };
-use xsalsa20poly1305::XSalsa20Poly1305;
+
+use crypto_secretbox::XSalsa20Poly1305;
+use futures::{
+    AsyncRead, ready,
+    task::{Context, Poll},
+};
+use pin_project_lite::pin_project;
 
 use super::{
     CipherError,
@@ -284,8 +285,8 @@ impl<R: AsyncRead> AsyncRead for AsyncDecryptReader<R> {
 mod tests {
     use std::{io::Result, sync::Arc, task::Poll};
 
+    use crypto_secretbox::XSalsa20Poly1305;
     use futures::{AsyncRead, channel::mpsc, stream::TryStreamExt};
-    use xsalsa20poly1305::XSalsa20Poly1305;
 
     use crate::{
         constants::FILE_MAGIC,

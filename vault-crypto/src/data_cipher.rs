@@ -1,7 +1,7 @@
-pub use xsalsa20poly1305::XSalsa20Poly1305;
+pub use crypto_secretbox::XSalsa20Poly1305;
 /// Based on rclone implementation
 /// https://github.com/rclone/rclone/blob/7be9855a706d1e09504f17949a90c54cd56fb2a5/backend/crypt/cipher.go
-use xsalsa20poly1305::aead::{AeadInPlace, KeyInit};
+use crypto_secretbox::aead::{AeadInPlace, KeyInit};
 
 use super::{
     CipherError,

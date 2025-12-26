@@ -6,6 +6,7 @@ edition.workspace = true
 [dependencies]
 # eme-mode 0.2.1 does not compile with aes 0.8.1
 aes = { version = "0.7.5", features = ["ctr"] }
+crypto_secretbox = "0.1.1"
 data-encoding = "2.5.0"
 # eme-mode 0.3 is not correct for inputs longer than 16 bytes
 eme-mode = "0.2.1"
@@ -15,7 +16,6 @@ rand_core = "0.6.4"
 # scrypt > 0.6 limits key len to 64, but we need 80, let's keep 0.2, it works
 scrypt = { version = "0.2", default-features = false }
 thiserror = "2.0.17"
-xsalsa20poly1305 = "0.9.1"
 
 [dev-dependencies]
 futures-test = "0.3.30"

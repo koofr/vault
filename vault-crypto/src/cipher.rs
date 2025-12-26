@@ -3,7 +3,8 @@ use std::{
     str,
     sync::Arc,
 };
-use xsalsa20poly1305::XSalsa20Poly1305;
+
+use crypto_secretbox::XSalsa20Poly1305;
 
 use super::{
     cipher_keys::{DerivedKeys, derive_keys},

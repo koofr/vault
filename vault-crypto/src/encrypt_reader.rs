@@ -6,12 +6,12 @@ use std::{
     sync::Arc,
 };
 
+use crypto_secretbox::XSalsa20Poly1305;
 use futures::{
     AsyncRead, ready,
     task::{Context, Poll},
 };
 use pin_project_lite::pin_project;
-use xsalsa20poly1305::XSalsa20Poly1305;
 
 use super::{
     constants::{BLOCK_DATA_SIZE, FILE_MAGIC, FILE_MAGIC_SIZE, FILE_NONCE_SIZE},
@@ -254,8 +254,8 @@ impl<R: AsyncRead> AsyncRead for AsyncEncryptReader<R> {
 mod tests {
     use std::{io::Result, sync::Arc, task::Poll};
 
+    use crypto_secretbox::XSalsa20Poly1305;
     use futures::{AsyncRead, stream::TryStreamExt};
-    use xsalsa20poly1305::XSalsa20Poly1305;
 
     use crate::{
         constants::FILE_MAGIC,
