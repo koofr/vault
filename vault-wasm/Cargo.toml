@@ -9,7 +9,11 @@ crate-type = ["cdylib"]
 [dependencies]
 async-trait = "0.1.77"
 futures = "0.3.31"
-getrandom = { version = "0.2.12", features = ["js"] }
+# getrandom cannot be upgraded to > 0.2 because vault-crypto depends on
+# crypto_secretbox which depends on aead which depends on crypto-common which
+# depends on rand_core ^0.6 and we should not have multiple versions of
+# rand_core and getrandom in our WASM build
+getrandom = { version = "=0.2.16", features = ["js"] }
 http = "0.2.11"
 js-sys = "0.3.77"
 log = "0.4.20"
