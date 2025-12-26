@@ -4,7 +4,7 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-async-trait = "0.1.77"
+async-trait = "0.1.89"
 futures = "0.3.31"
 http = "0.2.11"
 log = "0.4.20"
