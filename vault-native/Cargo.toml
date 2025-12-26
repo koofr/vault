@@ -18,7 +18,8 @@ tokio-tungstenite = { version = "0.20.1", features = [
   "rustls-tls-webpki-roots",
 ] }
 tokio-util = { version = "0.7.9", features = ["compat"] }
-uuid = { version = "1.4.1", features = ["v4", "fast-rng"] }
+# uuid cannot be upgraded to > 1.12.1 because we cannot use rand_core > 0.6
+uuid = { version = "=1.12.1", features = ["v4", "fast-rng"] }
 vault-core = { path = "../vault-core" }
 vault-crypto = { path = "../vault-crypto" }
 rustls = { version = "0.21.10", features = ["dangerous_configuration"] }
