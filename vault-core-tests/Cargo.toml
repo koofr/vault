@@ -15,8 +15,8 @@ reqwest = { version = "0.11.23", default-features = false, features = [
   "rustls-tls",
   "stream",
 ] }
-serde = "1.0.195"
-serde_json = "1.0.111"
+serde = "1.0.228"
+serde_json = "1.0.147"
 similar-asserts = "1.5.0"
 tokio = { version = "1.35.1", features = ["full"] }
 # uuid cannot be upgraded to > 1.12.1 because we cannot use rand_core > 0.6
