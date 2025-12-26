@@ -8,7 +8,7 @@ async_zip_futures = { version = "0.0.13", features = ["chrono"] }
 async-trait = "0.1.77"
 bytes = "1.5.0"
 chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
-data-encoding = "2.5.0"
+data-encoding = "2.9.0"
 futures = { version = "0.3.30", features = ["executor"] }
 hex = "0.4.3"
 http = "0.2.11"
