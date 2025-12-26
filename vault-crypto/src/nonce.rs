@@ -64,7 +64,7 @@ impl Nonce {
         &self.value
     }
 
-    pub fn as_nonce(&self) -> &xsalsa20poly1305::Nonce {
+    pub fn as_nonce(&self) -> &crypto_secretbox::Nonce {
         (&self.value).into()
     }
 }

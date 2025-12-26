@@ -59,7 +59,7 @@ opt-level = 3
 [profile.dev.package.subtle]
 opt-level = 3
 
-[profile.dev.package.xsalsa20poly1305]
+[profile.dev.package.crypto_secretbox]
 opt-level = 3
 
 [profile.dev.package.zeroize]
