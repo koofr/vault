@@ -4,7 +4,7 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-async-trait = "0.1.77"
+async-trait = "0.1.89"
 axum = { version = "0.6.20", features = ["ws", "multipart", "http2"] }
 env_logger = "0.11.0"
 futures = "0.3.31"

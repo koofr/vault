@@ -7,7 +7,7 @@ edition.workspace = true
 crate-type = ["cdylib"]
 
 [dependencies]
-async-trait = "0.1.77"
+async-trait = "0.1.89"
 futures = "0.3.31"
 # getrandom cannot be upgraded to > 0.2 because vault-crypto depends on
 # crypto_secretbox which depends on aead which depends on crypto-common which
