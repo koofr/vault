@@ -7,7 +7,7 @@ edition.workspace = true
 # eme-mode 0.2.1 does not compile with aes 0.8.1
 aes = { version = "0.7.5", features = ["ctr"] }
 crypto_secretbox = "0.1.1"
-data-encoding = "2.5.0"
+data-encoding = "2.9.0"
 # eme-mode 0.3 is not correct for inputs longer than 16 bytes
 eme-mode = "0.2.1"
 futures = { version = "0.3.30", features = ["executor"] }
