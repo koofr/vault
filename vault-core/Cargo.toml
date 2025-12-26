@@ -17,7 +17,7 @@ lazy_static = "1.4.0"
 log = "0.4.20"
 md5 = "0.7.0"
 phf = { version = "0.11.2", features = ["macros"] }
-pin-project-lite = "0.2.13"
+pin-project-lite = "0.2.16"
 rand_core = "0.6.4"
 rmp = "0.8.12"
 rmp-serde = "1.1.2"

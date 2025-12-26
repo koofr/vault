@@ -11,7 +11,7 @@ data-encoding = "2.9.0"
 # eme-mode 0.3 is not correct for inputs longer than 16 bytes
 eme-mode = "0.2.1"
 futures = { version = "0.3.31", features = ["executor"] }
-pin-project-lite = "0.2.13"
+pin-project-lite = "0.2.16"
 rand_core = "0.6.4"
 # scrypt > 0.6 limits key len to 64, but we need 80, let's keep 0.2, it works
 scrypt = { version = "0.2", default-features = false }
