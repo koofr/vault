@@ -4,7 +4,7 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-futures = "0.3.28"
+futures = "0.3.31"
 log = "0.4.20"
 serde = { version = "1.0.195", features = ["derive"] }
 tsify = { version = "0.5.5" }

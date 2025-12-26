@@ -4,4 +4,4 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-futures = "0.3.30"
+futures = "0.3.31"
