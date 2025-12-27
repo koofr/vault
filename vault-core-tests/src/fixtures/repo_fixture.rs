@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, sync::Arc, time::Duration};
 
 use futures::io::Cursor;
 use vault_core::{
@@ -125,6 +125,9 @@ impl RepoFixture {
         parent_path: &EncryptedPath,
         name: EncryptedName,
     ) -> RepoFile {
+        // sleep 1 ms to ensure order of files (modified)
+        tokio::time::sleep(Duration::from_millis(1)).await;
+
         let path = repo_encrypted_path_utils::join_path_name(parent_path, &name);
 
         self.vault
@@ -174,6 +177,9 @@ impl RepoFixture {
         name: EncryptedName,
         content: &str,
     ) -> (RepoFilesUploadResult, RepoFile) {
+        // sleep 1 ms to ensure order of files (modified)
+        tokio::time::sleep(Duration::from_millis(1)).await;
+
         let bytes = content.as_bytes().to_vec();
         let size = bytes.len();
         let reader = Box::pin(Cursor::new(bytes));
