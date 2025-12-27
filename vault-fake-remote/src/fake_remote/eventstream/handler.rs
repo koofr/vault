@@ -128,7 +128,9 @@ impl EventstreamHandler {
     ) -> Result<(), FakeRemoteError> {
         if let Some(message) = res {
             self.socket_writer
-                .send(WsMessage::Text(serde_json::to_string(&message).unwrap()))
+                .send(WsMessage::Text(
+                    serde_json::to_string(&message).unwrap().into(),
+                ))
                 .await
                 .map_err(|err| {
                     FakeRemoteError::ApiError(

@@ -13,14 +13,14 @@ env_logger = "0.11.0"
 futures = "0.3.31"
 lazy_static = "1.4.0"
 log = "0.4.20"
-reqwest = { version = "0.11.23", default-features = false, features = [
+reqwest = { version = "0.12.28", default-features = false, features = [
   "rustls-tls",
 ] }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.147"
 thiserror = "2.0.17"
 tokio = { version = "1.35.1", features = ["rt-multi-thread"] }
-tokio-tungstenite = { version = "0.20.1", features = [
+tokio-tungstenite = { version = "0.28.0", features = [
   "rustls-tls-webpki-roots",
 ] }
 tokio-util = { version = "0.7.10", features = ["compat"] }
@@ -36,7 +36,7 @@ vault-native = { path = "../vault-native" }
 vault-version = { path = "../vault-version" }
 
 [dev-dependencies]
-http = "0.2.11"
+http = "1.4.0"
 similar-asserts = "1.5.0"
 vault-core-tests = { path = "../vault-core-tests" }
 

@@ -1,7 +1,7 @@
-use axum::{http::Request, middleware::Next, response::Response};
+use axum::{extract::Request, middleware::Next, response::Response};
 use http::header;
 
-pub async fn fix_response_json<B>(request: Request<B>, next: Next<B>) -> Response {
+pub async fn fix_response_json(request: Request, next: Next) -> Response {
     let mut response = next.run(request).await;
 
     if response

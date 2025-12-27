@@ -29,7 +29,7 @@ impl ObjectProvider for MemoryObjectProvider {
         &self,
         object_id: String,
         range: Option<RangeInclusive<u64>>,
-    ) -> Result<Pin<Box<dyn AsyncRead + Send + Sync + 'static>>, ObjectProviderError> {
+    ) -> Result<Pin<Box<dyn AsyncRead + Send + 'static>>, ObjectProviderError> {
         let buf = self
             .objects
             .lock()
@@ -57,7 +57,7 @@ impl ObjectProvider for MemoryObjectProvider {
     async fn put(
         &self,
         object_id: String,
-        mut reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
+        mut reader: Pin<Box<dyn AsyncRead + Send + 'static>>,
     ) -> Result<u64, ObjectProviderError> {
         let mut buf = Vec::new();
 

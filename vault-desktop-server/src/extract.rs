@@ -1,7 +1,6 @@
 use std::{convert::Infallible, sync::Arc};
 
 use axum::{
-    async_trait,
     extract::FromRequestParts,
     http::{StatusCode, request::Parts},
     response::{IntoResponse, Response},
@@ -13,7 +12,6 @@ use crate::{app_state::AppState, callbacks::Callbacks, request_id::RequestId, se
 
 pub struct ExtractBase(pub Arc<WebVaultBase>);
 
-#[async_trait]
 impl FromRequestParts<AppState> for ExtractBase {
     type Rejection = Infallible;
 
@@ -24,7 +22,6 @@ impl FromRequestParts<AppState> for ExtractBase {
 
 pub struct ExtractSessions(pub Arc<Sessions>);
 
-#[async_trait]
 impl FromRequestParts<AppState> for ExtractSessions {
     type Rejection = Infallible;
 
@@ -35,7 +32,6 @@ impl FromRequestParts<AppState> for ExtractSessions {
 
 pub struct ExtractCallbacks(pub Arc<Callbacks>);
 
-#[async_trait]
 impl FromRequestParts<AppState> for ExtractCallbacks {
     type Rejection = Response;
 

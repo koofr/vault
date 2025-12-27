@@ -47,59 +47,59 @@ pub fn build_router(app_state: AppState) -> Router {
         .route("/oauth2/token", post(handlers::oauth2_token))
         .route("/api/v2.1/user", get(handlers::user))
         .route(
-            "/content/api/v2.1/users/:user_id/profile-picture",
+            "/content/api/v2.1/users/{user_id}/profile-picture",
             get(handlers::content_profile_picture),
         )
         .route("/api/v2.1/user/bookmarks", get(handlers::user_bookmarks))
         .route("/api/v2.1/places", get(handlers::places))
         .route("/api/v2.1/shared", get(handlers::shared))
-        .route("/api/v2.1/mounts/:mount_id", get(handlers::mounts_details))
-        .route("/api/v2.1/mounts/:mount_id/bundle", get(handlers::bundle))
+        .route("/api/v2.1/mounts/{mount_id}", get(handlers::mounts_details))
+        .route("/api/v2.1/mounts/{mount_id}/bundle", get(handlers::bundle))
         .route(
-            "/api/v2.1/mounts/:mount_id/files/info",
+            "/api/v2.1/mounts/{mount_id}/files/info",
             get(handlers::files_info),
         )
         .route(
-            "/api/v2.1/mounts/:mount_id/files/folder",
+            "/api/v2.1/mounts/{mount_id}/files/folder",
             post(handlers::files_folder_new),
         )
         .route(
-            "/api/v2.1/mounts/:mount_id/files/remove",
+            "/api/v2.1/mounts/{mount_id}/files/remove",
             delete(handlers::files_remove),
         )
         .route(
-            "/api/v2.1/mounts/:mount_id/files/rename",
+            "/api/v2.1/mounts/{mount_id}/files/rename",
             put(handlers::files_rename),
         )
         .route(
-            "/api/v2.1/mounts/:mount_id/files/copy",
+            "/api/v2.1/mounts/{mount_id}/files/copy",
             put(handlers::files_copy),
         )
         .route(
-            "/api/v2.1/mounts/:mount_id/files/move",
+            "/api/v2.1/mounts/{mount_id}/files/move",
             put(handlers::files_move),
         )
         .route(
-            "/api/v2.1/mounts/:mount_id/files/tags/set",
+            "/api/v2.1/mounts/{mount_id}/files/tags/set",
             post(handlers::files_tags_set),
         )
         .route("/api/v2.1/search", get(handlers::search))
         .route(
-            "/content/api/v2.1/mounts/:mount_id/files/get",
+            "/content/api/v2.1/mounts/{mount_id}/files/get",
             get(handlers::content_files_get),
         )
         .route(
-            "/content/api/v2.1/mounts/:mount_id/files/listrecursive",
+            "/content/api/v2.1/mounts/{mount_id}/files/listrecursive",
             get(handlers::content_files_list_recursive),
         )
         .route(
-            "/content/api/v2.1/mounts/:mount_id/files/put",
+            "/content/api/v2.1/mounts/{mount_id}/files/put",
             post(handlers::content_files_put),
         )
         .route("/api/v2.1/vault/repos", get(handlers::vault_repos_all))
         .route("/api/v2.1/vault/repos", post(handlers::vault_repos_create))
         .route(
-            "/api/v2.1/vault/repos/:repo_id",
+            "/api/v2.1/vault/repos/{repo_id}",
             delete(handlers::vault_repos_remove),
         )
         .route("/events", get(eventstream::handler::eventstream))

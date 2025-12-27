@@ -4,7 +4,8 @@ use std::{
 };
 
 use futures::{Future, ready};
-use http_body::{Body, combinators::UnsyncBoxBody};
+use http_body::{Body, Frame};
+use http_body_util::combinators::UnsyncBoxBody;
 use pin_project_lite::pin_project;
 
 pin_project! {
@@ -37,10 +38,10 @@ where
     type Data = B::Data;
     type Error = B::Error;
 
-    fn poll_data(
+    fn poll_frame(
         self: Pin<&mut Self>,
         cx: &mut Context<'_>,
-    ) -> Poll<Option<Result<Self::Data, Self::Error>>> {
+    ) -> Poll<Option<Result<Frame<Self::Data>, Self::Error>>> {
         let mut this = self.project();
 
         if let Some(fut) = this.sleep.as_mut().as_pin_mut() {
@@ -49,14 +50,7 @@ where
             this.sleep.set(None);
         }
 
-        this.inner.poll_data(cx)
-    }
-
-    fn poll_trailers(
-        self: Pin<&mut Self>,
-        cx: &mut Context<'_>,
-    ) -> Poll<Result<Option<http::HeaderMap>, Self::Error>> {
-        self.project().inner.poll_trailers(cx)
+        this.inner.poll_frame(cx)
     }
 
     fn is_end_stream(&self) -> bool {

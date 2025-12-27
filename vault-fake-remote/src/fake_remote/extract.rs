@@ -3,7 +3,6 @@ use std::{
     sync::{Arc, RwLock},
 };
 
-use async_trait::async_trait;
 use axum::extract::FromRequestParts;
 use http::{HeaderMap, header, request::Parts};
 
@@ -62,7 +61,6 @@ pub fn get_user_id_by_access_token<'a>(
     }
 }
 
-#[async_trait]
 impl FromRequestParts<AppState> for Context {
     type Rejection = FakeRemoteError;
 
@@ -87,7 +85,6 @@ impl FromRequestParts<AppState> for Context {
 
 pub struct ExtractState(pub Arc<RwLock<FakeRemoteState>>);
 
-#[async_trait]
 impl FromRequestParts<AppState> for ExtractState {
     type Rejection = Infallible;
 
@@ -98,7 +95,6 @@ impl FromRequestParts<AppState> for ExtractState {
 
 pub struct ExtractFilesService(pub Arc<FilesService>);
 
-#[async_trait]
 impl FromRequestParts<AppState> for ExtractFilesService {
     type Rejection = Infallible;
 
@@ -109,7 +105,6 @@ impl FromRequestParts<AppState> for ExtractFilesService {
 
 pub struct ExtractUsersService(pub Arc<UsersService>);
 
-#[async_trait]
 impl FromRequestParts<AppState> for ExtractUsersService {
     type Rejection = Infallible;
 
@@ -120,7 +115,6 @@ impl FromRequestParts<AppState> for ExtractUsersService {
 
 pub struct ExtractVaultReposCreateService(pub Arc<VaultReposCreateService>);
 
-#[async_trait]
 impl FromRequestParts<AppState> for ExtractVaultReposCreateService {
     type Rejection = Infallible;
 
@@ -131,7 +125,6 @@ impl FromRequestParts<AppState> for ExtractVaultReposCreateService {
 
 pub struct ExtractVaultReposRemoveService(pub Arc<VaultReposRemoveService>);
 
-#[async_trait]
 impl FromRequestParts<AppState> for ExtractVaultReposRemoveService {
     type Rejection = Infallible;
 
@@ -142,7 +135,6 @@ impl FromRequestParts<AppState> for ExtractVaultReposRemoveService {
 
 pub struct ExtractEventstreamListeners(pub Arc<eventstream::Listeners>);
 
-#[async_trait]
 impl FromRequestParts<AppState> for ExtractEventstreamListeners {
     type Rejection = Infallible;
 

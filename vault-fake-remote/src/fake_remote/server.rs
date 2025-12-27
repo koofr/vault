@@ -35,7 +35,7 @@ pub struct FakeRemoteServer {
     listener: FakeRemoteServerListener,
     tokio_runtime: Arc<tokio::runtime::Runtime>,
 
-    handle: Arc<RwLock<Option<Handle>>>,
+    handle: Arc<RwLock<Option<Handle<SocketAddr>>>>,
     addr: Arc<RwLock<Option<SocketAddr>>>,
     serve_join_handle: Arc<RwLock<Option<JoinHandle<()>>>>,
     start_mutex: Arc<tokio::sync::Mutex<()>>,
@@ -66,7 +66,7 @@ impl FakeRemoteServer {
             ));
         }
 
-        let handle = Handle::new();
+        let handle = Handle::<SocketAddr>::new();
 
         *self.handle.write().unwrap() = Some(handle.clone());
 
