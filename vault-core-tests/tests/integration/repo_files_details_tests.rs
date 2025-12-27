@@ -10,6 +10,7 @@ use std::{
 use axum::{http::StatusCode, response::IntoResponse};
 use futures::FutureExt;
 use similar_asserts::assert_eq;
+
 use vault_core::{
     cipher::errors::DecryptSizeError,
     common::state::Status,

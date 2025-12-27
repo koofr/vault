@@ -1,5 +1,6 @@
 use futures::FutureExt;
 use similar_asserts::assert_eq;
+
 use vault_core::common::state::Status;
 use vault_core_tests::{
     fixtures::{

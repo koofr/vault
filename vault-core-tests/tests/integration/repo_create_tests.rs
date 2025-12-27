@@ -2,6 +2,7 @@ use std::collections::HashSet;
 
 use futures::FutureExt;
 use similar_asserts::assert_eq;
+
 use vault_core::{
     common::state::Status,
     remote::{ApiErrorCode, RemoteError},
