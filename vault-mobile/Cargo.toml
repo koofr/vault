@@ -25,7 +25,6 @@ tokio-tungstenite = { version = "0.28.0", features = [
 ] }
 tokio-util = { version = "0.7.10", features = ["compat"] }
 uniffi = "0.29.4"
-url = "2.5.0"
 # uuid cannot be upgraded to > 1.12.1 because we cannot use rand_core > 0.6
 uuid = { version = "=1.12.1", features = ["v4", "fast-rng"] }
 vault-core = { path = "../vault-core" }

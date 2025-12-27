@@ -2,10 +2,9 @@ use std::{collections::HashMap, sync::Arc, time::Duration};
 
 use data_encoding::BASE64URL_NOPAD;
 use futures::lock::Mutex as AsyncMutex;
-use http::{HeaderMap, HeaderValue, header::CONTENT_TYPE};
+use http::{HeaderMap, HeaderValue, Uri, header::CONTENT_TYPE};
 use rand_core::{OsRng, RngCore};
 use serde::Deserialize;
-use url::Url;
 
 use crate::{
     auth::errors::AuthError,
@@ -199,9 +198,12 @@ impl OAuth2Service {
     }
 
     fn parse_url(&self, url: &str) -> Result<HashMap<String, String>, OAuth2Error> {
-        let parsed_url = Url::parse(url)
+        let uri = url
+            .parse::<Uri>()
             .map_err(|e| OAuth2Error::Unknown(format!("invalid url: {}", e.to_string())))?;
-        let query: HashMap<_, _> = parsed_url.query_pairs().into_owned().collect();
+        let query: HashMap<_, _> = form_urlencoded::parse(uri.query().unwrap_or("").as_bytes())
+            .into_owned()
+            .collect();
 
         if let Some(error_description) = query.get("error_description") {
             return Err(OAuth2Error::Unknown(error_description.to_owned()));
@@ -281,31 +283,25 @@ impl OAuth2Service {
     }
 
     fn get_login_url(&self, state: &str) -> String {
-        let mut params: HashMap<&str, &str> = HashMap::new();
-        params.insert("client_id", &self.config.client_id);
-        params.insert("redirect_uri", &self.config.redirect_uri);
-        params.insert("state", state);
-        params.insert("response_type", "code");
-        params.insert("scope", "public");
+        let query = form_urlencoded::Serializer::new(String::new())
+            .append_pair("client_id", &self.config.client_id)
+            .append_pair("redirect_uri", &self.config.redirect_uri)
+            .append_pair("state", state)
+            .append_pair("response_type", "code")
+            .append_pair("scope", "public")
+            .finish();
 
-        let mut auth_url =
-            Url::parse(&format!("{}/oauth2/auth", &self.config.auth_base_url)).unwrap();
-        auth_url.query_pairs_mut().extend_pairs(&params);
-
-        auth_url.to_string()
+        format!("{}/oauth2/auth?{}", &self.config.auth_base_url, query)
     }
 
     fn get_logout_url(&self, state: &str) -> String {
-        let mut params: HashMap<&str, &str> = HashMap::new();
-        params.insert("client_id", &self.config.client_id);
-        params.insert("post_logout_redirect_uri", &self.config.redirect_uri);
-        params.insert("state", state);
+        let query = form_urlencoded::Serializer::new(String::new())
+            .append_pair("client_id", &self.config.client_id)
+            .append_pair("post_logout_redirect_uri", &self.config.redirect_uri)
+            .append_pair("state", state)
+            .finish();
 
-        let mut logout_url =
-            Url::parse(&format!("{}/oauth2/logout", &self.config.auth_base_url)).unwrap();
-        logout_url.query_pairs_mut().extend_pairs(&params);
-
-        logout_url.to_string()
+        format!("{}/oauth2/logout?{}", &self.config.auth_base_url, query)
     }
 
     fn get_token_url(&self) -> String {
