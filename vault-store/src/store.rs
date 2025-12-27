@@ -102,6 +102,13 @@ where
             &MutationNotify<MutationEvent, State, MutationState>,
         ) -> R,
     {
+        // This can be used to debug store mutations
+        // println!("Store mutate: {}\n", {
+        //     let bt = format!("{}", std::backtrace::Backtrace::force_capture());
+        //     let lines: Vec<_> = bt.lines().skip(8).collect();
+        //     lines[..10.min(lines.len())].join("\n")
+        // });
+
         let mut state = self.state.write().unwrap();
 
         let events: Rc<RefCell<Vec<Event>>> = Rc::new(RefCell::new(Vec::with_capacity(1)));
