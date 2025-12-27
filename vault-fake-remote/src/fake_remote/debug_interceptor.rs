@@ -160,7 +160,7 @@ pub fn get_debug_interceptor(
                             .uri
                             .query()
                             .and_then(|query| {
-                                url::form_urlencoded::parse(query.as_bytes())
+                                form_urlencoded::parse(query.as_bytes())
                                     .into_owned()
                                     .find_map(|v| {
                                         if v.0 == "status" {
