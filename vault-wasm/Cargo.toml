@@ -14,7 +14,7 @@ futures = "0.3.31"
 # depends on rand_core ^0.6 and we should not have multiple versions of
 # rand_core and getrandom in our WASM build
 getrandom = { version = "=0.2.16", features = ["js"] }
-http = "0.2.11"
+http = "1.4.0"
 js-sys = "0.3.77"
 log = "0.4.20"
 serde = { version = "1.0.228", features = ["derive"] }

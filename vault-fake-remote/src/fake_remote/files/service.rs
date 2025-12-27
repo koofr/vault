@@ -161,7 +161,7 @@ impl FilesService {
         name: Name,
         modified: Option<i64>,
         conflict_resolution: &CreateFileConflictResolution,
-        reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
+        reader: Pin<Box<dyn AsyncRead + Send + 'static>>,
     ) -> Result<models::FilesFile, FakeRemoteError> {
         let mount_id = {
             let mut state = self.state.write().unwrap();
@@ -242,7 +242,7 @@ impl FilesService {
         &self,
         object_id: String,
         range: Option<RangeInclusive<u64>>,
-    ) -> Result<Pin<Box<dyn AsyncRead + Send + Sync + 'static>>, FakeRemoteError> {
+    ) -> Result<Pin<Box<dyn AsyncRead + Send + 'static>>, FakeRemoteError> {
         Ok(self.object_provider.get(object_id, range).await?)
     }
 

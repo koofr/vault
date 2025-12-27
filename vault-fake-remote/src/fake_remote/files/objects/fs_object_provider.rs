@@ -28,7 +28,7 @@ impl ObjectProvider for FsObjectProvider {
         &self,
         object_id: String,
         range: Option<RangeInclusive<u64>>,
-    ) -> Result<Pin<Box<dyn AsyncRead + Send + Sync + 'static>>, ObjectProviderError> {
+    ) -> Result<Pin<Box<dyn AsyncRead + Send + 'static>>, ObjectProviderError> {
         let path = self.get_object_path(&object_id);
 
         let mut file = tokio::fs::File::open(path).await?;
@@ -48,7 +48,7 @@ impl ObjectProvider for FsObjectProvider {
     async fn put(
         &self,
         object_id: String,
-        mut reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
+        mut reader: Pin<Box<dyn AsyncRead + Send + 'static>>,
     ) -> Result<u64, ObjectProviderError> {
         let path = self.get_object_path(&object_id);
 

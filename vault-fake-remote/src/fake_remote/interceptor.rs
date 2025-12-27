@@ -1,8 +1,9 @@
 use std::time::Duration;
 
 use axum::{
-    extract::State,
-    http::{Request, request},
+    body::Body,
+    extract::{Request, State},
+    http::request,
     middleware::Next,
     response::Response,
 };
@@ -26,7 +27,7 @@ impl InterceptorResult {
         Self::Transform(Box::new(move |response| {
             let (parts, body) = response.into_parts();
             let body = DelayedHttpBody::unsync_box_body(body, tokio::time::sleep(duration));
-            Response::from_parts(parts, body)
+            Response::from_parts(parts, Body::new(body))
         }))
     }
 
@@ -37,17 +38,17 @@ impl InterceptorResult {
                 axum::Error::new(std::io::Error::from(std::io::ErrorKind::BrokenPipe))
             });
             let body = DelayedHttpBody::unsync_box_body(body, tokio::time::sleep(duration));
-            Response::from_parts(parts, body)
+            Response::from_parts(parts, Body::new(body))
         }))
     }
 }
 
 pub type Interceptor = Box<dyn Fn(&request::Parts) -> InterceptorResult + Send + Sync + 'static>;
 
-pub async fn interceptor_middleware<B>(
+pub async fn interceptor_middleware(
     State(state): State<AppState>,
-    request: Request<B>,
-    next: Next<B>,
+    request: Request,
+    next: Next,
 ) -> Response {
     match state.interceptor.as_ref() {
         Some(interceptor) => {

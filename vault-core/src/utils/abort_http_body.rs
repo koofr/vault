@@ -5,7 +5,8 @@ use std::{
 };
 
 use bytes::Bytes;
-use http_body::{Body, combinators::UnsyncBoxBody};
+use http_body::{Body, Frame};
+use http_body_util::combinators::UnsyncBoxBody;
 
 pub struct AbortHttpBody<F, E> {
     build_error: F,
@@ -44,17 +45,10 @@ where
     type Data = Bytes;
     type Error = E;
 
-    fn poll_data(
+    fn poll_frame(
         self: Pin<&mut Self>,
         _: &mut Context<'_>,
-    ) -> Poll<Option<Result<Self::Data, Self::Error>>> {
+    ) -> Poll<Option<Result<Frame<Self::Data>, Self::Error>>> {
         Poll::Ready(Some(Err((self.build_error)())))
-    }
-
-    fn poll_trailers(
-        self: Pin<&mut Self>,
-        _: &mut Context<'_>,
-    ) -> Poll<Result<Option<http::HeaderMap>, Self::Error>> {
-        Poll::Ready(Err((self.build_error)()))
     }
 }

@@ -2,8 +2,8 @@ use std::{collections::HashMap, ops::RangeInclusive};
 
 use axum::{
     Form, Json,
-    body::StreamBody,
-    extract::{BodyStream, Path, Query},
+    body::Body,
+    extract::{Path, Query},
     http::StatusCode,
     response::{IntoResponse, Response},
 };
@@ -650,7 +650,7 @@ pub async fn content_files_get(
         .await?;
 
     let stream = ReaderStream::new(reader, 64 * 1024);
-    let body = StreamBody::new(stream);
+    let body = Body::from_stream(stream);
 
     let mut headers = HeaderMap::new();
 
@@ -713,7 +713,7 @@ pub async fn content_files_put(
     context: Context,
     Path(mountable): Path<String>,
     Query(query): Query<FilesPutQuery>,
-    stream: BodyStream,
+    body: Body,
 ) -> Result<Json<models::FilesFile>, FakeRemoteError> {
     if !matches!(query.info, Some(true)) {
         return Err(FakeRemoteError::BadRequest("Info must be true".into()));
@@ -737,7 +737,8 @@ pub async fn content_files_put(
         query.overwrite_ignore_nonexistent,
     );
 
-    let reader = stream
+    let reader = body
+        .into_data_stream()
         .map_err(|err| std::io::Error::new(std::io::ErrorKind::BrokenPipe, err))
         .into_async_read();
 

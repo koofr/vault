@@ -22,11 +22,11 @@ pub trait ObjectProvider: Debug {
         &self,
         object_id: String,
         range: Option<RangeInclusive<u64>>,
-    ) -> Result<Pin<Box<dyn AsyncRead + Send + Sync + 'static>>, ObjectProviderError>;
+    ) -> Result<Pin<Box<dyn AsyncRead + Send + 'static>>, ObjectProviderError>;
     async fn put(
         &self,
         object_id: String,
-        reader: Pin<Box<dyn AsyncRead + Send + Sync + 'static>>,
+        reader: Pin<Box<dyn AsyncRead + Send + 'static>>,
     ) -> Result<u64, ObjectProviderError>;
     async fn delete(&self, object_id: String) -> Result<(), ObjectProviderError>;
 }
