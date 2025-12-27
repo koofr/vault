@@ -11,7 +11,7 @@ crate-type = ["lib", "staticlib", "cdylib"]
 async-trait = "0.1.89"
 env_logger = "0.11.0"
 futures = "0.3.31"
-lazy_static = "1.4.0"
+lazy_static = "1.5.0"
 log = "0.4.20"
 reqwest = { version = "0.12.28", default-features = false, features = [
   "rustls-tls",
