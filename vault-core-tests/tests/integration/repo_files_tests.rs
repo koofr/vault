@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use futures::{FutureExt, io::Cursor, join};
 use similar_asserts::assert_eq;
+
 use vault_core::{
     cipher::errors::DecryptFilenameError,
     common::errors::InvalidNameError,

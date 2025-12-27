@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use futures::{FutureExt, join};
 use similar_asserts::assert_eq;
+
 use vault_core::{
     remote::{RemoteFileMoveConditions, remote::RemoteFileTagsSetConditions},
     store,

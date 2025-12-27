@@ -1,5 +1,6 @@
 use futures::{FutureExt, join};
 use similar_asserts::assert_eq;
+
 use vault_core::{
     common::state::Status,
     dialogs,
