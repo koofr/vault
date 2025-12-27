@@ -16,7 +16,7 @@ futures = "0.3.31"
 getrandom = { version = "=0.2.16", features = ["js"] }
 http = "1.4.0"
 js-sys = "0.3.77"
-log = "0.4.20"
+log = "0.4.29"
 serde = { version = "1.0.228", features = ["derive"] }
 serde-wasm-bindgen = "0.6.5"
 thiserror = "2.0.17"
