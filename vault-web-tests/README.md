@@ -29,11 +29,17 @@ scripts/use-fake-remote.sh ../vault-web/dist/config.json
 
 ## Run tests
 
+Run fake remote (fake Koofr API server):
+
+```sh
+cargo run --bin fake_remote
+```
+
 Before running tests you need to make sure `vite` is running in `vault-web`:
 
 ```sh
 cd ../vault-web
-vite
+npm run dev
 ```
 
 Run tests:
@@ -48,7 +54,7 @@ npx playwright test --headed
 # Starts the interactive UI mode.
 npx playwright test --ui
 
-# Runs the tests only on Desktop Chrome.
+# Runs the tests only on Desktop Chromium.
 npx playwright test --project=chromium
 
 # Runs the tests in a specific file.

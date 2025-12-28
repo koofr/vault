@@ -22,7 +22,7 @@ wasm-pack build --target web --out-dir ../vault-web/src/vault-wasm --out-name va
 ### Run Vite CLI
 
 ```sh
-vite
+npm run dev
 ```
 
 Open http://localhost:5173 in your browser.
@@ -30,14 +30,14 @@ Open http://localhost:5173 in your browser.
 ### Check for TypeScript errors
 
 ```sh
-tsc --watch
-# or tsc --watch
+npm run tsc
+# or npm run tsc-watch
 ```
 
 ## Build and run
 
 ```sh
-vite build
+npm run build
 ```
 
 Run caddy:
@@ -69,7 +69,7 @@ Search for `file origin does not match viewer`.
 if (
   fileOrigin !== viewerOrigin &&
   !/^https?:\/\/127.0.0.1$|^https?:\/\/127.0.0.1:|^https?:\/\/localhost$|^https?:\/\/localhost:/.test(
-    fileOrigin
+    fileOrigin,
   )
 ) {
   throw new Error("file origin does not match viewer's");
