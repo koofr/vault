@@ -7,7 +7,7 @@ edition.workspace = true
 futures = "0.3.31"
 log = "0.4.29"
 serde = { version = "1.0.228", features = ["derive"] }
-tsify = { version = "0.5.5" }
+tsify = { version = "0.5.6" }
 vault-core = { path = "../vault-core" }
 vault-file-icon = { path = "../vault-file-icon", default-features = false }
-wasm-bindgen = "0.2.100"
+wasm-bindgen = "0.2.106"
