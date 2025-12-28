@@ -111,7 +111,7 @@ version = "1.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "40c48f72fd53cd289104fc64099abca73db4166ad86ea0b4341abe65af83dadc"
 dependencies = [
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -122,7 +122,7 @@ checksum = "291e6a250ff86cd4a820112fb8898808a366d8f9f58ce16d1f538353ad55747d"
 dependencies = [
  "anstyle",
  "once_cell_polyfill",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -1408,11 +1408,12 @@ dependencies = [
 
 [[package]]
 name = "drop-stream"
-version = "0.3.1"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "75de0a37d1b6c86e1ac606fe8f858e65c4d7e01a2c330ed70fc6fe2f548208a5"
+checksum = "cf3ad5e2193e855cdd101d6d4ad09f0b3fa9aa5bd5169f483b4accd6eef96cfe"
 dependencies = [
  "futures-core",
+ "pin-project",
 ]
 
 [[package]]
