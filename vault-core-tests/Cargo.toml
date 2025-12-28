@@ -6,7 +6,7 @@ edition.workspace = true
 [dependencies]
 async-trait = "0.1.89"
 axum = { version = "0.8.8", features = ["ws", "multipart", "http2"] }
-env_logger = "0.11.0"
+env_logger = "0.11.8"
 futures = "0.3.31"
 hex = "0.4.3"
 log = "0.4.29"
