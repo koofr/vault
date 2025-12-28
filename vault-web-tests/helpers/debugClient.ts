@@ -41,9 +41,16 @@ export class DebugClient {
 
   async withQueue(
     callback: (request: { method: string; url: string }) => Promise<boolean>,
-    meanwhile?: () => Promise<void>,
+    {
+      before,
+      meanwhile,
+    }: { before?: () => Promise<void>; meanwhile?: () => Promise<void> } = {},
   ) {
     await this.queueEnable();
+
+    if (before !== undefined) {
+      await before();
+    }
 
     const run = async () => {
       // eslint-disable-next-line no-constant-condition
