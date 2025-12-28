@@ -7,7 +7,7 @@ edition.workspace = true
 async-trait = "0.1.89"
 axum = { version = "0.8.8", features = ["ws", "multipart", "http2"] }
 axum-server = { version = "0.8.0", features = ["tls-rustls-no-provider"] }
-clap = { version = "4.4.18", features = ["derive"] }
+clap = { version = "4.5.53", features = ["derive"] }
 env_logger = "0.11.8"
 form_urlencoded = "1.2.2"
 futures = "0.3.31"
