@@ -15,20 +15,20 @@ futures = "0.3.31"
 # rand_core and getrandom in our WASM build
 getrandom = { version = "=0.2.16", features = ["js"] }
 http = "1.4.0"
-js-sys = "0.3.77"
+js-sys = "0.3.83"
 log = "0.4.29"
 serde = { version = "1.0.228", features = ["derive"] }
 serde-wasm-bindgen = "0.6.5"
 thiserror = "2.0.17"
-tsify = { version = "0.5.5", features = ["js"] }
+tsify = { version = "0.5.6", features = ["js"] }
 vault-core = { path = "../vault-core" }
 vault-crypto = { path = "../vault-crypto" }
 vault-web-api = { path = "../vault-web-api" }
 vault-file-icon = { path = "../vault-file-icon", default-features = false }
-wasm-bindgen = "0.2.100"
-wasm-bindgen-futures = "0.4.50"
+wasm-bindgen = "0.2.106"
+wasm-bindgen-futures = "0.4.56"
 wasm-streams = "0.4.2"
-web-sys = { version = "0.3.77", features = [
+web-sys = { version = "0.3.83", features = [
   'AbortController',
   'AbortSignal',
   'Blob',
