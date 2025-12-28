@@ -7,7 +7,8 @@ use axum::{
     middleware::Next,
     response::Response,
 };
-use futures::future::BoxFuture;
+use futures::{StreamExt, future::BoxFuture};
+
 use vault_core::utils::{abort_http_body::AbortHttpBody, delayed_http_body::DelayedHttpBody};
 
 use super::app_state::AppState;
@@ -64,13 +65,33 @@ pub async fn interceptor_middleware(
                 InterceptorResult::AsyncTransform(transform) => {
                     transform(next.run(request).await).await
                 }
-                InterceptorResult::Response(response) => response,
+                InterceptorResult::Response(response) => {
+                    // Consume request body before sending response to prevent
+                    // client errors
+                    consume_request_body(request).await;
+
+                    response
+                }
                 InterceptorResult::AsyncResponse(response) => match response.await {
-                    Some(response) => response,
+                    Some(response) => {
+                        // Consume request body before sending response to prevent
+                        // client errors
+                        consume_request_body(request).await;
+
+                        response
+                    }
                     None => next.run(request).await,
                 },
             }
         }
         None => next.run(request).await,
     }
+}
+
+async fn consume_request_body(request: http::Request<Body>) {
+    request
+        .into_body()
+        .into_data_stream()
+        .for_each(|_| async {})
+        .await;
 }

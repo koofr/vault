@@ -1764,7 +1764,20 @@ fn test_upload_fail_autoretry_retry() {
                 fixture.vault.clone(),
                 1,
                 |t| matches!(t.state, TransferState::Failed { .. }),
-                |vault| vault.transfers_retry(1),
+                |vault| {
+                    // this must only be called when transfers stop auto
+                    // retrying otherwise we get flaky tests
+                    if vault.store.with_state(|state| {
+                        state
+                            .transfers
+                            .transfers
+                            .get(&1)
+                            .map(|t| t.attempts == state.config.transfers.autoretry_attempts)
+                            .unwrap_or(false)
+                    }) {
+                        vault.transfers_retry(1)
+                    }
+                },
             );
 
             let (_, create_future) = fixture.vault.transfers_upload(
