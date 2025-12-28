@@ -118,8 +118,10 @@ test.describe('repoFilesDetails', () => {
               return true;
             }
           },
-          async () => {
-            await textEditor.clickLogo();
+          {
+            meanwhile: async () => {
+              await textEditor.clickLogo();
+            },
           },
         );
         await textEditor.dialogs.waitForDialog(
@@ -140,8 +142,14 @@ test.describe('repoFilesDetails', () => {
               return true;
             }
           },
-          async () => {
-            await textEditor.dialogs.clickButtonWait('Try again');
+          {
+            before: async () => {
+              // enable queue, click "Try again" and wait for the dialog to be
+              // hidden before accepting the next request, otherwise we get
+              // flaky tests where dialog is hidden and shown again before
+              // waitForHidden succeeds
+              await textEditor.dialogs.clickButtonWait('Try again');
+            },
           },
         );
         await textEditor.dialogs.waitForDialog(
@@ -172,8 +180,10 @@ test.describe('repoFilesDetails', () => {
               return true;
             }
           },
-          async () => {
-            await textEditor.clickLogo();
+          {
+            meanwhile: async () => {
+              await textEditor.clickLogo();
+            },
           },
         );
         await textEditor.dialogs.waitForDialog(
@@ -571,7 +581,9 @@ test.describe('repoFilesDetails', () => {
           'Save to a new location',
           'Cancel',
         );
-        await textEditor.dialogs.clickButtonWait('Save to a new location');
+        // we cannot use clickButtonWait here because "File location changed"
+        // dialog can be shown immediately and we get flaky tests
+        await textEditor.dialogs.clickButton('Save to a new location');
         await textEditor.dialogs.waitForDialog(
           'File location changed',
           `File ${textEditor.currentName} was saved here because it could not be saved in its original location.`,

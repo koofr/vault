@@ -402,12 +402,10 @@ export class TextEditor {
     );
   }
 
-  async hasOnBeforeLeave() {
-    return await this.page.evaluate(() => window.onbeforeunload != null);
-  }
-
-  async expectHasOnBeforeLeave() {
-    expect(await this.hasOnBeforeLeave()).toBeTruthy();
+  async expectHasOnBeforeLeave(timeout = 5000) {
+    await this.page.waitForFunction(() => window.onbeforeunload != null, {
+      timeout,
+    });
   }
 
   async clearOnBeforeLeave() {
