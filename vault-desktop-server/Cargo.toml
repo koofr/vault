@@ -33,7 +33,7 @@ vault-native = { path = "../vault-native" }
 vault-web-api = { path = "../vault-web-api" }
 
 [dev-dependencies]
-similar-asserts = "1.5.0"
+similar-asserts = "1.7.0"
 urlencoding = "2.1.3"
 
 [lib]

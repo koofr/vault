@@ -29,4 +29,4 @@ rustls = { version = "0.23.35", default-features = false, features = [
 
 [dev-dependencies]
 env_logger = "0.11.8"
-similar-asserts = "1.5.0"
+similar-asserts = "1.7.0"
