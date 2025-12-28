@@ -36,7 +36,7 @@ vault-version = { path = "../vault-version" }
 
 [dev-dependencies]
 http = "1.4.0"
-similar-asserts = "1.5.0"
+similar-asserts = "1.7.0"
 vault-core-tests = { path = "../vault-core-tests" }
 
 [build-dependencies]
