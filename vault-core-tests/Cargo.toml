@@ -23,7 +23,7 @@ rustls = { version = "0.23.35", default-features = false, features = [
 serde = "1.0.228"
 serde_json = "1.0.147"
 similar-asserts = "1.7.0"
-tokio = { version = "1.35.1", features = ["full"] }
+tokio = { version = "1.48.0", features = ["full"] }
 # uuid cannot be upgraded to > 1.12.1 because we cannot use rand_core > 0.6
 uuid = { version = "=1.12.1", features = ["v4", "fast-rng"] }
 vault-core = { path = "../vault-core" }
