@@ -66,7 +66,7 @@ test.describe('repoFiles', () => {
 
       await webVaultClient.load();
       const repo = await webVaultClient.waitForRepo();
-      await webVaultClient.unlockRepo(repo);
+      webVaultClient.unlockRepo(repo);
       await webVaultClient.uploadFile(
         repo,
         '/',

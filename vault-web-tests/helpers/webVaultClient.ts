@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Agent } from 'undici';
 
 import vaultWasm, {
@@ -23,6 +22,13 @@ function tryInitConsole() {
 
 type WebVault = InstanceType<typeof WebVault>;
 
+type EraseThis<T> = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [K in keyof T]: T[K] extends (...args: any[]) => any
+    ? OmitThisParameter<T[K]>
+    : T[K];
+};
+
 export class WebVaultClient {
   webVault: WebVault;
 
@@ -45,7 +51,7 @@ export class WebVaultClient {
     const browserHttpClientDelegate: BrowserHttpClientDelegate = {
       async fetch(request) {
         if (ignoreHTTPSErrors) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
           (request as any).dispatcher = new Agent({
             connect: {
               rejectUnauthorized: false,
@@ -82,7 +88,7 @@ export class WebVaultClient {
       oauth2RedirectUri,
       browserHttpClientDelegate,
       browserEventstreamWebSocketDelegate,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
       storage as any,
     );
 
@@ -97,10 +103,11 @@ export class WebVaultClient {
 
   subscribe<T>(
     subscribe: (webVault: WebVault, callback: () => void) => number,
-    getDataFunc: (webVault: WebVault) => (subscriptionId: number) => T,
+    getDataFunc: (
+      webVault: EraseThis<WebVault>,
+    ) => (subscriptionId: number) => T,
     callback: (data: T, unsubscribe: () => void) => void,
   ): () => void {
-    // eslint-disable-next-line prefer-const
     let subscriptionId: number | undefined;
 
     const getData = getDataFunc(this.webVault);
@@ -114,7 +121,6 @@ export class WebVaultClient {
 
     const subscribeCallback = () => {
       if (subscriptionId !== undefined) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         callback(getData.call(this.webVault, subscriptionId), unsubscribe);
       }
     };
@@ -129,14 +135,16 @@ export class WebVaultClient {
   }
 
   async load() {
-    await this.webVault.load();
+    this.webVault.load();
 
     await this.waitForReposLoaded();
   }
 
   async waitFor<T>(
     subscribe: (webVault: WebVault, callback: () => void) => number,
-    getDataFunc: (webVault: WebVault) => (subscriptionId: number) => T,
+    getDataFunc: (
+      webVault: EraseThis<WebVault>,
+    ) => (subscriptionId: number) => T,
     check: (data: T) => boolean,
     timeoutMs?: number,
   ): Promise<T> {
@@ -189,7 +197,7 @@ export class WebVaultClient {
     return repos!.repos[0];
   }
 
-  async unlockRepo(repo: Repo, password = 'password'): Promise<void> {
+  unlockRepo(repo: Repo, password = 'password') {
     const unlockId = this.webVault.repoUnlockCreate(repo.id, {
       mode: 'Unlock',
     });
@@ -258,10 +266,9 @@ export class WebVaultClient {
         new AbortController().signal,
       );
 
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return await new Response(stream!.stream!).text();
+      return await new Response(stream!.stream).text();
     } finally {
-      await this.webVault.repoFilesDetailsDestroy(detailsId);
+      this.webVault.repoFilesDetailsDestroy(detailsId);
     }
   }
 
@@ -297,6 +304,7 @@ export class WebVaultClient {
         sleepMs,
       );
     } catch (e: unknown) {
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       throw new Error(`${e}: ${lastErr}`);
     }
   }
@@ -334,7 +342,7 @@ export class WebVaultClient {
         new TextEncoder().encode(content),
       );
 
-      await this.webVault.repoFilesDetailsSave(detailsId);
+      this.webVault.repoFilesDetailsSave(detailsId);
 
       await this.waitFor(
         (v, cb) => v.repoFilesDetailsInfoSubscribe(detailsId, cb),
@@ -345,7 +353,7 @@ export class WebVaultClient {
         timeoutMs,
       );
     } finally {
-      await this.webVault.repoFilesDetailsDestroy(detailsId);
+      this.webVault.repoFilesDetailsDestroy(detailsId);
     }
   }
 
@@ -387,7 +395,7 @@ export class WebVaultClient {
 
     const promptDialogFillPromise = this.promptDialogFill(newName);
 
-    await this.webVault.repoFilesRenameFile(repo.id, encryptedPath);
+    this.webVault.repoFilesRenameFile(repo.id, encryptedPath);
 
     await promptDialogFillPromise;
   }
@@ -397,7 +405,7 @@ export class WebVaultClient {
 
     const confirmDialogPromise = this.confirmDialog();
 
-    await this.webVault.repoFilesDeleteFile(repo.id, encryptedPath);
+    this.webVault.repoFilesDeleteFile(repo.id, encryptedPath);
 
     await confirmDialogPromise;
   }

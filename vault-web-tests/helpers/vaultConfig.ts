@@ -1,8 +1,12 @@
 import path from 'path';
 import { readFileSync } from 'fs';
 
-const configPath = path.join(__dirname, '../../vault-web/public/config.json');
+const configPath = path.join(
+  import.meta.dirname,
+  '../../vault-web/public/config.json',
+);
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 export const config: {
   baseUrl: string;
   oauth2ClientId: string;

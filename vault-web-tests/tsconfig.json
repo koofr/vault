@@ -1,17 +1,20 @@
 {
   "compilerOptions": {
+    "target": "ES2022",
     "lib": [
       "DOM",
       "DOM.Iterable",
       "ESNext"
     ],
     "esModuleInterop": true,
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "strict": true,
-    "noEmit": true,
+    "noEmit": true
   },
   "include": [
-    "."
+    ".",
+    "eslint.config.js"
   ],
   "exclude": [
     "node_modules"
