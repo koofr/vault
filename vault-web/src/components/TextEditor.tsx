@@ -1,5 +1,5 @@
 import { css, cx } from '@emotion/css';
-import * as monacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
+import * as monacoEditor from 'monaco-editor/esm/vs/editor/editor.api.js';
 import { memo, useCallback, useEffect, useRef } from 'react';
 
 import { monacoLanguageForFileName } from '../utils/monacoLanguages';
