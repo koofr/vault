@@ -14,7 +14,6 @@ import { joinParentName } from './pathUtils';
 import {
   filesTableClickFile,
   filesTableFileSelected,
-  filesTableRowLocator,
   filesTableRowNameLocator,
   filesTableSelectFile,
   openFileBrowser,
@@ -423,7 +422,7 @@ export const textEditorTest = test.extend<{ textEditor: TextEditor }>({
 
     const repo = await webVaultClient.waitForRepo();
 
-    await webVaultClient.unlockRepo(repo);
+    webVaultClient.unlockRepo(repo);
 
     const textEditor = new TextEditor(page, webVaultClient, repo, dialogs);
 

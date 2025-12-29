@@ -30,7 +30,7 @@ export async function setReposDefaultAutoLock(
   await browserWebVaultWait(page);
 
   await page.evaluate((autoLock) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
     const webVault = (window as any).webVault as WebVault;
     webVault.reposSetDefaultAutoLock(autoLock);
   }, autoLock);
@@ -40,7 +40,7 @@ export async function lockRepo(page: Page, repoId: string) {
   await browserWebVaultWait(page);
 
   await page.evaluate((repoId) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
     const webVault = (window as any).webVault as WebVault;
     webVault.reposLockRepo(repoId);
   }, repoId);

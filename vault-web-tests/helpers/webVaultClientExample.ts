@@ -18,7 +18,7 @@ async function main() {
     ignoreHTTPSErrors,
   );
 
-  await client.webVault.load();
+  client.webVault.load();
 
   console.log('Loaded');
 
@@ -53,7 +53,7 @@ async function main() {
   const unlockId = client.webVault.repoUnlockCreate(repo.id, {
     mode: 'Unlock',
   });
-  await client.webVault.repoUnlockUnlock(unlockId, 'password');
+  client.webVault.repoUnlockUnlock(unlockId, 'password');
   client.webVault.repoUnlockDestroy(unlockId);
 
   const browserId = client.webVault.repoFilesBrowsersCreate(
@@ -148,8 +148,7 @@ async function main() {
 
   console.log('Download done');
 
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const downloadStreamText = await new Response(downloadStream.stream!).text();
+  const downloadStreamText = await new Response(downloadStream.stream).text();
 
   console.log('Downloaded content', downloadStream.name, downloadStreamText);
 }

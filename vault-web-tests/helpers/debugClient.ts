@@ -36,6 +36,7 @@ export class DebugClient {
     uploadsPauseEnabled: boolean;
   }> {
     const res = await this.request.get(`${this.baseUrl}/debug/state.json`);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return await res.json();
   }
 
@@ -53,7 +54,6 @@ export class DebugClient {
     }
 
     const run = async () => {
-      // eslint-disable-next-line no-constant-condition
       while (true) {
         const state = await this.state();
 
