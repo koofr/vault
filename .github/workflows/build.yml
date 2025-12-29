@@ -108,7 +108,7 @@ jobs:
         uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
       - name: Install vault-web dependencies
         run: npm ci
         working-directory: vault-web
@@ -204,7 +204,7 @@ jobs:
           name: vault-web
       - name: Deploy
         env:
-          KOOFR_VAULT_PREVIEW_DEPLOY_KEY : ${{secrets.KOOFR_VAULT_PREVIEW_DEPLOY_KEY}}
+          KOOFR_VAULT_PREVIEW_DEPLOY_KEY: ${{secrets.KOOFR_VAULT_PREVIEW_DEPLOY_KEY}}
         run: |
           mkdir -p ~/.ssh
           echo "$KOOFR_VAULT_PREVIEW_DEPLOY_KEY" > ~/.ssh/id_rsa
