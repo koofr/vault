@@ -62,7 +62,9 @@ const UserIconUser = memo<{ user: User }>(({ user }) => {
         return undefined;
       }
 
-      return URL.createObjectURL(new Blob([profilePictureArray]));
+      return URL.createObjectURL(
+        new Blob([profilePictureArray as any as ArrayBuffer]),
+      );
     } else {
       return undefined;
     }

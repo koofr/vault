@@ -2,7 +2,7 @@ import { useSubscribe } from '../../webVault/useSubscribe';
 
 export function useRepoFilesDetailsBytes(
   detailsId: number,
-): ArrayBuffer | undefined {
+): ArrayBufferView<ArrayBufferLike> | undefined {
   const [arrayBuffer] = useSubscribe(
     (v, cb) => v.repoFilesDetailsContentBytesSubscribe(detailsId, cb),
     (v) => v.repoFilesDetailsContentBytesData,

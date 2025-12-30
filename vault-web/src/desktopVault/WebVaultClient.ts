@@ -90,7 +90,7 @@ export class WebVaultClient {
   private prepareArgs(rawArgs: any[]) {
     return rawArgs.map((arg) => {
       if (arg instanceof Uint8Array) {
-        return encode(arg);
+        return encode(arg as any as ArrayBuffer);
       } else if (typeof arg === 'function') {
         return this.callbacks.register(arg);
       } else {
