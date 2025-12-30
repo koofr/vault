@@ -11,7 +11,7 @@ export function useBrowser(
   const webVault = useWebVault();
 
   const lastSource = useRef<RepoFilesBrowserSource>(source);
-  const lastBrowserId = useRef<number>();
+  const lastBrowserId = useRef<number>(undefined);
 
   const browserId = useMemo(() => {
     if (
