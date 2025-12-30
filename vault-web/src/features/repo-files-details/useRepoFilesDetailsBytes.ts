@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { useSubscribe } from '../../webVault/useSubscribe';
 
 export function useRepoFilesDetailsBytes(
@@ -17,7 +19,11 @@ export function useRepoFilesDetailsString(
 ): string | undefined {
   const arrayBuffer = useRepoFilesDetailsBytes(detailsId);
 
-  return arrayBuffer !== undefined
-    ? new TextDecoder('utf-8').decode(arrayBuffer)
-    : undefined;
+  const dataString = useMemo(() => {
+    return arrayBuffer !== undefined
+      ? new TextDecoder('utf-8').decode(arrayBuffer)
+      : undefined;
+  }, [arrayBuffer]);
+
+  return dataString;
 }
