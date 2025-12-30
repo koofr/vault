@@ -10,10 +10,11 @@ export interface FileIconCache {
 }
 
 export const FileIconCacheContext = createContext<FileIconCache>(
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
   undefined as any,
 );
 
-export const FileIconCacheProvider: React.FC<PropsWithChildren<{}>> = ({
+export const FileIconCacheProvider: React.FC<PropsWithChildren> = ({
   children,
 }) => {
   const webVault = useWebVault();
@@ -58,3 +59,4 @@ export const FileIcon = memo<FileIconProps>((props) => {
 
   return <img src={url} alt="File icon" />;
 });
+FileIcon.displayName = 'FileIcon';

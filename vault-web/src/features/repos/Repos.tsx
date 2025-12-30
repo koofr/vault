@@ -311,6 +311,7 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
     );
   },
 );
+RepoItem.displayName = 'RepoItem';
 
 export const RepoCreateItem = memo<{ isActive: boolean }>(({ isActive }) => {
   const theme = useTheme();
@@ -394,6 +395,7 @@ export const RepoCreateItem = memo<{ isActive: boolean }>(({ isActive }) => {
     </li>
   );
 });
+RepoCreateItem.displayName = 'RepoCreateItem';
 
 export const Repos = memo(() => {
   const location = useLocation();
@@ -426,3 +428,4 @@ export const Repos = memo(() => {
     </aside>
   );
 });
+Repos.displayName = 'Repos';

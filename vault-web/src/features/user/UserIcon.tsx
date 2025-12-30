@@ -20,6 +20,7 @@ const UserIconLoading = memo(() => {
     />
   );
 });
+UserIconLoading.displayName = 'UserIconLoading';
 
 const UserIconFallback = memo<{ user: User }>(({ user }) => {
   const theme = useTheme();
@@ -45,6 +46,7 @@ const UserIconFallback = memo<{ user: User }>(({ user }) => {
     </div>
   );
 });
+UserIconFallback.displayName = 'UserIconFallback';
 
 const UserIconUser = memo<{ user: User }>(({ user }) => {
   const webVault = useWebVault();
@@ -63,7 +65,7 @@ const UserIconUser = memo<{ user: User }>(({ user }) => {
       }
 
       return URL.createObjectURL(
-        new Blob([profilePictureArray as any as ArrayBuffer]),
+        new Blob([profilePictureArray as unknown as ArrayBuffer]),
       );
     } else {
       return undefined;
@@ -88,6 +90,7 @@ const UserIconUser = memo<{ user: User }>(({ user }) => {
     <UserIconFallback user={user} />
   );
 });
+UserIconUser.displayName = 'UserIconUser';
 
 export const UserIcon = memo(() => {
   const [user] = useSubscribe(
@@ -102,3 +105,4 @@ export const UserIcon = memo(() => {
     <UserIconLoading />
   );
 });
+UserIcon.displayName = 'UserIcon';

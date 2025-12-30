@@ -19,10 +19,11 @@ export function getDocumentScroll(): DocumentScrollInfo {
 }
 
 export const DocumentScrollContext = createContext<DocumentScrollInfo>(
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
   undefined as any,
 );
 
-export const DocumentScrollProvider: React.FC<PropsWithChildren<{}>> = ({
+export const DocumentScrollProvider: React.FC<PropsWithChildren> = ({
   children,
 }) => {
   const [info, setInfo] = useState<DocumentScrollInfo>(getDocumentScroll);
@@ -37,6 +38,7 @@ export const DocumentScrollProvider: React.FC<PropsWithChildren<{}>> = ({
     }
   }, []);
 
+  // eslint-disable-next-line react-hooks/refs
   onScroll();
 
   useEffect(() => {

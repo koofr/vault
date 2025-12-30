@@ -18,3 +18,4 @@ export const NavbarClose = memo<{ to: To }>(({ to }) => {
     </Link>
   );
 });
+NavbarClose.displayName = 'NavbarClose';

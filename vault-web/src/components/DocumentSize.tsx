@@ -21,10 +21,11 @@ export function getDocumentSize(): DocumentSizeInfo {
 }
 
 export const DocumentSizeContext = createContext<DocumentSizeInfo>(
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
   undefined as any,
 );
 
-export const DocumentSizeProvider: React.FC<PropsWithChildren<{}>> = ({
+export const DocumentSizeProvider: React.FC<PropsWithChildren> = ({
   children,
 }) => {
   const [size, setSize] = useState<DocumentSizeInfo>(getDocumentSize);
@@ -42,6 +43,7 @@ export const DocumentSizeProvider: React.FC<PropsWithChildren<{}>> = ({
     }
   }, []);
 
+  // eslint-disable-next-line react-hooks/refs
   onResize();
 
   useEffect(() => {

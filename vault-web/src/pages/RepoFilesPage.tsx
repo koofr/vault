@@ -32,3 +32,4 @@ export const RepoFilesPage = memo(() => {
 
   return <RepoFiles source={source} selectName={selectName} />;
 });
+RepoFilesPage.displayName = 'RepoFilesPage';

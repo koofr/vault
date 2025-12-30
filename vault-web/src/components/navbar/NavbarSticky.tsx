@@ -8,7 +8,7 @@ export const NAVBAR_STICKY_SCROLL_MOBILE = 1;
 
 export const NavbarStickyContext = createContext<boolean>(false);
 
-export const NavbarStickyProvider: React.FC<PropsWithChildren<{}>> = ({
+export const NavbarStickyProvider: React.FC<PropsWithChildren> = ({
   children,
 }) => {
   const isMobile = useIsMobile();

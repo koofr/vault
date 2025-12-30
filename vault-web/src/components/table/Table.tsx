@@ -208,6 +208,7 @@ export const BaseTableRow = memo<PropsWithChildren<BaseTableRowProps>>(
     );
   },
 );
+BaseTableRow.displayName = 'BaseTableRow';
 
 export const TableCells = styled.div`
   display: flex;
@@ -237,6 +238,7 @@ export interface ComputedColumn {
   sortBy?: SortBy;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-redundant-type-constituents
 export interface RowProps<T = any | undefined> {
   index: number;
   data: T;
@@ -255,10 +257,12 @@ export interface TableContextType {
   ) => void;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
 export const TableContext = createContext<TableContextType>(undefined as any);
 
 export type TableSelectionSummary = 'None' | 'Partial' | 'All';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface TableProps<T = any> {
   columns: Column[];
   selectionSummary: TableSelectionSummary;
@@ -398,6 +402,7 @@ export const Table = memo<TableProps>(
             </div>
             <TableBody role="rowgroup">
               {indexes.map((index) => (
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 <Row key={index} index={index} data={data} />
               ))}
             </TableBody>
@@ -407,10 +412,12 @@ export const Table = memo<TableProps>(
     );
   },
 );
+Table.displayName = 'Table';
 
 export interface TableRowProps {
   index: number;
-  row: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  row: Record<string, any>;
   isSelected: boolean;
   isFirstSelected: boolean;
   ariaLabel?: string;
@@ -484,3 +491,4 @@ export const TableRow = memo<TableRowProps>(
     );
   },
 );
+TableRow.displayName = 'TableRow';

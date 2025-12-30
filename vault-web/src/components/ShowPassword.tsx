@@ -105,3 +105,4 @@ export const ShowPassword = memo<{
     </button>
   );
 });
+ShowPassword.displayName = 'ShowPassword';

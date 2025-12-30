@@ -22,8 +22,8 @@ export const TransfersSummary = memo<{
     (v) => v.transfersSummaryData,
     [],
   );
-  let [isSizeVisible, setSizeVisible] = useState(false);
-  let [isSpeedVisible, setSpeedVisible] = useState(false);
+  const [isSizeVisible, setSizeVisible] = useState(false);
+  const [isSpeedVisible, setSpeedVisible] = useState(false);
   const onAbortAllClick = useCallback(
     (event: MouseEvent<HTMLElement>) => {
       event.stopPropagation();
@@ -306,3 +306,4 @@ export const TransfersSummary = memo<{
     </div>
   );
 });
+TransfersSummary.displayName = 'TransfersSummary';

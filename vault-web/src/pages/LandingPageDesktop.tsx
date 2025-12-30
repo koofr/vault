@@ -217,3 +217,4 @@ export const LandingPageDesktop = memo<{ onLogin: () => void }>(
     );
   },
 );
+LandingPageDesktop.displayName = 'LandingPageDesktop';

@@ -31,3 +31,4 @@ export const RepoFilesContent = memo<{
     </>
   );
 });
+RepoFilesContent.displayName = 'RepoFilesContent';

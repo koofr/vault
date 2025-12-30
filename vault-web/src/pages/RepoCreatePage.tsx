@@ -5,3 +5,4 @@ import { RepoCreate } from '../features/repo-create/RepoCreate';
 export const RepoCreatePage = memo(() => {
   return <RepoCreate />;
 });
+RepoCreatePage.displayName = 'RepoCreatePage';

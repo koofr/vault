@@ -37,3 +37,4 @@ export const ImageViewer = memo<ImageViewerProps>(
     );
   },
 );
+ImageViewer.displayName = 'ImageViewer';

@@ -12,6 +12,7 @@ import { createProxy } from './desktopVault/webVaultProxy';
 import { LandingPageDesktop } from './pages/LandingPageDesktop';
 
 export const mainDesktop = async () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
   const isTauri = (window as any).__TAURI_INTERNALS__ !== undefined;
 
   const configPromise = fetch('/config.json').then(

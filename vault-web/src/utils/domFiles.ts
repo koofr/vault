@@ -1,6 +1,7 @@
 export function canUploadFolder() {
   const input = document.createElement('input');
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
   return (input as any).webkitdirectory !== undefined;
 }
 
@@ -38,6 +39,7 @@ export function webkitFilesToEntries(files: File[]): Entry[] {
   const createFileEntry = (file: File): FileEntry => {
     const fileFn = (
       successCallback: (file: File) => void,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       errorCallback?: (err: Error) => void,
     ): void => {
       successCallback(file);
@@ -52,7 +54,7 @@ export function webkitFilesToEntries(files: File[]): Entry[] {
   };
 
   const createDirectoryEntry = (
-    name: String,
+    name: string,
     children: Entry[],
   ): DirectoryEntry => {
     const createReader = (): DirectoryReader => {
@@ -60,6 +62,7 @@ export function webkitFilesToEntries(files: File[]): Entry[] {
 
       const readEntries = (
         successCallback: (entries: Entry[]) => void,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         errorCallback?: (err: Error) => void,
       ): void => {
         if (readDone) {
@@ -99,6 +102,7 @@ export function webkitFilesToEntries(files: File[]): Entry[] {
   };
 
   files.forEach((file) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const pathParts: string[] = (file as any).webkitRelativePath.split('/');
     const parentPathParts = pathParts.slice(0, pathParts.length - 1);
 

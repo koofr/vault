@@ -1,5 +1,12 @@
 import { css } from '@emotion/css';
-import { MutableRefObject, memo, useEffect, useRef, useState } from 'react';
+import {
+  MutableRefObject,
+  RefObject,
+  memo,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useDocumentSize } from '../../components/DocumentSize';
@@ -24,7 +31,7 @@ import { useShortcuts } from './useShortcuts';
 const RepoFilesDetailsInnerInfo = memo<{
   encryptedPath: string;
   autosaveIntervalMs?: number;
-  expectedEncryptedNewPath: MutableRefObject<string | undefined>;
+  expectedEncryptedNewPath: RefObject<string | undefined>;
   detailsId: number;
   info: RepoFilesDetailsInfo;
   infoRef: { current: RepoFilesDetailsInfo | undefined };
@@ -46,6 +53,7 @@ const RepoFilesDetailsInnerInfo = memo<{
       if (info.repoId !== undefined && info.encryptedPath !== undefined) {
         if (info.shouldDestroy) {
           // TODO navigate to parent and select the file
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           navigate(
             repoFilesLink(
               info.repoId,
@@ -54,8 +62,10 @@ const RepoFilesDetailsInnerInfo = memo<{
             ),
           );
         } else if (info.encryptedPath !== encryptedPath) {
+          // eslint-disable-next-line react-hooks/immutability
           expectedEncryptedNewPath.current = info.encryptedPath;
 
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           navigate(
             repoFilesDetailsLink(
               info.repoId,
@@ -121,6 +131,7 @@ const RepoFilesDetailsInnerInfo = memo<{
     );
   },
 );
+RepoFilesDetailsInnerInfo.displayName = 'RepoFilesDetailsInnerInfo';
 
 const RepoFilesDetailsInner = memo<{
   repoId: string;
@@ -171,6 +182,7 @@ const RepoFilesDetailsInner = memo<{
     );
   },
 );
+RepoFilesDetailsInner.displayName = 'RepoFilesDetailsInner';
 
 function getAutosaveIntervalMs(
   searchParams: URLSearchParams,
@@ -190,7 +202,7 @@ export const RepoFilesDetails = memo<{ repoId: string }>(({ repoId }) => {
   const [searchParams] = useSearchParams();
   const encryptedPath = searchParams.get('path') ?? '/';
   const isEditing = searchParams.get('editing') === 'true';
-  let autosaveIntervalMs = getAutosaveIntervalMs(searchParams);
+  const autosaveIntervalMs = getAutosaveIntervalMs(searchParams);
 
   const [currentEncryptedPath, setCurrentEncryptedPath] =
     useState(encryptedPath);
@@ -199,9 +211,11 @@ export const RepoFilesDetails = memo<{ repoId: string }>(({ repoId }) => {
 
   if (encryptedPath !== currentEncryptedPath) {
     setCurrentEncryptedPath(encryptedPath);
+    // eslint-disable-next-line react-hooks/refs
     if (encryptedPath !== expectedEncryptedNewPath.current) {
       setKey((key) => key + 1);
     }
+    // eslint-disable-next-line react-hooks/refs
     expectedEncryptedNewPath.current = undefined;
   }
 
@@ -218,3 +232,4 @@ export const RepoFilesDetails = memo<{ repoId: string }>(({ repoId }) => {
     />
   );
 });
+RepoFilesDetails.displayName = 'RepoFilesDetails';

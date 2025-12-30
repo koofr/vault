@@ -26,3 +26,4 @@ export const RepoFileInfoImage = memo<{ file: RepoFile }>(({ file }) => {
     </div>
   );
 });
+RepoFileInfoImage.displayName = 'RepoFileInfoImage';

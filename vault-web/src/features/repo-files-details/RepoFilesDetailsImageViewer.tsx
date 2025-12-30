@@ -23,3 +23,4 @@ export const RepoFilesDetailsImageViewer = memo<{
     <ImageViewer fileName={fileName} url={url} width={width} height={height} />
   );
 });
+RepoFilesDetailsImageViewer.displayName = 'RepoFilesDetailsImageViewer';

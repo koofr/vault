@@ -18,3 +18,4 @@ export const RepoFilesDetailsPdfViewer = memo<{
     <LoadingCircle />
   );
 });
+RepoFilesDetailsPdfViewer.displayName = 'RepoFilesDetailsPdfViewer';

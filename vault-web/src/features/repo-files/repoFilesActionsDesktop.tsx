@@ -1,7 +1,7 @@
 import { WebVaultDesktop } from '../../desktopVault/WebVaultDesktop';
 import { WebVault } from '../../vault-wasm/vault-wasm';
 
-export const openFileDesktop = async (
+export const openFileDesktop = (
   webVault: WebVault,
   repoId: string,
   encryptedPath: string,
@@ -9,7 +9,7 @@ export const openFileDesktop = async (
   (webVault as WebVaultDesktop).repoFilesOpenFile(repoId, encryptedPath);
 };
 
-export const downloadFileDesktop = async (
+export const downloadFileDesktop = (
   webVault: WebVault,
   repoId: string,
   encryptedPath: string,
@@ -17,7 +17,7 @@ export const downloadFileDesktop = async (
   (webVault as WebVaultDesktop).repoFilesDownloadFile(repoId, encryptedPath);
 };
 
-export const downloadSelectedDesktop = async (
+export const downloadSelectedDesktop = (
   webVault: WebVault,
   browserId: number,
 ) => {

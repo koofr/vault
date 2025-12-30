@@ -23,3 +23,4 @@ export const RemoteFilesBreadcrumbs = memo<{
 
   return <NavbarBreadcrumbs breadcrumbs={navbarBreadcrumbs} />;
 });
+RemoteFilesBreadcrumbs.displayName = 'RemoteFilesBreadcrumbs';

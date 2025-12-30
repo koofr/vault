@@ -47,3 +47,4 @@ export const RepoFilesSummary = memo<{ info: RepoFilesBrowserInfo }>(
     );
   },
 );
+RepoFilesSummary.displayName = 'RepoFilesSummary';

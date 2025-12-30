@@ -11,7 +11,9 @@ function localStorageGet(): boolean {
     if (localStorage.getItem(repoFileInfoSheetVisibleKey) === 'true') {
       return true;
     }
-  } catch {}
+  } catch {
+    //
+  }
 
   return false;
 }
@@ -23,7 +25,9 @@ function localStorageSet(visible: boolean) {
     } else {
       localStorage.removeItem(repoFileInfoSheetVisibleKey);
     }
-  } catch {}
+  } catch {
+    //
+  }
 }
 
 export function useRepoFileInfo(info: RepoFilesBrowserInfo): {

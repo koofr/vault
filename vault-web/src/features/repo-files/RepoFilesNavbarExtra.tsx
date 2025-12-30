@@ -76,3 +76,4 @@ export const RepoFilesNavbarExtra = memo<{
     </div>
   );
 });
+RepoFilesNavbarExtra.displayName = 'RepoFilesNavbarExtra';

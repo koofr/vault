@@ -11,3 +11,4 @@ export const UnlockedRepoWrapper = memo<PropsWithChildren<{ repoId: string }>>(
     return children;
   },
 );
+UnlockedRepoWrapper.displayName = 'UnlockedRepoWrapper';

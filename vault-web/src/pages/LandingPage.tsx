@@ -16,3 +16,4 @@ export const LandingPage = memo(() => {
     return <LandingPageUnofficialLazy />;
   }
 });
+LandingPage.displayName = 'LandingPage';

@@ -3,7 +3,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { mainUnauthenticated } from './mainWebUnauthenticated';
 import { NotSupportedPage } from './pages/NotSupportedPage';
 
-export const mainNotSupported = () => {
+export const mainNotSupported = async () => {
   const router = createBrowserRouter([
     {
       path: '*',
@@ -11,5 +11,5 @@ export const mainNotSupported = () => {
     },
   ]);
 
-  mainUnauthenticated(<RouterProvider router={router} />);
+  await mainUnauthenticated(<RouterProvider router={router} />);
 };

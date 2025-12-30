@@ -266,7 +266,7 @@ export const RepoCreateFormComponent = memo<{
                   >
                     If you wish to transfer the encrypted files to another
                     service, it is necessary to also export the salt, otherwise
-                    you won't be able to decrypt your files.
+                    you won&apos;t be able to decrypt your files.
                   </p>
                 </div>
               </Group>
@@ -394,3 +394,4 @@ export const RepoCreateFormComponent = memo<{
     </div>
   );
 });
+RepoCreateFormComponent.displayName = 'RepoCreateFormComponent';

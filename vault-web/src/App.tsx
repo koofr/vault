@@ -28,6 +28,7 @@ export function getApp(
   webVault: WebVault,
   landingPage: React.ReactNode,
 ): React.ReactNode {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
   (window as any).webVault = webVault;
 
   document.addEventListener('visibilitychange', () => {
@@ -40,6 +41,7 @@ export function getApp(
 
   const router = createRouter(landingPage);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
   (window as any).router = router;
 
   return (

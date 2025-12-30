@@ -23,6 +23,7 @@ export function useTouchRepo(repoId: string) {
       if (currentTime - lastInteraction >= touchIntervalMs) {
         touchRepo();
 
+        // eslint-disable-next-line react-hooks/immutability
         lastInteraction = currentTime;
       } else {
         timeoutId = setTimeout(() => {

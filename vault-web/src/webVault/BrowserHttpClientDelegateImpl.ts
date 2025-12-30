@@ -1,8 +1,6 @@
 import { BrowserHttpClientDelegate } from '../vault-wasm/vault-wasm';
 
-export class BrowserHttpClientDelegateImpl
-  implements BrowserHttpClientDelegate
-{
+export class BrowserHttpClientDelegateImpl implements BrowserHttpClientDelegate {
   async fetch(request: Request): Promise<Response> {
     return await fetch(request);
   }
@@ -54,6 +52,7 @@ export class BrowserHttpClientDelegateImpl
         }
 
         resolve(
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           new Response(xhr.response, {
             status: xhr.status,
             headers: headers,

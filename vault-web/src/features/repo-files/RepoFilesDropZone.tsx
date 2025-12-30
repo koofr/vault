@@ -14,3 +14,4 @@ export const RepoFilesDropZone = memo(() => {
     return <RepoFilesDropZoneWeb />;
   }
 });
+RepoFilesDropZone.displayName = 'RepoFilesDropZone';

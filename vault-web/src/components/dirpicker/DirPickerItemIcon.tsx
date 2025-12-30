@@ -83,3 +83,4 @@ export const DirPickerItemIcon = memo<{
     </>
   );
 });
+DirPickerItemIcon.displayName = 'DirPickerItemIcon';

@@ -124,3 +124,4 @@ export const TextEditor = memo<TextEditorProps>(
     );
   },
 );
+TextEditor.displayName = 'TextEditor';

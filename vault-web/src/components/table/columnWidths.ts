@@ -26,7 +26,7 @@ export function calculateColumnWidths(
   let unknownCount = 0;
   let relWidthsSum = 0;
 
-  const cols: Col[] = columns.map((column, i) => {
+  const cols: Col[] = columns.map((column) => {
     const col: Col = {
       type: ColumnType.UNKNOWN,
       width: undefined,

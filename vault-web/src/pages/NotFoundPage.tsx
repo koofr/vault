@@ -56,3 +56,4 @@ export const NotFoundPage = memo(() => {
     </>
   );
 });
+NotFoundPage.displayName = 'NotFoundPage';

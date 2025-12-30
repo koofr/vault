@@ -97,6 +97,8 @@ export const RemoteFilesDirPickerModalContent = memo<{
     );
   },
 );
+RemoteFilesDirPickerModalContent.displayName =
+  'RemoteFilesDirPickerModalContent';
 
 export const RemoteFilesDirPickerModal = memo<{
   dirPickerId?: number;
@@ -135,3 +137,4 @@ export const RemoteFilesDirPickerModal = memo<{
     );
   },
 );
+RemoteFilesDirPickerModal.displayName = 'RemoteFilesDirPickerModal';

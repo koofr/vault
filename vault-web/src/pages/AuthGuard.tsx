@@ -31,6 +31,7 @@ export const AuthGuard = memo(() => {
       // a successful login
       setLoginRedirect(locationRelUrl);
 
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       navigate('/login', {
         replace: true,
       });
@@ -47,3 +48,4 @@ export const AuthGuard = memo(() => {
     return landingPage;
   }
 });
+AuthGuard.displayName = 'AuthGuard';

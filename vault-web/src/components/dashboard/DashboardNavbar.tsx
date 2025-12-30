@@ -26,3 +26,4 @@ export const DashboardNavbar = memo<{
     />
   );
 });
+DashboardNavbar.displayName = 'DashboardNavbar';

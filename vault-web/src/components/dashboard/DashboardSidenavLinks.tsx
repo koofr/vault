@@ -105,3 +105,4 @@ export const DashboardSidenavLinks = memo(() => {
     </>
   );
 });
+DashboardSidenavLinks.displayName = 'DashboardSidenavLinks';

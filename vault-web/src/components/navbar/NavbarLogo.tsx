@@ -17,3 +17,4 @@ export const NavbarLogo = memo(() => {
     </Link>
   );
 });
+NavbarLogo.displayName = 'NavbarLogo';

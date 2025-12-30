@@ -15,3 +15,4 @@ export const DashboardError = memo<{ error: string; onRetry?: () => void }>(
     );
   },
 );
+DashboardError.displayName = 'DashboardError';

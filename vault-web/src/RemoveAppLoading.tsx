@@ -17,3 +17,4 @@ export const RemoveAppLoading = memo(() => {
 
   return null;
 });
+RemoveAppLoading.displayName = 'RemoveAppLoading';

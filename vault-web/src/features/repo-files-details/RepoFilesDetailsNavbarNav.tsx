@@ -67,6 +67,7 @@ export const RepoFilesDetailsNavbarNav = memo<{
                 info.repoId !== undefined &&
                 info.encryptedPath !== undefined
               ) {
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 downloadFile(
                   webVault,
                   info.repoId,
@@ -106,3 +107,4 @@ export const RepoFilesDetailsNavbarNav = memo<{
     </NavbarNavToolbar>
   );
 });
+RepoFilesDetailsNavbarNav.displayName = 'RepoFilesDetailsNavbarNav';

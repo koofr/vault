@@ -60,3 +60,4 @@ export const Transfers = memo(() => {
     </div>
   );
 });
+Transfers.displayName = 'Transfers';

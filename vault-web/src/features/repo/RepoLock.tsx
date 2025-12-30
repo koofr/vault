@@ -16,7 +16,7 @@ export const RepoLock = memo<{ repo: Repo }>(({ repo }) => {
   const webVault = useWebVault();
 
   const [autoLock, setAutoLock] = useState(repo.autoLock);
-  let options: {
+  const options: {
     value: RepoAutoLockAfter['type'];
     label: string;
   }[] = [
@@ -174,3 +174,4 @@ export const RepoLock = memo<{ repo: Repo }>(({ repo }) => {
     </div>
   );
 });
+RepoLock.displayName = 'RepoLock';

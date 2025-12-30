@@ -72,7 +72,9 @@ export const DirPicker = memo<{
               nextScrollToItemId.current !== undefined &&
               item.id === nextScrollToItemId.current
             ) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
               if ((el as any).scrollIntoViewIfNeeded !== undefined) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
                 (el as any).scrollIntoViewIfNeeded();
               } else {
                 el.scrollIntoView();
@@ -196,3 +198,4 @@ export const DirPicker = memo<{
     </div>
   );
 });
+DirPicker.displayName = 'DirPicker';

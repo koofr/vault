@@ -32,31 +32,28 @@ export function useRepoFilesDetailsFileBlobUrl(
     return abortLastAbortController;
   }, [abortLastAbortController]);
 
-  const loadFile = useCallback(
-    async (remoteHash: string | undefined) => {
-      abortLastAbortController();
+  const loadFile = useCallback(async () => {
+    abortLastAbortController();
 
-      const abortController = new AbortController();
-      lastAbortController.current = abortController;
+    const abortController = new AbortController();
+    lastAbortController.current = abortController;
 
-      const stream = await webVault.repoFilesDetailsGetFileStream(
-        detailsId,
-        true,
-        abortController.signal,
-      );
+    const stream = await webVault.repoFilesDetailsGetFileStream(
+      detailsId,
+      true,
+      abortController.signal,
+    );
 
-      const blobUrl =
-        stream !== undefined && stream.blob !== undefined
-          ? URL.createObjectURL(stream.blob)
-          : undefined;
+    const blobUrl =
+      stream !== undefined && stream.blob !== undefined
+        ? URL.createObjectURL(stream.blob)
+        : undefined;
 
-      revokeLastBlobUrl();
+    revokeLastBlobUrl();
 
-      lastBlobUrl.current = blobUrl;
-      setBlobUrl(blobUrl);
-    },
-    [webVault, detailsId, abortLastAbortController, revokeLastBlobUrl],
-  );
+    lastBlobUrl.current = blobUrl;
+    setBlobUrl(blobUrl);
+  }, [webVault, detailsId, abortLastAbortController, revokeLastBlobUrl]);
 
   useSubscribe(
     (v, cb) => v.repoFilesDetailsFileSubscribe(detailsId, cb),
@@ -65,7 +62,8 @@ export function useRepoFilesDetailsFileBlobUrl(
 
       if (file !== undefined) {
         // load file on change if file exists
-        loadFile(file.remoteHash);
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        loadFile();
       }
     },
     [detailsId, loadFile],

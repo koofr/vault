@@ -24,7 +24,7 @@ export const RepoInfoComponentRepo = memo<{ repo: Repo }>(({ repo }) => {
   const isMobile = useIsMobile();
   const removeModal = useModal<Repo>();
   const removeModalShow = removeModal.show;
-  const onRemove = useCallback(async () => {
+  const onRemove = useCallback(() => {
     removeModalShow(repo);
   }, [removeModalShow, repo]);
   const navbarHeader = useSingleNavbarBreadcrumb(repo.name);
@@ -162,6 +162,7 @@ export const RepoInfoComponentRepo = memo<{ repo: Repo }>(({ repo }) => {
     </DashboardLayout>
   );
 });
+RepoInfoComponentRepo.displayName = 'RepoInfoComponentRepo';
 
 export const RepoInfoComponent = memo<{ repoId: string }>(({ repoId }) => {
   const webVault = useWebVault();
@@ -184,3 +185,4 @@ export const RepoInfoComponent = memo<{ repoId: string }>(({ repoId }) => {
     return <DashboardLoading />;
   }
 });
+RepoInfoComponent.displayName = 'RepoInfoComponent';

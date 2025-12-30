@@ -4,7 +4,7 @@ import { useSubscribe } from '../../webVault/useSubscribe';
 
 import { Dialog } from './Dialog';
 
-export const Dialogs = memo<{}>(() => {
+export const Dialogs = memo(() => {
   const [dialogIds] = useSubscribe(
     (v, cb) => v.dialogsSubscribe(cb),
     (v) => v.dialogsData,
@@ -23,3 +23,4 @@ export const Dialogs = memo<{}>(() => {
     </>
   );
 });
+Dialogs.displayName = 'Dialogs';

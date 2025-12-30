@@ -36,3 +36,4 @@ export const Progress = memo<{
     </div>
   );
 });
+Progress.displayName = 'Progress';

@@ -93,6 +93,7 @@ export const RepoFilesToolbar = memo<{
           icon={<FilesToolbarDownloadIcon role="img" />}
           iconHover={<FilesToolbarDownloadHoverIcon role="img" />}
           onClick={() => {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             downloadSelected(webVault, browserId, isMobile);
           }}
         >
@@ -133,3 +134,4 @@ export const RepoFilesToolbar = memo<{
     </Toolbar>
   );
 });
+RepoFilesToolbar.displayName = 'RepoFilesToolbar';

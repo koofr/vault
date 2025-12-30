@@ -13,3 +13,4 @@ export const RepoInfoPage = memo(() => {
 
   return <RepoInfoComponent key={repoId} repoId={repoId} />;
 });
+RepoInfoPage.displayName = 'RepoInfoPage';

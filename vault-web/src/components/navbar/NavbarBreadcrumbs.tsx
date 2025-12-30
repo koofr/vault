@@ -86,3 +86,4 @@ export const NavbarBreadcrumbs = memo<NavbarBreadcrumbsProps>(
     );
   },
 );
+NavbarBreadcrumbs.displayName = 'NavbarBreadcrumbs';

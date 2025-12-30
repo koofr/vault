@@ -25,6 +25,7 @@ export const UploadFileItem = memo<{
 
   return <MenuItem onClick={uploadFile}>Upload file</MenuItem>;
 });
+UploadFileItem.displayName = 'UploadFileItem';
 
 export const UploadDirItem = memo<{
   hide: () => void;
@@ -38,6 +39,7 @@ export const UploadDirItem = memo<{
 
   return <MenuItem onClick={uploadFolder}>Upload folder</MenuItem>;
 });
+UploadDirItem.displayName = 'UploadDirItem';
 
 export const CreateDirItem = memo<{
   hide: () => void;
@@ -62,6 +64,7 @@ export const CreateDirItem = memo<{
     </>
   );
 });
+CreateDirItem.displayName = 'CreateDirItem';
 
 export const CreateTextFileItem = memo<{
   hide: () => void;
@@ -74,9 +77,10 @@ export const CreateTextFileItem = memo<{
 
     const name = `new text file ${format(new Date(), 'yyyyMMddHHmmss')}.txt`;
 
-    webVault.repoFilesBrowsersCreateFile(browserId, name).then((path) => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    webVault.repoFilesBrowsersCreateFile(browserId, name).then(async (path) => {
       if (path !== undefined) {
-        navigate(repoFilesDetailsLink(repoId!, path, true));
+        await navigate(repoFilesDetailsLink(repoId!, path, true));
       }
     });
   }, [webVault, browserId, navigate]);
@@ -94,6 +98,7 @@ export const CreateTextFileItem = memo<{
     </>
   );
 });
+CreateTextFileItem.displayName = 'CreateTextFileItem';
 
 export const RepoFilesAddMenuContent = memo<{
   hide: () => void;
@@ -108,6 +113,7 @@ export const RepoFilesAddMenuContent = memo<{
     </>
   );
 });
+RepoFilesAddMenuContent.displayName = 'RepoFilesAddMenuContent';
 
 export const RepoFilesAddMenu = memo(() => {
   const theme = useTheme();
@@ -131,3 +137,4 @@ export const RepoFilesAddMenu = memo(() => {
     </Menu>
   );
 });
+RepoFilesAddMenu.displayName = 'RepoFilesAddMenu';

@@ -15,16 +15,20 @@ export function FolderAwareHTML5Backend(
   const handleTopDropCaptureOriginal = backend.handleTopDropCapture;
 
   backend.handleTopDropCapture = function (event: DragEvent) {
-    const currentNativeSource: any | null = (backend as any)
-      .currentNativeSource;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-redundant-type-constituents
+    const currentNativeSource: any | null =
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+      (backend as any).currentNativeSource;
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (currentNativeSource != null && currentNativeSource.item != null) {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         currentNativeSource.item.items =
           event.dataTransfer != null && event.dataTransfer.items != null
             ? Array.from(event.dataTransfer.items)
             : null;
-      } catch (e) {
+      } catch {
         //
       }
     }
@@ -36,6 +40,7 @@ export function FolderAwareHTML5Backend(
       // can throw an exception Access is denied (e.g. user actually cannot
       // read the file that she dropped).
       try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
         (backend as any).enterLeaveCounter.reset();
       } catch {
         //

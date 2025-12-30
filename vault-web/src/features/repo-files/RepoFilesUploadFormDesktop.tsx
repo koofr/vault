@@ -10,6 +10,7 @@ export const RepoFilesUploadFormDesktop = memo(() => {
   const browserId = useRepoFilesBrowserId();
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/immutability
     uploadApi.uploadFile = () => {
       const { repoId, encryptedPath } =
         webVault.repoFilesBrowsersInfo(browserId)!;
@@ -35,3 +36,4 @@ export const RepoFilesUploadFormDesktop = memo(() => {
 
   return null;
 });
+RepoFilesUploadFormDesktop.displayName = 'RepoFilesUploadFormDesktop';

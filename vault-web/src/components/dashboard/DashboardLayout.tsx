@@ -84,3 +84,4 @@ export const DashboardLayout = memo<
     );
   },
 );
+DashboardLayout.displayName = 'DashboardLayout';

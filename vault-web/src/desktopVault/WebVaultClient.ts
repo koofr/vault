@@ -20,6 +20,7 @@ export class WebVaultClient {
     this.callbacks = callbacks;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getUrl(name: string, params: { [key: string]: any }): string {
     const encryptedRequest = this.requestEncryption.encryptRequest({
       method: 'GET',
@@ -29,6 +30,7 @@ export class WebVaultClient {
     return `${this.baseUrl}/?req=${encodeURIComponent(encryptedRequest)}`;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   call(name: string, rawArgs: any[], asyncCall: boolean, bytes: boolean) {
     const args = this.prepareArgs(rawArgs);
 
@@ -51,6 +53,7 @@ export class WebVaultClient {
         };
 
         request.onerror = () => {
+          // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
           reject(request);
         };
 
@@ -59,6 +62,7 @@ export class WebVaultClient {
     } else {
       request.send(requestBody);
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return this.handleResponse(request, bytes);
     }
   }
@@ -84,15 +88,16 @@ export class WebVaultClient {
       return undefined;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return convertNullToUndefined(JSON.parse(body));
   }
 
-  private prepareArgs(rawArgs: any[]) {
+  private prepareArgs(rawArgs: unknown[]) {
     return rawArgs.map((arg) => {
       if (arg instanceof Uint8Array) {
-        return encode(arg as any as ArrayBuffer);
+        return encode(arg as unknown as ArrayBuffer);
       } else if (typeof arg === 'function') {
-        return this.callbacks.register(arg);
+        return this.callbacks.register(arg as unknown as () => void);
       } else {
         return arg;
       }
@@ -100,6 +105,7 @@ export class WebVaultClient {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function convertNullToUndefined(input: any): any {
   if (input === null) {
     return undefined;
@@ -110,10 +116,12 @@ function convertNullToUndefined(input: any): any {
   }
 
   if (typeof input === 'object') {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result: { [key: string]: any } = {};
 
     for (const key in input) {
-      if (input.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(input, key)) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         result[key] = convertNullToUndefined(input[key]);
       }
     }

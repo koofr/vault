@@ -62,7 +62,7 @@ export const MobilePage = memo(() => {
             text-align: center;
           `}
         >
-          It looks like you don't have Koofr Vault mobile app installed.
+          It looks like you don&apos;t have Koofr Vault mobile app installed.
         </p>
 
         <p
@@ -142,3 +142,4 @@ export const MobilePage = memo(() => {
     </>
   );
 });
+MobilePage.displayName = 'MobilePage';

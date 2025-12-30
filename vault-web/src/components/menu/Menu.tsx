@@ -132,6 +132,7 @@ export const MenuItem = memo<
 
   return <MenuBaseItem>{buttonEl}</MenuBaseItem>;
 });
+MenuItem.displayName = 'MenuItem';
 
 export const Menu = memo(
   forwardRef<
@@ -175,3 +176,4 @@ export const Menu = memo(
     );
   }),
 );
+Menu.displayName = 'Menu';

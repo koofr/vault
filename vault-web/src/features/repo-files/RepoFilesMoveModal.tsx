@@ -45,7 +45,7 @@ export const RepoFilesMoveModalContent = memo<{
     const createDir = useCallback(() => {
       webVault.repoFilesMoveCreateDir();
     }, [webVault]);
-    const move = useCallback(async () => {
+    const move = useCallback(() => {
       webVault.repoFilesMoveMoveFiles();
     }, [webVault]);
 
@@ -133,6 +133,7 @@ export const RepoFilesMoveModalContent = memo<{
     );
   },
 );
+RepoFilesMoveModalContent.displayName = 'RepoFilesMoveModalContent';
 
 export const RepoFilesMoveModal = memo(() => {
   const webVault = useWebVault();
@@ -153,3 +154,4 @@ export const RepoFilesMoveModal = memo(() => {
     </Modal>
   );
 });
+RepoFilesMoveModal.displayName = 'RepoFilesMoveModal';

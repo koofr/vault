@@ -18,3 +18,4 @@ export const NavbarBack = memo<{ to: To }>(({ to }) => {
     </Link>
   );
 });
+NavbarBack.displayName = 'NavbarBack';

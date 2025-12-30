@@ -118,6 +118,7 @@ export const Button = memo<
     />
   );
 });
+Button.displayName = 'Button';
 
 export const LinkButton = memo<
   {
@@ -133,3 +134,4 @@ export const LinkButton = memo<
     />
   );
 });
+LinkButton.displayName = 'LinkButton';

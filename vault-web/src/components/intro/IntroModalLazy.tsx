@@ -11,3 +11,4 @@ export const IntroModalLazy = memo<IntroModalProps>(({ isVisible, hide }) => {
     <IntroModalLazyLoadingComponent isVisible={isVisible} hide={hide} />
   ) : null;
 });
+IntroModalLazy.displayName = 'IntroModalLazy';

@@ -28,6 +28,7 @@ export interface UploadEntry {
 interface UploadFilesQueueEntry {
   entry: UploadEntry;
   resolve: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reject: (reason: any) => void;
 }
 
@@ -165,11 +166,14 @@ export class UploadsHelper {
 
   // Upload using drag'n'drop file or directory (Chrome Desktop, Firefox, Safari macOS)
   private uploadDataTransferItems(items: DataTransferItem[]): Promise<void>[] {
-    return items
-      .filter((item) => item.webkitGetAsEntry != null) // could be null or undefined
-      .map((item) => (item as any).webkitGetAsEntry() as WebkitGetAsEntry)
-      .filter((entry) => entry != null) // could be null or undefined
-      .map((entry) => this.handleEntry(entry, '/'));
+    return (
+      items
+        .filter((item) => item.webkitGetAsEntry != null) // could be null or undefined
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+        .map((item) => (item as any).webkitGetAsEntry() as WebkitGetAsEntry)
+        .filter((entry) => entry != null) // could be null or undefined
+        .map((entry) => this.handleEntry(entry, '/'))
+    );
   }
 
   // Upload using file input files or folders (Chrome Desktop, Firefox, Safari macOS, Safari iOS, Chrome iOS, Edge)
@@ -192,14 +196,18 @@ export class UploadsHelper {
 
   uploadFiles(files: File[] | DataTransferItem[]): Promise<void>[] {
     if (files.length > 0) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
       const testFile = files[0] as any;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (testFile.webkitGetAsEntry != null) {
         // could be null or undefined
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         if (testFile.webkitGetAsEntry() != null) {
           return this.uploadDataTransferItems(files as DataTransferItem[]);
         }
         return [];
       }
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (testFile.webkitRelativePath != null) {
         // could be null or undefined
         return this.uploadWebkitFilesAsEntries(files as File[]);

@@ -78,3 +78,4 @@ export const RepoConfigInfo = memo<{ config: RepoConfig }>(({ config }) => {
     </div>
   );
 });
+RepoConfigInfo.displayName = 'RepoConfigInfo';

@@ -124,6 +124,7 @@ const DialogInner = memo<{
     </Modal>
   );
 });
+DialogInner.displayName = 'DialogInner';
 
 export const Dialog = memo<{ dialogId: number }>(({ dialogId }) => {
   const [dialog, dialogRef] = useSubscribe(
@@ -132,6 +133,7 @@ export const Dialog = memo<{ dialogId: number }>(({ dialogId }) => {
     [dialogId],
   );
 
+  // eslint-disable-next-line react-hooks/refs
   if (dialog === undefined || dialogRef.current === undefined) {
     return null;
   }
@@ -144,3 +146,4 @@ export const Dialog = memo<{ dialogId: number }>(({ dialogId }) => {
     />
   );
 });
+Dialog.displayName = 'Dialog';

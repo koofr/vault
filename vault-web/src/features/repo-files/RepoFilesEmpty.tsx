@@ -45,3 +45,4 @@ export const RepoFilesEmpty = memo(() => {
     </div>
   );
 });
+RepoFilesEmpty.displayName = 'RepoFilesEmpty';

@@ -21,3 +21,4 @@ export const RepoFilesNavbarLeft = memo<{
     return <NavbarLogo />;
   }
 });
+RepoFilesNavbarLeft.displayName = 'RepoFilesNavbarLeft';

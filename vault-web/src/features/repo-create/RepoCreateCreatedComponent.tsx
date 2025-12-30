@@ -15,6 +15,7 @@ export const RepoCreateCreatedComponent = memo<{ created: RepoCreated }>(
     const [configSaved, setConfigSaved] = useState(false);
     const openRepo = useCallback(() => {
       if (created !== undefined) {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         navigate(`/repos/${created.repoId}`);
       }
     }, [navigate, created]);
@@ -70,3 +71,4 @@ export const RepoCreateCreatedComponent = memo<{ created: RepoCreated }>(
     );
   },
 );
+RepoCreateCreatedComponent.displayName = 'RepoCreateCreatedComponent';
