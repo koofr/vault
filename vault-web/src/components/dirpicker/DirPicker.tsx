@@ -31,7 +31,7 @@ export const DirPicker = memo<{
     [pickerId],
   );
   const selectedItemId = items?.find((item) => item.isSelected)?.id;
-  const nextScrollToItemId = useRef<string>();
+  const nextScrollToItemId = useRef<string>(undefined);
   useMemo(() => {
     nextScrollToItemId.current = selectedItemId;
   }, [selectedItemId]);

@@ -20,7 +20,8 @@ export const TextEditor = memo<TextEditorProps>(
   ({ fileName, text, isEditing, width, height, onChange }) => {
     const language = monacoLanguageForFileName(fileName);
 
-    const editorRef = useRef<monacoEditor.editor.IStandaloneCodeEditor>();
+    const editorRef =
+      useRef<monacoEditor.editor.IStandaloneCodeEditor>(undefined);
     const editorDidMount = useCallback(
       (editor: monacoEditor.editor.IStandaloneCodeEditor) => {
         editorRef.current = editor;

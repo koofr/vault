@@ -9,6 +9,7 @@ import {
   createContext,
   memo,
   PropsWithChildren,
+  RefObject,
   useCallback,
   useContext,
   useEffect,
@@ -131,7 +132,7 @@ const ModalContent = memo<PropsWithChildren<{ isTopModal: boolean }>>(
         close();
       }
     }, [close, isTopModal]);
-    useClickOutside(ref, onClickOutside);
+    useClickOutside(ref as RefObject<HTMLDivElement>, onClickOutside);
 
     return (
       <div

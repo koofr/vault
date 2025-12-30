@@ -10,7 +10,7 @@ export function useRepoFilesDetailsFileBlobUrl(
 
   const [blobUrl, setBlobUrl] = useState<string>();
 
-  const lastBlobUrl = useRef<string>();
+  const lastBlobUrl = useRef<string>(undefined);
   const revokeLastBlobUrl = useCallback(() => {
     if (lastBlobUrl.current !== undefined) {
       URL.revokeObjectURL(lastBlobUrl.current);
@@ -21,7 +21,7 @@ export function useRepoFilesDetailsFileBlobUrl(
     return revokeLastBlobUrl;
   }, [revokeLastBlobUrl]);
 
-  const lastAbortController = useRef<AbortController>();
+  const lastAbortController = useRef<AbortController>(undefined);
   const abortLastAbortController = useCallback(() => {
     if (lastAbortController.current !== undefined) {
       lastAbortController.current.abort();

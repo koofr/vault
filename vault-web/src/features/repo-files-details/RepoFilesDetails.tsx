@@ -194,7 +194,7 @@ export const RepoFilesDetails = memo<{ repoId: string }>(({ repoId }) => {
 
   const [currentEncryptedPath, setCurrentEncryptedPath] =
     useState(encryptedPath);
-  const expectedEncryptedNewPath = useRef<string>();
+  const expectedEncryptedNewPath = useRef<string>(undefined);
   const [key, setKey] = useState(0);
 
   if (encryptedPath !== currentEncryptedPath) {

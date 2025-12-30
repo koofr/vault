@@ -12,11 +12,11 @@ export function useSubscribe<T>(
   const webVault = useWebVault();
 
   const depsVersion = useRef(0);
-  const currentSubscriptionId = useRef<number>();
+  const currentSubscriptionId = useRef<number>(undefined);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setVersion] = useState(0);
   const data = useRef<T>(undefined as T);
-  const mountedResolve = useRef<() => void>();
+  const mountedResolve = useRef<() => void>(undefined);
   const mountedPromise = useRef<Promise<void>>(
     undefined as any as Promise<void>,
   );
