@@ -1,6 +1,6 @@
 import { css } from '@emotion/css';
 import { useTheme } from '@emotion/react';
-import format from 'date-fns/format';
+import { format } from 'date-fns/format';
 import { memo, useCallback } from 'react';
 
 import { Button, LinkButton } from '../../components/Button';
