@@ -65,7 +65,9 @@ export class RequestEncryption {
       method: opts.method,
       uri: opts.uri,
       headers: opts.headers ?? {},
-      body: encode(new TextEncoder().encode(opts.body ?? '')),
+      body: encode(
+        new TextEncoder().encode(opts.body ?? '') as any as ArrayBuffer,
+      ),
     };
 
     const encryptedRequestJSON = JSON.stringify(encryptedRequest);

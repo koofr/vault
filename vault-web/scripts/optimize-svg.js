@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import fs from 'fs';
 import { optimize } from 'svgo';
 
@@ -40,5 +40,5 @@ svgString = optimize(svgString, {
 fs.writeFileSync(svgPath, svgString);
 
 console.log(
-  `${svgPath}: optimized svg, removed clipPath elements and clip-path attributes.`
+  `${svgPath}: optimized svg, removed clipPath elements and clip-path attributes.`,
 );
