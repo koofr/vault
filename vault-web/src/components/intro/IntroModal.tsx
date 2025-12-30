@@ -431,7 +431,6 @@ const IntroModalContent = memo<{ hide: () => void }>(({ hide }) => {
   const isLast = step === stepsCount - 1;
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: false,
-    speed: 15,
   });
   useEffect(() => {
     if (emblaApi !== undefined) {
