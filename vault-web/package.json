@@ -30,7 +30,7 @@
     "@types/streamsaver": "^2.0.5",
     "@types/uuid": "^10.0.0",
     "base64-arraybuffer": "^1.0.2",
-    "date-fns": "^2.30.0",
+    "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.6.0",
     "file-saver": "^2.0.5",
     "keycode": "^2.2.1",

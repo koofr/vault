@@ -1,7 +1,7 @@
 import { css } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { useDropdownMenu } from '@restart/ui/DropdownMenu';
-import format from 'date-fns/format';
+import { format } from 'date-fns/format';
 import { memo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
