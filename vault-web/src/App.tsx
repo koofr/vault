@@ -60,10 +60,7 @@ export function getApp(
 
                           <ModalsProvider>
                             <Suspense fallback={<LoadingCircle />}>
-                              <RouterProvider
-                                router={router}
-                                future={{ v7_startTransition: true }}
-                              />
+                              <RouterProvider router={router} />
                             </Suspense>
 
                             <Dialogs />
