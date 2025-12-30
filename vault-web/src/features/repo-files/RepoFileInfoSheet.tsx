@@ -111,3 +111,4 @@ export const RepoFileInfoSheet = memo<{
     </div>
   );
 });
+RepoFileInfoSheet.displayName = 'RepoFileInfoSheet';

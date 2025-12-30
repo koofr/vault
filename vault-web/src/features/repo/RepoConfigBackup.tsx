@@ -81,7 +81,7 @@ export const RepoConfigBackupRepo = memo<{ repo: Repo }>(({ repo }) => {
               `}
             >
               To generate your rclone config, please type your Safe Key. Make
-              sure it's correct.
+              sure it&apos;s correct.
             </div>
             <TextInput
               type="text"
@@ -104,6 +104,7 @@ export const RepoConfigBackupRepo = memo<{ repo: Repo }>(({ repo }) => {
     </DashboardLayout>
   );
 });
+RepoConfigBackupRepo.displayName = 'RepoConfigBackupRepo';
 
 export const RepoConfigBackup = memo<{ repoId: string }>(({ repoId }) => {
   const [info] = useSubscribe(
@@ -120,3 +121,4 @@ export const RepoConfigBackup = memo<{ repoId: string }>(({ repoId }) => {
     return <DashboardLoading />;
   }
 });
+RepoConfigBackup.displayName = 'RepoConfigBackup';

@@ -15,12 +15,15 @@ export function useBrowser(
 
   const browserId = useMemo(() => {
     if (
+      // eslint-disable-next-line react-hooks/refs
       lastBrowserId.current !== undefined &&
+      // eslint-disable-next-line react-hooks/refs
       isEqual(source, lastSource.current) &&
       selectName === undefined
     ) {
       // if selectName was set and then changed to undefined, use the same
       // browserId
+      // eslint-disable-next-line react-hooks/refs
       return lastBrowserId.current;
     }
 
@@ -28,7 +31,9 @@ export function useBrowser(
       selectName,
     });
 
+    // eslint-disable-next-line react-hooks/refs
     lastSource.current = source;
+    // eslint-disable-next-line react-hooks/refs
     lastBrowserId.current = browserId;
 
     return browserId;

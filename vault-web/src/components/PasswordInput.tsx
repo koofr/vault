@@ -72,6 +72,7 @@ export const PasswordInput = memo<PasswordInputProps>(
     );
   },
 );
+PasswordInput.displayName = 'PasswordInput';
 
 export const AutoFocusPasswordInput = memo<
   Omit<PasswordInputProps, 'inputRef'>
@@ -80,3 +81,4 @@ export const AutoFocusPasswordInput = memo<
 
   return <PasswordInput {...props} inputRef={inputRef} />;
 });
+AutoFocusPasswordInput.displayName = 'AutoFocusPasswordInput';

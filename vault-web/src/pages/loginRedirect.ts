@@ -11,11 +11,15 @@ export const getLoginRedirect = (): string | undefined => {
 export const setLoginRedirect = (redirect: string) => {
   try {
     localStorage.setItem(loginRedirectKey, redirect);
-  } catch {}
+  } catch {
+    //
+  }
 };
 
 export const removeLoginRedirect = () => {
   try {
     localStorage.removeItem(loginRedirectKey);
-  } catch {}
+  } catch {
+    //
+  }
 };

@@ -1,8 +1,6 @@
 import { BrowserEventstreamWebSocketDelegate } from '../vault-wasm/vault-wasm';
 
-export class BrowserEventstreamWebSocketDelegateImpl
-  implements BrowserEventstreamWebSocketDelegate
-{
+export class BrowserEventstreamWebSocketDelegateImpl implements BrowserEventstreamWebSocketDelegate {
   ws?: WebSocket;
   onOpen?: () => void;
   onMessage?: (data: string) => void;
@@ -33,6 +31,7 @@ export class BrowserEventstreamWebSocketDelegateImpl
 
     this.ws.addEventListener('message', (event) => {
       if (this.onMessage !== undefined) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         this.onMessage(event.data);
       }
     });

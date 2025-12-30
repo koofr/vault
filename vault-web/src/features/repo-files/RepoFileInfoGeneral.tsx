@@ -48,6 +48,7 @@ export const Item = memo<PropsWithChildren<{ label: string }>>(
     );
   },
 );
+Item.displayName = 'Item';
 
 export const RepoFileInfoGeneral = memo<{ file: RepoFile }>(({ file }) => {
   const theme = useTheme();
@@ -106,6 +107,7 @@ export const RepoFileInfoGeneral = memo<{ file: RepoFile }>(({ file }) => {
     </div>
   );
 });
+RepoFileInfoGeneral.displayName = 'RepoFileInfoGeneral';
 
 export function getCategoryDisplay(category: FileCategory): string {
   switch (category) {

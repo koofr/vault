@@ -37,6 +37,7 @@ export const RepoFileInfoModalContent = memo<{
     </>
   );
 });
+RepoFileInfoModalContent.displayName = 'RepoFileInfoModalContent';
 
 export const RepoFileInfoModal = memo<{
   file?: RepoFile;
@@ -52,3 +53,4 @@ export const RepoFileInfoModal = memo<{
     </Modal>
   );
 });
+RepoFileInfoModal.displayName = 'RepoFileInfoModal';

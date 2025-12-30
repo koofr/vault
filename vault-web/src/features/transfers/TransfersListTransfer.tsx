@@ -176,3 +176,4 @@ export const TransfersListTransfer = memo<{ transfer: Transfer }>(
     );
   },
 );
+TransfersListTransfer.displayName = 'TransfersListTransfer';

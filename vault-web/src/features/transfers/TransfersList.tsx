@@ -25,3 +25,4 @@ export const TransfersList = memo(() => {
     </div>
   );
 });
+TransfersList.displayName = 'TransfersList';

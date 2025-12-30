@@ -94,3 +94,4 @@ export const RepoSpaceUsage = memo<{ repoId: string }>(({ repoId }) => {
     </div>
   );
 });
+RepoSpaceUsage.displayName = 'RepoSpaceUsage';

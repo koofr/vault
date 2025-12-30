@@ -19,15 +19,18 @@ export function createProxy(client: WebVaultClient): WebVaultDesktop {
     },
     {
       get: function (target, prop) {
-        if (target.hasOwnProperty(prop)) {
+        if (Object.prototype.hasOwnProperty.call(target, prop)) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
           return (target as any)[prop];
         }
 
-        return function () {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return function (...args: any[]) {
           const name = prop as string;
           const asyncCall = asyncCalls.has(name);
           const bytes = bytesCalls.has(name);
-          return client.call(name, Array.from(arguments), asyncCall, bytes);
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+          return client.call(name, Array.from(args), asyncCall, bytes);
         };
       },
     },

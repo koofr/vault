@@ -16,7 +16,7 @@ export const openFile = async (
   if (import.meta.env.VITE_VAULT_APP === 'desktop') {
     openFileDesktop(webVault, repoId, encryptedPath);
   } else {
-    downloadFileWeb(webVault, repoId, encryptedPath, isMobile);
+    await downloadFileWeb(webVault, repoId, encryptedPath, isMobile);
   }
 };
 
@@ -29,7 +29,7 @@ export const downloadFile = async (
   if (import.meta.env.VITE_VAULT_APP === 'desktop') {
     downloadFileDesktop(webVault, repoId, encryptedPath);
   } else {
-    downloadFileWeb(webVault, repoId, encryptedPath, isMobile);
+    await downloadFileWeb(webVault, repoId, encryptedPath, isMobile);
   }
 };
 
@@ -41,6 +41,6 @@ export const downloadSelected = async (
   if (import.meta.env.VITE_VAULT_APP === 'desktop') {
     downloadSelectedDesktop(webVault, browserId);
   } else {
-    downloadSelectedWeb(webVault, browserId, isMobile);
+    await downloadSelectedWeb(webVault, browserId, isMobile);
   }
 };

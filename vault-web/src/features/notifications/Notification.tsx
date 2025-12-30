@@ -52,3 +52,4 @@ export const Notification = memo<{
     </div>
   );
 });
+Notification.displayName = 'Notification';

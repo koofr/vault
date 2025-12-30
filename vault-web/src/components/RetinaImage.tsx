@@ -35,3 +35,4 @@ export const RetinaImage = memo<
     );
   },
 );
+RetinaImage.displayName = 'RetinaImage';

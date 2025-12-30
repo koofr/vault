@@ -6,6 +6,7 @@ export interface RepoFilesUploadApi {
 }
 
 export const RepoFilesUploadApiContext = createContext<RepoFilesUploadApi>(
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
   undefined as any,
 );
 

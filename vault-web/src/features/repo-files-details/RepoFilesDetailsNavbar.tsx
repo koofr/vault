@@ -37,3 +37,4 @@ export const RepoFilesDetailsNavbar = memo<{
     />
   );
 });
+RepoFilesDetailsNavbar.displayName = 'RepoFilesDetailsNavbar';

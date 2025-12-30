@@ -38,3 +38,4 @@ export const RepoCreate = memo(() => {
     </DashboardLayout>
   );
 });
+RepoCreate.displayName = 'RepoCreate';

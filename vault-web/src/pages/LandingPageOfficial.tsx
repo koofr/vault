@@ -102,6 +102,7 @@ const TypingText = memo(() => {
     </span>
   );
 });
+TypingText.displayName = 'TypingText';
 
 export const LandingPageOfficial = memo(() => {
   useDocumentTitle();
@@ -471,8 +472,8 @@ export const LandingPageOfficial = memo(() => {
           <a href="https://koofr.eu" target="_blank" rel="noopener">
             Koofr cloud storage
           </a>
-          . It's like having a box with a unique lock in your trunk: an extra
-          layer of security to protect your files.
+          . It&apos;s like having a box with a unique lock in your trunk: an
+          extra layer of security to protect your files.
         </p>
 
         <div
@@ -1365,3 +1366,4 @@ export const LandingPageOfficial = memo(() => {
     </div>
   );
 });
+LandingPageOfficial.displayName = 'LandingPageOfficial';

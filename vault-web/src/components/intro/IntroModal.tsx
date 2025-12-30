@@ -134,6 +134,7 @@ const IntroStep1 = memo(() => {
     </div>
   );
 });
+IntroStep1.displayName = 'IntroStep1';
 
 const IntroFeatures = styled.div`
   display: flex;
@@ -196,6 +197,7 @@ const IntroFeature = memo<
     </div>
   );
 });
+IntroFeature.displayName = 'IntroFeature';
 
 const IntroStep2 = memo(() => {
   return (
@@ -226,6 +228,7 @@ const IntroStep2 = memo(() => {
     </IntroFeatures>
   );
 });
+IntroStep2.displayName = 'IntroStep2';
 
 const IntroStep3 = memo(() => {
   return (
@@ -245,12 +248,13 @@ const IntroStep3 = memo(() => {
     </IntroFeatures>
   );
 });
+IntroStep3.displayName = 'IntroStep3';
 
 const IntroStep4 = memo(() => {
   return (
     <IntroFeatures>
       <IntroFeature image={intro07Image} image2x={intro072xImage}>
-        When you create a Safe Box, you'll choose a Safe Key for it.
+        When you create a Safe Box, you&apos;ll choose a Safe Key for it.
       </IntroFeature>
       <IntroFeature image={intro08Image} image2x={intro082xImage}>
         Since the Safe Key is used to encrypt the files you store in the Safe
@@ -265,6 +269,7 @@ const IntroStep4 = memo(() => {
     </IntroFeatures>
   );
 });
+IntroStep4.displayName = 'IntroStep4';
 
 const IntroStep5 = memo(() => {
   const config = useConfig();
@@ -401,6 +406,7 @@ const IntroStep5 = memo(() => {
     </div>
   );
 });
+IntroStep5.displayName = 'IntroStep5';
 
 const IntroStep = styled.div`
   display: flex;
@@ -419,10 +425,15 @@ const IntroModalContent = memo<{ hide: () => void }>(({ hide }) => {
     'Start using Vault',
   ];
   const steps = [
+    // eslint-disable-next-line react/jsx-key
     <IntroStep1 />,
+    // eslint-disable-next-line react/jsx-key
     <IntroStep2 />,
+    // eslint-disable-next-line react/jsx-key
     <IntroStep3 />,
+    // eslint-disable-next-line react/jsx-key
     <IntroStep4 />,
+    // eslint-disable-next-line react/jsx-key
     <IntroStep5 />,
   ];
   const stepsCount = steps.length;
@@ -579,6 +590,7 @@ const IntroModalContent = memo<{ hide: () => void }>(({ hide }) => {
     </>
   );
 });
+IntroModalContent.displayName = 'IntroModalContent';
 
 export interface IntroModalProps {
   isVisible: boolean;
@@ -592,3 +604,4 @@ export const IntroModal = memo<IntroModalProps>(({ isVisible, hide }) => {
     </Modal>
   );
 });
+IntroModal.displayName = 'IntroModal';

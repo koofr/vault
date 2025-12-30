@@ -13,3 +13,4 @@ export const TransfersPreventUnload = memo(() => {
 
   return null;
 });
+TransfersPreventUnload.displayName = 'TransfersPreventUnload';

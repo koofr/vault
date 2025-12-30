@@ -11,3 +11,4 @@ export const DynamicThemeProvider = memo<PropsWithChildren>(({ children }) => {
 
   return <ThemeProvider theme={dynamicTheme}>{children}</ThemeProvider>;
 });
+DynamicThemeProvider.displayName = 'DynamicThemeProvider';

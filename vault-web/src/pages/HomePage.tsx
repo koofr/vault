@@ -22,8 +22,10 @@ export const HomePage = memo(() => {
 
     if (repos?.status.type === 'Loaded') {
       if (repos.repos.length === 0) {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         navigate('/repos/create', { replace: true });
       } else {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         navigate(`/repos/${repos.repos[0].id}`, { replace: true });
       }
     }
@@ -42,3 +44,4 @@ export const HomePage = memo(() => {
 
   return <DashboardLoading />;
 });
+HomePage.displayName = 'HomePage';

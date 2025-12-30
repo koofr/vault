@@ -45,6 +45,7 @@ export const NavbarNavItem = memo(
                   margin-right: 0;
                 }
               `,
+          className,
         )}
         {...props}
         ref={ref}
@@ -95,3 +96,4 @@ export const NavbarNavItem = memo(
     );
   }),
 );
+NavbarNavItem.displayName = 'NavbarNavItem';

@@ -13,3 +13,4 @@ export const RepoConfigBackupPage = memo(() => {
 
   return <RepoConfigBackup key={repoId} repoId={repoId} />;
 });
+RepoConfigBackupPage.displayName = 'RepoConfigBackupPage';

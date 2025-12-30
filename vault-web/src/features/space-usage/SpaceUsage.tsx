@@ -104,3 +104,4 @@ export const SpaceUsage = memo(() => {
     </div>
   );
 });
+SpaceUsage.displayName = 'SpaceUsage';

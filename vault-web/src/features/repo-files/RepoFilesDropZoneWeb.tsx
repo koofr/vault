@@ -17,6 +17,7 @@ export const RepoFilesDropZoneWeb = memo(() => {
         canDrop: monitor.canDrop(),
         isOver: monitor.isOver({ shallow: true }),
       }),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       drop: (item: any, monitor) => {
         if (monitor.didDrop() || !canUpload) {
           return;
@@ -24,10 +25,14 @@ export const RepoFilesDropZoneWeb = memo(() => {
 
         // item.items can be null or undefined
         const files =
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           item.items != null
-            ? (Array.from(item.items) as DataTransferItem[])
-            : (Array.from(item.files) as File[]);
+            ? // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unnecessary-type-assertion
+              (Array.from(item.items) as DataTransferItem[])
+            : // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unnecessary-type-assertion, @typescript-eslint/no-unsafe-argument
+              (Array.from(item.files) as File[]);
 
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         Promise.all(uploadFiles(files));
       },
     }),
@@ -41,3 +46,4 @@ export const RepoFilesDropZoneWeb = memo(() => {
 
   return <DropZone isActive={canDrop} isOver={isOver} isAllowed={canUpload} />;
 });
+RepoFilesDropZoneWeb.displayName = 'RepoFilesDropZoneWeb';

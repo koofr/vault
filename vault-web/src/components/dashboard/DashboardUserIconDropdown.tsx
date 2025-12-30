@@ -23,6 +23,7 @@ export const DashboardUserIcon = memo(() => {
     </div>
   );
 });
+DashboardUserIcon.displayName = 'DashboardUserIcon';
 
 export const DashboardUserIconDropdown = memo(() => {
   const [isVisible, setVisible] = useState(false);
@@ -38,3 +39,4 @@ export const DashboardUserIconDropdown = memo(() => {
     </Dropdown>
   );
 });
+DashboardUserIconDropdown.displayName = 'DashboardUserIconDropdown';

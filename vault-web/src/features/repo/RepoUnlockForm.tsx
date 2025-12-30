@@ -105,3 +105,4 @@ export const RepoUnlockForm = memo<{
     </div>
   );
 });
+RepoUnlockForm.displayName = 'RepoUnlockForm';

@@ -134,3 +134,4 @@ export const ToolbarCancelItem = memo<React.ComponentProps<typeof ToolbarItem>>(
     );
   },
 );
+ToolbarCancelItem.displayName = 'ToolbarCancelItem';

@@ -66,7 +66,7 @@ export class RequestEncryption {
       uri: opts.uri,
       headers: opts.headers ?? {},
       body: encode(
-        new TextEncoder().encode(opts.body ?? '') as any as ArrayBuffer,
+        new TextEncoder().encode(opts.body ?? '') as unknown as ArrayBuffer,
       ),
     };
 
@@ -81,6 +81,7 @@ export class RequestEncryption {
   } {
     const decryptedResponseJSON = this.encryption.decrypt(encryptedResponse);
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const response: EncryptedResponse = JSON.parse(decryptedResponseJSON);
 
     return {

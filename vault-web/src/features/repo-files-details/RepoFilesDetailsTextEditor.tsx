@@ -53,3 +53,4 @@ export const RepoFilesDetailsTextEditor = memo<{
     </Suspense>
   );
 });
+RepoFilesDetailsTextEditor.displayName = 'RepoFilesDetailsTextEditor';

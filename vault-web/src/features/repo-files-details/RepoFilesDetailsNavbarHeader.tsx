@@ -110,3 +110,4 @@ export const RepoFilesDetailsNavbarHeader = memo<{
     </div>
   );
 });
+RepoFilesDetailsNavbarHeader.displayName = 'RepoFilesDetailsNavbarHeader';

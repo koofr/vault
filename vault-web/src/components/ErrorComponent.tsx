@@ -46,3 +46,4 @@ export const ErrorComponent = memo<{ error: string; onRetry?: () => void }>(
     );
   },
 );
+ErrorComponent.displayName = 'ErrorComponent';

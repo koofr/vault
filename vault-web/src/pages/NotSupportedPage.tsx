@@ -51,3 +51,4 @@ export const NotSupportedPage = memo(() => {
     </>
   );
 });
+NotSupportedPage.displayName = 'NotSupportedPage';

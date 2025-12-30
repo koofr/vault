@@ -27,6 +27,7 @@ export function useClipboardUpload(
             Array.from(event.clipboardData.items).filter(
               (item) => item.kind === 'file',
             );
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       Promise.all(uploadFiles(files));
     },
     [uploadFiles],

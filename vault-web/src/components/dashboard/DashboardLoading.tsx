@@ -28,3 +28,4 @@ export const DashboardLoading = memo<{
     </>
   );
 });
+DashboardLoading.displayName = 'DashboardLoading';

@@ -18,6 +18,7 @@ export function useSelectName(
 
   useEffect(() => {
     if (repoId !== undefined && name !== undefined) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       navigate(repoFilesLink(repoId, encryptedPath), { replace: true });
     }
   }, [navigate, repoId, encryptedPath, name]);

@@ -158,3 +158,4 @@ export const GlobalStyles = memo(() => {
     />
   );
 });
+GlobalStyles.displayName = 'GlobalStyles';

@@ -129,6 +129,7 @@ export const NavbarMain = memo<{
     </header>
   );
 });
+NavbarMain.displayName = 'NavbarMain';
 
 export const NavbarExtra = memo<PropsWithChildren<{ isSticky: boolean }>>(
   ({ isSticky, children }) => {
@@ -176,6 +177,7 @@ export const NavbarExtra = memo<PropsWithChildren<{ isSticky: boolean }>>(
     );
   },
 );
+NavbarExtra.displayName = 'NavbarExtra';
 
 export const Navbar = memo<{
   left?: ReactNode;
@@ -196,3 +198,4 @@ export const Navbar = memo<{
     </>
   );
 });
+Navbar.displayName = 'Navbar';

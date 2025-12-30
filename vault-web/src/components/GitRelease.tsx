@@ -3,6 +3,7 @@ import { memo } from 'react';
 import { allStates } from '../styles/mixins/hover';
 
 export const GitRelease = memo<{ className?: string }>(({ className }) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const gitRelease = import.meta.env.VITE_GIT_RELEASE;
 
   if (gitRelease == null || gitRelease === '') {
@@ -27,3 +28,4 @@ export const GitRelease = memo<{ className?: string }>(({ className }) => {
     </div>
   );
 });
+GitRelease.displayName = 'GitRelease';

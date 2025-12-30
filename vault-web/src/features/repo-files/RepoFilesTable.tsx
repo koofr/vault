@@ -42,6 +42,7 @@ const FileName = memo<{ file: RepoFile }>(({ file }) => {
   const theme = useTheme();
   const webVault = useWebVault();
   const onClick = useCallback(() => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     openFile(webVault, file.repoId, file.encryptedPath, isMobile);
   }, [webVault, file, isMobile]);
   const renameFile = useCallback(() => {
@@ -166,6 +167,7 @@ const FileName = memo<{ file: RepoFile }>(({ file }) => {
     </div>
   );
 });
+FileName.displayName = 'FileName';
 
 export const FileSize = memo<{ file: RepoFile }>(({ file }) => {
   return (
@@ -178,6 +180,7 @@ export const FileSize = memo<{ file: RepoFile }>(({ file }) => {
     </span>
   );
 });
+FileSize.displayName = 'FileSize';
 
 export const FileModified = memo<{ file: RepoFile }>(({ file }) => {
   if (file.modified === undefined) {
@@ -194,6 +197,7 @@ export const FileModified = memo<{ file: RepoFile }>(({ file }) => {
     </span>
   );
 });
+FileModified.displayName = 'FileModified';
 
 const RepoFilesTableRow = memo<RowProps<TableData>>(({ index, data }) => {
   const item = useMemo(() => data.items[index], [data, index]);
@@ -238,6 +242,7 @@ const RepoFilesTableRow = memo<RowProps<TableData>>(({ index, data }) => {
     />
   );
 });
+RepoFilesTableRow.displayName = 'RepoFilesTableRow';
 
 export const RepoFilesTable = memo<{
   info: RepoFilesBrowserInfo;
@@ -325,10 +330,7 @@ export const RepoFilesTable = memo<{
     },
     [webVault, browserId, items],
   );
-  const onRowContextMenu = useCallback(
-    (event: MouseEvent<HTMLElement>, index: number) => {},
-    [],
-  );
+  const onRowContextMenu = useCallback(() => {}, []);
 
   return (
     <Table
@@ -346,3 +348,4 @@ export const RepoFilesTable = memo<{
     />
   );
 });
+RepoFilesTable.displayName = 'RepoFilesTable';

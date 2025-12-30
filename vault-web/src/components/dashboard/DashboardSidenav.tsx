@@ -37,3 +37,4 @@ export const DashboardSidenav = memo<{ className?: string }>(
     );
   },
 );
+DashboardSidenav.displayName = 'DashboardSidenav';

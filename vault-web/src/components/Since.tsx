@@ -36,3 +36,4 @@ export const Since = memo<{ value: number; noTooltip?: boolean }>(
     );
   },
 );
+Since.displayName = 'Since';

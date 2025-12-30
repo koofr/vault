@@ -40,11 +40,12 @@ export const RepoRemoveModalContent = memo<{
     (event: React.FormEvent) => {
       event.preventDefault();
 
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       (async () => {
         const success = await webVault.repoRemoveRemove(removeId, password);
 
         if (success) {
-          navigate('/');
+          await navigate('/');
         }
       })();
     },
@@ -86,8 +87,8 @@ export const RepoRemoveModalContent = memo<{
           `}
         >
           Destroying the Safe Box will keep all the files on Koofr but remove
-          the configuration so you won't be able to decrypt the files if you
-          didn't save the configuration.
+          the configuration so you won&apos;t be able to decrypt the files if
+          you didn&apos;t save the configuration.
         </p>
         <p
           className={css`
@@ -146,6 +147,7 @@ export const RepoRemoveModalContent = memo<{
     </form>
   );
 });
+RepoRemoveModalContent.displayName = 'RepoRemoveModalContent';
 
 export const RepoRemoveModal = memo<{
   repoId?: string;
@@ -161,3 +163,4 @@ export const RepoRemoveModal = memo<{
     </Modal>
   );
 });
+RepoRemoveModal.displayName = 'RepoRemoveModal';

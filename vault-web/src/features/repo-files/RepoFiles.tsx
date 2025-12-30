@@ -98,6 +98,7 @@ export const RepoFilesInfo = memo<{
     </RepoFilesBrowserIdContext.Provider>
   );
 });
+RepoFilesInfo.displayName = 'RepoFilesInfo';
 
 export const RepoFiles = memo<{
   source: RepoFilesBrowserSource;
@@ -125,3 +126,4 @@ export const RepoFiles = memo<{
     </RepoGuard>
   );
 });
+RepoFiles.displayName = 'RepoFiles';

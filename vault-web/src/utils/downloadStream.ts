@@ -7,7 +7,8 @@ export function downloadStream(stream: FileStream) {
   if (stream.stream !== undefined) {
     const size =
       stream.size.type === 'Exact'
-        ? parseInt(stream.size.size as any, 10)
+        ? // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+          parseInt(stream.size.size as any, 10)
         : undefined;
 
     const fileStream = streamSaver.createWriteStream(stream.name, {

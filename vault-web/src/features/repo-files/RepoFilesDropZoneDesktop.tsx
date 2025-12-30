@@ -38,9 +38,11 @@ export const RepoFilesDropZoneDesktop = memo(() => {
     });
 
     return () => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       unlistenPromise.then((unlisten) => unlisten());
     };
   });
 
   return <DropZone isActive={canDrop} isOver={isOver} isAllowed={canUpload} />;
 });
+RepoFilesDropZoneDesktop.displayName = 'RepoFilesDropZoneDesktop';

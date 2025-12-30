@@ -11,10 +11,12 @@ export interface Config {
 
 export async function loadConfig(): Promise<Config> {
   const res = await fetch('/config.json');
-  const resJson = await res.json();
-  return resJson as Config;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const resJson: Config = await res.json();
+  return resJson;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
 export const ConfigContext = createContext<Config>(undefined as any);
 
 export function useConfig() {

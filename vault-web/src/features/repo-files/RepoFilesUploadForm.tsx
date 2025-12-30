@@ -10,3 +10,4 @@ export const RepoFilesUploadForm = memo(() => {
     return <RepoFilesUploadFormWeb />;
   }
 });
+RepoFilesUploadForm.displayName = 'RepoFilesUploadForm';

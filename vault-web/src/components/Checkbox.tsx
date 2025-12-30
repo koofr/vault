@@ -117,3 +117,4 @@ export const Checkbox = memo<{
     </button>
   );
 });
+Checkbox.displayName = 'Checkbox';

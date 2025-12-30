@@ -8,7 +8,7 @@ import { useWebVault } from '../../webVault/useWebVault';
 
 import { Notification } from './Notification';
 
-export const Notifications = memo<{}>(() => {
+export const Notifications = memo(() => {
   const theme = useTheme();
   const webVault = useWebVault();
   const [notifications] = useSubscribe(
@@ -83,3 +83,4 @@ export const Notifications = memo<{}>(() => {
     </div>
   );
 });
+Notifications.displayName = 'Notifications';

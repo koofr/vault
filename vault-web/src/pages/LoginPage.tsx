@@ -5,7 +5,7 @@ import { DashboardLoading } from '../components/dashboard/DashboardLoading';
 import { useSubscribe } from '../webVault/useSubscribe';
 import { useWebVault } from '../webVault/useWebVault';
 
-export const LoginPage: React.FC<{}> = () => {
+export const LoginPage: React.FC = () => {
   const webVault = useWebVault();
   const navigate = useNavigate();
   const [oauth2Status] = useSubscribe(
@@ -16,6 +16,7 @@ export const LoginPage: React.FC<{}> = () => {
 
   useEffect(() => {
     if (oauth2Status?.type === 'Loaded') {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       navigate('/', {
         replace: true,
       });
@@ -30,3 +31,4 @@ export const LoginPage: React.FC<{}> = () => {
 
   return <DashboardLoading />;
 };
+LoginPage.displayName = 'LoginPage';

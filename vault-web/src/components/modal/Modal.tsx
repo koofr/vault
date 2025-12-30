@@ -121,6 +121,7 @@ export const Modal = memo<ModalProps & React.RefAttributes<ModalHandle>>(
     );
   },
 );
+Modal.displayName = 'Modal';
 
 const ModalContent = memo<PropsWithChildren<{ isTopModal: boolean }>>(
   ({ isTopModal, children }) => {
@@ -169,6 +170,7 @@ const ModalContent = memo<PropsWithChildren<{ isTopModal: boolean }>>(
     );
   },
 );
+ModalContent.displayName = 'ModalContent';
 
 export const ModalClose = memo(() => {
   const close = useContext(ModalCloseContext);
@@ -214,6 +216,7 @@ export const ModalClose = memo(() => {
     </button>
   );
 });
+ModalClose.displayName = 'ModalClose';
 
 const StyledModalHeader = styled.div`
   padding: 8px;
@@ -230,6 +233,7 @@ export const ModalHeader = memo<ComponentProps<typeof StyledModalHeader>>(
     </StyledModalHeader>
   ),
 );
+ModalHeader.displayName = 'ModalHeader';
 
 export const ModalTitle = styled.h5`
   margin: 0;

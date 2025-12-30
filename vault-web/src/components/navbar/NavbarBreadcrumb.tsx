@@ -134,3 +134,4 @@ export const NavbarBreadcrumb = memo<{
     );
   },
 );
+NavbarBreadcrumb.displayName = 'NavbarBreadcrumb';

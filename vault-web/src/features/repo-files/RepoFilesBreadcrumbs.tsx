@@ -50,3 +50,4 @@ export const RepoFilesBreadcrumbs = memo<{
     <NavbarBreadcrumbs breadcrumbs={navbarBreadcrumbs} onClick={onClick} />
   );
 });
+RepoFilesBreadcrumbs.displayName = 'RepoFilesBreadcrumbs';

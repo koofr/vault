@@ -10,7 +10,7 @@ import { RepoUnlockForm } from './RepoUnlockForm';
 
 export const RepoUnlock = memo<{ repoId: string }>(({ repoId }) => {
   const webVault = useWebVault();
-  let unlockId = useMemo(
+  const unlockId = useMemo(
     () =>
       webVault.repoUnlockCreate(repoId, {
         mode: 'Unlock',
@@ -48,3 +48,4 @@ export const RepoUnlock = memo<{ repoId: string }>(({ repoId }) => {
     </DashboardLayout>
   );
 });
+RepoUnlock.displayName = 'RepoUnlock';

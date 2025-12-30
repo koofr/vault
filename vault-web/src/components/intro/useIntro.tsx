@@ -27,7 +27,9 @@ export const useIntro = (): {
 
             localStorage.setItem(introSeenKey, 'true');
           }
-        } catch {}
+        } catch {
+          //
+        }
       }
     }
   }, [repos, introModalShow]);

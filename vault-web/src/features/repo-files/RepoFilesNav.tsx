@@ -31,6 +31,7 @@ export const AddButton = memo(() => {
     </NavbarNavItem>
   );
 });
+AddButton.displayName = 'AddButton';
 
 export const AddButtonDropdown = memo(() => {
   const [isVisible, setVisible] = useState(false);
@@ -46,6 +47,7 @@ export const AddButtonDropdown = memo(() => {
     </Dropdown>
   );
 });
+AddButtonDropdown.displayName = 'AddButtonDropdown';
 
 export const RepoFilesNav = memo<{ info?: RepoFilesBrowserInfo }>(
   ({ info }) => {
@@ -56,3 +58,4 @@ export const RepoFilesNav = memo<{ info?: RepoFilesBrowserInfo }>(
     );
   },
 );
+RepoFilesNav.displayName = 'RepoFilesNav';

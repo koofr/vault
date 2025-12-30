@@ -1,4 +1,3 @@
-/* eslint-disable */
 // https://www.w3.org/TR/2012/WD-file-system-api-20120417/#idl-def-Entry
 interface Metadata {
   modificationTime: Date;

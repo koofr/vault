@@ -17,3 +17,4 @@ export const NavbarBreadcrumbsSeparator = memo(() => (
     <BreadcrumbsSeparatorIcon role="img" />
   </div>
 ));
+NavbarBreadcrumbsSeparator.displayName = 'NavbarBreadcrumbsSeparator';

@@ -11,6 +11,7 @@ export const RepoFilesUploadFormWeb = memo(() => {
   const uploadFileInputRef = useCallback(
     (el: HTMLInputElement | null) => {
       if (el === null) {
+        // eslint-disable-next-line react-hooks/immutability
         uploadApi.uploadFile = undefined;
       } else {
         uploadApi.uploadFile = () => el.click();
@@ -21,6 +22,7 @@ export const RepoFilesUploadFormWeb = memo(() => {
   const uploadDirInputRef = useCallback(
     (el: HTMLInputElement | null) => {
       if (el === null) {
+        // eslint-disable-next-line react-hooks/immutability
         uploadApi.uploadDir = undefined;
       } else {
         uploadApi.uploadDir = () => el.click();
@@ -29,9 +31,10 @@ export const RepoFilesUploadFormWeb = memo(() => {
     [uploadApi],
   );
   const onUploadFileChange = useCallback(
-    async (event: FormEvent<HTMLInputElement>) => {
+    (event: FormEvent<HTMLInputElement>) => {
       if (event.currentTarget.files !== null) {
         const files = Array.from(event.currentTarget.files);
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         Promise.all(uploadFiles(files));
       }
       if (uploadFormRef.current !== null) {
@@ -60,3 +63,4 @@ export const RepoFilesUploadFormWeb = memo(() => {
     </form>
   );
 });
+RepoFilesUploadFormWeb.displayName = 'RepoFilesUploadFormWeb';

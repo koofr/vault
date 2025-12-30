@@ -8,10 +8,11 @@ import {
 
 export interface ModalsStore {
   topModal: string | undefined;
-  addModal(modal: string): void;
-  removeModal(modal: string): void;
+  addModal: (modal: string) => void;
+  removeModal: (modal: string) => void;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
 export const ModalsStoreContext = createContext<ModalsStore>(undefined as any);
 
 export const ModalsProvider = memo<PropsWithChildren>(({ children }) => {
@@ -44,3 +45,4 @@ export const ModalsProvider = memo<PropsWithChildren>(({ children }) => {
     </ModalsStoreContext.Provider>
   );
 });
+ModalsProvider.displayName = 'ModalsProvider';

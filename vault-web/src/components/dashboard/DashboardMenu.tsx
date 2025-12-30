@@ -77,6 +77,7 @@ export const DashboardMenuUserInfoItem = memo(() => {
     </MenuBaseItem>
   );
 });
+DashboardMenuUserInfoItem.displayName = 'DashboardMenuUserInfoItem';
 
 export const DashboardMenu = memo(() => {
   const theme = useTheme();
@@ -137,3 +138,4 @@ export const DashboardMenu = memo(() => {
     </Menu>
   );
 });
+DashboardMenu.displayName = 'DashboardMenu';

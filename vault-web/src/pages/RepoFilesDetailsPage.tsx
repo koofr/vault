@@ -13,3 +13,4 @@ export const RepoFilesDetailsPage = memo(() => {
 
   return <RepoFilesDetails repoId={repoId} />;
 });
+RepoFilesDetailsPage.displayName = 'RepoFilesDetailsPage';

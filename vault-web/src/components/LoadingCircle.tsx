@@ -45,3 +45,4 @@ export const LoadingCircle = memo(() => {
     </div>
   );
 });
+LoadingCircle.displayName = 'LoadingCircle';
