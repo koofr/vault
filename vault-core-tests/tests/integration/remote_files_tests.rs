@@ -92,6 +92,15 @@ fn test_file_moved() {
             )
             .await;
 
+            let moved_future = store::wait_for(
+                fixture.vault.store.clone(),
+                &[store::Event::RemoteFiles],
+                move |mutation_state| {
+                    mutation_state
+                        .filter(|state| !state.remote_files.moved_files.is_empty())
+                        .map(|_| ())
+                },
+            );
             let move_future = async {
                 fixture
                     .vault
@@ -110,16 +119,7 @@ fn test_file_moved() {
                     .await
                     .unwrap()
             };
-            let moved_future = store::wait_for(
-                fixture.vault.store.clone(),
-                &[store::Event::RemoteFiles],
-                move |mutation_state| {
-                    mutation_state
-                        .filter(|state| !state.remote_files.moved_files.is_empty())
-                        .map(|_| ())
-                },
-            );
-            let _ = join!(move_future, moved_future);
+            let _ = join!(moved_future, move_future);
 
             drop(eventstream_subscription);
 
