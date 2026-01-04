@@ -295,6 +295,7 @@ struct RepoFilesEditModeBottomBar: View {
             }
             .disabled(!hasSelection)
             .accessibilityLabel("Download selected")
+            .padding()
 
             Spacer()
 
@@ -306,6 +307,7 @@ struct RepoFilesEditModeBottomBar: View {
             }
             .disabled(!hasSelection)
             .accessibilityLabel("Copy selected")
+            .padding()
 
             Spacer()
 
@@ -317,6 +319,7 @@ struct RepoFilesEditModeBottomBar: View {
             }
             .disabled(!hasSelection)
             .accessibilityLabel("Move selected")
+            .padding()
 
             Spacer()
 
@@ -327,6 +330,7 @@ struct RepoFilesEditModeBottomBar: View {
             }
             .disabled(!hasSelection)
             .accessibilityLabel("Delete selected")
+            .padding()
         }
     }
 }
