@@ -17,6 +17,7 @@ use vault_core::{
     files::{file_category::FileCategory, files_filter::FilesFilter},
     remote_files,
     repo_files::errors::LoadFilesError,
+    repo_files_browsers::state::{RepoFilesBrowserOptions, RepoFilesBrowserSource},
     repo_files_details::{
         self,
         state::{
@@ -189,18 +190,24 @@ fn test_content_loaded_error() {
             let download_counter = Arc::new(AtomicUsize::new(0));
             let interceptor_download_counter = download_counter.clone();
 
-            fixture.fake_remote.intercept(Box::new(move |parts| {
-                if parts.uri.path().contains("/content/api")
-                    && parts.uri.path().contains("/files/get")
-                {
-                    interceptor_download_counter.fetch_add(1, Ordering::SeqCst);
-                    InterceptorResult::Response(StatusCode::INTERNAL_SERVER_ERROR.into_response())
-                } else {
-                    InterceptorResult::Ignore
-                }
-            }));
-
             fixture.upload_file("/file.txt", "test").await;
+
+            // first trigger a file list by creating repo files browser.
+            let (browser_id, load_future) = fixture.vault.repo_files_browsers_create(
+                RepoFilesBrowserSource::Storage {
+                    repo_id: fixture.repo_id.clone(),
+                    encrypted_path: fixture.encrypt_path("/"),
+                },
+                RepoFilesBrowserOptions { select_name: None },
+            );
+            load_future.await.unwrap();
+            fixture.vault.repo_files_browsers_destroy(browser_id);
+
+            // now create repo files details. for repo files details all http calls should fail.
+            fixture.fake_remote.intercept(Box::new(move |_| {
+                interceptor_download_counter.fetch_add(1, Ordering::SeqCst);
+                InterceptorResult::Response(StatusCode::INTERNAL_SERVER_ERROR.into_response())
+            }));
 
             let (details_id, load_future) = fixture.vault.repo_files_details_create(
                 fixture.repo_id.clone(),
@@ -214,9 +221,14 @@ fn test_content_loaded_error() {
                     },
                 },
             );
-            load_future.await.unwrap();
 
-            details_wait(fixture.vault.store.clone(), 1, |details| {
+            // load_future will fail because of interceptor
+            assert!(load_future.await.is_err());
+
+            // load_future only loads file info, not content. content is loaded
+            // inside a change watcher so we need to wait for content status to
+            // be error
+            details_wait(fixture.vault.store.clone(), details_id, |details| {
                 matches!(
                     details.location.as_ref().unwrap().content.status,
                     Status::Error { .. }
@@ -224,8 +236,33 @@ fn test_content_loaded_error() {
             })
             .await;
 
-            // one retry on server errors in http client
-            assert_eq!(download_counter.load(Ordering::SeqCst), 2);
+            // error should be some because status and content status are error
+            fixture.vault.with_state(|state| {
+                let info = repo_files_details::selectors::select_info(state, details_id).unwrap();
+                assert!(info.error.is_some());
+                assert!(matches!(info.status, Status::Error { .. }));
+                assert!(matches!(info.content_status, Status::Error { .. }));
+            });
+
+            // stop injecting errors
+            fixture
+                .fake_remote
+                .intercept(Box::new(|_| InterceptorResult::Ignore));
+
+            // call service.load_content()
+            fixture
+                .vault
+                .repo_files_details_load_content(details_id)
+                .await
+                .unwrap();
+
+            // error should still be some because status is still error
+            fixture.vault.with_state(|state| {
+                let info = repo_files_details::selectors::select_info(state, details_id).unwrap();
+                assert!(info.error.is_some());
+                assert!(matches!(info.status, Status::Error { .. }));
+                assert!(matches!(info.content_status, Status::Loaded));
+            });
 
             fixture
                 .vault
