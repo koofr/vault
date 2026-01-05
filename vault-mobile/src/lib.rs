@@ -1609,6 +1609,7 @@ impl Into<repo_files_details_state::RepoFilesDetailsOptions> for RepoFilesDetail
 pub struct RepoFilesDetailsInfo {
     pub repo_id: Option<String>,
     pub encrypted_parent_path: Option<String>,
+    pub encrypted_parent_path_chain: Vec<String>,
     pub encrypted_path: Option<String>,
     pub status: Status,
     pub file_name: Option<String>,
@@ -1637,6 +1638,11 @@ impl<'a> From<&repo_files_details_state::RepoFilesDetailsInfo<'a>> for RepoFiles
         Self {
             repo_id: info.repo_id.map(|x| x.0.clone()),
             encrypted_parent_path: info.parent_path.as_ref().map(|x| x.0.clone()),
+            encrypted_parent_path_chain: info
+                .parent_path
+                .as_ref()
+                .map(|x| vault_core::utils::path_utils::paths_chain(&x.0))
+                .unwrap_or_default(),
             encrypted_path: info.path.map(|x| x.0.clone()),
             status: (&info.status).into(),
             file_name: info.file_name.as_ref().map(|x| x.0.clone()),

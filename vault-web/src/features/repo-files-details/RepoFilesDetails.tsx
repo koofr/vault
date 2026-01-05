@@ -45,7 +45,6 @@ const RepoFilesDetailsInnerInfo = memo<{
     useEffect(() => {
       if (info.repoId !== undefined && info.encryptedPath !== undefined) {
         if (info.shouldDestroy) {
-          // TODO navigate to parent and select the file
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           navigate(
             repoFilesLink(
