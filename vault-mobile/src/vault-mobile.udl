@@ -583,6 +583,7 @@ dictionary RepoFilesDetailsOptions {
 dictionary RepoFilesDetailsInfo {
   string? repo_id;
   string? encrypted_parent_path;
+  sequence<string> encrypted_parent_path_chain;
   string? encrypted_path;
   Status status;
   string? file_name;
