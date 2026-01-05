@@ -1,14 +1,15 @@
 {
+  "originHash" : "4d0b933d154e12f5d6583b5aa52eebfb9e38bb40e2f34aebc7a0254e5a6be721",
   "pins" : [
     {
       "identity" : "swiftuinavcontroller",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bancek/SwiftUINavController",
       "state" : {
-        "branch" : "v0.1.1",
-        "revision" : "276e217c01cbd919c299a4d164988891530ddd71"
+        "branch" : "v0.1.2",
+        "revision" : "07bd7a164e6220d352cc6fa742188da1a365a55a"
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
