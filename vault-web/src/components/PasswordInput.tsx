@@ -1,5 +1,5 @@
 import { css, cx } from '@emotion/css';
-import { memo, MutableRefObject, useCallback, useState } from 'react';
+import { memo, RefObject, useCallback, useState } from 'react';
 
 import { useAutofocus } from '../utils/useAutoFocus';
 
@@ -11,7 +11,7 @@ export interface PasswordInputProps {
   placeholder?: string;
   onChange: (value: string) => void;
   className?: string;
-  inputRef?: MutableRefObject<HTMLInputElement | null>;
+  inputRef?: RefObject<HTMLInputElement | null>;
   inputClassName?: string;
   inputId?: string;
   inputAriaLabel?: string;
