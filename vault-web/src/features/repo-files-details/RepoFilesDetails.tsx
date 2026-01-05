@@ -1,12 +1,5 @@
 import { css } from '@emotion/css';
-import {
-  MutableRefObject,
-  RefObject,
-  memo,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { RefObject, memo, useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useDocumentSize } from '../../components/DocumentSize';
@@ -138,7 +131,7 @@ const RepoFilesDetailsInner = memo<{
   encryptedPath: string;
   isEditing: boolean;
   autosaveIntervalMs?: number;
-  expectedEncryptedNewPath: MutableRefObject<string | undefined>;
+  expectedEncryptedNewPath: RefObject<string | undefined>;
 }>(
   ({
     repoId,
