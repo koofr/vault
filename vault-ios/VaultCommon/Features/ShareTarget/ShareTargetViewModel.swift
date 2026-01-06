@@ -7,7 +7,7 @@ public class ShareTargetViewModel: ObservableObject {
     public let onUpload: () -> Void
     public let onCancel: () -> Void
 
-    public let navController: ShareTargetNavController
+    public let navController: ShareTargetVaultNavController
 
     public init(
         container: Container, files: [UploadFile], onUpload: @escaping () -> Void,
@@ -23,7 +23,9 @@ public class ShareTargetViewModel: ObservableObject {
         self.onUpload = onUpload
         self.onCancel = onCancel
 
-        self.navController = ShareTargetNavController(rootRoute: .repos)
+        self.navController = ShareTargetVaultNavController(
+            navController: ShareTargetNavController(rootRoute: .repos),
+            mobileVault: container.mobileVault)
     }
 
     public func cancel() {

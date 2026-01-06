@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 55;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -391,6 +391,10 @@
 		A1ED96F72936916D00DA54DA /* RepoFileRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFileRow.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		A1118F572F0C6B2600B55356 /* Navigation */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Navigation; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		A18269632AA0B8520072F531 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -683,6 +687,7 @@
 				A19CE5D82A83A2540079E924 /* Keychain */,
 				A18AB2C92A77DECE0037156B /* Landing */,
 				A1228E7D2A7BE9DA00AC1148 /* MainNavigation */,
+				A1118F572F0C6B2600B55356 /* Navigation */,
 				A18AB2CA2A77DEEC0037156B /* Notifications */,
 				A1265CA52AAD8E0300CEAA5C /* Overlays */,
 				A1B280452E47725500C1696A /* Recent */,
@@ -1055,6 +1060,9 @@
 			);
 			dependencies = (
 				A182698C2AA0E8F20072F531 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A1118F572F0C6B2600B55356 /* Navigation */,
 			);
 			name = VaultCommon;
 			packageProductDependencies = (

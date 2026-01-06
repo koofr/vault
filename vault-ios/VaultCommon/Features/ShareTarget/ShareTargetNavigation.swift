@@ -10,7 +10,7 @@ public struct ShareTargetNavigation: View {
     }
 
     public var body: some View {
-        Navigation(navController: vm.navController) { navController, routeContainer in
+        Navigation(navController: vm.navController.navController) { navController, routeContainer in
             Group {
                 switch routeContainer.route {
                 case .repos:

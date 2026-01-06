@@ -5,17 +5,19 @@ import VaultMobile
 public class RepoFilesMoveViewModel: ObservableObject {
     public let container: Container
 
-    @ObservedObject var navController: RepoFilesMoveNavController
+    @ObservedObject var navController: RepoFilesMoveVaultNavController
 
     private var pathChangedCancellable: AnyCancellable?
 
     public init(container: Container, repoId: String, initialEncryptedPathChain: [String]) {
         self.container = container
 
-        navController = RepoFilesMoveNavController(
-            rootRoute: .repoFiles(repoId: repoId, encryptedPath: "/"))
+        navController = RepoFilesMoveVaultNavController(
+            navController: RepoFilesMoveNavController(
+                rootRoute: .repoFiles(repoId: repoId, encryptedPath: "/")),
+            mobileVault: container.mobileVault)
 
-        pathChangedCancellable = navController.$state.sink(receiveValue: { state in
+        pathChangedCancellable = navController.navController.$state.sink(receiveValue: { state in
             switch state.activeRoute {
             case .repoFiles(_, let encryptedPath):
                 container.mobileVault.repoFilesMoveSetDestPath(encryptedDestPath: encryptedPath)
@@ -24,7 +26,8 @@ public class RepoFilesMoveViewModel: ObservableObject {
 
         for encryptedPath in initialEncryptedPathChain {
             if encryptedPath != "/" {
-                navController.push(.repoFiles(repoId: repoId, encryptedPath: encryptedPath))
+                navController.navController.push(
+                    .repoFiles(repoId: repoId, encryptedPath: encryptedPath))
             }
         }
     }

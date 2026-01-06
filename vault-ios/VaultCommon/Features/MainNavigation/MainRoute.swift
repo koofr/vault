@@ -12,3 +12,4 @@ public enum MainRoute: Hashable {
 }
 
 public typealias MainNavController = NavController<MainRoute>
+public typealias MainVaultNavController = VaultNavController<MainRoute>

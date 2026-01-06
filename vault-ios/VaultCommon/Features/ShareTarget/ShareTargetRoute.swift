@@ -8,3 +8,4 @@ public enum ShareTargetRoute: Hashable {
 }
 
 public typealias ShareTargetNavController = NavController<ShareTargetRoute>
+public typealias ShareTargetVaultNavController = VaultNavController<ShareTargetRoute>
