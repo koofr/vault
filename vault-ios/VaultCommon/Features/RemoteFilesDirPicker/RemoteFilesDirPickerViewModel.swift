@@ -7,7 +7,7 @@ public class RemoteFilesDirPickerViewModel: ObservableObject {
     public let onSelect: (String, String) -> Void
     public let onCancel: () -> Void
 
-    public let navController: RemoteFilesDirPickerNavController
+    public let navController: RemoteFilesDirPickerVaultNavController
 
     public init(
         container: Container, canSelect: @escaping (String, String) -> Bool,
@@ -18,6 +18,8 @@ public class RemoteFilesDirPickerViewModel: ObservableObject {
         self.onSelect = onSelect
         self.onCancel = onCancel
 
-        self.navController = RemoteFilesDirPickerNavController(rootRoute: .dirPicker(location: ""))
+        self.navController = RemoteFilesDirPickerVaultNavController(
+            navController: RemoteFilesDirPickerNavController(rootRoute: .dirPicker(location: "")),
+            mobileVault: container.mobileVault)
     }
 }

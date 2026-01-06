@@ -7,3 +7,4 @@ public enum RepoFilesMoveRoute: Hashable {
 }
 
 public typealias RepoFilesMoveNavController = NavController<RepoFilesMoveRoute>
+public typealias RepoFilesMoveVaultNavController = VaultNavController<RepoFilesMoveRoute>

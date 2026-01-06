@@ -20,7 +20,7 @@ public class RemoteFilesDirPickerScreenViewModel: ObservableObject {
             location: location,
             options: RemoteFilesBrowserOptions(selectName: nil, onlyHostedDevices: true))
 
-        navController = dirPickerVm.navController
+        navController = dirPickerVm.navController.navController
     }
 
     deinit {

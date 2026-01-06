@@ -3,7 +3,7 @@ import VaultMobile
 
 enum AuthGuardState {
     case loading
-    case navigation(navController: MainNavController)
+    case navigation(navController: MainVaultNavController)
     case landing
 }
 
@@ -24,7 +24,9 @@ public struct AuthGuard: View {
                 switch v.oauth2StatusData(id: id) {
                 case .some(.loading(_)): return .loading
                 case .some(.loaded):
-                    let navController = MainNavController(rootRoute: .repos)
+                    let navController = MainVaultNavController(
+                        navController: MainNavController(rootRoute: .repos),
+                        mobileVault: container.mobileVault)
 
                     return .navigation(navController: navController)
                 default:
@@ -41,7 +43,7 @@ public struct AuthGuard: View {
         case .loading:
             LoadingView()
         case .navigation(let navController):
-            MainNavigation(container: container, navController: navController)
+            MainNavigation(container: container, navController: navController.navController)
         case .landing:
             LandingScreen(container: container)
         }

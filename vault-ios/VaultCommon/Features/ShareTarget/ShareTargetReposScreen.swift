@@ -73,7 +73,7 @@ struct ShareTargetReposRepoRow: View {
     var body: some View {
         HStack {
             Button {
-                vm.navController.push(.repoFiles(repoId: repo.id, encryptedPath: "/"))
+                vm.navController.navController.push(.repoFiles(repoId: repo.id, encryptedPath: "/"))
             } label: {
                 RepoRow(repo: repo)
             }

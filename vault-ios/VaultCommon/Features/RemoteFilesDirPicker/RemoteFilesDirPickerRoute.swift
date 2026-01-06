@@ -7,3 +7,6 @@ public enum RemoteFilesDirPickerRoute: Hashable {
 }
 
 public typealias RemoteFilesDirPickerNavController = NavController<RemoteFilesDirPickerRoute>
+public typealias RemoteFilesDirPickerVaultNavController = VaultNavController<
+    RemoteFilesDirPickerRoute
+>

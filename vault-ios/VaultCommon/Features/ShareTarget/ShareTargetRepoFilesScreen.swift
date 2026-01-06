@@ -30,7 +30,7 @@ public class ShareTargetRepoFilesScreenViewModel: ObservableObject, WithRepoGuar
 
         self.browserId = browserId
 
-        navController = shareTargetVm.navController
+        navController = shareTargetVm.navController.navController
 
         info = VaultMobile.Subscription(
             mobileVault: container.mobileVault,

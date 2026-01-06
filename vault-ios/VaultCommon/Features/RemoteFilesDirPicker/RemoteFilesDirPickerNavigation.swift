@@ -6,7 +6,7 @@ public struct RemoteFilesDirPickerNavigation: View {
     public let vm: RemoteFilesDirPickerViewModel
 
     public var body: some View {
-        Navigation(navController: vm.navController) { navController, routeContainer in
+        Navigation(navController: vm.navController.navController) { navController, routeContainer in
             switch routeContainer.route {
             case .dirPicker(let location):
                 RemoteFilesDirPickerScreen(
