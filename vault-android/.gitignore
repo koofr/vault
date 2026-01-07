@@ -11,6 +11,8 @@
 /.idea/navEditor.xml
 /.idea/shelf/
 /.idea/workspace.xml
+/.idea/dictionaries
+/.idea/studiobot.xml
 .DS_Store
 /build
 /captures
