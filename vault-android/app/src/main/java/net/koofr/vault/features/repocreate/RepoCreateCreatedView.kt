@@ -49,7 +49,7 @@ fun RepoCreateCreatedView(vm: RepoCreateViewModel, created: RepoCreated, modifie
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Button(onClick = {
-                        navController.popBackStack("repos", false)
+                        navController.popBackStack("repos", inclusive = false)
                         navController.navigate("repos/${created.repoId}/files")
                     }, enabled = vm.configSaved.value) {
                         Text("Continue")

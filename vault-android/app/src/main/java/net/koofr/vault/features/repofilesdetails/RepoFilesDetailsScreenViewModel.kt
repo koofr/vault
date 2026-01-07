@@ -76,6 +76,18 @@ class RepoFilesDetailsScreenViewModel @Inject constructor(
         addCloseable(it)
     }
 
+    private var shouldDestroyHandled = false
+
+    fun markDestroyHandled(): Boolean {
+        if (shouldDestroyHandled) {
+            return false
+        }
+
+        shouldDestroyHandled = true
+
+        return true
+    }
+
     var currentFile: RepoFile? = null
 
     val content =

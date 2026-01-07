@@ -20,6 +20,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,6 +42,7 @@ import net.koofr.vault.features.mobilevault.subscribe
 import net.koofr.vault.features.navigation.LocalNavController
 import net.koofr.vault.features.transfers.TransferInfoView
 import net.koofr.vault.features.transfers.TransfersButton
+import net.koofr.vault.utils.queryEscape
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,6 +50,24 @@ fun RepoFilesDetailsScreen(
     vm: RepoFilesDetailsScreenViewModel,
 ) {
     val context = LocalContext.current
+    val navController = LocalNavController.current
+
+    val infoData = vm.info.data.value
+
+    LaunchedEffect(infoData?.shouldDestroy) {
+        if (infoData?.shouldDestroy == true && vm.markDestroyHandled()) {
+            val repoId = infoData.repoId
+            val pathChain = infoData.encryptedParentPathChain
+
+            if (repoId != null) {
+                navController.popBackStack("repos", inclusive = false)
+
+                pathChain.forEach { path ->
+                    navController.navigate("repos/$repoId/files?path=${queryEscape(path)}")
+                }
+            }
+        }
+    }
 
     subscribe(
         { v, cb -> v.repoFilesDetailsFileSubscribe(detailsId = vm.detailsId, cb = cb) },
