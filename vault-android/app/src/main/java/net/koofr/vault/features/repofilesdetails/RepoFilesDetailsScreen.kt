@@ -1,14 +1,14 @@
 package net.koofr.vault.features.repofilesdetails
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -92,26 +92,17 @@ fun RepoFilesDetailsScreen(
         }, actions = {
             TransfersButton()
 
-            vm.content.value.let {
-                when (it) {
-                    is RepoFilesDetailsScreenContent.Downloaded -> {
-                        IconButton(onClick = {
-                            vm.share(context, it.localFile, it.repoFile.contentType)
-                        }) {
-                            Icon(Icons.Filled.Share, "Share")
-                        }
-                    }
-
-                    else -> {}
+            Box {
+                IconButton(onClick = { vm.menuExpanded.value = true }) {
+                    Icon(Icons.Filled.MoreVert, "Menu")
                 }
-            }
 
-            IconButton(onClick = { vm.rename() }) {
-                Icon(Icons.Filled.Edit, "Rename")
-            }
-
-            IconButton(onClick = { vm.delete() }) {
-                Icon(Icons.Filled.Delete, "Delete")
+                DropdownMenu(
+                    expanded = vm.menuExpanded.value,
+                    onDismissRequest = { vm.menuExpanded.value = false },
+                ) {
+                    RepoFilesDetailsNavMenu(vm, context)
+                }
             }
         })
     }, snackbarHost = { SnackbarHost(LocalSnackbarHostState.current) }) { paddingValues ->
