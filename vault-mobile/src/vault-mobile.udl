@@ -573,6 +573,10 @@ callback interface RepoFilesBrowserDirCreated {
   void on_created(string encrypted_path);
 };
 
+callback interface RepoFilesBrowserFileCreated {
+  void on_created(string encrypted_path);
+};
+
 // repo_files_details
 
 dictionary RepoFilesDetailsOptions {
@@ -845,6 +849,8 @@ interface MobileVault {
   void repo_files_browsers_download_selected_stream(u32 browser_id, DownloadStreamProvider stream_provider);
   [Self=ByArc]
   void repo_files_browsers_create_dir(u32 browser_id, RepoFilesBrowserDirCreated cb);
+  [Self=ByArc]
+  void repo_files_browsers_create_file(u32 browser_id, string name, RepoFilesBrowserFileCreated cb);
   [Self=ByArc]
   void repo_files_browsers_delete_selected(u32 browser_id);
   [Self=ByArc]

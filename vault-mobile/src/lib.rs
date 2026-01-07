@@ -1588,6 +1588,10 @@ pub trait RepoFilesBrowserDirCreated: Send + Sync + Debug {
     fn on_created(&self, encrypted_path: String);
 }
 
+pub trait RepoFilesBrowserFileCreated: Send + Sync + Debug {
+    fn on_created(&self, encrypted_path: String);
+}
+
 // repo_files_details
 
 #[derive(Clone, Debug, PartialEq)]
@@ -3262,6 +3266,29 @@ impl MobileVault {
                     Ok(())
                 }
                 Err(vault_core::repo_files::errors::CreateDirError::Canceled) => Ok(()),
+                Err(err) => Err(err),
+            }
+        })
+    }
+
+    pub fn repo_files_browsers_create_file(
+        self: Arc<Self>,
+        browser_id: u32,
+        name: String,
+        cb: Box<dyn RepoFilesBrowserFileCreated>,
+    ) {
+        self.clone().spawn_result(async move {
+            match self
+                .vault
+                .repo_files_browsers_create_file(browser_id, &name)
+                .await
+            {
+                Ok((_, path)) => {
+                    cb.on_created(path.0);
+
+                    Ok(())
+                }
+                Err(vault_core::repo_files::errors::CreateFileError::Canceled) => Ok(()),
                 Err(err) => Err(err),
             }
         })
