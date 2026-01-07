@@ -22,6 +22,7 @@ data class Config(
     val oauth2AuthBaseUrl: String,
     val secureStorageJSON: String?,
     val reposSetDefaultAutoLock: String?,
+    val textEditorAutosaveIntervalMs: String?,
 )
 
 class MobileVaultProvider constructor(private val secureStorage: SecureStorage) {
@@ -38,6 +39,7 @@ class MobileVaultProvider constructor(private val secureStorage: SecureStorage) 
         // oauth2AuthBaseUrl = "http://10.0.2.2:3080",
         secureStorageJSON = null,
         reposSetDefaultAutoLock = null,
+        textEditorAutosaveIntervalMs = null,
     )
 
     @Synchronized
@@ -76,6 +78,7 @@ class MobileVaultProvider constructor(private val secureStorage: SecureStorage) 
                 ?: defaultConfig.oauth2AuthBaseUrl,
             secureStorageJSON = intent.getStringExtra("vaultSecureStorage"),
             reposSetDefaultAutoLock = intent.getStringExtra("vaultReposSetDefaultAutoLock"),
+            textEditorAutosaveIntervalMs = intent.getStringExtra("vaultTextEditorAutosaveIntervalMs"),
         )
     }
 

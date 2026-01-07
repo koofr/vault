@@ -11,8 +11,6 @@ import java.io.Closeable
 import java.io.File
 
 sealed class RepoFilesDetailsScreenContentData : Closeable {
-    data class Text(val text: String) : RepoFilesDetailsScreenContentData()
-
     data class Image(
         val localFile: File,
         val ext: String,
@@ -67,6 +65,10 @@ sealed class RepoFilesDetailsScreenContentData : Closeable {
     override fun close() {}
 
     companion object {
+        fun isTextEditor(category: FileCategory?): Boolean {
+            return category == FileCategory.TEXT || category == FileCategory.CODE
+        }
+
         fun getLoader(
             context: Context,
             file: RepoFile,
@@ -81,12 +83,6 @@ sealed class RepoFilesDetailsScreenContentData : Closeable {
                     return {
                         Media(buildExoPlayer(context, Uri.fromFile(it)))
                     }
-                }
-            }
-
-            if (file.category == FileCategory.TEXT || file.category == FileCategory.CODE) {
-                return {
-                    Text(it.readText())
                 }
             }
 
@@ -110,6 +106,8 @@ sealed class RepoFilesDetailsScreenContent : Closeable {
             data.close()
         }
     }
+
+    data object TextEditor : RepoFilesDetailsScreenContent()
 
     data class NotSupported(val file: RepoFile) : RepoFilesDetailsScreenContent()
 
