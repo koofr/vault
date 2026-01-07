@@ -3468,6 +3468,17 @@ impl MobileVault {
         })
     }
 
+    pub fn repo_files_details_load_content(self: Arc<Self>, details_id: u32) {
+        self.clone().spawn(async move {
+            // error is displayed in the details component
+            let _ = self
+                .vault
+                .clone()
+                .repo_files_details_load_content(details_id)
+                .await;
+        });
+    }
+
     pub fn repo_files_details_edit(&self, details_id: u32) {
         self.vault.repo_files_details_edit(details_id);
     }
