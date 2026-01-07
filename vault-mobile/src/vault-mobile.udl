@@ -870,6 +870,8 @@ interface MobileVault {
   bytes? repo_files_details_content_bytes_data(u32 id);
   [Self=ByArc]
   void repo_files_details_download_temp_file(u32 details_id, string local_base_path, TransfersDownloadDone on_done);
+  [Self=ByArc]
+  void repo_files_details_load_content(u32 details_id);
   void repo_files_details_edit(u32 details_id);
   [Self=ByArc]
   void repo_files_details_edit_cancel(u32 details_id);
