@@ -166,6 +166,17 @@ fun RepoFilesScreen(
             if (info.encryptedPath != null) {
                 MultiAddButton(
                     listOf(
+                        MultiAddButtonItem("Create new text file") {
+                            vm.createTextFile { encryptedPath ->
+                                navController.navigate(
+                                    "repos/${info.repoId}/files/details?path=${
+                                        queryEscape(
+                                            encryptedPath,
+                                        )
+                                    }&editing=true",
+                                )
+                            }
+                        },
                         MultiAddButtonItem("New folder") {
                             vm.mobileVault.repoFilesBrowsersCreateDir(
                                 browserId = vm.browserId,

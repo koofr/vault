@@ -127,7 +127,7 @@ fun MainNavigation() {
             }
 
             composable(
-                "repos/{repoId}/files/details?path={path}",
+                "repos/{repoId}/files/details?path={path}&editing={editing}",
                 arguments = listOf(
                     navArgument("repoId") {
                         type = NavType.StringType
@@ -135,6 +135,10 @@ fun MainNavigation() {
                     navArgument("path") {
                         type = NavType.StringType
                         defaultValue = "/"
+                    },
+                    navArgument("editing") {
+                        type = NavType.BoolType
+                        defaultValue = false
                     },
                 ),
             ) {

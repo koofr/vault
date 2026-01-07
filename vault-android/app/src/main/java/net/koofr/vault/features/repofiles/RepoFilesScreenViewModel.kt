@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.koofr.vault.MobileVault
 import net.koofr.vault.RepoFile
+import net.koofr.vault.RepoFilesBrowserFileCreated
 import net.koofr.vault.RepoFilesBrowserOptions
 import net.koofr.vault.RepoFilesBrowserSource
 import net.koofr.vault.features.downloads.DownloadHelper
@@ -20,6 +21,9 @@ import net.koofr.vault.features.mobilevault.Subscription
 import net.koofr.vault.features.repo.RepoGuardViewModel
 import net.koofr.vault.features.repo.WithRepoGuardViewModel
 import net.koofr.vault.features.uploads.UploadHelper
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 open class RepoFilesScreenViewModel constructor(
@@ -105,5 +109,21 @@ open class RepoFilesScreenViewModel constructor(
         downloadHelper.downloadRepoFilesBrowsersSelected(navController, browserId)
 
         mobileVault.repoFilesBrowsersClearSelection(browserId = browserId)
+    }
+
+    fun createTextFile(onCreated: (String) -> Unit) {
+        val dateFormat = SimpleDateFormat("yyyyMMddHHmmss", Locale.ROOT)
+        val name = "new text file ${dateFormat.format(Date())}.txt"
+        mobileVault.repoFilesBrowsersCreateFile(
+            browserId = browserId,
+            name = name,
+            cb = object : RepoFilesBrowserFileCreated {
+                override fun onCreated(encryptedPath: String) {
+                    viewModelScope.launch {
+                        onCreated(encryptedPath)
+                    }
+                }
+            },
+        )
     }
 }

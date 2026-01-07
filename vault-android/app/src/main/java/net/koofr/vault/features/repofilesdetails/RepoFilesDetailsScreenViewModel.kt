@@ -22,6 +22,7 @@ import net.koofr.vault.RepoFilesDetailsOptions
 import net.koofr.vault.TransfersDownloadDone
 import net.koofr.vault.features.downloads.DownloadHelper
 import net.koofr.vault.features.fileicon.FileIconCache
+import net.koofr.vault.features.mobilevault.Config
 import net.koofr.vault.features.mobilevault.Subscription
 import net.koofr.vault.features.repo.RepoGuardViewModel
 import net.koofr.vault.features.repo.WithRepoGuardViewModel
@@ -36,28 +37,34 @@ class RepoFilesDetailsScreenViewModel @Inject constructor(
     private val storageHelper: StorageHelper,
     private val downloadHelper: DownloadHelper,
     private val imageLoader: ImageLoader,
+    private val config: Config,
     savedStateHandle: SavedStateHandle,
     @SuppressLint("StaticFieldLeak") @ApplicationContext private val appContext: Context,
 ) : ViewModel(), WithRepoGuardViewModel {
     private var repoGuardViewModel: RepoGuardViewModel? = null
 
-    private val repoId: String = savedStateHandle.get<String>("repoId")!!
-    private val encryptedPath: String = savedStateHandle.get<String>("path")!!
+    val detailsId = run {
+        val repoId: String = savedStateHandle.get<String>("repoId")!!
+        val encryptedPath: String = savedStateHandle.get<String>("path")!!
+        val isEditing: Boolean = savedStateHandle.get<Boolean>("editing") ?: false
 
-    val detailsId = mobileVault.repoFilesDetailsCreate(
-        repoId = repoId,
-        encryptedPath = encryptedPath,
-        isEditing = false,
-        options = RepoFilesDetailsOptions(
-            loadContent = FilesFilter(
-                categories = listOf(FileCategory.CODE, FileCategory.TEXT),
-                exts = emptyList(),
+        val autosaveIntervalMs = config.textEditorAutosaveIntervalMs?.toUIntOrNull() ?: 20000u
+
+        mobileVault.repoFilesDetailsCreate(
+            repoId = repoId,
+            encryptedPath = encryptedPath,
+            isEditing = isEditing,
+            options = RepoFilesDetailsOptions(
+                loadContent = FilesFilter(
+                    categories = listOf(FileCategory.CODE, FileCategory.TEXT),
+                    exts = emptyList(),
+                ),
+                autosaveIntervalMs = autosaveIntervalMs,
             ),
-            autosaveIntervalMs = 20000u,
-        ),
-    ).also {
-        addCloseable {
-            mobileVault.repoFilesDetailsDestroy(detailsId = it)
+        ).also {
+            addCloseable {
+                mobileVault.repoFilesDetailsDestroy(detailsId = it)
+            }
         }
     }
 
@@ -123,8 +130,18 @@ class RepoFilesDetailsScreenViewModel @Inject constructor(
         content.value = newContent
     }
 
+    fun setText(text: String) {
+        mobileVault.repoFilesDetailsSetContent(detailsId = detailsId, content = text.toByteArray())
+    }
+
     fun load(file: RepoFile) {
         currentFile = file
+
+        if (RepoFilesDetailsScreenContentData.isTextEditor(file.category)) {
+            setContent(RepoFilesDetailsScreenContent.TextEditor)
+
+            return
+        }
 
         val loader = RepoFilesDetailsScreenContentData.getLoader(appContext, file, imageLoader)
 
@@ -174,6 +191,16 @@ class RepoFilesDetailsScreenViewModel @Inject constructor(
         context.startActivity(Intent.createChooser(intent, null))
     }
 
+    fun shareText(context: Context, text: String) {
+        val intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, text)
+            type = "text/plain"
+        }
+
+        context.startActivity(Intent.createChooser(intent, null))
+    }
+
     fun download(navController: NavController, file: RepoFile) {
         downloadHelper.downloadRepoFile(navController, file)
     }
@@ -190,5 +217,17 @@ class RepoFilesDetailsScreenViewModel @Inject constructor(
 
     fun delete() {
         mobileVault.repoFilesDetailsDelete(detailsId = detailsId)
+    }
+
+    fun edit() {
+        mobileVault.repoFilesDetailsEdit(detailsId = detailsId)
+    }
+
+    fun editCancel() {
+        mobileVault.repoFilesDetailsEditCancel(detailsId = detailsId)
+    }
+
+    fun save() {
+        mobileVault.repoFilesDetailsSave(detailsId = detailsId)
     }
 }

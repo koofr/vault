@@ -3,10 +3,14 @@ package net.koofr.vault.features.repofilesdetails
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,8 +25,11 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
@@ -36,6 +43,8 @@ import androidx.compose.ui.unit.sp
 import net.koofr.vault.LocalSnackbarHostState
 import net.koofr.vault.RepoFile
 import net.koofr.vault.RepoFilesDetailsInfo
+import net.koofr.vault.Status
+import net.koofr.vault.composables.ErrorView
 import net.koofr.vault.composables.VideoPlayer
 import net.koofr.vault.composables.ZoomableImage
 import net.koofr.vault.features.mobilevault.subscribe
@@ -90,25 +99,42 @@ fun RepoFilesDetailsScreen(
                 overflow = TextOverflow.Ellipsis,
             )
         }, actions = {
+            vm.info.data.value?.let { info ->
+                if (info.isEditing) {
+                    IconButton(onClick = { vm.save() }, enabled = info.isDirty) {
+                        Icon(Icons.Filled.Save, "Save")
+                    }
+                    IconButton(onClick = { vm.editCancel() }) {
+                        Icon(Icons.Filled.Check, "Done")
+                    }
+                }
+            }
+
             TransfersButton()
 
-            Box {
-                IconButton(onClick = { vm.menuExpanded.value = true }) {
-                    Icon(Icons.Filled.MoreVert, "Menu")
-                }
+            if (vm.info.data.value?.isEditing != true) {
+                Box {
+                    IconButton(onClick = { vm.menuExpanded.value = true }) {
+                        Icon(Icons.Filled.MoreVert, "More")
+                    }
 
-                DropdownMenu(
-                    expanded = vm.menuExpanded.value,
-                    onDismissRequest = { vm.menuExpanded.value = false },
-                ) {
-                    RepoFilesDetailsNavMenu(vm, context)
+                    DropdownMenu(
+                        expanded = vm.menuExpanded.value,
+                        onDismissRequest = { vm.menuExpanded.value = false },
+                    ) {
+                        RepoFilesDetailsNavMenu(vm, context)
+                    }
                 }
             }
         })
     }, snackbarHost = { SnackbarHost(LocalSnackbarHostState.current) }) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) {
-            vm.info.data.value?.let {
-                RepoFilesDetailsContentView(vm, it)
+            vm.info.data.value.let {
+                if (it != null) {
+                    RepoFilesDetailsContentView(vm, it)
+                } else {
+                    RepoFilesDetailsContentLoadingView()
+                }
             }
         }
     }
@@ -132,6 +158,10 @@ fun RepoFilesDetailsContentView(
 
             is RepoFilesDetailsScreenContent.Downloaded -> RepoFilesDetailsContentDownloadedView(
                 content.data,
+            )
+
+            is RepoFilesDetailsScreenContent.TextEditor -> RepoFilesDetailsContentTextEditorView(
+                vm,
             )
 
             is RepoFilesDetailsScreenContent.NotSupported -> RepoFilesDetailsContentNotSupportedView(
@@ -188,8 +218,6 @@ fun RepoFilesDetailsContentDownloadingTransferView(
 @Composable
 fun RepoFilesDetailsContentDownloadedView(data: RepoFilesDetailsScreenContentData) {
     when (data) {
-        is RepoFilesDetailsScreenContentData.Text -> RepoFilesDetailsContentDownloadedTextView(data.text)
-
         is RepoFilesDetailsScreenContentData.Image -> {
 //            AsyncImage(
 //                model = data.localFile,
@@ -210,26 +238,94 @@ fun RepoFilesDetailsContentDownloadedView(data: RepoFilesDetailsScreenContentDat
 }
 
 @Composable
-fun RepoFilesDetailsContentDownloadedTextView(text: String) {
-    TextField(
-        value = text,
-        onValueChange = {},
-        readOnly = true,
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color.Transparent,
-            unfocusedContainerColor = Color.Transparent,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-        ),
-        textStyle = TextStyle(
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.Normal,
-            fontSize = 12.sp,
-        ),
-        modifier = Modifier.semantics {
-            contentDescription = "File text"
-        },
+fun RepoFilesDetailsContentTextEditorView(vm: RepoFilesDetailsScreenViewModel) {
+    val info = vm.info.data.value
+    val content = subscribe(
+        { v, cb -> v.repoFilesDetailsContentBytesSubscribe(detailsId = vm.detailsId, cb = cb) },
+        { v, id -> v.repoFilesDetailsContentBytesData(id = id) },
     )
+
+    if (info != null) {
+        when (val status = info.contentStatus) {
+            is Status.Err -> {
+                if (!status.loaded) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        ErrorView(
+                            errorText = status.error,
+                            onRetry = {
+                                vm.mobileVault.repoFilesDetailsLoadContent(detailsId = vm.detailsId)
+                            },
+                        )
+                    }
+
+                    return
+                }
+            }
+
+            is Status.Initial -> {
+                RepoFilesDetailsContentLoadingView()
+                return
+            }
+
+            is Status.Loading -> {
+                if (!status.loaded) {
+                    RepoFilesDetailsContentLoadingView()
+                    return
+                }
+            }
+
+            is Status.Loaded -> {}
+        }
+    }
+
+    val text = content.value?.toString(Charsets.UTF_8) ?: ""
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(info?.isEditing) {
+        if (info?.isEditing == true) {
+            focusRequester.requestFocus()
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        if (info != null && info.isEditing) {
+            RepoFilesDetailsEditorInfo(vm, info)
+        }
+
+        TextField(
+            value = text,
+            onValueChange = {
+                vm.setText(it)
+            },
+            readOnly = info?.isEditing != true,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+            ),
+            textStyle = TextStyle(
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.Normal,
+                fontSize = 12.sp,
+            ),
+            // force multiline editor to prevent text jumping when adding the
+            // second line (singleLine = false does not work)
+            minLines = 2,
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .weight(1f)
+                .focusRequester(focusRequester)
+                .semantics {
+                    contentDescription = "File text editor"
+                },
+        )
+    }
 }
 
 @Composable
