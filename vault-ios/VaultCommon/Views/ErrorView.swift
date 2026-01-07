@@ -4,7 +4,7 @@ public struct ErrorView: View {
     public let errorText: String
     public let onRetry: (() -> Void)?
 
-    public init(errorText: String, onRetry: (() -> Void)?) {
+    public init(errorText: String, onRetry: (() -> Void)? = nil) {
         self.errorText = errorText
         self.onRetry = onRetry
     }

@@ -56,6 +56,20 @@ public class RepoFilesBrowserDirCreatedFn: RepoFilesBrowserDirCreated {
     }
 }
 
+public class RepoFilesBrowserFileCreatedFn: RepoFilesBrowserFileCreated {
+    private var fn: (String) -> Void
+
+    public init(_ fn: @escaping (String) -> Void) {
+        self.fn = fn
+    }
+
+    public func onCreated(encryptedPath: String) {
+        DispatchQueue.main.async {
+            self.fn(encryptedPath)
+        }
+    }
+}
+
 public class RemoteFilesBrowserDirCreatedFn: RemoteFilesBrowserDirCreated {
     private var fn: (String) -> Void
 

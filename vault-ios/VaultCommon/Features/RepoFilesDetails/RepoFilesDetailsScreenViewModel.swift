@@ -3,6 +3,7 @@ import VaultMobile
 
 public class RepoFilesDetailsScreenViewModel: ObservableObject, WithRepoGuardViewModel {
     public let container: Container
+    public let navController: MainNavController
     public let repoId: String
     public let encryptedPath: String
 
@@ -15,13 +16,21 @@ public class RepoFilesDetailsScreenViewModel: ObservableObject, WithRepoGuardVie
 
     @Published public var repoGuardViewModel: RepoGuardViewModel
 
-    public init(container: Container, repoId: String, encryptedPath: String) {
+    @Published public var textEditorText: String
+
+    private var shouldDestroyHandled: Bool
+
+    public init(
+        container: Container, navController: MainNavController, repoId: String,
+        encryptedPath: String, isEditing: Bool
+    ) {
         self.container = container
+        self.navController = navController
         self.repoId = repoId
         self.encryptedPath = encryptedPath
 
         let detailsId = container.mobileVault.repoFilesDetailsCreate(
-            repoId: repoId, encryptedPath: encryptedPath, isEditing: false,
+            repoId: repoId, encryptedPath: encryptedPath, isEditing: isEditing,
             options: RepoFilesDetailsOptions(
                 loadContent: FilesFilter(categories: [.code, .text], exts: []),
                 autosaveIntervalMs: 20000))
@@ -51,11 +60,29 @@ public class RepoFilesDetailsScreenViewModel: ObservableObject, WithRepoGuardVie
         repoGuardViewModel = RepoGuardViewModel(
             container: container, repoId: repoId, setupBiometricUnlockVisible: true)
 
+        textEditorText = ""
+
+        shouldDestroyHandled = false
+
         self.info.setOnData { [weak self] data in
             if let self = self {
                 if let info = data {
                     self.repoGuardViewModel.update(
                         repoStatus: info.repoStatus, isLocked: info.isLocked)
+
+                    if info.shouldDestroy && !shouldDestroyHandled {
+                        shouldDestroyHandled = true
+
+                        if let repoId = info.repoId {
+                            let routes = info.encryptedParentPathChain.map {
+                                MainRoute.repoFiles(repoId: repoId, encryptedPath: $0)
+                            }
+
+                            DispatchQueue.main.async {
+                                self.navController.replace(routes)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -73,7 +100,19 @@ public class RepoFilesDetailsScreenViewModel: ObservableObject, WithRepoGuardVie
         container.mobileVault.repoFilesDetailsDestroy(detailsId: detailsId)
     }
 
-    public func load(_ file: RepoFile) {
+    public func retryLoad() {
+        if let file = file.data {
+            load(file)
+        }
+    }
+
+    private func load(_ file: RepoFile) {
+        if RepoFilesDetailsScreenContentData.isTextEditor(file) {
+            content = .textEditor(file: file)
+
+            return
+        }
+
         if let loader = RepoFilesDetailsScreenContentData.getLoader(
             file: file,
             onWarning: { warning in

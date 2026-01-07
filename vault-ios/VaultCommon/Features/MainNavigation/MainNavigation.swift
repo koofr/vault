@@ -39,12 +39,12 @@ public struct MainNavigation: View {
                     ) { vm in
                         RepoFilesScreen(vm: vm)
                     }
-                case .repoFilesDetails(let repoId, let encryptedPath):
+                case .repoFilesDetails(let repoId, let encryptedPath, let isEditing):
                     RepoGuard(
                         navController.ensureViewModel(routeContainer: routeContainer) {
                             RepoFilesDetailsScreenViewModel(
-                                container: container, repoId: repoId,
-                                encryptedPath: encryptedPath)
+                                container: container, navController: navController, repoId: repoId,
+                                encryptedPath: encryptedPath, isEditing: isEditing)
                         }
                     ) { vm in
                         RepoFilesDetailsScreen(vm: vm)

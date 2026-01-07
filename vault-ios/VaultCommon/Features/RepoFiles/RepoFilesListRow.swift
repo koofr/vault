@@ -19,7 +19,9 @@ public struct RepoFilesListRow: View {
             } else {
                 Button {
                     vm.navController.push(
-                        .repoFilesDetails(repoId: file.repoId, encryptedPath: file.encryptedPath))
+                        .repoFilesDetails(
+                            repoId: file.repoId, encryptedPath: file.encryptedPath, isEditing: false
+                        ))
                 } label: {
                     RepoFileRow(container: vm.container, file: file)
                 }
