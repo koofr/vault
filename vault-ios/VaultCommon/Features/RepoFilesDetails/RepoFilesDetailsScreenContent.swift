@@ -20,6 +20,10 @@ public enum RepoFilesDetailsScreenContentData {
         "pptx", "rtf", "xls", "xlsm", "xlsx",
     ]
 
+    public static func isTextEditor(_ file: RepoFile) -> Bool {
+        file.category == .text || file.category == .code
+    }
+
     public static func getLoader(file: RepoFile, onWarning: @escaping (String) -> Void) -> (
         (URL) async -> RepoFilesDetailsScreenContentData
     )? {
@@ -58,26 +62,34 @@ public enum RepoFilesDetailsScreenContentData {
                 return { localFileURL in
                     let asset = AVAsset(url: localFileURL)
 
-                    let playerItem = AVPlayerItem(asset: asset)
+                    let metadata: [AVMetadataItem]
 
                     do {
-                        var metadata = try await asset.load(.metadata)
+                        var loadedMetadata = try await asset.load(.metadata)
 
-                        if metadata.first(where: { $0.commonKey == AVMetadataKey.commonKeyTitle })
+                        if loadedMetadata.first(where: {
+                            $0.commonKey == AVMetadataKey.commonKeyTitle
+                        })
                             == nil
                         {
                             let titleItem = AVMutableMetadataItem()
                             titleItem.identifier = AVMetadataIdentifier.commonIdentifierTitle
                             titleItem.value = file.name as (NSCopying & NSObjectProtocol)?
-                            metadata.append(titleItem)
+                            loadedMetadata.append(titleItem)
                         }
 
-                        playerItem.externalMetadata = metadata
+                        metadata = loadedMetadata
                     } catch {
                         onWarning("Failed to load asset metadata \(error)")
+                        metadata = []
                     }
 
-                    let player = AVPlayer(playerItem: playerItem)
+                    let player = await MainActor.run {
+                        let playerItem = AVPlayerItem(asset: asset)
+                        playerItem.externalMetadata = metadata
+
+                        return AVPlayer(playerItem: playerItem)
+                    }
 
                     return .media(player: player)
                 }
@@ -106,5 +118,6 @@ public enum RepoFilesDetailsScreenContent {
     case loading
     case downloading
     case downloaded(localFileURL: URL, data: RepoFilesDetailsScreenContentData)
+    case textEditor(file: RepoFile)
     case notSupported(file: RepoFile)
 }

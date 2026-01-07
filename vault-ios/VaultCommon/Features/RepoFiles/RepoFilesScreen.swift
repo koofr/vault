@@ -196,32 +196,52 @@ struct RepoFilesNavMenu: View {
                 }
             }
 
-            if info.encryptedPath != nil {
-                Button {
-                    vm.container.mobileVault.repoFilesBrowsersCreateDir(
-                        browserId: vm.browserId, cb: RepoFilesBrowserDirCreatedFn { _ in })
-                } label: {
-                    Label("New folder", systemImage: "folder.badge.plus")
-                }
-
-                Button {
-                    vm.container.sheets.show(name: "repoFilesImagePicker") { _, hide in
-                        RepoFilesImagePicker(vm: vm, onDismiss: hide)
+            if let repoId = info.repoId {
+                if info.encryptedPath != nil {
+                    Button {
+                        vm.container.mobileVault.repoFilesBrowsersCreateDir(
+                            browserId: vm.browserId, cb: RepoFilesBrowserDirCreatedFn { _ in })
+                    } label: {
+                        Label("New folder", systemImage: "folder.badge.plus")
                     }
-                } label: {
-                    Label("Upload photo", systemImage: "photo")
-                }
 
-                Button {
-                    vm.uploadFiles()
-                } label: {
-                    Label("Upload files", systemImage: "doc.on.doc")
-                }
+                    Button {
+                        vm.container.sheets.show(name: "repoFilesImagePicker") { _, hide in
+                            RepoFilesImagePicker(vm: vm, onDismiss: hide)
+                        }
+                    } label: {
+                        Label("Upload photo", systemImage: "photo")
+                    }
 
-                Button {
-                    vm.uploadFolder()
-                } label: {
-                    Label("Upload a folder", systemImage: "folder")
+                    Button {
+                        vm.uploadFiles()
+                    } label: {
+                        Label("Upload files", systemImage: "doc.on.doc")
+                    }
+
+                    Button {
+                        vm.uploadFolder()
+                    } label: {
+                        Label("Upload a folder", systemImage: "folder")
+                    }
+
+                    Button {
+                        let formatter = DateFormatter()
+                        formatter.dateFormat = "yyyyMMddHHmmss"
+
+                        let name = "new text file \(formatter.string(from: Date())).txt"
+
+                        vm.container.mobileVault.repoFilesBrowsersCreateFile(
+                            browserId: vm.browserId, name: name,
+                            cb: RepoFilesBrowserFileCreatedFn { encryptedPath in
+                                vm.navController.push(
+                                    .repoFilesDetails(
+                                        repoId: repoId, encryptedPath: encryptedPath,
+                                        isEditing: true))
+                            })
+                    } label: {
+                        Label("Create new text file", systemImage: "doc.badge.plus")
+                    }
                 }
             }
 

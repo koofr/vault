@@ -14,6 +14,10 @@
 		A10A8C872ADCFA8C005A081D /* RepoUnlockSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10A8C862ADCFA8C005A081D /* RepoUnlockSheet.swift */; };
 		A10A8C892ADD1B4B005A081D /* RepoFilesDetailsScreenContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10A8C882ADD1B4B005A081D /* RepoFilesDetailsScreenContent.swift */; };
 		A10A8C8B2ADD1B8C005A081D /* RepoFilesDetailsScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10A8C8A2ADD1B8C005A081D /* RepoFilesDetailsScreenViewModel.swift */; };
+		A1118F482F06AE2000B55356 /* RepoFilesDetailsTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1118F472F06AE2000B55356 /* RepoFilesDetailsTextEditor.swift */; };
+		A1118F4C2F097A3300B55356 /* ReadOnlyTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1118F4B2F097A3300B55356 /* ReadOnlyTextEditor.swift */; };
+		A1118F502F097F8B00B55356 /* RepoFilesDetailsTextEditorActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1118F4F2F097F8B00B55356 /* RepoFilesDetailsTextEditorActivityView.swift */; };
+		A1118F542F0AB3DD00B55356 /* RepoFilesDetailsEditorInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1118F532F0AB3DD00B55356 /* RepoFilesDetailsEditorInfo.swift */; };
 		A1149A232B1F18FA0058BC84 /* libvault_mobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1699A9D2AC3194300D58F6B /* libvault_mobile.a */; };
 		A1265C9A2AA1E2A700CEAA5C /* SheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1265C992AA1E2A700CEAA5C /* SheetView.swift */; };
 		A1265C9C2AA1E2B800CEAA5C /* SheetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1265C9B2AA1E2B800CEAA5C /* SheetsView.swift */; };
@@ -250,6 +254,10 @@
 		A10A8C862ADCFA8C005A081D /* RepoUnlockSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoUnlockSheet.swift; sourceTree = "<group>"; };
 		A10A8C882ADD1B4B005A081D /* RepoFilesDetailsScreenContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesDetailsScreenContent.swift; sourceTree = "<group>"; };
 		A10A8C8A2ADD1B8C005A081D /* RepoFilesDetailsScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesDetailsScreenViewModel.swift; sourceTree = "<group>"; };
+		A1118F472F06AE2000B55356 /* RepoFilesDetailsTextEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesDetailsTextEditor.swift; sourceTree = "<group>"; };
+		A1118F4B2F097A3300B55356 /* ReadOnlyTextEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadOnlyTextEditor.swift; sourceTree = "<group>"; };
+		A1118F4F2F097F8B00B55356 /* RepoFilesDetailsTextEditorActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesDetailsTextEditorActivityView.swift; sourceTree = "<group>"; };
+		A1118F532F0AB3DD00B55356 /* RepoFilesDetailsEditorInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesDetailsEditorInfo.swift; sourceTree = "<group>"; };
 		A114176C2A751B9A007E4837 /* Callbacks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Callbacks.swift; sourceTree = "<group>"; };
 		A1228E682A7B841400AC1148 /* RepoPasswordField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoPasswordField.swift; sourceTree = "<group>"; };
 		A1228E6A2A7B9EEC00AC1148 /* RepoFileMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFileMenu.swift; sourceTree = "<group>"; };
@@ -464,6 +472,7 @@
 				A1228E682A7B841400AC1148 /* RepoPasswordField.swift */,
 				A1A434812A92859500084D6A /* WebView.swift */,
 				A198035B2A84F5A90047CA6B /* ZoomableScrollView.swift */,
+				A1118F4B2F097A3300B55356 /* ReadOnlyTextEditor.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -778,9 +787,12 @@
 		A18AB2CC2A77DF1A0037156B /* RepoFilesDetails */ = {
 			isa = PBXGroup;
 			children = (
+				A1118F532F0AB3DD00B55356 /* RepoFilesDetailsEditorInfo.swift */,
 				A1A61A172A3A160A008920CB /* RepoFilesDetailsScreen.swift */,
-				A10A8C8A2ADD1B8C005A081D /* RepoFilesDetailsScreenViewModel.swift */,
 				A10A8C882ADD1B4B005A081D /* RepoFilesDetailsScreenContent.swift */,
+				A10A8C8A2ADD1B8C005A081D /* RepoFilesDetailsScreenViewModel.swift */,
+				A1118F472F06AE2000B55356 /* RepoFilesDetailsTextEditor.swift */,
+				A1118F4F2F097F8B00B55356 /* RepoFilesDetailsTextEditorActivityView.swift */,
 			);
 			path = RepoFilesDetails;
 			sourceTree = "<group>";
@@ -1304,12 +1316,15 @@
 				A1AD93112A82866F006172BF /* RepoFilesScreen.swift in Sources */,
 				A1AD93322A8286D1006172BF /* TransfersSheetController.swift in Sources */,
 				A1AD93272A8286B1006172BF /* ShareTargetRepoFilesScreen.swift in Sources */,
+				A1118F542F0AB3DD00B55356 /* RepoFilesDetailsEditorInfo.swift in Sources */,
 				A1AD930C2A828661006172BF /* RepoFileRow.swift in Sources */,
 				A18269292A9F6CC80072F531 /* LocalAuthenticationHelper.swift in Sources */,
+				A1118F502F097F8B00B55356 /* RepoFilesDetailsTextEditorActivityView.swift in Sources */,
 				A1AD92FF2A828634006172BF /* DialogView.swift in Sources */,
 				A1AD93082A828654006172BF /* RelativeTimeHelper.swift in Sources */,
 				A1A77FAE2A842DD5001F6CF2 /* RepoFilesImagePicker.swift in Sources */,
 				A1AD93292A8286B6006172BF /* ShareTargetReposScreen.swift in Sources */,
+				A1118F4C2F097A3300B55356 /* ReadOnlyTextEditor.swift in Sources */,
 				A1D296A82A851E9D005ED3B5 /* GIFImage.swift in Sources */,
 				A1AD93122A828673006172BF /* RepoFilesDetailsScreen.swift in Sources */,
 				A12D80F92AB99B8D009424D2 /* InfoSheet.swift in Sources */,
@@ -1389,6 +1404,7 @@
 				A12D0A592AB474F10010CF38 /* RepoCreateCreatedView.swift in Sources */,
 				A19CE5C82A839AE40079E924 /* RemoteFilesDirPickerScreen.swift in Sources */,
 				A1AD93102A82866C006172BF /* RepoFilesListView.swift in Sources */,
+				A1118F482F06AE2000B55356 /* RepoFilesDetailsTextEditor.swift in Sources */,
 				A1A77FA32A83B36C001F6CF2 /* UploadHelper.swift in Sources */,
 				A1287A512A838FDA00855708 /* RemoteFilesBrowserItemIcon.swift in Sources */,
 				A10A8C872ADCFA8C005A081D /* RepoUnlockSheet.swift in Sources */,

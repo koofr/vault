@@ -27,22 +27,96 @@ public struct RepoFilesDetailsScreen: View {
                 TransfersButton(container: vm.container)
             }
 
-            ToolbarItem(placement: .primaryAction) {
-                switch vm.content {
-                case .downloaded(let localFileURL, _):
-                    Button(
-                        action: {
-                            shareViewPresented.toggle()
-                        },
-                        label: {
-                            Image(systemName: "square.and.arrow.up")
-                        }
-                    )
-                    .sheet(isPresented: $shareViewPresented) {
-                        ActivityView(activityItems: [localFileURL], showOpenInDownloads: false)
+            if let info = info.data {
+                if info.isEditing {
+                    ToolbarItem(placement: .primaryAction) {
+                        Button(
+                            action: {
+                                vm.container.mobileVault.repoFilesDetailsSave(
+                                    detailsId: vm.detailsId)
+                            },
+                            label: {
+                                Text("Save")
+                            }
+                        )
+                        .disabled(!info.isDirty)
                     }
-                default:
-                    EmptyView()
+
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button(
+                            action: {
+                                vm.container.mobileVault.repoFilesDetailsEditCancel(
+                                    detailsId: vm.detailsId)
+                            },
+                            label: {
+                                Text("Done")
+                            }
+                        )
+                    }
+                } else {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Menu {
+                            if case .textEditor(_) = vm.content {
+                                Button(
+                                    action: {
+                                        vm.container.mobileVault.repoFilesDetailsEdit(
+                                            detailsId: vm.detailsId)
+                                    },
+                                    label: {
+                                        Label("Edit", systemImage: "square.and.pencil")
+                                    }
+                                )
+                            }
+
+                            switch vm.content {
+                            case .downloaded(_, _), .textEditor(_):
+                                Button(
+                                    action: {
+                                        shareViewPresented.toggle()
+                                    },
+                                    label: {
+                                        Label("Share", systemImage: "square.and.arrow.up")
+                                    }
+                                )
+                            default:
+                                EmptyView()
+                            }
+
+                            if let repoId = info.repoId {
+                                if let encryptedPath = info.encryptedPath {
+                                    Button(
+                                        action: {
+                                            vm.container.mobileVault.repoFilesRenameFile(
+                                                repoId: repoId, encryptedPath: encryptedPath)
+                                        },
+                                        label: {
+                                            Label("Rename", systemImage: "pencil")
+                                        }
+                                    )
+                                }
+                            }
+
+                            Button(role: .destructive) {
+                                vm.container.mobileVault.repoFilesDetailsDelete(
+                                    detailsId: vm.detailsId)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        } label: {
+                            Image(systemName: "ellipsis.circle")
+                        }
+                        .sheet(isPresented: $shareViewPresented) {
+                            switch vm.content {
+                            case .downloaded(let localFileURL, _):
+                                ActivityView(
+                                    activityItems: [localFileURL], showOpenInDownloads: false)
+                            case .textEditor(_):
+                                RepoFilesDetailsTextEditorActivityView(vm: vm)
+                            default:
+                                EmptyView()
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -68,7 +142,11 @@ public struct RepoFilesDetailsContent: View {
                     if let transferId = info.transferId {
                         RepoFilesDetailsContentDownloadingTransfer(vm: vm, transferId: transferId)
                     } else if let error = info.error {
-                        Text("Error: \(error)")
+                        ErrorView(
+                            errorText: error,
+                            onRetry: {
+                                vm.retryLoad()
+                            })
                     } else {
                         LoadingView()
                     }
@@ -94,7 +172,19 @@ public struct RepoFilesDetailsContent: View {
                 WebView(asset: asset)
                     .ignoresSafeArea(.container, edges: [.bottom])
             case .error(let error):
-                Text("Error: \(error)")
+                ErrorView(errorText: error)
+            }
+        case .textEditor:
+            VStack {
+                if let info = info.data {
+                    if info.isEditing {
+                        RepoFilesDetailsEditorInfo(vm: vm, info: info)
+
+                        Divider()
+                    }
+                }
+
+                RepoFilesDetailsTextEditor(vm: vm)
             }
         case .notSupported(let file):
             RepoFilesDetailsContentNotSupported(vm: vm, file: file)
