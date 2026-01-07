@@ -33,6 +33,9 @@ class MobileVaultProvider constructor(private val secureStorage: SecureStorage) 
     private val defaultConfig = Config(
         baseUrl = "https://app.koofr.net",
         oauth2AuthBaseUrl = "https://app.koofr.net",
+        // For fake remote
+        // baseUrl = "https://10.0.2.2:3443",
+        // oauth2AuthBaseUrl = "http://10.0.2.2:3080",
         secureStorageJSON = null,
         reposSetDefaultAutoLock = null,
     )
@@ -51,9 +54,7 @@ class MobileVaultProvider constructor(private val secureStorage: SecureStorage) 
         val config = getConfig()
 
         if (mobileVault == null || config != currentMobileVaultConfig) {
-            mobileVault?.let {
-                it.close()
-            }
+            mobileVault?.close()
             mobileVault = buildMobileVault(config)
             currentMobileVaultConfig = config
         }
@@ -63,6 +64,7 @@ class MobileVaultProvider constructor(private val secureStorage: SecureStorage) 
 
     @Synchronized
     fun loadConfigFromIntent(intent: Intent) {
+        @Suppress("SimplifyBooleanWithConstants", "KotlinConstantConditions")
         if (BuildConfig.BUILD_TYPE != "debug") {
             // only allowed for testing in debug builds
             return
