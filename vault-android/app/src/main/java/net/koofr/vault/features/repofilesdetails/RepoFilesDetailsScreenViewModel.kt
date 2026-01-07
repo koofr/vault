@@ -93,6 +93,8 @@ class RepoFilesDetailsScreenViewModel @Inject constructor(
     val content =
         mutableStateOf<RepoFilesDetailsScreenContent>(RepoFilesDetailsScreenContent.Loading)
 
+    val menuExpanded = mutableStateOf(false)
+
     override fun onCleared() {
         super.onCleared()
 
