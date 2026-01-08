@@ -22,9 +22,9 @@ func blockOn<T>(@_implicitSelfCapture _ operation: @Sendable @escaping () async 
     }
 
     switch blockOn.result {
-    case let .success(value):
+    case .success(let value):
         return value
-    case let .failure(error):
+    case .failure(let error):
         throw error
     case .none:
         fatalError("Run blocking not received value")
