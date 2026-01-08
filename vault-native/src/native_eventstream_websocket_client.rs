@@ -39,7 +39,7 @@ impl WebSocketClient for NativeEventstreamWebSocketClient {
         on_close: Box<dyn Fn() + Send + Sync + 'static>,
     ) {
         let url = Uri::from_str(&url).unwrap();
-        let spawn_self = self.write.clone();
+        let write_mutex = self.write.clone();
         let tokio_tungstenite_connector = self.tokio_tungstenite_connector.clone();
 
         self.tokio_runtime.spawn(async move {
@@ -57,11 +57,11 @@ impl WebSocketClient for NativeEventstreamWebSocketClient {
                     }
                 };
 
-            on_open();
-
             let (write, read) = ws_stream.split();
 
-            *spawn_self.lock().await = Some(Box::pin(write));
+            *write_mutex.lock().await = Some(Box::pin(write));
+
+            on_open();
 
             let on_message = Arc::new(Mutex::new(on_message));
 
