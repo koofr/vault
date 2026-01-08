@@ -1334,7 +1334,7 @@ export const LandingPageOfficial = memo(() => {
             margin: 0 0 15px;
           `}
         >
-          © 2024.{' '}
+          © 2026.{' '}
           <a
             href="https://koofr.eu"
             target="_blank"
