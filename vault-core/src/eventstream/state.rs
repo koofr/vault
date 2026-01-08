@@ -6,18 +6,37 @@ use crate::types::{MountId, RemoteFileId, RemotePath};
 
 use super::{Event, Request};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ConnectionState {
     Initial,
-    Connecting,
-    Authenticating,
-    Reconnecting,
+    Connecting {
+        connection_id: u32,
+    },
+    Authenticating {
+        connection_id: u32,
+    },
+    Reconnecting {
+        connection_id: u32,
+    },
     Connected {
+        connection_id: u32,
         next_request_id: NextId,
         request_id_to_mount_listener_id: HashMap<u32, u32>,
         listener_id_to_mount_listener_id: HashMap<i64, u32>,
     },
     Disconnected,
+}
+
+impl ConnectionState {
+    pub fn connection_id(&self) -> Option<u32> {
+        match self {
+            Self::Connecting { connection_id } => Some(*connection_id),
+            Self::Authenticating { connection_id } => Some(*connection_id),
+            Self::Reconnecting { connection_id } => Some(*connection_id),
+            Self::Connected { connection_id, .. } => Some(*connection_id),
+            _ => None,
+        }
+    }
 }
 
 impl Default for ConnectionState {
@@ -46,6 +65,7 @@ pub struct MountListener {
 #[derive(Debug, Clone, Default)]
 pub struct EventstreamState {
     pub connection_state: ConnectionState,
+    pub next_connection_id: NextId,
     pub mount_listeners: HashMap<u32, MountListener>,
     pub mount_listeners_by_remote_file_id: HashMap<RemoteFileId, u32>,
     pub next_mount_listener_id: NextId,
@@ -54,6 +74,7 @@ pub struct EventstreamState {
 impl EventstreamState {
     pub fn reset(&mut self) {
         *self = Self {
+            next_connection_id: self.next_connection_id.clone(),
             next_mount_listener_id: self.next_mount_listener_id.clone(),
             ..Default::default()
         };

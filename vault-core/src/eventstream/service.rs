@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use crate::{auth, runtime, store};
 
-use super::{Message, Request, WebSocketClient, mutations};
+use super::{Message, Request, WebSocketClient, mutations, selectors};
 
 pub struct EventStreamService {
     base_url: String,
@@ -70,12 +70,13 @@ impl EventStreamService {
     }
 
     pub fn connect(self: Arc<Self>) {
-        if !self
+        let connection_id = match self
             .store
             .mutate(|state, notify, _, _| mutations::connect(state, notify))
         {
-            return;
-        }
+            Some(connection_id) => connection_id,
+            None => return,
+        };
 
         log::debug!("Eventstream connecting");
 
@@ -89,17 +90,17 @@ impl EventStreamService {
             url,
             Box::new(move || {
                 if let Some(on_open_self) = on_open_self.upgrade() {
-                    on_open_self.websocket_on_open()
+                    on_open_self.websocket_on_open(connection_id)
                 }
             }),
             Box::new(move |data: String| {
                 if let Some(on_message_self) = on_message_self.upgrade() {
-                    on_message_self.websocket_on_message(data)
+                    on_message_self.websocket_on_message(connection_id, data)
                 }
             }),
             Box::new(move || {
                 if let Some(on_close_self) = on_close_self.upgrade() {
-                    on_close_self.websocket_on_close()
+                    on_close_self.websocket_on_close(connection_id)
                 }
             }),
         );
@@ -121,11 +122,11 @@ impl EventStreamService {
         *self.reconnect_alive.lock().unwrap() = None;
     }
 
-    fn websocket_on_open(self: Arc<Self>) {
+    fn websocket_on_open(self: Arc<Self>, connection_id: u32) {
         log::debug!("Eventstream authenticating");
 
         self.store.mutate(|state, notify, _, _| {
-            mutations::handle_opened(state, notify);
+            mutations::handle_opened(state, notify, connection_id);
         });
 
         let on_open_self = self.clone();
@@ -146,7 +147,7 @@ impl EventStreamService {
         }));
     }
 
-    fn websocket_on_message(self: Arc<Self>, data: String) {
+    fn websocket_on_message(self: Arc<Self>, connection_id: u32, data: String) {
         // log::debug!("Eventstream message: {}", data);
 
         match serde_json::from_str(&data) {
@@ -155,10 +156,15 @@ impl EventStreamService {
                     log::debug!("Eventstream connected");
 
                     self.store.mutate(|state, notify, mutation_state, _| {
-                        mutations::handle_authenticated(state, notify, mutation_state);
+                        mutations::handle_authenticated(
+                            state,
+                            notify,
+                            mutation_state,
+                            connection_id,
+                        );
                     });
 
-                    self.clone().start_pinger();
+                    self.clone().start_pinger(connection_id);
                 }
                 Message::Registered {
                     request_id,
@@ -170,6 +176,7 @@ impl EventStreamService {
                                 state,
                                 notify,
                                 mutation_state,
+                                connection_id,
                                 request_id,
                                 listener_id,
                             );
@@ -184,6 +191,7 @@ impl EventStreamService {
                                 state,
                                 mutation_state,
                                 mutation_notify,
+                                connection_id,
                                 listener_id,
                                 event,
                             );
@@ -195,10 +203,10 @@ impl EventStreamService {
         }
     }
 
-    fn websocket_on_close(self: Arc<Self>) {
+    fn websocket_on_close(self: Arc<Self>, connection_id: u32) {
         if !self
             .store
-            .mutate(|state, notify, _, _| mutations::handle_closed(state, notify))
+            .mutate(|state, notify, _, _| mutations::handle_closed(state, notify, connection_id))
         {
             return;
         }
@@ -207,7 +215,7 @@ impl EventStreamService {
 
         *self.ping_alive.lock().unwrap() = None;
 
-        self.clone().start_reconnecter()
+        self.clone().start_reconnecter(connection_id)
     }
 
     pub fn handle_eventstream_mutation(self: Arc<Self>, mutation_state: &store::MutationState) {
@@ -223,7 +231,7 @@ impl EventStreamService {
         }
     }
 
-    fn start_pinger(self: Arc<Self>) {
+    fn start_pinger(self: Arc<Self>, connection_id: u32) {
         let ping_interval = self
             .store
             .with_state(|state| state.config.eventstream.ping_interval);
@@ -232,6 +240,7 @@ impl EventStreamService {
         let ping_alive_weak = Arc::downgrade(&ping_alive);
         *self.ping_alive.lock().unwrap() = Some(ping_alive);
 
+        let pinger_store_weak = Arc::downgrade(&self.store);
         let pinger_runtime = Arc::downgrade(&self.runtime);
         let pinger_websocket_client = Arc::downgrade(&self.websocket_client);
 
@@ -251,6 +260,17 @@ impl EventStreamService {
                     return;
                 }
 
+                let pinger_store = match pinger_store_weak.upgrade() {
+                    Some(pinger_store) => pinger_store,
+                    None => return,
+                };
+
+                if !pinger_store.with_state(|state| {
+                    selectors::select_is_connection_id_active(state, connection_id)
+                }) {
+                    return;
+                }
+
                 match pinger_websocket_client.upgrade() {
                     Some(websocket_client) => {
                         websocket_client.send(serde_json::to_string(&Request::Ping).unwrap())
@@ -261,7 +281,7 @@ impl EventStreamService {
         }));
     }
 
-    fn start_reconnecter(self: Arc<Self>) {
+    fn start_reconnecter(self: Arc<Self>, connection_id: u32) {
         let reconnect_duration = self
             .store
             .with_state(|state| state.config.eventstream.reconnect_duration);
@@ -270,6 +290,7 @@ impl EventStreamService {
         let reconnect_alive_weak = Arc::downgrade(&reconnect_alive);
         *self.reconnect_alive.lock().unwrap() = Some(reconnect_alive);
 
+        let reconnecter_store_weak = Arc::downgrade(&self.store);
         let reconnecter_runtime = Arc::downgrade(&self.runtime);
         let reconnecter_self = Arc::downgrade(&self);
 
@@ -281,6 +302,17 @@ impl EventStreamService {
             .await;
 
             if reconnect_alive_weak.upgrade().is_none() {
+                return;
+            }
+
+            let reconnecter_store = match reconnecter_store_weak.upgrade() {
+                Some(reconnecter_store) => reconnecter_store,
+                None => return,
+            };
+
+            if !reconnecter_store
+                .with_state(|state| selectors::select_is_connection_id_active(state, connection_id))
+            {
                 return;
             }
 

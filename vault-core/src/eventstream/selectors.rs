@@ -34,3 +34,12 @@ pub fn select_mount_listener_registered_by_file_id(
         })
         .is_some()
 }
+
+pub fn select_is_connection_id_active(state: &store::State, connection_id: u32) -> bool {
+    state
+        .eventstream
+        .connection_state
+        .connection_id()
+        .filter(|id| *id == connection_id)
+        .is_some()
+}

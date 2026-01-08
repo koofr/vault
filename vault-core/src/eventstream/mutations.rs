@@ -10,21 +10,23 @@ use super::{
     state::{ConnectionState, MountListener, MountListenerState, MountSubscription},
 };
 
-pub fn connect(state: &mut store::State, notify: &store::Notify) -> bool {
+pub fn connect(state: &mut store::State, notify: &store::Notify) -> Option<u32> {
     match state.eventstream.connection_state {
-        ConnectionState::Connecting
-        | ConnectionState::Authenticating
-        | ConnectionState::Connected { .. } => return false,
+        ConnectionState::Connecting { .. }
+        | ConnectionState::Authenticating { .. }
+        | ConnectionState::Connected { .. } => return None,
         ConnectionState::Initial
-        | ConnectionState::Reconnecting
+        | ConnectionState::Reconnecting { .. }
         | ConnectionState::Disconnected => {}
     }
 
     notify(store::Event::Eventstream);
 
-    state.eventstream.connection_state = ConnectionState::Connecting;
+    let connection_id = state.eventstream.next_connection_id.next();
 
-    true
+    state.eventstream.connection_state = ConnectionState::Connecting { connection_id };
+
+    Some(connection_id)
 }
 
 pub fn disconnect(state: &mut store::State, notify: &store::Notify) -> bool {
@@ -42,23 +44,24 @@ pub fn disconnect(state: &mut store::State, notify: &store::Notify) -> bool {
     true
 }
 
-pub fn handle_opened(state: &mut store::State, notify: &store::Notify) {
+pub fn handle_opened(state: &mut store::State, notify: &store::Notify, connection_id: u32) {
+    if !selectors::select_is_connection_id_active(state, connection_id) {
+        return;
+    }
+
     notify(store::Event::Eventstream);
 
-    state.eventstream.connection_state = ConnectionState::Authenticating;
+    state.eventstream.connection_state = ConnectionState::Authenticating { connection_id };
 }
 
-pub fn handle_closed(state: &mut store::State, notify: &store::Notify) -> bool {
-    if matches!(
-        state.eventstream.connection_state,
-        ConnectionState::Disconnected
-    ) {
+pub fn handle_closed(state: &mut store::State, notify: &store::Notify, connection_id: u32) -> bool {
+    if !selectors::select_is_connection_id_active(state, connection_id) {
         return false;
     }
 
     notify(store::Event::Eventstream);
 
-    state.eventstream.connection_state = ConnectionState::Reconnecting;
+    state.eventstream.connection_state = ConnectionState::Reconnecting { connection_id };
 
     for mount_listener in state.eventstream.mount_listeners.values_mut() {
         mount_listener.state = MountListenerState::Unregistered;
@@ -71,10 +74,16 @@ pub fn handle_authenticated(
     state: &mut store::State,
     notify: &store::Notify,
     mutation_state: &mut store::MutationState,
+    connection_id: u32,
 ) {
+    if !selectors::select_is_connection_id_active(state, connection_id) {
+        return;
+    }
+
     notify(store::Event::Eventstream);
 
     state.eventstream.connection_state = ConnectionState::Connected {
+        connection_id,
         next_request_id: Default::default(),
         request_id_to_mount_listener_id: Default::default(),
         listener_id_to_mount_listener_id: Default::default(),
@@ -96,9 +105,14 @@ pub fn handle_registered(
     state: &mut store::State,
     notify: &store::Notify,
     mutation_state: &mut store::MutationState,
+    connection_id: u32,
     request_id: u32,
     listener_id: i64,
 ) {
+    if !selectors::select_is_connection_id_active(state, connection_id) {
+        return;
+    }
+
     match &mut state.eventstream.connection_state {
         ConnectionState::Connected {
             request_id_to_mount_listener_id,
@@ -141,9 +155,14 @@ pub fn handle_event(
     state: &mut store::State,
     mutation_state: &mut store::MutationState,
     mutation_notify: &store::MutationNotify,
+    connection_id: u32,
     listener_id: i64,
     event: Event,
 ) {
+    if !selectors::select_is_connection_id_active(state, connection_id) {
+        return;
+    }
+
     let mount_listener = match &state.eventstream.connection_state {
         ConnectionState::Connected {
             listener_id_to_mount_listener_id,
