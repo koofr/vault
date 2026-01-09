@@ -133,7 +133,7 @@ extension XCUIApplication {
     }
 
     func repoCreateSaltFill(salt: String = "salt") {
-        let textView = textViews["Salt"]
+        let textView = textFields["Salt"]
         XCTAssertTrue(textView.waitForExistence(timeout: 10))
 
         // salt.tap() does not work. it fails to focus a textView (it works if
@@ -238,7 +238,7 @@ extension XCUIApplication {
     }
 
     func repoFilesEditModeToolbarDeleteTap() {
-        toolbars["Toolbar"].buttons["Delete selected"].tap()
+        buttons["Delete selected"].tap()
     }
 
     // repo files move
