@@ -13,7 +13,6 @@
   },
   "testTargets" : [
     {
-      "skippedTests" : [],
       "target" : {
         "containerPath" : "container:Vault.xcodeproj",
         "identifier" : "A18269652AA0B8520072F531",

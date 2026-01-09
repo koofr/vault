@@ -256,7 +256,8 @@ final class VaultUITests: XCTestCase {
 
             app.repoFilesFileTap(fileName: "file.txt")
 
-            XCTAssertTrue(app.webViews.staticTexts["čšž"].waitForExistence(timeout: 5))
+            XCTAssertTrue(
+                app.textViews.matching(identifier: "čšž").firstMatch.waitForExistence(timeout: 5))
         }
     }
 

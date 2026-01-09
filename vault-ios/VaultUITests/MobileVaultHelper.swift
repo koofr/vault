@@ -83,7 +83,7 @@ class MobileVaultHelper {
         -> RepoFile
     {
         let browserId = mobileVault.repoFilesBrowsersCreate(
-            repoId: repo.id, encryptedPath: encryptedParentPath,
+            source: .storage(repoId: repo.id, encryptedPath: encryptedParentPath),
             options: RepoFilesBrowserOptions(selectName: nil))
 
         defer {
