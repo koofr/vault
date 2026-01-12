@@ -799,6 +799,7 @@ interface MobileVault {
   void repo_files_rename_file(string repo_id, string encrypted_path);
   [Self=ByArc]
   void repo_files_move_file(string repo_id, string encrypted_path, RepoFilesMoveMode mode);
+  string? repo_files_encrypt_name(string repo_id, string name);
 
   // transfers
 
