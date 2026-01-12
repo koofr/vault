@@ -38,25 +38,25 @@
 		A1287A512A838FDA00855708 /* RemoteFilesBrowserItemIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1287A502A838FDA00855708 /* RemoteFilesBrowserItemIcon.swift */; };
 		A12BEFA92AA0F16D0017A608 /* VaultMobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A182697A2AA0E6AB0072F531 /* VaultMobile.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		A12BEFAB2AA0F1D90017A608 /* MemorySecureStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12BEFAA2AA0F1D90017A608 /* MemorySecureStorage.swift */; };
-		A12BEFAC2AA0F5EC0017A608 /* MobileVaultHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18269732AA0DC570072F531 /* MobileVaultHelper.swift */; };
-		A12D0A512AB367350010CF38 /* DebugClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12D0A502AB367350010CF38 /* DebugClient.swift */; };
-		A12D0A532AB36AE50010CF38 /* Fixture.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12D0A522AB36AE50010CF38 /* Fixture.swift */; };
 		A12D0A572AB473580010CF38 /* RepoConfigInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12D0A562AB473580010CF38 /* RepoConfigInfo.swift */; };
 		A12D0A592AB474F10010CF38 /* RepoCreateCreatedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12D0A582AB474F10010CF38 /* RepoCreateCreatedView.swift */; };
 		A12D80F72AB8A59B009424D2 /* StorageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12D80F62AB8A59B009424D2 /* StorageHelper.swift */; };
 		A12D80F92AB99B8D009424D2 /* InfoSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12D80F82AB99B8D009424D2 /* InfoSheet.swift */; };
 		A14A53D62AD7EEA300AE65B0 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A14A53D52AD7EEA300AE65B0 /* LoadingView.swift */; };
+		A14B55662F1136D100CA8405 /* AuthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A14B55652F1136D100CA8405 /* AuthTests.swift */; };
+		A14B55682F1136FB00CA8405 /* RepoInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A14B55672F1136FB00CA8405 /* RepoInfoTests.swift */; };
+		A14B556A2F11372F00CA8405 /* RepoCreateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A14B55692F11372F00CA8405 /* RepoCreateTests.swift */; };
+		A14B556C2F11375C00CA8405 /* RepoFilesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A14B556B2F11375C00CA8405 /* RepoFilesTests.swift */; };
+		A14B556E2F11378000CA8405 /* RepoFilesDetailsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A14B556D2F11378000CA8405 /* RepoFilesDetailsTests.swift */; };
 		A15809462B1757C700329F9A /* UnlockedRepoWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A15809452B1757C700329F9A /* UnlockedRepoWrapper.swift */; };
 		A15809482B17723100329F9A /* WindowReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A15809472B17723100329F9A /* WindowReader.swift */; };
 		A168FA042AE51CA20041418F /* RefreshableList.swift in Sources */ = {isa = PBXBuildFile; fileRef = A168FA032AE51CA20041418F /* RefreshableList.swift */; };
 		A168FA062AE520C50041418F /* FullSizeListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A168FA052AE520C50041418F /* FullSizeListItem.swift */; };
 		A1699AA12AC31A6600D58F6B /* VaultMobile.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = A182697A2AA0E6AB0072F531 /* VaultMobile.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		A1699AA32AC56E0C00D58F6B /* TransferInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1699AA22AC56E0C00D58F6B /* TransferInfoView.swift */; };
-		A1699AA52AC585B300D58F6B /* UIHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1699AA42AC585B300D58F6B /* UIHelpers.swift */; };
 		A176762F2ABC2F230080D098 /* RepoFileInfoSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A176762E2ABC2F230080D098 /* RepoFileInfoSheet.swift */; };
 		A17676322ABC53F20080D098 /* RepoRemoveScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A17676312ABC53F20080D098 /* RepoRemoveScreen.swift */; };
 		A18269292A9F6CC80072F531 /* LocalAuthenticationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18269282A9F6CC80072F531 /* LocalAuthenticationHelper.swift */; };
-		A18269692AA0B8520072F531 /* VaultUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18269682AA0B8520072F531 /* VaultUITests.swift */; };
 		A182697D2AA0E6AB0072F531 /* VaultMobile.h in Headers */ = {isa = PBXBuildFile; fileRef = A182697C2AA0E6AB0072F531 /* VaultMobile.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A18269852AA0E6E60072F531 /* vault_mobile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A17A7599291BE2EF0037A015 /* vault_mobile.swift */; };
 		A182698E2AA0EABD0072F531 /* vault_mobileFFI.h in Headers */ = {isa = PBXBuildFile; fileRef = A17A7598291BE2E40037A015 /* vault_mobileFFI.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -153,7 +153,6 @@
 		A1CF9C912AC01F4200E07573 /* AuthGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1CF9C902AC01F4200E07573 /* AuthGuard.swift */; };
 		A1D296A62A8513E4005ED3B5 /* RawImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1D296A52A8513E4005ED3B5 /* RawImage.swift */; };
 		A1D296A82A851E9D005ED3B5 /* GIFImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1D296A72A851E9D005ED3B5 /* GIFImage.swift */; };
-		A1DBAE4F2AC1993900D036C3 /* BlockOn.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1DBAE4E2AC1993900D036C3 /* BlockOn.swift */; };
 		A1DEA2F22ABF763A00F43BBA /* Callbacks.swift in Sources */ = {isa = PBXBuildFile; fileRef = A114176C2A751B9A007E4837 /* Callbacks.swift */; };
 		A1FA15192B05199000F95F2E /* SwiftUINavController in Frameworks */ = {isa = PBXBuildFile; productRef = A1FA15182B05199000F95F2E /* SwiftUINavController */; };
 /* End PBXBuildFile section */
@@ -285,13 +284,16 @@
 		A1287A4C2A83855500855708 /* RepoCreateRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoCreateRow.swift; sourceTree = "<group>"; };
 		A1287A502A838FDA00855708 /* RemoteFilesBrowserItemIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteFilesBrowserItemIcon.swift; sourceTree = "<group>"; };
 		A12BEFAA2AA0F1D90017A608 /* MemorySecureStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorySecureStorage.swift; sourceTree = "<group>"; };
-		A12D0A502AB367350010CF38 /* DebugClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugClient.swift; sourceTree = "<group>"; };
-		A12D0A522AB36AE50010CF38 /* Fixture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fixture.swift; sourceTree = "<group>"; };
 		A12D0A562AB473580010CF38 /* RepoConfigInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoConfigInfo.swift; sourceTree = "<group>"; };
 		A12D0A582AB474F10010CF38 /* RepoCreateCreatedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoCreateCreatedView.swift; sourceTree = "<group>"; };
 		A12D80F62AB8A59B009424D2 /* StorageHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageHelper.swift; sourceTree = "<group>"; };
 		A12D80F82AB99B8D009424D2 /* InfoSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoSheet.swift; sourceTree = "<group>"; };
 		A14A53D52AD7EEA300AE65B0 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
+		A14B55652F1136D100CA8405 /* AuthTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthTests.swift; sourceTree = "<group>"; };
+		A14B55672F1136FB00CA8405 /* RepoInfoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoInfoTests.swift; sourceTree = "<group>"; };
+		A14B55692F11372F00CA8405 /* RepoCreateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoCreateTests.swift; sourceTree = "<group>"; };
+		A14B556B2F11375C00CA8405 /* RepoFilesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesTests.swift; sourceTree = "<group>"; };
+		A14B556D2F11378000CA8405 /* RepoFilesDetailsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesDetailsTests.swift; sourceTree = "<group>"; };
 		A15809452B1757C700329F9A /* UnlockedRepoWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnlockedRepoWrapper.swift; sourceTree = "<group>"; };
 		A15809472B17723100329F9A /* WindowReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowReader.swift; sourceTree = "<group>"; };
 		A16070B22A792E9900BDE0CE /* RepoUnlockForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoUnlockForm.swift; sourceTree = "<group>"; };
@@ -301,7 +303,6 @@
 		A168FA052AE520C50041418F /* FullSizeListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullSizeListItem.swift; sourceTree = "<group>"; };
 		A1699A9D2AC3194300D58F6B /* libvault_mobile.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvault_mobile.a; path = VaultMobile/libvault_mobile.a; sourceTree = "<group>"; };
 		A1699AA22AC56E0C00D58F6B /* TransferInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferInfoView.swift; sourceTree = "<group>"; };
-		A1699AA42AC585B300D58F6B /* UIHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIHelpers.swift; sourceTree = "<group>"; };
 		A16D932E2A7A51C200FB3249 /* SettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSheet.swift; sourceTree = "<group>"; };
 		A16D93302A7A642D00FB3249 /* RepoFilesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesListView.swift; sourceTree = "<group>"; };
 		A16D93322A7A643D00FB3249 /* RepoFilesListRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesListRow.swift; sourceTree = "<group>"; };
@@ -319,10 +320,8 @@
 		A17A75A6291D4DC10037A015 /* RepoInfoScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoInfoScreen.swift; sourceTree = "<group>"; };
 		A18269282A9F6CC80072F531 /* LocalAuthenticationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalAuthenticationHelper.swift; sourceTree = "<group>"; };
 		A18269662AA0B8520072F531 /* VaultUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VaultUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		A18269682AA0B8520072F531 /* VaultUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultUITests.swift; sourceTree = "<group>"; };
 		A18269712AA0BCEE0072F531 /* VaultTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = VaultTests.xctestplan; sourceTree = SOURCE_ROOT; };
 		A18269722AA0BD700072F531 /* VaultUITests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = VaultUITests.xctestplan; sourceTree = SOURCE_ROOT; };
-		A18269732AA0DC570072F531 /* MobileVaultHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileVaultHelper.swift; sourceTree = "<group>"; };
 		A182697A2AA0E6AB0072F531 /* VaultMobile.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = VaultMobile.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A182697C2AA0E6AB0072F531 /* VaultMobile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VaultMobile.h; sourceTree = "<group>"; };
 		A18742EB2A77AE6200C8075A /* NotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
@@ -391,7 +390,6 @@
 		A1CF9C902AC01F4200E07573 /* AuthGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthGuard.swift; sourceTree = "<group>"; };
 		A1D296A52A8513E4005ED3B5 /* RawImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RawImage.swift; sourceTree = "<group>"; };
 		A1D296A72A851E9D005ED3B5 /* GIFImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GIFImage.swift; sourceTree = "<group>"; };
-		A1DBAE4E2AC1993900D036C3 /* BlockOn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockOn.swift; sourceTree = "<group>"; };
 		A1ED96E92934C56D00DA54DA /* KeychainSecureStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSecureStorage.swift; sourceTree = "<group>"; };
 		A1ED96EF293617B300DA54DA /* UserIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserIcon.swift; sourceTree = "<group>"; };
 		A1ED96F12936490F00DA54DA /* RepoFilesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoFilesScreen.swift; sourceTree = "<group>"; };
@@ -401,6 +399,7 @@
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A1118F572F0C6B2600B55356 /* Navigation */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Navigation; sourceTree = "<group>"; };
+		A14B55642F1136A300CA8405 /* Helpers */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Helpers; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -611,12 +610,12 @@
 		A18269672AA0B8520072F531 /* VaultUITests */ = {
 			isa = PBXGroup;
 			children = (
-				A18269732AA0DC570072F531 /* MobileVaultHelper.swift */,
-				A18269682AA0B8520072F531 /* VaultUITests.swift */,
-				A1DBAE4E2AC1993900D036C3 /* BlockOn.swift */,
-				A12D0A522AB36AE50010CF38 /* Fixture.swift */,
-				A1699AA42AC585B300D58F6B /* UIHelpers.swift */,
-				A12D0A502AB367350010CF38 /* DebugClient.swift */,
+				A14B55652F1136D100CA8405 /* AuthTests.swift */,
+				A14B55692F11372F00CA8405 /* RepoCreateTests.swift */,
+				A14B556D2F11378000CA8405 /* RepoFilesDetailsTests.swift */,
+				A14B556B2F11375C00CA8405 /* RepoFilesTests.swift */,
+				A14B55672F1136FB00CA8405 /* RepoInfoTests.swift */,
+				A14B55642F1136A300CA8405 /* Helpers */,
 			);
 			path = VaultUITests;
 			sourceTree = "<group>";
@@ -994,6 +993,9 @@
 			dependencies = (
 				A182696D2AA0B8520072F531 /* PBXTargetDependency */,
 			);
+			fileSystemSynchronizedGroups = (
+				A14B55642F1136A300CA8405 /* Helpers */,
+			);
 			name = VaultUITests;
 			productName = VaultUITests;
 			productReference = A18269662AA0B8520072F531 /* VaultUITests.xctest */;
@@ -1257,12 +1259,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1699AA52AC585B300D58F6B /* UIHelpers.swift in Sources */,
-				A18269692AA0B8520072F531 /* VaultUITests.swift in Sources */,
-				A12D0A512AB367350010CF38 /* DebugClient.swift in Sources */,
-				A12D0A532AB36AE50010CF38 /* Fixture.swift in Sources */,
-				A1DBAE4F2AC1993900D036C3 /* BlockOn.swift in Sources */,
-				A12BEFAC2AA0F5EC0017A608 /* MobileVaultHelper.swift in Sources */,
+				A14B55682F1136FB00CA8405 /* RepoInfoTests.swift in Sources */,
+				A14B55662F1136D100CA8405 /* AuthTests.swift in Sources */,
+				A14B556E2F11378000CA8405 /* RepoFilesDetailsTests.swift in Sources */,
+				A14B556A2F11372F00CA8405 /* RepoCreateTests.swift in Sources */,
+				A14B556C2F11375C00CA8405 /* RepoFilesTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
