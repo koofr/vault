@@ -1,6 +1,23 @@
 import Foundation
 
 class DebugClient {
+    enum DebugClientError: Error {
+        case error(String)
+    }
+
+    struct QueuedRequest: Codable {
+        let method: String
+        let url: String
+    }
+
+    struct StateResponse: Codable {
+        let queueEnabled: Bool
+        let queueRequests: [QueuedRequest]
+        let pauseEnabled: Bool
+        let downloadsPauseEnabled: Bool
+        let uploadsPauseEnabled: Bool
+    }
+
     let baseUrl: String
 
     init(baseUrl: String) {
@@ -65,8 +82,53 @@ class DebugClient {
         let request = getRequest(method: "GET", url: "/debug/uploads/resume")
         let _ = try await self.request(request, expectedStatusCode: 200)
     }
-}
 
-enum DebugClientError: Error {
-    case error(String)
+    func queueEnable() async throws {
+        let request = getRequest(method: "GET", url: "/debug/queue/enable")
+        let _ = try await self.request(request, expectedStatusCode: 200)
+    }
+
+    func queueDisable() async throws {
+        let request = getRequest(method: "GET", url: "/debug/queue/disable")
+        let _ = try await self.request(request, expectedStatusCode: 200)
+    }
+
+    func queueNext(status: Int? = nil) async throws {
+        var url = "/debug/queue/next"
+        if let status = status {
+            url += "?status=\(status)"
+        }
+        let request = getRequest(method: "GET", url: url)
+        let _ = try await self.request(request, expectedStatusCode: 200)
+    }
+
+    func state() async throws -> StateResponse {
+        let request = getRequest(method: "GET", url: "/debug/state.json")
+        let (data, _) = try await self.request(request, expectedStatusCode: 200)
+        return try JSONDecoder().decode(StateResponse.self, from: data)
+    }
+
+    func withQueue(
+        callback: @escaping (QueuedRequest) async throws -> Bool,
+        before: (() async throws -> Void)? = nil,
+    ) async throws {
+        try await queueEnable()
+
+        if let before = before {
+            try await before()
+        }
+
+        while true {
+            let state = try await self.state()
+
+            for request in state.queueRequests {
+                if try await !callback(request) {
+                    try await self.queueDisable()
+                    return
+                }
+            }
+
+            try await Task.sleep(nanoseconds: 50 * 1_000_000)
+        }
+    }
 }

@@ -3,6 +3,7 @@ import VaultMobile
 
 public class Container: ObservableObject {
     public let baseURL: String
+    public let textEditorAutosaveIntervalMs: UInt32
     public let localAuthenticationHelper: LocalAuthenticationHelper
     public let keychainHelper: KeychainHelper
     public let keychainSecureStorage: KeychainSecureStorage
@@ -19,9 +20,11 @@ public class Container: ObservableObject {
 
     public init(
         baseURL: String? = nil, oauth2AuthBaseURL: String? = nil, secureStorageJson: String? = nil,
-        reposSetDefaultAutoLock: String? = nil
+        reposSetDefaultAutoLock: String? = nil, textEditorAutosaveIntervalMs: UInt32 = 20000
     ) {
         let baseURL = baseURL ?? "https://app.koofr.net"
+        // For fake remote
+        // let baseURL = baseURL ?? "https://127.0.0.1:3443"
         let appName = "vault-ios"
         let oauth2AuthBaseURL = oauth2AuthBaseURL ?? baseURL
         let oauth2ClientId = "7ZEK2BNCEVYEJIZC5OR3TR6PQDUJ4NP3"
@@ -32,6 +35,7 @@ public class Container: ObservableObject {
         let keychainAccessGroup = "group.net.koofr.Vault"
 
         self.baseURL = baseURL
+        self.textEditorAutosaveIntervalMs = textEditorAutosaveIntervalMs
 
         localAuthenticationHelper = LocalAuthenticationHelper()
         keychainHelper = KeychainHelper(service: keychainService, accessGroup: keychainAccessGroup)
