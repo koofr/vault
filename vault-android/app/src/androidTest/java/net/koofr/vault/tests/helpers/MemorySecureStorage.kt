@@ -1,4 +1,4 @@
-package net.koofr.vault.tests
+package net.koofr.vault.tests.helpers
 
 import net.koofr.vault.SecureStorage
 

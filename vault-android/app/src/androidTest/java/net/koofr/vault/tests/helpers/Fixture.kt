@@ -1,4 +1,4 @@
-package net.koofr.vault.tests
+package net.koofr.vault.tests.helpers
 
 import android.app.Activity
 import android.content.Intent
@@ -11,6 +11,7 @@ import net.koofr.vault.FakeRemote
 import net.koofr.vault.MobileVault
 import org.json.JSONObject
 import java.io.Closeable
+import kotlin.collections.iterator
 
 class Fixture constructor(
     val fakeRemote: FakeRemote,

@@ -1,4 +1,4 @@
-package net.koofr.vault.tests
+package net.koofr.vault.tests.helpers
 
 import android.widget.EditText
 import androidx.test.uiautomator.By
