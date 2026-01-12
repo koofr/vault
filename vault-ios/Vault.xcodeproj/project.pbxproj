@@ -400,6 +400,7 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A1118F572F0C6B2600B55356 /* Navigation */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Navigation; sourceTree = "<group>"; };
 		A14B55642F1136A300CA8405 /* Helpers */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Helpers; sourceTree = "<group>"; };
+		A14B556F2F11399300CA8405 /* TestFiles */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TestFiles; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -616,6 +617,7 @@
 				A14B556B2F11375C00CA8405 /* RepoFilesTests.swift */,
 				A14B55672F1136FB00CA8405 /* RepoInfoTests.swift */,
 				A14B55642F1136A300CA8405 /* Helpers */,
+				A14B556F2F11399300CA8405 /* TestFiles */,
 			);
 			path = VaultUITests;
 			sourceTree = "<group>";
@@ -995,6 +997,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				A14B55642F1136A300CA8405 /* Helpers */,
+				A14B556F2F11399300CA8405 /* TestFiles */,
 			);
 			name = VaultUITests;
 			productName = VaultUITests;

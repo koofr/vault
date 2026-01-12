@@ -175,14 +175,28 @@ extension XCUIApplication {
 
     // repo files
 
+    func repoFilesNavBar(name: String) -> XCUIElement {
+        navigationBars[name]
+    }
+
+    func repoFilesNavBarWait(name: String) -> XCUIElement {
+        let element = repoFilesNavBar(name: name)
+        XCTAssertTrue(element.waitForExistence(timeout: 10))
+        return element
+    }
+
     func repoFilesFile(fileName: String) -> XCUIElement {
         return collectionViews.buttons.containing(.staticText, identifier: fileName).firstMatch
     }
 
-    func repoFilesFileTap(fileName: String) {
+    func repoFilesFileWait(fileName: String) -> XCUIElement {
         let file = repoFilesFile(fileName: fileName)
         XCTAssertTrue(file.waitForExistence(timeout: 10))
-        file.tap()
+        return file
+    }
+
+    func repoFilesFileTap(fileName: String) {
+        repoFilesFileWait(fileName: fileName).tap()
     }
 
     func repoFilesFileWaitNotExist(fileName: String) {
@@ -296,6 +310,23 @@ extension XCUIApplication {
     }
 
     // dialogs
+
+    func dialogWait(
+        dialogTitle: String, dialogBodyRegex: String, primaryButtonText: String,
+        secondaryButtonText: String? = nil
+    ) -> XCUIElement {
+        let alert = alerts[dialogTitle]
+        XCTAssertTrue(alert.waitForExistence(timeout: 10))
+        XCTAssertTrue(
+            alert.staticTexts.element(
+                matching: NSPredicate(format: "label MATCHES %@", dialogBodyRegex)
+            ).exists)
+        XCTAssertTrue(alert.buttons[primaryButtonText].exists)
+        if let secondaryButtonText = secondaryButtonText {
+            XCTAssertTrue(alert.buttons[secondaryButtonText].exists)
+        }
+        return alert
+    }
 
     func dialogPromptSubmit(dialogTitle: String, inputValue: String, submitButtonText: String) {
         let alert = alerts[dialogTitle]

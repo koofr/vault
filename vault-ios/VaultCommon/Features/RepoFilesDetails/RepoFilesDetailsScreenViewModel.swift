@@ -33,7 +33,7 @@ public class RepoFilesDetailsScreenViewModel: ObservableObject, WithRepoGuardVie
             repoId: repoId, encryptedPath: encryptedPath, isEditing: isEditing,
             options: RepoFilesDetailsOptions(
                 loadContent: FilesFilter(categories: [.code, .text], exts: []),
-                autosaveIntervalMs: 20000))
+                autosaveIntervalMs: container.textEditorAutosaveIntervalMs))
 
         self.detailsId = detailsId
 

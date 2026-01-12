@@ -32,7 +32,7 @@ struct RepoFilesDetailsEditorInfo: View {
                     .foregroundColor(.red)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
-                    .accessibilityLabel("File error")
+                    .accessibilityIdentifier("File error")
             } else {
                 HStack(alignment: .center, spacing: 15) {
                     VStack(spacing: 2) {
