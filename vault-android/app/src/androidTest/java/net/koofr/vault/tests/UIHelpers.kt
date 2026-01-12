@@ -5,6 +5,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import java.util.regex.Pattern
 
 // use `adb exec-out uiautomator dump /dev/tty | code -` (and Format document)
 // to see the view hierarchy
@@ -16,7 +17,9 @@ class UIHelpers(private val device: UiDevice) {
     val landingGetStartedSelector = By.clickable(true).hasDescendant(By.text("Get started"))
 
     fun landingGetStartedClick() {
-        device.wait(Until.findObject(landingGetStartedSelector), 10000).click()
+        checkNotNull(
+            device.wait(Until.findObject(landingGetStartedSelector), 10000),
+        ) { "Get Started button was not found" }.click()
     }
 
     // repos
@@ -24,14 +27,18 @@ class UIHelpers(private val device: UiDevice) {
     fun reposRepoSelector(repoName: String) = By.clickable(true).hasDescendant(By.text(repoName))
 
     fun reposRepoClick(repoName: String = "My safe box") {
-        device.wait(Until.findObject(reposRepoSelector(repoName)), 10000).click()
+        checkNotNull(
+            device.wait(Until.findObject(reposRepoSelector(repoName)), 10000),
+        ) { "$repoName repo was not found" }.click()
     }
 
     fun reposRepoInfoSelector(repoName: String) =
         By.clickable(true).hasDescendant(By.desc("Info")).hasParent(By.hasChild(By.desc("Safe Box $repoName")))
 
     fun reposRepoInfoClick(repoName: String = "My safe box") {
-        device.wait(Until.findObject(reposRepoInfoSelector(repoName)), 10000).click()
+        checkNotNull(
+            device.wait(Until.findObject(reposRepoInfoSelector(repoName)), 10000),
+        ) { "Info button for $repoName repo was not found" }.click()
     }
 
     // repo unlock
@@ -39,7 +46,9 @@ class UIHelpers(private val device: UiDevice) {
     val repoUnlockTitleSelector = By.text("Enter your Safe Key to continue")
 
     fun repoUnlockWait() {
-        device.wait(Until.findObject(repoUnlockTitleSelector), 10000)
+        checkNotNull(
+            device.wait(Until.findObject(repoUnlockTitleSelector), 10000),
+        ) { "Unlock title was not found" }
     }
 
     val repoUnlockPaswordSelector =
@@ -50,10 +59,14 @@ class UIHelpers(private val device: UiDevice) {
     fun repoUnlock(password: String = "password") {
         repoUnlockWait()
 
-        val field = device.wait(Until.findObject(repoUnlockPaswordSelector), 10000)
+        val field = checkNotNull(
+            device.wait(Until.findObject(repoUnlockPaswordSelector), 10000),
+        ) { "Password field was not found" }
         field.text = password
 
-        device.wait(Until.findObject(repoUnlockContinueSelector), 10000).click()
+        checkNotNull(
+            device.wait(Until.findObject(repoUnlockContinueSelector), 10000),
+        ) { "Continue button was not found" }.click()
     }
 
     // repo info
@@ -61,45 +74,63 @@ class UIHelpers(private val device: UiDevice) {
     val repoInfoBiometricUnlockSelector = By.checkable(true).desc("Biometric unlock")
 
     fun repoInfoBiometricUnlockClick() {
-        device.wait(Until.findObject(repoInfoBiometricUnlockSelector), 10000).click()
+        checkNotNull(
+            device.wait(Until.findObject(repoInfoBiometricUnlockSelector), 10000),
+        ) { "Biometric unlock checkbox was not found" }.click()
     }
 
     fun repoInfoBiometricUnlockCheckedWait() {
-        device.wait(Until.findObject(repoInfoBiometricUnlockSelector.checked(true)), 10000)
+        checkNotNull(
+            device.wait(Until.findObject(repoInfoBiometricUnlockSelector.checked(true)), 10000),
+        ) { "Checked biometric unlock checkbox was not found" }
     }
 
     val repoInfoUnlockedSelector = By.checkable(true).desc("Unlocked")
 
     fun repoInfoUnlockedWait() {
-        device.wait(Until.findObject(repoInfoUnlockedSelector.checked(true)), 10000)
+        checkNotNull(
+            device.wait(Until.findObject(repoInfoUnlockedSelector.checked(true)), 10000),
+        ) { "Checked unlocked checkbox was not found" }
     }
 
     val repoInfoLockedSelector = By.checkable(true).desc("Locked")
 
     fun repoInfoLockedClick() {
-        device.wait(Until.findObject(repoInfoLockedSelector), 10000).click()
+        checkNotNull(
+            device.wait(Until.findObject(repoInfoLockedSelector), 10000),
+        ) { "Locked checkbox was not found" }.click()
     }
 
     val reposRepoInfoLockAfterSelector = By.text("Automatically lock after")
 
     fun reposRepoInfoLockAfterClick() {
-        device.wait(Until.findObject(reposRepoInfoLockAfterSelector), 10000).click()
+        checkNotNull(
+            device.wait(Until.findObject(reposRepoInfoLockAfterSelector), 10000),
+        ) { "Lock after selector was not found" }.click()
     }
 
     val reposRepoInfoLockAfterValueSelector = By.desc("Automatically lock after value")
 
     fun reposRepoInfoLockAfterValue(): String {
-        return device.wait(Until.findObject(reposRepoInfoLockAfterValueSelector), 10000).text
+        val obj = checkNotNull(
+            device.wait(Until.findObject(reposRepoInfoLockAfterValueSelector), 10000),
+        ) { "Lock after value was not found" }
+        return obj.text
     }
 
     val reposRepoInfoLockOnAppHiddenSelector = By.checkable(true).desc("Lock when app hidden")
 
     fun reposRepoInfoLockOnAppHiddenClick() {
-        device.wait(Until.findObject(reposRepoInfoLockOnAppHiddenSelector), 10000).click()
+        checkNotNull(
+            device.wait(Until.findObject(reposRepoInfoLockOnAppHiddenSelector), 10000),
+        ) { "Lock on app hidden checkbox was not found" }.click()
     }
 
     fun reposRepoInfoLockAfterChecked(): Boolean {
-        return device.wait(Until.findObject(reposRepoInfoLockOnAppHiddenSelector), 10000).isChecked
+        val obj = checkNotNull(
+            device.wait(Until.findObject(reposRepoInfoLockOnAppHiddenSelector), 10000),
+        ) { "Lock on app hidden checkbox was not found" }
+        return obj.isChecked
     }
 
     // repo create
@@ -107,20 +138,26 @@ class UIHelpers(private val device: UiDevice) {
     val repoCreateTitleSelector = By.text("Create a new Safe Box")
 
     fun repoCreateWait() {
-        device.wait(Until.findObject(repoCreateTitleSelector), 10000)
+        checkNotNull(
+            device.wait(Until.findObject(repoCreateTitleSelector), 10000),
+        ) { "Create repo title was not found" }
     }
 
     val repoCreateLocationSelector = By.clickable(true).hasDescendant(By.desc("Location"))
 
     fun repoCreateLocationClick() {
-        device.wait(Until.findObject(repoCreateLocationSelector), 10000).click()
+        checkNotNull(
+            device.wait(Until.findObject(repoCreateLocationSelector), 10000),
+        ) { "Location selector was not found" }.click()
     }
 
     val repoCreatePasswordSelector =
         By.clazz(EditText::class.java).hasDescendant(By.desc("Safe Key"))
 
     fun repoCreatePasswordFill(password: String = "password") {
-        val field = device.wait(Until.findObject(repoCreatePasswordSelector), 10000)
+        val field = checkNotNull(
+            device.wait(Until.findObject(repoCreatePasswordSelector), 10000),
+        ) { "Password field was not found" }
         field.text = password
     }
 
@@ -128,42 +165,56 @@ class UIHelpers(private val device: UiDevice) {
         By.clickable(true).hasDescendant(By.text("Show advanced settings"))
 
     fun repoCreateAdvancedSettingsClick() {
-        device.wait(Until.findObject(repoCreateAdvancedSettingsSelector), 10000).click()
+        checkNotNull(
+            device.wait(Until.findObject(repoCreateAdvancedSettingsSelector), 10000),
+        ) { "Advanced settings button was not found" }.click()
     }
 
     val repoCreateSaltSelector = By.clazz(EditText::class.java).hasDescendant(By.desc("Salt"))
 
     fun repoCreateSaltFill(salt: String = "salt") {
-        val field = device.wait(Until.findObject(repoCreateSaltSelector), 10000)
+        val field = checkNotNull(
+            device.wait(Until.findObject(repoCreateSaltSelector), 10000),
+        ) { "Salt field was not found" }
         field.text = salt
     }
 
     val repoCreateCreateSelector = By.clickable(true).hasDescendant(By.text("Create"))
 
     fun repoCreateCreateClick() {
-        device.wait(Until.findObject(repoCreateCreateSelector), 10000).click()
+        checkNotNull(
+            device.wait(Until.findObject(repoCreateCreateSelector), 10000),
+        ) { "Create button was not found" }.click()
     }
 
     val repoCreateCreatedSelector = By.textStartsWith("Your Safe Box has been created")
 
     fun repoCreateCreatedWait() {
-        device.wait(Until.findObject(repoCreateCreatedSelector), 10000)
+        checkNotNull(
+            device.wait(Until.findObject(repoCreateCreatedSelector), 10000),
+        ) { "Created message was not found" }
     }
 
     fun repoCreateCreatedScrollDown() {
-        device.wait(Until.findObject(repoCreateCreatedSelector), 10000).fling(Direction.DOWN, 10000)
+        checkNotNull(
+            device.wait(Until.findObject(repoCreateCreatedSelector), 10000),
+        ) { "Created message was not found" }.fling(Direction.DOWN, 10000)
     }
 
     val repoCreateCreatedShareSelector = By.clickable(true).hasDescendant(By.text("Share…"))
 
     fun repoCreateCreatedShareClick() {
-        device.wait(Until.findObject(repoCreateCreatedShareSelector), 10000).click()
+        checkNotNull(
+            device.wait(Until.findObject(repoCreateCreatedShareSelector), 10000),
+        ) { "Share button was not found" }.click()
     }
 
     val repoCreateCreatedContinueSelector = By.clickable(true).hasDescendant(By.text("Continue"))
 
     fun repoCreateCreatedContinueClick() {
-        device.wait(Until.findObject(repoCreateCreatedContinueSelector), 10000).click()
+        checkNotNull(
+            device.wait(Until.findObject(repoCreateCreatedContinueSelector), 10000),
+        ) { "Continue button was not found" }.click()
     }
 
     // repo files
@@ -171,7 +222,9 @@ class UIHelpers(private val device: UiDevice) {
     val repoFilesEmptyFolderSelector = By.text("Folder is empty")
 
     fun repoFilesEmptyFolderWait() {
-        device.wait(Until.findObject(repoFilesEmptyFolderSelector), 10000)
+        checkNotNull(
+            device.wait(Until.findObject(repoFilesEmptyFolderSelector), 10000),
+        ) { "Empty folder text was not found" }
     }
 
     fun repoFilesFileRowSelector(fileName: String) =
@@ -180,19 +233,27 @@ class UIHelpers(private val device: UiDevice) {
         )
 
     fun repoFilesFileRowWait(fileName: String) {
-        device.wait(Until.findObject(repoFilesFileRowSelector(fileName)), 10000)
+        checkNotNull(
+            device.wait(Until.findObject(repoFilesFileRowSelector(fileName)), 10000),
+        ) { "$fileName file row was not found" }
     }
 
     fun repoFilesFileRowWaitNotExist(fileName: String) {
-        device.wait(Until.gone(repoFilesFileRowSelector(fileName)), 10000)
+        check(device.wait(Until.gone(repoFilesFileRowSelector(fileName)), 10000)) {
+            "$fileName file row did not disappear"
+        }
     }
 
     fun repoFilesFileRowClick(fileName: String) {
-        device.wait(Until.findObject(repoFilesFileRowSelector(fileName)), 10000).click()
+        checkNotNull(
+            device.wait(Until.findObject(repoFilesFileRowSelector(fileName)), 10000),
+        ) { "$fileName file row was not found" }.click()
     }
 
     fun repoFilesFileRowLongClick(fileName: String) {
-        device.wait(Until.findObject(repoFilesFileRowSelector(fileName)), 10000).longClick()
+        checkNotNull(
+            device.wait(Until.findObject(repoFilesFileRowSelector(fileName)), 10000),
+        ) { "$fileName file row was not found" }.longClick()
     }
 
     fun repoFilesFileRowMenuSelector(fileName: String) =
@@ -203,7 +264,9 @@ class UIHelpers(private val device: UiDevice) {
         )
 
     fun repoFilesFileRowMenuClick(fileName: String) {
-        device.wait(Until.findObject(repoFilesFileRowMenuSelector(fileName)), 10000).click()
+        checkNotNull(
+            device.wait(Until.findObject(repoFilesFileRowMenuSelector(fileName)), 10000),
+        ) { "$fileName file menu was not found" }.click()
     }
 
     fun repoFilesFileMenuMoveClick() {
@@ -213,43 +276,54 @@ class UIHelpers(private val device: UiDevice) {
     val repoFilesMenuSelector = By.clickable(true).hasDescendant(By.desc("Menu"))
 
     fun repoFilesMenuClick() {
-        device.wait(Until.findObject(repoFilesMenuSelector), 10000).click()
+        checkNotNull(
+            device.wait(Until.findObject(repoFilesMenuSelector), 10000),
+        ) { "Files menu was not found" }.click()
     }
 
     val repoFilesAddSelector = By.clickable(true).hasDescendant(By.desc("Add"))
 
     fun repoFilesAddClick() {
-        device.wait(Until.findObject(repoFilesAddSelector), 10000).click()
+        checkNotNull(
+            device.wait(Until.findObject(repoFilesAddSelector), 10000),
+        ) { "Add button was not found" }.click()
     }
 
     val repoFilesAddNewFolderSelector = By.clickable(true).hasDescendant(By.text("New folder"))
 
     fun repoFilesAddNewFolderClick() {
-        device.wait(Until.findObject(repoFilesAddNewFolderSelector), 10000).click()
+        checkNotNull(
+            device.wait(Until.findObject(repoFilesAddNewFolderSelector), 10000),
+        ) { "New folder button was not found" }.click()
     }
 
     fun repoFilesSelectModeWaitVisible(text: String = "1 selected") {
-        device.wait(Until.findObject(By.text(text)), 10000)
+        checkNotNull(
+            device.wait(Until.findObject(By.text(text)), 10000),
+        ) { "$text was not found" }
     }
 
     fun repoFilesSelectModeWaitHidden(text: String = "1 selected") {
-        device.wait(Until.gone(By.text(text)), 10000)
+        check(device.wait(Until.gone(By.text(text)), 10000)) {
+            "$text did not disappear"
+        }
     }
 
     val repoFilesDeleteSelectedSelector =
         By.clickable(true).hasDescendant(By.desc("Delete selected"))
 
     fun repoFilesDeleteSelectedClick() {
-        device.wait(Until.findObject(repoFilesDeleteSelectedSelector), 10000).click()
+        checkNotNull(
+            device.wait(Until.findObject(repoFilesDeleteSelectedSelector), 10000),
+        ) { "Delete selected button was not found" }.click()
     }
 
     // repo files details
 
-    val repoFilesDetailsContentTextSelector =
-        By.clazz(EditText::class.java).hasDescendant(By.desc("File text"))
-
-    fun repoFilesDetailsContentTextWait(text: String) {
-        device.wait(Until.findObject(repoFilesDetailsContentTextSelector.text(text)), 10000)
+    fun repoFilesDetailsTextEditorContentWait(text: String) {
+        checkNotNull(
+            device.wait(Until.findObject(By.text(text)), 10000),
+        ) { "Text '$text' was not found in content" }
     }
 
     // repo files move
@@ -257,27 +331,37 @@ class UIHelpers(private val device: UiDevice) {
     val repoFilesMoveSelector = By.clickable(true).hasDescendant(By.text("CANCEL"))
 
     fun repoFilesMoveWaitVisible() {
-        device.wait(Until.findObject(repoFilesMoveSelector), 10000)
+        checkNotNull(
+            device.wait(Until.findObject(repoFilesMoveSelector), 10000),
+        ) { "Move dialog was not found" }
     }
 
     fun repoFilesMoveWaitHidden() {
-        device.wait(Until.gone(repoFilesMoveSelector), 10000)
+        check(device.wait(Until.gone(repoFilesMoveSelector), 10000)) {
+            "Move dialog did not disappear"
+        }
     }
 
     val repoFilesMoveNewFolderSelector = By.clickable(true).hasDescendant(By.desc("New folder"))
 
     fun repoFilesMoveNewFolderClick() {
-        device.wait(Until.findObject(repoFilesMoveNewFolderSelector), 10000).click()
+        checkNotNull(
+            device.wait(Until.findObject(repoFilesMoveNewFolderSelector), 10000),
+        ) { "New folder in move dialog was not found" }.click()
     }
 
     fun repoFilesMoveNavigationWait(folderName: String) {
-        device.wait(Until.findObject(By.text(folderName)), 10000).click()
+        checkNotNull(
+            device.wait(Until.findObject(By.text(folderName)), 10000),
+        ) { "$folderName folder was not found in move dialog" }.click()
     }
 
     val repoFilesMoveMoveSelector = By.clickable(true).hasDescendant(By.text("MOVE"))
 
     fun repoFilesMoveMoveClick() {
-        device.wait(Until.findObject(repoFilesMoveMoveSelector), 10000).click()
+        checkNotNull(
+            device.wait(Until.findObject(repoFilesMoveMoveSelector), 10000),
+        ) { "Move button was not found" }.click()
     }
 
     // transfers
@@ -285,37 +369,49 @@ class UIHelpers(private val device: UiDevice) {
     val transfersButtonSelector = By.clickable(true).hasDescendant(By.desc("Transfers"))
 
     fun transfersButtonWaitVisible() {
-        device.wait(Until.findObject(transfersButtonSelector), 10000)
+        checkNotNull(
+            device.wait(Until.findObject(transfersButtonSelector), 10000),
+        ) { "Transfers button was not found" }
     }
 
     fun transfersButtonWaitHidden() {
-        device.wait(Until.gone(transfersButtonSelector), 10000)
+        check(device.wait(Until.gone(transfersButtonSelector), 10000)) {
+            "Transfers button did not disappear"
+        }
     }
 
     // dialogs
 
     fun dialogWaitVisible(dialogTitle: String) {
-        device.wait(Until.findObject(By.text(dialogTitle)), 10000)
+        checkNotNull(
+            device.wait(Until.findObject(By.text(dialogTitle)), 10000),
+        ) { "Dialog '$dialogTitle' was not found" }
     }
 
     fun dialogWaitHidden(dialogTitle: String) {
-        device.wait(Until.gone(By.text(dialogTitle)), 10000)
+        check(device.wait(Until.gone(By.text(dialogTitle)), 10000)) {
+            "Dialog '$dialogTitle' did not disappear"
+        }
     }
 
     fun dialogButtonClick(buttonText: String) {
-        device.wait(
-            Until.findObject(
-                By.clickable(true).enabled(true)
-                    .hasDescendant(By.text(buttonText.uppercase())),
+        checkNotNull(
+            device.wait(
+                Until.findObject(
+                    By.clickable(true).enabled(true)
+                        .hasDescendant(By.text(buttonText.uppercase())),
+                ),
+                10000,
             ),
-            10000,
-        ).click()
+        ) { "$buttonText button was not found" }.click()
     }
 
     fun dialogPromptSubmit(dialogTitle: String, inputValue: String, submitButtonText: String) {
         dialogWaitVisible(dialogTitle)
 
-        val field = device.wait(Until.findObject(By.clazz(EditText::class.java)), 10000)
+        val field = checkNotNull(
+            device.wait(Until.findObject(By.clazz(EditText::class.java)), 10000),
+        ) { "Input field was not found" }
         field.text = inputValue
 
         dialogButtonClick(submitButtonText)
@@ -346,21 +442,25 @@ class UIHelpers(private val device: UiDevice) {
     // menu
 
     fun menuItemClick(itemName: String) {
-        device.wait(
-            Until.findObject(
-                By.clickable(true).enabled(true)
-                    .hasDescendant(By.text(itemName)),
+        checkNotNull(
+            device.wait(
+                Until.findObject(
+                    By.clickable(true).enabled(true)
+                        .hasDescendant(By.text(itemName)),
+                ),
+                10000,
             ),
-            10000,
-        ).click()
+        ) { "$itemName menu item was not found" }.click()
     }
 
     // share sheet
 
-    val shareSheetSelector = By.text("Share")
+    val shareSheetSelector = By.text(Pattern.compile("Share|Sharing text"))
 
     fun shareSheetWait() {
-        device.wait(Until.findObject(shareSheetSelector), 10000)
+        checkNotNull(
+            device.wait(Until.findObject(shareSheetSelector), 10000),
+        ) { "Share sheet was not found" }
     }
 
     // fingerprint
@@ -368,10 +468,14 @@ class UIHelpers(private val device: UiDevice) {
     val fingerprintSheetSelector = By.text("Safe Key biometrics")
 
     fun fingerprintSheetWaitVisible() {
-        device.wait(Until.findObject(fingerprintSheetSelector), 10000)
+        checkNotNull(
+            device.wait(Until.findObject(fingerprintSheetSelector), 10000),
+        ) { "Fingerprint sheet was not found" }
     }
 
     fun fingerprintSheetWaitHidden() {
-        device.wait(Until.gone(fingerprintSheetSelector), 10000)
+        check(device.wait(Until.gone(fingerprintSheetSelector), 10000)) {
+            "Fingerprint sheet did not disappear"
+        }
     }
 }

@@ -4,7 +4,6 @@ import android.os.SystemClock
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.By
 import org.junit.After
-import org.junit.Assert
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -90,7 +89,11 @@ class VaultUITest {
 
         h.reposRepoInfoClick()
 
-        Assert.assertEquals("10 minutes of inactivity", h.reposRepoInfoLockAfterValue())
+        h.reposRepoInfoLockAfterValue().let { actual ->
+            check(actual == "10 minutes of inactivity") {
+                "Expected '10 minutes of inactivity' but was '$actual'"
+            }
+        }
     }
 
     @Test
@@ -107,7 +110,9 @@ class VaultUITest {
 
         h.reposRepoInfoClick()
 
-        Assert.assertTrue(h.reposRepoInfoLockAfterChecked())
+        check(h.reposRepoInfoLockAfterChecked()) {
+            "Expected reposRepoInfoLockAfterChecked to be true"
+        }
     }
 
     @Test
@@ -198,7 +203,7 @@ class VaultUITest {
 
         h.repoFilesEmptyFolderWait()
 
-        for (i in 1..5) {
+        (1..5).forEach { i ->
             device.findObject(h.repoFilesEmptyFolderSelector).click()
 
             SystemClock.sleep(1000)
@@ -270,7 +275,7 @@ class VaultUITest {
 
         h.repoFilesFileRowClick("file.txt")
 
-        h.repoFilesDetailsContentTextWait("čšž")
+        h.repoFilesDetailsTextEditorContentWait("čšž")
     }
 
     @Test
