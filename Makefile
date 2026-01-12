@@ -45,13 +45,13 @@ build-ios-archive:
 	cd vault-ios && xcodebuild -scheme Vault archive
 
 build-android-bindings: check-android-env
-	cd vault-android && ./gradlew generateUniFFIBindings
+	cd vault-android && ./gradlew --no-daemon generateUniFFIBindings
 
 build-android-library-debug: check-android-env
-	cd vault-android && GRADLE_CARGO_PROFILE=debug ./gradlew cargoBuild
+	cd vault-android && GRADLE_CARGO_PROFILE=debug ./gradlew --no-daemon cargoBuild
 
 build-android-library-release: check-android-env
-	cd vault-android && GRADLE_CARGO_PROFILE=release ./gradlew cargoBuild
+	cd vault-android && GRADLE_CARGO_PROFILE=release ./gradlew --no-daemon cargoBuild
 
 build-android-assemble-debug: build-android-bindings build-android-library-debug
 	cd vault-android && ./gradlew assembleDebug
