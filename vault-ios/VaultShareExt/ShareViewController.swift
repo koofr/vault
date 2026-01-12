@@ -5,7 +5,6 @@ import VaultCommon
 @objc(ShareViewController)
 final class ShareViewController: UIViewController {
     private var container: Container? = nil
-    private var appearCount: Int = 0
 
     override func viewDidLoad() {
         super.viewDidLoad()

@@ -58,3 +58,13 @@ Format code:
 ```sh
 swift-format --in-place --recursive .
 ```
+
+## Run tests
+
+```sh
+# Run all UI tests
+xcodebuild test -scheme Vault -testPlan VaultUITests -destination "platform=iOS Simulator,name=iPhone 17 Pro" -only-testing:VaultUITests
+
+# Run specific UI test
+xcodebuild test -scheme Vault -testPlan VaultUITests -destination "platform=iOS Simulator,name=iPhone 17 Pro" -only-testing:VaultUITests/RepoFilesDetailsTests/testMethod
+```
