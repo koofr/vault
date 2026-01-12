@@ -1,4 +1,4 @@
-package net.koofr.vault.tests
+package net.koofr.vault.tests.helpers
 
 import java.net.URL
 import java.security.cert.X509Certificate
