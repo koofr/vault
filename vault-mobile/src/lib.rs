@@ -2710,6 +2710,14 @@ impl MobileVault {
         })
     }
 
+    pub fn repo_files_encrypt_name(&self, repo_id: String, name: String) -> Option<String> {
+        self.vault
+            .repo_files_service
+            .encrypt_filename(&RepoId(repo_id), &DecryptedName(name))
+            .map(|x| x.0)
+            .ok()
+    }
+
     pub fn repo_files_move_file(
         self: Arc<Self>,
         repo_id: String,
