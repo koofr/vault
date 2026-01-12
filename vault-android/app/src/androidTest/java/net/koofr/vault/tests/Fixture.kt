@@ -135,8 +135,7 @@ class Fixture constructor(
         this.intentExtra = intentExtra
 
         device.pressHome()
-
-        device.wait(Until.hasObject(By.pkg(launcherPackage).depth(0)), LAUNCH_TIMEOUT)
+        device.waitForIdle(LAUNCH_TIMEOUT)
 
         val intent = buildIntent(appPackageName, clear = true)
 
@@ -174,13 +173,15 @@ class Fixture constructor(
     }
 
     private fun waitForLaunched() {
-        device.wait(
-            Until.hasObject(
-                By.pkg(appPackageName)
-                    .depth(0),
+        check(
+            device.wait(
+                Until.hasObject(
+                    By.pkg(appPackageName)
+                        .depth(0),
+                ),
+                LAUNCH_TIMEOUT,
             ),
-            LAUNCH_TIMEOUT,
-        )
+        ) { "App was not launched" }
     }
 
     private fun stopApp() {
