@@ -1,5 +1,5 @@
-import java.io.ByteArrayOutputStream
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import java.io.ByteArrayOutputStream
 
 plugins {
     alias(libs.plugins.android.application)
@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 val localProperties = gradleLocalProperties(rootDir, providers)
@@ -32,7 +33,7 @@ android {
         buildConfigField(
             "String",
             "FILES_AUTHORITY",
-            "\"$filesAuthorityValue\""
+            "\"$filesAuthorityValue\"",
         )
 
         ndk {
@@ -59,7 +60,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
             signingConfigs.findByName("release")?.let {
                 signingConfig = it
@@ -138,6 +139,7 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.uiautomator)
+    androidTestImplementation(libs.kotlinx.serialization.json)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
@@ -158,7 +160,7 @@ tasks.register<Exec>("generateUniFFIBindings") {
         "--language",
         "kotlin",
         "--out-dir",
-        uniFFIBindingsDir.get().asFile
+        uniFFIBindingsDir.get().asFile,
     )
 
     doLast {
@@ -209,7 +211,10 @@ extensions.configure(com.nishtahir.CargoExtension::class) {
 
         // Support 16 KB page sizes
         // https://github.com/mozilla/rust-android-gradle/pull/151#issuecomment-2931056842
-        spec.environment("RUST_ANDROID_GRADLE_CC_LINK_ARG", "-Wl,-z,max-page-size=16384,-soname,libvault_mobile.so")
+        spec.environment(
+            "RUST_ANDROID_GRADLE_CC_LINK_ARG",
+            "-Wl,-z,max-page-size=16384,-soname,libvault_mobile.so",
+        )
     }
 }
 

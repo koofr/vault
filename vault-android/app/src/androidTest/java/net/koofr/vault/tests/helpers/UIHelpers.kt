@@ -382,6 +382,39 @@ class UIHelpers(private val device: UiDevice) {
 
     // dialogs
 
+    fun dialogWait(
+        dialogTitle: String,
+        dialogBodyRegex: String,
+        primaryButtonText: String,
+        secondaryButtonText: String? = null,
+    ) {
+        dialogWaitVisible(dialogTitle)
+
+        checkNotNull(
+            device.wait(Until.findObject(By.text(Pattern.compile(dialogBodyRegex))), 10000),
+        ) { "Dialog body matching '$dialogBodyRegex' was not found" }
+
+        checkNotNull(
+            device.wait(
+                Until.findObject(
+                    By.text(primaryButtonText.uppercase()),
+                ),
+                10000,
+            ),
+        ) { "$primaryButtonText button was not found" }
+
+        if (secondaryButtonText != null) {
+            checkNotNull(
+                device.wait(
+                    Until.findObject(
+                        By.text(secondaryButtonText.uppercase()),
+                    ),
+                    10000,
+                ),
+            ) { "$secondaryButtonText button was not found" }
+        }
+    }
+
     fun dialogWaitVisible(dialogTitle: String) {
         checkNotNull(
             device.wait(Until.findObject(By.text(dialogTitle)), 10000),

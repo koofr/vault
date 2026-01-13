@@ -112,17 +112,19 @@ fun RepoFilesDetailsScreen(
 
             TransfersButton()
 
-            if (vm.info.data.value?.isEditing != true) {
-                Box {
-                    IconButton(onClick = { vm.menuExpanded.value = true }) {
-                        Icon(Icons.Filled.MoreVert, "More")
-                    }
+            vm.info.data.value?.let { info ->
+                if (!info.isEditing) {
+                    Box {
+                        IconButton(onClick = { vm.menuExpanded.value = true }) {
+                            Icon(Icons.Filled.MoreVert, "More")
+                        }
 
-                    DropdownMenu(
-                        expanded = vm.menuExpanded.value,
-                        onDismissRequest = { vm.menuExpanded.value = false },
-                    ) {
-                        RepoFilesDetailsNavMenu(vm, context)
+                        DropdownMenu(
+                            expanded = vm.menuExpanded.value,
+                            onDismissRequest = { vm.menuExpanded.value = false },
+                        ) {
+                            RepoFilesDetailsNavMenu(vm, context)
+                        }
                     }
                 }
             }
@@ -239,13 +241,7 @@ fun RepoFilesDetailsContentDownloadedView(data: RepoFilesDetailsScreenContentDat
 
 @Composable
 fun RepoFilesDetailsContentTextEditorView(vm: RepoFilesDetailsScreenViewModel) {
-    val info = vm.info.data.value
-    val content = subscribe(
-        { v, cb -> v.repoFilesDetailsContentBytesSubscribe(detailsId = vm.detailsId, cb = cb) },
-        { v, id -> v.repoFilesDetailsContentBytesData(id = id) },
-    )
-
-    if (info != null) {
+    vm.info.data.value?.let { info ->
         when (val status = info.contentStatus) {
             is Status.Err -> {
                 if (!status.loaded) {
@@ -280,19 +276,28 @@ fun RepoFilesDetailsContentTextEditorView(vm: RepoFilesDetailsScreenViewModel) {
 
             is Status.Loaded -> {}
         }
-    }
 
+        RepoFilesDetailsContentTextEditorTextView(vm, info = info)
+    }
+}
+
+@Composable
+fun RepoFilesDetailsContentTextEditorTextView(vm: RepoFilesDetailsScreenViewModel, info: RepoFilesDetailsInfo) {
+    val content = subscribe(
+        { v, cb -> v.repoFilesDetailsContentBytesSubscribe(detailsId = vm.detailsId, cb = cb) },
+        { v, id -> v.repoFilesDetailsContentBytesData(id = id) },
+    )
     val text = content.value?.toString(Charsets.UTF_8) ?: ""
     val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(info?.isEditing) {
-        if (info?.isEditing == true) {
+    LaunchedEffect(info.isEditing) {
+        if (info.isEditing) {
             focusRequester.requestFocus()
         }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        if (info != null && info.isEditing) {
+        if (info.isEditing) {
             RepoFilesDetailsEditorInfo(vm, info)
         }
 
@@ -301,7 +306,7 @@ fun RepoFilesDetailsContentTextEditorView(vm: RepoFilesDetailsScreenViewModel) {
             onValueChange = {
                 vm.setText(it)
             },
-            readOnly = info?.isEditing != true,
+            readOnly = !info.isEditing,
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,
