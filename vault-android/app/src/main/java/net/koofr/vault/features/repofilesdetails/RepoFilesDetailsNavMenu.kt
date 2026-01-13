@@ -10,7 +10,7 @@ import net.koofr.vault.features.mobilevault.subscribe
 fun RepoFilesDetailsNavMenu(vm: RepoFilesDetailsScreenViewModel, context: Context) {
     val info = vm.info.data.value
 
-    if (info != null && !info.isEditing && RepoFilesDetailsScreenContentData.isTextEditor(info.fileCategory)) {
+    if (info != null && RepoFilesDetailsScreenContentData.isTextEditor(info.fileCategory)) {
         DropdownMenuItem(text = {
             Text("Edit")
         }, onClick = {
@@ -31,7 +31,7 @@ fun RepoFilesDetailsNavMenu(vm: RepoFilesDetailsScreenViewModel, context: Contex
             }
 
             is RepoFilesDetailsScreenContent.TextEditor -> {
-                RepoFilesDetailsTextEditorNavMenu(vm, context)
+                RepoFilesDetailsNavMenuShareTextEditor(vm, context)
             }
 
             else -> {}
@@ -54,7 +54,7 @@ fun RepoFilesDetailsNavMenu(vm: RepoFilesDetailsScreenViewModel, context: Contex
 }
 
 @Composable
-fun RepoFilesDetailsTextEditorNavMenu(vm: RepoFilesDetailsScreenViewModel, context: Context) {
+fun RepoFilesDetailsNavMenuShareTextEditor(vm: RepoFilesDetailsScreenViewModel, context: Context) {
     val content = subscribe(
         { v, cb -> v.repoFilesDetailsContentBytesSubscribe(detailsId = vm.detailsId, cb = cb) },
         { v, id -> v.repoFilesDetailsContentBytesData(id = id) },

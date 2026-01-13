@@ -1,5 +1,7 @@
 package net.koofr.vault.tests.helpers
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import java.net.URL
 import java.security.cert.X509Certificate
 import javax.net.ssl.HostnameVerifier
@@ -8,8 +10,24 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
+@Serializable
+data class QueuedRequest(
+    val method: String,
+    val url: String,
+)
+
+@Serializable
+data class StateResponse(
+    val queueEnabled: Boolean,
+    val queueRequests: List<QueuedRequest>,
+    val pauseEnabled: Boolean,
+    val downloadsPauseEnabled: Boolean,
+    val uploadsPauseEnabled: Boolean,
+)
+
 class DebugClient constructor(private val baseUrl: String) {
     private val sslContext = getInvalidCertsSSLContext()
+    private val json = Json { ignoreUnknownKeys = true }
 
     private fun getConnection(method: String, url: String): HttpsURLConnection {
         val connection = URL("${baseUrl}$url").openConnection() as HttpsURLConnection
@@ -63,6 +81,48 @@ class DebugClient constructor(private val baseUrl: String) {
 
     fun uploadsResume() {
         request(getConnection("GET", "/debug/uploads/resume"))
+    }
+
+    fun queueEnable() {
+        request(getConnection("GET", "/debug/queue/enable"))
+    }
+
+    fun queueDisable() {
+        request(getConnection("GET", "/debug/queue/disable"))
+    }
+
+    fun queueNext(status: Int? = null) {
+        var url = "/debug/queue/next"
+        if (status != null) {
+            url += "?status=$status"
+        }
+        request(getConnection("GET", url))
+    }
+
+    fun state(): StateResponse {
+        val connection = getConnection("GET", "/debug/state.json")
+        val (_, body) = request(connection, 200)
+        return json.decodeFromString<StateResponse>(body)
+    }
+
+    fun withQueue(
+        callback: (QueuedRequest) -> Boolean,
+        before: (() -> Unit)? = null,
+    ) {
+        queueEnable()
+        if (before != null) {
+            before()
+        }
+        while (true) {
+            val state = state()
+            for (request in state.queueRequests) {
+                if (!callback(request)) {
+                    queueDisable()
+                    return
+                }
+            }
+            Thread.sleep(50)
+        }
     }
 }
 
