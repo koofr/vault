@@ -18,7 +18,6 @@ use crate::{
     browser_secure_storage::BrowserSecureStorage,
     browser_uploadable::BrowserUploadable,
     helpers,
-    timers::set_timeout,
 };
 
 #[wasm_bindgen(typescript_custom_section)]
@@ -150,7 +149,7 @@ pub fn to_js<In: serde::ser::Serialize + ?Sized, Out: From<JsValue> + Into<JsVal
 
 pub fn to_cb(callback: js_sys::Function) -> Box<dyn Fn() + Send + Sync + 'static> {
     let callback: Box<dyn Fn() + 'static> = Box::new(move || {
-        set_timeout(&callback, 0).unwrap();
+        callback.call0(&JsValue::undefined()).unwrap();
     });
 
     let callback: Box<dyn Fn() + Send + Sync + 'static> = unsafe {

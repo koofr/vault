@@ -53,19 +53,21 @@ export function useSubscribe<T>(
 
     // eslint-disable-next-line prefer-const
     subscriptionId = subscribe(webVault, () => {
-      if (lastDepsVersion !== depsVersion.current) {
-        // lastDepsVersion !== depsVersion.current, the deps have changed and
-        // we have unsubscribed the last subscription so getData would return
-        // undefined
-        return;
-      }
+      setTimeout(() => {
+        if (lastDepsVersion !== depsVersion.current) {
+          // lastDepsVersion !== depsVersion.current, the deps have changed and
+          // we have unsubscribed the last subscription so getData would return
+          // undefined
+          return;
+        }
 
-      data.current = getData.call(webVault, subscriptionId!);
+        data.current = getData.call(webVault, subscriptionId!);
 
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      mountedPromise.current.then(() => {
-        setVersion((version) => version + 1);
-      });
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        mountedPromise.current.then(() => {
+          setVersion((version) => version + 1);
+        });
+      }, 0);
     });
 
     currentSubscriptionId.current = subscriptionId;
