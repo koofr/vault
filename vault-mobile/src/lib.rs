@@ -143,7 +143,7 @@ pub trait SecureStorage: Send + Sync + Debug {
 // subscription
 
 pub trait SubscriptionCallback: Send + Sync + Debug {
-    fn on_change(&self);
+    fn on_change(&self, id: u32);
 }
 
 // status

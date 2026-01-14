@@ -20,7 +20,7 @@ use vault_core::{
 
 use crate::{dto, web_errors::WebErrors};
 
-pub type Callback = Box<dyn Fn() + Send + Sync>;
+pub type Callback = Box<dyn Fn(u32) + Send + Sync>;
 
 pub type Data<T> = Arc<Mutex<HashMap<u32, T>>>;
 

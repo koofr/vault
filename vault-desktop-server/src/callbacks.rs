@@ -13,7 +13,7 @@ use vault_web_api::web_vault_base::Callback;
 pub struct CallbackId(pub String);
 
 pub struct Callbacks {
-    senders: Arc<Mutex<HashMap<String, mpsc::UnboundedSender<String>>>>,
+    senders: Arc<Mutex<HashMap<String, mpsc::UnboundedSender<(String, u32)>>>>,
 }
 
 impl Callbacks {
@@ -26,16 +26,16 @@ impl Callbacks {
     pub fn cb(&self, callback_id: CallbackId) -> Callback {
         let callbacks_senders = self.senders.clone();
 
-        Box::new(move || {
+        Box::new(move |subscription_id| {
             let senders = callbacks_senders.lock().unwrap();
 
             for sender in senders.values() {
-                let _ = sender.unbounded_send(callback_id.0.clone());
+                let _ = sender.unbounded_send((callback_id.0.clone(), subscription_id));
             }
         })
     }
 
-    pub fn stream(&self) -> impl Stream<Item = String> + use<> {
+    pub fn stream(&self) -> impl Stream<Item = (String, u32)> + use<> {
         let callbacks_senders = self.senders.clone();
 
         let (callbacks_sender, callbacks_receiver) = mpsc::unbounded();

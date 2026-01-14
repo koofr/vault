@@ -21,9 +21,9 @@ class Subscription<T> constructor(
         id = subscribe(
             mobileVault,
             object : SubscriptionCallback {
-                override fun onChange() {
+                override fun onChange(id: UInt) {
                     coroutineScope.launch {
-                        update()
+                        update(id)
                     }
                 }
             },
@@ -32,14 +32,12 @@ class Subscription<T> constructor(
         data.value = getData(mobileVault, id!!)
     }
 
-    private fun update() {
-        id?.let {
-            val data = getData(mobileVault, it)
+    private fun update(id: UInt) {
+        val data = getData(mobileVault, id)
 
-            this.data.value = data
+        this.data.value = data
 
-            onData?.let { it(data) }
-        }
+        onData?.let { it(data) }
     }
 
     fun setOnData(onData: (T?) -> Unit) {

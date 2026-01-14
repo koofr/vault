@@ -1,3 +1,4 @@
+import Atomics
 import Combine
 import Foundation
 
@@ -17,15 +18,15 @@ public class Subscription<T>: ObservableObject {
 
         self.id = subscribe(
             mobileVault,
-            SubscriptionCallbackFn { [weak self] in
-                self?.update()
+            SubscriptionCallbackFn { [weak self] id in
+                self?.update(id)
             })
 
         self.data = getData(mobileVault, self.id!)
     }
 
-    private func update() {
-        let data = getData(mobileVault, id!)
+    private func update(_ id: UInt32) {
+        let data = getData(mobileVault, id)
 
         self.data = data
 
@@ -50,25 +51,28 @@ public func subscriptionWait<T>(
     getData: @escaping (MobileVault, UInt32) -> T?
 ) async -> T {
     await withCheckedContinuation({ continuation in
-        var id: UInt32?
-        var resumed = false
+        let resumed = ManagedAtomic(false)
 
-        let cb = {
-            let data = getData(mobileVault, id!)
+        let cb = { @Sendable (id: UInt32) in
+            let data = getData(mobileVault, id)
 
             if let data = data {
-                mobileVault.unsubscribe(id: id!)
+                mobileVault.unsubscribe(id: id)
 
-                if !resumed {
-                    resumed = true
+                let didResume = resumed.compareExchange(
+                    expected: false,
+                    desired: true,
+                    ordering: .acquiringAndReleasing
+                ).exchanged
 
+                if didResume {
                     continuation.resume(returning: data)
                 }
             }
         }
 
-        id = subscribe(mobileVault, SubscriptionCallbackFn(cb))
+        let id = subscribe(mobileVault, SubscriptionCallbackFn(cb))
 
-        cb()
+        cb(id)
     })
 }

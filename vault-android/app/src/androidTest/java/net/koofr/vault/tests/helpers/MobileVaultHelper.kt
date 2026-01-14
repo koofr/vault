@@ -31,22 +31,20 @@ class MobileVaultHelper constructor(private val mobileVault: MobileVault) {
         id = subscribe(
             mobileVault,
             object : SubscriptionCallback {
-                override fun onChange() {
-                    id?.let { id ->
-                        val data = getData(mobileVault, id)
+                override fun onChange(id: UInt) {
+                    val data = getData(mobileVault, id)
 
-                        data?.let {
-                            lock.lock()
+                    data?.let {
+                        lock.lock()
 
-                            try {
-                                mobileVault.unsubscribe(id = id)
+                        try {
+                            mobileVault.unsubscribe(id = id)
 
-                                callbackData = it
+                            callbackData = it
 
-                                condition.signal()
-                            } finally {
-                                lock.unlock()
-                            }
+                            condition.signal()
+                        } finally {
+                            lock.unlock()
                         }
                     }
                 }

@@ -9,6 +9,7 @@ export interface SessionMessageStart {
 export interface SessionMessageCallback {
   type: 'Callback';
   callbackId: string;
+  subscriptionId: number;
 }
 
 export type SessionMessage = SessionMessageStart | SessionMessageCallback;
@@ -65,11 +66,11 @@ export class Session {
     if (message.type === 'Start') {
       this.onStart(message.sessionId);
     } else if (message.type === 'Callback') {
-      this.onCallback(message.callbackId);
+      this.onCallback(message.callbackId, message.subscriptionId);
     }
   };
 
-  onStart(sessionId: string) {
+  private onStart(sessionId: string) {
     this.sessionId = sessionId;
     this.requestEncryption.setSessionId(sessionId);
 
@@ -77,7 +78,7 @@ export class Session {
     this.connectResolve = undefined;
   }
 
-  onCallback(callbackId: string) {
-    this.callbacks.onCallback(callbackId);
+  private onCallback(callbackId: string, subscriptionId: number) {
+    this.callbacks.onCallback(callbackId, subscriptionId);
   }
 }

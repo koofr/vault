@@ -1,13 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
 
 export class Callbacks {
-  callbacks: Map<string, () => void>;
+  callbacks: Map<string, (subscriptionId: number) => void>;
 
   constructor() {
     this.callbacks = new Map();
   }
 
-  register(callback: () => void): string {
+  register(callback: (subscriptionId: number) => void): string {
     const callbackId = uuidv4();
 
     this.callbacks.set(callbackId, callback);
@@ -15,11 +15,11 @@ export class Callbacks {
     return callbackId;
   }
 
-  onCallback(callbackId: string) {
+  onCallback(callbackId: string, subscriptionId: number) {
     const callback = this.callbacks.get(callbackId);
 
     if (callback !== undefined) {
-      callback();
+      callback(subscriptionId);
     }
   }
 }
