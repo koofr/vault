@@ -33,7 +33,7 @@ export interface FileStream {
 #[wasm_bindgen]
 extern "C" {
     #[derive(Debug)]
-    #[wasm_bindgen(typescript_type = "() => void")]
+    #[wasm_bindgen(typescript_type = "(id: number) => void")]
     pub type SubscribeCallback;
 
     #[wasm_bindgen(typescript_type = "number[] | undefined")]
@@ -151,15 +151,17 @@ pub fn to_js<In: serde::ser::Serialize + ?Sized, Out: From<JsValue> + Into<JsVal
     serde_wasm_bindgen::to_value(value).unwrap().into()
 }
 
-pub fn to_cb(callback: SubscribeCallback) -> Box<dyn Fn() + Send + Sync + 'static> {
+pub fn to_cb(callback: SubscribeCallback) -> Box<dyn Fn(u32) + Send + Sync + 'static> {
     let callback_function: js_sys::Function = callback.dyn_into().unwrap();
 
-    let callback: Box<dyn Fn() + 'static> = Box::new(move || {
-        callback_function.call0(&JsValue::undefined()).unwrap();
+    let callback: Box<dyn Fn(u32) + 'static> = Box::new(move |id| {
+        callback_function
+            .call1(&JsValue::undefined(), &JsValue::from(id))
+            .unwrap();
     });
 
-    let callback: Box<dyn Fn() + Send + Sync + 'static> = unsafe {
-        std::mem::transmute::<Box<dyn Fn()>, Box<dyn Fn() + Send + Sync + 'static>>(callback)
+    let callback: Box<dyn Fn(u32) + Send + Sync + 'static> = unsafe {
+        std::mem::transmute::<Box<dyn Fn(u32)>, Box<dyn Fn(u32) + Send + Sync + 'static>>(callback)
     };
 
     callback

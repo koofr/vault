@@ -30,7 +30,7 @@ where
     pub fn subscribe<T: Clone + PartialEq + Send + 'static>(
         &self,
         events: &[Event],
-        callback: Box<dyn Fn() + Send + Sync + 'static>,
+        callback: Box<dyn Fn(u32) + Send + Sync + 'static>,
         subscription_data: Arc<Mutex<HashMap<u32, T>>>,
         generate_data: impl Fn() -> T + Send + Sync + 'static,
     ) -> u32 {
@@ -59,7 +59,7 @@ where
     pub fn subscribe_changed<T: Clone + Send + 'static>(
         &self,
         events: &[Event],
-        callback: Box<dyn Fn() + Send + Sync + 'static>,
+        callback: Box<dyn Fn(u32) + Send + Sync + 'static>,
         subscription_data: Arc<Mutex<HashMap<u32, T>>>,
         generate_data: impl Fn(hash_map::Entry<'_, u32, T>) -> bool + Send + Sync + 'static,
     ) -> u32 {
@@ -81,7 +81,7 @@ where
                 if changed {
                     let side_effect_callback = callback.clone();
 
-                    add_side_effect(Box::new(move || side_effect_callback()));
+                    add_side_effect(Box::new(move || side_effect_callback(id)));
                 }
             }),
         );

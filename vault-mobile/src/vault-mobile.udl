@@ -36,7 +36,7 @@ callback interface SecureStorage {
 // subscription
 
 callback interface SubscriptionCallback {
-  void on_change();
+  void on_change(u32 id);
 };
 
 // status

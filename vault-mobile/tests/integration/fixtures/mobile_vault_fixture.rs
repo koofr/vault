@@ -56,25 +56,18 @@ impl MobileVaultFixture {
         let (sender, receiver) = oneshot::channel();
         let sender = Arc::new(Mutex::new(Some(sender)));
 
-        let current_id = Arc::new(Mutex::new(None));
-        let cb_id = current_id.clone();
-        let cb_mobile_vault = self.mobile_vault.clone();
-        let cb_get_data = get_data.clone();
+        let id = subscribe(&self.mobile_vault, {
+            let mobile_vault = self.mobile_vault.clone();
+            let get_data = get_data.clone();
 
-        let id = subscribe(
-            &self.mobile_vault,
-            subscription_callback(move || {
-                if let Some(id) = *cb_id.lock().unwrap() {
-                    if let Some(data) = cb_get_data(&cb_mobile_vault, id) {
-                        if let Some(sender) = sender.lock().unwrap().take() {
-                            let _ = sender.send(data);
-                        }
+            subscription_callback(move |id| {
+                if let Some(data) = get_data(&mobile_vault, id) {
+                    if let Some(sender) = sender.lock().unwrap().take() {
+                        let _ = sender.send(data);
                     }
                 }
-            }),
-        );
-
-        *current_id.lock().unwrap() = Some(id);
+            })
+        });
 
         match get_data(&self.mobile_vault, id) {
             Some(data) => {
@@ -112,15 +105,15 @@ impl MobileVaultFixture {
 }
 
 pub fn subscription_callback(
-    f: impl Fn() + Send + Sync + 'static,
+    f: impl Fn(u32) + Send + Sync + 'static,
 ) -> Box<dyn SubscriptionCallback> {
     struct SubscriptionCallbackFn {
-        f: Box<dyn Fn() + Send + Sync>,
+        f: Box<dyn Fn(u32) + Send + Sync>,
     }
 
     impl SubscriptionCallback for SubscriptionCallbackFn {
-        fn on_change(&self) {
-            (self.f)();
+        fn on_change(&self, id: u32) {
+            (self.f)(id);
         }
     }
 

@@ -29,6 +29,8 @@ pub enum SessionMessage {
     Callback {
         #[serde(rename = "callbackId")]
         callback_id: String,
+        #[serde(rename = "subscriptionId")]
+        subscription_id: u32,
     },
 }
 
@@ -79,9 +81,13 @@ impl Sessions {
         let session_id = session.id.clone();
 
         let callbacks = session.callbacks.clone();
-        let callbacks_stream = callbacks
-            .stream()
-            .map(|callback_id| SessionMessage::Callback { callback_id });
+        let callbacks_stream =
+            callbacks
+                .stream()
+                .map(|(callback_id, subscription_id)| SessionMessage::Callback {
+                    callback_id,
+                    subscription_id,
+                });
 
         let start_session_id = session_id.clone();
 

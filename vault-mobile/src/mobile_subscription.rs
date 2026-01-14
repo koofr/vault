@@ -29,7 +29,7 @@ impl MobileSubscription {
         subscription_data: Arc<Mutex<HashMap<u32, T>>>,
         generate_data: impl Fn(Arc<vault_core::Vault>) -> T + Send + Sync + 'static,
     ) -> u32 {
-        let callback = Box::new(move || callback.on_change());
+        let callback = Box::new(move |id| callback.on_change(id));
         let vault = self.vault.clone();
         let generate_data = Box::new(move || generate_data(vault.clone()));
 
@@ -47,7 +47,7 @@ impl MobileSubscription {
         + Sync
         + 'static,
     ) -> u32 {
-        let callback = Box::new(move || callback.on_change());
+        let callback = Box::new(move |id| callback.on_change(id));
         let vault = self.vault.clone();
         let generate_data: Box<
             dyn Fn(hash_map::Entry<'_, u32, T>) -> bool + Send + Sync + 'static,

@@ -97,7 +97,9 @@ export class WebVaultClient {
       if (arg instanceof Uint8Array) {
         return encode(arg as unknown as ArrayBuffer);
       } else if (typeof arg === 'function') {
-        return this.callbacks.register(arg as unknown as () => void);
+        return this.callbacks.register(
+          arg as unknown as (subscriptionId: number) => void,
+        );
       } else {
         return arg;
       }

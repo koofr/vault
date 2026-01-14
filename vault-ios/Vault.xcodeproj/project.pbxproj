@@ -142,6 +142,7 @@
 		A1B280472E47727000C1696A /* RecentRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B280462E47727000C1696A /* RecentRow.swift */; };
 		A1B7A9E42B19F56000C6F98E /* LifecycleHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B7A9E32B19F56000C6F98E /* LifecycleHandler.swift */; };
 		A1C8654E2ABF721F0032F64B /* WindowUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C8654D2ABF721F0032F64B /* WindowUtils.swift */; };
+		A1C8CA972F17D8BF00E8AA3A /* Atomics in Frameworks */ = {isa = PBXBuildFile; productRef = A1C8CA962F17D8BF00E8AA3A /* Atomics */; };
 		A1CC129E2A8AA0EA00C0E1A0 /* ImageData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1CC129D2A8AA0EA00C0E1A0 /* ImageData.swift */; };
 		A1CC12A02A8BB69900C0E1A0 /* ShareTargetFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1CC129F2A8BB69900C0E1A0 /* ShareTargetFile.swift */; };
 		A1CF9AB82ACFF64F00D006AA /* VaultCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1AD92DD2A828283006172BF /* VaultCommon.framework */; };
@@ -417,6 +418,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1149A232B1F18FA0058BC84 /* libvault_mobile.a in Frameworks */,
+				A1C8CA972F17D8BF00E8AA3A /* Atomics in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1149,6 +1151,7 @@
 			mainGroup = A18A8CDD2917988100B8F8B9;
 			packageReferences = (
 				A1FA15172B05199000F95F2E /* XCRemoteSwiftPackageReference "SwiftUINavController" */,
+				A1C8CA952F17D8BF00E8AA3A /* XCRemoteSwiftPackageReference "swift-atomics" */,
 			);
 			productRefGroup = A18A8CE72917988100B8F8B9 /* Products */;
 			projectDirPath = "";
@@ -2043,6 +2046,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		A1C8CA952F17D8BF00E8AA3A /* XCRemoteSwiftPackageReference "swift-atomics" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-atomics.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.3.0;
+			};
+		};
 		A1FA15172B05199000F95F2E /* XCRemoteSwiftPackageReference "SwiftUINavController" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/bancek/SwiftUINavController";
@@ -2054,6 +2065,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		A1C8CA962F17D8BF00E8AA3A /* Atomics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1C8CA952F17D8BF00E8AA3A /* XCRemoteSwiftPackageReference "swift-atomics" */;
+			productName = Atomics;
+		};
 		A1FA15182B05199000F95F2E /* SwiftUINavController */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = A1FA15172B05199000F95F2E /* XCRemoteSwiftPackageReference "SwiftUINavController" */;

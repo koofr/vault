@@ -12,7 +12,7 @@ type EraseThis<T> = {
 };
 
 export function useSubscribe<T>(
-  subscribe: (webVault: WebVault, callback: () => void) => number,
+  subscribe: (webVault: WebVault, callback: (id: number) => void) => number,
   getDataFunc: (webVault: EraseThis<WebVault>) => (subscriptionId: number) => T,
   deps: DependencyList,
 ): [T, { current: T }] {
@@ -52,7 +52,7 @@ export function useSubscribe<T>(
     const getData = getDataFunc(webVault);
 
     // eslint-disable-next-line prefer-const
-    subscriptionId = subscribe(webVault, () => {
+    subscriptionId = subscribe(webVault, (subscriptionId) => {
       setTimeout(() => {
         if (lastDepsVersion !== depsVersion.current) {
           // lastDepsVersion !== depsVersion.current, the deps have changed and
@@ -61,7 +61,7 @@ export function useSubscribe<T>(
           return;
         }
 
-        data.current = getData.call(webVault, subscriptionId!);
+        data.current = getData.call(webVault, subscriptionId);
 
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         mountedPromise.current.then(() => {

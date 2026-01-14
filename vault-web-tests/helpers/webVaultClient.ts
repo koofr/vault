@@ -102,7 +102,10 @@ export class WebVaultClient {
   }
 
   subscribe<T>(
-    subscribe: (webVault: WebVault, callback: () => void) => number,
+    subscribe: (
+      webVault: WebVault,
+      callback: (subscriptionId: number) => void,
+    ) => number,
     getDataFunc: (
       webVault: EraseThis<WebVault>,
     ) => (subscriptionId: number) => T,
@@ -119,17 +122,13 @@ export class WebVaultClient {
       }
     };
 
-    const subscribeCallback = () => {
-      if (subscriptionId !== undefined) {
-        callback(getData.call(this.webVault, subscriptionId), unsubscribe);
-      }
+    const subscribeCallback = (subscriptionId: number) => {
+      callback(getData.call(this.webVault, subscriptionId), unsubscribe);
     };
 
-    subscriptionId = subscribe(this.webVault, () => {
-      subscribeCallback();
-    });
+    subscriptionId = subscribe(this.webVault, subscribeCallback);
 
-    subscribeCallback();
+    subscribeCallback(subscriptionId);
 
     return unsubscribe;
   }
@@ -141,7 +140,10 @@ export class WebVaultClient {
   }
 
   async waitFor<T>(
-    subscribe: (webVault: WebVault, callback: () => void) => number,
+    subscribe: (
+      webVault: WebVault,
+      callback: (subscriptionId: number) => void,
+    ) => number,
     getDataFunc: (
       webVault: EraseThis<WebVault>,
     ) => (subscriptionId: number) => T,

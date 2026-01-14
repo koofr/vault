@@ -43,20 +43,19 @@ class ShareActivityViewModel @Inject constructor(
     private var transfersAborted = false
 
     init {
-        transfersIsActiveSubscriptionId =
-            mobileVault.transfersIsActiveSubscribe(
-                cb = object : SubscriptionCallback {
-                    override fun onChange() {
-                        viewModelScope.launch {
-                            transfersIsActiveSubscriptionId?.let {
-                                handleTransfersIsActive(it)
-                            }
-                        }
+        val id = mobileVault.transfersIsActiveSubscribe(
+            cb = object : SubscriptionCallback {
+                override fun onChange(id: UInt) {
+                    viewModelScope.launch {
+                        handleTransfersIsActive(id)
                     }
-                },
-            )
+                }
+            },
+        )
 
-        handleTransfersIsActive(transfersIsActiveSubscriptionId!!)
+        transfersIsActiveSubscriptionId = id
+
+        handleTransfersIsActive(id)
     }
 
     override fun onCleared() {

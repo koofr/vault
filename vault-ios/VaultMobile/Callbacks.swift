@@ -1,15 +1,15 @@
 import Foundation
 
 public final class SubscriptionCallbackFn: SubscriptionCallback {
-    private let fn: @Sendable () -> Void
+    private let fn: @Sendable (UInt32) -> Void
 
-    public init(_ fn: @Sendable @escaping () -> Void) {
+    public init(_ fn: @Sendable @escaping (UInt32) -> Void) {
         self.fn = fn
     }
 
-    public func onChange() {
+    public func onChange(id: UInt32) {
         DispatchQueue.main.async {
-            self.fn()
+            self.fn(id)
         }
     }
 }
