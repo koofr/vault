@@ -32,6 +32,10 @@ export interface FileStream {
 
 #[wasm_bindgen]
 extern "C" {
+    #[derive(Debug)]
+    #[wasm_bindgen(typescript_type = "() => void")]
+    pub type SubscribeCallback;
+
     #[wasm_bindgen(typescript_type = "number[] | undefined")]
     pub type IdVecOption;
 
@@ -147,9 +151,11 @@ pub fn to_js<In: serde::ser::Serialize + ?Sized, Out: From<JsValue> + Into<JsVal
     serde_wasm_bindgen::to_value(value).unwrap().into()
 }
 
-pub fn to_cb(callback: js_sys::Function) -> Box<dyn Fn() + Send + Sync + 'static> {
+pub fn to_cb(callback: SubscribeCallback) -> Box<dyn Fn() + Send + Sync + 'static> {
+    let callback_function: js_sys::Function = callback.dyn_into().unwrap();
+
     let callback: Box<dyn Fn() + 'static> = Box::new(move || {
-        callback.call0(&JsValue::undefined()).unwrap();
+        callback_function.call0(&JsValue::undefined()).unwrap();
     });
 
     let callback: Box<dyn Fn() + Send + Sync + 'static> = unsafe {
@@ -255,7 +261,7 @@ impl WebVault {
     // notifications
 
     #[wasm_bindgen(js_name = notificationsSubscribe)]
-    pub fn notifications_subscribe(&self, cb: js_sys::Function) -> u32 {
+    pub fn notifications_subscribe(&self, cb: SubscribeCallback) -> u32 {
         self.base.notifications_subscribe(to_cb(cb))
     }
 
@@ -283,7 +289,7 @@ impl WebVault {
     // dialogs
 
     #[wasm_bindgen(js_name = dialogsSubscribe)]
-    pub fn dialogs_subscribe(&self, cb: js_sys::Function) -> u32 {
+    pub fn dialogs_subscribe(&self, cb: SubscribeCallback) -> u32 {
         self.base.dialogs_subscribe(to_cb(cb))
     }
 
@@ -293,7 +299,7 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = dialogsDialogSubscribe)]
-    pub fn dialogs_dialog_subscribe(&self, dialog_id: u32, cb: js_sys::Function) -> u32 {
+    pub fn dialogs_dialog_subscribe(&self, dialog_id: u32, cb: SubscribeCallback) -> u32 {
         self.base.dialogs_dialog_subscribe(dialog_id, to_cb(cb))
     }
 
@@ -320,7 +326,7 @@ impl WebVault {
     // oauth2
 
     #[wasm_bindgen(js_name = oauth2StatusSubscribe)]
-    pub fn oauth2_status_subscribe(&self, cb: js_sys::Function) -> u32 {
+    pub fn oauth2_status_subscribe(&self, cb: SubscribeCallback) -> u32 {
         self.base.oauth2_status_subscribe(to_cb(cb))
     }
 
@@ -354,7 +360,7 @@ impl WebVault {
     // user
 
     #[wasm_bindgen(js_name = userSubscribe)]
-    pub fn user_subscribe(&self, cb: js_sys::Function) -> u32 {
+    pub fn user_subscribe(&self, cb: SubscribeCallback) -> u32 {
         self.base.user_subscribe(to_cb(cb))
     }
 
@@ -364,7 +370,7 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = userProfilePictureLoadedSubscribe)]
-    pub fn user_profile_picture_loaded_subscribe(&self, cb: js_sys::Function) -> u32 {
+    pub fn user_profile_picture_loaded_subscribe(&self, cb: SubscribeCallback) -> u32 {
         self.base.user_profile_picture_loaded_subscribe(to_cb(cb))
     }
 
@@ -397,7 +403,7 @@ impl WebVault {
     // repos
 
     #[wasm_bindgen(js_name = reposSubscribe)]
-    pub fn repos_subscribe(&self, cb: js_sys::Function) -> u32 {
+    pub fn repos_subscribe(&self, cb: SubscribeCallback) -> u32 {
         self.base.repos_subscribe(to_cb(cb))
     }
 
@@ -407,7 +413,7 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = reposRepoSubscribe)]
-    pub fn repos_repo_subscribe(&self, repo_id: String, cb: js_sys::Function) -> u32 {
+    pub fn repos_repo_subscribe(&self, repo_id: String, cb: SubscribeCallback) -> u32 {
         self.base.repos_repo_subscribe(repo_id, to_cb(cb))
     }
 
@@ -453,7 +459,7 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = repoCreateInfoSubscribe)]
-    pub fn repo_create_info_subscribe(&self, create_id: u32, cb: js_sys::Function) -> u32 {
+    pub fn repo_create_info_subscribe(&self, create_id: u32, cb: SubscribeCallback) -> u32 {
         self.base.repo_create_info_subscribe(create_id, to_cb(cb))
     }
 
@@ -531,7 +537,7 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = repoUnlockInfoSubscribe)]
-    pub fn repo_unlock_info_subscribe(&self, unlock_id: u32, cb: js_sys::Function) -> u32 {
+    pub fn repo_unlock_info_subscribe(&self, unlock_id: u32, cb: SubscribeCallback) -> u32 {
         self.base.repo_unlock_info_subscribe(unlock_id, to_cb(cb))
     }
 
@@ -558,7 +564,7 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = repoRemoveInfoSubscribe)]
-    pub fn repo_remove_info_subscribe(&self, remove_id: u32, cb: js_sys::Function) -> u32 {
+    pub fn repo_remove_info_subscribe(&self, remove_id: u32, cb: SubscribeCallback) -> u32 {
         self.base.repo_remove_info_subscribe(remove_id, to_cb(cb))
     }
 
@@ -585,7 +591,7 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = repoSpaceUsageInfoSubscribe)]
-    pub fn repo_space_usage_info_subscribe(&self, usage_id: u32, cb: js_sys::Function) -> u32 {
+    pub fn repo_space_usage_info_subscribe(&self, usage_id: u32, cb: SubscribeCallback) -> u32 {
         self.base
             .repo_space_usage_info_subscribe(usage_id, to_cb(cb))
     }
@@ -608,7 +614,7 @@ impl WebVault {
     // repo_files
 
     #[wasm_bindgen(js_name = repoFilesFileSubscribe)]
-    pub fn repo_files_file_subscribe(&self, file_id: String, cb: js_sys::Function) -> u32 {
+    pub fn repo_files_file_subscribe(&self, file_id: String, cb: SubscribeCallback) -> u32 {
         self.base.repo_files_file_subscribe(file_id, to_cb(cb))
     }
 
@@ -635,7 +641,7 @@ impl WebVault {
     // transfers
 
     #[wasm_bindgen(js_name = transfersIsActiveSubscribe)]
-    pub fn transfers_is_active_subscribe(&self, cb: js_sys::Function) -> u32 {
+    pub fn transfers_is_active_subscribe(&self, cb: SubscribeCallback) -> u32 {
         self.base.transfers_is_active_subscribe(to_cb(cb))
     }
 
@@ -645,7 +651,7 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = transfersSummarySubscribe)]
-    pub fn transfers_summary_subscribe(&self, cb: js_sys::Function) -> u32 {
+    pub fn transfers_summary_subscribe(&self, cb: SubscribeCallback) -> u32 {
         self.base.transfers_summary_subscribe(to_cb(cb))
     }
 
@@ -655,7 +661,7 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = transfersListSubscribe)]
-    pub fn transfers_list_subscribe(&self, cb: js_sys::Function) -> u32 {
+    pub fn transfers_list_subscribe(&self, cb: SubscribeCallback) -> u32 {
         self.base.transfers_list_subscribe(to_cb(cb))
     }
 
@@ -692,7 +698,7 @@ impl WebVault {
     // dir_pickers
 
     #[wasm_bindgen(js_name = dirPickersItemsSubscribe)]
-    pub fn dir_pickers_items_subscribe(&self, picker_id: u32, cb: js_sys::Function) -> u32 {
+    pub fn dir_pickers_items_subscribe(&self, picker_id: u32, cb: SubscribeCallback) -> u32 {
         self.base.dir_pickers_items_subscribe(picker_id, to_cb(cb))
     }
 
@@ -726,7 +732,11 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = repoFilesBrowsersInfoSubscribe)]
-    pub fn repo_files_browsers_info_subscribe(&self, browser_id: u32, cb: js_sys::Function) -> u32 {
+    pub fn repo_files_browsers_info_subscribe(
+        &self,
+        browser_id: u32,
+        cb: SubscribeCallback,
+    ) -> u32 {
         self.base
             .repo_files_browsers_info_subscribe(browser_id, to_cb(cb))
     }
@@ -825,7 +835,7 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = repoFilesDetailsInfoSubscribe)]
-    pub fn repo_files_details_info_subscribe(&self, details_id: u32, cb: js_sys::Function) -> u32 {
+    pub fn repo_files_details_info_subscribe(&self, details_id: u32, cb: SubscribeCallback) -> u32 {
         self.base
             .repo_files_details_info_subscribe(details_id, to_cb(cb))
     }
@@ -836,7 +846,7 @@ impl WebVault {
     }
 
     #[wasm_bindgen(js_name = repoFilesDetailsFileSubscribe)]
-    pub fn repo_files_details_file_subscribe(&self, details_id: u32, cb: js_sys::Function) -> u32 {
+    pub fn repo_files_details_file_subscribe(&self, details_id: u32, cb: SubscribeCallback) -> u32 {
         self.base
             .repo_files_details_file_subscribe(details_id, to_cb(cb))
     }
@@ -850,7 +860,7 @@ impl WebVault {
     pub fn repo_files_details_content_bytes_subscribe(
         &self,
         details_id: u32,
-        cb: js_sys::Function,
+        cb: SubscribeCallback,
     ) -> u32 {
         self.base
             .repo_files_details_content_bytes_subscribe(details_id, to_cb(cb))
@@ -903,7 +913,7 @@ impl WebVault {
     // repo_files_move
 
     #[wasm_bindgen(js_name = repoFilesMoveInfoSubscribe)]
-    pub fn repo_files_move_info_subscribe(&self, cb: js_sys::Function) -> u32 {
+    pub fn repo_files_move_info_subscribe(&self, cb: SubscribeCallback) -> u32 {
         self.base.repo_files_move_info_subscribe(to_cb(cb))
     }
 
@@ -936,7 +946,7 @@ impl WebVault {
     // space_usage
 
     #[wasm_bindgen(js_name = spaceUsageSubscribe)]
-    pub fn space_usage_subscribe(&self, cb: js_sys::Function) -> u32 {
+    pub fn space_usage_subscribe(&self, cb: SubscribeCallback) -> u32 {
         self.base.space_usage_subscribe(to_cb(cb))
     }
 
