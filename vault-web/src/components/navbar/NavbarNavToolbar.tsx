@@ -26,7 +26,7 @@ export function NavbarNavToolbarItem<
         css`
           margin: 0;
 
-          &:last-of-type {
+          &:last-child {
             padding: 0;
           }
         `,
