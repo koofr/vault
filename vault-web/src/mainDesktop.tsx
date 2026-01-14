@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api/core';
+import { invoke, isTauri } from '@tauri-apps/api/core';
 import ReactDOM from 'react-dom/client';
 
 import { getApp } from './App';
@@ -12,19 +12,16 @@ import { createProxy } from './desktopVault/webVaultProxy';
 import { LandingPageDesktop } from './pages/LandingPageDesktop';
 
 export const mainDesktop = async () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-  const isTauri = (window as any).__TAURI_INTERNALS__ !== undefined;
-
   const configPromise = fetch('/config.json').then(
     (res) => res.json() as Promise<Config>,
   );
 
   const config = await configPromise;
 
-  const desktopServerUrl = isTauri
+  const desktopServerUrl = isTauri()
     ? await invoke<string>('get_desktop_server_url')
     : `http://127.0.0.1:1421`;
-  const appSecret = isTauri
+  const appSecret = isTauri()
     ? await invoke<string>('get_app_secret')
     : 'XrwBl00MUbeAZ4QBW2F+YDFBv80f2kes49VDx7wUs7Y=';
 
