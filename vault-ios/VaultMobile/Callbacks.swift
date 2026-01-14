@@ -1,9 +1,9 @@
 import Foundation
 
-public class SubscriptionCallbackFn: SubscriptionCallback {
-    private var fn: () -> Void
+public final class SubscriptionCallbackFn: SubscriptionCallback {
+    private let fn: @Sendable () -> Void
 
-    public init(_ fn: @escaping () -> Void) {
+    public init(_ fn: @Sendable @escaping () -> Void) {
         self.fn = fn
     }
 
@@ -14,10 +14,10 @@ public class SubscriptionCallbackFn: SubscriptionCallback {
     }
 }
 
-public class TransfersDownloadOpenFn: TransfersDownloadOpen {
-    private var fn: (String) -> Void
+public final class TransfersDownloadOpenFn: TransfersDownloadOpen {
+    private let fn: @Sendable (String) -> Void
 
-    public init(_ fn: @escaping (String) -> Void) {
+    public init(_ fn: @Sendable @escaping (String) -> Void) {
         self.fn = fn
     }
 
@@ -28,10 +28,10 @@ public class TransfersDownloadOpenFn: TransfersDownloadOpen {
     }
 }
 
-public class TransfersDownloadDoneFn: TransfersDownloadDone {
-    private var fn: (String) -> Void
+public final class TransfersDownloadDoneFn: TransfersDownloadDone {
+    private let fn: @Sendable (String) -> Void
 
-    public init(_ fn: @escaping (String) -> Void) {
+    public init(_ fn: @Sendable @escaping (String) -> Void) {
         self.fn = fn
     }
 
@@ -42,10 +42,10 @@ public class TransfersDownloadDoneFn: TransfersDownloadDone {
     }
 }
 
-public class RepoFilesBrowserDirCreatedFn: RepoFilesBrowserDirCreated {
-    private var fn: (String) -> Void
+public final class RepoFilesBrowserDirCreatedFn: RepoFilesBrowserDirCreated {
+    private let fn: @Sendable (String) -> Void
 
-    public init(_ fn: @escaping (String) -> Void) {
+    public init(_ fn: @Sendable @escaping (String) -> Void) {
         self.fn = fn
     }
 
@@ -56,10 +56,10 @@ public class RepoFilesBrowserDirCreatedFn: RepoFilesBrowserDirCreated {
     }
 }
 
-public class RepoFilesBrowserFileCreatedFn: RepoFilesBrowserFileCreated {
-    private var fn: (String) -> Void
+public final class RepoFilesBrowserFileCreatedFn: RepoFilesBrowserFileCreated {
+    private let fn: @Sendable (String) -> Void
 
-    public init(_ fn: @escaping (String) -> Void) {
+    public init(_ fn: @Sendable @escaping (String) -> Void) {
         self.fn = fn
     }
 
@@ -70,10 +70,10 @@ public class RepoFilesBrowserFileCreatedFn: RepoFilesBrowserFileCreated {
     }
 }
 
-public class RemoteFilesBrowserDirCreatedFn: RemoteFilesBrowserDirCreated {
-    private var fn: (String) -> Void
+public final class RemoteFilesBrowserDirCreatedFn: RemoteFilesBrowserDirCreated {
+    private let fn: @Sendable (String) -> Void
 
-    public init(_ fn: @escaping (String) -> Void) {
+    public init(_ fn: @Sendable @escaping (String) -> Void) {
         self.fn = fn
     }
 
@@ -84,10 +84,10 @@ public class RemoteFilesBrowserDirCreatedFn: RemoteFilesBrowserDirCreated {
     }
 }
 
-public class RepoRemovedFn: RepoRemoved {
-    private var fn: () -> Void
+public final class RepoRemovedFn: RepoRemoved {
+    private let fn: @Sendable () -> Void
 
-    public init(_ fn: @escaping () -> Void) {
+    public init(_ fn: @Sendable @escaping () -> Void) {
         self.fn = fn
     }
 
@@ -98,10 +98,10 @@ public class RepoRemovedFn: RepoRemoved {
     }
 }
 
-public class RepoUnlockUnlockedFn: RepoUnlockUnlocked {
-    private var fn: () -> Void
+public final class RepoUnlockUnlockedFn: RepoUnlockUnlocked {
+    private let fn: @Sendable () -> Void
 
-    public init(_ fn: @escaping () -> Void) {
+    public init(_ fn: @Sendable @escaping () -> Void) {
         self.fn = fn
     }
 
@@ -112,10 +112,10 @@ public class RepoUnlockUnlockedFn: RepoUnlockUnlocked {
     }
 }
 
-public class OAuth2FinishFlowDoneFn: OAuth2FinishFlowDone {
-    private var fn: () -> Void
+public final class OAuth2FinishFlowDoneFn: OAuth2FinishFlowDone {
+    private let fn: @Sendable () -> Void
 
-    public init(_ fn: @escaping () -> Void) {
+    public init(_ fn: @Sendable @escaping () -> Void) {
         self.fn = fn
     }
 
