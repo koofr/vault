@@ -139,7 +139,6 @@ Deploy the latest GitHub Release to https://vault.koofr.net
 
 Koofr Vault is built using GitHub Actions and published as a GitHub Release. You can download a release `.tar.gz` file and run it locally, or use the extracted files from the release to verify what https://vault.koofr.net is serving. The current deployed Git revision can be found at https://vault.koofr.net/gitrevision.txt
 
-
 Example:
 
 ```sh
