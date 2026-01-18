@@ -30,9 +30,16 @@ export function streamToBlob(stream, contentTypeOpt) {
   return r.blob();
 }
 
+// Checks that ReadableStream supports BYOB reader (works in Chrome and Firefox,
+// does not work in Safari)
 export function supportsReadableByteStream() {
   try {
-    new ReadableStream({ type: "bytes" });
+    // Create a minimal byte stream
+    const stream = new ReadableStream({ type: "bytes" });
+
+    // Try to get a BYOB reader. This throws a TypeError in browsers that don't
+    // support BYOB.
+    stream.getReader({ mode: "byob" }).releaseLock();
 
     return true;
   } catch {
@@ -42,7 +49,7 @@ export function supportsReadableByteStream() {
 
 export function errorString(err) {
   try {
-    let s = (err.message != null) ? err.message : `${err}`;
+    let s = err.message != null ? err.message : `${err}`;
 
     if (err.cause != null) {
       s = `${s}: ${errorString(err.cause)}`;
