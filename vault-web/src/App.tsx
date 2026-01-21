@@ -13,6 +13,8 @@ import { ModalsProvider } from './components/modal/Modals';
 import { NavbarStickyProvider } from './components/navbar/NavbarSticky';
 import { Config, ConfigContext } from './config';
 import { Dialogs } from './features/dialogs/Dialogs';
+import { DateFnsLocaleProvider } from './features/intl/DateFnsLocaleContext';
+import { WebVaultIntlProvider } from './features/intl/WebVaultIntlProvider';
 import { Notifications } from './features/notifications/Notifications';
 import { TransfersPreventUnload } from './features/transfers/TransfersPreventUnload';
 import { LandingPageContext } from './landingPageContext';
@@ -47,38 +49,42 @@ export function getApp(
   return (
     <ConfigContext.Provider value={config}>
       <WebVaultContext.Provider value={webVault}>
-        <LandingPageContext.Provider value={landingPage}>
-          <CacheProvider value={emotionCache}>
-            <DocumentSizeProvider>
-              <DocumentScrollProvider>
-                <NavbarStickyProvider>
-                  <DynamicThemeProvider>
-                    <DndProvider backend={FolderAwareHTML5Backend}>
-                      <FileIconCacheProvider>
-                        <>
-                          <GlobalStyles />
+        <WebVaultIntlProvider>
+          <DateFnsLocaleProvider>
+            <LandingPageContext.Provider value={landingPage}>
+              <CacheProvider value={emotionCache}>
+                <DocumentSizeProvider>
+                  <DocumentScrollProvider>
+                    <NavbarStickyProvider>
+                      <DynamicThemeProvider>
+                        <DndProvider backend={FolderAwareHTML5Backend}>
+                          <FileIconCacheProvider>
+                            <>
+                              <GlobalStyles />
 
-                          <RemoveAppLoading />
+                              <RemoveAppLoading />
 
-                          <ModalsProvider>
-                            <Suspense fallback={<LoadingCircle />}>
-                              <RouterProvider router={router} />
-                            </Suspense>
+                              <ModalsProvider>
+                                <Suspense fallback={<LoadingCircle />}>
+                                  <RouterProvider router={router} />
+                                </Suspense>
 
-                            <Dialogs />
-                          </ModalsProvider>
+                                <Dialogs />
+                              </ModalsProvider>
 
-                          <Notifications />
-                          <TransfersPreventUnload />
-                        </>
-                      </FileIconCacheProvider>
-                    </DndProvider>
-                  </DynamicThemeProvider>
-                </NavbarStickyProvider>
-              </DocumentScrollProvider>
-            </DocumentSizeProvider>
-          </CacheProvider>
-        </LandingPageContext.Provider>
+                              <Notifications />
+                              <TransfersPreventUnload />
+                            </>
+                          </FileIconCacheProvider>
+                        </DndProvider>
+                      </DynamicThemeProvider>
+                    </NavbarStickyProvider>
+                  </DocumentScrollProvider>
+                </DocumentSizeProvider>
+              </CacheProvider>
+            </LandingPageContext.Provider>
+          </DateFnsLocaleProvider>
+        </WebVaultIntlProvider>
       </WebVaultContext.Provider>
     </ConfigContext.Provider>
   );

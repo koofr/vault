@@ -3,6 +3,7 @@ import { memo } from 'react';
 
 import { Repos } from '../../features/repos/Repos';
 
+import { LanguagePickerDropdown } from '../languagepicker/LanguagePickerDropdown';
 import { useIsMobile } from '../useIsMobile';
 
 import { DashboardSidenavLinks } from './DashboardSidenavLinks';
@@ -33,6 +34,8 @@ export const DashboardSidenav = memo<{ className?: string }>(
         <Repos />
 
         <DashboardSidenavLinks />
+
+        <LanguagePickerDropdown />
       </div>
     );
   },

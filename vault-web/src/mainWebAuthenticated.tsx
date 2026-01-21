@@ -24,6 +24,7 @@ export const mainAuthenticated = async () => {
   const oauth2ClientId = config.oauth2ClientId;
   const oauth2ClientSecret = config.oauth2ClientSecret;
   const oauth2RedirectUri = window.location.origin + '/oauth2callback';
+  const intlPreferredLocales = [...navigator.languages];
 
   const webVault = new WebVault(
     baseUrl,
@@ -31,6 +32,7 @@ export const mainAuthenticated = async () => {
     oauth2ClientId,
     oauth2ClientSecret,
     oauth2RedirectUri,
+    intlPreferredLocales,
     new BrowserHttpClientDelegateImpl(),
     new BrowserEventstreamWebSocketDelegateImpl(),
     localStorage,

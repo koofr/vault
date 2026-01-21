@@ -36,6 +36,7 @@ import { BaseAnchorButton } from '../components/Button';
 import { GitRelease } from '../components/GitRelease';
 import { GitRevision } from '../components/GitRevision';
 import { RetinaImage } from '../components/RetinaImage';
+import { LanguagePickerDropdown } from '../components/languagepicker/LanguagePickerDropdown';
 import { useConfig } from '../config';
 import { buttonStyle } from '../styles/mixins/buttons';
 import { allStates } from '../styles/mixins/hover';
@@ -155,8 +156,29 @@ export const LandingPageOfficial = memo(() => {
           className={css`
             display: flex;
             align-items: center;
+            min-width: 0;
           `}
         >
+          <div
+            className={css`
+              margin-right: 25px;
+              overflow: hidden;
+
+              ${bp.sm} {
+                margin-right: 10px;
+                margin-left: 10px;
+              }
+            `}
+          >
+            <LanguagePickerDropdown
+              size="large"
+              placement="bottom"
+              dropdownToggleClassName={css`
+                width: 100%;
+              `}
+            />
+          </div>
+
           <BaseAnchorButton
             href="/login"
             className={cx(

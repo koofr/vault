@@ -5,6 +5,7 @@ import { RemoveAppLoading } from './RemoveAppLoading';
 import { DocumentScrollProvider } from './components/DocumentScroll';
 import { DocumentSizeProvider } from './components/DocumentSize';
 import { ConfigContext, loadConfig } from './config';
+import { LocalStorageIntlProvider } from './features/intl/LocalStorageIntlProvider';
 import { LandingPage } from './pages/LandingPage';
 import { GlobalStyles } from './styles/GlobalStyles';
 import { emotionCache } from './styles/emotionCache';
@@ -15,19 +16,21 @@ export const mainUnauthenticated = async (child = <LandingPage />) => {
 
   ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <ConfigContext.Provider value={config}>
-      <CacheProvider value={emotionCache}>
-        <DocumentSizeProvider>
-          <DocumentScrollProvider>
-            <DynamicThemeProvider>
-              <GlobalStyles />
+      <LocalStorageIntlProvider>
+        <CacheProvider value={emotionCache}>
+          <DocumentSizeProvider>
+            <DocumentScrollProvider>
+              <DynamicThemeProvider>
+                <GlobalStyles />
 
-              <RemoveAppLoading />
+                <RemoveAppLoading />
 
-              {child}
-            </DynamicThemeProvider>
-          </DocumentScrollProvider>
-        </DocumentSizeProvider>
-      </CacheProvider>
+                {child}
+              </DynamicThemeProvider>
+            </DocumentScrollProvider>
+          </DocumentSizeProvider>
+        </CacheProvider>
+      </LocalStorageIntlProvider>
     </ConfigContext.Provider>,
   );
 };

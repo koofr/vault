@@ -27,7 +27,7 @@ export const DashboardSidenavLinks = memo(() => {
       >
         <div
           className={css`
-            margin: 0 0 15px;
+            margin: 0 0 5px;
             font-size: 12px;
             color: ${theme.colors.text};
             text-align: center;
