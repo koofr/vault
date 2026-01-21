@@ -6,6 +6,7 @@ import LogoImage from '../assets/images/landing/logo.svg?react';
 import { BaseAnchorButton } from '../components/Button';
 import { GitRelease } from '../components/GitRelease';
 import { GitRevision } from '../components/GitRevision';
+import { LanguagePickerDropdown } from '../components/languagepicker/LanguagePickerDropdown';
 import { buttonStyle } from '../styles/mixins/buttons';
 import { allStates } from '../styles/mixins/hover';
 import { useDocumentTitle } from '../utils/useDocumentTitle';
@@ -209,6 +210,8 @@ export const LandingPageUnofficial = memo(() => {
           <GitRelease />
           <GitRevision />
         </div>
+
+        <LanguagePickerDropdown />
       </div>
     </div>
   );

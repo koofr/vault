@@ -12,13 +12,15 @@
     "eslint": "eslint src",
     "tsc": "tsc",
     "tsc-watch": "tsc --watch",
-    "prettier": "prettier -w src"
+    "prettier": "prettier -w src",
+    "formatjs": "formatjs"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
     "@emotion/css": "^11.13.5",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@formatjs/intl-localematcher": "^0.8.1",
     "@restart/ui": "^1.9.4",
     "@tauri-apps/api": "^2.9.1",
     "@tauri-apps/plugin-dialog": "^2.4.2",
@@ -41,6 +43,7 @@
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19.2.3",
+    "react-intl": "^8.1.1",
     "react-monaco-editor": "^0.59.0",
     "react-router-dom": "^7.11.0",
     "streamsaver": "^2.0.6",
@@ -50,6 +53,7 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@formatjs/cli": "^6.12.2",
     "@vitejs/plugin-react": "^5.1.2",
     "cheerio": "^1.1.2",
     "cross-env": "^10.1.0",

@@ -10,4 +10,8 @@ export default defineConfig({
       input: ['index.html'],
     },
   },
+  json: {
+    // Minifies json
+    stringify: true,
+  },
 });

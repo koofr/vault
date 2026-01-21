@@ -48,6 +48,8 @@ export class WebVaultClient {
 
     storage.setItem('vaultOAuth2Token', oauth2Token);
 
+    const intlPreferredLocales: string[] = [];
+
     const browserHttpClientDelegate: BrowserHttpClientDelegate = {
       async fetch(request) {
         if (ignoreHTTPSErrors) {
@@ -86,6 +88,7 @@ export class WebVaultClient {
       oauth2ClientId,
       oauth2ClientSecret,
       oauth2RedirectUri,
+      intlPreferredLocales,
       browserHttpClientDelegate,
       browserEventstreamWebSocketDelegate,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument

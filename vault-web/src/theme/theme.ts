@@ -29,5 +29,6 @@ export const zindex = {
   dropZoneLines: 610,
   repoFilesAddMenu: 1000,
   dashboardMenu: 1006,
+  languagePickerMenu: 1007,
   notifications: 9000,
 };
