@@ -1,0 +1,21 @@
+[package]
+name = "vault-intl"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+clap = { version = "4.5.53", features = ["derive"] }
+glob = "0.3.3"
+icu_locale = { version = "2.1.1", default-features = false, features = [
+    "serde",
+] }
+icu_locale_core = { version = "2.1.1", features = ["serde"] }
+icu_plurals = { version = "2.1.1", default-features = false }
+icu_provider = { version = "2.1.1", features = ["baked", "sync"] }
+icu_provider_adapters = "2.1.1"
+indexmap = { version = "2.13.0", features = ["serde"] }
+lazy_static = "1.5.0"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.147"
+thiserror = "2.0.17"
+zerovec = "0.11.5"
