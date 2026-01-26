@@ -30,7 +30,7 @@ build-wasm-web:
 	cd vault-wasm && wasm-pack build --target web --out-dir ../vault-web/src/vault-wasm --out-name vault-wasm
 
 build-wasm-web-dev-watch:
-	cd vault-wasm && cargo watch -w . -i .gitignore -w ../vault-core -i ../vault-core/.gitignore -s "wasm-pack build --target web --out-dir ../vault-web/src/vault-wasm --out-name vault-wasm --dev"
+	cd vault-wasm && cargo watch -w . -i .gitignore -w ../vault-core -w ../vault-web-api -i ../vault-core/.gitignore -s "wasm-pack build --target web --out-dir ../vault-web/src/vault-wasm --out-name vault-wasm --dev"
 
 build-wasm-web-tests:
 	cd vault-wasm && wasm-pack build --target nodejs --out-dir ../vault-web-tests/vault-wasm-nodejs --out-name vault-wasm && ./fix-helpers-nodejs.sh ../vault-web-tests/vault-wasm-nodejs
