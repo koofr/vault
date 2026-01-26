@@ -2,16 +2,14 @@ import ReactDOM from 'react-dom/client';
 import streamSaver from 'streamsaver';
 
 import { getApp } from './App';
-import { Config } from './config';
 import { LandingPageLazy } from './pages/LandingPageLazy';
 import init, { WebVault, initConsole } from './vault-wasm/vault-wasm';
 import { BrowserEventstreamWebSocketDelegateImpl } from './webVault/BrowserEventstreamWebSocketDelegateImpl';
 import { BrowserHttpClientDelegateImpl } from './webVault/BrowserHttpClientDelegateImpl';
+import { loadConfig } from './config';
 
 export const mainAuthenticated = async () => {
-  const configPromise = fetch('/config.json').then(
-    (res) => res.json() as Promise<Config>,
-  );
+  const configPromise = loadConfig();
 
   await init();
   initConsole();

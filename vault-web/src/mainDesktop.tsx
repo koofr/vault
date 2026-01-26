@@ -2,7 +2,7 @@ import { invoke, isTauri } from '@tauri-apps/api/core';
 import ReactDOM from 'react-dom/client';
 
 import { getApp } from './App';
-import { Config } from './config';
+import { loadConfig } from './config';
 import { Callbacks } from './desktopVault/Callbacks';
 import { Encryption } from './desktopVault/Encryption';
 import { RequestEncryption } from './desktopVault/RequestEncryption';
@@ -12,11 +12,7 @@ import { createProxy } from './desktopVault/webVaultProxy';
 import { LandingPageDesktop } from './pages/LandingPageDesktop';
 
 export const mainDesktop = async () => {
-  const configPromise = fetch('/config.json').then(
-    (res) => res.json() as Promise<Config>,
-  );
-
-  const config = await configPromise;
+  const config = await loadConfig();
 
   const desktopServerUrl = isTauri()
     ? await invoke<string>('get_desktop_server_url')
