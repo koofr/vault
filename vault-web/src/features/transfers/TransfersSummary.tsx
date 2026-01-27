@@ -1,6 +1,7 @@
 import { css, cx } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { memo, MouseEvent, useCallback, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import TransfersFailedIcon from '../../assets/images/transfers-failed.svg?react';
 import TransfersIcon from '../../assets/images/transfers.svg?react';
@@ -15,6 +16,7 @@ export const TransfersSummary = memo<{
   areDetailsVisible: boolean;
   toggleDetailsVisible: () => void;
 }>(({ areDetailsVisible, toggleDetailsVisible }) => {
+  const intl = useIntl();
   const theme = useTheme();
   const webVault = useWebVault();
   const [transfersSummary] = useSubscribe(
@@ -161,16 +163,24 @@ export const TransfersSummary = memo<{
                 {sizeProgressDisplay}
               </span>
             ) : (
-              <span>
-                <span
-                  className={css`
-                    font-weight: 600;
-                  `}
-                >
-                  {doneCount} / {totalCount}
-                </span>{' '}
-                done
-              </span>
+              <FormattedMessage
+                id="web.transfers.summary.progress.text"
+                description="Status line in the transfers summary bar showing completed versus total transfer count."
+                defaultMessage="<b>{done_count} / {total_count}</b> done"
+                values={{
+                  done_count: doneCount,
+                  total_count: totalCount,
+                  b: (chunks) => (
+                    <span
+                      className={css`
+                        font-weight: 600;
+                      `}
+                    >
+                      {chunks}
+                    </span>
+                  ),
+                }}
+              />
             )}
           </div>
         </div>
@@ -226,21 +236,42 @@ export const TransfersSummary = memo<{
                 </span>
               ) : (
                 <span>
-                  <span
-                    className={css`
-                      font-weight: 600;
-                    `}
-                  >
-                    {remainingTimeDisplay}
-                  </span>{' '}
-                  remaining
+                  <FormattedMessage
+                    id="web.transfers.summary.remaining_time.text"
+                    description="Status line in the transfers summary bar showing estimated remaining time (e.g. '1 minute remaining')."
+                    defaultMessage="<b>{time}</b> remaining"
+                    values={{
+                      time: remainingTimeDisplay,
+                      b: (chunks) => (
+                        <span
+                          className={css`
+                            font-weight: 600;
+                          `}
+                        >
+                          {chunks}
+                        </span>
+                      ),
+                    }}
+                  />
                 </span>
               )}
             </div>
           ) : null}
           {!isTransferring ? (
             <Button type="button" variant="primary-inline">
-              {areDetailsVisible ? 'Hide details' : 'Show details'}
+              {areDetailsVisible ? (
+                <FormattedMessage
+                  id="web.transfers.summary.hide_details.button"
+                  description="Button label in the transfers summary bar to collapse the transfer details list."
+                  defaultMessage="Hide details"
+                />
+              ) : (
+                <FormattedMessage
+                  id="web.transfers.summary.show_details.button"
+                  description="Button label in the transfers summary bar to expand the transfer details list."
+                  defaultMessage="Show details"
+                />
+              )}
             </Button>
           ) : null}
         </div>
@@ -270,9 +301,18 @@ export const TransfersSummary = memo<{
               margin-right: 15px;
             `}
             onClick={onRetryAllClick}
-            title="Retry failed transfers"
+            title={intl.formatMessage({
+              id: 'web.transfers.summary.retry_all.tooltip',
+              description:
+                'Tooltip for the Retry button in the transfers summary bar that retries all failed transfers.',
+              defaultMessage: 'Retry failed transfers',
+            })}
           >
-            Retry
+            <FormattedMessage
+              id="web.transfers.summary.retry_all.button"
+              description="Button label in the transfers summary bar to retry all failed transfers."
+              defaultMessage="Retry"
+            />
           </Button>
         ) : null}
         {canAbortAll ? (
@@ -284,9 +324,18 @@ export const TransfersSummary = memo<{
                 flex-shrink: 0;
               `}
               onClick={onAbortAllClick}
-              title="Clear all transfers"
+              title={intl.formatMessage({
+                id: 'web.transfers.summary.clear_all.tooltip',
+                description:
+                  'Tooltip for the Clear button in the transfers summary bar to clear the completed transfer list.',
+                defaultMessage: 'Clear all transfers',
+              })}
             >
-              Clear
+              <FormattedMessage
+                id="web.transfers.summary.clear_all.button"
+                description="Button label in the transfers summary bar to clear all finished transfers."
+                defaultMessage="Clear"
+              />
             </Button>
           ) : (
             <Button
@@ -296,9 +345,18 @@ export const TransfersSummary = memo<{
                 flex-shrink: 0;
               `}
               onClick={onAbortAllClick}
-              title="Cancel all transfers"
+              title={intl.formatMessage({
+                id: 'web.transfers.summary.cancel_all.tooltip',
+                description:
+                  'Tooltip for the Cancel button in the transfers summary bar to cancel all active transfers.',
+                defaultMessage: 'Cancel all transfers',
+              })}
             >
-              Cancel
+              <FormattedMessage
+                id="web.transfers.summary.cancel_all.button"
+                description="Button label in the transfers summary bar to cancel all active transfers."
+                defaultMessage="Cancel"
+              />
             </Button>
           )
         ) : null}

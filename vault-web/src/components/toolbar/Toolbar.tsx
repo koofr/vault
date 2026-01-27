@@ -3,6 +3,7 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import Button from '@restart/ui/Button';
 import { memo, ReactNode } from 'react';
+import { FormattedMessage } from 'react-intl';
 
 import { buttonReset } from '../../styles/mixins/buttons';
 
@@ -129,7 +130,11 @@ export const ToolbarCancelItem = memo<React.ComponentProps<typeof ToolbarItem>>(
         )}
         {...props}
       >
-        Cancel
+        <FormattedMessage
+          id="web.toolbar.cancel.button"
+          description="Toolbar item label to cancel or exit selection mode."
+          defaultMessage="Cancel"
+        />
       </ToolbarItem>
     );
   },

@@ -1,7 +1,7 @@
 import { css, cx } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import RestartUIModal, { ModalProps, ModalHandle } from '@restart/ui/Modal';
+import RestartUIModal, { ModalHandle, ModalProps } from '@restart/ui/Modal';
 import useClickOutside from '@restart/ui/useClickOutside';
 import uniqueId from 'lodash/uniqueId';
 import {
@@ -16,6 +16,7 @@ import {
   useMemo,
   useRef,
 } from 'react';
+import { useIntl } from 'react-intl';
 
 import ModalCloseHoverIcon from '../../assets/images/modal-close-hover.svg?react';
 import ModalCloseIcon from '../../assets/images/modal-close.svg?react';
@@ -26,7 +27,7 @@ import { useIsMobile } from '../useIsMobile';
 
 import { ModalsStoreContext } from './Modals';
 
-export type { ModalProps, ModalHandle } from '@restart/ui/Modal';
+export type { ModalHandle, ModalProps } from '@restart/ui/Modal';
 
 export const noopModalClose = () => {};
 
@@ -173,6 +174,7 @@ const ModalContent = memo<PropsWithChildren<{ isTopModal: boolean }>>(
 ModalContent.displayName = 'ModalContent';
 
 export const ModalClose = memo(() => {
+  const intl = useIntl();
   const close = useContext(ModalCloseContext);
 
   return (
@@ -185,7 +187,11 @@ export const ModalClose = memo(() => {
         flex-shrink: 0;
       `}
       onClick={close}
-      aria-label="Close"
+      aria-label={intl.formatMessage({
+        id: 'web.modal.close.aria_label',
+        description: 'Accessibility label for the modal close button (X).',
+        defaultMessage: 'Close',
+      })}
     >
       <div
         className={css`

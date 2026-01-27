@@ -1,6 +1,7 @@
 import { css } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { memo } from 'react';
+import { FormattedMessage } from 'react-intl';
 
 import emptyFolderImage from '../../assets/images/empty-folder@2x.png';
 
@@ -40,7 +41,11 @@ export const RepoFilesEmpty = memo(() => {
           margin: 0 0 20px;
         `}
       >
-        This folder is empty.
+        <FormattedMessage
+          id="web.repo_files_empty.title"
+          description="Empty-state headline shown when a Safe Box folder has no files."
+          defaultMessage="This folder is empty."
+        />
       </h3>
     </div>
   );

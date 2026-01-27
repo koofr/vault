@@ -2,6 +2,7 @@ import { css } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { format } from 'date-fns/format';
 import { memo, useCallback } from 'react';
+import { FormattedMessage } from 'react-intl';
 
 import { Button, LinkButton } from '../../components/Button';
 import { DashboardError } from '../../components/dashboard/DashboardError';
@@ -15,12 +16,15 @@ import { Repo } from '../../vault-wasm/vault-wasm';
 import { useSubscribe } from '../../webVault/useSubscribe';
 import { useWebVault } from '../../webVault/useWebVault';
 
+import { useDateFnsLocale } from '../intl/DateFnsLocaleContext';
+
 import { RepoLock } from './RepoLock';
 import { RepoRemoveModal } from './RepoRemoveModal';
 import { RepoSpaceUsage } from './RepoSpaceUsage';
 
 export const RepoInfoComponentRepo = memo<{ repo: Repo }>(({ repo }) => {
   const theme = useTheme();
+  const dateFnsLocale = useDateFnsLocale();
   const isMobile = useIsMobile();
   const removeModal = useModal<Repo>();
   const removeModalShow = removeModal.show;
@@ -58,9 +62,22 @@ export const RepoInfoComponentRepo = memo<{ repo: Repo }>(({ repo }) => {
               font-weight: normal;
               color: ${theme.colors.textLight};
               margin-left: 10px;
+              text-transform: uppercase;
             `}
           >
-            {repo.state === 'Locked' ? 'LOCKED' : 'UNLOCKED'}
+            {repo.state === 'Locked' ? (
+              <FormattedMessage
+                id="web.repo_info.locked.text"
+                description="Status label shown next to the Safe Box name when it is locked."
+                defaultMessage="Locked"
+              />
+            ) : (
+              <FormattedMessage
+                id="web.repo_info.unlocked.text"
+                description="Status label shown next to the Safe Box name when it is unlocked."
+                defaultMessage="Unlocked"
+              />
+            )}
           </small>
         </div>
         <p
@@ -69,7 +86,14 @@ export const RepoInfoComponentRepo = memo<{ repo: Repo }>(({ repo }) => {
             font-size: 12px;
           `}
         >
-          Created {format(repo.added, 'PPPPpp')}
+          <FormattedMessage
+            id="web.repo_info.created_at.text"
+            description="Line showing the Safe Box creation date on the info page (e.g. 'Created Saturday, January 1, 2022 at 12:00:00')."
+            defaultMessage="Created {created}"
+            values={{
+              created: format(repo.added, 'PPPPpp', { locale: dateFnsLocale }),
+            }}
+          />
         </p>
         <div
           className={
@@ -103,7 +127,11 @@ export const RepoInfoComponentRepo = memo<{ repo: Repo }>(({ repo }) => {
                   `
             }
           >
-            Open in Koofr
+            <FormattedMessage
+              id="web.repo_info.open_repo_in_remote.button"
+              description="Button label to open the Safe Box in Koofr."
+              defaultMessage="Open in Koofr"
+            />
           </Button>
           <Button
             type="button"
@@ -119,7 +147,11 @@ export const RepoInfoComponentRepo = memo<{ repo: Repo }>(({ repo }) => {
             }
             onClick={onRemove}
           >
-            Destroy Safe Box...
+            <FormattedMessage
+              id="web.repo_info.destroy_repo.button"
+              description="Destructive button label to open the destroy Safe Box dialog."
+              defaultMessage="Destroy Safe Box…"
+            />
           </Button>
         </div>
 
@@ -147,10 +179,18 @@ export const RepoInfoComponentRepo = memo<{ repo: Repo }>(({ repo }) => {
               margin: 0 0 20px;
             `}
           >
-            Backup config
+            <FormattedMessage
+              id="web.repo_info.backup_config.heading"
+              description="Section header for the Safe Box configuration backup area."
+              defaultMessage="Backup config"
+            />
           </h2>
           <LinkButton to={`/repos/${repo.id}/configbackup`} variant="primary">
-            Backup the Safe Box config
+            <FormattedMessage
+              id="web.repo_info.backup_config.button"
+              description="Button label to navigate to the config backup screen."
+              defaultMessage="Backup the Safe Box config"
+            />
           </LinkButton>
         </div>
       </div>

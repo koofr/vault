@@ -1,5 +1,6 @@
 import { css } from '@emotion/css';
 import { memo, useCallback, useEffect, useMemo } from 'react';
+import { FormattedMessage } from 'react-intl';
 
 import { Button } from '../../components/Button';
 import { useSubscribe } from '../../webVault/useSubscribe';
@@ -43,7 +44,11 @@ export const RepoSpaceUsage = memo<{ repoId: string }>(({ repoId }) => {
           margin: 0 0 20px;
         `}
       >
-        Space used
+        <FormattedMessage
+          id="web.repo_space_usage.heading"
+          description="Section header for the Safe Box space usage view."
+          defaultMessage="Space used"
+        />
       </h2>
 
       {info.status.type === 'Error' ? (
@@ -68,7 +73,11 @@ export const RepoSpaceUsage = memo<{ repoId: string }>(({ repoId }) => {
             height: 36px;
           `}
         >
-          Calculate
+          <FormattedMessage
+            id="web.repo_space_usage.calculate.button"
+            description="Button label to calculate or refresh space usage."
+            defaultMessage="Calculate"
+          />
         </Button>
       ) : null}
 
@@ -78,7 +87,11 @@ export const RepoSpaceUsage = memo<{ repoId: string }>(({ repoId }) => {
             height: 36px;
           `}
         >
-          Loading...
+          <FormattedMessage
+            id="web.repo_space_usage.loading.text"
+            description="Status text shown while space usage is being calculated."
+            defaultMessage="Loading…"
+          />
         </div>
       ) : null}
 

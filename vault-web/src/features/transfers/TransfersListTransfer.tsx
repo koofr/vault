@@ -1,17 +1,19 @@
 import { css } from '@emotion/css';
 import { useTheme } from '@emotion/react';
-import { memo, useCallback } from 'react';
+import { JSX, memo, ReactNode, useCallback } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
-import { Button } from '../../components/Button';
-import { FileIcon } from '../../components/file-icon/FileIcon';
-import { Transfer } from '../../vault-wasm/vault-wasm';
-import { useWebVault } from '../../webVault/useWebVault';
 import TransfersClearHoverIcon from '../../assets/images/transfers-clear-hover.svg?react';
 import TransfersClearIcon from '../../assets/images/transfers-clear.svg?react';
+import { Button } from '../../components/Button';
+import { FileIcon } from '../../components/file-icon/FileIcon';
 import { buttonReset } from '../../styles/mixins/buttons';
+import { Transfer } from '../../vault-wasm/vault-wasm';
+import { useWebVault } from '../../webVault/useWebVault';
 
 export const TransfersListTransfer = memo<{ transfer: Transfer }>(
   ({ transfer }) => {
+    const intl = useIntl();
     const { id, name, fileIconAttrs, state } = transfer;
     const theme = useTheme();
     const webVault = useWebVault();
@@ -25,23 +27,104 @@ export const TransfersListTransfer = memo<{ transfer: Transfer }>(
       webVault.transfersOpen(id);
     }, [webVault, id]);
 
-    let text = '';
+    const nameEl = (
+      <div
+        className={css`
+          font-size: 13px;
+          font-weight: normal;
+          color: ${theme.colors.text};
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          overflow: hidden;
+        `}
+      >
+        {name}
+      </div>
+    );
+
+    const statusElFn = (chunks: ReactNode[]) => (
+      <div
+        className={css`
+          font-size: 13px;
+          font-weight: normal;
+          color: ${theme.colors.text};
+          flex-grow: 1;
+          flex-shrink: 0;
+          margin-left: 5px;
+        `}
+      >
+        {chunks}
+      </div>
+    );
+
+    let messageEl: JSX.Element;
 
     switch (state.type) {
       case 'Waiting':
-        text = 'is waiting to be transferred.';
+        messageEl = (
+          <FormattedMessage
+            id="web.transfers.transfer.message.waiting"
+            description="Transfer row status when a file is queued and waiting to start."
+            defaultMessage="{name}<status> is waiting to be transferred</status>"
+            values={{
+              name: nameEl,
+              status: statusElFn,
+            }}
+          />
+        );
         break;
       case 'Processing':
-        text = 'is being processed.';
+        messageEl = (
+          <FormattedMessage
+            id="web.transfers.transfer.message.processing"
+            description="Transfer row status when a file is being prepared before upload/download."
+            defaultMessage="{name}<status> is being processed</status>"
+            values={{
+              name: nameEl,
+              status: statusElFn,
+            }}
+          />
+        );
         break;
       case 'Transferring':
-        text = 'is being transferred.';
+        messageEl = (
+          <FormattedMessage
+            id="web.transfers.transfer.message.transferring"
+            description="Transfer row status when a file is actively transferring."
+            defaultMessage="{name}<status> is being transferred</status>"
+            values={{
+              name: nameEl,
+              status: statusElFn,
+            }}
+          />
+        );
         break;
       case 'Failed':
-        text = `failed. ${state.error}`;
+        messageEl = (
+          <FormattedMessage
+            id="web.transfers.transfer.message.failed"
+            description="Transfer row status when a file transfer failed, including error details."
+            defaultMessage="{name}<status> failed. {error}</status>"
+            values={{
+              name: nameEl,
+              status: statusElFn,
+              error: state.error,
+            }}
+          />
+        );
         break;
       case 'Done':
-        text = 'has been transferred.';
+        messageEl = (
+          <FormattedMessage
+            id="web.transfers.transfer.message.done"
+            description="Transfer row status when a file has completed transferring."
+            defaultMessage="{name}<status> has been transferred</status>"
+            values={{
+              name: nameEl,
+              status: statusElFn,
+            }}
+          />
+        );
         break;
     }
 
@@ -72,30 +155,7 @@ export const TransfersListTransfer = memo<{ transfer: Transfer }>(
           >
             <FileIcon size="Sm" attrs={fileIconAttrs} />
           </div>
-          <div
-            className={css`
-              font-size: 13px;
-              font-weight: normal;
-              color: ${theme.colors.text};
-              text-overflow: ellipsis;
-              white-space: nowrap;
-              overflow: hidden;
-            `}
-          >
-            {name}
-          </div>
-          <div
-            className={css`
-              font-size: 13px;
-              font-weight: normal;
-              color: ${theme.colors.text};
-              flex-grow: 1;
-              flex-shrink: 0;
-              margin-left: 5px;
-            `}
-          >
-            {text}
-          </div>
+          {messageEl}
           {transfer.canOpen ? (
             <Button
               type="button"
@@ -105,7 +165,11 @@ export const TransfersListTransfer = memo<{ transfer: Transfer }>(
               `}
               onClick={open}
             >
-              Open
+              <FormattedMessage
+                id="web.transfers.transfer.open.button"
+                description="Button label in a transfer row to open the transferred item."
+                defaultMessage="Open"
+              />
             </Button>
           ) : null}
           {transfer.canRetry ? (
@@ -117,7 +181,11 @@ export const TransfersListTransfer = memo<{ transfer: Transfer }>(
               `}
               onClick={retry}
             >
-              Retry
+              <FormattedMessage
+                id="web.transfers.transfer.retry.button"
+                description="Button label in a transfer row to retry a failed transfer."
+                defaultMessage="Retry"
+              />
             </Button>
           ) : null}
           {transfer.state.type === 'Done' ? (
@@ -130,7 +198,12 @@ export const TransfersListTransfer = memo<{ transfer: Transfer }>(
                 flex-shrink: 0;
               `}
               onClick={abort}
-              aria-label="Clear"
+              aria-label={intl.formatMessage({
+                id: 'web.transfers.transfer.clear.aria_label',
+                description:
+                  'Accessibility label for the icon button that clears a completed transfer row.',
+                defaultMessage: 'Clear',
+              })}
             >
               <div
                 className={css`
@@ -168,7 +241,11 @@ export const TransfersListTransfer = memo<{ transfer: Transfer }>(
               `}
               onClick={abort}
             >
-              Cancel
+              <FormattedMessage
+                id="web.transfers.transfer.cancel.button"
+                description="Button label in a transfer row to cancel an in-progress transfer."
+                defaultMessage="Cancel"
+              />
             </Button>
           )}
         </div>

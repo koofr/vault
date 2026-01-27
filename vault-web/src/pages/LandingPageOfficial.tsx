@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-no-target-blank */
 import { css, cx } from '@emotion/css';
 import { memo } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 import Typewriter from 'typewriter-effect';
 
 import appStoreImage from '../assets/images/apps/app-store.png';
@@ -70,11 +71,9 @@ const bp = {
   xl: `@media (min-width: ${bpDim.xlMinWidth}px)`,
 };
 
-const TypingText = memo(() => {
-  const keywords = ['private files.', 'confidentials.', 'secrets.'];
-
+const TypingText = memo(({ strings }: { strings: string[] }) => {
   const typewriterOptions = {
-    strings: keywords,
+    strings,
     autoStart: true,
     loop: true,
     delay: 70,
@@ -106,6 +105,7 @@ const TypingText = memo(() => {
 TypingText.displayName = 'TypingText';
 
 export const LandingPageOfficial = memo(() => {
+  const intl = useIntl();
   useDocumentTitle();
 
   const config = useConfig();
@@ -150,7 +150,13 @@ export const LandingPageOfficial = memo(() => {
           }
         `}
       >
-        <LogoImage />
+        <div
+          className={css`
+            flex-shrink: 0;
+          `}
+        >
+          <LogoImage />
+        </div>
 
         <div
           className={css`
@@ -187,15 +193,13 @@ export const LandingPageOfficial = memo(() => {
                 font-size: 16px;
                 padding: 12px 19px;
                 font-weight: 700;
-                width: 131px;
                 line-height: 22px;
+                flex-shrink: 0;
 
                 ${bp.sm} {
                   font-size: 14px;
-                  padding: 7px 6px;
-                  width: inherit;
+                  padding: 7px 10px;
                   line-height: 22px;
-                  width: 103px;
                 }
 
                 ${bp.md} {
@@ -204,7 +208,11 @@ export const LandingPageOfficial = memo(() => {
               `,
             )}
           >
-            Get started
+            <FormattedMessage
+              id="web.landing_page.get_started.button"
+              description="Primary call-to-action button on the landing page that starts login."
+              defaultMessage="Get started"
+            />
           </BaseAnchorButton>
         </div>
       </div>
@@ -280,15 +288,47 @@ export const LandingPageOfficial = memo(() => {
               }
             `}
           >
-            One vault for all
-            <br />
-            <span
-              className={css`
-                font-weight: 800;
-              `}
-            >
-              your <TypingText />
-            </span>
+            <FormattedMessage
+              id="web.landing_page.title"
+              description="Hero headline on the official landing page with animated keyword."
+              defaultMessage="One vault for all<br></br><b>your {typing_text}</b>"
+              values={{
+                br: () => <br />,
+                b: (chunks) => (
+                  <span
+                    className={css`
+                      font-weight: 800;
+                    `}
+                  >
+                    {chunks}
+                  </span>
+                ),
+                typing_text: (
+                  <TypingText
+                    strings={[
+                      intl.formatMessage({
+                        id: 'web.landing_page.title.typing_text_1',
+                        description:
+                          'First animated keyword in the landing page hero headline.',
+                        defaultMessage: 'private files.',
+                      }),
+                      intl.formatMessage({
+                        id: 'web.landing_page.title.typing_text_2',
+                        description:
+                          'Second animated keyword in the landing page hero headline.',
+                        defaultMessage: 'confidentials.',
+                      }),
+                      intl.formatMessage({
+                        id: 'web.landing_page.title.typing_text_3',
+                        description:
+                          'Third animated keyword in the landing page hero headline.',
+                        defaultMessage: 'secrets.',
+                      }),
+                    ]}
+                  />
+                ),
+              }}
+            />
           </h1>
 
           <p
@@ -307,9 +347,11 @@ export const LandingPageOfficial = memo(() => {
               }
             `}
           >
-            Powerful, open source, client-side, zero-knowledge encryption.
-            Unlock enhanced security for your most sensitive files with Koofr
-            Vault.
+            <FormattedMessage
+              id="web.landing_page.description"
+              description="Supporting hero paragraph on the official landing page."
+              defaultMessage="Powerful, open source, client-side, zero-knowledge encryption. Unlock enhanced security for your most sensitive files with Koofr Vault."
+            />
           </p>
 
           <BaseAnchorButton
@@ -331,7 +373,11 @@ export const LandingPageOfficial = memo(() => {
               `,
             )}
           >
-            Get started
+            <FormattedMessage
+              id="web.landing_page.get_started.button"
+              description="Primary call-to-action button on the landing page that starts login."
+              defaultMessage="Get started"
+            />
           </BaseAnchorButton>
 
           {config.appStoreUrl !== undefined ||
@@ -471,7 +517,11 @@ export const LandingPageOfficial = memo(() => {
             margin: 0 0 23px;
           `}
         >
-          Extra strong protection
+          <FormattedMessage
+            id="web.landing_page.section_1.title"
+            description="Section title describing overall security benefits on the landing page."
+            defaultMessage="Extra strong protection"
+          />
         </h2>
 
         <p
@@ -489,13 +539,18 @@ export const LandingPageOfficial = memo(() => {
             }
           `}
         >
-          Koofr Vault is an open source, client-side, zero-knowledge encrypted
-          storage application by{' '}
-          <a href="https://koofr.eu" target="_blank" rel="noopener">
-            Koofr cloud storage
-          </a>
-          . It&apos;s like having a box with a unique lock in your trunk: an
-          extra layer of security to protect your files.
+          <FormattedMessage
+            id="web.landing_page.section_1.content"
+            description="Section paragraph explaining Vault and Koofr with security metaphor."
+            defaultMessage="Koofr Vault is an open source, client-side, zero-knowledge encrypted storage application by <a>Koofr cloud storage</a>. It's like having a box with a unique lock in your trunk: an extra layer of security to protect your files."
+            values={{
+              a: (chunks) => (
+                <a href="https://koofr.eu" target="_blank" rel="noopener">
+                  {chunks}
+                </a>
+              ),
+            }}
+          />
         </p>
 
         <div
@@ -553,7 +608,11 @@ export const LandingPageOfficial = memo(() => {
                 margin: 0 0 10px;
               `}
             >
-              Private Safe Key
+              <FormattedMessage
+                id="web.landing_page.section_2.title"
+                description="Feature card title about private Safe Key on the landing page."
+                defaultMessage="Private Safe Key"
+              />
             </h3>
             <p
               className={css`
@@ -562,7 +621,11 @@ export const LandingPageOfficial = memo(() => {
                 margin: 0;
               `}
             >
-              Choose a Safe Key to create a Safe Box in your Koofr Vault.
+              <FormattedMessage
+                id="web.landing_page.section_2.content"
+                description="Feature card text explaining choosing a Safe Key."
+                defaultMessage="Choose a Safe Key to create a Safe Box in your Koofr Vault."
+              />
             </p>
           </div>
 
@@ -606,7 +669,11 @@ export const LandingPageOfficial = memo(() => {
                 margin: 0 0 10px;
               `}
             >
-              It all stays in your browser
+              <FormattedMessage
+                id="web.landing_page.section_3.title"
+                description="Feature card title about encryption happening in the browser."
+                defaultMessage="It all stays in your browser"
+              />
             </h3>
             <p
               className={css`
@@ -615,8 +682,11 @@ export const LandingPageOfficial = memo(() => {
                 margin: 0;
               `}
             >
-              Your Safe Box files are encrypted or decrypted on demand, on your
-              device.
+              <FormattedMessage
+                id="web.landing_page.section_3.content"
+                description="Feature card text about on-device encryption/decryption."
+                defaultMessage="Your Safe Box files are encrypted or decrypted on demand, on your device."
+              />
             </p>
           </div>
 
@@ -660,7 +730,11 @@ export const LandingPageOfficial = memo(() => {
                 margin: 0 0 10px;
               `}
             >
-              Only you have access
+              <FormattedMessage
+                id="web.landing_page.section_4.title"
+                description="Feature card title about exclusive access to encrypted content."
+                defaultMessage="Only you have access"
+              />
             </h3>
             <p
               className={css`
@@ -669,8 +743,11 @@ export const LandingPageOfficial = memo(() => {
                 margin: 0;
               `}
             >
-              Cloud content is encrypted and never accessible without your Safe
-              Key.
+              <FormattedMessage
+                id="web.landing_page.section_4.content"
+                description="Feature card text explaining that content isn't accessible without the Safe Key."
+                defaultMessage="Cloud content is encrypted and never accessible without your Safe Key."
+              />
             </p>
           </div>
         </div>
@@ -748,7 +825,11 @@ export const LandingPageOfficial = memo(() => {
               margin: 0 0 22px;
             `}
           >
-            For your eyes only
+            <FormattedMessage
+              id="web.landing_page.section_5.title"
+              description="Section title about privacy and exclusive access."
+              defaultMessage="For your eyes only"
+            />
           </h2>
 
           <p
@@ -758,9 +839,11 @@ export const LandingPageOfficial = memo(() => {
               margin: 0 0 32px;
             `}
           >
-            Your files are encrypted, file names and all content included,
-            locally on your device with your Safe Key and some magic salt before
-            they are sent to your Vault.
+            <FormattedMessage
+              id="web.landing_page.section_5.content_1"
+              description="Section paragraph describing local encryption before upload."
+              defaultMessage="Your files are encrypted, file names and all content included, locally on your device with your Safe Key and some magic salt before they are sent to your Vault."
+            />
           </p>
 
           <p
@@ -774,12 +857,18 @@ export const LandingPageOfficial = memo(() => {
               }
             `}
           >
-            Neither your Safe key nor any other unencrypted file data or
-            metadata is sent to or stored by{' '}
-            <a href="https://koofr.eu" target="_blank" rel="noopener">
-              Koofr
-            </a>
-            . Only you can decrypt and access your Vault files.
+            <FormattedMessage
+              id="web.landing_page.section_5.content_2"
+              description="Section paragraph explaining that Koofr never receives unencrypted data."
+              defaultMessage="Neither your Safe key nor any other unencrypted file data or metadata is sent to or stored by <a>Koofr</a>. Only you can decrypt and access your Vault files."
+              values={{
+                a: (chunks) => (
+                  <a href="https://koofr.eu" target="_blank" rel="noopener">
+                    {chunks}
+                  </a>
+                ),
+              }}
+            />
           </p>
         </div>
       </div>
@@ -888,7 +977,11 @@ export const LandingPageOfficial = memo(() => {
                 margin: 0 0 22px;
               `}
             >
-              Fully open source
+              <FormattedMessage
+                id="web.landing_page.section_6.title"
+                description="Section title highlighting that Koofr Vault is fully open source."
+                defaultMessage="Fully open source"
+              />
             </h2>
 
             <p
@@ -898,24 +991,28 @@ export const LandingPageOfficial = memo(() => {
                 margin: 0 0 32px;
               `}
             >
-              Koofr Vault is{' '}
-              <a
-                href="https://github.com/koofr/vault"
-                target="_blank"
-                rel="noreferrer"
-                className={css`
-                  ${allStates} {
-                    color: #f4f5f5;
-                    text-decoration: underline;
-                  }
-                `}
-              >
-                open source
-              </a>
-              , so you can always check that the code does exactly what is
-              promised - and nothing more. File encryption is performed using
-              NaCl SecretBox, which uses XSalsa20 cipher and Poly1305 for
-              ensuring integrity.
+              <FormattedMessage
+                id="web.landing_page.section_6.content_1"
+                description="Section paragraph about open source code and encryption primitives."
+                defaultMessage="Koofr Vault is <a>open source</a>, so you can always check that the code does exactly what is promised - and nothing more. File encryption is performed using NaCl SecretBox, which uses XSalsa20 cipher and Poly1305 for ensuring integrity."
+                values={{
+                  a: (chunks) => (
+                    <a
+                      href="https://github.com/koofr/vault"
+                      target="_blank"
+                      rel="noreferrer"
+                      className={css`
+                        ${allStates} {
+                          color: #f4f5f5;
+                          text-decoration: underline;
+                        }
+                      `}
+                    >
+                      {chunks}
+                    </a>
+                  ),
+                }}
+              />
             </p>
 
             <p
@@ -936,22 +1033,28 @@ export const LandingPageOfficial = memo(() => {
                 }
               `}
             >
-              It is compatible with{' '}
-              <a
-                href="https://rclone.org"
-                target="_blank"
-                rel="noreferrer"
-                className={css`
-                  ${allStates} {
-                    color: #f4f5f5;
-                    text-decoration: underline;
-                  }
-                `}
-              >
-                rclone
-              </a>
-              . This means that you can download your encrypted files and
-              decrypt them locally using the rclone command-line tool.
+              <FormattedMessage
+                id="web.landing_page.section_6.content_2"
+                description="Section paragraph about rclone compatibility."
+                defaultMessage="It is compatible with <a>rclone</a> . This means that you can download your encrypted files and decrypt them locally using the rclone command-line tool."
+                values={{
+                  a: (chunks) => (
+                    <a
+                      href="https://rclone.org"
+                      target="_blank"
+                      rel="noreferrer"
+                      className={css`
+                        ${allStates} {
+                          color: #f4f5f5;
+                          text-decoration: underline;
+                        }
+                      `}
+                    >
+                      {chunks}
+                    </a>
+                  ),
+                }}
+              />
             </p>
           </div>
 
@@ -1125,7 +1228,11 @@ export const LandingPageOfficial = memo(() => {
               text-align: center;
             `}
           >
-            Client-side encryption
+            <FormattedMessage
+              id="web.landing_page.section_7.title"
+              description="Feature highlight label for client-side encryption."
+              defaultMessage="Client-side encryption"
+            />
           </p>
         </div>
 
@@ -1172,7 +1279,11 @@ export const LandingPageOfficial = memo(() => {
               text-align: center;
             `}
           >
-            Verifiable source code
+            <FormattedMessage
+              id="web.landing_page.section_8.title"
+              description="Feature highlight label for verifiable source code."
+              defaultMessage="Verifiable source code"
+            />
           </p>
         </div>
 
@@ -1219,7 +1330,11 @@ export const LandingPageOfficial = memo(() => {
               text-align: center;
             `}
           >
-            Zero knowledge
+            <FormattedMessage
+              id="web.landing_page.section_9.title"
+              description="Feature highlight label for zero-knowledge design."
+              defaultMessage="Zero knowledge"
+            />
           </p>
         </div>
       </div>
@@ -1276,7 +1391,11 @@ export const LandingPageOfficial = memo(() => {
               text-align: center;
             `}
           >
-            Unlock your Vault
+            <FormattedMessage
+              id="web.landing_page.section_10.title"
+              description="Call-to-action section title encouraging users to start using Koofr Vault."
+              defaultMessage="Unlock your Vault"
+            />
           </h2>
 
           <p
@@ -1287,12 +1406,22 @@ export const LandingPageOfficial = memo(() => {
               text-align: center;
             `}
           >
-            Start encrypting your cloud storage files in just a few minutes.
-            Included in all{' '}
-            <a href="https://koofr.eu/pricing" target="_blank" rel="noopener">
-              Koofr plans
-            </a>
-            .
+            <FormattedMessage
+              id="web.landing_page.section_10.description"
+              description="Call-to-action description mentioning Koofr plans."
+              defaultMessage="Start encrypting your cloud storage files in just a few minutes. Included in all <a>Koofr plans</a>."
+              values={{
+                a: (chunks) => (
+                  <a
+                    href="https://koofr.eu/pricing"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    {chunks}
+                  </a>
+                ),
+              }}
+            />
           </p>
 
           <BaseAnchorButton
@@ -1307,7 +1436,11 @@ export const LandingPageOfficial = memo(() => {
               `,
             )}
           >
-            Get started
+            <FormattedMessage
+              id="web.landing_page.get_started.button"
+              description="Primary call-to-action button on the landing page that starts login."
+              defaultMessage="Get started"
+            />
           </BaseAnchorButton>
         </div>
         <p
@@ -1318,15 +1451,22 @@ export const LandingPageOfficial = memo(() => {
             text-align: center;
           `}
         >
-          Have questions about Koofr Vault?{' '}
-          <a
-            href="https://koofr.eu/help/koofr-vault"
-            target="_blank"
-            rel="noopener"
-          >
-            Find answers here
-          </a>
-          .
+          <FormattedMessage
+            id="web.landing_page.section_10.questions"
+            description="Support link text for questions about Koofr Vault on the landing page."
+            defaultMessage="Have questions about Koofr Vault? <a>Find answers here</a>."
+            values={{
+              a: (chunks) => (
+                <a
+                  href="https://koofr.eu/help/koofr-vault"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  {chunks}
+                </a>
+              ),
+            }}
+          />
         </p>
       </div>
 
@@ -1356,22 +1496,30 @@ export const LandingPageOfficial = memo(() => {
             margin: 0 0 15px;
           `}
         >
-          © 2026.{' '}
-          <a
-            href="https://koofr.eu"
-            target="_blank"
-            rel="noopener"
-            className={css`
-              font-weight: 600;
-              ${allStates} {
-                color: #011722;
-                text-decoration: none;
-              }
-            `}
-          >
-            Koofr d.o.o.
-          </a>{' '}
-          all rights reserved.
+          <FormattedMessage
+            id="web.landing_page.copyright.text"
+            description="Footer copyright line on the landing page with company link and current year."
+            defaultMessage="© {year}. <a>Koofr d.o.o.</a> all rights reserved."
+            values={{
+              year: new Date().getFullYear(),
+              a: (chunks) => (
+                <a
+                  href="https://koofr.eu"
+                  target="_blank"
+                  rel="noopener"
+                  className={css`
+                    font-weight: 600;
+                    ${allStates} {
+                      color: #011722;
+                      text-decoration: none;
+                    }
+                  `}
+                >
+                  {chunks}
+                </a>
+              ),
+            }}
+          />
         </p>
 
         <div

@@ -1,5 +1,6 @@
 import { css } from '@emotion/css';
 import { memo } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import errorIconImage from '../assets/images/error-icon@2x.png';
 import { LinkButton } from '../components/Button';
@@ -7,7 +8,13 @@ import { Navbar } from '../components/navbar/Navbar';
 import { useDocumentTitle } from '../utils/useDocumentTitle';
 
 export const NotFoundPage = memo(() => {
-  useDocumentTitle('Page not found');
+  const intl = useIntl();
+  const title = intl.formatMessage({
+    id: 'web.not_found_page.title',
+    description: 'Document title and main heading for the 404 page.',
+    defaultMessage: 'Page not found',
+  });
+  useDocumentTitle(title);
 
   return (
     <>
@@ -18,7 +25,7 @@ export const NotFoundPage = memo(() => {
               font-weight: 600;
             `}
           >
-            Page not found
+            {title}
           </span>
         }
       />
@@ -31,7 +38,7 @@ export const NotFoundPage = memo(() => {
       >
         <img
           src={errorIconImage}
-          alt=""
+          alt={title}
           className={css`
             display: block;
             width: 252px;
@@ -46,11 +53,15 @@ export const NotFoundPage = memo(() => {
             margin: 0 0 30px;
           `}
         >
-          Page not found
+          {title}
         </h2>
 
         <LinkButton to="/" variant="primary">
-          Go to dashboard
+          <FormattedMessage
+            id="web.not_found_page.go_to_dashboard.button"
+            description="Primary button on the 404 page that returns the user to the dashboard."
+            defaultMessage="Go to dashboard"
+          />
         </LinkButton>
       </div>
     </>

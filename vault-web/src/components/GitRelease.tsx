@@ -1,5 +1,7 @@
 import { css } from '@emotion/css';
 import { memo } from 'react';
+import { FormattedMessage } from 'react-intl';
+
 import { allStates } from '../styles/mixins/hover';
 
 export const GitRelease = memo<{ className?: string }>(({ className }) => {
@@ -12,19 +14,27 @@ export const GitRelease = memo<{ className?: string }>(({ className }) => {
 
   return (
     <div className={className}>
-      Version:{' '}
-      <a
-        href={`https://github.com/koofr/vault/releases/tag/${gitRelease}`}
-        target="_blank"
-        rel="noreferrer"
-        className={css`
-          ${allStates} {
-            color: inherit;
-          }
-        `}
-      >
-        {gitRelease}
-      </a>
+      <FormattedMessage
+        id="web.version.text"
+        description="Footer label showing the app release version with a link to the GitHub release."
+        defaultMessage="Version: {version}"
+        values={{
+          version: (
+            <a
+              href={`https://github.com/koofr/vault/releases/tag/${gitRelease}`}
+              target="_blank"
+              rel="noreferrer"
+              className={css`
+                ${allStates} {
+                  color: inherit;
+                }
+              `}
+            >
+              {gitRelease}
+            </a>
+          ),
+        }}
+      />
     </div>
   );
 });

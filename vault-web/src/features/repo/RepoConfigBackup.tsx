@@ -1,5 +1,6 @@
 import { css, cx } from '@emotion/css';
 import { memo, useMemo, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import { TextInput } from '../../components/TextInput';
 import { DashboardError } from '../../components/dashboard/DashboardError';
@@ -17,6 +18,7 @@ import { RepoConfigInfo } from './RepoConfigInfo';
 
 export const RepoConfigBackupRepo = memo<{ repo: Repo }>(({ repo }) => {
   const repoId = repo.id;
+  const intl = useIntl();
   const isMobile = useIsMobile();
   const webVault = useWebVault();
   const [password, setPassword] = useState('');
@@ -24,6 +26,11 @@ export const RepoConfigBackupRepo = memo<{ repo: Repo }>(({ repo }) => {
     () => webVault.reposGetRepoConfig(repoId, password),
     [webVault, repoId, password],
   );
+  const title = intl.formatMessage({
+    id: 'web.repo_config_backup.title',
+    description: 'Document title for the Safe Box configuration backup page.',
+    defaultMessage: 'Backup config',
+  });
   const breadcrumbs = useMemo(
     (): NavbarBreadcrumbInfo[] => [
       {
@@ -36,15 +43,15 @@ export const RepoConfigBackupRepo = memo<{ repo: Repo }>(({ repo }) => {
       },
       {
         id: 'configbackup',
-        name: 'Backup config',
+        name: title,
         isClickable: false,
         hasCaret: false,
         isLast: true,
       },
     ],
-    [repo],
+    [repo, title],
   );
-  useDocumentTitle('Backup config');
+  useDocumentTitle(title);
 
   return (
     <DashboardLayout
@@ -67,7 +74,7 @@ export const RepoConfigBackupRepo = memo<{ repo: Repo }>(({ repo }) => {
               margin: 0 0 20px;
             `}
           >
-            Backup config
+            {title}
           </h1>
 
           <div
@@ -80,21 +87,34 @@ export const RepoConfigBackupRepo = memo<{ repo: Repo }>(({ repo }) => {
                 margin: 0 0 10px;
               `}
             >
-              To generate your rclone config, please type your Safe Key. Make
-              sure it&apos;s correct.
+              <FormattedMessage
+                id="web.repo_config_backup.description"
+                description="Instruction text explaining that the Safe Key is required to generate the rclone config."
+                defaultMessage="To generate your rclone config, please type your Safe Key. Make sure it's correct."
+              />
             </div>
             <TextInput
               type="text"
               name="password"
               value={password}
-              placeholder="Your Safe Key"
+              placeholder={intl.formatMessage({
+                id: 'web.repo_config_backup.password.placeholder',
+                description:
+                  'Placeholder text for the Safe Key input on the config backup page.',
+                defaultMessage: 'Your Safe Key',
+              })}
               onChange={(event) => setPassword(event.currentTarget.value)}
               className={cx(css`
                 font-size: 16px;
                 width: 250px;
                 padding-right: 38px;
               `)}
-              aria-label={'Safe Key'}
+              aria-label={intl.formatMessage({
+                id: 'web.repo_config_backup.password.aria_label',
+                description:
+                  'Accessibility label for the Safe Key input on the config backup page.',
+                defaultMessage: 'Safe Key',
+              })}
             />
           </div>
 

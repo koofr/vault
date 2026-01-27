@@ -1,6 +1,7 @@
 import { css, cx } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { memo } from 'react';
+import { FormattedMessage } from 'react-intl';
 
 import { ModalClose, ModalCloseContext } from '../../components/modal/Modal';
 import { useNavbarSticky } from '../../components/navbar/NavbarSticky';
@@ -81,7 +82,11 @@ export const RepoFileInfoSheet = memo<{
                 color: ${theme.colors.text};
               `}
             >
-              Info
+              <FormattedMessage
+                id="web.repo_file_info.title"
+                description="Modal title for the file info dialog/sheet."
+                defaultMessage="Info"
+              />
             </div>
 
             <div

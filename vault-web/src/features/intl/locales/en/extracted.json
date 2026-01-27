@@ -1,2 +1,970 @@
 {
+  "web.dashboard_error.title": {
+    "defaultMessage": "Error",
+    "description": "Document title shown when an error occurs."
+  },
+  "web.dashboard_loading.title": {
+    "defaultMessage": "Loading",
+    "description": "Document title shown while the dashboard is loading."
+  },
+  "web.dashboard_menu.logout.menu_item": {
+    "defaultMessage": "Logout",
+    "description": "User menu item to log out of the app."
+  },
+  "web.dashboard_menu.open_remote.menu_item": {
+    "defaultMessage": "Open Koofr",
+    "description": "User menu item to open Koofr in a new tab."
+  },
+  "web.dashboard_sidenav_links.help_and_support.link": {
+    "defaultMessage": "Help and support",
+    "description": "Footer link label to Koofr Vault help and support."
+  },
+  "web.dashboard_sidenav_links.intro.link": {
+    "defaultMessage": "Intro",
+    "description": "Footer button label to open the intro walkthrough modal."
+  },
+  "web.dashboard_sidenav_links.landing_page.link": {
+    "defaultMessage": "Landing page",
+    "description": "Footer link label to the landing page."
+  },
+  "web.dashboard_sidenav_links.legal.link": {
+    "defaultMessage": "Legal",
+    "description": "Footer link label to the legal page."
+  },
+  "web.dashboard_user_icon.aria_label": {
+    "defaultMessage": "User menu",
+    "description": "Accessibility label for the user account menu button."
+  },
+  "web.dir_picker.loading.aria_label": {
+    "defaultMessage": "Loading…",
+    "description": "Accessibility label for the loading spinner shown next to a folder row in the directory picker."
+  },
+  "web.error_component.try_again.button": {
+    "defaultMessage": "Try again",
+    "description": "Button label on the generic error state to retry the failed action."
+  },
+  "web.file_icon.alt": {
+    "defaultMessage": "File icon",
+    "description": "Alt text for generic file icons in the file list."
+  },
+  "web.git_revision.text": {
+    "defaultMessage": "Git revision: {git_revision}",
+    "description": "Footer label showing the git commit hash with a link to the commit on GitHub."
+  },
+  "web.intro.back.button": {
+    "defaultMessage": "Back",
+    "description": "Back button label in the intro modal."
+  },
+  "web.intro.done.button": {
+    "defaultMessage": "Done",
+    "description": "Final button label in the intro modal to finish onboarding."
+  },
+  "web.intro.next.button": {
+    "defaultMessage": "Next",
+    "description": "Next button label in the intro modal to advance to the next step."
+  },
+  "web.intro.step_1.content": {
+    "defaultMessage": "Welcome to Koofr Vault: your favourite cloud storage with client-side encryption!",
+    "description": "Intro modal step 1 body text welcoming users to Koofr Vault."
+  },
+  "web.intro.step_1.title": {
+    "defaultMessage": "Welcome",
+    "description": "Title for step 1 in the intro modal."
+  },
+  "web.intro.step_2.content_1": {
+    "defaultMessage": "The Vault is like having a box with a unique lock in your trunk: an extra layer of security to protect your most sensitive files.",
+    "description": "Intro modal step 2 feature text explaining the Safe Box metaphor."
+  },
+  "web.intro.step_2.content_2": {
+    "defaultMessage": "Vault is <a>open source</a>, so you can always check that the code does exactly what is promised - and nothing more.",
+    "description": "Intro modal step 2 feature text about the open source nature of Vault."
+  },
+  "web.intro.step_2.content_3": {
+    "defaultMessage": "<a>rclone</a> compatibility: Download your encrypted files and decrypt them locally using the rclone command-line tool.",
+    "description": "Intro modal step 2 feature text about rclone compatibility."
+  },
+  "web.intro.step_2.title": {
+    "defaultMessage": "About Vault",
+    "description": "Title for step 2 in the intro modal."
+  },
+  "web.intro.step_3.content_1": {
+    "defaultMessage": "You can have one or more Safe Boxes in your Vault, with separate Safe Keys for each Safe Box.",
+    "description": "Intro modal step 3 feature text about multiple Safe Boxes and keys."
+  },
+  "web.intro.step_3.content_2": {
+    "defaultMessage": "Vault encrypts both file names and content, so they are only readable inside the Safe Box.",
+    "description": "Intro modal step 3 feature text about encrypting file names and contents."
+  },
+  "web.intro.step_3.content_3": {
+    "defaultMessage": "In your main Koofr app, the files will appear with encrypted file names and cannot be opened.",
+    "description": "Intro modal step 3 feature text about how files appear in the main Koofr app."
+  },
+  "web.intro.step_3.title": {
+    "defaultMessage": "Safe Boxes",
+    "description": "Title for step 3 in the intro modal."
+  },
+  "web.intro.step_4.content_1": {
+    "defaultMessage": "When you create a Safe Box, you'll choose a Safe Key for it.",
+    "description": "Intro modal step 4 feature text about choosing a Safe Key when creating a Safe Box."
+  },
+  "web.intro.step_4.content_2": {
+    "defaultMessage": "Since the Safe Key is used to encrypt the files you store in the Safe Box, it cannot be changed later.",
+    "description": "Intro modal step 4 feature text warning the Safe Key cannot be changed."
+  },
+  "web.intro.step_4.content_3": {
+    "defaultMessage": "<b>There is no way recover your files if you forget your Safe Key.</b> It is never sent to or stored on Koofr servers.",
+    "description": "Intro modal step 4 feature text warning there is no recovery if the Safe Key is lost."
+  },
+  "web.intro.step_4.title": {
+    "defaultMessage": "Safe Key",
+    "description": "Title for step 4 in the intro modal."
+  },
+  "web.intro.step_5.content": {
+    "defaultMessage": "Get started with Vault by creating your first Safe Box.",
+    "description": "Intro modal step 5 body text prompting users to create their first Safe Box."
+  },
+  "web.intro.step_5.title": {
+    "defaultMessage": "Start using Vault",
+    "description": "Title for step 5 in the intro modal."
+  },
+  "web.landing_page.copyright.text": {
+    "defaultMessage": "© {year}. <a>Koofr d.o.o.</a> all rights reserved.",
+    "description": "Footer copyright line on the landing page with company link and current year."
+  },
+  "web.landing_page.description": {
+    "defaultMessage": "Powerful, open source, client-side, zero-knowledge encryption. Unlock enhanced security for your most sensitive files with Koofr Vault.",
+    "description": "Supporting hero paragraph on the official landing page."
+  },
+  "web.landing_page.get_started.button": {
+    "defaultMessage": "Get started",
+    "description": "Primary call-to-action button on the landing page that starts login."
+  },
+  "web.landing_page.section_1.content": {
+    "defaultMessage": "Koofr Vault is an open source, client-side, zero-knowledge encrypted storage application by <a>Koofr cloud storage</a>. It's like having a box with a unique lock in your trunk: an extra layer of security to protect your files.",
+    "description": "Section paragraph explaining Vault and Koofr with security metaphor."
+  },
+  "web.landing_page.section_1.title": {
+    "defaultMessage": "Extra strong protection",
+    "description": "Section title describing overall security benefits on the landing page."
+  },
+  "web.landing_page.section_10.description": {
+    "defaultMessage": "Start encrypting your cloud storage files in just a few minutes. Included in all <a>Koofr plans</a>.",
+    "description": "Call-to-action description mentioning Koofr plans."
+  },
+  "web.landing_page.section_10.questions": {
+    "defaultMessage": "Have questions about Koofr Vault? <a>Find answers here</a>.",
+    "description": "Support link text for questions about Koofr Vault on the landing page."
+  },
+  "web.landing_page.section_10.title": {
+    "defaultMessage": "Unlock your Vault",
+    "description": "Call-to-action section title encouraging users to start using Koofr Vault."
+  },
+  "web.landing_page.section_2.content": {
+    "defaultMessage": "Choose a Safe Key to create a Safe Box in your Koofr Vault.",
+    "description": "Feature card text explaining choosing a Safe Key."
+  },
+  "web.landing_page.section_2.title": {
+    "defaultMessage": "Private Safe Key",
+    "description": "Feature card title about private Safe Key on the landing page."
+  },
+  "web.landing_page.section_3.content": {
+    "defaultMessage": "Your Safe Box files are encrypted or decrypted on demand, on your device.",
+    "description": "Feature card text about on-device encryption/decryption."
+  },
+  "web.landing_page.section_3.title": {
+    "defaultMessage": "It all stays in your browser",
+    "description": "Feature card title about encryption happening in the browser."
+  },
+  "web.landing_page.section_4.content": {
+    "defaultMessage": "Cloud content is encrypted and never accessible without your Safe Key.",
+    "description": "Feature card text explaining that content isn't accessible without the Safe Key."
+  },
+  "web.landing_page.section_4.title": {
+    "defaultMessage": "Only you have access",
+    "description": "Feature card title about exclusive access to encrypted content."
+  },
+  "web.landing_page.section_5.content_1": {
+    "defaultMessage": "Your files are encrypted, file names and all content included, locally on your device with your Safe Key and some magic salt before they are sent to your Vault.",
+    "description": "Section paragraph describing local encryption before upload."
+  },
+  "web.landing_page.section_5.content_2": {
+    "defaultMessage": "Neither your Safe key nor any other unencrypted file data or metadata is sent to or stored by <a>Koofr</a>. Only you can decrypt and access your Vault files.",
+    "description": "Section paragraph explaining that Koofr never receives unencrypted data."
+  },
+  "web.landing_page.section_5.title": {
+    "defaultMessage": "For your eyes only",
+    "description": "Section title about privacy and exclusive access."
+  },
+  "web.landing_page.section_6.content_1": {
+    "defaultMessage": "Koofr Vault is <a>open source</a>, so you can always check that the code does exactly what is promised - and nothing more. File encryption is performed using NaCl SecretBox, which uses XSalsa20 cipher and Poly1305 for ensuring integrity.",
+    "description": "Section paragraph about open source code and encryption primitives."
+  },
+  "web.landing_page.section_6.content_2": {
+    "defaultMessage": "It is compatible with <a>rclone</a> . This means that you can download your encrypted files and decrypt them locally using the rclone command-line tool.",
+    "description": "Section paragraph about rclone compatibility."
+  },
+  "web.landing_page.section_6.title": {
+    "defaultMessage": "Fully open source",
+    "description": "Section title highlighting that Koofr Vault is fully open source."
+  },
+  "web.landing_page.section_7.title": {
+    "defaultMessage": "Client-side encryption",
+    "description": "Feature highlight label for client-side encryption."
+  },
+  "web.landing_page.section_8.title": {
+    "defaultMessage": "Verifiable source code",
+    "description": "Feature highlight label for verifiable source code."
+  },
+  "web.landing_page.section_9.title": {
+    "defaultMessage": "Zero knowledge",
+    "description": "Feature highlight label for zero-knowledge design."
+  },
+  "web.landing_page.title": {
+    "defaultMessage": "One vault for all<br></br><b>your {typing_text}</b>",
+    "description": "Hero headline on the official landing page with animated keyword."
+  },
+  "web.landing_page.title.typing_text_1": {
+    "defaultMessage": "private files.",
+    "description": "First animated keyword in the landing page hero headline."
+  },
+  "web.landing_page.title.typing_text_2": {
+    "defaultMessage": "confidentials.",
+    "description": "Second animated keyword in the landing page hero headline."
+  },
+  "web.landing_page.title.typing_text_3": {
+    "defaultMessage": "secrets.",
+    "description": "Third animated keyword in the landing page hero headline."
+  },
+  "web.landing_page_desktop.description": {
+    "defaultMessage": "Koofr Vault is an open source, client-side, zero-knowledge encrypted storage application by Koofr. Unlock enhanced security for your files. Discover a better way to securely store and access your photos, videos and documents.",
+    "description": "Marketing description paragraph on the desktop landing page."
+  },
+  "web.landing_page_unofficial.warning": {
+    "defaultMessage": "This is an unofficial Koofr Vault page. Use at your own risk.",
+    "description": "Warning text on the unofficial landing page informing users it's not an official site."
+  },
+  "web.loading_circle.aria_label": {
+    "defaultMessage": "Loading…",
+    "description": "Accessibility label for the loading animation."
+  },
+  "web.mobile_page.continue_with_web_app.button": {
+    "defaultMessage": "Or continue using the web app",
+    "description": "Button label that continues in the web app instead of installing the mobile app."
+  },
+  "web.mobile_page.description": {
+    "defaultMessage": "It looks like you don't have Koofr Vault mobile app installed.",
+    "description": "Informational text stating the mobile app is not installed."
+  },
+  "web.mobile_page.header": {
+    "defaultMessage": "Open in mobile app",
+    "description": "Navbar title on the page prompting users to open the mobile app."
+  },
+  "web.mobile_page.install_app.button": {
+    "defaultMessage": "Install the mobile app",
+    "description": "Instruction line encouraging users to install the mobile app."
+  },
+  "web.mobile_page.title": {
+    "defaultMessage": "Open in Koofr Vault mobile app",
+    "description": "Document title for the page that prompts users to open the mobile app."
+  },
+  "web.modal.close.aria_label": {
+    "defaultMessage": "Close",
+    "description": "Accessibility label for the modal close button (X)."
+  },
+  "web.navbar.aria_label": {
+    "defaultMessage": "Navbar",
+    "description": "Accessibility label for the main top navigation bar."
+  },
+  "web.navbar_back.aria_label": {
+    "defaultMessage": "Back",
+    "description": "Accessibility label for the navbar back button."
+  },
+  "web.navbar_breadcrumbs.aria_label": {
+    "defaultMessage": "Breadcrumb",
+    "description": "Accessibility label for the breadcrumb navigation."
+  },
+  "web.navbar_close.aria_label": {
+    "defaultMessage": "Close",
+    "description": "Accessibility label for the navbar close button."
+  },
+  "web.navbar_header.aria_label": {
+    "defaultMessage": "Navbar header",
+    "description": "Accessibility label for the navbar header/title area."
+  },
+  "web.navbar_left.aria_label": {
+    "defaultMessage": "Navbar left",
+    "description": "Accessibility label for the left section of the navbar."
+  },
+  "web.navbar_logo.aria_label": {
+    "defaultMessage": "Koofr Vault logo",
+    "description": "Accessibility label for the Koofr Vault logo in the navbar."
+  },
+  "web.navbar_nav.aria_label": {
+    "defaultMessage": "Navbar nav",
+    "description": "Accessibility label for the navbar action area."
+  },
+  "web.navbar_right.aria_label": {
+    "defaultMessage": "Navbar right",
+    "description": "Accessibility label for the right section of the navbar."
+  },
+  "web.not_found_page.go_to_dashboard.button": {
+    "defaultMessage": "Go to dashboard",
+    "description": "Primary button on the 404 page that returns the user to the dashboard."
+  },
+  "web.not_found_page.title": {
+    "defaultMessage": "Page not found",
+    "description": "Document title and main heading for the 404 page."
+  },
+  "web.not_supported_page.description": {
+    "defaultMessage": "Your browser is not supported. Please open this page in a modern browser on a computer.",
+    "description": "Message shown when the current browser is not supported."
+  },
+  "web.not_supported_page.title": {
+    "defaultMessage": "Not supported",
+    "description": "Document title for the browser not supported page."
+  },
+  "web.notifications.remove_all.button": {
+    "defaultMessage": "close all",
+    "description": "Button label to close all active notifications in the top-right notification stack."
+  },
+  "web.pdf_viewer.tooltip": {
+    "defaultMessage": "PDF viewer",
+    "description": "Iframe title for the embedded PDF viewer."
+  },
+  "web.remote_files_dir_picker.cancel.button": {
+    "defaultMessage": "Cancel",
+    "description": "Cancel button in the remote folder picker modal."
+  },
+  "web.remote_files_dir_picker.create_folder.button": {
+    "defaultMessage": "Create folder",
+    "description": "Button label to create a new folder in the remote folder picker."
+  },
+  "web.remote_files_dir_picker.select.button": {
+    "defaultMessage": "Select",
+    "description": "Confirm button in the remote folder picker modal."
+  },
+  "web.remote_files_dir_picker.title": {
+    "defaultMessage": "Select a folder",
+    "description": "Modal title for choosing a destination folder in remote files."
+  },
+  "web.repo_config_backup.description": {
+    "defaultMessage": "To generate your rclone config, please type your Safe Key. Make sure it's correct.",
+    "description": "Instruction text explaining that the Safe Key is required to generate the rclone config."
+  },
+  "web.repo_config_backup.password.aria_label": {
+    "defaultMessage": "Safe Key",
+    "description": "Accessibility label for the Safe Key input on the config backup page."
+  },
+  "web.repo_config_backup.password.placeholder": {
+    "defaultMessage": "Your Safe Key",
+    "description": "Placeholder text for the Safe Key input on the config backup page."
+  },
+  "web.repo_config_backup.title": {
+    "defaultMessage": "Backup config",
+    "description": "Document title for the Safe Box configuration backup page."
+  },
+  "web.repo_config_info.copy.button": {
+    "defaultMessage": "Copy",
+    "description": "Button label to copy the config summary to the clipboard."
+  },
+  "web.repo_config_info.copy.button.copied": {
+    "defaultMessage": "Copied",
+    "description": "Button label after the config has been copied to the clipboard."
+  },
+  "web.repo_config_info.encrypt_directory_names": {
+    "defaultMessage": "<b>Encrypt directory names</b>: {encrypt_directory_names}",
+    "description": "Label for the directory name encryption setting in the Safe Box config summary."
+  },
+  "web.repo_config_info.filename_encryption": {
+    "defaultMessage": "<b>Filename encryption</b>: {filename_encryption}",
+    "description": "Label for the filename encryption setting in the Safe Box config summary."
+  },
+  "web.repo_config_info.location": {
+    "defaultMessage": "<b>Location</b>: {location}",
+    "description": "Label for the storage location line in the Safe Box config summary."
+  },
+  "web.repo_config_info.rclone_config": {
+    "defaultMessage": "<b>rclone config</b>:",
+    "description": "Label preceding the raw rclone config block in the Safe Box config summary."
+  },
+  "web.repo_config_info.salt": {
+    "defaultMessage": "<b>Salt (password2)</b>: {salt}",
+    "description": "Label for the salt (password2) line in the Safe Box config summary."
+  },
+  "web.repo_create.created.continue.button": {
+    "defaultMessage": "Continue",
+    "description": "Button label on the create-success screen to continue to the Safe Box."
+  },
+  "web.repo_create.created.description": {
+    "defaultMessage": "Before you start using your Safe Box please safely store the configuration.",
+    "description": "Instruction text prompting users to save the Safe Box configuration before continuing."
+  },
+  "web.repo_create.created.title": {
+    "defaultMessage": "Your Safe Box has been created",
+    "description": "Success headline shown after a Safe Box is created."
+  },
+  "web.repo_create.form.create.button": {
+    "defaultMessage": "Create",
+    "description": "Primary button to create a new Safe Box."
+  },
+  "web.repo_create.form.location.label": {
+    "defaultMessage": "Location",
+    "description": "Label for the storage location field in the Safe Box creation form."
+  },
+  "web.repo_create.form.location.select_folder.button": {
+    "defaultMessage": "Select a folder",
+    "description": "Placeholder text prompting the user to choose a storage folder."
+  },
+  "web.repo_create.form.password.label": {
+    "defaultMessage": "Safe Key",
+    "description": "Label for the Safe Key input in the Safe Box creation form."
+  },
+  "web.repo_create.form.password.placeholder": {
+    "defaultMessage": "Must be at least 8 characters long",
+    "description": "Placeholder text describing the minimum Safe Key length."
+  },
+  "web.repo_create.form.rclone_config.fill.button": {
+    "defaultMessage": "Fill",
+    "description": "Button label to parse the rclone config and fill the form."
+  },
+  "web.repo_create.form.rclone_config.format.label": {
+    "defaultMessage": "Format:",
+    "description": "Label shown above the rclone config format example."
+  },
+  "web.repo_create.form.rclone_config.title": {
+    "defaultMessage": "From rclone config",
+    "description": "Section title for importing settings from an rclone config."
+  },
+  "web.repo_create.form.salt.description": {
+    "defaultMessage": "<p>Salt is used in the key derivation process to create a unique encryption key and helps to protect against potential attacks. It will be stored on the Koofr servers in a secure manner.</p><p>A random Salt has been generated for you. If you prefer, you can leave the Salt field empty, and the default salt will be used (same as in rclone). However, it is recommended to use a unique salt for enhanced security. Using a unique salt helps to increase the complexity of the encryption process, making it more difficult for potential attackers to access the encrypted data.</p><p>If you wish to transfer the encrypted files to another service, it is necessary to also export the salt, otherwise you won't be able to decrypt your files.</p>",
+    "description": "Text explaining what a salt is in Safe Box creation."
+  },
+  "web.repo_create.form.salt.label": {
+    "defaultMessage": "Salt",
+    "description": "Label for the optional salt field in advanced Safe Box settings."
+  },
+  "web.repo_create.form.show_advanced_settings.button": {
+    "defaultMessage": "Show advanced settings",
+    "description": "Button label that reveals advanced settings in the Safe Box creation form."
+  },
+  "web.repo_create.title": {
+    "defaultMessage": "Create a new Safe Box",
+    "description": "Title for the Safe Box creation page."
+  },
+  "web.repo_file_category.archive": {
+    "defaultMessage": "Archive",
+    "description": "File category label for archive files in the file info panel."
+  },
+  "web.repo_file_category.audio": {
+    "defaultMessage": "Audio",
+    "description": "File category label for audio files in the file info panel."
+  },
+  "web.repo_file_category.code": {
+    "defaultMessage": "Code",
+    "description": "File category label for code files in the file info panel."
+  },
+  "web.repo_file_category.document": {
+    "defaultMessage": "Document",
+    "description": "File category label for document files in the file info panel."
+  },
+  "web.repo_file_category.file": {
+    "defaultMessage": "File",
+    "description": "File category label for generic files in the file info panel."
+  },
+  "web.repo_file_category.folder": {
+    "defaultMessage": "Folder",
+    "description": "File category label for folders in the file info panel."
+  },
+  "web.repo_file_category.image": {
+    "defaultMessage": "Image",
+    "description": "File category label for image files in the file info panel."
+  },
+  "web.repo_file_category.pdf": {
+    "defaultMessage": "PDF",
+    "description": "File category label for PDF files in the file info panel."
+  },
+  "web.repo_file_category.presentation": {
+    "defaultMessage": "Presentation",
+    "description": "File category label for presentation files in the file info panel."
+  },
+  "web.repo_file_category.spreadsheet": {
+    "defaultMessage": "Spreadsheet",
+    "description": "File category label for spreadsheet files in the file info panel."
+  },
+  "web.repo_file_category.text": {
+    "defaultMessage": "Text",
+    "description": "File category label for plain text files in the file info panel."
+  },
+  "web.repo_file_category.video": {
+    "defaultMessage": "Video",
+    "description": "File category label for video files in the file info panel."
+  },
+  "web.repo_file_info.close.button": {
+    "defaultMessage": "Close",
+    "description": "Close button label in the file info modal."
+  },
+  "web.repo_file_info.encrypted_md5.label": {
+    "defaultMessage": "Encrypted MD5",
+    "description": "Field label for the encrypted MD5 hash in the file info panel."
+  },
+  "web.repo_file_info.encrypted_path.label": {
+    "defaultMessage": "Encrypted path",
+    "description": "Field label for the encrypted file path in the file info panel."
+  },
+  "web.repo_file_info.md5.label": {
+    "defaultMessage": "MD5",
+    "description": "Field label for the file MD5 hash in the file info panel."
+  },
+  "web.repo_file_info.modified.label": {
+    "defaultMessage": "Modified",
+    "description": "Field label for the last modified date in the file info panel."
+  },
+  "web.repo_file_info.name.label": {
+    "defaultMessage": "Name",
+    "description": "Field label for the file name in the file info panel."
+  },
+  "web.repo_file_info.path.label": {
+    "defaultMessage": "Path",
+    "description": "Field label for the decrypted file path in the file info panel."
+  },
+  "web.repo_file_info.size.label": {
+    "defaultMessage": "Size",
+    "description": "Field label for the file size in the file info panel."
+  },
+  "web.repo_file_info.tags_error.label": {
+    "defaultMessage": "Tags error",
+    "description": "Field label for tag processing errors in the file info panel."
+  },
+  "web.repo_file_info.title": {
+    "defaultMessage": "Info",
+    "description": "Modal title for the file info dialog/sheet."
+  },
+  "web.repo_file_info.type.label": {
+    "defaultMessage": "Type",
+    "description": "Field label for the file type/category in the file info panel."
+  },
+  "web.repo_files.create_text_file.default_filename": {
+    "defaultMessage": "new text file {date}",
+    "description": "Default base filename used when creating a new text file in the file browser."
+  },
+  "web.repo_files.dir.aria_label": {
+    "defaultMessage": "Folder {name}",
+    "description": "Accessibility label for a folder row in the files table."
+  },
+  "web.repo_files.file.aria_label": {
+    "defaultMessage": "File {name}",
+    "description": "Accessibility label for a file row in the files table."
+  },
+  "web.repo_files.modified.column": {
+    "defaultMessage": "Modified",
+    "description": "Column header label for last modified date in the files table."
+  },
+  "web.repo_files.name.column": {
+    "defaultMessage": "Name",
+    "description": "Column header label for the file name in the files table."
+  },
+  "web.repo_files.name_with_error.text": {
+    "defaultMessage": "{name} (ERROR)",
+    "description": "File name display when the name has an error, adding an ERROR suffix."
+  },
+  "web.repo_files.rename.tooltip": {
+    "defaultMessage": "Rename",
+    "description": "Tooltip for the rename icon button shown on file rows."
+  },
+  "web.repo_files.size.column": {
+    "defaultMessage": "Size",
+    "description": "Column header label for file size in the files table."
+  },
+  "web.repo_files.table.aria_label": {
+    "defaultMessage": "Files list",
+    "description": "Accessibility label for the files table/list."
+  },
+  "web.repo_files_add_menu.create_dir.menu_item": {
+    "defaultMessage": "Create folder",
+    "description": "Menu item label to create a new folder from the Add menu in the file browser."
+  },
+  "web.repo_files_add_menu.create_text_file.menu_item": {
+    "defaultMessage": "Create new text file",
+    "description": "Menu item label to create a new text file from the Add menu in the file browser."
+  },
+  "web.repo_files_add_menu.upload_file.menu_item": {
+    "defaultMessage": "Upload file",
+    "description": "Menu item label to upload files from the Add menu in the file browser."
+  },
+  "web.repo_files_add_menu.upload_folder.menu_item": {
+    "defaultMessage": "Upload folder",
+    "description": "Menu item label to upload a folder from the Add menu in the file browser."
+  },
+  "web.repo_files_details.navbar.delete.button": {
+    "defaultMessage": "Delete",
+    "description": "Navbar button label to delete the current file."
+  },
+  "web.repo_files_details.navbar.download.button": {
+    "defaultMessage": "Download",
+    "description": "Navbar button label to download the current file."
+  },
+  "web.repo_files_details.navbar.edit.button": {
+    "defaultMessage": "Edit",
+    "description": "Navbar button label to enter edit mode for a file."
+  },
+  "web.repo_files_details.navbar.rename.button": {
+    "defaultMessage": "Rename",
+    "description": "Navbar button label to rename the current file."
+  },
+  "web.repo_files_details.navbar.save.button": {
+    "defaultMessage": "Save",
+    "description": "Navbar button label to save changes while editing a file."
+  },
+  "web.repo_files_details.navbar_header.auto_save.text": {
+    "defaultMessage": "Changes are saved automatically. Last saved {modified}",
+    "description": "Auto-save status line showing last saved time in file details."
+  },
+  "web.repo_files_details.navbar_header.error.aria_label": {
+    "defaultMessage": "File error",
+    "description": "Accessibility label for the error message shown in the file details navbar."
+  },
+  "web.repo_files_details.navbar_header.loading.text": {
+    "defaultMessage": "Loading…",
+    "description": "Status text in the file details navbar while content is loading."
+  },
+  "web.repo_files_details.navbar_header.saving.text": {
+    "defaultMessage": "Saving…",
+    "description": "Status text in the file details navbar while changes are saving."
+  },
+  "web.repo_files_details.navbar_header.status.aria_label": {
+    "defaultMessage": "File status",
+    "description": "Accessibility label for the file status area in the file details navbar."
+  },
+  "web.repo_files_details.navbar_header.status.dirty": {
+    "defaultMessage": "File modified",
+    "description": "Accessibility label for the dirty status indicator in file details."
+  },
+  "web.repo_files_details.navbar_header.status.unchanged": {
+    "defaultMessage": "File unchanged",
+    "description": "Accessibility label for the unchanged status indicator in file details."
+  },
+  "web.repo_files_empty.title": {
+    "defaultMessage": "This folder is empty.",
+    "description": "Empty-state headline shown when a Safe Box folder has no files."
+  },
+  "web.repo_files_move.cancel.button": {
+    "defaultMessage": "Cancel",
+    "description": "Cancel button in the move/copy modal."
+  },
+  "web.repo_files_move.copy.button": {
+    "defaultMessage": "Copy",
+    "description": "Confirm button label in the move/copy modal when in copy mode."
+  },
+  "web.repo_files_move.copy.title": {
+    "defaultMessage": "Copy <b>{count, plural, one {# item} other {# items}}</b> to <b>{dest}</b>",
+    "description": "Modal title when copying selected items to a destination folder."
+  },
+  "web.repo_files_move.create_dir.button": {
+    "defaultMessage": "Create folder",
+    "description": "Button label in the move/copy modal to create a new destination folder."
+  },
+  "web.repo_files_move.move.button": {
+    "defaultMessage": "Move",
+    "description": "Confirm button label in the move/copy modal when in move mode."
+  },
+  "web.repo_files_move.move.title": {
+    "defaultMessage": "Move <b>{count, plural, one {# item} other {# items}}</b> to <b>{dest}</b>",
+    "description": "Modal title when moving selected items to a destination folder."
+  },
+  "web.repo_files_nav.add.button": {
+    "defaultMessage": "Add",
+    "description": "Navbar button label to open the add menu in the file browser."
+  },
+  "web.repo_files_summary.selected_count.text": {
+    "defaultMessage": "{count, plural, one {# item} other {# items}} - {size} selected",
+    "description": "Summary text in the file list header showing selected item count and total size."
+  },
+  "web.repo_files_summary.total_count.text": {
+    "defaultMessage": "{count, plural, one {# item} other {# items}} - {size}",
+    "description": "Summary text in the file list header showing total item count and size."
+  },
+  "web.repo_files_toolbar.copy.button": {
+    "defaultMessage": "Copy",
+    "description": "Toolbar button label to copy the selected files or folders."
+  },
+  "web.repo_files_toolbar.delete.button": {
+    "defaultMessage": "Delete",
+    "description": "Toolbar button label to delete the selected files or folders."
+  },
+  "web.repo_files_toolbar.download.button": {
+    "defaultMessage": "Download",
+    "description": "Toolbar button label to download the selected files or folders."
+  },
+  "web.repo_files_toolbar.edit_text.button": {
+    "defaultMessage": "Edit text",
+    "description": "Toolbar button label to open the text editor for the selected text file."
+  },
+  "web.repo_files_toolbar.info.button": {
+    "defaultMessage": "Info",
+    "description": "Toolbar button label in the file list to open the info sidebar for the selected item."
+  },
+  "web.repo_files_toolbar.move.button": {
+    "defaultMessage": "Move",
+    "description": "Toolbar button label to move the selected files or folders."
+  },
+  "web.repo_files_toolbar.rename.button": {
+    "defaultMessage": "Rename",
+    "description": "Toolbar button label on mobile to rename the selected file or folder."
+  },
+  "web.repo_files_upload_form.upload_dir.aria_label": {
+    "defaultMessage": "Upload folder",
+    "description": "Accessibility label for the hidden directory input used to upload folders."
+  },
+  "web.repo_files_upload_form.upload_file.aria_label": {
+    "defaultMessage": "Upload file",
+    "description": "Accessibility label for the hidden file input used to upload files."
+  },
+  "web.repo_info.backup_config.button": {
+    "defaultMessage": "Backup the Safe Box config",
+    "description": "Button label to navigate to the config backup screen."
+  },
+  "web.repo_info.backup_config.heading": {
+    "defaultMessage": "Backup config",
+    "description": "Section header for the Safe Box configuration backup area."
+  },
+  "web.repo_info.created_at.text": {
+    "defaultMessage": "Created {created}",
+    "description": "Line showing the Safe Box creation date on the info page (e.g. 'Created Saturday, January 1, 2022 at 12:00:00')."
+  },
+  "web.repo_info.destroy_repo.button": {
+    "defaultMessage": "Destroy Safe Box…",
+    "description": "Destructive button label to open the destroy Safe Box dialog."
+  },
+  "web.repo_info.locked.text": {
+    "defaultMessage": "Locked",
+    "description": "Status label shown next to the Safe Box name when it is locked."
+  },
+  "web.repo_info.open_repo_in_remote.button": {
+    "defaultMessage": "Open in Koofr",
+    "description": "Button label to open the Safe Box in Koofr."
+  },
+  "web.repo_info.unlocked.text": {
+    "defaultMessage": "Unlocked",
+    "description": "Status label shown next to the Safe Box name when it is unlocked."
+  },
+  "web.repo_lock.lock_after.heading": {
+    "defaultMessage": "Lock after",
+    "description": "Label above the auto-lock timeout dropdown."
+  },
+  "web.repo_lock.lock_after_options.custom": {
+    "defaultMessage": "Custom ({seconds, plural, one {# second} other {# seconds}})",
+    "description": "Auto-lock dropdown option showing a custom number of inactivity seconds. Full text: Lock after<new line>Custom (N seconds)"
+  },
+  "web.repo_lock.lock_after_options.inactive_10_minutes": {
+    "defaultMessage": "10 minutes of inactivity",
+    "description": "Auto-lock dropdown option for 10 minutes of inactivity. Full text: Lock after<new line>10 minutes of inactivity"
+  },
+  "web.repo_lock.lock_after_options.inactive_1_hour": {
+    "defaultMessage": "1 hour of inactivity",
+    "description": "Auto-lock dropdown option for 1 hour of inactivity. Full text: Lock after<new line>1 hour of inactivity"
+  },
+  "web.repo_lock.lock_after_options.inactive_1_minute": {
+    "defaultMessage": "1 minute of inactivity",
+    "description": "Auto-lock dropdown option for 1 minute of inactivity. Full text: Lock after<new line>1 minute of inactivity"
+  },
+  "web.repo_lock.lock_after_options.inactive_2_hours": {
+    "defaultMessage": "2 hours of inactivity",
+    "description": "Auto-lock dropdown option for 2 hours of inactivity. Full text: Lock after<new line>2 hours of inactivity"
+  },
+  "web.repo_lock.lock_after_options.inactive_30_minutes": {
+    "defaultMessage": "30 minutes of inactivity",
+    "description": "Auto-lock dropdown option for 30 minutes of inactivity. Full text: Lock after<new line>30 minutes of inactivity"
+  },
+  "web.repo_lock.lock_after_options.inactive_4_hours": {
+    "defaultMessage": "4 hours of inactivity",
+    "description": "Auto-lock dropdown option for 4 hours of inactivity. Full text: Lock after<new line>4 hours of inactivity"
+  },
+  "web.repo_lock.lock_after_options.inactive_5_minutes": {
+    "defaultMessage": "5 minutes of inactivity",
+    "description": "Auto-lock dropdown option for 5 minutes of inactivity. Full text: Lock after<new line>5 minutes of inactivity"
+  },
+  "web.repo_lock.lock_after_options.no_limit": {
+    "defaultMessage": "No time limit",
+    "description": "Auto-lock dropdown option meaning no time limit. Full text: Lock after<new line>No time limit"
+  },
+  "web.repo_lock.lock_after_select.aria_label": {
+    "defaultMessage": "Lock Safe Box after",
+    "description": "Accessibility label for the auto-lock timeout dropdown control."
+  },
+  "web.repo_lock.lock_now.button": {
+    "defaultMessage": "Lock now",
+    "description": "Button label to immediately lock the Safe Box."
+  },
+  "web.repo_lock.lock_on.button": {
+    "defaultMessage": "Lock on",
+    "description": "Label above the lock condition checkboxes."
+  },
+  "web.repo_lock.lock_on_app_hidden.text": {
+    "defaultMessage": "App hidden",
+    "description": "Checkbox label to lock the Safe Box when the app is hidden/backgrounded."
+  },
+  "web.repo_lock.title": {
+    "defaultMessage": "Lock Safe Box",
+    "description": "Section header for Safe Box auto-lock settings."
+  },
+  "web.repo_remove.cancel.button": {
+    "defaultMessage": "Cancel",
+    "description": "Cancel button in the destroy Safe Box modal."
+  },
+  "web.repo_remove.confirm.button": {
+    "defaultMessage": "Destroy",
+    "description": "Destructive confirmation button in the destroy Safe Box modal."
+  },
+  "web.repo_remove.message": {
+    "defaultMessage": "<p>Do you really want to destroy Safe Box <b>{name}</b>?</p><p>Destroying the Safe Box will keep all the files on Koofr but remove the configuration so you won't be able to decrypt the files if you didn't save the configuration.</p><p><b>This action cannot be undone.</b></p><p>Enter your Safe Key to confirm the removal:</p>",
+    "description": "Body text in the destroy Safe Box modal explaining consequences and requesting the Safe Key."
+  },
+  "web.repo_remove.title": {
+    "defaultMessage": "Destroy Safe Box",
+    "description": "Modal title for the destructive action that removes a Safe Box configuration."
+  },
+  "web.repo_space_usage.calculate.button": {
+    "defaultMessage": "Calculate",
+    "description": "Button label to calculate or refresh space usage."
+  },
+  "web.repo_space_usage.heading": {
+    "defaultMessage": "Space used",
+    "description": "Section header for the Safe Box space usage view."
+  },
+  "web.repo_space_usage.loading.text": {
+    "defaultMessage": "Loading…",
+    "description": "Status text shown while space usage is being calculated."
+  },
+  "web.repo_unlock_form.message": {
+    "defaultMessage": "Enter your Safe Key to continue",
+    "description": "Instruction text above the Safe Key field on the unlock screen."
+  },
+  "web.repo_unlock_form.password.aria_label": {
+    "defaultMessage": "Safe Key",
+    "description": "Aria label for the password input field on the unlock screen."
+  },
+  "web.repo_unlock_form.submit.button": {
+    "defaultMessage": "Continue",
+    "description": "Primary button on the Safe Box unlock form."
+  },
+  "web.repos.create.button": {
+    "defaultMessage": "Create new",
+    "description": "Sidebar link label to create a new Safe Box."
+  },
+  "web.repos.repo.info.aria_label": {
+    "defaultMessage": "Safe Box info",
+    "description": "Accessibility label for the info icon linking to Safe Box settings."
+  },
+  "web.repos.repo.locked.aria_label": {
+    "defaultMessage": "Safe Box locked",
+    "description": "Accessibility label for the locked Safe Box icon in the sidebar list."
+  },
+  "web.repos.repo.recent.button": {
+    "defaultMessage": "Recent files",
+    "description": "Sidebar label for the recent files entry under a Safe Box."
+  },
+  "web.repos.repo.recent.button.aria_label": {
+    "defaultMessage": "Recent files",
+    "description": "Accessibility label for the recent files entry in the Safe Box sidebar."
+  },
+  "web.repos.repo.unlocked.aria_label": {
+    "defaultMessage": "Safe Box unlocked",
+    "description": "Accessibility label for the unlocked Safe Box in the sidebar list."
+  },
+  "web.show_password.hide.aria_label": {
+    "defaultMessage": "Hide password",
+    "description": "Accessibility label for the button that hides the password."
+  },
+  "web.show_password.show.aria_label": {
+    "defaultMessage": "Show password",
+    "description": "Accessibility label for the button that reveals the password."
+  },
+  "web.space_usage.text": {
+    "defaultMessage": "{used} of {total} used",
+    "description": "Status line in the space usage widget showing used and total storage (e.g. '100 MB of 10 GB used')."
+  },
+  "web.toolbar.cancel.button": {
+    "defaultMessage": "Cancel",
+    "description": "Toolbar item label to cancel or exit selection mode."
+  },
+  "web.transfers.summary.cancel_all.button": {
+    "defaultMessage": "Cancel",
+    "description": "Button label in the transfers summary bar to cancel all active transfers."
+  },
+  "web.transfers.summary.cancel_all.tooltip": {
+    "defaultMessage": "Cancel all transfers",
+    "description": "Tooltip for the Cancel button in the transfers summary bar to cancel all active transfers."
+  },
+  "web.transfers.summary.clear_all.button": {
+    "defaultMessage": "Clear",
+    "description": "Button label in the transfers summary bar to clear all finished transfers."
+  },
+  "web.transfers.summary.clear_all.tooltip": {
+    "defaultMessage": "Clear all transfers",
+    "description": "Tooltip for the Clear button in the transfers summary bar to clear the completed transfer list."
+  },
+  "web.transfers.summary.hide_details.button": {
+    "defaultMessage": "Hide details",
+    "description": "Button label in the transfers summary bar to collapse the transfer details list."
+  },
+  "web.transfers.summary.progress.text": {
+    "defaultMessage": "<b>{done_count} / {total_count}</b> done",
+    "description": "Status line in the transfers summary bar showing completed versus total transfer count."
+  },
+  "web.transfers.summary.remaining_time.text": {
+    "defaultMessage": "<b>{time}</b> remaining",
+    "description": "Status line in the transfers summary bar showing estimated remaining time (e.g. '1 minute remaining')."
+  },
+  "web.transfers.summary.retry_all.button": {
+    "defaultMessage": "Retry",
+    "description": "Button label in the transfers summary bar to retry all failed transfers."
+  },
+  "web.transfers.summary.retry_all.tooltip": {
+    "defaultMessage": "Retry failed transfers",
+    "description": "Tooltip for the Retry button in the transfers summary bar that retries all failed transfers."
+  },
+  "web.transfers.summary.show_details.button": {
+    "defaultMessage": "Show details",
+    "description": "Button label in the transfers summary bar to expand the transfer details list."
+  },
+  "web.transfers.transfer.cancel.button": {
+    "defaultMessage": "Cancel",
+    "description": "Button label in a transfer row to cancel an in-progress transfer."
+  },
+  "web.transfers.transfer.clear.aria_label": {
+    "defaultMessage": "Clear",
+    "description": "Accessibility label for the icon button that clears a completed transfer row."
+  },
+  "web.transfers.transfer.message.done": {
+    "defaultMessage": "{name}<status> has been transferred</status>",
+    "description": "Transfer row status when a file has completed transferring."
+  },
+  "web.transfers.transfer.message.failed": {
+    "defaultMessage": "{name}<status> failed. {error}</status>",
+    "description": "Transfer row status when a file transfer failed, including error details."
+  },
+  "web.transfers.transfer.message.processing": {
+    "defaultMessage": "{name}<status> is being processed</status>",
+    "description": "Transfer row status when a file is being prepared before upload/download."
+  },
+  "web.transfers.transfer.message.transferring": {
+    "defaultMessage": "{name}<status> is being transferred</status>",
+    "description": "Transfer row status when a file is actively transferring."
+  },
+  "web.transfers.transfer.message.waiting": {
+    "defaultMessage": "{name}<status> is waiting to be transferred</status>",
+    "description": "Transfer row status when a file is queued and waiting to start."
+  },
+  "web.transfers.transfer.open.button": {
+    "defaultMessage": "Open",
+    "description": "Button label in a transfer row to open the transferred item."
+  },
+  "web.transfers.transfer.retry.button": {
+    "defaultMessage": "Retry",
+    "description": "Button label in a transfer row to retry a failed transfer."
+  },
+  "web.version.text": {
+    "defaultMessage": "Version: {version}",
+    "description": "Footer label showing the app release version with a link to the GitHub release."
+  }
 }

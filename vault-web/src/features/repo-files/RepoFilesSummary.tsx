@@ -1,6 +1,7 @@
 import { css } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { memo } from 'react';
+import { FormattedMessage } from 'react-intl';
 
 import { RepoFilesBrowserInfo } from '../../vault-wasm/vault-wasm';
 
@@ -34,13 +35,21 @@ export const RepoFilesSummary = memo<{ info: RepoFilesBrowserInfo }>(
       >
         {selectedCount > 0 ? (
           <span>
-            {selectedCount} {selectedCount === 1 ? 'item' : 'items'} -{' '}
-            {selectedSizeDisplay} selected
+            <FormattedMessage
+              id="web.repo_files_summary.selected_count.text"
+              description="Summary text in the file list header showing selected item count and total size."
+              defaultMessage="{count, plural, one {# item} other {# items}} - {size} selected"
+              values={{ count: selectedCount, size: selectedSizeDisplay }}
+            />
           </span>
         ) : (
           <span>
-            {totalCount} {totalCount === 1 ? 'item' : 'items'} -{' '}
-            {totalSizeDisplay}
+            <FormattedMessage
+              id="web.repo_files_summary.total_count.text"
+              description="Summary text in the file list header showing total item count and size."
+              defaultMessage="{count, plural, one {# item} other {# items}} - {size}"
+              values={{ count: totalCount, size: totalSizeDisplay }}
+            />
           </span>
         )}
       </div>

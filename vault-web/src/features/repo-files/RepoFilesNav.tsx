@@ -3,6 +3,7 @@ import { useTheme } from '@emotion/react';
 import Dropdown from '@restart/ui/Dropdown';
 import { useDropdownToggle } from '@restart/ui/DropdownToggle';
 import { memo, useState } from 'react';
+import { FormattedMessage } from 'react-intl';
 
 import AddInverseIcon from '../../assets/images/add-inverse.svg?react';
 import { NavbarNav } from '../../components/navbar/NavbarNav';
@@ -27,7 +28,11 @@ export const AddButton = memo(() => {
       icon={<AddInverseIcon role="img" />}
       {...props}
     >
-      Add
+      <FormattedMessage
+        id="web.repo_files_nav.add.button"
+        description="Navbar button label to open the add menu in the file browser."
+        defaultMessage="Add"
+      />
     </NavbarNavItem>
   );
 });

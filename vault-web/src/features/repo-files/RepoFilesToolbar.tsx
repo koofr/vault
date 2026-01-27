@@ -27,6 +27,7 @@ import { useWebVault } from '../../webVault/useWebVault';
 import { useRepoFilesBrowserId } from './RepoFilesBrowserId';
 import { downloadSelected } from './repoFilesActions';
 import { fileHasDetailsEdit, repoFilesDetailsLink } from './selectors';
+import { FormattedMessage } from 'react-intl';
 
 export const RepoFilesToolbar = memo<{
   info: RepoFilesBrowserInfo;
@@ -54,7 +55,11 @@ export const RepoFilesToolbar = memo<{
           iconHover={<InfoHoverIcon role="img" />}
           onClick={onInfoClick}
         >
-          Info
+          <FormattedMessage
+            id="web.repo_files_toolbar.info.button"
+            description="Toolbar button label in the file list to open the info sidebar for the selected item."
+            defaultMessage="Info"
+          />
         </ToolbarItem>
       ) : null}
       {isMobile && selectedFile !== undefined ? (
@@ -63,7 +68,11 @@ export const RepoFilesToolbar = memo<{
           iconHover={<FilesRenameHoverIcon role="img" />}
           onClick={renameSelectedFile}
         >
-          Rename
+          <FormattedMessage
+            id="web.repo_files_toolbar.rename.button"
+            description="Toolbar button label on mobile to rename the selected file or folder."
+            defaultMessage="Rename"
+          />
         </ToolbarItem>
       ) : null}
       {info.canCopySelected ? (
@@ -74,7 +83,11 @@ export const RepoFilesToolbar = memo<{
             webVault.repoFilesBrowsersMoveSelected(browserId, 'Copy');
           }}
         >
-          Copy
+          <FormattedMessage
+            id="web.repo_files_toolbar.copy.button"
+            description="Toolbar button label to copy the selected files or folders."
+            defaultMessage="Copy"
+          />
         </ToolbarItem>
       ) : null}
       {info.canMoveSelected ? (
@@ -85,7 +98,11 @@ export const RepoFilesToolbar = memo<{
             webVault.repoFilesBrowsersMoveSelected(browserId, 'Move');
           }}
         >
-          Move
+          <FormattedMessage
+            id="web.repo_files_toolbar.move.button"
+            description="Toolbar button label to move the selected files or folders."
+            defaultMessage="Move"
+          />
         </ToolbarItem>
       ) : null}
       {info.canDownloadSelected ? (
@@ -97,7 +114,11 @@ export const RepoFilesToolbar = memo<{
             downloadSelected(webVault, browserId, isMobile);
           }}
         >
-          Download
+          <FormattedMessage
+            id="web.repo_files_toolbar.download.button"
+            description="Toolbar button label to download the selected files or folders."
+            defaultMessage="Download"
+          />
         </ToolbarItem>
       ) : null}
       {info.canDeleteSelected ? (
@@ -108,7 +129,11 @@ export const RepoFilesToolbar = memo<{
             webVault.repoFilesBrowsersDeleteSelected(browserId);
           }}
         >
-          Delete
+          <FormattedMessage
+            id="web.repo_files_toolbar.delete.button"
+            description="Toolbar button label to delete the selected files or folders."
+            defaultMessage="Delete"
+          />
         </ToolbarItem>
       ) : null}
       {info.selectedFile !== undefined &&
@@ -123,7 +148,11 @@ export const RepoFilesToolbar = memo<{
           icon={<FilesEditIcon role="img" />}
           iconHover={<FilesEditHoverIcon role="img" />}
         >
-          Edit text
+          <FormattedMessage
+            id="web.repo_files_toolbar.edit_text.button"
+            description="Toolbar button label to open the text editor for the selected text file."
+            defaultMessage="Edit text"
+          />
         </ToolbarItem>
       ) : null}
       {info.selectedCount > 0 ? (

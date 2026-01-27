@@ -1,6 +1,7 @@
 import { css, cx } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { memo, MouseEvent, useCallback, useMemo } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { Link } from 'react-router-dom';
 
 import FilesRenameHoverIcon from '../../assets/images/files-rename-hover.svg?react';
@@ -38,6 +39,7 @@ interface TableData {
 }
 
 const FileName = memo<{ file: RepoFile }>(({ file }) => {
+  const intl = useIntl();
   const isMobile = useIsMobile();
   const theme = useTheme();
   const webVault = useWebVault();
@@ -48,6 +50,49 @@ const FileName = memo<{ file: RepoFile }>(({ file }) => {
   const renameFile = useCallback(() => {
     webVault.repoFilesRenameFile(file.repoId, file.encryptedPath);
   }, [webVault, file]);
+
+  const name =
+    file.type === 'Dir' ? (
+      <Link
+        to={repoFilesLink(file.repoId, file.encryptedPath)}
+        className={css`
+          font-weight: 600;
+
+          ${allStates} {
+            color: ${theme.colors.text};
+          }
+        `}
+      >
+        {file.name}
+      </Link>
+    ) : fileHasDetails(file) ? (
+      <Link
+        to={repoFilesDetailsLink(file.repoId, file.encryptedPath)}
+        className={css`
+          ${allStates} {
+            color: ${theme.colors.text};
+          }
+        `}
+      >
+        {file.name}
+      </Link>
+    ) : (
+      <a
+        href="."
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onClick();
+        }}
+        className={css`
+          ${allStates} {
+            color: ${theme.colors.text};
+          }
+        `}
+      >
+        {file.name}
+      </a>
+    );
 
   return (
     <div
@@ -77,48 +122,16 @@ const FileName = memo<{ file: RepoFile }>(({ file }) => {
             `,
         )}
       >
-        {file.type === 'Dir' ? (
-          <Link
-            to={repoFilesLink(file.repoId, file.encryptedPath)}
-            className={css`
-              font-weight: 600;
-
-              ${allStates} {
-                color: ${theme.colors.text};
-              }
-            `}
-          >
-            {file.name}
-          </Link>
-        ) : fileHasDetails(file) ? (
-          <Link
-            to={repoFilesDetailsLink(file.repoId, file.encryptedPath)}
-            className={css`
-              ${allStates} {
-                color: ${theme.colors.text};
-              }
-            `}
-          >
-            {file.name}
-          </Link>
+        {file.nameError !== undefined ? (
+          <FormattedMessage
+            id="web.repo_files.name_with_error.text"
+            description="File name display when the name has an error, adding an ERROR suffix."
+            defaultMessage="{name} (ERROR)"
+            values={{ name }}
+          />
         ) : (
-          <a
-            href="."
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onClick();
-            }}
-            className={css`
-              ${allStates} {
-                color: ${theme.colors.text};
-              }
-            `}
-          >
-            {file.name}
-          </a>
+          name
         )}
-        {file.nameError !== undefined ? ' (ERROR)' : null}
       </span>
       {!isMobile ? (
         <button
@@ -142,7 +155,12 @@ const FileName = memo<{ file: RepoFile }>(({ file }) => {
 
             renameFile();
           }}
-          aria-label="Rename"
+          title={intl.formatMessage({
+            id: 'web.repo_files.rename.tooltip',
+            description:
+              'Tooltip for the rename icon button shown on file rows.',
+            defaultMessage: 'Rename',
+          })}
         >
           <FilesRenameIcon
             className={css`
@@ -200,6 +218,7 @@ export const FileModified = memo<{ file: RepoFile }>(({ file }) => {
 FileModified.displayName = 'FileModified';
 
 const RepoFilesTableRow = memo<RowProps<TableData>>(({ index, data }) => {
+  const intl = useIntl();
   const item = useMemo(() => data.items[index], [data, index]);
   const [file] = useSubscribe(
     (v, cb) => v.repoFilesFileSubscribe(item.fileId, cb),
@@ -235,8 +254,24 @@ const RepoFilesTableRow = memo<RowProps<TableData>>(({ index, data }) => {
       ariaLabel={
         file !== undefined
           ? file.type === 'Dir'
-            ? `Folder ${file.name}`
-            : `File ${file.name}`
+            ? intl.formatMessage(
+                {
+                  id: 'web.repo_files.dir.aria_label',
+                  description:
+                    'Accessibility label for a folder row in the files table.',
+                  defaultMessage: 'Folder {name}',
+                },
+                { name: file.name },
+              )
+            : intl.formatMessage(
+                {
+                  id: 'web.repo_files.file.aria_label',
+                  description:
+                    'Accessibility label for a file row in the files table.',
+                  defaultMessage: 'File {name}',
+                },
+                { name: file.name },
+              )
           : undefined
       }
     />
@@ -247,6 +282,7 @@ RepoFilesTableRow.displayName = 'RepoFilesTableRow';
 export const RepoFilesTable = memo<{
   info: RepoFilesBrowserInfo;
 }>(({ info }) => {
+  const intl = useIntl();
   const isMobile = useIsMobile();
   const webVault = useWebVault();
   const browserId = useRepoFilesBrowserId();
@@ -262,25 +298,39 @@ export const RepoFilesTable = memo<{
     (): Column[] => [
       {
         name: 'name',
-        label: 'Name',
+        label: intl.formatMessage({
+          id: 'web.repo_files.name.column',
+          description:
+            'Column header label for the file name in the files table.',
+          defaultMessage: 'Name',
+        }),
         sortBy: sort.field === 'Name' ? sort.direction : 'Hidden',
       },
       {
         name: 'size',
-        label: 'Size',
+        label: intl.formatMessage({
+          id: 'web.repo_files.size.column',
+          description: 'Column header label for file size in the files table.',
+          defaultMessage: 'Size',
+        }),
         width: isMobile ? 0 : '15%',
         minWidth: isMobile ? undefined : 70,
         sortBy: sort.field === 'Size' ? sort.direction : 'Hidden',
       },
       {
         name: 'modified',
-        label: 'Modified',
+        label: intl.formatMessage({
+          id: 'web.repo_files.modified.column',
+          description:
+            'Column header label for last modified date in the files table.',
+          defaultMessage: 'Modified',
+        }),
         width: isMobile ? 0 : '20%',
         minWidth: isMobile ? undefined : 150,
         sortBy: sort.field === 'Modified' ? sort.direction : 'Hidden',
       },
     ],
-    [isMobile, sort],
+    [isMobile, sort, intl],
   );
   const onHeadCheckboxClick = useCallback(() => {
     if (info.selectionSummary === 'All') {
@@ -339,7 +389,11 @@ export const RepoFilesTable = memo<{
       length={items.length}
       data={data}
       Row={RepoFilesTableRow}
-      ariaLabel="Files list"
+      ariaLabel={intl.formatMessage({
+        id: 'web.repo_files.table.aria_label',
+        description: 'Accessibility label for the files table/list.',
+        defaultMessage: 'Files list',
+      })}
       onHeadCheckboxClick={onHeadCheckboxClick}
       onSortByClick={onSortByClick}
       onRowCheckboxClick={onRowCheckboxClick}

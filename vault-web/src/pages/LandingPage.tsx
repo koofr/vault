@@ -8,6 +8,7 @@ export const LandingPage = memo(() => {
 
   if (
     hostname === 'vault.koofr.net' ||
+    hostname === 'koofr-vault-preview.github.io' ||
     hostname === '127.0.0.1' ||
     hostname === 'localhost'
   ) {

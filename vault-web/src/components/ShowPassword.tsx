@@ -1,5 +1,6 @@
 import { css, cx } from '@emotion/css';
 import { memo } from 'react';
+import { useIntl } from 'react-intl';
 
 import HidePasswordHoverIcon from '../assets/images/hide-password-hover.svg?react';
 import HidePasswordIcon from '../assets/images/hide-password.svg?react';
@@ -11,6 +12,8 @@ export const ShowPassword = memo<{
   value: boolean;
   onClick: () => void;
 }>(({ value, onClick }) => {
+  const intl = useIntl();
+
   return (
     <button
       type="button"
@@ -28,7 +31,21 @@ export const ShowPassword = memo<{
       `}
       tabIndex={-1}
       onClick={onClick}
-      aria-label={value ? 'Hide password' : 'Show password'}
+      aria-label={
+        value
+          ? intl.formatMessage({
+              id: 'web.show_password.hide.aria_label',
+              description:
+                'Accessibility label for the button that hides the password.',
+              defaultMessage: 'Hide password',
+            })
+          : intl.formatMessage({
+              id: 'web.show_password.show.aria_label',
+              description:
+                'Accessibility label for the button that reveals the password.',
+              defaultMessage: 'Show password',
+            })
+      }
     >
       <div
         className={css`

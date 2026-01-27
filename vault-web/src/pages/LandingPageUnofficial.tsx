@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-no-target-blank */
 import { css, cx } from '@emotion/css';
 import { memo } from 'react';
+import { FormattedMessage } from 'react-intl';
 
 import LogoImage from '../assets/images/landing/logo.svg?react';
 import { BaseAnchorButton } from '../components/Button';
@@ -136,7 +137,11 @@ export const LandingPageUnofficial = memo(() => {
               text-align: center;
             `}
           >
-            This is an unofficial Koofr Vault page. Use at your own risk.
+            <FormattedMessage
+              id="web.landing_page_unofficial.warning"
+              description="Warning text on the unofficial landing page informing users it's not an official site."
+              defaultMessage="This is an unofficial Koofr Vault page. Use at your own risk."
+            />
           </p>
 
           <BaseAnchorButton
@@ -151,7 +156,11 @@ export const LandingPageUnofficial = memo(() => {
               `,
             )}
           >
-            Get started
+            <FormattedMessage
+              id="web.landing_page.get_started.button"
+              description="Primary call-to-action button on the landing page that starts login."
+              defaultMessage="Get started"
+            />
           </BaseAnchorButton>
         </div>
       </div>
@@ -182,22 +191,30 @@ export const LandingPageUnofficial = memo(() => {
             margin: 0 0 15px;
           `}
         >
-          © 2026.{' '}
-          <a
-            href="https://koofr.eu"
-            target="_blank"
-            rel="noopener"
-            className={css`
-              font-weight: 600;
-              ${allStates} {
-                color: #011722;
-                text-decoration: none;
-              }
-            `}
-          >
-            Koofr d.o.o.
-          </a>{' '}
-          all rights reserved.
+          <FormattedMessage
+            id="web.landing_page.copyright.text"
+            description="Footer copyright line on the landing page with company link and current year."
+            defaultMessage="© {year}. <a>Koofr d.o.o.</a> all rights reserved."
+            values={{
+              year: new Date().getFullYear(),
+              a: (chunks) => (
+                <a
+                  href="https://koofr.eu"
+                  target="_blank"
+                  rel="noopener"
+                  className={css`
+                    font-weight: 600;
+                    ${allStates} {
+                      color: #011722;
+                      text-decoration: none;
+                    }
+                  `}
+                >
+                  {chunks}
+                </a>
+              ),
+            }}
+          />
         </p>
 
         <div

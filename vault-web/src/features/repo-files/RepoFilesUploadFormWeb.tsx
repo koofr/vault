@@ -1,10 +1,12 @@
 import { FormEvent, memo, useCallback, useRef } from 'react';
+import { useIntl } from 'react-intl';
 
 import { useUploadFiles } from '../transfers/useUploadFiles';
 
 import { useRepoFilesUploadApi } from './RepoFilesUploadApi';
 
 export const RepoFilesUploadFormWeb = memo(() => {
+  const intl = useIntl();
   const uploadFiles = useUploadFiles();
   const uploadFormRef = useRef<HTMLFormElement>(null);
   const uploadApi = useRepoFilesUploadApi();
@@ -51,13 +53,23 @@ export const RepoFilesUploadFormWeb = memo(() => {
         type="file"
         ref={uploadFileInputRef}
         onChange={onUploadFileChange}
-        aria-label="Upload file"
+        aria-label={intl.formatMessage({
+          id: 'web.repo_files_upload_form.upload_file.aria_label',
+          description:
+            'Accessibility label for the hidden file input used to upload files.',
+          defaultMessage: 'Upload file',
+        })}
       />
       <input
         type="file"
         ref={uploadDirInputRef}
         onChange={onUploadFileChange}
-        aria-label="Upload folder"
+        aria-label={intl.formatMessage({
+          id: 'web.repo_files_upload_form.upload_dir.aria_label',
+          description:
+            'Accessibility label for the hidden directory input used to upload folders.',
+          defaultMessage: 'Upload folder',
+        })}
         {...{ webkitdirectory: '', mozdirectory: '', directory: '' }}
       />
     </form>

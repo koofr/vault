@@ -1,5 +1,6 @@
 import { css } from '@emotion/css';
 import { memo } from 'react';
+import { useIntl } from 'react-intl';
 
 import { NavbarBreadcrumb, NavbarBreadcrumbInfo } from './NavbarBreadcrumb';
 import { NavbarBreadcrumbsSeparator } from './NavbarBreadcrumbsSeparator';
@@ -15,6 +16,7 @@ export interface NavbarBreadcrumbsProps {
 
 export const NavbarBreadcrumbs = memo<NavbarBreadcrumbsProps>(
   ({ breadcrumbs, onClick, onCaretClick }) => {
+    const intl = useIntl();
     const breadcrumbsHead = breadcrumbs.slice(0, breadcrumbs.length - 2);
     const breadcrumbsTail = breadcrumbs.slice(
       Math.max(breadcrumbs.length - 2, 0),
@@ -28,7 +30,11 @@ export const NavbarBreadcrumbs = memo<NavbarBreadcrumbsProps>(
           padding: 0;
           display: flex;
         `}
-        aria-label="Breadcrumb"
+        aria-label={intl.formatMessage({
+          id: 'web.navbar_breadcrumbs.aria_label',
+          description: 'Accessibility label for the breadcrumb navigation.',
+          defaultMessage: 'Breadcrumb',
+        })}
       >
         {hasTail ? (
           <div

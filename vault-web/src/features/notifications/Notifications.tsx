@@ -1,6 +1,7 @@
 import { css } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { memo, useCallback } from 'react';
+import { FormattedMessage } from 'react-intl';
 
 import { buttonReset } from '../../styles/mixins/buttons';
 import { useSubscribe } from '../../webVault/useSubscribe';
@@ -68,7 +69,11 @@ export const Notifications = memo(() => {
           `}
           onClick={removeAll}
         >
-          [ close all ]
+          <FormattedMessage
+            id="web.notifications.remove_all.button"
+            description="Button label to close all active notifications in the top-right notification stack."
+            defaultMessage="close all"
+          />
         </button>
       ) : undefined}
 

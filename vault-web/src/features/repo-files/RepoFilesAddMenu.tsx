@@ -3,6 +3,7 @@ import { useTheme } from '@emotion/react';
 import { useDropdownMenu } from '@restart/ui/DropdownMenu';
 import { format } from 'date-fns/format';
 import { memo, useCallback } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 
 import { Menu, MenuDivider, MenuItem } from '../../components/menu/Menu';
@@ -23,7 +24,15 @@ export const UploadFileItem = memo<{
     uploadApi.uploadFile?.();
   }, [hide, uploadApi]);
 
-  return <MenuItem onClick={uploadFile}>Upload file</MenuItem>;
+  return (
+    <MenuItem onClick={uploadFile}>
+      <FormattedMessage
+        id="web.repo_files_add_menu.upload_file.menu_item"
+        description="Menu item label to upload files from the Add menu in the file browser."
+        defaultMessage="Upload file"
+      />
+    </MenuItem>
+  );
 });
 UploadFileItem.displayName = 'UploadFileItem';
 
@@ -37,7 +46,15 @@ export const UploadDirItem = memo<{
     uploadApi.uploadDir?.();
   }, [hide, uploadApi]);
 
-  return <MenuItem onClick={uploadFolder}>Upload folder</MenuItem>;
+  return (
+    <MenuItem onClick={uploadFolder}>
+      <FormattedMessage
+        id="web.repo_files_add_menu.upload_folder.menu_item"
+        description="Menu item label to upload a folder from the Add menu in the file browser."
+        defaultMessage="Upload folder"
+      />
+    </MenuItem>
+  );
 });
 UploadDirItem.displayName = 'UploadDirItem';
 
@@ -59,7 +76,11 @@ export const CreateDirItem = memo<{
           createDir();
         }}
       >
-        Create folder
+        <FormattedMessage
+          id="web.repo_files_add_menu.create_dir.menu_item"
+          description="Menu item label to create a new folder from the Add menu in the file browser."
+          defaultMessage="Create folder"
+        />
       </MenuItem>
     </>
   );
@@ -69,13 +90,28 @@ CreateDirItem.displayName = 'CreateDirItem';
 export const CreateTextFileItem = memo<{
   hide: () => void;
 }>(({ hide }) => {
+  const intl = useIntl();
   const navigate = useNavigate();
   const webVault = useWebVault();
   const browserId = useRepoFilesBrowserId();
+
   const createFile = useCallback(() => {
     const { repoId } = webVault.repoFilesBrowsersInfo(browserId)!;
 
-    const name = `new text file ${format(new Date(), 'yyyyMMddHHmmss')}.txt`;
+    const name =
+      intl.formatMessage(
+        {
+          id: 'web.repo_files.create_text_file.default_filename',
+          description:
+            'Default base filename used when creating a new text file in the file browser.',
+          defaultMessage: 'new text file {date}',
+        },
+        {
+          // Locale is not specified here because only numbers are used in the
+          // format.
+          date: format(new Date(), 'yyyyMMddHHmmss'),
+        },
+      ) + '.txt';
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     webVault.repoFilesBrowsersCreateFile(browserId, name).then(async (path) => {
@@ -83,7 +119,7 @@ export const CreateTextFileItem = memo<{
         await navigate(repoFilesDetailsLink(repoId!, path, true));
       }
     });
-  }, [webVault, browserId, navigate]);
+  }, [intl, webVault, browserId, navigate]);
 
   return (
     <>
@@ -93,7 +129,11 @@ export const CreateTextFileItem = memo<{
           createFile();
         }}
       >
-        Create new text file
+        <FormattedMessage
+          id="web.repo_files_add_menu.create_text_file.menu_item"
+          description="Menu item label to create a new text file from the Add menu in the file browser."
+          defaultMessage="Create new text file"
+        />
       </MenuItem>
     </>
   );

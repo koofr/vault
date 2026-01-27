@@ -1,8 +1,10 @@
 import { css, cx } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { memo } from 'react';
+import { FormattedMessage } from 'react-intl';
 
 import { Button } from '../../components/Button';
+import { DirPicker } from '../../components/dirpicker/DirPicker';
 import {
   Modal,
   ModalBody,
@@ -14,8 +16,6 @@ import {
   ModalTitle,
 } from '../../components/modal/Modal';
 import { useIsMobile } from '../../components/useIsMobile';
-
-import { DirPicker } from '../../components/dirpicker/DirPicker';
 
 export const RemoteFilesDirPickerModalContent = memo<{
   dirPickerId: number;
@@ -41,7 +41,13 @@ export const RemoteFilesDirPickerModalContent = memo<{
     return (
       <>
         <ModalHeader>
-          <ModalTitle>Select a folder</ModalTitle>
+          <ModalTitle>
+            <FormattedMessage
+              id="web.remote_files_dir_picker.title"
+              description="Modal title for choosing a destination folder in remote files."
+              defaultMessage="Select a folder"
+            />
+          </ModalTitle>
         </ModalHeader>
         <ModalBody
           className={css`
@@ -76,12 +82,20 @@ export const RemoteFilesDirPickerModalContent = memo<{
               disabled={!createDirEnabled}
               onClick={createDir}
             >
-              Create folder
+              <FormattedMessage
+                id="web.remote_files_dir_picker.create_folder.button"
+                description="Button label to create a new folder in the remote folder picker."
+                defaultMessage="Create folder"
+              />
             </Button>
           </ModalFooterExtra>
           <ModalFooterButtons>
             <ModalFooterButton type="button" onClick={cancel}>
-              Cancel
+              <FormattedMessage
+                id="web.remote_files_dir_picker.cancel.button"
+                description="Cancel button in the remote folder picker modal."
+                defaultMessage="Cancel"
+              />
             </ModalFooterButton>
             <ModalFooterButton
               type="button"
@@ -89,7 +103,11 @@ export const RemoteFilesDirPickerModalContent = memo<{
               disabled={!canSelect}
               onClick={select}
             >
-              Select
+              <FormattedMessage
+                id="web.remote_files_dir_picker.select.button"
+                description="Confirm button in the remote folder picker modal."
+                defaultMessage="Select"
+              />
             </ModalFooterButton>
           </ModalFooterButtons>
         </ModalFooter>

@@ -1,6 +1,7 @@
 import { css, cx } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { memo, useCallback } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { Link, useLocation, useParams } from 'react-router-dom';
 
 import CreateHoverIcon from '../../assets/images/create-hover.svg?react';
@@ -21,6 +22,7 @@ import { useWebVault } from '../../webVault/useWebVault';
 
 export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
   ({ repo, isActive }) => {
+    const intl = useIntl();
     const location = useLocation();
     const theme = useTheme();
     const webVault = useWebVault();
@@ -67,7 +69,12 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
                 flex-shrink: 0;
                 margin-right: 7px;
               `}
-              aria-label="Safe Box locked"
+              aria-label={intl.formatMessage({
+                id: 'web.repos.repo.locked.aria_label',
+                description:
+                  'Accessibility label for the locked Safe Box icon in the sidebar list.',
+                defaultMessage: 'Safe Box locked',
+              })}
             >
               <LockedIcon
                 className={css`
@@ -98,7 +105,12 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
                 margin-right: 7px;
               `}
               onClick={() => lockRepo(repo)}
-              aria-label="Safe Box unlocked"
+              aria-label={intl.formatMessage({
+                id: 'web.repos.repo.unlocked.aria_label',
+                description:
+                  'Accessibility label for the unlocked Safe Box in the sidebar list.',
+                defaultMessage: 'Safe Box unlocked',
+              })}
             >
               <div
                 className={css`
@@ -173,7 +185,12 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
               align-items: center;
               flex-shrink: 0;
             `}
-            aria-label="Safe Box info"
+            aria-label={intl.formatMessage({
+              id: 'web.repos.repo.info.aria_label',
+              description:
+                'Accessibility label for the info icon linking to Safe Box settings.',
+              defaultMessage: 'Safe Box info',
+            })}
           >
             {isInfoActive ? (
               <InfoHoverIcon role="img" />
@@ -241,7 +258,12 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
                     flex-shrink: 0;
                     margin-right: 7px;
                   `}
-                  aria-label="Recent"
+                  aria-label={intl.formatMessage({
+                    id: 'web.repos.repo.recent.button.aria_label',
+                    description:
+                      'Accessibility label for the recent files entry in the Safe Box sidebar.',
+                    defaultMessage: 'Recent files',
+                  })}
                 >
                   {isRecentActive ? (
                     <RecentHoverIcon role="img" />
@@ -300,7 +322,11 @@ export const RepoItem = memo<{ repo: Repo; isActive: boolean }>(
                       overflow: hidden;
                     `}
                   >
-                    Recent
+                    <FormattedMessage
+                      id="web.repos.repo.recent.button"
+                      description="Sidebar label for the recent files entry under a Safe Box."
+                      defaultMessage="Recent files"
+                    />
                   </span>
                 </Link>
               </div>
@@ -389,7 +415,11 @@ export const RepoCreateItem = memo<{ isActive: boolean }>(({ isActive }) => {
               `,
           )}
         >
-          Create new
+          <FormattedMessage
+            id="web.repos.create.button"
+            description="Sidebar link label to create a new Safe Box."
+            defaultMessage="Create new"
+          />
         </div>
       </Link>
     </li>

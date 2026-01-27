@@ -1,6 +1,7 @@
 import { css, cx } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { memo, PropsWithChildren, ReactNode } from 'react';
+import { useIntl } from 'react-intl';
 
 import { NavbarLogo } from './NavbarLogo';
 import { useNavbarSticky } from './NavbarSticky';
@@ -19,6 +20,7 @@ export const NavbarMain = memo<{
   isSticky: boolean;
   noShadow?: boolean;
 }>(({ left, header, nav, right, isSticky, noShadow }) => {
+  const intl = useIntl();
   const theme = useTheme();
 
   return (
@@ -48,7 +50,11 @@ export const NavbarMain = memo<{
             `
           : undefined,
       )}
-      aria-label="Navbar"
+      aria-label={intl.formatMessage({
+        id: 'web.navbar.aria_label',
+        description: 'Accessibility label for the main top navigation bar.',
+        defaultMessage: 'Navbar',
+      })}
     >
       <div
         className={css`
@@ -58,7 +64,12 @@ export const NavbarMain = memo<{
           width: 32px;
           height: 32px;
         `}
-        aria-label="Navbar left"
+        aria-label={intl.formatMessage({
+          id: 'web.navbar_left.aria_label',
+          description:
+            'Accessibility label for the left section of the navbar.',
+          defaultMessage: 'Navbar left',
+        })}
       >
         {left ?? <NavbarLogo />}
       </div>
@@ -89,7 +100,12 @@ export const NavbarMain = memo<{
             flex-grow: 1;
             flex-shrink: 0;
           `}
-          aria-label="Navbar header"
+          aria-label={intl.formatMessage({
+            id: 'web.navbar_header.aria_label',
+            description:
+              'Accessibility label for the navbar header/title area.',
+            defaultMessage: 'Navbar header',
+          })}
         >
           {header}
         </div>
@@ -100,7 +116,11 @@ export const NavbarMain = memo<{
               display: flex;
               align-items: center;
             `}
-            aria-label="Navbar nav"
+            aria-label={intl.formatMessage({
+              id: 'web.navbar_nav.aria_label',
+              description: 'Accessibility label for the navbar action area.',
+              defaultMessage: 'Navbar nav',
+            })}
           >
             {nav}
           </div>
@@ -122,7 +142,12 @@ export const NavbarMain = memo<{
           width: 32px;
           height: 32px;
         `}
-        aria-label="Navbar right"
+        aria-label={intl.formatMessage({
+          id: 'web.navbar_right.aria_label',
+          description:
+            'Accessibility label for the right section of the navbar.',
+          defaultMessage: 'Navbar right',
+        })}
       >
         {right}
       </div>

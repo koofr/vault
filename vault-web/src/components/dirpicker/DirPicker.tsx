@@ -2,6 +2,7 @@ import { css, cx, keyframes } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import range from 'lodash/range';
 import { memo, useMemo, useRef } from 'react';
+import { useIntl } from 'react-intl';
 
 import LoadingIcon from '../../assets/images/loading.svg?react';
 import { useSubscribe } from '../../webVault/useSubscribe';
@@ -23,6 +24,7 @@ export const DirPicker = memo<{
   pickerId: number;
   onClick: (pickerId: number, itemId: string, isArrow: boolean) => void;
 }>(({ pickerId, onClick }) => {
+  const intl = useIntl();
   const isMobile = useIsMobile();
   const theme = useTheme();
   const [items] = useSubscribe(
@@ -183,7 +185,12 @@ export const DirPicker = memo<{
                 align-items: center;
                 margin-left: 4px;
               `}
-              aria-label="Loading..."
+              aria-label={intl.formatMessage({
+                id: 'web.dir_picker.loading.aria_label',
+                description:
+                  'Accessibility label for the loading spinner shown next to a folder row in the directory picker.',
+                defaultMessage: 'Loading…',
+              })}
             >
               <LoadingIcon
                 className={css`

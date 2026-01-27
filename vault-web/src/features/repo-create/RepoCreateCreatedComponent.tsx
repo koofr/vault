@@ -1,6 +1,7 @@
 import { css } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { memo, useCallback, useState } from 'react';
+import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '../../components/Button';
@@ -29,15 +30,22 @@ export const RepoCreateCreatedComponent = memo<{ created: RepoCreated }>(
             margin: 0 0 20px;
           `}
         >
-          Your Safe Box has been created.
+          <FormattedMessage
+            id="web.repo_create.created.title"
+            description="Success headline shown after a Safe Box is created."
+            defaultMessage="Your Safe Box has been created"
+          />
         </h1>
         <p
           className={css`
             margin: 0 0 20px;
           `}
         >
-          Before you start using your Safe Box please safely store the
-          configuration.
+          <FormattedMessage
+            id="web.repo_create.created.description"
+            description="Instruction text prompting users to save the Safe Box configuration before continuing."
+            defaultMessage="Before you start using your Safe Box please safely store the configuration."
+          />
         </p>
         <div
           className={css`
@@ -65,7 +73,11 @@ export const RepoCreateCreatedComponent = memo<{ created: RepoCreated }>(
           disabled={!configSaved}
           onClick={openRepo}
         >
-          Continue
+          <FormattedMessage
+            id="web.repo_create.created.continue.button"
+            description="Button label on the create-success screen to continue to the Safe Box."
+            defaultMessage="Continue"
+          />
         </Button>
       </div>
     );

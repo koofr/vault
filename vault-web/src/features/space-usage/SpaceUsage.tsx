@@ -1,6 +1,7 @@
 import { css, cx } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { memo } from 'react';
+import { FormattedMessage } from 'react-intl';
 
 import SpaceUsageIcon from '../../assets/images/space-usage.svg?react';
 import { Progress } from '../../components/Progress';
@@ -87,7 +88,15 @@ export const SpaceUsage = memo(() => {
               margin-bottom: 5px;
             `}
           >
-            {spaceUsage.usedDisplay} of {spaceUsage.totalDisplay} used
+            <FormattedMessage
+              id="web.space_usage.text"
+              description="Status line in the space usage widget showing used and total storage (e.g. '100 MB of 10 GB used')."
+              defaultMessage="{used} of {total} used"
+              values={{
+                used: spaceUsage.usedDisplay,
+                total: spaceUsage.totalDisplay,
+              }}
+            />
           </div>
           <div
             className={css`
