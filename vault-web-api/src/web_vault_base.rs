@@ -9,13 +9,12 @@ use futures::{FutureExt, future::BoxFuture};
 use vault_core::{
     Vault, common, dialogs,
     dir_pickers::state::DirPickerItemId,
-    files, notifications, oauth2, remote_files, repo_create, repo_files, repo_files_browsers,
+    files, intl, notifications, oauth2, remote_files, repo_create, repo_files, repo_files_browsers,
     repo_files_details, repo_files_move, repo_remove, repo_space_usage, repo_unlock, repos,
     store::{self, Event, Subscription},
     transfers,
     types::{DecryptedName, EncryptedPath, RepoFileId, RepoId, TimeMillis},
-    user_error,
-    user_error::UserError,
+    user_error::{self, UserError},
 };
 
 use crate::{dto, web_errors::WebErrors};
@@ -26,6 +25,8 @@ pub type Data<T> = Arc<Mutex<HashMap<u32, T>>>;
 
 #[derive(Default)]
 pub struct SubscriptionData {
+    pub intl_locales: Data<Vec<dto::IntlLocale>>,
+    pub intl_current_locale: Data<Option<dto::IntlLocale>>,
     pub notifications: Data<Vec<dto::Notification>>,
     pub dialogs: Data<Vec<u32>>,
     pub dialog: Data<Option<dto::Dialog>>,
@@ -153,6 +154,56 @@ impl WebVaultBase {
 
     pub fn unsubscribe(&self, id: u32) {
         self.subscription.unsubscribe(id);
+    }
+
+    // intl
+
+    pub fn intl_locales_subscribe(&self, cb: Callback) -> u32 {
+        self.subscribe(
+            &[Event::Intl],
+            cb,
+            self.subscription_data.intl_locales.clone(),
+            move |vault| {
+                vault.with_state(|state| {
+                    intl::selectors::select_locales(state)
+                        .iter()
+                        .map(Into::into)
+                        .collect()
+                })
+            },
+        )
+    }
+
+    pub fn intl_locales_data(&self, id: u32) -> Option<Vec<dto::IntlLocale>> {
+        self.get_data(id, self.subscription_data.intl_locales.clone())
+    }
+
+    pub fn intl_current_locale_subscribe(&self, cb: Callback) -> u32 {
+        self.subscribe(
+            &[Event::Intl],
+            cb,
+            self.subscription_data.intl_current_locale.clone(),
+            move |vault| {
+                vault.with_state(|state| {
+                    intl::selectors::select_current_locale(state).map(Into::into)
+                })
+            },
+        )
+    }
+
+    pub fn intl_current_locale_data(&self, id: u32) -> Option<dto::IntlLocale> {
+        self.get_data(id, self.subscription_data.intl_current_locale.clone())
+            .flatten()
+    }
+
+    pub fn intl_change_locale(&self, locale: String) {
+        self.handle_result(
+            locale
+                .parse()
+                .map(intl::state::ChangeLocaleStrategy::Exact)
+                .map_err(intl::errors::SetLocaleError::LocaleParse)
+                .and_then(|locale| self.vault.intl_change_locale(locale)),
+        );
     }
 
     // lifecycle

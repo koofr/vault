@@ -222,8 +222,6 @@ impl Into<files_filter::FilesFilter> for FilesFilter {
     }
 }
 
-// file_icon
-
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
 pub enum FileIconSize {
     Sm,
@@ -311,6 +309,21 @@ impl Into<vault_file_icon::FileIconProps> for FileIconProps {
         vault_file_icon::FileIconProps {
             size: self.size.into(),
             attrs: self.attrs.into(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Tsify)]
+pub struct IntlLocale {
+    pub locale: String,
+    pub name: String,
+}
+
+impl From<&intl::locales::IntlLocale> for IntlLocale {
+    fn from(locale: &intl::locales::IntlLocale) -> Self {
+        Self {
+            locale: locale.locale.to_string(),
+            name: locale.name.clone(),
         }
     }
 }

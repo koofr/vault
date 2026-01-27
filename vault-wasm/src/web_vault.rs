@@ -45,6 +45,12 @@ extern "C" {
     #[wasm_bindgen(typescript_type = "RelativeTime")]
     pub type RelativeTime;
 
+    #[wasm_bindgen(typescript_type = "IntlLocale[] | undefined")]
+    pub type IntlLocaleVecOption;
+
+    #[wasm_bindgen(typescript_type = "IntlLocale | undefined")]
+    pub type IntlLocaleOption;
+
     #[wasm_bindgen(typescript_type = "Notification[] | undefined")]
     pub type NotificationVecOption;
 
@@ -183,6 +189,7 @@ impl WebVault {
         oauth2_client_id: String,
         oauth2_client_secret: String,
         oauth2_redirect_uri: String,
+        intl_preferred_locales: Vec<String>,
         browser_http_client_delegate: BrowserHttpClientDelegate,
         browser_eventstream_websocket_delegate: BrowserEventstreamWebSocketDelegate,
         storage: Storage,
@@ -197,8 +204,16 @@ impl WebVault {
 
         let intl_config = vault_core::intl::IntlConfig {
             ownership: vault_core::intl::IntlConfigOwnership::Core {
-                // TODO: get preferred locales from browser
-                preferred_locales: Vec::new(),
+                preferred_locales: intl_preferred_locales
+                    .iter()
+                    .flat_map(|locale| match locale.parse() {
+                        Ok(locale) => Some(locale),
+                        Err(_) => {
+                            log::warn!("Invalid preferred locale: {}", locale);
+                            None
+                        }
+                    })
+                    .collect(),
             },
         };
 
@@ -237,6 +252,33 @@ impl WebVault {
     #[wasm_bindgen(js_name = unsubscribe)]
     pub fn unsubscribe(&self, id: u32) {
         self.base.unsubscribe(id);
+    }
+
+    // intl
+
+    #[wasm_bindgen(js_name = intlLocalesSubscribe)]
+    pub fn intl_locales_subscribe(&self, cb: SubscribeCallback) -> u32 {
+        self.base.intl_locales_subscribe(to_cb(cb))
+    }
+
+    #[wasm_bindgen(js_name = intlLocalesData)]
+    pub fn intl_locales_data(&self, id: u32) -> IntlLocaleVecOption {
+        to_js(&self.base.intl_locales_data(id))
+    }
+
+    #[wasm_bindgen(js_name = intlCurrentLocaleSubscribe)]
+    pub fn intl_current_locale_subscribe(&self, cb: SubscribeCallback) -> u32 {
+        self.base.intl_current_locale_subscribe(to_cb(cb))
+    }
+
+    #[wasm_bindgen(js_name = intlCurrentLocaleData)]
+    pub fn intl_current_locale_data(&self, id: u32) -> IntlLocaleOption {
+        to_js(&self.base.intl_current_locale_data(id))
+    }
+
+    #[wasm_bindgen(js_name = intlChangeLocale)]
+    pub fn intl_change_locale(&self, locale: String) {
+        self.base.intl_change_locale(locale);
     }
 
     // lifecycle
