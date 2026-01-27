@@ -65,6 +65,20 @@ pub fn register_routes(router: Router<AppState>) -> Router<AppState> {
         .route("/session", get(session))
         //
         .route("/WebVault/unsubscribe", post(unsubscribe))
+        .route(
+            "/WebVault/intlLocalesSubscribe",
+            post(intl_locales_subscribe),
+        )
+        .route("/WebVault/intlLocalesData", post(intl_locales_data))
+        .route(
+            "/WebVault/intlCurrentLocaleSubscribe",
+            post(intl_current_locale_subscribe),
+        )
+        .route(
+            "/WebVault/intlCurrentLocaleData",
+            post(intl_current_locale_data),
+        )
+        .route("/WebVault/intlChangeLocale", post(intl_change_locale))
         .route("/WebVault/load", post(load))
         .route("/WebVault/logout", post(logout))
         .route("/WebVault/appVisible", post(app_visible))
@@ -514,6 +528,42 @@ pub async fn oauth2_logout(ExtractBase(base): ExtractBase) {
 
 pub async fn unsubscribe(ExtractBase(base): ExtractBase, Json((id,)): Json<(u32,)>) {
     base.unsubscribe(id);
+}
+
+// intl
+
+pub async fn intl_locales_subscribe(
+    ExtractBase(base): ExtractBase,
+    ExtractCallbacks(callbacks): ExtractCallbacks,
+    Json((cb,)): Json<(CallbackId,)>,
+) -> Json<u32> {
+    Json(base.intl_locales_subscribe(callbacks.cb(cb)))
+}
+
+pub async fn intl_locales_data(
+    ExtractBase(base): ExtractBase,
+    Json((id,)): Json<(u32,)>,
+) -> Json<Option<Vec<dto::IntlLocale>>> {
+    Json(base.intl_locales_data(id))
+}
+
+pub async fn intl_current_locale_subscribe(
+    ExtractBase(base): ExtractBase,
+    ExtractCallbacks(callbacks): ExtractCallbacks,
+    Json((cb,)): Json<(CallbackId,)>,
+) -> Json<u32> {
+    Json(base.intl_current_locale_subscribe(callbacks.cb(cb)))
+}
+
+pub async fn intl_current_locale_data(
+    ExtractBase(base): ExtractBase,
+    Json((id,)): Json<(u32,)>,
+) -> Json<Option<dto::IntlLocale>> {
+    Json(base.intl_current_locale_data(id))
+}
+
+pub async fn intl_change_locale(ExtractBase(base): ExtractBase, Json((locale,)): Json<(String,)>) {
+    base.intl_change_locale(locale);
 }
 
 // lifecycle

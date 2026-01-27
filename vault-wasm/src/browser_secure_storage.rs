@@ -31,6 +31,7 @@ impl SecureStorage for BrowserSecureStorage {
     }
 
     fn clear(&self) -> Result<(), String> {
+        let _ = self.storage.remove_item("vaultIntlCurrentLocale");
         let _ = self.storage.remove_item("vaultOAuth2Token");
         let _ = self.storage.remove_item("vaultOAuth2State");
         let _ = self.storage.remove_item("vaultLoginRedirect");
