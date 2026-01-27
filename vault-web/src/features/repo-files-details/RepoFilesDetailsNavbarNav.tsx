@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router-dom';
 
 import FilesEditHoverIcon from '../../assets/images/files-edit-hover.svg?react';
@@ -42,7 +43,11 @@ export const RepoFilesDetailsNavbarNav = memo<{
             }}
             disabled={!info.canSave}
           >
-            Save
+            <FormattedMessage
+              id="web.repo_files_details.navbar.save.button"
+              description="Navbar button label to save changes while editing a file."
+              defaultMessage="Save"
+            />
           </NavbarNavToolbarItem>
         </>
       ) : info.fileExists ? (
@@ -56,7 +61,11 @@ export const RepoFilesDetailsNavbarNav = memo<{
               icon={<FilesEditIcon role="img" />}
               iconHover={<FilesEditHoverIcon role="img" />}
             >
-              Edit
+              <FormattedMessage
+                id="web.repo_files_details.navbar.edit.button"
+                description="Navbar button label to enter edit mode for a file."
+                defaultMessage="Edit"
+              />
             </NavbarNavToolbarItem>
           ) : null}
           <NavbarNavToolbarItem
@@ -77,7 +86,11 @@ export const RepoFilesDetailsNavbarNav = memo<{
               }
             }}
           >
-            Download
+            <FormattedMessage
+              id="web.repo_files_details.navbar.download.button"
+              description="Navbar button label to download the current file."
+              defaultMessage="Download"
+            />
           </NavbarNavToolbarItem>
           <NavbarNavToolbarItem
             icon={<FilesRenameIcon role="img" />}
@@ -91,7 +104,11 @@ export const RepoFilesDetailsNavbarNav = memo<{
               }
             }}
           >
-            Rename
+            <FormattedMessage
+              id="web.repo_files_details.navbar.rename.button"
+              description="Navbar button label to rename the current file."
+              defaultMessage="Rename"
+            />
           </NavbarNavToolbarItem>
           <NavbarNavToolbarItem
             icon={<FilesToolbarDeleteIcon role="img" />}
@@ -100,7 +117,11 @@ export const RepoFilesDetailsNavbarNav = memo<{
               webVault.repoFilesDetailsDelete(detailsId);
             }}
           >
-            Delete
+            <FormattedMessage
+              id="web.repo_files_details.navbar.delete.button"
+              description="Navbar button label to delete the current file."
+              defaultMessage="Delete"
+            />
           </NavbarNavToolbarItem>
         </>
       ) : null}

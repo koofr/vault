@@ -1,6 +1,7 @@
 import { css, cx } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { memo, useCallback } from 'react';
+import { FormattedMessage } from 'react-intl';
 
 import { Button } from '../../components/Button';
 import { DirPicker } from '../../components/dirpicker/DirPicker';
@@ -57,25 +58,46 @@ export const RepoFilesMoveModalContent = memo<{
               font-weight: normal;
             `}
           >
-            {mode === 'Copy' ? 'Copy' : 'Move'}{' '}
-            <strong
-              className={css`
-                font-weight: 600;
-              `}
-            >
-              {srcFilesCount} {srcFilesCount === 1 ? 'item' : 'items'}
-            </strong>
             {destFileName !== undefined ? (
-              <>
-                {' to '}
-                <strong
-                  className={css`
-                    font-weight: 600;
-                  `}
-                >
-                  {destFileName}
-                </strong>
-              </>
+              mode === 'Copy' ? (
+                <FormattedMessage
+                  id="web.repo_files_move.copy.title"
+                  description="Modal title when copying selected items to a destination folder."
+                  defaultMessage="Copy <b>{count, plural, one {# item} other {# items}}</b> to <b>{dest}</b>"
+                  values={{
+                    count: srcFilesCount,
+                    dest: destFileName,
+                    b: (chunks) => (
+                      <strong
+                        className={css`
+                          font-weight: 600;
+                        `}
+                      >
+                        {chunks}
+                      </strong>
+                    ),
+                  }}
+                />
+              ) : (
+                <FormattedMessage
+                  id="web.repo_files_move.move.title"
+                  description="Modal title when moving selected items to a destination folder."
+                  defaultMessage="Move <b>{count, plural, one {# item} other {# items}}</b> to <b>{dest}</b>"
+                  values={{
+                    count: srcFilesCount,
+                    dest: destFileName,
+                    b: (chunks) => (
+                      <strong
+                        className={css`
+                          font-weight: 600;
+                        `}
+                      >
+                        {chunks}
+                      </strong>
+                    ),
+                  }}
+                />
+              )
             ) : null}
           </ModalTitle>
         </ModalHeader>
@@ -112,12 +134,20 @@ export const RepoFilesMoveModalContent = memo<{
               disabled={!createDirEnabled}
               onClick={createDir}
             >
-              Create folder
+              <FormattedMessage
+                id="web.repo_files_move.create_dir.button"
+                description="Button label in the move/copy modal to create a new destination folder."
+                defaultMessage="Create folder"
+              />
             </Button>
           </ModalFooterExtra>
           <ModalFooterButtons>
             <ModalFooterButton type="button" onClick={cancel}>
-              Cancel
+              <FormattedMessage
+                id="web.repo_files_move.cancel.button"
+                description="Cancel button in the move/copy modal."
+                defaultMessage="Cancel"
+              />
             </ModalFooterButton>
             <ModalFooterButton
               type="button"
@@ -125,7 +155,19 @@ export const RepoFilesMoveModalContent = memo<{
               disabled={!canMove}
               onClick={move}
             >
-              {mode === 'Copy' ? 'Copy' : 'Move'}
+              {mode === 'Copy' ? (
+                <FormattedMessage
+                  id="web.repo_files_move.copy.button"
+                  description="Confirm button label in the move/copy modal when in copy mode."
+                  defaultMessage="Copy"
+                />
+              ) : (
+                <FormattedMessage
+                  id="web.repo_files_move.move.button"
+                  description="Confirm button label in the move/copy modal when in move mode."
+                  defaultMessage="Move"
+                />
+              )}
             </ModalFooterButton>
           </ModalFooterButtons>
         </ModalFooter>

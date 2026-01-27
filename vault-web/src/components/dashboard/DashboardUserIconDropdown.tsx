@@ -2,12 +2,13 @@ import { css } from '@emotion/css';
 import Dropdown from '@restart/ui/Dropdown';
 import { useDropdownToggle } from '@restart/ui/DropdownToggle';
 import { memo, useState } from 'react';
+import { useIntl } from 'react-intl';
 
 import { UserIcon } from '../../features/user/UserIcon';
-
 import { DashboardMenu } from './DashboardMenu';
 
 export const DashboardUserIcon = memo(() => {
+  const intl = useIntl();
   const [props] = useDropdownToggle();
 
   return (
@@ -16,7 +17,11 @@ export const DashboardUserIcon = memo(() => {
       className={css`
         cursor: pointer;
       `}
-      aria-label="User menu"
+      aria-label={intl.formatMessage({
+        id: 'web.dashboard_user_icon.aria_label',
+        description: 'Accessibility label for the user account menu button.',
+        defaultMessage: 'User menu',
+      })}
       {...props}
     >
       <UserIcon />

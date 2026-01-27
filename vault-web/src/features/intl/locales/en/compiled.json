@@ -1,2 +1,2094 @@
 {
+  "web.dashboard_error.title": [
+    {
+      "type": 0,
+      "value": "Error"
+    }
+  ],
+  "web.dashboard_loading.title": [
+    {
+      "type": 0,
+      "value": "Loading"
+    }
+  ],
+  "web.dashboard_menu.logout.menu_item": [
+    {
+      "type": 0,
+      "value": "Logout"
+    }
+  ],
+  "web.dashboard_menu.open_remote.menu_item": [
+    {
+      "type": 0,
+      "value": "Open Koofr"
+    }
+  ],
+  "web.dashboard_sidenav_links.help_and_support.link": [
+    {
+      "type": 0,
+      "value": "Help and support"
+    }
+  ],
+  "web.dashboard_sidenav_links.intro.link": [
+    {
+      "type": 0,
+      "value": "Intro"
+    }
+  ],
+  "web.dashboard_sidenav_links.landing_page.link": [
+    {
+      "type": 0,
+      "value": "Landing page"
+    }
+  ],
+  "web.dashboard_sidenav_links.legal.link": [
+    {
+      "type": 0,
+      "value": "Legal"
+    }
+  ],
+  "web.dashboard_user_icon.aria_label": [
+    {
+      "type": 0,
+      "value": "User menu"
+    }
+  ],
+  "web.dir_picker.loading.aria_label": [
+    {
+      "type": 0,
+      "value": "Loading…"
+    }
+  ],
+  "web.error_component.try_again.button": [
+    {
+      "type": 0,
+      "value": "Try again"
+    }
+  ],
+  "web.file_icon.alt": [
+    {
+      "type": 0,
+      "value": "File icon"
+    }
+  ],
+  "web.git_revision.text": [
+    {
+      "type": 0,
+      "value": "Git revision: "
+    },
+    {
+      "type": 1,
+      "value": "git_revision"
+    }
+  ],
+  "web.intro.back.button": [
+    {
+      "type": 0,
+      "value": "Back"
+    }
+  ],
+  "web.intro.done.button": [
+    {
+      "type": 0,
+      "value": "Done"
+    }
+  ],
+  "web.intro.next.button": [
+    {
+      "type": 0,
+      "value": "Next"
+    }
+  ],
+  "web.intro.step_1.content": [
+    {
+      "type": 0,
+      "value": "Welcome to Koofr Vault: your favourite cloud storage with client-side encryption!"
+    }
+  ],
+  "web.intro.step_1.title": [
+    {
+      "type": 0,
+      "value": "Welcome"
+    }
+  ],
+  "web.intro.step_2.content_1": [
+    {
+      "type": 0,
+      "value": "The Vault is like having a box with a unique lock in your trunk: an extra layer of security to protect your most sensitive files."
+    }
+  ],
+  "web.intro.step_2.content_2": [
+    {
+      "type": 0,
+      "value": "Vault is "
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "open source"
+        }
+      ],
+      "type": 8,
+      "value": "a"
+    },
+    {
+      "type": 0,
+      "value": ", so you can always check that the code does exactly what is promised - and nothing more."
+    }
+  ],
+  "web.intro.step_2.content_3": [
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "rclone"
+        }
+      ],
+      "type": 8,
+      "value": "a"
+    },
+    {
+      "type": 0,
+      "value": " compatibility: Download your encrypted files and decrypt them locally using the rclone command-line tool."
+    }
+  ],
+  "web.intro.step_2.title": [
+    {
+      "type": 0,
+      "value": "About Vault"
+    }
+  ],
+  "web.intro.step_3.content_1": [
+    {
+      "type": 0,
+      "value": "You can have one or more Safe Boxes in your Vault, with separate Safe Keys for each Safe Box."
+    }
+  ],
+  "web.intro.step_3.content_2": [
+    {
+      "type": 0,
+      "value": "Vault encrypts both file names and content, so they are only readable inside the Safe Box."
+    }
+  ],
+  "web.intro.step_3.content_3": [
+    {
+      "type": 0,
+      "value": "In your main Koofr app, the files will appear with encrypted file names and cannot be opened."
+    }
+  ],
+  "web.intro.step_3.title": [
+    {
+      "type": 0,
+      "value": "Safe Boxes"
+    }
+  ],
+  "web.intro.step_4.content_1": [
+    {
+      "type": 0,
+      "value": "When you create a Safe Box, you'll choose a Safe Key for it."
+    }
+  ],
+  "web.intro.step_4.content_2": [
+    {
+      "type": 0,
+      "value": "Since the Safe Key is used to encrypt the files you store in the Safe Box, it cannot be changed later."
+    }
+  ],
+  "web.intro.step_4.content_3": [
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "There is no way recover your files if you forget your Safe Key."
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    },
+    {
+      "type": 0,
+      "value": " It is never sent to or stored on Koofr servers."
+    }
+  ],
+  "web.intro.step_4.title": [
+    {
+      "type": 0,
+      "value": "Safe Key"
+    }
+  ],
+  "web.intro.step_5.content": [
+    {
+      "type": 0,
+      "value": "Get started with Vault by creating your first Safe Box."
+    }
+  ],
+  "web.intro.step_5.title": [
+    {
+      "type": 0,
+      "value": "Start using Vault"
+    }
+  ],
+  "web.landing_page.copyright.text": [
+    {
+      "type": 0,
+      "value": "© "
+    },
+    {
+      "type": 1,
+      "value": "year"
+    },
+    {
+      "type": 0,
+      "value": ". "
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Koofr d.o.o."
+        }
+      ],
+      "type": 8,
+      "value": "a"
+    },
+    {
+      "type": 0,
+      "value": " all rights reserved."
+    }
+  ],
+  "web.landing_page.description": [
+    {
+      "type": 0,
+      "value": "Powerful, open source, client-side, zero-knowledge encryption. Unlock enhanced security for your most sensitive files with Koofr Vault."
+    }
+  ],
+  "web.landing_page.get_started.button": [
+    {
+      "type": 0,
+      "value": "Get started"
+    }
+  ],
+  "web.landing_page.section_1.content": [
+    {
+      "type": 0,
+      "value": "Koofr Vault is an open source, client-side, zero-knowledge encrypted storage application by "
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Koofr cloud storage"
+        }
+      ],
+      "type": 8,
+      "value": "a"
+    },
+    {
+      "type": 0,
+      "value": ". It's like having a box with a unique lock in your trunk: an extra layer of security to protect your files."
+    }
+  ],
+  "web.landing_page.section_1.title": [
+    {
+      "type": 0,
+      "value": "Extra strong protection"
+    }
+  ],
+  "web.landing_page.section_10.description": [
+    {
+      "type": 0,
+      "value": "Start encrypting your cloud storage files in just a few minutes. Included in all "
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Koofr plans"
+        }
+      ],
+      "type": 8,
+      "value": "a"
+    },
+    {
+      "type": 0,
+      "value": "."
+    }
+  ],
+  "web.landing_page.section_10.questions": [
+    {
+      "type": 0,
+      "value": "Have questions about Koofr Vault? "
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Find answers here"
+        }
+      ],
+      "type": 8,
+      "value": "a"
+    },
+    {
+      "type": 0,
+      "value": "."
+    }
+  ],
+  "web.landing_page.section_10.title": [
+    {
+      "type": 0,
+      "value": "Unlock your Vault"
+    }
+  ],
+  "web.landing_page.section_2.content": [
+    {
+      "type": 0,
+      "value": "Choose a Safe Key to create a Safe Box in your Koofr Vault."
+    }
+  ],
+  "web.landing_page.section_2.title": [
+    {
+      "type": 0,
+      "value": "Private Safe Key"
+    }
+  ],
+  "web.landing_page.section_3.content": [
+    {
+      "type": 0,
+      "value": "Your Safe Box files are encrypted or decrypted on demand, on your device."
+    }
+  ],
+  "web.landing_page.section_3.title": [
+    {
+      "type": 0,
+      "value": "It all stays in your browser"
+    }
+  ],
+  "web.landing_page.section_4.content": [
+    {
+      "type": 0,
+      "value": "Cloud content is encrypted and never accessible without your Safe Key."
+    }
+  ],
+  "web.landing_page.section_4.title": [
+    {
+      "type": 0,
+      "value": "Only you have access"
+    }
+  ],
+  "web.landing_page.section_5.content_1": [
+    {
+      "type": 0,
+      "value": "Your files are encrypted, file names and all content included, locally on your device with your Safe Key and some magic salt before they are sent to your Vault."
+    }
+  ],
+  "web.landing_page.section_5.content_2": [
+    {
+      "type": 0,
+      "value": "Neither your Safe key nor any other unencrypted file data or metadata is sent to or stored by "
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Koofr"
+        }
+      ],
+      "type": 8,
+      "value": "a"
+    },
+    {
+      "type": 0,
+      "value": ". Only you can decrypt and access your Vault files."
+    }
+  ],
+  "web.landing_page.section_5.title": [
+    {
+      "type": 0,
+      "value": "For your eyes only"
+    }
+  ],
+  "web.landing_page.section_6.content_1": [
+    {
+      "type": 0,
+      "value": "Koofr Vault is "
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "open source"
+        }
+      ],
+      "type": 8,
+      "value": "a"
+    },
+    {
+      "type": 0,
+      "value": ", so you can always check that the code does exactly what is promised - and nothing more. File encryption is performed using NaCl SecretBox, which uses XSalsa20 cipher and Poly1305 for ensuring integrity."
+    }
+  ],
+  "web.landing_page.section_6.content_2": [
+    {
+      "type": 0,
+      "value": "It is compatible with "
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "rclone"
+        }
+      ],
+      "type": 8,
+      "value": "a"
+    },
+    {
+      "type": 0,
+      "value": " . This means that you can download your encrypted files and decrypt them locally using the rclone command-line tool."
+    }
+  ],
+  "web.landing_page.section_6.title": [
+    {
+      "type": 0,
+      "value": "Fully open source"
+    }
+  ],
+  "web.landing_page.section_7.title": [
+    {
+      "type": 0,
+      "value": "Client-side encryption"
+    }
+  ],
+  "web.landing_page.section_8.title": [
+    {
+      "type": 0,
+      "value": "Verifiable source code"
+    }
+  ],
+  "web.landing_page.section_9.title": [
+    {
+      "type": 0,
+      "value": "Zero knowledge"
+    }
+  ],
+  "web.landing_page.title": [
+    {
+      "type": 0,
+      "value": "One vault for all"
+    },
+    {
+      "children": [
+      ],
+      "type": 8,
+      "value": "br"
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "your "
+        },
+        {
+          "type": 1,
+          "value": "typing_text"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    }
+  ],
+  "web.landing_page.title.typing_text_1": [
+    {
+      "type": 0,
+      "value": "private files."
+    }
+  ],
+  "web.landing_page.title.typing_text_2": [
+    {
+      "type": 0,
+      "value": "confidentials."
+    }
+  ],
+  "web.landing_page.title.typing_text_3": [
+    {
+      "type": 0,
+      "value": "secrets."
+    }
+  ],
+  "web.landing_page_desktop.description": [
+    {
+      "type": 0,
+      "value": "Koofr Vault is an open source, client-side, zero-knowledge encrypted storage application by Koofr. Unlock enhanced security for your files. Discover a better way to securely store and access your photos, videos and documents."
+    }
+  ],
+  "web.landing_page_unofficial.warning": [
+    {
+      "type": 0,
+      "value": "This is an unofficial Koofr Vault page. Use at your own risk."
+    }
+  ],
+  "web.loading_circle.aria_label": [
+    {
+      "type": 0,
+      "value": "Loading…"
+    }
+  ],
+  "web.mobile_page.continue_with_web_app.button": [
+    {
+      "type": 0,
+      "value": "Or continue using the web app"
+    }
+  ],
+  "web.mobile_page.description": [
+    {
+      "type": 0,
+      "value": "It looks like you don't have Koofr Vault mobile app installed."
+    }
+  ],
+  "web.mobile_page.header": [
+    {
+      "type": 0,
+      "value": "Open in mobile app"
+    }
+  ],
+  "web.mobile_page.install_app.button": [
+    {
+      "type": 0,
+      "value": "Install the mobile app"
+    }
+  ],
+  "web.mobile_page.title": [
+    {
+      "type": 0,
+      "value": "Open in Koofr Vault mobile app"
+    }
+  ],
+  "web.modal.close.aria_label": [
+    {
+      "type": 0,
+      "value": "Close"
+    }
+  ],
+  "web.navbar.aria_label": [
+    {
+      "type": 0,
+      "value": "Navbar"
+    }
+  ],
+  "web.navbar_back.aria_label": [
+    {
+      "type": 0,
+      "value": "Back"
+    }
+  ],
+  "web.navbar_breadcrumbs.aria_label": [
+    {
+      "type": 0,
+      "value": "Breadcrumb"
+    }
+  ],
+  "web.navbar_close.aria_label": [
+    {
+      "type": 0,
+      "value": "Close"
+    }
+  ],
+  "web.navbar_header.aria_label": [
+    {
+      "type": 0,
+      "value": "Navbar header"
+    }
+  ],
+  "web.navbar_left.aria_label": [
+    {
+      "type": 0,
+      "value": "Navbar left"
+    }
+  ],
+  "web.navbar_logo.aria_label": [
+    {
+      "type": 0,
+      "value": "Koofr Vault logo"
+    }
+  ],
+  "web.navbar_nav.aria_label": [
+    {
+      "type": 0,
+      "value": "Navbar nav"
+    }
+  ],
+  "web.navbar_right.aria_label": [
+    {
+      "type": 0,
+      "value": "Navbar right"
+    }
+  ],
+  "web.not_found_page.go_to_dashboard.button": [
+    {
+      "type": 0,
+      "value": "Go to dashboard"
+    }
+  ],
+  "web.not_found_page.title": [
+    {
+      "type": 0,
+      "value": "Page not found"
+    }
+  ],
+  "web.not_supported_page.description": [
+    {
+      "type": 0,
+      "value": "Your browser is not supported. Please open this page in a modern browser on a computer."
+    }
+  ],
+  "web.not_supported_page.title": [
+    {
+      "type": 0,
+      "value": "Not supported"
+    }
+  ],
+  "web.notifications.remove_all.button": [
+    {
+      "type": 0,
+      "value": "close all"
+    }
+  ],
+  "web.pdf_viewer.tooltip": [
+    {
+      "type": 0,
+      "value": "PDF viewer"
+    }
+  ],
+  "web.remote_files_dir_picker.cancel.button": [
+    {
+      "type": 0,
+      "value": "Cancel"
+    }
+  ],
+  "web.remote_files_dir_picker.create_folder.button": [
+    {
+      "type": 0,
+      "value": "Create folder"
+    }
+  ],
+  "web.remote_files_dir_picker.select.button": [
+    {
+      "type": 0,
+      "value": "Select"
+    }
+  ],
+  "web.remote_files_dir_picker.title": [
+    {
+      "type": 0,
+      "value": "Select a folder"
+    }
+  ],
+  "web.repo_config_backup.description": [
+    {
+      "type": 0,
+      "value": "To generate your rclone config, please type your Safe Key. Make sure it's correct."
+    }
+  ],
+  "web.repo_config_backup.password.aria_label": [
+    {
+      "type": 0,
+      "value": "Safe Key"
+    }
+  ],
+  "web.repo_config_backup.password.placeholder": [
+    {
+      "type": 0,
+      "value": "Your Safe Key"
+    }
+  ],
+  "web.repo_config_backup.title": [
+    {
+      "type": 0,
+      "value": "Backup config"
+    }
+  ],
+  "web.repo_config_info.copy.button": [
+    {
+      "type": 0,
+      "value": "Copy"
+    }
+  ],
+  "web.repo_config_info.copy.button.copied": [
+    {
+      "type": 0,
+      "value": "Copied"
+    }
+  ],
+  "web.repo_config_info.encrypt_directory_names": [
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Encrypt directory names"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    },
+    {
+      "type": 0,
+      "value": ": "
+    },
+    {
+      "type": 1,
+      "value": "encrypt_directory_names"
+    }
+  ],
+  "web.repo_config_info.filename_encryption": [
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Filename encryption"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    },
+    {
+      "type": 0,
+      "value": ": "
+    },
+    {
+      "type": 1,
+      "value": "filename_encryption"
+    }
+  ],
+  "web.repo_config_info.location": [
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Location"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    },
+    {
+      "type": 0,
+      "value": ": "
+    },
+    {
+      "type": 1,
+      "value": "location"
+    }
+  ],
+  "web.repo_config_info.rclone_config": [
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "rclone config"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    },
+    {
+      "type": 0,
+      "value": ":"
+    }
+  ],
+  "web.repo_config_info.salt": [
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Salt (password2)"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    },
+    {
+      "type": 0,
+      "value": ": "
+    },
+    {
+      "type": 1,
+      "value": "salt"
+    }
+  ],
+  "web.repo_create.created.continue.button": [
+    {
+      "type": 0,
+      "value": "Continue"
+    }
+  ],
+  "web.repo_create.created.description": [
+    {
+      "type": 0,
+      "value": "Before you start using your Safe Box please safely store the configuration."
+    }
+  ],
+  "web.repo_create.created.title": [
+    {
+      "type": 0,
+      "value": "Your Safe Box has been created"
+    }
+  ],
+  "web.repo_create.form.create.button": [
+    {
+      "type": 0,
+      "value": "Create"
+    }
+  ],
+  "web.repo_create.form.location.label": [
+    {
+      "type": 0,
+      "value": "Location"
+    }
+  ],
+  "web.repo_create.form.location.select_folder.button": [
+    {
+      "type": 0,
+      "value": "Select a folder"
+    }
+  ],
+  "web.repo_create.form.password.label": [
+    {
+      "type": 0,
+      "value": "Safe Key"
+    }
+  ],
+  "web.repo_create.form.password.placeholder": [
+    {
+      "type": 0,
+      "value": "Must be at least 8 characters long"
+    }
+  ],
+  "web.repo_create.form.rclone_config.fill.button": [
+    {
+      "type": 0,
+      "value": "Fill"
+    }
+  ],
+  "web.repo_create.form.rclone_config.format.label": [
+    {
+      "type": 0,
+      "value": "Format:"
+    }
+  ],
+  "web.repo_create.form.rclone_config.title": [
+    {
+      "type": 0,
+      "value": "From rclone config"
+    }
+  ],
+  "web.repo_create.form.salt.description": [
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Salt is used in the key derivation process to create a unique encryption key and helps to protect against potential attacks. It will be stored on the Koofr servers in a secure manner."
+        }
+      ],
+      "type": 8,
+      "value": "p"
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "A random Salt has been generated for you. If you prefer, you can leave the Salt field empty, and the default salt will be used (same as in rclone). However, it is recommended to use a unique salt for enhanced security. Using a unique salt helps to increase the complexity of the encryption process, making it more difficult for potential attackers to access the encrypted data."
+        }
+      ],
+      "type": 8,
+      "value": "p"
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "If you wish to transfer the encrypted files to another service, it is necessary to also export the salt, otherwise you won't be able to decrypt your files."
+        }
+      ],
+      "type": 8,
+      "value": "p"
+    }
+  ],
+  "web.repo_create.form.salt.label": [
+    {
+      "type": 0,
+      "value": "Salt"
+    }
+  ],
+  "web.repo_create.form.show_advanced_settings.button": [
+    {
+      "type": 0,
+      "value": "Show advanced settings"
+    }
+  ],
+  "web.repo_create.title": [
+    {
+      "type": 0,
+      "value": "Create a new Safe Box"
+    }
+  ],
+  "web.repo_file_category.archive": [
+    {
+      "type": 0,
+      "value": "Archive"
+    }
+  ],
+  "web.repo_file_category.audio": [
+    {
+      "type": 0,
+      "value": "Audio"
+    }
+  ],
+  "web.repo_file_category.code": [
+    {
+      "type": 0,
+      "value": "Code"
+    }
+  ],
+  "web.repo_file_category.document": [
+    {
+      "type": 0,
+      "value": "Document"
+    }
+  ],
+  "web.repo_file_category.file": [
+    {
+      "type": 0,
+      "value": "File"
+    }
+  ],
+  "web.repo_file_category.folder": [
+    {
+      "type": 0,
+      "value": "Folder"
+    }
+  ],
+  "web.repo_file_category.image": [
+    {
+      "type": 0,
+      "value": "Image"
+    }
+  ],
+  "web.repo_file_category.pdf": [
+    {
+      "type": 0,
+      "value": "PDF"
+    }
+  ],
+  "web.repo_file_category.presentation": [
+    {
+      "type": 0,
+      "value": "Presentation"
+    }
+  ],
+  "web.repo_file_category.spreadsheet": [
+    {
+      "type": 0,
+      "value": "Spreadsheet"
+    }
+  ],
+  "web.repo_file_category.text": [
+    {
+      "type": 0,
+      "value": "Text"
+    }
+  ],
+  "web.repo_file_category.video": [
+    {
+      "type": 0,
+      "value": "Video"
+    }
+  ],
+  "web.repo_file_info.close.button": [
+    {
+      "type": 0,
+      "value": "Close"
+    }
+  ],
+  "web.repo_file_info.encrypted_md5.label": [
+    {
+      "type": 0,
+      "value": "Encrypted MD5"
+    }
+  ],
+  "web.repo_file_info.encrypted_path.label": [
+    {
+      "type": 0,
+      "value": "Encrypted path"
+    }
+  ],
+  "web.repo_file_info.md5.label": [
+    {
+      "type": 0,
+      "value": "MD5"
+    }
+  ],
+  "web.repo_file_info.modified.label": [
+    {
+      "type": 0,
+      "value": "Modified"
+    }
+  ],
+  "web.repo_file_info.name.label": [
+    {
+      "type": 0,
+      "value": "Name"
+    }
+  ],
+  "web.repo_file_info.path.label": [
+    {
+      "type": 0,
+      "value": "Path"
+    }
+  ],
+  "web.repo_file_info.size.label": [
+    {
+      "type": 0,
+      "value": "Size"
+    }
+  ],
+  "web.repo_file_info.tags_error.label": [
+    {
+      "type": 0,
+      "value": "Tags error"
+    }
+  ],
+  "web.repo_file_info.title": [
+    {
+      "type": 0,
+      "value": "Info"
+    }
+  ],
+  "web.repo_file_info.type.label": [
+    {
+      "type": 0,
+      "value": "Type"
+    }
+  ],
+  "web.repo_files.create_text_file.default_filename": [
+    {
+      "type": 0,
+      "value": "new text file "
+    },
+    {
+      "type": 1,
+      "value": "date"
+    }
+  ],
+  "web.repo_files.dir.aria_label": [
+    {
+      "type": 0,
+      "value": "Folder "
+    },
+    {
+      "type": 1,
+      "value": "name"
+    }
+  ],
+  "web.repo_files.file.aria_label": [
+    {
+      "type": 0,
+      "value": "File "
+    },
+    {
+      "type": 1,
+      "value": "name"
+    }
+  ],
+  "web.repo_files.modified.column": [
+    {
+      "type": 0,
+      "value": "Modified"
+    }
+  ],
+  "web.repo_files.name.column": [
+    {
+      "type": 0,
+      "value": "Name"
+    }
+  ],
+  "web.repo_files.name_with_error.text": [
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "type": 0,
+      "value": " (ERROR)"
+    }
+  ],
+  "web.repo_files.rename.tooltip": [
+    {
+      "type": 0,
+      "value": "Rename"
+    }
+  ],
+  "web.repo_files.size.column": [
+    {
+      "type": 0,
+      "value": "Size"
+    }
+  ],
+  "web.repo_files.table.aria_label": [
+    {
+      "type": 0,
+      "value": "Files list"
+    }
+  ],
+  "web.repo_files_add_menu.create_dir.menu_item": [
+    {
+      "type": 0,
+      "value": "Create folder"
+    }
+  ],
+  "web.repo_files_add_menu.create_text_file.menu_item": [
+    {
+      "type": 0,
+      "value": "Create new text file"
+    }
+  ],
+  "web.repo_files_add_menu.upload_file.menu_item": [
+    {
+      "type": 0,
+      "value": "Upload file"
+    }
+  ],
+  "web.repo_files_add_menu.upload_folder.menu_item": [
+    {
+      "type": 0,
+      "value": "Upload folder"
+    }
+  ],
+  "web.repo_files_details.navbar.delete.button": [
+    {
+      "type": 0,
+      "value": "Delete"
+    }
+  ],
+  "web.repo_files_details.navbar.download.button": [
+    {
+      "type": 0,
+      "value": "Download"
+    }
+  ],
+  "web.repo_files_details.navbar.edit.button": [
+    {
+      "type": 0,
+      "value": "Edit"
+    }
+  ],
+  "web.repo_files_details.navbar.rename.button": [
+    {
+      "type": 0,
+      "value": "Rename"
+    }
+  ],
+  "web.repo_files_details.navbar.save.button": [
+    {
+      "type": 0,
+      "value": "Save"
+    }
+  ],
+  "web.repo_files_details.navbar_header.auto_save.text": [
+    {
+      "type": 0,
+      "value": "Changes are saved automatically. Last saved "
+    },
+    {
+      "type": 1,
+      "value": "modified"
+    }
+  ],
+  "web.repo_files_details.navbar_header.error.aria_label": [
+    {
+      "type": 0,
+      "value": "File error"
+    }
+  ],
+  "web.repo_files_details.navbar_header.loading.text": [
+    {
+      "type": 0,
+      "value": "Loading…"
+    }
+  ],
+  "web.repo_files_details.navbar_header.saving.text": [
+    {
+      "type": 0,
+      "value": "Saving…"
+    }
+  ],
+  "web.repo_files_details.navbar_header.status.aria_label": [
+    {
+      "type": 0,
+      "value": "File status"
+    }
+  ],
+  "web.repo_files_details.navbar_header.status.dirty": [
+    {
+      "type": 0,
+      "value": "File modified"
+    }
+  ],
+  "web.repo_files_details.navbar_header.status.unchanged": [
+    {
+      "type": 0,
+      "value": "File unchanged"
+    }
+  ],
+  "web.repo_files_empty.title": [
+    {
+      "type": 0,
+      "value": "This folder is empty."
+    }
+  ],
+  "web.repo_files_move.cancel.button": [
+    {
+      "type": 0,
+      "value": "Cancel"
+    }
+  ],
+  "web.repo_files_move.copy.button": [
+    {
+      "type": 0,
+      "value": "Copy"
+    }
+  ],
+  "web.repo_files_move.copy.title": [
+    {
+      "type": 0,
+      "value": "Copy "
+    },
+    {
+      "children": [
+        {
+          "offset": 0,
+          "options": {
+            "one": {
+              "value": [
+                {
+                  "type": 7
+                },
+                {
+                  "type": 0,
+                  "value": " item"
+                }
+              ]
+            },
+            "other": {
+              "value": [
+                {
+                  "type": 7
+                },
+                {
+                  "type": 0,
+                  "value": " items"
+                }
+              ]
+            }
+          },
+          "pluralType": "cardinal",
+          "type": 6,
+          "value": "count"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    },
+    {
+      "type": 0,
+      "value": " to "
+    },
+    {
+      "children": [
+        {
+          "type": 1,
+          "value": "dest"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    }
+  ],
+  "web.repo_files_move.create_dir.button": [
+    {
+      "type": 0,
+      "value": "Create folder"
+    }
+  ],
+  "web.repo_files_move.move.button": [
+    {
+      "type": 0,
+      "value": "Move"
+    }
+  ],
+  "web.repo_files_move.move.title": [
+    {
+      "type": 0,
+      "value": "Move "
+    },
+    {
+      "children": [
+        {
+          "offset": 0,
+          "options": {
+            "one": {
+              "value": [
+                {
+                  "type": 7
+                },
+                {
+                  "type": 0,
+                  "value": " item"
+                }
+              ]
+            },
+            "other": {
+              "value": [
+                {
+                  "type": 7
+                },
+                {
+                  "type": 0,
+                  "value": " items"
+                }
+              ]
+            }
+          },
+          "pluralType": "cardinal",
+          "type": 6,
+          "value": "count"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    },
+    {
+      "type": 0,
+      "value": " to "
+    },
+    {
+      "children": [
+        {
+          "type": 1,
+          "value": "dest"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    }
+  ],
+  "web.repo_files_nav.add.button": [
+    {
+      "type": 0,
+      "value": "Add"
+    }
+  ],
+  "web.repo_files_summary.selected_count.text": [
+    {
+      "offset": 0,
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " item"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " items"
+            }
+          ]
+        }
+      },
+      "pluralType": "cardinal",
+      "type": 6,
+      "value": "count"
+    },
+    {
+      "type": 0,
+      "value": " - "
+    },
+    {
+      "type": 1,
+      "value": "size"
+    },
+    {
+      "type": 0,
+      "value": " selected"
+    }
+  ],
+  "web.repo_files_summary.total_count.text": [
+    {
+      "offset": 0,
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " item"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " items"
+            }
+          ]
+        }
+      },
+      "pluralType": "cardinal",
+      "type": 6,
+      "value": "count"
+    },
+    {
+      "type": 0,
+      "value": " - "
+    },
+    {
+      "type": 1,
+      "value": "size"
+    }
+  ],
+  "web.repo_files_toolbar.copy.button": [
+    {
+      "type": 0,
+      "value": "Copy"
+    }
+  ],
+  "web.repo_files_toolbar.delete.button": [
+    {
+      "type": 0,
+      "value": "Delete"
+    }
+  ],
+  "web.repo_files_toolbar.download.button": [
+    {
+      "type": 0,
+      "value": "Download"
+    }
+  ],
+  "web.repo_files_toolbar.edit_text.button": [
+    {
+      "type": 0,
+      "value": "Edit text"
+    }
+  ],
+  "web.repo_files_toolbar.info.button": [
+    {
+      "type": 0,
+      "value": "Info"
+    }
+  ],
+  "web.repo_files_toolbar.move.button": [
+    {
+      "type": 0,
+      "value": "Move"
+    }
+  ],
+  "web.repo_files_toolbar.rename.button": [
+    {
+      "type": 0,
+      "value": "Rename"
+    }
+  ],
+  "web.repo_files_upload_form.upload_dir.aria_label": [
+    {
+      "type": 0,
+      "value": "Upload folder"
+    }
+  ],
+  "web.repo_files_upload_form.upload_file.aria_label": [
+    {
+      "type": 0,
+      "value": "Upload file"
+    }
+  ],
+  "web.repo_info.backup_config.button": [
+    {
+      "type": 0,
+      "value": "Backup the Safe Box config"
+    }
+  ],
+  "web.repo_info.backup_config.heading": [
+    {
+      "type": 0,
+      "value": "Backup config"
+    }
+  ],
+  "web.repo_info.created_at.text": [
+    {
+      "type": 0,
+      "value": "Created "
+    },
+    {
+      "type": 1,
+      "value": "created"
+    }
+  ],
+  "web.repo_info.destroy_repo.button": [
+    {
+      "type": 0,
+      "value": "Destroy Safe Box…"
+    }
+  ],
+  "web.repo_info.locked.text": [
+    {
+      "type": 0,
+      "value": "Locked"
+    }
+  ],
+  "web.repo_info.open_repo_in_remote.button": [
+    {
+      "type": 0,
+      "value": "Open in Koofr"
+    }
+  ],
+  "web.repo_info.unlocked.text": [
+    {
+      "type": 0,
+      "value": "Unlocked"
+    }
+  ],
+  "web.repo_lock.lock_after.heading": [
+    {
+      "type": 0,
+      "value": "Lock after"
+    }
+  ],
+  "web.repo_lock.lock_after_options.custom": [
+    {
+      "type": 0,
+      "value": "Custom ("
+    },
+    {
+      "offset": 0,
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " second"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " seconds"
+            }
+          ]
+        }
+      },
+      "pluralType": "cardinal",
+      "type": 6,
+      "value": "seconds"
+    },
+    {
+      "type": 0,
+      "value": ")"
+    }
+  ],
+  "web.repo_lock.lock_after_options.inactive_10_minutes": [
+    {
+      "type": 0,
+      "value": "10 minutes of inactivity"
+    }
+  ],
+  "web.repo_lock.lock_after_options.inactive_1_hour": [
+    {
+      "type": 0,
+      "value": "1 hour of inactivity"
+    }
+  ],
+  "web.repo_lock.lock_after_options.inactive_1_minute": [
+    {
+      "type": 0,
+      "value": "1 minute of inactivity"
+    }
+  ],
+  "web.repo_lock.lock_after_options.inactive_2_hours": [
+    {
+      "type": 0,
+      "value": "2 hours of inactivity"
+    }
+  ],
+  "web.repo_lock.lock_after_options.inactive_30_minutes": [
+    {
+      "type": 0,
+      "value": "30 minutes of inactivity"
+    }
+  ],
+  "web.repo_lock.lock_after_options.inactive_4_hours": [
+    {
+      "type": 0,
+      "value": "4 hours of inactivity"
+    }
+  ],
+  "web.repo_lock.lock_after_options.inactive_5_minutes": [
+    {
+      "type": 0,
+      "value": "5 minutes of inactivity"
+    }
+  ],
+  "web.repo_lock.lock_after_options.no_limit": [
+    {
+      "type": 0,
+      "value": "No time limit"
+    }
+  ],
+  "web.repo_lock.lock_after_select.aria_label": [
+    {
+      "type": 0,
+      "value": "Lock Safe Box after"
+    }
+  ],
+  "web.repo_lock.lock_now.button": [
+    {
+      "type": 0,
+      "value": "Lock now"
+    }
+  ],
+  "web.repo_lock.lock_on.button": [
+    {
+      "type": 0,
+      "value": "Lock on"
+    }
+  ],
+  "web.repo_lock.lock_on_app_hidden.text": [
+    {
+      "type": 0,
+      "value": "App hidden"
+    }
+  ],
+  "web.repo_lock.title": [
+    {
+      "type": 0,
+      "value": "Lock Safe Box"
+    }
+  ],
+  "web.repo_remove.cancel.button": [
+    {
+      "type": 0,
+      "value": "Cancel"
+    }
+  ],
+  "web.repo_remove.confirm.button": [
+    {
+      "type": 0,
+      "value": "Destroy"
+    }
+  ],
+  "web.repo_remove.message": [
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Do you really want to destroy Safe Box "
+        },
+        {
+          "children": [
+            {
+              "type": 1,
+              "value": "name"
+            }
+          ],
+          "type": 8,
+          "value": "b"
+        },
+        {
+          "type": 0,
+          "value": "?"
+        }
+      ],
+      "type": 8,
+      "value": "p"
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Destroying the Safe Box will keep all the files on Koofr but remove the configuration so you won't be able to decrypt the files if you didn't save the configuration."
+        }
+      ],
+      "type": 8,
+      "value": "p"
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "type": 0,
+              "value": "This action cannot be undone."
+            }
+          ],
+          "type": 8,
+          "value": "b"
+        }
+      ],
+      "type": 8,
+      "value": "p"
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Enter your Safe Key to confirm the removal:"
+        }
+      ],
+      "type": 8,
+      "value": "p"
+    }
+  ],
+  "web.repo_remove.title": [
+    {
+      "type": 0,
+      "value": "Destroy Safe Box"
+    }
+  ],
+  "web.repo_space_usage.calculate.button": [
+    {
+      "type": 0,
+      "value": "Calculate"
+    }
+  ],
+  "web.repo_space_usage.heading": [
+    {
+      "type": 0,
+      "value": "Space used"
+    }
+  ],
+  "web.repo_space_usage.loading.text": [
+    {
+      "type": 0,
+      "value": "Loading…"
+    }
+  ],
+  "web.repo_unlock_form.message": [
+    {
+      "type": 0,
+      "value": "Enter your Safe Key to continue"
+    }
+  ],
+  "web.repo_unlock_form.password.aria_label": [
+    {
+      "type": 0,
+      "value": "Safe Key"
+    }
+  ],
+  "web.repo_unlock_form.submit.button": [
+    {
+      "type": 0,
+      "value": "Continue"
+    }
+  ],
+  "web.repos.create.button": [
+    {
+      "type": 0,
+      "value": "Create new"
+    }
+  ],
+  "web.repos.repo.info.aria_label": [
+    {
+      "type": 0,
+      "value": "Safe Box info"
+    }
+  ],
+  "web.repos.repo.locked.aria_label": [
+    {
+      "type": 0,
+      "value": "Safe Box locked"
+    }
+  ],
+  "web.repos.repo.recent.button": [
+    {
+      "type": 0,
+      "value": "Recent files"
+    }
+  ],
+  "web.repos.repo.recent.button.aria_label": [
+    {
+      "type": 0,
+      "value": "Recent files"
+    }
+  ],
+  "web.repos.repo.unlocked.aria_label": [
+    {
+      "type": 0,
+      "value": "Safe Box unlocked"
+    }
+  ],
+  "web.show_password.hide.aria_label": [
+    {
+      "type": 0,
+      "value": "Hide password"
+    }
+  ],
+  "web.show_password.show.aria_label": [
+    {
+      "type": 0,
+      "value": "Show password"
+    }
+  ],
+  "web.space_usage.text": [
+    {
+      "type": 1,
+      "value": "used"
+    },
+    {
+      "type": 0,
+      "value": " of "
+    },
+    {
+      "type": 1,
+      "value": "total"
+    },
+    {
+      "type": 0,
+      "value": " used"
+    }
+  ],
+  "web.toolbar.cancel.button": [
+    {
+      "type": 0,
+      "value": "Cancel"
+    }
+  ],
+  "web.transfers.summary.cancel_all.button": [
+    {
+      "type": 0,
+      "value": "Cancel"
+    }
+  ],
+  "web.transfers.summary.cancel_all.tooltip": [
+    {
+      "type": 0,
+      "value": "Cancel all transfers"
+    }
+  ],
+  "web.transfers.summary.clear_all.button": [
+    {
+      "type": 0,
+      "value": "Clear"
+    }
+  ],
+  "web.transfers.summary.clear_all.tooltip": [
+    {
+      "type": 0,
+      "value": "Clear all transfers"
+    }
+  ],
+  "web.transfers.summary.hide_details.button": [
+    {
+      "type": 0,
+      "value": "Hide details"
+    }
+  ],
+  "web.transfers.summary.progress.text": [
+    {
+      "children": [
+        {
+          "type": 1,
+          "value": "done_count"
+        },
+        {
+          "type": 0,
+          "value": " / "
+        },
+        {
+          "type": 1,
+          "value": "total_count"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    },
+    {
+      "type": 0,
+      "value": " done"
+    }
+  ],
+  "web.transfers.summary.remaining_time.text": [
+    {
+      "children": [
+        {
+          "type": 1,
+          "value": "time"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    },
+    {
+      "type": 0,
+      "value": " remaining"
+    }
+  ],
+  "web.transfers.summary.retry_all.button": [
+    {
+      "type": 0,
+      "value": "Retry"
+    }
+  ],
+  "web.transfers.summary.retry_all.tooltip": [
+    {
+      "type": 0,
+      "value": "Retry failed transfers"
+    }
+  ],
+  "web.transfers.summary.show_details.button": [
+    {
+      "type": 0,
+      "value": "Show details"
+    }
+  ],
+  "web.transfers.transfer.cancel.button": [
+    {
+      "type": 0,
+      "value": "Cancel"
+    }
+  ],
+  "web.transfers.transfer.clear.aria_label": [
+    {
+      "type": 0,
+      "value": "Clear"
+    }
+  ],
+  "web.transfers.transfer.message.done": [
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": " has been transferred"
+        }
+      ],
+      "type": 8,
+      "value": "status"
+    }
+  ],
+  "web.transfers.transfer.message.failed": [
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": " failed. "
+        },
+        {
+          "type": 1,
+          "value": "error"
+        }
+      ],
+      "type": 8,
+      "value": "status"
+    }
+  ],
+  "web.transfers.transfer.message.processing": [
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": " is being processed"
+        }
+      ],
+      "type": 8,
+      "value": "status"
+    }
+  ],
+  "web.transfers.transfer.message.transferring": [
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": " is being transferred"
+        }
+      ],
+      "type": 8,
+      "value": "status"
+    }
+  ],
+  "web.transfers.transfer.message.waiting": [
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": " is waiting to be transferred"
+        }
+      ],
+      "type": 8,
+      "value": "status"
+    }
+  ],
+  "web.transfers.transfer.open.button": [
+    {
+      "type": 0,
+      "value": "Open"
+    }
+  ],
+  "web.transfers.transfer.retry.button": [
+    {
+      "type": 0,
+      "value": "Retry"
+    }
+  ],
+  "web.version.text": [
+    {
+      "type": 0,
+      "value": "Version: "
+    },
+    {
+      "type": 1,
+      "value": "version"
+    }
+  ]
 }

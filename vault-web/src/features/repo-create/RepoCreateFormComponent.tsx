@@ -2,8 +2,10 @@ import { css, cx } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { memo, useCallback, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import { Button } from '../../components/Button';
+import { LoadingCircle } from '../../components/LoadingCircle';
 import { PasswordInput } from '../../components/PasswordInput';
 import { TextInput } from '../../components/TextInput';
 import { useIsMobile } from '../../components/useIsMobile';
@@ -13,7 +15,6 @@ import { useWebVault } from '../../webVault/useWebVault';
 
 import { RemoteFilesBreadcrumbs } from '../remote-files/RemoteFilesBreadcrumbs';
 import { RemoteFilesDirPickerModal } from '../remote-files/RemoteFilesDirPickerModal';
-import { LoadingCircle } from '../../components/LoadingCircle';
 
 const Label = styled.label`
   display: inline-block;
@@ -27,9 +28,7 @@ const Group = styled.div`
   margin-bottom: 10px;
 `;
 
-const rcloneConfigFormat = `Format:
-
-[name]
+const rcloneConfigFormatExample = `[name]
 type=crypt
 remote=rcloneremote:/path
 password=obscured password
@@ -39,6 +38,7 @@ export const RepoCreateFormComponent = memo<{
   createId: number;
   form: RepoCreateForm;
 }>(({ createId, form }) => {
+  const intl = useIntl();
   const isMobile = useIsMobile();
   const theme = useTheme();
   const webVault = useWebVault();
@@ -92,7 +92,11 @@ export const RepoCreateFormComponent = memo<{
           margin: 0 0 20px;
         `}
       >
-        Create a new Safe Box
+        <FormattedMessage
+          id="web.repo_create.title"
+          description="Title for the Safe Box creation page."
+          defaultMessage="Create a new Safe Box"
+        />
       </h1>
       <form onSubmit={onSubmit}>
         <div
@@ -138,7 +142,13 @@ export const RepoCreateFormComponent = memo<{
             ) : null}
 
             <Group>
-              <Label>Location</Label>
+              <Label>
+                <FormattedMessage
+                  id="web.repo_create.form.location.label"
+                  description="Label for the storage location field in the Safe Box creation form."
+                  defaultMessage="Location"
+                />
+              </Label>
               <button
                 type="button"
                 className={css`
@@ -165,7 +175,13 @@ export const RepoCreateFormComponent = memo<{
                     breadcrumbs={form.locationBreadcrumbs}
                   />
                 ) : (
-                  <span>Select a folder</span>
+                  <span>
+                    <FormattedMessage
+                      id="web.repo_create.form.location.select_folder.button"
+                      description="Placeholder text prompting the user to choose a storage folder."
+                      defaultMessage="Select a folder"
+                    />
+                  </span>
                 )}
               </button>
             </Group>
@@ -178,11 +194,20 @@ export const RepoCreateFormComponent = memo<{
                   display: inline-block;
                 `}
               >
-                Safe Key
+                <FormattedMessage
+                  id="web.repo_create.form.password.label"
+                  description="Label for the Safe Key input in the Safe Box creation form."
+                  defaultMessage="Safe Key"
+                />
               </Label>
               <PasswordInput
                 value={form.password}
-                placeholder="Must be at least 8 characters long"
+                placeholder={intl.formatMessage({
+                  id: 'web.repo_create.form.password.placeholder',
+                  description:
+                    'Placeholder text describing the minimum Safe Key length.',
+                  defaultMessage: 'Must be at least 8 characters long',
+                })}
                 onChange={(password) =>
                   webVault.repoCreateSetPassword(createId, password)
                 }
@@ -204,7 +229,11 @@ export const RepoCreateFormComponent = memo<{
                     display: inline-block;
                   `}
                 >
-                  Salt
+                  <FormattedMessage
+                    id="web.repo_create.form.salt.label"
+                    description="Label for the optional salt field in advanced Safe Box settings."
+                    defaultMessage="Salt"
+                  />
                 </Label>
                 <TextInput
                   as="textarea"
@@ -229,45 +258,29 @@ export const RepoCreateFormComponent = memo<{
                   className={css`
                     background-color: #d1ecf1;
                     border-radius: 3px;
-                    padding: 12px 15px;
+                    padding: 8px 15px;
                     font-size: 13px;
                     margin-bottom: 15px;
+                    display: flex;
+                    flex-direction: column;
                   `}
                 >
-                  <p
-                    className={css`
-                      margin: 0 0 15px;
-                    `}
-                  >
-                    Salt is used in the key derivation process to create a
-                    unique encryption key and helps to protect against potential
-                    attacks. It will be stored on the Koofr servers in a secure
-                    manner.
-                  </p>
-
-                  <p
-                    className={css`
-                      margin: 0 0 15px;
-                    `}
-                  >
-                    A random Salt has been generated for you. If you prefer, you
-                    can leave the Salt field empty, and the default salt will be
-                    used (same as in rclone). However, it is recommended to use
-                    a unique salt for enhanced security. Using a unique salt
-                    helps to increase the complexity of the encryption process,
-                    making it more difficult for potential attackers to access
-                    the encrypted data.
-                  </p>
-
-                  <p
-                    className={css`
-                      margin: 0;
-                    `}
-                  >
-                    If you wish to transfer the encrypted files to another
-                    service, it is necessary to also export the salt, otherwise
-                    you won&apos;t be able to decrypt your files.
-                  </p>
+                  <FormattedMessage
+                    id="web.repo_create.form.salt.description"
+                    description="Text explaining what a salt is in Safe Box creation."
+                    defaultMessage="<p>Salt is used in the key derivation process to create a unique encryption key and helps to protect against potential attacks. It will be stored on the Koofr servers in a secure manner.</p><p>A random Salt has been generated for you. If you prefer, you can leave the Salt field empty, and the default salt will be used (same as in rclone). However, it is recommended to use a unique salt for enhanced security. Using a unique salt helps to increase the complexity of the encryption process, making it more difficult for potential attackers to access the encrypted data.</p><p>If you wish to transfer the encrypted files to another service, it is necessary to also export the salt, otherwise you won't be able to decrypt your files.</p>"
+                    values={{
+                      p: (chunks) => (
+                        <p
+                          className={css`
+                            margin: 7px 0;
+                          `}
+                        >
+                          {chunks}
+                        </p>
+                      ),
+                    }}
+                  />
                 </div>
               </Group>
             ) : null}
@@ -282,7 +295,11 @@ export const RepoCreateFormComponent = memo<{
                 variant={canSubmit ? 'primary' : 'disabled'}
                 disabled={!canSubmit}
               >
-                Create
+                <FormattedMessage
+                  id="web.repo_create.form.create.button"
+                  description="Primary button to create a new Safe Box."
+                  defaultMessage="Create"
+                />
               </Button>
             </div>
 
@@ -296,7 +313,11 @@ export const RepoCreateFormComponent = memo<{
                   `}
                   onClick={() => setAdvancedVisible(true)}
                 >
-                  Show advanced settings
+                  <FormattedMessage
+                    id="web.repo_create.form.show_advanced_settings.button"
+                    description="Button label that reveals advanced settings in the Safe Box creation form."
+                    defaultMessage="Show advanced settings"
+                  />
                 </Button>
               </div>
             ) : null}
@@ -321,7 +342,11 @@ export const RepoCreateFormComponent = memo<{
                   margin: 23px 0 20px;
                 `}
               >
-                From rclone config
+                <FormattedMessage
+                  id="web.repo_create.form.rclone_config.title"
+                  description="Section title for importing settings from an rclone config."
+                  defaultMessage="From rclone config"
+                />
               </h3>
               <pre
                 className={css`
@@ -332,7 +357,16 @@ export const RepoCreateFormComponent = memo<{
                   padding: 6px 15px;
                 `}
               >
-                <code>{rcloneConfigFormat}</code>
+                <code>
+                  {intl.formatMessage({
+                    id: 'web.repo_create.form.rclone_config.format.label',
+                    description:
+                      'Label shown above the rclone config format example.',
+                    defaultMessage: 'Format:',
+                  }) +
+                    '\n\n' +
+                    rcloneConfigFormatExample}
+                </code>
               </pre>
               {form.fillFromRcloneConfigError !== undefined ? (
                 <div
@@ -367,15 +401,22 @@ export const RepoCreateFormComponent = memo<{
               </div>
               <Button
                 type="button"
-                variant="primary"
+                variant={
+                  rcloneConfig.trim().length === 0 ? 'disabled' : 'primary'
+                }
                 onClick={() => {
                   webVault.repoCreateFillFromRcloneConfig(
                     createId,
                     rcloneConfig,
                   );
                 }}
+                disabled={rcloneConfig.trim().length === 0}
               >
-                Fill
+                <FormattedMessage
+                  id="web.repo_create.form.rclone_config.fill.button"
+                  description="Button label to parse the rclone config and fill the form."
+                  defaultMessage="Fill"
+                />
               </Button>
             </div>
           ) : null}

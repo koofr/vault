@@ -1,4 +1,5 @@
 import { memo, useMemo } from 'react';
+import { useIntl } from 'react-intl';
 
 import { FileIconProps } from '../../vault-wasm/vault-wasm';
 
@@ -53,10 +54,20 @@ export function useFileIconCache(): FileIconCache {
 }
 
 export const FileIcon = memo<FileIconProps>((props) => {
+  const intl = useIntl();
   const cache = useFileIconCache();
 
   const url = cache.getIcon(props);
 
-  return <img src={url} alt="File icon" />;
+  return (
+    <img
+      src={url}
+      alt={intl.formatMessage({
+        id: 'web.file_icon.alt',
+        description: 'Alt text for generic file icons in the file list.',
+        defaultMessage: 'File icon',
+      })}
+    />
+  );
 });
 FileIcon.displayName = 'FileIcon';

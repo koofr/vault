@@ -1,5 +1,6 @@
 import { css } from '@emotion/css';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 
 import { AutoFocusPasswordInput } from '../../components/PasswordInput';
@@ -59,52 +60,45 @@ export const RepoRemoveModalContent = memo<{
   return (
     <form onSubmit={onSubmit}>
       <ModalHeader>
-        <ModalTitle>Destroy Safe Box</ModalTitle>
+        <ModalTitle>
+          <FormattedMessage
+            id="web.repo_remove.title"
+            description="Modal title for the destructive action that removes a Safe Box configuration."
+            defaultMessage="Destroy Safe Box"
+          />
+        </ModalTitle>
       </ModalHeader>
       <ModalBody
         className={css`
           padding-bottom: 0;
         `}
       >
-        <p
-          className={css`
-            margin: 0 0 20px;
-          `}
-        >
-          Do you really want to destroy Safe Box{' '}
-          <strong
-            className={css`
-              font-weight: 600;
-            `}
-          >
-            {info.repoName}
-          </strong>
-          ?
-        </p>
-        <p
-          className={css`
-            margin: 0 0 20px;
-          `}
-        >
-          Destroying the Safe Box will keep all the files on Koofr but remove
-          the configuration so you won&apos;t be able to decrypt the files if
-          you didn&apos;t save the configuration.
-        </p>
-        <p
-          className={css`
-            margin: 0 0 20px;
-            font-weight: 600;
-          `}
-        >
-          This action cannot be undone.
-        </p>
-        <p
-          className={css`
-            margin: 0 0 20px;
-          `}
-        >
-          Enter your Safe Key to confirm the removal:
-        </p>
+        <FormattedMessage
+          id="web.repo_remove.message"
+          description="Body text in the destroy Safe Box modal explaining consequences and requesting the Safe Key."
+          defaultMessage="<p>Do you really want to destroy Safe Box <b>{name}</b>?</p><p>Destroying the Safe Box will keep all the files on Koofr but remove the configuration so you won't be able to decrypt the files if you didn't save the configuration.</p><p><b>This action cannot be undone.</b></p><p>Enter your Safe Key to confirm the removal:</p>"
+          values={{
+            name: info.repoName,
+            b: (chunks) => (
+              <strong
+                className={css`
+                  font-weight: 600;
+                `}
+              >
+                {chunks}
+              </strong>
+            ),
+            p: (chunks) => (
+              <p
+                className={css`
+                  margin: 0 0 20px;
+                `}
+              >
+                {chunks}
+              </p>
+            ),
+          }}
+        />
 
         {info.status.type === 'Error' ? (
           <div
@@ -131,7 +125,11 @@ export const RepoRemoveModalContent = memo<{
       <ModalFooter>
         <ModalFooterButtons>
           <ModalFooterButton type="button" onClick={hide}>
-            Cancel
+            <FormattedMessage
+              id="web.repo_remove.cancel.button"
+              description="Cancel button in the destroy Safe Box modal."
+              defaultMessage="Cancel"
+            />
           </ModalFooterButton>
           <ModalFooterButton
             type="submit"
@@ -140,7 +138,11 @@ export const RepoRemoveModalContent = memo<{
             }
             disabled={info.status.type === 'Loading'}
           >
-            Destroy
+            <FormattedMessage
+              id="web.repo_remove.confirm.button"
+              description="Destructive confirmation button in the destroy Safe Box modal."
+              defaultMessage="Destroy"
+            />
           </ModalFooterButton>
         </ModalFooterButtons>
       </ModalFooter>

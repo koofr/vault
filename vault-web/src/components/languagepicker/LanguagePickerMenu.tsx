@@ -24,7 +24,7 @@ export const LanguagePickerMenu = memo(() => {
       {...props}
       className={css`
         width: 214px;
-        z-index: ${theme.zindex.dashboardMenu};
+        z-index: ${theme.zindex.languagePickerMenu};
         overflow-y: auto;
       `}
     >

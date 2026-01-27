@@ -1,5 +1,6 @@
 import { css, cx } from '@emotion/css';
 import { memo, useCallback, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import { Button } from '../../components/Button';
 import { AutoFocusPasswordInput } from '../../components/PasswordInput';
@@ -10,6 +11,7 @@ export const RepoUnlockForm = memo<{
   info: RepoUnlockInfo;
   onUnlock: (password: string) => void;
 }>(({ info, onUnlock }) => {
+  const intl = useIntl();
   const isMobile = useIsMobile();
   const [password, setPassword] = useState('');
   const onSubmit = useCallback(
@@ -62,7 +64,11 @@ export const RepoUnlockForm = memo<{
           margin: 0 0 30px;
         `}
       >
-        Enter your Safe Key to continue
+        <FormattedMessage
+          id="web.repo_unlock_form.message"
+          description="Instruction text above the Safe Key field on the unlock screen."
+          defaultMessage="Enter your Safe Key to continue"
+        />
       </h3>
 
       <form onSubmit={onSubmit}>
@@ -87,7 +93,12 @@ export const RepoUnlockForm = memo<{
           <AutoFocusPasswordInput
             value={password}
             onChange={setPassword}
-            inputAriaLabel="Safe Key"
+            inputAriaLabel={intl.formatMessage({
+              id: 'web.repo_unlock_form.password.aria_label',
+              description:
+                'Aria label for the password input field on the unlock screen.',
+              defaultMessage: 'Safe Key',
+            })}
           />
         </div>
         <Button
@@ -99,7 +110,11 @@ export const RepoUnlockForm = memo<{
             width: 250px;
           `}
         >
-          Continue
+          <FormattedMessage
+            id="web.repo_unlock_form.submit.button"
+            description="Primary button on the Safe Box unlock form."
+            defaultMessage="Continue"
+          />
         </Button>
       </form>
     </div>

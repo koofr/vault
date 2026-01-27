@@ -1,6 +1,7 @@
 import { css } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { Suspense, memo } from 'react';
+import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router-dom';
 
 import { buttonReset } from '../../styles/mixins/buttons';
@@ -43,7 +44,11 @@ export const DashboardSidenavLinks = memo(() => {
               }
             `}
           >
-            Help and support
+            <FormattedMessage
+              id="web.dashboard_sidenav_links.help_and_support.link"
+              description="Footer link label to Koofr Vault help and support."
+              defaultMessage="Help and support"
+            />
           </a>
           <span aria-hidden>{' · '}</span>
           <button
@@ -56,7 +61,11 @@ export const DashboardSidenavLinks = memo(() => {
               intro.show();
             }}
           >
-            Intro
+            <FormattedMessage
+              id="web.dashboard_sidenav_links.intro.link"
+              description="Footer button label to open the intro walkthrough modal."
+              defaultMessage="Intro"
+            />
           </button>
           <span aria-hidden>{' · '}</span>
           <a
@@ -69,7 +78,11 @@ export const DashboardSidenavLinks = memo(() => {
               }
             `}
           >
-            Legal
+            <FormattedMessage
+              id="web.dashboard_sidenav_links.legal.link"
+              description="Footer link label to the legal page."
+              defaultMessage="Legal"
+            />
           </a>
           {import.meta.env.VITE_VAULT_APP === 'desktop' ? null : (
             <>
@@ -82,7 +95,11 @@ export const DashboardSidenavLinks = memo(() => {
                   }
                 `}
               >
-                Landing page
+                <FormattedMessage
+                  id="web.dashboard_sidenav_links.landing_page.link"
+                  description="Footer link label to the landing page."
+                  defaultMessage="Landing page"
+                />
               </Link>
             </>
           )}

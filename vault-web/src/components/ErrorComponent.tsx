@@ -1,8 +1,10 @@
 import { css } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { memo } from 'react';
+import { FormattedMessage } from 'react-intl';
 
 import errorIconImage from '../assets/images/error-icon@2x.png';
+
 import { Button } from './Button';
 
 export const ErrorComponent = memo<{ error: string; onRetry?: () => void }>(
@@ -39,7 +41,11 @@ export const ErrorComponent = memo<{ error: string; onRetry?: () => void }>(
         </h3>
         {onRetry !== undefined ? (
           <Button type="button" variant="primary" onClick={onRetry}>
-            Try again
+            <FormattedMessage
+              id="web.error_component.try_again.button"
+              description="Button label on the generic error state to retry the failed action."
+              defaultMessage="Try again"
+            />
           </Button>
         ) : null}
       </div>

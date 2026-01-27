@@ -9,6 +9,7 @@ import {
   useEffect,
   useState,
 } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import appStoreImage from '../../assets/images/apps/app-store.png';
 import appStore2xImage from '../../assets/images/apps/app-store@2x.png';
@@ -128,8 +129,11 @@ const IntroStep1 = memo(() => {
           }
         `}
       >
-        Welcome to Koofr Vault: your favourite cloud storage with client-side
-        encryption!
+        <FormattedMessage
+          id="web.intro.step_1.content"
+          description="Intro modal step 1 body text welcoming users to Koofr Vault."
+          defaultMessage="Welcome to Koofr Vault: your favourite cloud storage with client-side encryption!"
+        />
       </p>
     </div>
   );
@@ -178,6 +182,7 @@ const IntroFeature = memo<
         height={130}
         className={css`
           margin-bottom: 15px;
+          flex-shrink: 0;
         `}
       />
       <p
@@ -203,27 +208,43 @@ const IntroStep2 = memo(() => {
   return (
     <IntroFeatures>
       <IntroFeature image={intro01Image} image2x={intro012xImage}>
-        The Vault is like having a box with a unique lock in your trunk: an
-        extra layer of security to protect your most sensitive files.
+        <FormattedMessage
+          id="web.intro.step_2.content_1"
+          description="Intro modal step 2 feature text explaining the Safe Box metaphor."
+          defaultMessage="The Vault is like having a box with a unique lock in your trunk: an extra layer of security to protect your most sensitive files."
+        />
       </IntroFeature>
       <IntroFeature image={intro02Image} image2x={intro022xImage}>
-        Vault is{' '}
-        <a
-          href="https://github.com/koofr/vault"
-          target="_blank"
-          rel="noreferrer"
-        >
-          open source
-        </a>
-        , so you can always check that the code does exactly what is promised -
-        and nothing more.
+        <FormattedMessage
+          id="web.intro.step_2.content_2"
+          description="Intro modal step 2 feature text about the open source nature of Vault."
+          defaultMessage="Vault is <a>open source</a>, so you can always check that the code does exactly what is promised - and nothing more."
+          values={{
+            a: (chunks) => (
+              <a
+                href="https://github.com/koofr/vault"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {chunks}
+              </a>
+            ),
+          }}
+        />
       </IntroFeature>
       <IntroFeature image={intro03Image} image2x={intro032xImage}>
-        <a href="https://rclone.org" target="_blank" rel="noreferrer">
-          rclone
-        </a>{' '}
-        compatibility: Download your encrypted files and decrypt them locally
-        using the rclone command-line tool.
+        <FormattedMessage
+          id="web.intro.step_2.content_3"
+          description="Intro modal step 2 feature text about rclone compatibility."
+          defaultMessage="<a>rclone</a> compatibility: Download your encrypted files and decrypt them locally using the rclone command-line tool."
+          values={{
+            a: (chunks) => (
+              <a href="https://rclone.org" target="_blank" rel="noreferrer">
+                {chunks}
+              </a>
+            ),
+          }}
+        />
       </IntroFeature>
     </IntroFeatures>
   );
@@ -234,16 +255,25 @@ const IntroStep3 = memo(() => {
   return (
     <IntroFeatures>
       <IntroFeature image={intro04Image} image2x={intro042xImage}>
-        You can have one or more Safe Boxes in your Vault, with separate Safe
-        Keys for each Safe Box.
+        <FormattedMessage
+          id="web.intro.step_3.content_1"
+          description="Intro modal step 3 feature text about multiple Safe Boxes and keys."
+          defaultMessage="You can have one or more Safe Boxes in your Vault, with separate Safe Keys for each Safe Box."
+        />
       </IntroFeature>
       <IntroFeature image={intro05Image} image2x={intro052xImage}>
-        Vault encrypts both file names and content, so they are only readable
-        inside the Safe Box.
+        <FormattedMessage
+          id="web.intro.step_3.content_2"
+          description="Intro modal step 3 feature text about encrypting file names and contents."
+          defaultMessage="Vault encrypts both file names and content, so they are only readable inside the Safe Box."
+        />
       </IntroFeature>
       <IntroFeature image={intro06Image} image2x={intro062xImage}>
-        In your main Koofr app, the files will appear with encrypted file names
-        and cannot be opened.
+        <FormattedMessage
+          id="web.intro.step_3.content_3"
+          description="Intro modal step 3 feature text about how files appear in the main Koofr app."
+          defaultMessage="In your main Koofr app, the files will appear with encrypted file names and cannot be opened."
+        />
       </IntroFeature>
     </IntroFeatures>
   );
@@ -254,17 +284,28 @@ const IntroStep4 = memo(() => {
   return (
     <IntroFeatures>
       <IntroFeature image={intro07Image} image2x={intro072xImage}>
-        When you create a Safe Box, you&apos;ll choose a Safe Key for it.
+        <FormattedMessage
+          id="web.intro.step_4.content_1"
+          description="Intro modal step 4 feature text about choosing a Safe Key when creating a Safe Box."
+          defaultMessage="When you create a Safe Box, you'll choose a Safe Key for it."
+        />
       </IntroFeature>
       <IntroFeature image={intro08Image} image2x={intro082xImage}>
-        Since the Safe Key is used to encrypt the files you store in the Safe
-        Box, it cannot be changed later.
+        <FormattedMessage
+          id="web.intro.step_4.content_2"
+          description="Intro modal step 4 feature text warning the Safe Key cannot be changed."
+          defaultMessage="Since the Safe Key is used to encrypt the files you store in the Safe Box, it cannot be changed later."
+        />
       </IntroFeature>
       <IntroFeature image={intro09Image} image2x={intro092xImage}>
-        <strong>
-          There is no way recover your files if you forget your Safe Key.
-        </strong>{' '}
-        It is never sent to or stored on Koofr servers.
+        <FormattedMessage
+          id="web.intro.step_4.content_3"
+          description="Intro modal step 4 feature text warning there is no recovery if the Safe Key is lost."
+          defaultMessage="<b>There is no way recover your files if you forget your Safe Key.</b> It is never sent to or stored on Koofr servers."
+          values={{
+            b: (chunks) => <strong>{chunks}</strong>,
+          }}
+        />
       </IntroFeature>
     </IntroFeatures>
   );
@@ -291,7 +332,7 @@ const IntroStep5 = memo(() => {
         ${bp.normal} {
           background-position: 281px 68px;
           width: 558px;
-          height: 300px;
+          height: 320px;
         }
       `}
     >
@@ -325,7 +366,11 @@ const IntroStep5 = memo(() => {
             }
           `}
         >
-          Get started with Vault by creating your first Safe Box.
+          <FormattedMessage
+            id="web.intro.step_5.content"
+            description="Intro modal step 5 body text prompting users to create their first Safe Box."
+            defaultMessage="Get started with Vault by creating your first Safe Box."
+          />
         </p>
       </div>
       {config.appStoreUrl !== undefined ||
@@ -417,12 +462,33 @@ const IntroStep = styled.div`
 `;
 
 const IntroModalContent = memo<{ hide: () => void }>(({ hide }) => {
+  const intl = useIntl();
   const stepTitles = [
-    'Welcome',
-    'About Vault',
-    'Safe Boxes',
-    'Safe Key',
-    'Start using Vault',
+    intl.formatMessage({
+      id: 'web.intro.step_1.title',
+      description: 'Title for step 1 in the intro modal.',
+      defaultMessage: 'Welcome',
+    }),
+    intl.formatMessage({
+      id: 'web.intro.step_2.title',
+      description: 'Title for step 2 in the intro modal.',
+      defaultMessage: 'About Vault',
+    }),
+    intl.formatMessage({
+      id: 'web.intro.step_3.title',
+      description: 'Title for step 3 in the intro modal.',
+      defaultMessage: 'Safe Boxes',
+    }),
+    intl.formatMessage({
+      id: 'web.intro.step_4.title',
+      description: 'Title for step 4 in the intro modal.',
+      defaultMessage: 'Safe Key',
+    }),
+    intl.formatMessage({
+      id: 'web.intro.step_5.title',
+      description: 'Title for step 5 in the intro modal.',
+      defaultMessage: 'Start using Vault',
+    }),
   ];
   const steps = [
     // eslint-disable-next-line react/jsx-key
@@ -549,7 +615,11 @@ const IntroModalContent = memo<{ hide: () => void }>(({ hide }) => {
               className={introButtonInlineStyle}
               onClick={prev}
             >
-              Back
+              <FormattedMessage
+                id="web.intro.back.button"
+                description="Back button label in the intro modal."
+                defaultMessage="Back"
+              />
             </BaseButton>
           ) : null}
         </ModalFooterExtra>
@@ -583,7 +653,19 @@ const IntroModalContent = memo<{ hide: () => void }>(({ hide }) => {
         </ModalFooterMiddle>
         <ModalFooterButtons>
           <BaseButton type="button" className={introButtonStyle} onClick={next}>
-            {isLast ? 'Done' : 'Next'}
+            {isLast ? (
+              <FormattedMessage
+                id="web.intro.done.button"
+                description="Final button label in the intro modal to finish onboarding."
+                defaultMessage="Done"
+              />
+            ) : (
+              <FormattedMessage
+                id="web.intro.next.button"
+                description="Next button label in the intro modal to advance to the next step."
+                defaultMessage="Next"
+              />
+            )}
           </BaseButton>
         </ModalFooterButtons>
       </ModalFooter>

@@ -2,6 +2,7 @@ import { css } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { useDropdownMenu } from '@restart/ui/DropdownMenu';
 import { memo, useCallback } from 'react';
+import { FormattedMessage } from 'react-intl';
 
 import DirPickerItemHostedHoverIcon from '../../assets/images/dir-picker-item-hosted-hover.svg?react';
 import DirPickerItemHostedIcon from '../../assets/images/dir-picker-item-hosted.svg?react';
@@ -122,7 +123,11 @@ export const DashboardMenu = memo(() => {
         target="_blank"
         rel="noreferrer"
       >
-        Open Koofr
+        <FormattedMessage
+          id="web.dashboard_menu.open_remote.menu_item"
+          description="User menu item to open Koofr in a new tab."
+          defaultMessage="Open Koofr"
+        />
       </MenuItem>
       <MenuDivider />
       <MenuItem
@@ -133,7 +138,11 @@ export const DashboardMenu = memo(() => {
         `}
         onClick={logout}
       >
-        Logout
+        <FormattedMessage
+          id="web.dashboard_menu.logout.menu_item"
+          description="User menu item to log out of the app."
+          defaultMessage="Logout"
+        />
       </MenuItem>
     </Menu>
   );

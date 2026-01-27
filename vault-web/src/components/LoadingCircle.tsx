@@ -1,6 +1,7 @@
 import { css, keyframes } from '@emotion/css';
 import { useTheme } from '@emotion/react';
 import { memo } from 'react';
+import { useIntl } from 'react-intl';
 
 const loadingCircle = keyframes`
   0%,
@@ -15,6 +16,7 @@ const loadingCircle = keyframes`
 `;
 
 export const LoadingCircle = memo(() => {
+  const intl = useIntl();
   const theme = useTheme();
 
   return (
@@ -26,7 +28,11 @@ export const LoadingCircle = memo(() => {
         flex-grow: 1;
         margin-bottom: 70px + 35px; // navbar height + half circle height
       `}
-      aria-label="Loading..."
+      aria-label={intl.formatMessage({
+        id: 'web.loading_circle.aria_label',
+        description: 'Accessibility label for the loading animation.',
+        defaultMessage: 'Loading…',
+      })}
     >
       <div
         className={css`

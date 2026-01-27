@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-no-target-blank */
 import { css, cx } from '@emotion/css';
 import { memo } from 'react';
+import { FormattedMessage } from 'react-intl';
 
 import LogoImage from '../assets/images/landing/logo.svg?react';
 import { BaseButton } from '../components/Button';
@@ -137,9 +138,11 @@ export const LandingPageDesktop = memo<{ onLogin: () => void }>(
                 text-align: center;
               `}
             >
-              Powerful, open source, client-side, zero-knowledge encryption.
-              Unlock enhanced security for your most sensitive files with Koofr
-              Vault.
+              <FormattedMessage
+                id="web.landing_page_desktop.description"
+                description="Marketing description paragraph on the desktop landing page."
+                defaultMessage="Koofr Vault is an open source, client-side, zero-knowledge encrypted storage application by Koofr. Unlock enhanced security for your files. Discover a better way to securely store and access your photos, videos and documents."
+              />
             </p>
 
             <BaseButton
@@ -154,7 +157,11 @@ export const LandingPageDesktop = memo<{ onLogin: () => void }>(
               )}
               onClick={onLogin}
             >
-              Get started
+              <FormattedMessage
+                id="web.landing_page.get_started.button"
+                description="Primary call-to-action button on the landing page that starts login."
+                defaultMessage="Get started"
+              />
             </BaseButton>
           </div>
         </div>
@@ -185,22 +192,30 @@ export const LandingPageDesktop = memo<{ onLogin: () => void }>(
               margin: 0 0 15px;
             `}
           >
-            © 2026.{' '}
-            <a
-              href="https://koofr.eu"
-              target="_blank"
-              rel="noopener"
-              className={css`
-                font-weight: 600;
-                ${allStates} {
-                  color: #011722;
-                  text-decoration: none;
-                }
-              `}
-            >
-              Koofr d.o.o.
-            </a>{' '}
-            all rights reserved.
+            <FormattedMessage
+              id="web.landing_page.copyright.text"
+              description="Footer copyright line on the landing page with company link and current year."
+              defaultMessage="© {year}. <a>Koofr d.o.o.</a> all rights reserved."
+              values={{
+                year: new Date().getFullYear(),
+                a: (chunks) => (
+                  <a
+                    href="https://koofr.eu"
+                    target="_blank"
+                    rel="noopener"
+                    className={css`
+                      font-weight: 600;
+                      ${allStates} {
+                        color: #011722;
+                        text-decoration: none;
+                      }
+                    `}
+                  >
+                    {chunks}
+                  </a>
+                ),
+              }}
+            />
           </p>
 
           <div

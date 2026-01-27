@@ -13,9 +13,17 @@ import { RetinaImage } from '../components/RetinaImage';
 import { Navbar } from '../components/navbar/Navbar';
 import { useConfig } from '../config';
 import { useDocumentTitle } from '../utils/useDocumentTitle';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 export const MobilePage = memo(() => {
-  useDocumentTitle('Open in Vault mobile app');
+  const intl = useIntl();
+  const title = intl.formatMessage({
+    id: 'web.mobile_page.title',
+    description:
+      'Document title for the page that prompts users to open the mobile app.',
+    defaultMessage: 'Open in Koofr Vault mobile app',
+  });
+  useDocumentTitle(title);
   const config = useConfig();
   const location = useLocation();
   const pathname = location.pathname.replace(/^\/mobile/, '');
@@ -30,7 +38,11 @@ export const MobilePage = memo(() => {
               font-weight: 600;
             `}
           >
-            Open in mobile app
+            <FormattedMessage
+              id="web.mobile_page.header"
+              description="Navbar title on the page prompting users to open the mobile app."
+              defaultMessage="Open in mobile app"
+            />
           </span>
         }
       />
@@ -51,7 +63,7 @@ export const MobilePage = memo(() => {
             text-align: center;
           `}
         >
-          Open in Vault mobile app
+          {title}
         </h2>
 
         <p
@@ -62,7 +74,11 @@ export const MobilePage = memo(() => {
             text-align: center;
           `}
         >
-          It looks like you don&apos;t have Koofr Vault mobile app installed.
+          <FormattedMessage
+            id="web.mobile_page.description"
+            description="Informational text stating the mobile app is not installed."
+            defaultMessage="It looks like you don't have Koofr Vault mobile app installed."
+          />
         </p>
 
         <p
@@ -73,7 +89,11 @@ export const MobilePage = memo(() => {
             text-align: center;
           `}
         >
-          Install the mobile app
+          <FormattedMessage
+            id="web.mobile_page.install_app.button"
+            description="Instruction line encouraging users to install the mobile app."
+            defaultMessage="Install the mobile app"
+          />
         </p>
 
         {config.appStoreUrl !== undefined ||
@@ -136,7 +156,11 @@ export const MobilePage = memo(() => {
         ) : null}
 
         <LinkButton to={to} variant="primary">
-          Or continue using the web app
+          <FormattedMessage
+            id="web.mobile_page.continue_with_web_app.button"
+            description="Button label that continues in the web app instead of installing the mobile app."
+            defaultMessage="Or continue using the web app"
+          />
         </LinkButton>
       </div>
     </>
