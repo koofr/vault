@@ -9,7 +9,6 @@ pub mod files;
 pub mod http;
 pub mod intl;
 pub mod lifecycle;
-pub mod locale;
 pub mod notifications;
 pub mod oauth2;
 pub mod rclone;
