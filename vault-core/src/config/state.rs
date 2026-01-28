@@ -1,31 +1,6 @@
 use std::time::Duration;
 
-use crate::{
-    locale::{BoxLocale, get_locale},
-    repos::state::{RepoAutoLock, RepoAutoLockAfter},
-};
-
-pub struct LocaleConfig {
-    pub name: String,
-    pub locale: BoxLocale,
-}
-
-impl std::fmt::Debug for LocaleConfig {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("LocaleConfig")
-            .field("name", &self.name)
-            .finish()
-    }
-}
-
-impl Clone for LocaleConfig {
-    fn clone(&self) -> Self {
-        Self {
-            name: self.name.clone(),
-            locale: get_locale(&self.name).unwrap(),
-        }
-    }
-}
+use crate::repos::state::{RepoAutoLock, RepoAutoLockAfter};
 
 #[derive(Debug, Clone)]
 pub struct TransfersConfig {
@@ -107,7 +82,6 @@ impl Default for RepoFilesTagsConfig {
 #[derive(Debug, Clone)]
 pub struct ConfigState {
     pub base_url: String,
-    pub locale: LocaleConfig,
     pub transfers: TransfersConfig,
     pub eventstream: EventstreamConfig,
     pub repos: ReposConfig,
@@ -119,10 +93,6 @@ impl Default for ConfigState {
     fn default() -> Self {
         Self {
             base_url: String::from(""),
-            locale: LocaleConfig {
-                name: String::from("en"),
-                locale: get_locale("en").unwrap(),
-            },
             transfers: TransfersConfig::default(),
             eventstream: EventstreamConfig::default(),
             repos: ReposConfig::default(),
