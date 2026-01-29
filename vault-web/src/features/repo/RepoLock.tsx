@@ -1,6 +1,6 @@
 import { css } from '@emotion/css';
 import { useTheme } from '@emotion/react';
-import { memo, useState } from 'react';
+import { memo } from 'react';
 
 import { Button } from '../../components/Button';
 import { Checkbox } from '../../components/Checkbox';
@@ -15,7 +15,7 @@ export const RepoLock = memo<{ repo: Repo }>(({ repo }) => {
   const theme = useTheme();
   const webVault = useWebVault();
 
-  const [autoLock, setAutoLock] = useState(repo.autoLock);
+  const autoLock = repo.autoLock;
   const options: {
     value: RepoAutoLockAfter['type'];
     label: string;
@@ -39,8 +39,6 @@ export const RepoLock = memo<{ repo: Repo }>(({ repo }) => {
   }
 
   const updateAutoLock = (autoLock: RepoAutoLock) => {
-    setAutoLock(autoLock);
-
     webVault.reposSetAutoLock(repo.id, autoLock);
   };
 
