@@ -283,6 +283,662 @@
       "value": "error"
     }
   ],
+  "core.relative_time": [
+    {
+      "options": {
+        "future": {
+          "value": [
+            {
+              "options": {
+                "days": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "in a day"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "in "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " days"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "few_seconds": {
+                  "value": [
+                    {
+                      "type": 0,
+                      "value": "in a few seconds"
+                    }
+                  ]
+                },
+                "hours": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "in an hour"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "in "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " hours"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "minutes": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "in a minute"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "in "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " minutes"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "months": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "in a month"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "in "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " months"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "other": {
+                  "value": [
+                  ]
+                },
+                "seconds": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "in a second"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "in "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " seconds"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "years": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "in a year"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "in "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " years"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                }
+              },
+              "type": 5,
+              "value": "diff"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "options": {
+                "days": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "a day"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " days"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "few_seconds": {
+                  "value": [
+                    {
+                      "type": 0,
+                      "value": "a few seconds"
+                    }
+                  ]
+                },
+                "hours": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "an hour"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " hours"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "minutes": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "a minute"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " minutes"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "months": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "a month"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " months"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "other": {
+                  "value": [
+                  ]
+                },
+                "seconds": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "a second"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " seconds"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "years": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "a year"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " years"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                }
+              },
+              "type": 5,
+              "value": "diff"
+            }
+          ]
+        },
+        "past": {
+          "value": [
+            {
+              "options": {
+                "days": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "a day ago"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " days ago"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "few_seconds": {
+                  "value": [
+                    {
+                      "type": 0,
+                      "value": "a few seconds ago"
+                    }
+                  ]
+                },
+                "hours": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "an hour ago"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " hours ago"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "minutes": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "a minute ago"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " minutes ago"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "months": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "a month ago"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " months ago"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "other": {
+                  "value": [
+                  ]
+                },
+                "seconds": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "a second ago"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " seconds ago"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "years": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "a year ago"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " years ago"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                }
+              },
+              "type": 5,
+              "value": "diff"
+            }
+          ]
+        }
+      },
+      "type": 5,
+      "value": "modifier"
+    }
+  ],
   "core.remote.api.error": [
     {
       "type": 0,

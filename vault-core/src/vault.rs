@@ -330,14 +330,7 @@ impl Vault {
         value: TimeMillis,
         with_modifier: bool,
     ) -> relative_time::RelativeTime {
-        self.with_state(|state| {
-            relative_time::RelativeTime::new(
-                &self.runtime,
-                value,
-                &state.config.locale.locale,
-                with_modifier,
-            )
-        })
+        relative_time::RelativeTime::new(&self.runtime, value, with_modifier, &self.intl_service)
     }
 
     // intl
