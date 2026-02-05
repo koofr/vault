@@ -6,6 +6,7 @@ use vault_desktop_server::{
     encryption::Encryption,
     file_handlers::FileHandlers,
     init_secure_storage::{init_file_secure_storage, init_keyring_secure_storage},
+    intl::get_intl_config,
     logging::setup_logging,
 };
 use vault_native::vault::build_vault;
@@ -46,12 +47,7 @@ fn main() {
         redirect_uri: oauth2_redirect_uri,
     };
 
-    let intl_config = vault_core::intl::IntlConfig {
-        ownership: vault_core::intl::IntlConfigOwnership::Core {
-            // TODO: get preferred locales from system
-            preferred_locales: Vec::new(),
-        },
-    };
+    let intl_config = get_intl_config();
 
     let (vault, _, _) = build_vault(
         base_url,

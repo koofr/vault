@@ -8,6 +8,7 @@ pub mod file_handlers;
 pub mod file_secure_storage;
 pub mod handlers;
 pub mod init_secure_storage;
+pub mod intl;
 pub mod keyring_secure_storage;
 pub mod logging;
 pub mod request_encryption;
