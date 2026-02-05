@@ -36,7 +36,7 @@ build-wasm-web-tests:
 	cd vault-wasm && wasm-pack build --target nodejs --out-dir ../vault-web-tests/vault-wasm-nodejs --out-name vault-wasm && ./fix-helpers-nodejs.sh ../vault-web-tests/vault-wasm-nodejs
 
 build-ios-simulator:
-	cd vault-ios && xcodebuild -scheme Vault -destination "platform=iOS Simulator,name=iPhone 14 Pro" build
+	cd vault-ios && xcodebuild -scheme Vault -destination "platform=iOS Simulator,name=iPhone 17 Pro" build
 
 build-ios-device:
 	cd vault-ios && xcodebuild -scheme Vault -destination "generic/platform=iOS" build
