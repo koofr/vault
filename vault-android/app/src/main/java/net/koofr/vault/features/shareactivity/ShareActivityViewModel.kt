@@ -38,46 +38,47 @@ class ShareActivityViewModel @Inject constructor(
     var onCancel: (() -> Unit)? = null
     var onDone: (() -> Unit)? = null
 
-    private var transfersIsActiveSubscriptionId: UInt? = null
-    private var transfersWasActive = false
+    private var transfersDoneSessionsCountSubscriptionId: UInt? = null
+    private var transfersDoneSessionsCountBeforeUpload: UInt? = null
     private var transfersAborted = false
 
     init {
-        val id = mobileVault.transfersIsActiveSubscribe(
+        val id = mobileVault.transfersDoneSessionsCountSubscribe(
             cb = object : SubscriptionCallback {
                 override fun onChange(id: UInt) {
                     viewModelScope.launch {
-                        handleTransfersIsActive(id)
+                        handleTransfersDoneSessionsCount(id)
                     }
                 }
             },
         )
 
-        transfersIsActiveSubscriptionId = id
+        transfersDoneSessionsCountSubscriptionId = id
 
-        handleTransfersIsActive(id)
+        handleTransfersDoneSessionsCount(id)
     }
 
     override fun onCleared() {
-        transfersIsActiveSubscriptionId?.let {
+        transfersDoneSessionsCountSubscriptionId?.let {
             mobileVault.unsubscribe(id = it)
 
-            transfersIsActiveSubscriptionId = null
+            transfersDoneSessionsCountSubscriptionId = null
         }
 
         viewModelStore.clear()
     }
 
-    private fun handleTransfersIsActive(id: UInt) {
-        mobileVault.transfersIsActiveData(id = id)?.let { isActive ->
-            if (isActive && !transfersWasActive) {
-                transfersWasActive = true
-            }
-            if (!isActive && transfersWasActive) {
-                if (transfersAborted) {
-                    done()
-                } else {
-                    state.value = ShareActivityState.Done
+    private fun handleTransfersDoneSessionsCount(id: UInt) {
+        mobileVault.transfersDoneSessionsCountData(id = id)?.let { transfersDoneSessionsCount ->
+            transfersDoneSessionsCountBeforeUpload?.let { transfersDoneSessionsCountBeforeUpload ->
+                // If there are more done sessions then before the upload,
+                // transfers are done.
+                if (transfersDoneSessionsCount > transfersDoneSessionsCountBeforeUpload) {
+                    if (transfersAborted) {
+                        done()
+                    } else {
+                        state.value = ShareActivityState.Done
+                    }
                 }
             }
         }
@@ -101,6 +102,11 @@ class ShareActivityViewModel @Inject constructor(
                 uploadHelper = uploadHelper,
                 fileIconCache = fileIconCache,
                 files = files,
+                beforeUpload = {
+                    transfersDoneSessionsCountSubscriptionId?.let { id ->
+                        transfersDoneSessionsCountBeforeUpload = mobileVault.transfersDoneSessionsCountData(id = id)
+                    }
+                },
                 onUpload = {
                     val vm = TransfersViewModel(
                         mobileVault = mobileVault,
