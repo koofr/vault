@@ -1292,6 +1292,7 @@ fn test_upload_abort_all() {
                             done_bytes: 0,
                             failed_bytes: 0,
                             total_bytes: 4,
+                            done_sessions_count: 0,
                         }
                     ),
                     2 => assert_eq!(
@@ -1347,6 +1348,7 @@ fn test_upload_abort_all() {
                             done_bytes: 0,
                             failed_bytes: 0,
                             total_bytes: 4,
+                            done_sessions_count: 0,
                         }
                     ),
                     3 => assert_eq!(
@@ -1434,6 +1436,7 @@ fn test_upload_abort_all() {
                             done_bytes: 0,
                             failed_bytes: 0,
                             total_bytes: 9,
+                            done_sessions_count: 0,
                         }
                     ),
                     4 => assert_eq!(
@@ -1527,6 +1530,7 @@ fn test_upload_abort_all() {
                             done_bytes: 0,
                             failed_bytes: 0,
                             total_bytes: 9,
+                            done_sessions_count: 0,
                         }
                     ),
                     5 => assert_eq!(
@@ -2116,6 +2120,7 @@ fn expected_transfers_waiting(fixture: &RepoFixture, transfers: &TransfersState)
         done_bytes: 0,
         failed_bytes: 0,
         total_bytes: 4,
+        done_sessions_count: 0,
     }
 }
 
@@ -2171,6 +2176,7 @@ fn expected_transfers_processing(
         done_bytes: 0,
         failed_bytes: 0,
         total_bytes: 4,
+        done_sessions_count: 0,
     }
 }
 
@@ -2226,6 +2232,7 @@ fn expected_transfers_transferring(
         done_bytes: 0,
         failed_bytes: 0,
         total_bytes: 4,
+        done_sessions_count: 0,
     }
 }
 
@@ -2281,6 +2288,7 @@ fn expected_transfers_transferring_progress(
         done_bytes: 4,
         failed_bytes: 0,
         total_bytes: 4,
+        done_sessions_count: 0,
     }
 }
 
@@ -2330,6 +2338,7 @@ fn expected_transfers_waiting_failed(
         done_bytes: 0,
         failed_bytes: 0,
         total_bytes: 4,
+        done_sessions_count: 0,
     }
 }
 
@@ -2384,12 +2393,14 @@ fn expected_transfers_failed(
         done_bytes: 0,
         failed_bytes: 4,
         total_bytes: 4,
+        done_sessions_count: 0,
     }
 }
 
 fn expected_transfers_done() -> TransfersState {
     TransfersState {
         next_id: NextId(2),
+        done_sessions_count: 1,
         ..Default::default()
     }
 }

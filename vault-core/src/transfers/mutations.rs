@@ -461,6 +461,8 @@ pub fn transfer_failed(
 }
 
 pub fn abort(state: &mut store::State, notify: &store::Notify, id: u32) {
+    let mut session_done = false;
+
     if let Some(transfer) = state.transfers.transfers.remove(&id) {
         notify(store::Event::Transfers);
 
@@ -510,6 +512,13 @@ pub fn abort(state: &mut store::State, notify: &store::Notify, id: u32) {
                 }
             }
         }
+
+        // Aborting the last transfer finishes the current transfer session.
+        session_done = state.transfers.transfers.is_empty();
+    }
+
+    if session_done {
+        state.transfers.done_sessions_count += 1;
     }
 
     cleanup(state, notify);
@@ -590,11 +599,21 @@ pub fn cleanup(state: &mut store::State, notify: &store::Notify) {
     }
 
     if state.transfers.transfers.is_empty() {
+        // If there are no active transfers, but there were some transfers in
+        // total, increment the done sessions count
+        let done_sessions_count = if state.transfers.total_count > 0 {
+            state.transfers.done_sessions_count + 1
+        } else {
+            state.transfers.done_sessions_count
+        };
+
         let new_transfers = TransfersState {
             // we must not reset next_id because calling abort() after all
             // transfers is finished and a new transfer is added could
             // incorrectly abort the new transfer
             next_id: state.transfers.next_id.clone(),
+            // preserve done_sessions_count on cleanup
+            done_sessions_count,
             ..Default::default()
         };
 
@@ -627,7 +646,7 @@ mod tests {
         types::{DecryptedName, DecryptedPath, EncryptedPath, RepoFileId, TimeMillis},
     };
 
-    use super::{create_upload_transfer, start_transfer, upload_transfer_processed};
+    use super::*;
 
     #[test]
     fn test_upload() {
@@ -1046,5 +1065,124 @@ mod tests {
                 order: 0,
             }
         );
+    }
+
+    #[test]
+    fn test_done_sessions_count() {
+        let mut state = store::State::default();
+
+        assert_eq!(state.transfers.done_sessions_count, 0);
+
+        // done_sessions_count must not be incremented when transfer is created
+        let (notify, _, _) = store_test_helpers::mutation();
+        create_download_transfer(
+            &mut state,
+            &notify,
+            1,
+            TransferDisplayName("file-1.txt".into()),
+            SizeInfo::Exact(1),
+            false,
+            false,
+            false,
+        );
+        assert_eq!(state.transfers.done_sessions_count, 0);
+
+        let (notify, _, _) = store_test_helpers::mutation();
+        create_download_transfer(
+            &mut state,
+            &notify,
+            2,
+            TransferDisplayName("file-2.txt".into()),
+            SizeInfo::Exact(1),
+            false,
+            false,
+            false,
+        );
+        assert_eq!(state.transfers.done_sessions_count, 0);
+
+        let (notify, _, _) = store_test_helpers::mutation();
+        start_transfer(&mut state, &notify, 1, TimeMillis(1));
+        let (notify, _, _) = store_test_helpers::mutation();
+        start_transfer(&mut state, &notify, 2, TimeMillis(2));
+
+        // done_sessions_count must not be incremented when session is not complete
+        let (notify, _, _) = store_test_helpers::mutation();
+        transfer_done(&mut state, &notify, 1);
+        assert_eq!(state.transfers.done_sessions_count, 0);
+
+        // done_sessions_count must be incremented when session is complete
+        let (notify, _, _) = store_test_helpers::mutation();
+        transfer_done(&mut state, &notify, 2);
+        assert!(state.transfers.transfers.is_empty());
+        assert_eq!(state.transfers.done_sessions_count, 1);
+
+        // done_sessions_count must be preserved after reset (logout)
+        state.transfers.reset();
+        assert_eq!(state.transfers.done_sessions_count, 1);
+
+        let (notify, _, _) = store_test_helpers::mutation();
+        create_download_transfer(
+            &mut state,
+            &notify,
+            3,
+            TransferDisplayName("file-3.txt".into()),
+            SizeInfo::Exact(1),
+            false,
+            false,
+            false,
+        );
+        assert_eq!(state.transfers.done_sessions_count, 1);
+
+        let (notify, _, _) = store_test_helpers::mutation();
+        start_transfer(&mut state, &notify, 3, TimeMillis(3));
+        let (notify, _, _) = store_test_helpers::mutation();
+        transfer_done(&mut state, &notify, 3);
+        assert_eq!(state.transfers.done_sessions_count, 2);
+
+        // done_sessions_count must also be incremented when session is aborted
+        let (notify, _, _) = store_test_helpers::mutation();
+        create_download_transfer(
+            &mut state,
+            &notify,
+            4,
+            TransferDisplayName("file-4.txt".into()),
+            SizeInfo::Exact(1),
+            false,
+            false,
+            false,
+        );
+        let (notify, _, _) = store_test_helpers::mutation();
+        abort(&mut state, &notify, 4);
+        assert_eq!(state.transfers.done_sessions_count, 3);
+
+        let (notify, _, _) = store_test_helpers::mutation();
+        create_download_transfer(
+            &mut state,
+            &notify,
+            3,
+            TransferDisplayName("file-3.txt".into()),
+            SizeInfo::Exact(1),
+            true, // persistent transfer will not be removed after done, it has to be removed using abort()
+            false,
+            false,
+        );
+        assert_eq!(state.transfers.done_sessions_count, 3);
+
+        let (notify, _, _) = store_test_helpers::mutation();
+        start_transfer(&mut state, &notify, 3, TimeMillis(3));
+        let (notify, _, _) = store_test_helpers::mutation();
+        transfer_done(&mut state, &notify, 3);
+        assert_eq!(state.transfers.done_sessions_count, 3);
+
+        // done_sessions_count must also be incremented when the done transfer
+        // is removed
+        let (notify, _, _) = store_test_helpers::mutation();
+        abort(&mut state, &notify, 3);
+        assert_eq!(state.transfers.done_sessions_count, 4);
+
+        // calling cleanup again must not increment done sessions count
+        let (notify, _, _) = store_test_helpers::mutation();
+        cleanup(&mut state, &notify);
+        assert_eq!(state.transfers.done_sessions_count, 4);
     }
 }

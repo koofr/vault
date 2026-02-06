@@ -1775,6 +1775,7 @@ struct SubscriptionData {
     repo_remove_info: Data<Option<RepoRemoveInfo>>,
     repo_files_file: Data<Option<RepoFile>>,
     transfers_is_active: Data<bool>,
+    transfers_done_sessions_count: Data<u32>,
     transfers_summary: Data<TransfersSummary>,
     transfers_list: Data<Vec<Transfer>>,
     transfers_transfer: Data<Option<Transfer>>,
@@ -2748,6 +2749,29 @@ impl MobileVault {
 
     pub fn transfers_is_active_data(&self, id: u32) -> Option<bool> {
         self.get_data(id, self.subscription_data.transfers_is_active.clone())
+    }
+
+    pub fn transfers_done_sessions_count_subscribe(
+        &self,
+        cb: Box<dyn SubscriptionCallback>,
+    ) -> u32 {
+        self.subscribe(
+            &[Event::Transfers],
+            cb,
+            self.subscription_data.transfers_done_sessions_count.clone(),
+            move |vault| {
+                vault.with_state(|state| {
+                    transfers::selectors::select_done_sessions_count(state) as u32
+                })
+            },
+        )
+    }
+
+    pub fn transfers_done_sessions_count_data(&self, id: u32) -> Option<u32> {
+        self.get_data(
+            id,
+            self.subscription_data.transfers_done_sessions_count.clone(),
+        )
     }
 
     pub fn transfers_summary_subscribe(&self, cb: Box<dyn SubscriptionCallback>) -> u32 {
