@@ -805,6 +805,8 @@ interface MobileVault {
 
   u32 transfers_is_active_subscribe(SubscriptionCallback cb);
   boolean? transfers_is_active_data(u32 id);
+  u32 transfers_done_sessions_count_subscribe(SubscriptionCallback cb);
+  u32? transfers_done_sessions_count_data(u32 id);
   u32 transfers_summary_subscribe(SubscriptionCallback cb);
   TransfersSummary? transfers_summary_data(u32 id);
   u32 transfers_list_subscribe(SubscriptionCallback cb);

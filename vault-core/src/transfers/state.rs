@@ -139,12 +139,15 @@ pub struct TransfersState {
     pub done_bytes: i64,
     pub failed_bytes: i64,
     pub total_bytes: i64,
+    pub done_sessions_count: usize,
 }
 
 impl TransfersState {
     pub fn reset(&mut self) {
         *self = Self {
+            // preserve next_id and done_sessions_count across logouts
             next_id: self.next_id.clone(),
+            done_sessions_count: self.done_sessions_count,
             ..Default::default()
         };
     }

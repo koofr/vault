@@ -197,6 +197,7 @@ fn expected_transfers_transferring(transfers: &TransfersState, attempts: usize) 
         done_bytes: 0,
         failed_bytes: 0,
         total_bytes: 4,
+        done_sessions_count: 0,
     }
 }
 
@@ -243,12 +244,14 @@ fn expected_transfers_transferring_progress(
         done_bytes: 4,
         failed_bytes: 0,
         total_bytes: 4,
+        done_sessions_count: 0,
     }
 }
 
 fn expected_transfers_done() -> TransfersState {
     TransfersState {
         next_id: NextId(2),
+        done_sessions_count: 1,
         ..Default::default()
     }
 }

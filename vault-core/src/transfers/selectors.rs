@@ -207,3 +207,7 @@ pub fn select_unused_name(
 
     repo_files_selectors::get_unused_name(used_names, &upload_transfer.original_name)
 }
+
+pub fn select_done_sessions_count(state: &store::State) -> usize {
+    state.transfers.done_sessions_count
+}
