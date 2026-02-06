@@ -11,6 +11,7 @@ class ShareTargetViewModel constructor(
     private val uploadHelper: UploadHelper,
     val fileIconCache: FileIconCache,
     val files: List<ShareTargetFile>,
+    private val beforeUpload: () -> Unit,
     private val onUpload: () -> Unit,
     private val onCancel: () -> Unit,
 ) : ViewModel() {
@@ -21,6 +22,8 @@ class ShareTargetViewModel constructor(
     }
 
     fun upload(repoId: String, encryptedPath: String) {
+        beforeUpload()
+
         uploadHelper.uploadFiles(repoId, encryptedPath, files.map { it.uploadFile })
 
         onUpload()
