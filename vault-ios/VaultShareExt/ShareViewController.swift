@@ -24,9 +24,9 @@ final class ShareViewController: UIViewController {
 
         vm.handleItemProviders(itemProviders)
 
-        let shareExtScreen = ShareExtScreen(vm: vm)
+        let shareExtContentView = ShareExtContentView(vm: vm)
 
-        let hostingController = UIHostingController(rootView: shareExtScreen)
+        let hostingController = UIHostingController(rootView: shareExtContentView)
 
         addChild(hostingController)
 
