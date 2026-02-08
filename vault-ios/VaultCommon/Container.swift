@@ -37,6 +37,8 @@ public class Container: ObservableObject {
         self.baseURL = baseURL
         self.textEditorAutosaveIntervalMs = textEditorAutosaveIntervalMs
 
+        let intlOwnership = IntlOwnership.core(preferredLocales: Locale.preferredLanguages)
+
         localAuthenticationHelper = LocalAuthenticationHelper()
         keychainHelper = KeychainHelper(service: keychainService, accessGroup: keychainAccessGroup)
         keychainSecureStorage = KeychainSecureStorage(
@@ -60,7 +62,7 @@ public class Container: ObservableObject {
         mobileVault = MobileVault(
             baseUrl: baseURL, appName: appName, oauth2AuthBaseUrl: oauth2AuthBaseURL,
             oauth2ClientId: oauth2ClientId, oauth2ClientSecret: oauth2ClientSecret,
-            oauth2RedirectUri: oauth2RedirectUri, intlPreferredLocales: [],
+            oauth2RedirectUri: oauth2RedirectUri, intlOwnership: intlOwnership,
             secureStorage: keychainSecureStorage)
 
         if let reposSetDefaultAutoLock = reposSetDefaultAutoLock {

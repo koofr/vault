@@ -53,6 +53,8 @@ class Fixture {
             try await debugClient.createTestVaultRepo()
         }
 
+        let intlOwnership = IntlOwnership.core(preferredLocales: ["en"])
+
         let memorySecureStorage = MemorySecureStorage()
 
         if authenticate {
@@ -67,7 +69,7 @@ class Fixture {
             baseUrl: baseUrl, appName: "vault-ios-tests", oauth2AuthBaseUrl: oauth2AuthBaseUrl,
             oauth2ClientId: oauth2ClientId,
             oauth2ClientSecret: oauth2ClientSecret, oauth2RedirectUri: oauth2RedirectUri,
-            secureStorage: memorySecureStorage)
+            intlOwnership: intlOwnership, secureStorage: memorySecureStorage)
         let mobileVaultHelper = MobileVaultHelper(mobileVault: mobileVault)
 
         mobileVault.load()

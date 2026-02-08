@@ -56,6 +56,22 @@ public struct SettingsSheet: View {
 
                 Section {
                     Button {
+                        container.sheets.show(
+                            name: "languagePicker",
+                            viewModel: LanguagePickerViewModel(container: container)
+                        ) { vm, hide in
+                            LanguagePickerSheet(
+                                vm: vm,
+                                onDismiss: hide)
+                        }
+                    } label: {
+                        Text("Change language")
+                            .foregroundColor(Color(.label))
+                    }
+                }
+
+                Section {
+                    Button {
                         self.isClearingCache = true
 
                         Task.detached {

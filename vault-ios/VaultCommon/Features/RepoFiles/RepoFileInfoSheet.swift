@@ -10,6 +10,8 @@ struct RepoFileInfoSheet: View {
 
     @ObservedObject var repoInfo: Subscription<RepoInfo>
 
+    @Environment(\.locale) private var locale
+
     var categoryDisplay: String {
         switch file.category {
         case .generic: return "File"
@@ -118,7 +120,8 @@ struct RepoFileInfoSheet: View {
                                     Text(
                                         Date(timeIntervalSince1970: Double(modified) / 1000)
                                             .formatted(
-                                                date: .long, time: .standard)
+                                                Date.FormatStyle(
+                                                    date: .long, time: .standard, locale: locale))
                                     ).font(.system(size: 15))
                                 }
                             }
