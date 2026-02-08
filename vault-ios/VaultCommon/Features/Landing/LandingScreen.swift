@@ -64,6 +64,21 @@ public struct LandingScreen: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
+                        container.sheets.show(
+                            name: "languagePicker",
+                            viewModel: LanguagePickerViewModel(container: container)
+                        ) { vm, hide in
+                            LanguagePickerSheet(
+                                vm: vm,
+                                onDismiss: hide)
+                        }
+                    } label: {
+                        Image(systemName: "globe")
+                    }
+                }
+
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
                         container.sheets.show(name: "infoSheet") { _, hide in
                             InfoSheet(container: container, onDismiss: hide)
                         }

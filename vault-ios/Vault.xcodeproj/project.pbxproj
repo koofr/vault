@@ -423,6 +423,7 @@
 		A1118F572F0C6B2600B55356 /* Navigation */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Navigation; sourceTree = "<group>"; };
 		A14B55642F1136A300CA8405 /* Helpers */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Helpers; sourceTree = "<group>"; };
 		A14B556F2F11399300CA8405 /* TestFiles */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TestFiles; sourceTree = "<group>"; };
+		A1522E172F38A12500113F8C /* Intl */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Intl; sourceTree = "<group>"; };
 		A1AC30EE2F4D178A00A51BE3 /* VaultUtils */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = VaultUtils; sourceTree = "<group>"; };
 		A1AC30FB2F4D178B00A51BE3 /* VaultUtilsTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = VaultUtilsTests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -730,6 +731,7 @@
 				A191B2D92AB0105B00EC5465 /* Downloads */,
 				A18AB2C82A77DE8C0037156B /* FileIcon */,
 				A16D93342A7A650800FB3249 /* Files */,
+				A1522E172F38A12500113F8C /* Intl */,
 				A19CE5D82A83A2540079E924 /* Keychain */,
 				A18AB2C92A77DECE0037156B /* Landing */,
 				A1228E7D2A7BE9DA00AC1148 /* MainNavigation */,
@@ -1147,6 +1149,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				A1118F572F0C6B2600B55356 /* Navigation */,
+				A1522E172F38A12500113F8C /* Intl */,
 			);
 			name = VaultCommon;
 			packageProductDependencies = (

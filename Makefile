@@ -152,9 +152,9 @@ test-android-ui: check-android-env build-android-bindings build-android-library-
 intl-generate-icu-data:
 	vault-core/scripts/intl-generate-icu-data.sh
 
-intl-extract: intl-core-extract intl-web-extract
+intl-extract: intl-core-extract intl-web-extract intl-ios-extract
 
-intl-compile: intl-core-compile intl-web-compile
+intl-compile: intl-core-compile intl-web-compile intl-ios-compile
 
 intl-core-extract:
 	vault-core/scripts/intl-extract.sh
@@ -167,3 +167,9 @@ intl-web-extract:
 
 intl-web-compile:
 	vault-web/scripts/intl-compile.sh
+
+intl-ios-extract:
+	vault-ios/scripts/intl-extract.sh
+
+intl-ios-compile:
+	vault-ios/scripts/intl-compile.sh
