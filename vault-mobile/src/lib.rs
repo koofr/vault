@@ -1798,6 +1798,13 @@ pub fn set_logger(level: LoggerLevel, logger: Box<dyn LoggerCallback>) {
     let _ = mobile_logger::init_with_level(level, logger);
 }
 
+// probe
+
+pub fn probe() {
+    // this function does nothing, it's just a way to check if the library is
+    // loaded and if the FFI is working
+}
+
 // MobileVault
 
 pub struct MobileVault {

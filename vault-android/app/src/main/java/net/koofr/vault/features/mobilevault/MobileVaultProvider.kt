@@ -13,6 +13,7 @@ import net.koofr.vault.MobileVault
 import net.koofr.vault.RepoAutoLock
 import net.koofr.vault.RepoAutoLockAfter
 import net.koofr.vault.SecureStorage
+import net.koofr.vault.probe
 import net.koofr.vault.setLogger
 import org.json.JSONObject
 import javax.inject.Singleton
@@ -142,6 +143,8 @@ object MobileVaultProviderModule {
 fun isMobileVaultSupported(): Boolean {
     return try {
         Native.load("vault_mobile", Library::class.java)
+
+        probe()
 
         true
     } catch (t: Throwable) {

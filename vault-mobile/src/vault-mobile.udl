@@ -932,4 +932,8 @@ namespace vault_mobile {
   // logging
 
   void set_logger(LoggerLevel level, LoggerCallback cb);
+
+  // probe
+
+  void probe();
 };
