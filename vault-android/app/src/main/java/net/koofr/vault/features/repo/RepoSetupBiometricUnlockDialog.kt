@@ -1,5 +1,6 @@
 package net.koofr.vault.features.repo
 
+import android.content.Context
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.fragment.app.FragmentActivity
@@ -24,9 +26,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import net.koofr.vault.LocalSnackbarHostState
 import net.koofr.vault.MobileVault
+import net.koofr.vault.R
 import net.koofr.vault.RepoUnlockMode
 import net.koofr.vault.RepoUnlockOptions
 import net.koofr.vault.RepoUnlockUnlocked
@@ -42,6 +46,7 @@ class RepoSetupBiometricUnlockDialogViewModel @Inject constructor(
     val mobileVault: MobileVault,
     secureStorage: SecureStorage,
     savedStateHandle: SavedStateHandle,
+    @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
     private val repoId: String = savedStateHandle.get<String>("repoId")!!
 
@@ -52,7 +57,7 @@ class RepoSetupBiometricUnlockDialogViewModel @Inject constructor(
     }
 
     private val biometricsHelper: RepoPasswordBiometricsHelper =
-        RepoPasswordBiometricsHelper(repoId, secureStorage)
+        RepoPasswordBiometricsHelper(repoId, secureStorage, appContext)
 
     private var biometricPrompt: BiometricPrompt? = null
 
@@ -99,12 +104,14 @@ class RepoSetupBiometricUnlockDialogViewModel @Inject constructor(
                                 biometricPrompt = prompt
 
                                 prompt.authenticate(
-                                    biometricsHelper.promptInfo,
+                                    biometricsHelper.buildPromptInfo(),
                                     cryptoObject,
                                 )
                             }
                         } catch (e: Exception) {
-                            mobileVault.notificationsShow(message = "Biometric prompt error: ${e.message}")
+                            mobileVault.notificationsShow(
+                                message = appContext.getString(R.string.repo_setup_biometric_unlock_prompt_error_message, e.message ?: ""),
+                            )
                         }
                     }
                 }
@@ -127,7 +134,8 @@ fun RepoSetupBiometricUnlockDialog(
     vm: RepoSetupBiometricUnlockDialogViewModel = hiltViewModel(),
     unlockFormVm: RepoUnlockFormViewModel = viewModel(),
 ) {
-    val activity = LocalContext.current.getActivity()
+    val context = LocalContext.current
+    val activity = context.getActivity()
 
     val info = subscribe(
         { v, cb -> v.repoUnlockInfoSubscribe(unlockId = vm.unlockId, cb = cb) },
@@ -174,7 +182,9 @@ fun RepoSetupBiometricUnlockDialog(
                                 unlockFormVm,
                                 info,
                                 unlock,
-                                message = "Enter your Safe Key to setup biometric unlock",
+                                message = stringResource(
+                                    R.string.repo_setup_biometric_unlock_message,
+                                ),
                             )
                         }
                     }

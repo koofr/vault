@@ -1,11 +1,11 @@
 package net.koofr.vault.features.repofiles
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -18,13 +18,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import net.koofr.vault.R
 import net.koofr.vault.RepoFilesBrowserInfo
 import net.koofr.vault.RepoFilesSortField
 import net.koofr.vault.SortDirection
 import net.koofr.vault.ui.theme.KoofrGreen
+import net.koofr.vault.utils.uppercaseCurrentLocale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,7 +48,7 @@ fun RepoFilesSortSheet(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        "SORT BY",
+                        stringResource(R.string.repo_files_sort_by_title).uppercaseCurrentLocale(),
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
@@ -53,42 +57,42 @@ fun RepoFilesSortSheet(
                     RepoFilesSortRow(
                         vm,
                         info,
-                        "File name (A to Z)",
+                        stringResource(R.string.repo_files_sort_option_name_asc),
                         RepoFilesSortField.NAME,
                         SortDirection.ASC,
                     )
                     RepoFilesSortRow(
                         vm,
                         info,
-                        "File name (Z to A)",
+                        stringResource(R.string.repo_files_sort_option_name_desc),
                         RepoFilesSortField.NAME,
                         SortDirection.DESC,
                     )
                     RepoFilesSortRow(
                         vm,
                         info,
-                        "Size (largest first)",
+                        stringResource(R.string.repo_files_sort_option_size_desc),
                         RepoFilesSortField.SIZE,
                         SortDirection.DESC,
                     )
                     RepoFilesSortRow(
                         vm,
                         info,
-                        "Size (smallest first)",
+                        stringResource(R.string.repo_files_sort_option_size_asc),
                         RepoFilesSortField.SIZE,
                         SortDirection.ASC,
                     )
                     RepoFilesSortRow(
                         vm,
                         info,
-                        "Modified (newest first)",
+                        stringResource(R.string.repo_files_sort_option_modified_desc),
                         RepoFilesSortField.MODIFIED,
                         SortDirection.DESC,
                     )
                     RepoFilesSortRow(
                         vm,
                         info,
-                        "Modified (oldest first)",
+                        stringResource(R.string.repo_files_sort_option_modified_asc),
                         RepoFilesSortField.MODIFIED,
                         SortDirection.ASC,
                     )
@@ -113,8 +117,10 @@ private fun RepoFilesSortRow(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .clickable(
-                onClick = {
+            .toggleable(
+                value = isActive,
+                role = Role.Checkbox,
+                onValueChange = {
                     vm.mobileVault.repoFilesBrowsersSortBy(browserId = vm.browserId, field = field, direction = direction)
 
                     coroutineScope
@@ -140,7 +146,11 @@ private fun RepoFilesSortRow(
         )
 
         if (isActive) {
-            Icon(Icons.Filled.Check, "Checked", tint = KoofrGreen)
+            Icon(
+                Icons.Filled.Check,
+                stringResource(R.string.repo_files_sort_option_selected_content_desc),
+                tint = KoofrGreen,
+            )
         }
     }
 }

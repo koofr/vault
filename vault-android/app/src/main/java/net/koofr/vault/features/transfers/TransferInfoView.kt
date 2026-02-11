@@ -11,14 +11,17 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.koofr.vault.PreviewsData
+import net.koofr.vault.R
 import net.koofr.vault.Transfer
 import net.koofr.vault.TransferState
 import net.koofr.vault.ui.theme.VaultTheme
+import net.koofr.vault.utils.uppercaseCurrentLocale
 
 @Composable
 fun TransferInfoView(transfer: Transfer, onRetry: () -> Unit) {
@@ -64,7 +67,7 @@ fun TransferInfoView(transfer: Transfer, onRetry: () -> Unit) {
 
         if (transfer.canRetry) {
             TextButton(onClick = onRetry) {
-                Text("RETRY")
+                Text(stringResource(R.string.transfers_transfer_retry_button).uppercaseCurrentLocale())
             }
         }
     }

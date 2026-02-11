@@ -4,6 +4,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.ui.res.stringResource
+import net.koofr.vault.R
 import net.koofr.vault.RepoFilesBrowserInfo
 import net.koofr.vault.RepoFilesMoveMode
 import net.koofr.vault.SelectionSummary
@@ -16,8 +18,8 @@ fun RepoFilesNavMenu(vm: RepoFilesScreenViewModel, info: State<RepoFilesBrowserI
     DropdownMenuItem(text = {
         Text(
             text = when (info.value?.selectionSummary) {
-                SelectionSummary.ALL -> "Deselect all"
-                else -> "Select all"
+                SelectionSummary.ALL -> stringResource(R.string.repo_files_edit_mode_deselect_all_button)
+                else -> stringResource(R.string.repo_files_edit_mode_select_all_button)
             },
         )
     }, onClick = {
@@ -34,7 +36,7 @@ fun RepoFilesNavMenu(vm: RepoFilesScreenViewModel, info: State<RepoFilesBrowserI
 
     if (selectMode) {
         DropdownMenuItem(text = {
-            Text("Copy to…")
+            Text(stringResource(R.string.repo_files_nav_menu_copy_to_menu_item))
         }, onClick = {
             vm.menuExpanded.value = false
 
@@ -45,7 +47,7 @@ fun RepoFilesNavMenu(vm: RepoFilesScreenViewModel, info: State<RepoFilesBrowserI
         })
 
         DropdownMenuItem(text = {
-            Text("Move to…")
+            Text(stringResource(R.string.repo_files_nav_menu_move_to_menu_item))
         }, onClick = {
             vm.menuExpanded.value = false
 
@@ -56,7 +58,7 @@ fun RepoFilesNavMenu(vm: RepoFilesScreenViewModel, info: State<RepoFilesBrowserI
         })
     } else {
         DropdownMenuItem(text = {
-            Text("Sort by…")
+            Text(stringResource(R.string.repo_files_nav_menu_sort_by_menu_item))
         }, onClick = {
             vm.menuExpanded.value = false
 

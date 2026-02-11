@@ -14,10 +14,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.koofr.vault.PreviewsData
+import net.koofr.vault.R
 import net.koofr.vault.TransfersSummary
 import net.koofr.vault.ui.theme.VaultTheme
 
@@ -42,7 +44,11 @@ fun TransfersSummaryBottomBar(
             ) {
                 Column {
                     Text(
-                        "${summary.doneCount} / ${summary.totalCount} done",
+                        stringResource(
+                            R.string.transfers_summary_transfers_done,
+                            summary.doneCount.toInt(),
+                            summary.totalCount.toInt(),
+                        ),
                         modifier = Modifier.padding(bottom = 10.dp),
                     )
                     Text(
@@ -57,7 +63,10 @@ fun TransfersSummaryBottomBar(
                             modifier = Modifier.padding(bottom = 10.dp),
                         )
                         Text(
-                            "${summary.remainingTimeDisplay} remaining",
+                            stringResource(
+                                R.string.transfers_summary_time_remaining,
+                                summary.remainingTimeDisplay,
+                            ),
                             textAlign = TextAlign.End,
                         )
                     }

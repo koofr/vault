@@ -11,8 +11,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import net.koofr.vault.R
 
 @Composable
 fun ErrorView(errorText: String, onRetry: (() -> Unit)?, modifier: Modifier = Modifier) {
@@ -27,7 +29,7 @@ fun ErrorView(errorText: String, onRetry: (() -> Unit)?, modifier: Modifier = Mo
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                "Error",
+                stringResource(R.string.composables_error_title),
                 style = MaterialTheme.typography.displayMedium,
             )
 
@@ -42,7 +44,7 @@ fun ErrorView(errorText: String, onRetry: (() -> Unit)?, modifier: Modifier = Mo
             onRetry?.let {
                 Spacer(modifier = Modifier.height(20.dp))
                 Button(onClick = onRetry) {
-                    Text("Try again")
+                    Text(stringResource(R.string.composables_error_try_again_button))
                 }
             }
         }

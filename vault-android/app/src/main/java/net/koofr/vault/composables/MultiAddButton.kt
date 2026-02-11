@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
@@ -48,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import net.koofr.vault.R
 import net.koofr.vault.ui.theme.VaultTheme
 
 data class MultiAddButtonItem(
@@ -84,7 +86,7 @@ fun MultiAddButton(items: List<MultiAddButtonItem>) {
             ) {
                 Icon(
                     Icons.Filled.Add,
-                    "Add",
+                    stringResource(R.string.composables_multi_add_button_content_desc),
                     modifier = Modifier
                         .rotate(rotate.value),
                 )

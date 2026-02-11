@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import net.koofr.vault.LocalSnackbarHostState
@@ -49,7 +50,7 @@ fun ShareTargetReposScreen(
 
     Scaffold(topBar = {
         TopAppBar(title = {
-            Text("Save to ${context.resources.getString(R.string.app_name)}")
+            Text(stringResource(R.string.share_target_repos_title))
         })
     }, bottomBar = {
         ShareTargetBottomBar(shareTargetVm, uploadEnabled = false, onUploadClick = {})
@@ -65,7 +66,7 @@ fun ShareTargetReposScreen(
                 empty = {
                     Column(verticalArrangement = Arrangement.Center) {
                         Text(
-                            "No Safe Boxes yet",
+                            stringResource(R.string.share_target_repos_empty_label),
                             style = MaterialTheme.typography.headlineMedium.copy(textAlign = TextAlign.Center),
                             modifier = Modifier
                                 .padding(
@@ -77,7 +78,7 @@ fun ShareTargetReposScreen(
                         )
 
                         Text(
-                            "Open ${context.resources.getString(R.string.app_name)} app and create one.",
+                            stringResource(R.string.share_target_repos_open_app_create_label),
                             style = MaterialTheme.typography.bodyLarge.copy(textAlign = TextAlign.Center),
                             modifier = Modifier
                                 .padding(start = 30.dp, end = 30.dp)

@@ -12,6 +12,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import net.koofr.vault.MobileVault
+import net.koofr.vault.R
 
 class AuthHelper constructor(private val mobileVault: MobileVault) {
     fun login(
@@ -60,7 +61,7 @@ class AuthHelper constructor(private val mobileVault: MobileVault) {
         } catch (e: Exception) {
             Log.e("Vault", "Failed to launch custom tab for auth", e)
 
-            mobileVault.notificationsShow("Failed to launch a browser app. Please make sure you have a web browser app installed.")
+            mobileVault.notificationsShow(context.getString(R.string.auth_browser_launch_failed_message))
         }
     }
 }

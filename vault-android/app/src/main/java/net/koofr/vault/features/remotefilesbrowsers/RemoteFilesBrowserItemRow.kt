@@ -1,7 +1,9 @@
 package net.koofr.vault.features.remotefilesbrowsers
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import net.koofr.vault.MobileVault
+import net.koofr.vault.R
 import net.koofr.vault.RemoteFileType
 import net.koofr.vault.RemoteFilesBrowserItem
 import net.koofr.vault.RemoteFilesBrowserItemType
@@ -31,8 +33,14 @@ fun RemoteFilesBrowserItemRow(
         contentDescription = item.typ.let {
             when (it) {
                 is RemoteFilesBrowserItemType.File -> when (it.typ) {
-                    RemoteFileType.DIR -> "Folder ${item.name}"
-                    RemoteFileType.FILE -> "File ${item.name}"
+                    RemoteFileType.DIR -> stringResource(
+                        R.string.repo_files_row_folder_content_desc,
+                        item.name,
+                    )
+                    RemoteFileType.FILE -> stringResource(
+                        R.string.repo_files_row_file_content_desc,
+                        item.name,
+                    )
                 }
 
                 else -> item.name

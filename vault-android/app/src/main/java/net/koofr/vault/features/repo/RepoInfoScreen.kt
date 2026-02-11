@@ -1,5 +1,6 @@
 package net.koofr.vault.features.repo
 
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -36,8 +40,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import net.koofr.vault.LocalSnackbarHostState
 import net.koofr.vault.MobileVault
+import net.koofr.vault.R
 import net.koofr.vault.RepoAutoLockAfter
 import net.koofr.vault.RepoState
 import net.koofr.vault.SecureStorage
@@ -45,6 +51,7 @@ import net.koofr.vault.features.mobilevault.subscribe
 import net.koofr.vault.features.navigation.LocalNavController
 import net.koofr.vault.features.repounlock.RepoUnlockDialog
 import net.koofr.vault.utils.WithCustomViewModelStore
+import net.koofr.vault.utils.uppercaseCurrentLocale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -52,11 +59,12 @@ class RepoInfoScreenViewModel @Inject constructor(
     val mobileVault: MobileVault,
     secureStorage: SecureStorage,
     savedStateHandle: SavedStateHandle,
+    @ApplicationContext appContext: Context,
 ) : ViewModel() {
     val repoId: String = savedStateHandle.get<String>("repoId")!!
 
     private val biometricsHelper: RepoPasswordBiometricsHelper =
-        RepoPasswordBiometricsHelper(repoId, secureStorage)
+        RepoPasswordBiometricsHelper(repoId, secureStorage, appContext)
 
     val biometricUnlockEnabled = mutableStateOf(biometricsHelper.isBiometricUnlockEnabled())
 
@@ -81,6 +89,7 @@ fun RepoInfoScreen(
     vm: RepoInfoScreenViewModel = hiltViewModel(),
 ) {
     val navController = LocalNavController.current
+    val context = LocalContext.current
 
     val repo = subscribe(
         { v, cb -> v.reposRepoSubscribe(repoId = vm.repoId, cb = cb) },
@@ -117,8 +126,8 @@ fun RepoInfoScreen(
                         Text(
                             text = repo.state.let {
                                 when (it) {
-                                    RepoState.LOCKED -> "Locked"
-                                    RepoState.UNLOCKED -> "Unlocked"
+                                    RepoState.LOCKED -> context.getString(R.string.repo_info_locked_label)
+                                    RepoState.UNLOCKED -> context.getString(R.string.repo_info_unlocked_label)
                                 }
                             },
                             style = MaterialTheme.typography.bodyLarge,
@@ -126,7 +135,7 @@ fun RepoInfoScreen(
                                 .padding(0.dp, 0.dp, 0.dp, 2.dp),
                         )
                         Text(
-                            text = "Unlock or lock the Safe Box",
+                            text = stringResource(R.string.repo_info_unlock_description),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -148,8 +157,8 @@ fun RepoInfoScreen(
                         modifier = Modifier.semantics {
                             contentDescription = repo.state.let {
                                 when (it) {
-                                    RepoState.LOCKED -> "Locked"
-                                    RepoState.UNLOCKED -> "Unlocked"
+                                    RepoState.LOCKED -> context.getString(R.string.repo_info_locked_content_desc)
+                                    RepoState.UNLOCKED -> context.getString(R.string.repo_info_unlocked_content_desc)
                                 }
                             }
                         },
@@ -167,13 +176,13 @@ fun RepoInfoScreen(
                             .weight(1.0f),
                     ) {
                         Text(
-                            text = "Biometric unlock",
+                            text = stringResource(R.string.repo_info_biometric_unlock_label),
                             style = MaterialTheme.typography.bodyLarge,
                             modifier = Modifier
                                 .padding(0.dp, 0.dp, 0.dp, 2.dp),
                         )
                         Text(
-                            text = "Use biometrics to unlock the Safe Box",
+                            text = stringResource(R.string.repo_info_biometric_unlock_description),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -188,7 +197,8 @@ fun RepoInfoScreen(
                             }
                         },
                         modifier = Modifier.semantics {
-                            contentDescription = "Biometric unlock"
+                            contentDescription =
+                                context.getString(R.string.repo_info_biometric_unlock_content_desc)
                         },
                     )
                 }
@@ -211,7 +221,7 @@ fun RepoInfoScreen(
                                 .weight(1.0f),
                         ) {
                             Text(
-                                text = "Automatically lock after",
+                                text = stringResource(R.string.repo_info_auto_lock_after_label),
                                 style = MaterialTheme.typography.bodyLarge,
                                 modifier = Modifier
                                     .padding(0.dp, 0.dp, 0.dp, 2.dp),
@@ -221,7 +231,9 @@ fun RepoInfoScreen(
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.semantics {
-                                    contentDescription = "Automatically lock after value"
+                                    contentDescription = context.getString(
+                                        R.string.repo_info_auto_lock_after_value_content_desc,
+                                    )
                                 },
                             )
                         }
@@ -239,13 +251,13 @@ fun RepoInfoScreen(
                             .weight(1.0f),
                     ) {
                         Text(
-                            text = "Lock when app hidden",
+                            text = stringResource(R.string.repo_info_lock_when_app_hidden_label),
                             style = MaterialTheme.typography.bodyLarge,
                             modifier = Modifier
                                 .padding(0.dp, 0.dp, 0.dp, 2.dp),
                         )
                         Text(
-                            text = "When switching apps or locking the screen",
+                            text = stringResource(R.string.repo_info_lock_when_app_hidden_description),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -259,7 +271,9 @@ fun RepoInfoScreen(
                             )
                         },
                         modifier = Modifier.semantics {
-                            contentDescription = "Lock when app hidden"
+                            contentDescription = context.getString(
+                                R.string.repo_info_lock_when_app_hidden_content_desc,
+                            )
                         },
                     )
                 }
@@ -282,13 +296,13 @@ fun RepoInfoScreen(
                                 .weight(1.0f),
                         ) {
                             Text(
-                                text = "Destroy Safe Box…",
+                                text = stringResource(R.string.repo_info_destroy_repo_label),
                                 style = MaterialTheme.typography.bodyLarge,
                                 modifier = Modifier
                                     .padding(0.dp, 0.dp, 0.dp, 2.dp),
                             )
                             Text(
-                                text = "Verify Safe Key and destroy the Safe Box",
+                                text = stringResource(R.string.repo_info_destroy_repo_description),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -350,15 +364,15 @@ fun RepoAutoLockAfterDialog(
                     onConfirm(selected.value)
                 },
             ) {
-                Text("OK")
+                Text(stringResource(R.string.repo_info_auto_lock_after_confirm_button).uppercaseCurrentLocale())
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("CANCEL")
+                Text(stringResource(R.string.repo_info_auto_lock_after_cancel_button).uppercaseCurrentLocale())
             }
         },
-        title = { Text("Automatically lock after") },
+        title = { Text(stringResource(R.string.repo_info_auto_lock_after_label)) },
         text = {
             Column(
                 modifier = Modifier
@@ -391,17 +405,43 @@ fun RepoAutoLockAfterDialog(
     )
 }
 
+@Composable
 private fun repoAutoLockAfterDisplay(after: RepoAutoLockAfter): String {
     return when (after) {
-        is RepoAutoLockAfter.NoLimit -> "No time limit"
-        is RepoAutoLockAfter.Inactive1Minute -> "1 minute of inactivity"
-        is RepoAutoLockAfter.Inactive5Mininutes -> "5 minutes of inactivity"
-        is RepoAutoLockAfter.Inactive10Minutes -> "10 minutes of inactivity"
-        is RepoAutoLockAfter.Inactive30Minutes -> "30 minutes of inactivity"
-        is RepoAutoLockAfter.Inactive1Hour -> "1 hour of inactivity"
-        is RepoAutoLockAfter.Inactive2Hours -> "2 hours of inactivity"
-        is RepoAutoLockAfter.Inactive4Hours -> "4 hours of inactivity"
-        is RepoAutoLockAfter.Custom -> "Custom (${after.seconds} seconds)"
+        is RepoAutoLockAfter.NoLimit -> stringResource(R.string.repo_info_auto_lock_after_no_time_limit)
+        is RepoAutoLockAfter.Inactive1Minute -> stringResource(
+            R.string.repo_info_auto_lock_after_inactive_1_minute,
+        )
+
+        is RepoAutoLockAfter.Inactive5Mininutes -> stringResource(
+            R.string.repo_info_auto_lock_after_inactive_5_minutes,
+        )
+
+        is RepoAutoLockAfter.Inactive10Minutes -> stringResource(
+            R.string.repo_info_auto_lock_after_inactive_10_minutes,
+        )
+
+        is RepoAutoLockAfter.Inactive30Minutes -> stringResource(
+            R.string.repo_info_auto_lock_after_inactive_30_minutes,
+        )
+
+        is RepoAutoLockAfter.Inactive1Hour -> stringResource(
+            R.string.repo_info_auto_lock_after_inactive_1_hour,
+        )
+
+        is RepoAutoLockAfter.Inactive2Hours -> stringResource(
+            R.string.repo_info_auto_lock_after_inactive_2_hours,
+        )
+
+        is RepoAutoLockAfter.Inactive4Hours -> stringResource(
+            R.string.repo_info_auto_lock_after_inactive_4_hours,
+        )
+
+        is RepoAutoLockAfter.Custom -> pluralStringResource(
+            R.plurals.repo_info_auto_lock_after_custom,
+            after.seconds.toInt(),
+            after.seconds.toInt(),
+        )
     }
 }
 

@@ -7,6 +7,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import net.koofr.vault.R
 import net.koofr.vault.SecureStorage
 import javax.inject.Singleton
 
@@ -23,7 +24,14 @@ object SecureStorageModule {
         } catch (e: Exception) {
             Log.e("Vault", "Failed to build android secure storage", e)
 
-            ErrorSecureStorage(Exception("Failed to read encrypted preferences. Please clear data for the application in system settings and try again. $e"))
+            ErrorSecureStorage(
+                Exception(
+                    appContext.getString(
+                        R.string.secure_storage_read_failed_message,
+                        e.toString(),
+                    ),
+                ),
+            )
         }
     }
 }

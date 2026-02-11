@@ -1,5 +1,6 @@
 package net.koofr.vault.features.reporemove
 
+import android.text.Html
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,11 +24,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
@@ -37,6 +37,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import net.koofr.vault.LocalSnackbarHostState
 import net.koofr.vault.MobileVault
+import net.koofr.vault.R
 import net.koofr.vault.RepoRemoved
 import net.koofr.vault.Status
 import net.koofr.vault.composables.RepoPasswordField
@@ -101,7 +102,7 @@ fun RepoRemoveScreen(
 
     Scaffold(topBar = {
         TopAppBar(title = {
-            Text("Destroy Safe Box")
+            Text(stringResource(R.string.repo_remove_title))
         })
     }, snackbarHost = { SnackbarHost(LocalSnackbarHostState.current) }) { paddingValues ->
         LazyColumn(
@@ -114,32 +115,12 @@ fun RepoRemoveScreen(
                     if (info.repoName != null) {
                         Column(modifier = Modifier.padding(17.dp, 0.dp)) {
                             Text(
-                                buildAnnotatedString {
-                                    append("Do you really want to destroy Safe Box ")
-                                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                        append(info.repoName)
-                                    }
-                                    append("?")
-                                },
-                                style = MaterialTheme.typography.bodyLarge,
-                            )
-                            Spacer(modifier = Modifier.height(20.dp))
-
-                            Text(
-                                "Destroying the Safe Box will keep all the files on Koofr but remove the configuration so you won't be able to decrypt the files if you didn't save the configuration.",
-                                style = MaterialTheme.typography.bodyLarge,
-                            )
-                            Spacer(modifier = Modifier.height(20.dp))
-
-                            Text(
-                                "This action cannot be undone.",
-                                fontWeight = FontWeight.Bold,
-                                style = MaterialTheme.typography.bodyLarge,
-                            )
-                            Spacer(modifier = Modifier.height(20.dp))
-
-                            Text(
-                                "Enter your Safe Key to confirm the removal:",
+                                AnnotatedString.fromHtml(
+                                    stringResource(
+                                        R.string.repo_remove_message,
+                                        Html.escapeHtml(info.repoName),
+                                    ),
+                                ),
                                 style = MaterialTheme.typography.bodyLarge,
                             )
                             Spacer(modifier = Modifier.height(20.dp))
@@ -176,7 +157,7 @@ fun RepoRemoveScreen(
                                         else -> true
                                     },
                                 ) {
-                                    Text("Destroy")
+                                    Text(stringResource(R.string.repo_remove_destroy_button))
                                 }
                             }
                         }

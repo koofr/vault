@@ -1,5 +1,6 @@
 package net.koofr.vault.features.settings
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
@@ -32,10 +34,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.koofr.vault.LocalSnackbarHostState
 import net.koofr.vault.MobileVault
+import net.koofr.vault.R
 import net.koofr.vault.features.auth.AuthHelper
 import net.koofr.vault.features.intl.IntlHelper
 import net.koofr.vault.features.intl.LanguagePickerSheet
@@ -52,6 +56,7 @@ class SettingsScreenViewModel @Inject constructor(
     val authHelper: AuthHelper,
     val intlHelper: IntlHelper,
     private val storageHelper: StorageHelper,
+    @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
     val isClearingCache = mutableStateOf(false)
 
@@ -62,9 +67,9 @@ class SettingsScreenViewModel @Inject constructor(
             try {
                 storageHelper.clearCache()
 
-                mobileVault.notificationsShow(message = "Cache has been cleared")
+                mobileVault.notificationsShow(message = appContext.getString(R.string.settings_clear_cache_success))
             } catch (ex: IOException) {
-                mobileVault.notificationsShow(message = ex.message ?: "Unknown error")
+                mobileVault.notificationsShow(message = ex.message ?: appContext.getString(R.string.settings_clear_cache_unknown_error))
             }
         }.invokeOnCompletion {
             isClearingCache.value = false
@@ -86,7 +91,7 @@ fun SettingsScreen(vm: SettingsScreenViewModel = hiltViewModel()) {
 
     Scaffold(topBar = {
         TopAppBar(title = {
-            Text(text = "Settings")
+            Text(text = stringResource(R.string.settings_title))
         })
     }, snackbarHost = { SnackbarHost(LocalSnackbarHostState.current) }) { paddingValues ->
         LazyColumn(
@@ -129,11 +134,11 @@ fun SettingsScreen(vm: SettingsScreenViewModel = hiltViewModel()) {
                 ) {
                     Column(modifier = Modifier.padding(17.dp, 0.dp)) {
                         Text(
-                            text = "Information",
+                            text = stringResource(R.string.settings_information_label),
                             style = MaterialTheme.typography.bodyLarge,
                         )
                         Text(
-                            text = "Service and application information",
+                            text = stringResource(R.string.settings_information_description),
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
@@ -147,7 +152,7 @@ fun SettingsScreen(vm: SettingsScreenViewModel = hiltViewModel()) {
                     },
                 ) {
                     Text(
-                        text = "Change language",
+                        text = stringResource(R.string.settings_change_language_label),
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier
                             .padding(17.dp, 0.dp),
@@ -163,7 +168,7 @@ fun SettingsScreen(vm: SettingsScreenViewModel = hiltViewModel()) {
                     },
                 ) {
                     Text(
-                        text = "Clear cache",
+                        text = stringResource(R.string.settings_clear_cache_label),
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier
                             .padding(17.dp, 0.dp),
@@ -178,7 +183,7 @@ fun SettingsScreen(vm: SettingsScreenViewModel = hiltViewModel()) {
                     },
                 ) {
                     Text(
-                        text = "Logout",
+                        text = stringResource(R.string.settings_logout_label),
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier
                             .padding(17.dp, 0.dp),

@@ -1,5 +1,6 @@
 package net.koofr.vault.features.shareactivity
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -116,6 +117,7 @@ class ShareActivityViewModel @Inject constructor(
                             transfersAborted = true
                         }
 
+                        @SuppressLint("RestrictedApi")
                         viewModelStore.put(it.javaClass.name, it)
                     }
 
@@ -125,6 +127,7 @@ class ShareActivityViewModel @Inject constructor(
                     cancel()
                 },
             ).also {
+                @SuppressLint("RestrictedApi")
                 viewModelStore.put(it.javaClass.name, it)
             }
 

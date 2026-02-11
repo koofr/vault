@@ -63,7 +63,7 @@ class DownloadOutputStreamProvider constructor(
 
             val insertUri =
                 checkNotNull(contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, v)) {
-                    "Failed to create download"
+                    appContext.getString(R.string.downloads_create_failed_message)
                 }
 
             val fd = contentResolver.openFileDescriptor(insertUri, "w")

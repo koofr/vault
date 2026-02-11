@@ -14,10 +14,14 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import net.koofr.vault.R
+import net.koofr.vault.utils.uppercaseCurrentLocale
 
 @Composable
 fun ShareTargetBottomBar(
@@ -38,13 +42,11 @@ fun ShareTargetBottomBar(
             Box(modifier = Modifier.weight(1.0f)) {
                 ClickableText(
                     AnnotatedString(
-                        vm.files.size.let {
-                            if (it == 1) {
-                                "$it item…"
-                            } else {
-                                "$it items…"
-                            }
-                        },
+                        pluralStringResource(
+                            R.plurals.share_target_items_count_label,
+                            vm.files.size,
+                            vm.files.size,
+                        ),
                         spanStyle = SpanStyle(MaterialTheme.colorScheme.onSurface),
                     ),
                     modifier = Modifier.padding(15.dp, 5.dp),
@@ -56,11 +58,11 @@ fun ShareTargetBottomBar(
             TextButton(onClick = {
                 vm.cancel()
             }) {
-                Text("CANCEL", fontSize = 16.sp)
+                Text(stringResource(R.string.share_target_cancel_button).uppercaseCurrentLocale(), fontSize = 16.sp)
             }
 
             TextButton(onClick = onUploadClick, enabled = uploadEnabled) {
-                Text("UPLOAD", fontSize = 16.sp)
+                Text(stringResource(R.string.share_target_repo_files_upload_button).uppercaseCurrentLocale(), fontSize = 16.sp)
             }
         }
     }

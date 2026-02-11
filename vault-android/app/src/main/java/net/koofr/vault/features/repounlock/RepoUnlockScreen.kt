@@ -1,5 +1,6 @@
 package net.koofr.vault.features.repounlock
 
+import android.content.Context
 import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.util.Log
 import androidx.biometric.BiometricPrompt
@@ -24,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -34,10 +36,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.koofr.vault.LocalSnackbarHostState
 import net.koofr.vault.MobileVault
+import net.koofr.vault.R
 import net.koofr.vault.RepoUnlockMode
 import net.koofr.vault.RepoUnlockOptions
 import net.koofr.vault.RepoUnlockUnlocked
@@ -46,6 +50,7 @@ import net.koofr.vault.features.mobilevault.subscribe
 import net.koofr.vault.features.repo.RepoPasswordBiometricsHelper
 import net.koofr.vault.features.repo.RepoSetupBiometricUnlockDialog
 import net.koofr.vault.utils.getActivity
+import net.koofr.vault.utils.uppercaseCurrentLocale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -53,6 +58,7 @@ class RepoUnlockScreenViewModel @Inject constructor(
     val mobileVault: MobileVault,
     secureStorage: SecureStorage,
     savedStateHandle: SavedStateHandle,
+    @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
     private val repoId: String = savedStateHandle.get<String>("repoId")!!
 
@@ -66,7 +72,7 @@ class RepoUnlockScreenViewModel @Inject constructor(
     }
 
     private val biometricsHelper: RepoPasswordBiometricsHelper =
-        RepoPasswordBiometricsHelper(repoId, secureStorage)
+        RepoPasswordBiometricsHelper(repoId, secureStorage, appContext)
 
     private var biometricPrompt: BiometricPrompt? = null
 
@@ -126,12 +132,12 @@ class RepoUnlockScreenViewModel @Inject constructor(
                         biometricPrompt = prompt
 
                         prompt.authenticate(
-                            biometricsHelper.promptInfo,
+                            biometricsHelper.buildPromptInfo(),
                             cryptoObject,
                         )
                     }
                 } catch (e: KeyPermanentlyInvalidatedException) {
-                    mobileVault.notificationsShow(message = "Your biometric info has changed. Please setup biometric unlock again.")
+                    mobileVault.notificationsShow(message = appContext.getString(R.string.repo_unlock_biometric_info_changed_message))
 
                     biometricsHelper.removeBiometricUnlock()
 
@@ -163,7 +169,8 @@ fun RepoUnlockScreen(
     vm: RepoUnlockScreenViewModel = hiltViewModel(),
     unlockFormVm: RepoUnlockFormViewModel = viewModel(),
 ) {
-    val activity = LocalContext.current.getActivity()
+    val context = LocalContext.current
+    val activity = context.getActivity()
     val coroutineScope = rememberCoroutineScope()
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -214,14 +221,14 @@ fun RepoUnlockScreen(
                     TextButton(onClick = {
                         vm.setupBiometricUnlockVisible.value = true
                     }) {
-                        Text("SETUP BIOMETRIC UNLOCK")
+                        Text(stringResource(R.string.repo_unlock_setup_biometric_unlock_button).uppercaseCurrentLocale())
                     }
                 }
             } else {
                 TextButton(onClick = {
                     vm.biometricUnlock(activity, onUnlock)
                 }) {
-                    Text("BIOMETRIC UNLOCK")
+                    Text(stringResource(R.string.repo_unlock_biometric_unlock_button).uppercaseCurrentLocale())
                 }
             }
 

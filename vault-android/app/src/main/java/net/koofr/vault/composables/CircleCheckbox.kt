@@ -10,6 +10,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.toggleableState
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -27,14 +32,17 @@ fun CircleCheckbox(
 
     IconButton(
         onClick = { onCheckedChange(!checked) },
-        modifier = modifier,
+        modifier = modifier.semantics {
+            role = Role.Checkbox
+            toggleableState = ToggleableState(checked)
+        },
     ) {
         Icon(
             imageVector = imageVector,
             tint = tint,
             modifier = Modifier
                 .size(iconSize),
-            contentDescription = "Checkbox",
+            contentDescription = null,
         )
     }
 }

@@ -25,6 +25,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,6 +39,7 @@ import net.koofr.vault.FileIconProps
 import net.koofr.vault.FileIconSize
 import net.koofr.vault.LocalSnackbarHostState
 import net.koofr.vault.MobileVault
+import net.koofr.vault.R
 import net.koofr.vault.RepoFilesBrowserDirCreated
 import net.koofr.vault.RepoFilesBrowserItem
 import net.koofr.vault.RepoFilesBrowserOptions
@@ -53,6 +56,7 @@ import net.koofr.vault.features.repo.RepoGuardViewModel
 import net.koofr.vault.features.repo.WithRepoGuardViewModel
 import net.koofr.vault.features.repofiles.RepoFileRow
 import net.koofr.vault.utils.queryEscape
+import net.koofr.vault.utils.uppercaseCurrentLocale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -176,7 +180,10 @@ fun RepoFilesMoveScreen(
                         )
                     }
                 }) {
-                    Icon(Icons.Filled.CreateNewFolder, "New folder")
+                    Icon(
+                        Icons.Filled.CreateNewFolder,
+                        stringResource(R.string.repo_files_move_new_folder_content_desc),
+                    )
                 }
             })
         }, bottomBar = {
@@ -192,11 +199,11 @@ fun RepoFilesMoveScreen(
                 ) {
                     Box(modifier = Modifier.weight(1.0f)) {
                         Text(
-                            if (moveInfo.srcFilesCount == 1u) {
-                                "${moveInfo.srcFilesCount} item"
-                            } else {
-                                "${moveInfo.srcFilesCount} items"
-                            },
+                            pluralStringResource(
+                                R.plurals.repo_files_move_items_count_label,
+                                moveInfo.srcFilesCount.toInt(),
+                                moveInfo.srcFilesCount.toInt(),
+                            ),
                             modifier = Modifier.padding(15.dp, 5.dp),
                         )
                     }
@@ -204,7 +211,10 @@ fun RepoFilesMoveScreen(
                     TextButton(onClick = {
                         vm.mobileVault.repoFilesMoveCancel()
                     }) {
-                        Text("CANCEL", fontSize = 16.sp)
+                        Text(
+                            stringResource(R.string.repo_files_move_cancel_button).uppercaseCurrentLocale(),
+                            fontSize = 16.sp,
+                        )
                     }
 
                     TextButton(onClick = {
@@ -212,8 +222,12 @@ fun RepoFilesMoveScreen(
                     }, enabled = moveInfo.canMove) {
                         Text(
                             when (moveInfo.mode) {
-                                RepoFilesMoveMode.COPY -> "COPY"
-                                RepoFilesMoveMode.MOVE -> "MOVE"
+                                RepoFilesMoveMode.COPY -> stringResource(
+                                    R.string.repo_files_move_copy_button,
+                                ).uppercaseCurrentLocale()
+                                RepoFilesMoveMode.MOVE -> stringResource(
+                                    R.string.repo_files_move_move_button,
+                                ).uppercaseCurrentLocale()
                             },
                             fontSize = 16.sp,
                         )

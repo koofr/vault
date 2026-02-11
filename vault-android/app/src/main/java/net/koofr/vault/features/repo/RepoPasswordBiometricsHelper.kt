@@ -1,10 +1,12 @@
 package net.koofr.vault.features.repo
 
+import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.security.keystore.KeyProperties
 import android.util.Base64
 import androidx.biometric.BiometricPrompt
+import net.koofr.vault.R
 import net.koofr.vault.SecureStorage
 import java.security.KeyStore
 import javax.crypto.Cipher
@@ -15,14 +17,17 @@ import javax.crypto.spec.IvParameterSpec
 class RepoPasswordBiometricsHelper constructor(
     private val repoId: String,
     private val secureStorage: SecureStorage,
+    private val appContext: Context,
 ) {
     private val keyName = "vaultRepoPassword_${repoId}_v1"
 
-    val promptInfo = BiometricPrompt.PromptInfo.Builder()
-        .setTitle("Safe Key biometrics")
-        .setSubtitle("Use biometrics to save your Safe Key")
-        .setNegativeButtonText("Don't use biometrics")
-        .build()
+    fun buildPromptInfo(): BiometricPrompt.PromptInfo {
+        return BiometricPrompt.PromptInfo.Builder()
+            .setTitle(appContext.getString(R.string.repo_password_biometrics_title))
+            .setSubtitle(appContext.getString(R.string.repo_password_biometrics_subtitle))
+            .setNegativeButtonText(appContext.getString(R.string.repo_password_biometrics_negative_button))
+            .build()
+    }
 
     fun isBiometricUnlockEnabled(): Boolean {
         return secureStorage.getItem(

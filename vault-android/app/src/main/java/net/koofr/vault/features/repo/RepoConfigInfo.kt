@@ -1,6 +1,7 @@
 package net.koofr.vault.features.repo
 
 import android.content.Intent
+import android.text.Html
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
@@ -19,14 +20,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.koofr.vault.PreviewsData
+import net.koofr.vault.R
 import net.koofr.vault.RepoConfig
 import net.koofr.vault.ui.theme.VaultTheme
 
@@ -35,42 +39,29 @@ import net.koofr.vault.ui.theme.VaultTheme
 fun RepoConfigInfo(config: RepoConfig, onSave: () -> Unit) {
     val context = LocalContext.current
 
-    val info = remember(config) {
+    val info = remember(
+        config,
+        context,
+    ) {
         buildAnnotatedString {
-            val normal = { text: String ->
-                append(text)
+            append(AnnotatedString.fromHtml(context.getString(R.string.repo_config_info_location, Html.escapeHtml(config.location.path))))
+            append("\n\n")
+
+            append(AnnotatedString.fromHtml(context.getString(R.string.repo_config_info_filename_encryption, Html.escapeHtml("standard"))))
+            append("\n\n")
+
+            append(AnnotatedString.fromHtml(context.getString(R.string.repo_config_info_encrypt_directory_names, Html.escapeHtml("true"))))
+            append("\n\n")
+
+            append(AnnotatedString.fromHtml(context.getString(R.string.repo_config_info_salt, Html.escapeHtml(config.salt ?: ""))))
+            append("\n\n")
+
+            append(AnnotatedString.fromHtml(context.getString(R.string.repo_config_info_rclone_config)))
+            append("\n\n")
+
+            withStyle(style = SpanStyle(fontFamily = FontFamily.Monospace)) {
+                append(config.rcloneConfig)
             }
-            val bold = { text: String ->
-                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                    append(text)
-                }
-            }
-            val monospaced = { text: String ->
-                withStyle(style = SpanStyle(fontFamily = FontFamily.Monospace)) {
-                    append(text)
-                }
-            }
-
-            bold("Location: ")
-            normal(config.location.path)
-            normal("\n\n")
-
-            bold("Filename encryption: ")
-            normal("standard")
-            normal("\n\n")
-
-            bold("Encrypt directory names: ")
-            normal("true")
-            normal("\n\n")
-
-            bold("Salt (password2): ")
-            normal(config.salt ?: "")
-            normal("\n\n")
-
-            bold("rclone config: ")
-            normal("\n\n")
-
-            monospaced(config.rcloneConfig)
         }
     }
     val infoText = info.text
@@ -104,10 +95,10 @@ fun RepoConfigInfo(config: RepoConfig, onSave: () -> Unit) {
         }) {
             Icon(
                 Icons.Filled.Share,
-                "Share",
+                stringResource(R.string.repo_config_info_share_button_content_desc),
             )
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text("Share…")
+            Text(stringResource(R.string.repo_config_info_share_button))
         }
     }
 }

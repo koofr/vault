@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import net.koofr.vault.R
 import net.koofr.vault.features.mobilevault.subscribe
 
 @Composable
@@ -12,7 +14,7 @@ fun RepoFilesDetailsNavMenu(vm: RepoFilesDetailsScreenViewModel, context: Contex
 
     if (info != null && RepoFilesDetailsScreenContentData.isTextEditor(info.fileCategory)) {
         DropdownMenuItem(text = {
-            Text("Edit")
+            Text(stringResource(R.string.repo_files_details_edit_menu_item))
         }, onClick = {
             vm.menuExpanded.value = false
             vm.edit()
@@ -23,7 +25,7 @@ fun RepoFilesDetailsNavMenu(vm: RepoFilesDetailsScreenViewModel, context: Contex
         when (it) {
             is RepoFilesDetailsScreenContent.Downloaded -> {
                 DropdownMenuItem(text = {
-                    Text("Share")
+                    Text(stringResource(R.string.repo_files_details_share_menu_item))
                 }, onClick = {
                     vm.menuExpanded.value = false
                     vm.share(context, it.localFile, it.repoFile.contentType)
@@ -39,14 +41,14 @@ fun RepoFilesDetailsNavMenu(vm: RepoFilesDetailsScreenViewModel, context: Contex
     }
 
     DropdownMenuItem(text = {
-        Text("Rename")
+        Text(stringResource(R.string.repo_files_details_rename_menu_item))
     }, onClick = {
         vm.menuExpanded.value = false
         vm.rename()
     })
 
     DropdownMenuItem(text = {
-        Text("Delete")
+        Text(stringResource(R.string.repo_files_details_delete_menu_item))
     }, onClick = {
         vm.menuExpanded.value = false
         vm.delete()
@@ -61,7 +63,7 @@ fun RepoFilesDetailsNavMenuShareTextEditor(vm: RepoFilesDetailsScreenViewModel, 
     )
 
     DropdownMenuItem(text = {
-        Text("Share")
+        Text(stringResource(R.string.repo_files_details_share_menu_item))
     }, onClick = {
         vm.menuExpanded.value = false
         vm.shareText(context, content.value?.toString(Charsets.UTF_8) ?: "")

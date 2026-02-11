@@ -14,6 +14,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -24,6 +25,7 @@ import net.koofr.vault.FileIconProps
 import net.koofr.vault.FileIconSize
 import net.koofr.vault.LocalSnackbarHostState
 import net.koofr.vault.MobileVault
+import net.koofr.vault.R
 import net.koofr.vault.RepoFilesBrowserDirCreated
 import net.koofr.vault.RepoFilesBrowserItem
 import net.koofr.vault.RepoFilesBrowserOptions
@@ -32,7 +34,6 @@ import net.koofr.vault.composables.EmptyFolderView
 import net.koofr.vault.composables.RefreshableList
 import net.koofr.vault.features.fileicon.FileIconCache
 import net.koofr.vault.features.mobilevault.Subscription
-import net.koofr.vault.features.mobilevault.subscribe
 import net.koofr.vault.features.navigation.LocalNavController
 import net.koofr.vault.features.relativetime.relativeTime
 import net.koofr.vault.features.repo.RepoGuardViewModel
@@ -132,7 +133,10 @@ fun ShareTargetRepoFilesScreen(
                     )
                 }
             }) {
-                Icon(Icons.Filled.CreateNewFolder, "New folder")
+                Icon(
+                    Icons.Filled.CreateNewFolder,
+                    stringResource(R.string.share_target_repo_files_new_folder_content_desc),
+                )
             }
         })
     }, bottomBar = {

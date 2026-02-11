@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -67,12 +68,15 @@ fun LandingScreen(vm: LandingScreenViewModel = hiltViewModel()) {
             IconButton(onClick = {
                 languagePickerVisible.value = true
             }) {
-                Icon(Icons.Outlined.Language, "Change language")
+                Icon(
+                    Icons.Outlined.Language,
+                    stringResource(R.string.landing_language_picker_button_content_desc),
+                )
             }
             IconButton(onClick = {
                 navController.navigate("info")
             }) {
-                Icon(Icons.Outlined.Info, "Info")
+                Icon(Icons.Outlined.Info, stringResource(R.string.landing_info_button_content_desc))
             }
         })
     }, snackbarHost = { SnackbarHost(LocalSnackbarHostState.current) }) { paddingValues ->
@@ -90,12 +94,12 @@ fun LandingScreen(vm: LandingScreenViewModel = hiltViewModel()) {
             ) {
                 Image(
                     painter = painterResource(id = if (isSystemInDarkTheme()) R.drawable.landing_logo_dark else R.drawable.landing_logo),
-                    contentDescription = "${context.resources.getString(R.string.app_name)} logo",
+                    contentDescription = stringResource(R.string.landing_logo_content_desc),
                     modifier = Modifier.padding(bottom = 50.dp),
                 )
 
                 Text(
-                    "One vault for all\nyour private files.",
+                    stringResource(R.string.landing_title),
                     style = TextStyle(
                         fontFamily = FontFamily.Default,
                         fontWeight = FontWeight.Bold,
@@ -106,7 +110,7 @@ fun LandingScreen(vm: LandingScreenViewModel = hiltViewModel()) {
                 )
 
                 Text(
-                    "Powerful, open source client-side encryption. Unlock enhanced security for your most sensitive files.",
+                    stringResource(R.string.landing_message),
                     style = TextStyle(
                         fontFamily = FontFamily.Default,
                         fontWeight = FontWeight.Normal,
@@ -120,7 +124,7 @@ fun LandingScreen(vm: LandingScreenViewModel = hiltViewModel()) {
 
                 Image(
                     painter = painterResource(id = if (isSystemInDarkTheme()) R.drawable.landing_graphic_dark else R.drawable.landing_graphic),
-                    contentDescription = "Graphic",
+                    contentDescription = stringResource(R.string.landing_graphic_content_desc),
                     modifier = Modifier
                         .padding(bottom = 40.dp)
                         .weight(1f, fill = false),
@@ -138,7 +142,7 @@ fun LandingScreen(vm: LandingScreenViewModel = hiltViewModel()) {
                         .padding(bottom = 10.dp),
                 ) {
                     Text(
-                        "Get started",
+                        stringResource(R.string.landing_get_started_button),
                         color = Color.White,
                         style = TextStyle(
                             fontFamily = FontFamily.Default,

@@ -24,9 +24,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.koofr.vault.LocalSnackbarHostState
+import net.koofr.vault.R
 import net.koofr.vault.RepoFilesBrowserDirCreated
 import net.koofr.vault.composables.EmptyFolderView
 import net.koofr.vault.composables.MultiAddButton
@@ -44,6 +48,7 @@ import net.koofr.vault.utils.queryEscape
 fun RepoFilesScreen(
     vm: RepoFilesScreenViewModel,
 ) {
+    val context = LocalContext.current
     val navController = LocalNavController.current
 
     val moveInfo = subscribe(
@@ -119,7 +124,11 @@ fun RepoFilesScreen(
             title = {
                 Text(
                     if (selectMode) {
-                        "$selectedCount selected"
+                        pluralStringResource(
+                            R.plurals.repo_files_edit_mode_items_count_label,
+                            selectedCount.toInt(),
+                            selectedCount.toInt(),
+                        )
                     } else {
                         vm.info.data.value?.title ?: ""
                     },
@@ -130,7 +139,10 @@ fun RepoFilesScreen(
             navigationIcon = {
                 if (selectMode) {
                     IconButton(onClick = { vm.mobileVault.repoFilesBrowsersClearSelection(browserId = vm.browserId) }) {
-                        Icon(Icons.Filled.Close, "Deselect all")
+                        Icon(
+                            Icons.Filled.Close,
+                            stringResource(R.string.repo_files_edit_mode_cancel_content_desc),
+                        )
                     }
                 }
             },
@@ -139,17 +151,26 @@ fun RepoFilesScreen(
 
                 if (selectMode) {
                     IconButton(onClick = { vm.downloadSelected(navController) }) {
-                        Icon(Icons.Filled.Download, "Download selected")
+                        Icon(
+                            Icons.Filled.Download,
+                            stringResource(R.string.repo_files_edit_mode_download_selected_content_desc),
+                        )
                     }
 
                     IconButton(onClick = { vm.mobileVault.repoFilesBrowsersDeleteSelected(browserId = vm.browserId) }) {
-                        Icon(Icons.Filled.Delete, "Delete selected")
+                        Icon(
+                            Icons.Filled.Delete,
+                            stringResource(R.string.repo_files_edit_mode_delete_selected_content_desc),
+                        )
                     }
                 }
 
                 Box {
                     IconButton(onClick = { vm.menuExpanded.value = true }) {
-                        Icon(Icons.Filled.MoreVert, "Menu")
+                        Icon(
+                            Icons.Filled.MoreVert,
+                            stringResource(R.string.repo_files_nav_menu_menu_content_desc),
+                        )
                     }
 
                     DropdownMenu(
@@ -166,8 +187,8 @@ fun RepoFilesScreen(
             if (info.encryptedPath != null) {
                 MultiAddButton(
                     listOf(
-                        MultiAddButtonItem("Create new text file") {
-                            vm.createTextFile { encryptedPath ->
+                        MultiAddButtonItem(stringResource(R.string.repo_files_nav_menu_create_text_file_menu_item)) {
+                            vm.createTextFile(context) { encryptedPath ->
                                 navController.navigate(
                                     "repos/${info.repoId}/files/details?path=${
                                         queryEscape(
@@ -177,7 +198,7 @@ fun RepoFilesScreen(
                                 )
                             }
                         },
-                        MultiAddButtonItem("New folder") {
+                        MultiAddButtonItem(stringResource(R.string.repo_files_nav_menu_new_folder_menu_item)) {
                             vm.mobileVault.repoFilesBrowsersCreateDir(
                                 browserId = vm.browserId,
                                 cb = object : RepoFilesBrowserDirCreated {
@@ -185,13 +206,13 @@ fun RepoFilesScreen(
                                 },
                             )
                         },
-                        MultiAddButtonItem("Upload file") {
+                        MultiAddButtonItem(stringResource(R.string.repo_files_nav_menu_upload_files_menu_item)) {
                             uploadFile()
                         },
-                        MultiAddButtonItem("Upload folder") {
+                        MultiAddButtonItem(stringResource(R.string.repo_files_nav_menu_upload_folder_menu_item)) {
                             uploadFolder()
                         },
-                        MultiAddButtonItem("Take photo") {
+                        MultiAddButtonItem(stringResource(R.string.repo_files_nav_menu_upload_photo_menu_item)) {
                             takePicture.takePicture()
                         },
                     ),

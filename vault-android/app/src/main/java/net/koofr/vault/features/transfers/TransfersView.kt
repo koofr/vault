@@ -12,6 +12,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,9 +20,11 @@ import net.koofr.vault.FileIconProps
 import net.koofr.vault.FileIconSize
 import net.koofr.vault.LocalSnackbarHostState
 import net.koofr.vault.MobileVault
+import net.koofr.vault.R
 import net.koofr.vault.Transfer
 import net.koofr.vault.features.fileicon.FileIconCache
 import net.koofr.vault.features.mobilevault.subscribe
+import net.koofr.vault.utils.uppercaseCurrentLocale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -48,14 +51,14 @@ fun TransfersView(
 
     Scaffold(topBar = {
         TopAppBar(title = {
-            Text("Transfers")
+            Text(stringResource(R.string.transfers_title))
         }, actions = {
             transfersSummary.value?.let { summary ->
                 if (summary.canRetryAll) {
                     TextButton(onClick = {
                         vm.mobileVault.transfersRetryAll()
                     }) {
-                        Text("RETRY ALL")
+                        Text(stringResource(R.string.transfers_retry_all_button).uppercaseCurrentLocale())
                     }
                 }
 
@@ -66,7 +69,7 @@ fun TransfersView(
 
                             vm.mobileVault.transfersAbortAll()
                         }) {
-                            Text("CLEAR")
+                            Text(stringResource(R.string.transfers_clear_button).uppercaseCurrentLocale())
                         }
                     } else {
                         TextButton(onClick = {
@@ -74,7 +77,10 @@ fun TransfersView(
 
                             vm.mobileVault.transfersAbortAll()
                         }) {
-                            Text("CANCEL ALL", color = MaterialTheme.colorScheme.error)
+                            Text(
+                                stringResource(R.string.transfers_cancel_all_button).uppercaseCurrentLocale(),
+                                color = MaterialTheme.colorScheme.error,
+                            )
                         }
                     }
                 }

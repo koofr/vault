@@ -20,16 +20,18 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import net.koofr.vault.LocalSnackbarHostState
 import net.koofr.vault.R
 import net.koofr.vault.Status
+import net.koofr.vault.composables.ErrorView
 import net.koofr.vault.features.loading.LoadingScreen
 import net.koofr.vault.features.mobilevault.subscribe
 import net.koofr.vault.features.sharetarget.ShareTargetNavigation
 import net.koofr.vault.features.transfers.TransfersView
+import net.koofr.vault.utils.uppercaseCurrentLocale
 
 @Composable
 fun ShareActivityScreen(vm: ShareActivityViewModel) {
@@ -54,7 +56,15 @@ fun ShareActivityScreen(vm: ShareActivityViewModel) {
                 }
             }
 
-            is Status.Err -> Text("Error ${status.error}")
+            is Status.Err ->
+                ShareActivityScreenBase(actions = {}) {
+                    ErrorView(
+                        stringResource(R.string.share_ext_error_label, status.error),
+                        onRetry = {
+                            vm.mobileVault.load()
+                        },
+                    )
+                }
         }
     }
 }
@@ -65,11 +75,9 @@ fun ShareActivityScreenBase(
     actions: @Composable RowScope.() -> Unit,
     content: @Composable () -> Unit,
 ) {
-    val context = LocalContext.current
-
     Scaffold(topBar = {
         TopAppBar(title = {
-            Text("Save to ${context.resources.getString(R.string.app_name)}")
+            Text(stringResource(R.string.share_target_repos_title))
         }, actions = actions)
     }, snackbarHost = { SnackbarHost(LocalSnackbarHostState.current) }) { paddingValues ->
         Column(
@@ -94,21 +102,19 @@ fun ShareActivityScreenBase(
 
 @Composable
 fun ShareActivityScreenUnauthenticated(vm: ShareActivityViewModel) {
-    val context = LocalContext.current
-
     ShareActivityScreenBase(actions = {
         TextButton(onClick = {
             vm.cancel()
         }) {
-            Text("CLOSE")
+            Text(stringResource(R.string.share_ext_dismiss_button).uppercaseCurrentLocale())
         }
     }) {
         Text(
-            "Not signed in",
+            stringResource(R.string.share_ext_unauthenticated_title),
             style = MaterialTheme.typography.headlineLarge,
             modifier = Modifier.padding(bottom = 10.dp),
         )
-        Text("Open ${context.resources.getString(R.string.app_name)} app and sign in.")
+        Text(stringResource(R.string.share_ext_unauthenticated_subtitle))
     }
 }
 
@@ -118,7 +124,7 @@ fun ShareActivityScreenPreparingFiles(vm: ShareActivityViewModel) {
         TextButton(onClick = {
             vm.cancel()
         }) {
-            Text("CLOSE")
+            Text(stringResource(R.string.share_ext_dismiss_button).uppercaseCurrentLocale())
         }
     }) {
         CircularProgressIndicator(
@@ -126,7 +132,7 @@ fun ShareActivityScreenPreparingFiles(vm: ShareActivityViewModel) {
                 .padding(bottom = 20.dp),
         )
 
-        Text("Preparing files")
+        Text(stringResource(R.string.share_ext_preparing_files_label))
     }
 }
 
@@ -136,10 +142,10 @@ fun ShareActivityScreenNoFiles(vm: ShareActivityViewModel) {
         TextButton(onClick = {
             vm.cancel()
         }) {
-            Text("CLOSE")
+            Text(stringResource(R.string.share_ext_dismiss_button).uppercaseCurrentLocale())
         }
     }) {
-        Text("No files to upload.")
+        Text(stringResource(R.string.share_ext_no_files_label))
     }
 }
 
@@ -161,11 +167,11 @@ fun ShareActivityScreenDone(vm: ShareActivityViewModel) {
         TextButton(onClick = {
             vm.done()
         }) {
-            Text("CLOSE")
+            Text(stringResource(R.string.share_ext_dismiss_button).uppercaseCurrentLocale())
         }
     }) {
         Text(
-            "Upload successful",
+            stringResource(R.string.share_ext_upload_successful_label),
             style = MaterialTheme.typography.headlineLarge,
             modifier = Modifier.padding(bottom = 30.dp),
         )

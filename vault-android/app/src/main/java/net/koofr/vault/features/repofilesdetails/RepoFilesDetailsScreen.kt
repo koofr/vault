@@ -32,6 +32,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -41,6 +42,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.koofr.vault.LocalSnackbarHostState
+import net.koofr.vault.R
 import net.koofr.vault.RepoFile
 import net.koofr.vault.RepoFilesDetailsInfo
 import net.koofr.vault.Status
@@ -52,6 +54,7 @@ import net.koofr.vault.features.navigation.LocalNavController
 import net.koofr.vault.features.transfers.TransferInfoView
 import net.koofr.vault.features.transfers.TransfersButton
 import net.koofr.vault.utils.queryEscape
+import net.koofr.vault.utils.uppercaseCurrentLocale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,10 +105,10 @@ fun RepoFilesDetailsScreen(
             vm.info.data.value?.let { info ->
                 if (info.isEditing) {
                     IconButton(onClick = { vm.save() }, enabled = info.isDirty) {
-                        Icon(Icons.Filled.Save, "Save")
+                        Icon(Icons.Filled.Save, stringResource(R.string.repo_files_details_save_content_desc))
                     }
                     IconButton(onClick = { vm.editCancel() }) {
-                        Icon(Icons.Filled.Check, "Done")
+                        Icon(Icons.Filled.Check, stringResource(R.string.repo_files_details_done_content_desc))
                     }
                 }
             }
@@ -116,7 +119,10 @@ fun RepoFilesDetailsScreen(
                 if (!info.isEditing) {
                     Box {
                         IconButton(onClick = { vm.menuExpanded.value = true }) {
-                            Icon(Icons.Filled.MoreVert, "More")
+                            Icon(
+                                Icons.Filled.MoreVert,
+                                stringResource(R.string.repo_files_details_menu_button_content_desc),
+                            )
                         }
 
                         DropdownMenu(
@@ -188,7 +194,7 @@ fun RepoFilesDetailsContentLoadingView() {
                 .padding(bottom = 20.dp),
         )
 
-        Text(text = "Loading")
+        Text(text = stringResource(R.string.repo_files_details_loading_label))
     }
 }
 
@@ -283,6 +289,8 @@ fun RepoFilesDetailsContentTextEditorView(vm: RepoFilesDetailsScreenViewModel) {
 
 @Composable
 fun RepoFilesDetailsContentTextEditorTextView(vm: RepoFilesDetailsScreenViewModel, info: RepoFilesDetailsInfo) {
+    val context = LocalContext.current
+
     val content = subscribe(
         { v, cb -> v.repoFilesDetailsContentBytesSubscribe(detailsId = vm.detailsId, cb = cb) },
         { v, id -> v.repoFilesDetailsContentBytesData(id = id) },
@@ -327,7 +335,7 @@ fun RepoFilesDetailsContentTextEditorTextView(vm: RepoFilesDetailsScreenViewMode
                 .weight(1f)
                 .focusRequester(focusRequester)
                 .semantics {
-                    contentDescription = "File text editor"
+                    contentDescription = context.getString(R.string.repo_files_details_text_editor_content_desc)
                 },
         )
     }
@@ -344,12 +352,15 @@ fun RepoFilesDetailsContentNotSupportedView(vm: RepoFilesDetailsScreenViewModel,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(text = "Not supported", modifier = Modifier.padding(bottom = 20.dp))
+        Text(
+            text = stringResource(R.string.repo_files_details_not_supported_label),
+            modifier = Modifier.padding(bottom = 20.dp),
+        )
 
         TextButton(onClick = {
             vm.download(navController, file)
         }) {
-            Text("DOWNLOAD")
+            Text(stringResource(R.string.repo_files_details_download_button).uppercaseCurrentLocale())
         }
     }
 }

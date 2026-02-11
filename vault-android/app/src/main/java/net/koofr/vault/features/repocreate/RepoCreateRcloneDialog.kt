@@ -11,11 +11,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import net.koofr.vault.R
+import net.koofr.vault.utils.uppercaseCurrentLocale
 
-private val rclonePlaceholder = """
-Format:
-
+private val rcloneExample = """
 [name]
 type=crypt
 remote=rcloneremote:/path
@@ -34,7 +35,7 @@ fun RepoCreateRcloneDialog(
         }
 
         AlertDialog(onDismissRequest = dismiss, title = {
-            Text("From rclone config")
+            Text(stringResource(R.string.repo_create_rclone_title))
         }, text = {
             Column() {
                 errorText?.let {
@@ -51,8 +52,8 @@ fun RepoCreateRcloneDialog(
                     onValueChange = {
                         vm.rcloneConfigState.value = it
                     },
-                    label = { Text("rclone config") },
-                    placeholder = { Text(rclonePlaceholder) },
+                    label = { Text(stringResource(R.string.repo_create_rclone_rclone_config_content_desc)) },
+                    placeholder = { Text(stringResource(R.string.repo_create_rclone_rclone_config_placeholder, rcloneExample)) },
                     isError = errorText != null,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -69,11 +70,11 @@ fun RepoCreateRcloneDialog(
                     dismiss()
                 }
             }) {
-                Text("FILL")
+                Text(stringResource(R.string.repo_create_rclone_fill_button).uppercaseCurrentLocale())
             }
         }, dismissButton = {
             TextButton(onClick = dismiss) {
-                Text("CANCEL")
+                Text(stringResource(R.string.repo_create_rclone_cancel_button).uppercaseCurrentLocale())
             }
         })
     }

@@ -14,7 +14,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import net.koofr.vault.LocalSnackbarHostState
+import net.koofr.vault.R
 import net.koofr.vault.composables.LoadingView
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -22,7 +24,7 @@ import net.koofr.vault.composables.LoadingView
 fun LoadingScreen() {
     Scaffold(topBar = {
         TopAppBar(title = {
-            Text(text = "Vault")
+            Text(text = stringResource(R.string.loading_title))
         })
     }, snackbarHost = { SnackbarHost(LocalSnackbarHostState.current) }) { paddingValues ->
         Column(

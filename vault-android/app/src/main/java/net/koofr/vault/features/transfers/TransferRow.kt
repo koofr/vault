@@ -20,13 +20,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.koofr.vault.PreviewsData
+import net.koofr.vault.R
 import net.koofr.vault.Transfer
 import net.koofr.vault.TransferState
 import net.koofr.vault.ui.theme.VaultTheme
+import net.koofr.vault.utils.uppercaseCurrentLocale
 
 @Composable
 fun TransferRow(
@@ -77,35 +80,45 @@ fun TransferRow(
 
         if (transfer.canOpen) {
             TextButton(onClick = onOpen) {
-                Text("OPEN")
+                Text(stringResource(R.string.transfers_transfer_open_button).uppercaseCurrentLocale())
             }
         }
 
         if (transfer.canRetry) {
             TextButton(onClick = onRetry) {
-                Text("RETRY")
+                Text(stringResource(R.string.transfers_transfer_retry_button).uppercaseCurrentLocale())
             }
         }
 
         when (transfer.state) {
             is TransferState.Done -> IconButton(onClick = onAbort) {
-                Icon(Icons.Filled.Close, "Hide")
+                Icon(
+                    Icons.Filled.Close,
+                    stringResource(R.string.transfers_transfer_hide_button_content_desc),
+                )
             }
 
             else -> TextButton(onClick = onAbort) {
-                Text("CANCEL", color = MaterialTheme.colorScheme.error)
+                Text(
+                    stringResource(R.string.transfers_transfer_cancel_button).uppercaseCurrentLocale(),
+                    color = MaterialTheme.colorScheme.error,
+                )
             }
         }
     }
 }
 
+@Composable
 fun getTransferDescription(state: TransferState): String {
     return when (state) {
-        is TransferState.Waiting -> "Waiting"
-        is TransferState.Processing -> "Processing"
-        is TransferState.Transferring -> "Transferring"
-        is TransferState.Failed -> "Failed: ${state.error}"
-        is TransferState.Done -> "Done"
+        is TransferState.Waiting -> stringResource(R.string.transfers_transfer_state_waiting)
+        is TransferState.Processing -> stringResource(R.string.transfers_transfer_state_processing)
+        is TransferState.Transferring -> stringResource(R.string.transfers_transfer_state_transferring)
+        is TransferState.Failed -> stringResource(
+            R.string.transfers_transfer_state_failed,
+            state.error,
+        )
+        is TransferState.Done -> stringResource(R.string.transfers_transfer_state_done)
     }
 }
 

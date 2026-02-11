@@ -1,5 +1,6 @@
 package net.koofr.vault.features.repofiles
 
+import android.content.Context
 import android.content.Intent
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetState
@@ -11,6 +12,7 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.koofr.vault.MobileVault
+import net.koofr.vault.R
 import net.koofr.vault.RepoFile
 import net.koofr.vault.RepoFilesBrowserFileCreated
 import net.koofr.vault.RepoFilesBrowserOptions
@@ -111,9 +113,11 @@ open class RepoFilesScreenViewModel constructor(
         mobileVault.repoFilesBrowsersClearSelection(browserId = browserId)
     }
 
-    fun createTextFile(onCreated: (String) -> Unit) {
+    fun createTextFile(context: Context, onCreated: (String) -> Unit) {
         val dateFormat = SimpleDateFormat("yyyyMMddHHmmss", Locale.ROOT)
-        val name = "new text file ${dateFormat.format(Date())}.txt"
+        val date = dateFormat.format(Date())
+        val name = context.getString(R.string.repo_files_create_text_file_default_filename, date) + ".txt"
+
         mobileVault.repoFilesBrowsersCreateFile(
             browserId = browserId,
             name = name,
