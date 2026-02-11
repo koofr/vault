@@ -3,6 +3,8 @@ package net.koofr.vault.features.repofiles
 import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.res.stringResource
+import net.koofr.vault.R
 import net.koofr.vault.RepoFile
 import net.koofr.vault.RepoFileType
 import net.koofr.vault.features.files.FileRow
@@ -29,8 +31,8 @@ fun RepoFileRow(
         },
         name = file.name,
         contentDescription = when (file.typ) {
-            RepoFileType.DIR -> "Folder ${file.name}"
-            RepoFileType.FILE -> "File ${file.name}"
+            RepoFileType.DIR -> stringResource(R.string.repo_files_row_folder_content_desc, file.name)
+            RepoFileType.FILE -> stringResource(R.string.repo_files_row_file_content_desc, file.name)
         },
         sizeDisplay = file.sizeDisplay,
         modifiedDisplay = when (file.typ) {

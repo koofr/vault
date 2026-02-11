@@ -7,11 +7,15 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import net.koofr.vault.FileIconProps
 import net.koofr.vault.FileIconSize
 import net.koofr.vault.LocalFileType
+import net.koofr.vault.R
 import net.koofr.vault.features.files.FileRow
 import net.koofr.vault.features.relativetime.relativeTime
+import net.koofr.vault.utils.uppercaseCurrentLocale
 
 @Composable
 fun ShareTargetFilesDialog(vm: ShareTargetViewModel) {
@@ -19,13 +23,11 @@ fun ShareTargetFilesDialog(vm: ShareTargetViewModel) {
         vm.hideFilesDialog()
     }, title = {
         Text(
-            vm.files.size.let {
-                if (it == 1) {
-                    "$it item…"
-                } else {
-                    "$it items…"
-                }
-            },
+            pluralStringResource(
+                R.plurals.share_target_files_items_count_label,
+                vm.files.size,
+                vm.files.size,
+            ),
         )
     }, text = {
         LazyColumn() {
@@ -37,7 +39,7 @@ fun ShareTargetFilesDialog(vm: ShareTargetViewModel) {
         TextButton(onClick = {
             vm.hideFilesDialog()
         }) {
-            Text("CLOSE")
+            Text(stringResource(R.string.share_target_files_dismiss_button).uppercaseCurrentLocale())
         }
     })
 }
@@ -63,8 +65,14 @@ fun ShareTargetFilesRow(vm: ShareTargetViewModel, file: ShareTargetFile) {
         },
         name = file.localFile.name,
         contentDescription = when (file.localFile.typ) {
-            LocalFileType.DIR -> "Folder ${file.localFile.name}"
-            LocalFileType.FILE -> "File ${file.localFile.name}"
+            LocalFileType.DIR -> stringResource(
+                R.string.share_target_files_folder_content_desc,
+                file.localFile.name,
+            )
+            LocalFileType.FILE -> stringResource(
+                R.string.share_target_files_file_content_desc,
+                file.localFile.name,
+            )
         },
         sizeDisplay = file.localFile.sizeDisplay,
         modifiedDisplay = modifiedDisplay,

@@ -13,8 +13,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import net.koofr.vault.R
 
 @Composable
 fun EmptyFolderView(modifier: Modifier = Modifier) {
@@ -25,14 +27,14 @@ fun EmptyFolderView(modifier: Modifier = Modifier) {
     ) {
         Icon(
             Icons.Outlined.Folder,
-            "Folder icon",
+            stringResource(R.string.composables_empty_folder_icon_content_desc),
             modifier = Modifier
                 .size(70.dp)
                 .padding(bottom = 10.dp),
         )
 
         Text(
-            "Folder is empty",
+            stringResource(R.string.composables_empty_folder_title),
             style = MaterialTheme.typography.titleMedium.copy(textAlign = TextAlign.Center),
             modifier = Modifier
                 .padding(start = 20.dp, end = 20.dp)

@@ -25,6 +25,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -32,6 +33,7 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import net.koofr.vault.LocalSnackbarHostState
 import net.koofr.vault.MobileVault
+import net.koofr.vault.R
 import net.koofr.vault.Status
 import net.koofr.vault.composables.RefreshableList
 import net.koofr.vault.features.mobilevault.subscribe
@@ -91,19 +93,19 @@ fun ReposListScreen(
 
     Scaffold(topBar = {
         TopAppBar(title = {
-            Text("Vault")
+            Text(stringResource(R.string.repos_title))
         }, actions = {
             TransfersButton()
 
             IconButton(onClick = { navController.navigate("settings") }) {
-                Icon(Icons.Filled.Settings, "Settings")
+                Icon(Icons.Filled.Settings, stringResource(R.string.repos_settings_button_content_desc))
             }
         })
     }, floatingActionButton = {
         FloatingActionButton(onClick = {
             navController.navigate("repoCreate")
         }, containerColor = MaterialTheme.colorScheme.primary, shape = CircleShape) {
-            Icon(Icons.Filled.Add, "Create a new Safe Box")
+            Icon(Icons.Filled.Add, stringResource(R.string.repos_create_new_content_desc))
         }
     }, snackbarHost = { SnackbarHost(LocalSnackbarHostState.current) }) { paddingValues ->
         repos.value?.let { repos ->
@@ -117,7 +119,7 @@ fun ReposListScreen(
                 empty = {
                     Column(verticalArrangement = Arrangement.Center) {
                         Text(
-                            "No Safe Boxes yet",
+                            stringResource(R.string.repos_empty_title),
                             style = MaterialTheme.typography.headlineMedium.copy(textAlign = TextAlign.Center),
                             modifier = Modifier
                                 .padding(
@@ -129,7 +131,7 @@ fun ReposListScreen(
                         )
 
                         Text(
-                            "Create your first one by clicking the button bellow.",
+                            stringResource(R.string.repos_empty_instruction),
                             style = MaterialTheme.typography.bodyLarge.copy(textAlign = TextAlign.Center),
                             modifier = Modifier
                                 .padding(start = 30.dp, end = 30.dp)

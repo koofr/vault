@@ -21,11 +21,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.koofr.vault.R
 import net.koofr.vault.composables.CircleCheckbox
 import net.koofr.vault.ui.theme.VaultTheme
 
@@ -98,7 +100,11 @@ fun FileRow(
             val hasSecondLine = !sizeDisplay.isNullOrEmpty() || !modifiedDisplay.isNullOrEmpty()
 
             Text(
-                text = if (isError) "$name (ERROR)" else name,
+                text = if (isError) {
+                    stringResource(R.string.files_row_error_label, name)
+                } else {
+                    name
+                },
                 style = MaterialTheme.typography.bodyLarge.let {
                     if (isError) it.copy(color = MaterialTheme.colorScheme.error) else it
                 },
@@ -127,7 +133,7 @@ fun FileRow(
         onMoreClick?.let { onMoreClick ->
             Box {
                 IconButton(onClick = onMoreClick) {
-                    Icon(Icons.Filled.MoreVert, "File menu")
+                    Icon(Icons.Filled.MoreVert, stringResource(R.string.files_row_menu_content_desc))
                 }
                 moreDropdown?.let {
                     it()

@@ -1,3 +1,544 @@
 <resources>
+    <!-- App name shown in launcher. -->
     <string name="app_name">Koofr Vault</string>
+
+    <!-- Snackbar/toast when OAuth login/logout can't open a browser (Custom Tab). -->
+    <string name="auth_browser_launch_failed_message">Failed to launch a browser app. Please make sure you have a web browser app installed.</string>
+
+    <!-- Accessibility label for the empty-folder illustration icon. -->
+    <string name="composables_empty_folder_icon_content_desc">Folder icon</string>
+    <!-- Empty state title shown in file/directory lists. -->
+    <string name="composables_empty_folder_title">Folder is empty</string>
+    <!-- Title shown at the top of generic error views. -->
+    <string name="composables_error_title">Error</string>
+    <!-- Retry button label in generic error views. -->
+    <string name="composables_error_try_again_button">Try again</string>
+    <!-- Loading label shown under spinners in generic loading views. -->
+    <string name="composables_loading_label">Loading…</string>
+    <!-- Accessibility label for the main floating add button icon (the button on the bottom right of the file list). -->
+    <string name="composables_multi_add_button_content_desc">Add</string>
+    <!-- Accessibility label for Safe Key text field (password) used in unlock/create/remove forms. -->
+    <string name="composables_repo_password_content_desc">Safe Key</string>
+    <!-- Accessibility label for the "hide Safe Key" visibility toggle icon (the eye icon in the password field). -->
+    <string name="composables_repo_password_hide_button_content_desc">Hide Safe Key</string>
+    <!-- Label for Safe Key (password) text field. -->
+    <string name="composables_repo_password_label">Safe Key</string>
+    <!-- Placeholder text for Safe Key (password) text field. -->
+    <string name="composables_repo_password_placeholder">Safe Key</string>
+    <!-- Accessibility label for the "show Safe Key" visibility toggle icon (the eye icon in the password field). -->
+    <string name="composables_repo_password_show_button_content_desc">Show Safe Key</string>
+
+    <!-- Error message used when a download entry cannot be created in the system downloads store. -->
+    <string name="downloads_create_failed_message">Failed to create download</string>
+    <!-- Title shown for completed downloads in the system Download Manager list. -->
+    <string name="downloads_download_completed_title">Koofr Vault download</string>
+
+    <!-- File name label used in file rows when the file has an error; includes "(ERROR)" suffix, e.g. "document.txt (ERROR)". -->
+    <string name="files_row_error_label">%1$s (ERROR)</string>
+    <!-- Accessibility label for the overflow menu button in file rows (the menu that contains Copy, Move, Delete, etc.). -->
+    <string name="files_row_menu_content_desc">File menu</string>
+
+    <!-- Primary CTA button on the landing screen to start login. -->
+    <string name="landing_get_started_button">Get started</string>
+    <!-- Accessibility label for the landing screen illustration. -->
+    <string name="landing_graphic_content_desc">Graphic</string>
+    <!-- Accessibility label for the landing screen info icon in the top app bar. -->
+    <string name="landing_info_button_content_desc">Info</string>
+    <!-- Accessibility label for the landing screen language picker icon in the top app bar. -->
+    <string name="landing_language_picker_button_content_desc">Change language</string>
+    <!-- Accessibility label for the landing screen logo image. -->
+    <string name="landing_logo_content_desc">Koofr Vault logo</string>
+    <!-- Marketing message shown on the landing screen. -->
+    <string name="landing_message">Powerful, open source client-side encryption. Unlock enhanced security for your most sensitive files.</string>
+    <!-- Main headline on the landing screen. -->
+    <string name="landing_title">One vault for all\nyour private files.</string>
+
+    <!-- Title for the language picker bottom sheet. -->
+    <string name="language_picker_title">Change language</string>
+
+    <!-- Title in the loading screen top app bar. -->
+    <string name="loading_title">Vault</string>
+
+    <!-- Message shown on the "Not supported" screen when native library for the architecture (e.g. arm64-v8a) is missing. -->
+    <string name="not_supported_message">Koofr Vault app version that you\'ve installed does not contain the native library for your architecture (%1$s). Please make sure you\'ve installed the correct version.</string>
+    <!-- Title in the "Not supported" screen top app bar. -->
+    <string name="not_supported_title">Vault</string>
+
+    <!-- Cancel button label in the camera permission dialog. -->
+    <string name="permissions_camera_cancel_button">Cancel</string>
+    <!-- Rationale message shown when the app can explain why camera permission is needed. -->
+    <string name="permissions_camera_rationale">The camera is important for this app. Please grant the permission.</string>
+    <!-- Confirmation button label to request camera permission. -->
+    <string name="permissions_camera_request_button">Request permission</string>
+    <!-- Message shown when camera permission is required (no rationale or "don't ask again"). -->
+    <string name="permissions_camera_required">Camera permission required for this feature to be available. Please grant the permission.</string>
+    <!-- Title for the camera permission dialog. -->
+    <string name="permissions_camera_title">Camera permission required</string>
+
+    <!-- Cancel button label in the remote directory picker bottom bar. -->
+    <string name="remote_files_dir_picker_cancel_button">Cancel</string>
+    <!-- Accessibility label for the "Create new folder" button in remote dir picker. -->
+    <string name="remote_files_dir_picker_new_folder_content_desc">New folder</string>
+    <!-- Select button label in the remote directory picker bottom bar. -->
+    <string name="remote_files_dir_picker_select_button">Select</string>
+
+    <!-- HTML-formatted label/value shown in Safe Box config info for "Encrypt directory names". -->
+    <string name="repo_config_info_encrypt_directory_names">&lt;b&gt;Encrypt directory names&lt;/b&gt;: %1$s</string>
+    <!-- HTML-formatted label/value shown in Safe Box config info for "Filename encryption". -->
+    <string name="repo_config_info_filename_encryption">&lt;b&gt;Filename encryption&lt;/b&gt;: %1$s</string>
+    <!-- HTML-formatted label/value shown in Safe Box config info for "Location". -->
+    <string name="repo_config_info_location">&lt;b&gt;Location&lt;/b&gt;: %1$s</string>
+    <!-- HTML-formatted label/value shown in Safe Box config info for "rclone config". -->
+    <string name="repo_config_info_rclone_config">&lt;b&gt;rclone config&lt;/b&gt;:</string>
+    <!-- HTML-formatted label/value shown in Safe Box config info for "Salt (password2)". -->
+    <string name="repo_config_info_salt">&lt;b&gt;Salt (password2)&lt;/b&gt;: %1$s</string>
+    <!-- Accessibility label for the share icon in the Safe Box config info panel. -->
+    <string name="repo_config_info_share_button_content_desc">Share</string>
+    <!-- Share button label in the Safe Box config info panel. -->
+    <string name="repo_config_info_share_button">Share…</string>
+
+    <!-- Continue button on the Safe Box created success screen. -->
+    <string name="repo_create_created_continue_button">Continue</string>
+    <!-- Description text on the Safe Box created success screen explaining saving config. -->
+    <string name="repo_create_created_description">Before you start using your Safe Box please safely store the configuration.</string>
+    <!-- Title on the Safe Box created success screen. -->
+    <string name="repo_create_created_title">Your Safe Box has been created</string>
+
+    <!-- Create button label on the Safe Box creation form. -->
+    <string name="repo_create_form_create_button">Create</string>
+    <!-- Button label to open the "From rclone config" dialog. -->
+    <string name="repo_create_form_from_rclone_config_button">From rclone config</string>
+    <!-- Accessibility label for the location picker field in Safe Box creation form. -->
+    <string name="repo_create_form_location_content_desc">Location</string>
+    <!-- Accessibility label for the location help icon in Safe Box creation form. -->
+    <string name="repo_create_form_location_info_button_content_desc">Location info</string>
+    <!-- Help sheet body text explaining the location field in Safe Box creation. -->
+    <string name="repo_create_form_location_info_text">Location refers to a folder within your Koofr where all of your Safe Box files and folders are securely stored.\n\nIf this is your first Safe Box, the default location will be \"My safe box.\" You can change it if you prefer.\n\nIf you already have a Safe Box or wish to use an existing folder (e.g. one created with rclone), you can select that folder.\n\nPlease note that you can only select a folder located within your Koofr.</string>
+    <!-- Title for the location help sheet in Safe Box creation. -->
+    <string name="repo_create_form_location_info_title">Location</string>
+    <!-- Label for the location field in Safe Box creation form. -->
+    <string name="repo_create_form_location_label">Location</string>
+    <!-- Accessibility label for the Safe Key help icon in Safe Box creation form. -->
+    <string name="repo_create_form_password_info_button_content_desc">Safe Key info</string>
+    <!-- Help sheet body text explaining the Safe Key in Safe Box creation. -->
+    <string name="repo_create_form_password_info_text">Safe Key is a password used to encrypt your files. Each Safe Box can have its own unique Safe Key.\n\nPlease be aware that once you set your Safe Key, it cannot be changed later. All the files within the Safe Box will be encrypted using this key.\n\nIMPORTANT: Your Safe Key cannot be reset, and there is no way to recover your files if you forget it, as it is never sent to or stored on Koofr servers.</string>
+    <!-- Title for the Safe Key help sheet in Safe Box creation. -->
+    <string name="repo_create_form_password_info_title">Safe Key</string>
+    <!-- Placeholder text for the Safe Key field in Safe Box creation form. -->
+    <string name="repo_create_form_password_placeholder">Must be at least 8 characters long</string>
+    <!-- Accessibility label for the Salt field in Safe Box creation form. -->
+    <string name="repo_create_form_salt_content_desc">Salt</string>
+    <!-- Accessibility label for the Salt help icon in Safe Box creation form. -->
+    <string name="repo_create_form_salt_info_button_content_desc">Salt info</string>
+    <!-- Help sheet body text explaining the Salt field in Safe Box creation. -->
+    <string name="repo_create_form_salt_info_text">Salt is used in the key derivation process to create a unique encryption key and helps to protect against potential attacks. It will be stored on the Koofr servers in a secure manner.  A random Salt has been generated for you. If you prefer, you can leave the Salt field empty, and the default salt will be used (same as in rclone). However, it is recommended to use a unique salt for enhanced security. Using a unique salt helps to increase the complexity of the encryption process, making it more difficult for potential attackers to access the encrypted data.  If you wish to transfer the encrypted files to another service, it is necessary to also export the salt, otherwise you won\'t be able to decrypt your files.</string>
+    <!-- Title for the Salt help sheet in Safe Box creation. -->
+    <string name="repo_create_form_salt_info_title">Salt</string>
+    <!-- Label for the Salt field in Safe Box creation form. -->
+    <string name="repo_create_form_salt_label">Salt</string>
+    <!-- Placeholder text for the Salt field in Safe Box creation form. -->
+    <string name="repo_create_form_salt_placeholder">Salt</string>
+    <!-- Button label to reveal advanced settings on Safe Box creation form. -->
+    <string name="repo_create_form_show_advanced_settings_button">Show advanced settings</string>
+
+    <!-- Cancel button label in the "from rclone config" dialog. -->
+    <string name="repo_create_rclone_cancel_button">Cancel</string>
+    <!-- Fill button label in the "from rclone config" dialog. -->
+    <string name="repo_create_rclone_fill_button">Fill</string>
+    <!-- Label for the rclone config text field in the dialog. -->
+    <string name="repo_create_rclone_rclone_config_content_desc">rclone config</string>
+    <!-- Placeholder text showing rclone config format in the dialog. -->
+    <string name="repo_create_rclone_rclone_config_placeholder">Format:\n\n%1$s</string>
+    <!-- Title for the "from rclone config" dialog. -->
+    <string name="repo_create_rclone_title">From rclone config</string>
+
+    <!-- Title in the Safe Box creation screen top app bar. -->
+    <string name="repo_create_title">Create a new Safe Box</string>
+
+    <!-- Context menu item to copy a file in the Safe Box files list. -->
+    <string name="repo_file_menu_copy_menu_item">Copy</string>
+    <!-- Context menu item to delete a file in the Safe Box files list. -->
+    <string name="repo_file_menu_delete_menu_item">Delete</string>
+    <!-- Context menu item to download a file in the Safe Box files list. -->
+    <string name="repo_file_menu_download_menu_item">Download</string>
+    <!-- Context menu item to show file info in the Safe Box files list. -->
+    <string name="repo_file_menu_get_info_menu_item">Info</string>
+    <!-- Context menu item to move a file in the Safe Box files list. -->
+    <string name="repo_file_menu_move_menu_item">Move</string>
+    <!-- Context menu item to rename a file in the Safe Box files list. -->
+    <string name="repo_file_menu_rename_menu_item">Rename</string>
+
+    <!-- Default filename used when creating a new text file in a Safe Box. -->
+    <string name="repo_files_create_text_file_default_filename">new text file %1$s</string>
+
+    <!-- Info line in the text editor indicating auto-save behavior. -->
+    <string name="repo_files_details_auto_save_info_label">Changes are saved automatically.</string>
+    <!-- Menu item to delete a file from the file details screen. -->
+    <string name="repo_files_details_delete_menu_item">Delete</string>
+    <!-- Accessibility label for the "Done" icon when exiting edit mode. -->
+    <string name="repo_files_details_done_content_desc">Done</string>
+    <!-- Button label to download unsupported files from details screen. -->
+    <string name="repo_files_details_download_button">Download</string>
+    <!-- Menu item to edit a file from the file details screen. -->
+    <string name="repo_files_details_edit_menu_item">Edit</string>
+    <!-- Accessibility label for error text shown in the text editor info bar. -->
+    <string name="repo_files_details_error_content_desc">File error</string>
+    <!-- Last saved label (relative time, e.g. Last saved 1 minute ago) in the text editor info bar. -->
+    <string name="repo_files_details_last_saved_label">Last saved %1$s</string>
+    <!-- Loading label shown in the file details content area. -->
+    <string name="repo_files_details_loading_label">Loading…</string>
+    <!-- Accessibility label for the overflow menu button in file details. -->
+    <string name="repo_files_details_menu_button_content_desc">More</string>
+    <!-- Label shown when a file type is not supported for preview or edit. -->
+    <string name="repo_files_details_not_supported_label">Not supported</string>
+    <!-- Menu item to rename a file from the file details screen. -->
+    <string name="repo_files_details_rename_menu_item">Rename</string>
+    <!-- Accessibility label for the save icon in edit mode. -->
+    <string name="repo_files_details_save_content_desc">Save</string>
+    <!-- Status label shown while saving a text file. -->
+    <string name="repo_files_details_saving_label">Saving…</string>
+    <!-- Menu item to share a file from the file details screen. -->
+    <string name="repo_files_details_share_menu_item">Share</string>
+    <!-- Accessibility label for the modified/dirty status indicator in editor info bar. -->
+    <string name="repo_files_details_status_dirty_content_desc">File modified</string>
+    <!-- Accessibility label for the unchanged/pristine status indicator in editor info bar. -->
+    <string name="repo_files_details_status_unchanged_content_desc">File unchanged</string>
+    <!-- Accessibility label for the text editor field in file details. -->
+    <string name="repo_files_details_text_editor_content_desc">File text editor</string>
+
+    <!-- Accessibility label for the cancel button in selection mode. -->
+    <string name="repo_files_edit_mode_cancel_content_desc">Cancel selection</string>
+    <!-- Accessibility label for the delete selected icon in selection mode. -->
+    <string name="repo_files_edit_mode_delete_selected_content_desc">Delete selected</string>
+    <!-- Label for the deselect all button in selection mode (top bar). -->
+    <string name="repo_files_edit_mode_deselect_all_button">Deselect all</string>
+    <!-- Accessibility label for the download selected icon in selection mode. -->
+    <string name="repo_files_edit_mode_download_selected_content_desc">Download selected</string>
+    <!-- Pluralized selected count title shown in the top bar in selection mode. -->
+    <plurals name="repo_files_edit_mode_items_count_label">
+        <item quantity="one">%1$d selected</item>
+        <item quantity="other">%1$d selected</item>
+    </plurals>
+    <!-- Label for the select all menu item in the files list menu. -->
+    <string name="repo_files_edit_mode_select_all_button">Select all</string>
+
+    <!-- Label for encrypted path field in the file info bottom sheet. -->
+    <string name="repo_file_info_encrypted_path_label">Encrypted path</string>
+    <!-- Label for modified date field in the file info bottom sheet. -->
+    <string name="repo_file_info_modified_label">Modified</string>
+    <!-- File name value shown when file name has an error in the file info bottom sheet. Includes "(ERROR)" suffix, e.g. "document.txt (ERROR)" -->
+    <string name="repo_file_info_name_error_value">%1$s (ERROR)</string>
+    <!-- Label for file name field in the file info bottom sheet. -->
+    <string name="repo_file_info_name_label">Name</string>
+    <!-- Label for file type field in the file info bottom sheet. -->
+    <string name="repo_file_info_type_label">Type</string>
+    <!-- Label for size field in the file info bottom sheet. -->
+    <string name="repo_file_info_size_label">Size</string>
+    <!-- Label for path field in the file info bottom sheet. -->
+    <string name="repo_file_info_path_label">Path</string>
+    <!-- File type label for archive files in the file info bottom sheet. -->
+    <string name="repo_file_category_archive">Archive</string>
+    <!-- File type label for audio files in the file info bottom sheet. -->
+    <string name="repo_file_category_audio">Audio</string>
+    <!-- File type label for code files in the file info bottom sheet. -->
+    <string name="repo_file_category_code">Code</string>
+    <!-- File type label for documents in the file info bottom sheet. -->
+    <string name="repo_file_category_document">Document</string>
+    <!-- File type label for generic files in the file info bottom sheet. -->
+    <string name="repo_file_category_file">File</string>
+    <!-- File type label for folders in the file info bottom sheet. -->
+    <string name="repo_file_category_folder">Folder</string>
+    <!-- File type label for image files in the file info bottom sheet. -->
+    <string name="repo_file_category_image">Image</string>
+    <!-- File type label for PDF files in the file info bottom sheet. -->
+    <string name="repo_file_category_pdf">PDF</string>
+    <!-- File type label for presentation files in the file info bottom sheet. -->
+    <string name="repo_file_category_presentation">Presentation</string>
+    <!-- File type label for spreadsheet files in the file info bottom sheet. -->
+    <string name="repo_file_category_spreadsheet">Spreadsheet</string>
+    <!-- File type label for text files in the file info bottom sheet. -->
+    <string name="repo_file_category_text">Text</string>
+    <!-- File type label for video files in the file info bottom sheet. -->
+    <string name="repo_file_category_video">Video</string>
+
+    <!-- Cancel button label in the move/copy destination picker screen. -->
+    <string name="repo_files_move_cancel_button">Cancel</string>
+    <!-- Copy button label in the move/copy destination picker screen. -->
+    <string name="repo_files_move_copy_button">Copy</string>
+    <!-- Pluralized count of items being moved/copied shown in the bottom bar. -->
+    <plurals name="repo_files_move_items_count_label">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
+    </plurals>
+    <!-- Move button label in the move/copy destination picker screen. -->
+    <string name="repo_files_move_move_button">Move</string>
+    <!-- Accessibility label for the new-folder button in move/copy screen. -->
+    <string name="repo_files_move_new_folder_content_desc">New folder</string>
+
+    <!-- Menu item to copy selected files to a different folder. Opens a dialog. -->
+    <string name="repo_files_nav_menu_copy_to_menu_item">Copy to…</string>
+    <!-- Menu item to create a new text file in the Safe Box files list. Opens a dialog with a proposed new file name. -->
+    <string name="repo_files_nav_menu_create_text_file_menu_item">Create new text file</string>
+    <!-- Accessibility label for the overflow menu button in Safe Box files list. -->
+    <string name="repo_files_nav_menu_menu_content_desc">Menu</string>
+    <!-- Menu item to move selected files to a different folder. Opens a dialog. -->
+    <string name="repo_files_nav_menu_move_to_menu_item">Move to…</string>
+    <!-- Menu item to create a new folder in the Safe Box files list. Opens a dialog to enter a new folder name. -->
+    <string name="repo_files_nav_menu_new_folder_menu_item">New folder</string>
+    <!-- Menu item to open the sort by sheet in the Safe Box files list. -->
+    <string name="repo_files_nav_menu_sort_by_menu_item">Sort by…</string>
+    <!-- Menu item to upload files in the Safe Box files list. Opens a system dialog to select files to upload. -->
+    <string name="repo_files_nav_menu_upload_files_menu_item">Upload file</string>
+    <!-- Menu item to upload a folder in the Safe Box files list. Opens a system dialog to select a folder to upload. -->
+    <string name="repo_files_nav_menu_upload_folder_menu_item">Upload folder</string>
+    <!-- Menu item to take a photo and upload it in the Safe Box files list. Opens the camera app. -->
+    <string name="repo_files_nav_menu_upload_photo_menu_item">Take photo</string>
+
+    <!-- Accessibility label for file rows in Safe Box files list. Includes the name of the file. -->
+    <string name="repo_files_row_file_content_desc">File %1$s</string>
+    <!-- Accessibility label for folder rows in Safe Box files list. Includes the name of the folder. -->
+    <string name="repo_files_row_folder_content_desc">Folder %1$s</string>
+
+    <!-- Title for the sort by bottom sheet in the Safe Box files list. -->
+    <string name="repo_files_sort_by_title">Sort by</string>
+    <!-- Sort option label for modified date ascending in the sort sheet. -->
+    <string name="repo_files_sort_option_modified_asc">Modified (oldest first)</string>
+    <!-- Sort option label for modified date descending in the sort sheet. -->
+    <string name="repo_files_sort_option_modified_desc">Modified (newest first)</string>
+    <!-- Sort option label for name ascending in the sort sheet. -->
+    <string name="repo_files_sort_option_name_asc">File name (A to Z)</string>
+    <!-- Sort option label for name descending in the sort sheet. -->
+    <string name="repo_files_sort_option_name_desc">File name (Z to A)</string>
+    <!-- Accessibility label for the selected sort option checkmark. -->
+    <string name="repo_files_sort_option_selected_content_desc">Checked</string>
+    <!-- Sort option label for size ascending in the sort sheet. -->
+    <string name="repo_files_sort_option_size_asc">Size (smallest first)</string>
+    <!-- Sort option label for size descending in the sort sheet. -->
+    <string name="repo_files_sort_option_size_desc">Size (largest first)</string>
+
+    <!-- Cancel button label in the auto-lock-after dialog. -->
+    <string name="repo_info_auto_lock_after_cancel_button">Cancel</string>
+    <!-- Pluralized label for custom auto-lock timeout option (seconds). -->
+    <plurals name="repo_info_auto_lock_after_custom">
+        <item quantity="one">Custom (%1$d second)</item>
+        <item quantity="other">Custom (%1$d seconds)</item>
+    </plurals>
+    <!-- Option label for 1 hour of inactivity in auto-lock settings. -->
+    <string name="repo_info_auto_lock_after_inactive_1_hour">1 hour of inactivity</string>
+    <!-- Option label for 1 minute of inactivity in auto-lock settings. -->
+    <string name="repo_info_auto_lock_after_inactive_1_minute">1 minute of inactivity</string>
+    <!-- Option label for 10 minutes of inactivity in auto-lock settings. -->
+    <string name="repo_info_auto_lock_after_inactive_10_minutes">10 minutes of inactivity</string>
+    <!-- Option label for 2 hours of inactivity in auto-lock settings. -->
+    <string name="repo_info_auto_lock_after_inactive_2_hours">2 hours of inactivity</string>
+    <!-- Option label for 30 minutes of inactivity in auto-lock settings. -->
+    <string name="repo_info_auto_lock_after_inactive_30_minutes">30 minutes of inactivity</string>
+    <!-- Option label for 4 hours of inactivity in auto-lock settings. -->
+    <string name="repo_info_auto_lock_after_inactive_4_hours">4 hours of inactivity</string>
+    <!-- Option label for 5 minutes of inactivity in auto-lock settings. -->
+    <string name="repo_info_auto_lock_after_inactive_5_minutes">5 minutes of inactivity</string>
+    <!-- Label for auto-lock timeout setting in Safe Box info screen. -->
+    <string name="repo_info_auto_lock_after_label">Automatically lock after</string>
+    <!-- Option label for no auto-lock time limit. -->
+    <string name="repo_info_auto_lock_after_no_time_limit">No time limit</string>
+    <!-- Confirm button label in auto-lock-after dialog. -->
+    <string name="repo_info_auto_lock_after_confirm_button">Ok</string>
+    <!-- Accessibility label for the current auto-lock value in Safe Box info screen. -->
+    <string name="repo_info_auto_lock_after_value_content_desc">Automatically lock after value</string>
+
+    <!-- Accessibility label for the biometric unlock option in Safe Box info screen. -->
+    <string name="repo_info_biometric_unlock_content_desc">Biometric unlock</string>
+    <!-- Description text for biometric unlock option in Safe Box info screen. -->
+    <string name="repo_info_biometric_unlock_description">Use biometrics to unlock the Safe Box</string>
+    <!-- Label for biometric unlock option in Safe Box info screen. -->
+    <string name="repo_info_biometric_unlock_label">Biometric unlock</string>
+
+    <!-- Description text for the "Destroy Safe Box" option in Safe Box info screen. -->
+    <string name="repo_info_destroy_repo_description">Verify Safe Key and destroy the Safe Box</string>
+    <!-- Label for the "Destroy Safe Box" row in Safe Box info screen. -->
+    <string name="repo_info_destroy_repo_label">Destroy Safe Box…</string>
+    <!-- Accessibility label for the "lock when app hidden" toggle in Safe Box info screen. -->
+    <string name="repo_info_lock_when_app_hidden_content_desc">Lock when app hidden</string>
+    <!-- Description text for "lock when app hidden" setting in Safe Box info screen. -->
+    <string name="repo_info_lock_when_app_hidden_description">When switching apps or locking the screen</string>
+    <!-- Label for "lock when app hidden" setting in Safe Box info screen. -->
+    <string name="repo_info_lock_when_app_hidden_label">Lock when app hidden</string>
+    <!-- Description text for the unlock/lock toggle in Safe Box info screen. -->
+    <string name="repo_info_unlock_description">Unlock or lock the Safe Box</string>
+    <!-- Label showing the Safe Box is locked in Safe Box info screen. -->
+    <string name="repo_info_locked_label">Locked</string>
+    <!-- Accessibility label for the lock toggle when Safe Box is locked. -->
+    <string name="repo_info_locked_content_desc">Locked</string>
+    <!-- Label showing the Safe Box is unlocked in Safe Box info screen. -->
+    <string name="repo_info_unlocked_label">Unlocked</string>
+    <!-- Accessibility label for the lock toggle when Safe Box is unlocked. -->
+    <string name="repo_info_unlocked_content_desc">Unlocked</string>
+
+    <!-- Negative button label for biometric prompt when user declines biometrics. -->
+    <string name="repo_password_biometrics_negative_button">Don\'t use biometrics</string>
+    <!-- Subtitle text for biometric prompt explaining Safe Key storage. -->
+    <string name="repo_password_biometrics_subtitle">Use biometrics to save your Safe Key</string>
+    <!-- Title text for biometric prompt used during unlock setup/usage. -->
+    <string name="repo_password_biometrics_title">Safe Key biometrics</string>
+
+    <!-- Destructive button label on the remove Safe Box screen. -->
+    <string name="repo_remove_destroy_button">Destroy</string>
+    <!-- Warning message on the remove Safe Box screen; includes Safe Box name. -->
+    <string name="repo_remove_message">Do you really want to destroy Safe Box &lt;b&gt;%1$s&lt;/b&gt;?&lt;br/&gt;&lt;br/&gt;Destroying the Safe Box will keep all the files on Koofr but remove the configuration so you won\'t be able to decrypt the files if you didn\'t save the configuration.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;This action cannot be undone.&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;Enter your Safe Key to confirm the removal:</string>
+    <!-- Title in the remove Safe Box screen top app bar. -->
+    <string name="repo_remove_title">Destroy Safe Box</string>
+
+    <!-- Message shown when verifying Safe Key before enabling biometric unlock. -->
+    <string name="repo_setup_biometric_unlock_message">Enter your Safe Key to setup biometric unlock</string>
+    <!-- Error message when biometric prompt setup fails; includes error detail. -->
+    <string name="repo_setup_biometric_unlock_prompt_error_message">Biometric prompt error: %1$s</string>
+
+    <!-- Message shown when stored biometrics are invalidated and must be reconfigured. -->
+    <string name="repo_unlock_biometric_info_changed_message">Your biometric info has changed. Please setup biometric unlock again.</string>
+    <!-- Button label to attempt biometric unlock on the unlock screen. -->
+    <string name="repo_unlock_biometric_unlock_button">Biometric unlock</string>
+    <!-- Continue button label on the Safe Key unlock form. -->
+    <string name="repo_unlock_continue_button">Continue</string>
+    <!-- Instruction text on the Safe Key unlock form. -->
+    <string name="repo_unlock_message">Enter your Safe Key to continue</string>
+    <!-- Button label to open biometric unlock setup from unlock screen. -->
+    <string name="repo_unlock_setup_biometric_unlock_button">Setup biometric unlock</string>
+
+    <!-- Accessibility label for the "Create new Safe Box" floating button icon on Safe Boxes list. -->
+    <string name="repos_create_new_content_desc">Create a new Safe Box</string>
+    <!-- Empty state helper text on Safe Boxes list when no Safe Boxes exist. -->
+    <string name="repos_empty_instruction">Create your first one by clicking the button bellow</string>
+    <!-- Empty state title on Safe Boxes list when no Safe Boxes exist. -->
+    <string name="repos_empty_title">No Safe Boxes yet</string>
+    <!-- Accessibility label for the info/overflow icon in a Safe Box row. -->
+    <string name="repos_info_button_content_desc">Info</string>
+    <!-- Accessibility label for the "Recent" row; includes Safe Box name. -->
+    <string name="repos_recent_content_desc">Recent files for %1$s</string>
+    <!-- Label for the "Recent" row in Safe Boxes list. -->
+    <string name="repos_recent_label">Recent files</string>
+    <!-- Accessibility label for a Safe Box row; includes Safe Box name. -->
+    <string name="repos_row_content_desc">Safe Box %1$s</string>
+    <!-- Accessibility label for settings icon button in Safe Boxes app bar. -->
+    <string name="repos_settings_button_content_desc">Settings</string>
+    <!-- Accessibility label for locked status icon in Safe Box rows. -->
+    <string name="repos_status_locked_content_desc">Locked</string>
+    <!-- Accessibility label for unlocked status icon in Safe Box rows. -->
+    <string name="repos_status_unlocked_content_desc">Unlocked</string>
+    <!-- Title in the Safe Boxes list top app bar. -->
+    <string name="repos_title">Vault</string>
+
+    <!-- Error shown when secure storage cannot be initialized; instructs user to clear app data. -->
+    <string name="secure_storage_read_failed_message">Failed to read encrypted preferences. Please clear data for the application in system settings and try again. %1$s</string>
+
+    <!-- Settings row label to change app language. -->
+    <string name="settings_change_language_label">Change language</string>
+    <!-- Settings row label to clear cache. -->
+    <string name="settings_clear_cache_label">Clear cache</string>
+    <!-- Notification message shown after cache is cleared. -->
+    <string name="settings_clear_cache_success">Cache has been cleared</string>
+    <!-- Fallback message used when clearing cache fails with unknown error. -->
+    <string name="settings_clear_cache_unknown_error">Unknown error</string>
+    <!-- Settings row description for information section. -->
+    <string name="settings_information_description">Service and application information</string>
+    <!-- Settings row label for information section. -->
+    <string name="settings_information_label">Information</string>
+    <!-- Settings row label to log out. -->
+    <string name="settings_logout_label">Logout</string>
+    <!-- Title in the settings screen top app bar. -->
+    <string name="settings_title">Settings</string>
+
+    <!-- Label showing the current git revision on the info screen. -->
+    <string name="settings_info_git_revision_label">Git revision: %1$s</string>
+    <!-- Label for the help link on the info screen. -->
+    <string name="settings_info_help_label">Help</string>
+    <!-- Label for the privacy policy link on the info screen. -->
+    <string name="settings_info_privacy_policy_label">Privacy Policy</string>
+    <!-- Fallback notification message when no email app is available for bug reports. -->
+    <string name="settings_info_report_bug_fallback_message">Please write an email to %1$s</string>
+    <!-- Label for the "Report a bug" item on the info screen. -->
+    <string name="settings_info_report_bug_label">Report a bug</string>
+    <!-- Label for the terms of service link on the info screen. -->
+    <string name="settings_info_terms_of_service_label">Terms of Service</string>
+    <!-- Title in the info screen top app bar. -->
+    <string name="settings_info_title">Information</string>
+    <!-- Label showing the app version on the info screen. -->
+    <string name="settings_info_version_label">Version: %1$s</string>
+
+    <!-- Close button label in the share extension screens. -->
+    <string name="share_ext_dismiss_button">Close</string>
+    <!-- Error label shown in the share extension when loading fails. -->
+    <string name="share_ext_error_label">Error: %1$s</string>
+    <!-- Message shown when no files were provided to the share extension. -->
+    <string name="share_ext_no_files_label">No files to upload.</string>
+    <!-- Label shown while preparing shared files in share extension. -->
+    <string name="share_ext_preparing_files_label">Preparing files</string>
+    <!-- Subtitle prompting user to sign in to the main app from share extension. -->
+    <string name="share_ext_unauthenticated_subtitle">Open Koofr Vault app and sign in.</string>
+    <!-- Title shown when user is not signed in during share extension flow. -->
+    <string name="share_ext_unauthenticated_title">Not signed in</string>
+    <!-- Success message shown when share extension upload completes. -->
+    <string name="share_ext_upload_successful_label">Upload successful</string>
+
+    <!-- Cancel button label in the share extension bottom bar. -->
+    <string name="share_target_cancel_button">Cancel</string>
+    <!-- Close button label in the share extension files dialog. -->
+    <string name="share_target_files_dismiss_button">Close</string>
+    <!-- Accessibility label for file rows in share extension files dialog. -->
+    <string name="share_target_files_file_content_desc">File %1$s</string>
+    <!-- Accessibility label for folder rows in share extension files dialog. -->
+    <string name="share_target_files_folder_content_desc">Folder %1$s</string>
+    <!-- Pluralized title in the share extension files dialog. -->
+    <plurals name="share_target_files_items_count_label">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
+    </plurals>
+    <!-- Pluralized file count shown in the share extension bottom bar. -->
+    <plurals name="share_target_items_count_label">
+        <item quantity="one">%1$d item…</item>
+        <item quantity="other">%1$d items…</item>
+    </plurals>
+    <!-- New folder button label in share extension Safe Box files screen. -->
+    <string name="share_target_repo_files_new_folder_content_desc">New folder</string>
+    <!-- Upload button label in share extension bottom bar. -->
+    <string name="share_target_repo_files_upload_button">Upload</string>
+    <!-- Empty state title when no Safe Boxes exist in share extension flow. -->
+    <string name="share_target_repos_empty_label">No Safe Boxes yet</string>
+    <!-- Empty state message prompting user to open app and create a Safe Box. -->
+    <string name="share_target_repos_open_app_create_label">Open Koofr Vault app and create one.</string>
+    <!-- Title shown in share extension top app bar. -->
+    <string name="share_target_repos_title">Save to Koofr Vault</string>
+
+    <!-- Button label to cancel all transfers in transfers screen. -->
+    <string name="transfers_cancel_all_button">Cancel all</string>
+    <!-- Button label to clear finished transfers. -->
+    <string name="transfers_clear_button">Clear</string>
+    <!-- Button label to retry all failed transfers. -->
+    <string name="transfers_retry_all_button">Retry all</string>
+    <!-- Accessibility label for the transfers icon in the top app bar. -->
+    <string name="transfers_show_transfers_content_desc">Transfers</string>
+    <!-- Remaining time label in transfers summary bar. -->
+    <string name="transfers_summary_time_remaining">%1$s remaining</string>
+    <!-- Done/total label in transfers summary bar. -->
+    <string name="transfers_summary_transfers_done">%1$d / %2$d done</string>
+    <!-- Title in the transfers screen top app bar. -->
+    <string name="transfers_title">Transfers</string>
+
+    <!-- Cancel button label on a transfer row (while in progress). -->
+    <string name="transfers_transfer_cancel_button">Cancel</string>
+    <!-- Accessibility label for the hide icon on completed transfers. -->
+    <string name="transfers_transfer_hide_button_content_desc">Hide</string>
+    <!-- Button label to open a completed transfer. -->
+    <string name="transfers_transfer_open_button">Open</string>
+    <!-- Button label to retry a failed transfer. -->
+    <string name="transfers_transfer_retry_button">Retry</string>
+    <!-- Status label for completed transfers. -->
+    <string name="transfers_transfer_state_done">Done</string>
+    <!-- Status label for failed transfers; includes error detail. -->
+    <string name="transfers_transfer_state_failed">Failed: %1$s</string>
+    <!-- Status label for transfers in processing state. -->
+    <string name="transfers_transfer_state_processing">Processing</string>
+    <!-- Status label for transfers in transferring state. -->
+    <string name="transfers_transfer_state_transferring">Transferring</string>
+    <!-- Status label for transfers waiting to start. -->
+    <string name="transfers_transfer_state_waiting">Waiting</string>
 </resources>

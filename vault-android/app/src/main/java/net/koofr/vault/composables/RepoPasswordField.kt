@@ -12,6 +12,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
@@ -19,6 +21,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import net.koofr.vault.R
 
 @Composable
 fun RepoPasswordField(
@@ -29,16 +32,19 @@ fun RepoPasswordField(
     onPasswordVisibleChange: (Boolean) -> Unit,
     onDone: (() -> Unit)? = null,
     errorText: String? = null,
+    placeholder: String? = null,
 ) {
+    val context = LocalContext.current
+
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         modifier = modifier.semantics {
-            this.contentDescription = "Safe Key"
+            this.contentDescription = context.getString(R.string.composables_repo_password_content_desc)
         },
         singleLine = true,
-        label = { Text("Safe Key") },
-        placeholder = { Text("Safe Key") },
+        label = { Text(stringResource(R.string.composables_repo_password_label)) },
+        placeholder = { Text(placeholder ?: stringResource(R.string.composables_repo_password_placeholder)) },
         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Password,
@@ -57,7 +63,11 @@ fun RepoPasswordField(
                     if (passwordVisible) {
                         Icons.Filled.Visibility
                     } else Icons.Filled.VisibilityOff,
-                    if (passwordVisible) "Hide Safe Key" else "Show Safe Key",
+                    if (passwordVisible) {
+                        stringResource(R.string.composables_repo_password_hide_button_content_desc)
+                    } else {
+                        stringResource(R.string.composables_repo_password_show_button_content_desc)
+                    },
                 )
             }
         },

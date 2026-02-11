@@ -29,10 +29,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import net.koofr.vault.R
 import net.koofr.vault.RepoCreateForm
 import net.koofr.vault.Status
 import net.koofr.vault.composables.FormInfoSheet
@@ -40,35 +43,10 @@ import net.koofr.vault.composables.RepoPasswordField
 import net.koofr.vault.features.navigation.LocalNavController
 import net.koofr.vault.features.remotefiles.RemoteFilesBreadcrumbs
 
-private val repoCreateFormLocationInfoText = """
-Location refers to a folder within your Koofr where all of your Safe Box files and folders are securely stored.
-
-If this is your first Safe Box, the default location will be "My safe box." You can change it if you prefer.
-
-If you already have a Safe Box or wish to use an existing folder (e.g. one created with rclone), you can select that folder.
-
-Please note that you can only select a folder located within your Koofr.
-""".trimIndent()
-
-private val repoCreateFormSafeKeyInfoText = """
-Safe Key is a password used to encrypt your files. Each Safe Box can have its own unique Safe Key.
-
-Please be aware that once you set your Safe Key, it cannot be changed later. All the files within the Safe Box will be encrypted using this key.
-
-IMPORTANT: Your Safe Key cannot be reset, and there is no way to recover your files if you forget it, as it is never sent to or stored on Koofr servers.
-""".trimIndent()
-
-private val repoCreateFormSaltInfoText = """
-Salt is used in the key derivation process to create a unique encryption key and helps to protect against potential attacks. It will be stored on the Koofr servers in a secure manner.
-
-A random Salt has been generated for you. If you prefer, you can leave the Salt field empty, and the default salt will be used (same as in rclone). However, it is recommended to use a unique salt for enhanced security. Using a unique salt helps to increase the complexity of the encryption process, making it more difficult for potential attackers to access the encrypted data.
-
-If you wish to transfer the encrypted files to another service, it is necessary to also export the salt, otherwise you won't be able to decrypt your files.
-""".trimIndent()
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RepoCreateFormView(vm: RepoCreateViewModel, form: RepoCreateForm, modifier: Modifier) {
+    val context = LocalContext.current
     val navController = LocalNavController.current
 
     val locationInteractionSource = remember { MutableInteractionSource() }
@@ -129,7 +107,8 @@ fun RepoCreateFormView(vm: RepoCreateViewModel, form: RepoCreateForm, modifier: 
                                         )
                                         .fillMaxWidth()
                                         .semantics {
-                                            this.contentDescription = "Location"
+                                            this.contentDescription =
+                                                context.getString(R.string.repo_create_form_location_content_desc)
                                         },
                                 ) {
                                     if (form.locationBreadcrumbs.isNotEmpty()) {
@@ -142,7 +121,7 @@ fun RepoCreateFormView(vm: RepoCreateViewModel, form: RepoCreateForm, modifier: 
                             visualTransformation = VisualTransformation.None,
                             interactionSource = locationInteractionSource,
                             label = {
-                                Text("Location")
+                                Text(stringResource(R.string.repo_create_form_location_label))
                             },
                         )
                     }
@@ -150,7 +129,11 @@ fun RepoCreateFormView(vm: RepoCreateViewModel, form: RepoCreateForm, modifier: 
                     IconButton(onClick = {
                         locationInfoSheetVisible.value = true
                     }) {
-                        Icon(Icons.Outlined.HelpOutline, "Location info", tint = Color.DarkGray)
+                        Icon(
+                            Icons.Outlined.HelpOutline,
+                            stringResource(R.string.repo_create_form_location_info_button_content_desc),
+                            tint = Color.DarkGray,
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.height(20.dp))
@@ -169,13 +152,18 @@ fun RepoCreateFormView(vm: RepoCreateViewModel, form: RepoCreateForm, modifier: 
                                 vm.passwordVisible.value = it
                             },
                             modifier = Modifier.fillMaxWidth(),
+                            placeholder = stringResource(R.string.repo_create_form_password_placeholder),
                         )
                     }
 
                     IconButton(onClick = {
                         safeKeyInfoSheetVisible.value = true
                     }, modifier = Modifier.padding(top = 8.dp)) {
-                        Icon(Icons.Outlined.HelpOutline, "Safe Key info", tint = Color.DarkGray)
+                        Icon(
+                            Icons.Outlined.HelpOutline,
+                            stringResource(R.string.repo_create_form_password_info_button_content_desc),
+                            tint = Color.DarkGray,
+                        )
                     }
                 }
 
@@ -194,13 +182,14 @@ fun RepoCreateFormView(vm: RepoCreateViewModel, form: RepoCreateForm, modifier: 
                                         salt = it.text.ifEmpty { null },
                                     )
                                 },
-                                label = { Text("Salt") },
-                                placeholder = { Text("Salt") },
+                                label = { Text(stringResource(R.string.repo_create_form_salt_label)) },
+                                placeholder = { Text(stringResource(R.string.repo_create_form_salt_placeholder)) },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(180.dp)
                                     .semantics {
-                                        this.contentDescription = "Salt"
+                                        this.contentDescription =
+                                            context.getString(R.string.repo_create_form_salt_content_desc)
                                     },
                             )
                         }
@@ -208,7 +197,11 @@ fun RepoCreateFormView(vm: RepoCreateViewModel, form: RepoCreateForm, modifier: 
                         IconButton(onClick = {
                             saltInfoSheetVisible.value = true
                         }) {
-                            Icon(Icons.Outlined.HelpOutline, "Safe Key info", tint = Color.DarkGray)
+                            Icon(
+                                Icons.Outlined.HelpOutline,
+                                stringResource(R.string.repo_create_form_salt_info_button_content_desc),
+                                tint = Color.DarkGray,
+                            )
                         }
                     }
 
@@ -219,7 +212,7 @@ fun RepoCreateFormView(vm: RepoCreateViewModel, form: RepoCreateForm, modifier: 
                         TextButton(onClick = {
                             vm.rcloneModalVisible.value = true
                         }) {
-                            Text("From rclone config")
+                            Text(stringResource(R.string.repo_create_form_from_rclone_config_button))
                         }
                     }
                     Spacer(modifier = Modifier.height(10.dp))
@@ -231,7 +224,7 @@ fun RepoCreateFormView(vm: RepoCreateViewModel, form: RepoCreateForm, modifier: 
                         TextButton(onClick = {
                             vm.advancedVisible.value = true
                         }) {
-                            Text("Show advanced settings")
+                            Text(stringResource(R.string.repo_create_form_show_advanced_settings_button))
                         }
                     }
                     Spacer(modifier = Modifier.height(10.dp))
@@ -252,7 +245,7 @@ fun RepoCreateFormView(vm: RepoCreateViewModel, form: RepoCreateForm, modifier: 
                             }
                         },
                     ) {
-                        Text("Create")
+                        Text(stringResource(R.string.repo_create_form_create_button))
                     }
                 }
             }
@@ -261,7 +254,19 @@ fun RepoCreateFormView(vm: RepoCreateViewModel, form: RepoCreateForm, modifier: 
 
     RepoCreateRcloneDialog(vm, form.fillFromRcloneConfigError)
 
-    FormInfoSheet("Location", repoCreateFormLocationInfoText, locationInfoSheetVisible)
-    FormInfoSheet("Safe Key", repoCreateFormSafeKeyInfoText, safeKeyInfoSheetVisible)
-    FormInfoSheet("Salt", repoCreateFormSaltInfoText, saltInfoSheetVisible)
+    FormInfoSheet(
+        stringResource(R.string.repo_create_form_location_info_title),
+        stringResource(R.string.repo_create_form_location_info_text),
+        locationInfoSheetVisible,
+    )
+    FormInfoSheet(
+        stringResource(R.string.repo_create_form_password_info_title),
+        stringResource(R.string.repo_create_form_password_info_text),
+        safeKeyInfoSheetVisible,
+    )
+    FormInfoSheet(
+        stringResource(R.string.repo_create_form_salt_info_title),
+        stringResource(R.string.repo_create_form_salt_info_text),
+        saltInfoSheetVisible,
+    )
 }

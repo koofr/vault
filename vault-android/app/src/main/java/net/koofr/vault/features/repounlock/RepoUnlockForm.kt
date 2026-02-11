@@ -12,10 +12,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import net.koofr.vault.R
 import net.koofr.vault.RepoUnlockInfo
 import net.koofr.vault.Status
 import net.koofr.vault.composables.RepoPasswordField
@@ -37,7 +39,7 @@ fun RepoUnlockForm(
     vm: RepoUnlockFormViewModel,
     info: RepoUnlockInfo,
     onUnlock: (String) -> Unit,
-    message: String = "Enter your Safe Key to continue",
+    message: String? = null,
 ) {
     val passwordFocusRequester = remember { FocusRequester() }
 
@@ -52,7 +54,10 @@ fun RepoUnlockForm(
     Text(info.repoName ?: "", style = MaterialTheme.typography.displaySmall)
     Spacer(modifier = Modifier.height(20.dp))
 
-    Text(message, style = MaterialTheme.typography.titleMedium.copy(textAlign = TextAlign.Center))
+    Text(
+        message ?: stringResource(R.string.repo_unlock_message),
+        style = MaterialTheme.typography.titleMedium.copy(textAlign = TextAlign.Center),
+    )
     Spacer(modifier = Modifier.height(20.dp))
 
     val errorText = info.status.let {
@@ -84,6 +89,6 @@ fun RepoUnlockForm(
             else -> true
         },
     ) {
-        Text("Continue")
+        Text(stringResource(R.string.repo_unlock_continue_button))
     }
 }

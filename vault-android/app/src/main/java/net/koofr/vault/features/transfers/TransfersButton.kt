@@ -5,6 +5,8 @@ import androidx.compose.material.icons.filled.Downloading
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import net.koofr.vault.R
 import net.koofr.vault.features.mobilevault.subscribe
 import net.koofr.vault.features.navigation.LocalNavController
 
@@ -21,7 +23,10 @@ fun TransfersButton() {
         IconButton(onClick = {
             navController.navigate("transfers")
         }) {
-            Icon(Icons.Filled.Downloading, "Transfers")
+            Icon(
+                Icons.Filled.Downloading,
+                stringResource(R.string.transfers_show_transfers_content_desc),
+            )
         }
     }
 }

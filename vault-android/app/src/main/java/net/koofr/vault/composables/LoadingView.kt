@@ -12,7 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import net.koofr.vault.R
 
 @Composable
 fun LoadingView(modifier: Modifier = Modifier) {
@@ -29,6 +31,6 @@ fun LoadingView(modifier: Modifier = Modifier) {
                 .padding(bottom = 20.dp),
         )
 
-        Text("Loading…", color = Color.Gray)
+        Text(stringResource(R.string.composables_loading_label), color = Color.Gray)
     }
 }

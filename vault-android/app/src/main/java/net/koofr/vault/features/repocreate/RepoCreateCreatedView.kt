@@ -13,7 +13,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import net.koofr.vault.R
 import net.koofr.vault.RepoCreated
 import net.koofr.vault.features.navigation.LocalNavController
 import net.koofr.vault.features.repo.RepoConfigInfo
@@ -28,13 +30,13 @@ fun RepoCreateCreatedView(vm: RepoCreateViewModel, created: RepoCreated, modifie
         item {
             Column(modifier = Modifier.padding(17.dp)) {
                 Text(
-                    "Your Safe Box has been created.",
+                    stringResource(R.string.repo_create_created_title),
                     style = MaterialTheme.typography.displaySmall,
                 )
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
-                    "Before you start using your Safe Box please safely store the configuration.",
+                    stringResource(R.string.repo_create_created_description),
                     style = MaterialTheme.typography.bodyLarge,
                 )
                 Spacer(modifier = Modifier.height(20.dp))
@@ -52,7 +54,7 @@ fun RepoCreateCreatedView(vm: RepoCreateViewModel, created: RepoCreated, modifie
                         navController.popBackStack("repos", inclusive = false)
                         navController.navigate("repos/${created.repoId}/files")
                     }, enabled = vm.configSaved.value) {
-                        Text("Continue")
+                        Text(stringResource(R.string.repo_create_created_continue_button))
                     }
                 }
                 Spacer(modifier = Modifier.height(40.dp))

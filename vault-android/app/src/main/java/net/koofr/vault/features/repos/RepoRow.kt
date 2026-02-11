@@ -19,7 +19,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,6 +34,8 @@ import net.koofr.vault.ui.theme.VaultTheme
 
 @Composable
 fun RepoRow(repo: Repo, onClick: () -> Unit, onMoreClick: (() -> Unit)? = null) {
+    val context = LocalContext.current
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -41,7 +45,7 @@ fun RepoRow(repo: Repo, onClick: () -> Unit, onMoreClick: (() -> Unit)? = null) 
             .height(60.dp)
             .fillMaxWidth()
             .semantics {
-                contentDescription = "Safe Box ${repo.name}"
+                contentDescription = context.getString(R.string.repos_row_content_desc, repo.name)
             },
     ) {
         Column(
@@ -55,7 +59,7 @@ fun RepoRow(repo: Repo, onClick: () -> Unit, onMoreClick: (() -> Unit)? = null) 
             if (repo.state == RepoState.LOCKED) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_locked),
-                    contentDescription = "Locked",
+                    contentDescription = stringResource(R.string.repos_status_locked_content_desc),
                     tint = Color.Unspecified,
                     modifier = Modifier
                         .padding(10.dp)
@@ -64,7 +68,7 @@ fun RepoRow(repo: Repo, onClick: () -> Unit, onMoreClick: (() -> Unit)? = null) 
             } else {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_unlocked),
-                    contentDescription = "Unlocked",
+                    contentDescription = stringResource(R.string.repos_status_unlocked_content_desc),
                     tint = Color.Unspecified,
                     modifier = Modifier
                         .padding(10.dp)
@@ -81,7 +85,7 @@ fun RepoRow(repo: Repo, onClick: () -> Unit, onMoreClick: (() -> Unit)? = null) 
         )
         onMoreClick?.let {
             IconButton(onClick = it) {
-                Icon(Icons.Filled.MoreVert, "Info")
+                Icon(Icons.Filled.MoreVert, stringResource(R.string.repos_info_button_content_desc))
             }
         }
     }

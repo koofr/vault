@@ -18,12 +18,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import net.koofr.vault.FileCategory
 import net.koofr.vault.FileIconProps
 import net.koofr.vault.FileIconSize
 import net.koofr.vault.MobileVault
+import net.koofr.vault.R
 import net.koofr.vault.RepoFile
 import net.koofr.vault.features.fileicon.FileIconCache
 import net.koofr.vault.features.relativetime.relativeTime
@@ -65,6 +67,25 @@ fun RepoFileInfoSheet(
     val context = LocalContext.current
 
     file?.let {
+        val categoryDisplay = when (file.category) {
+            FileCategory.GENERIC -> stringResource(R.string.repo_file_category_file)
+            FileCategory.FOLDER -> stringResource(R.string.repo_file_category_folder)
+            FileCategory.ARCHIVE -> stringResource(R.string.repo_file_category_archive)
+            FileCategory.AUDIO -> stringResource(R.string.repo_file_category_audio)
+            FileCategory.CODE -> stringResource(R.string.repo_file_category_code)
+            FileCategory.DOCUMENT -> stringResource(R.string.repo_file_category_document)
+            FileCategory.IMAGE -> stringResource(R.string.repo_file_category_image)
+            FileCategory.PDF -> stringResource(R.string.repo_file_category_pdf)
+            FileCategory.PRESENTATION -> stringResource(
+                R.string.repo_file_category_presentation,
+            )
+            FileCategory.SHEET -> stringResource(
+                R.string.repo_file_category_spreadsheet,
+            )
+            FileCategory.TEXT -> stringResource(R.string.repo_file_category_text)
+            FileCategory.VIDEO -> stringResource(R.string.repo_file_category_video)
+        }
+
         ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
             LazyColumn(
                 modifier = Modifier
@@ -88,11 +109,14 @@ fun RepoFileInfoSheet(
                     }
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    Label("Name")
+                    Label(stringResource(R.string.repo_file_info_name_label))
                     file.nameError.let {
                         if (it != null) {
                             Value(
-                                "${file.name} (ERROR)",
+                                stringResource(
+                                    R.string.repo_file_info_name_error_value,
+                                    file.name,
+                                ),
                                 color = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.padding(bottom = 5.dp),
                             )
@@ -108,29 +132,14 @@ fun RepoFileInfoSheet(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    Label("Type")
-                    Value(
-                        when (file.category) {
-                            FileCategory.GENERIC -> "File"
-                            FileCategory.FOLDER -> "Folder"
-                            FileCategory.ARCHIVE -> "Archive"
-                            FileCategory.AUDIO -> "Audio"
-                            FileCategory.CODE -> "Code"
-                            FileCategory.DOCUMENT -> "Document"
-                            FileCategory.IMAGE -> "Image"
-                            FileCategory.PDF -> "PDF"
-                            FileCategory.PRESENTATION -> "Presentation"
-                            FileCategory.SHEET -> "Spreadsheet"
-                            FileCategory.TEXT -> "Text"
-                            FileCategory.VIDEO -> "Video"
-                        },
-                    )
+                    Label(stringResource(R.string.repo_file_info_type_label))
+                    Value(categoryDisplay)
 
                     file.sizeDisplay?.let { sizeDisplay ->
                         if (sizeDisplay.isNotEmpty()) {
                             Spacer(modifier = Modifier.height(20.dp))
 
-                            Label("Size")
+                            Label(stringResource(R.string.repo_file_info_size_label))
                             Value(sizeDisplay)
                         }
                     }
@@ -138,7 +147,7 @@ fun RepoFileInfoSheet(
                     file.modified?.let { modified ->
                         Spacer(modifier = Modifier.height(20.dp))
 
-                        Label("Modified")
+                        Label(stringResource(R.string.repo_file_info_modified_label))
                         Value(
                             relativeTime(mobileVault, modified, true),
                             modifier = Modifier.padding(bottom = 5.dp),
@@ -154,12 +163,12 @@ fun RepoFileInfoSheet(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    Label("Path")
+                    Label(stringResource(R.string.repo_file_info_path_label))
                     Value(file.decryptedPath ?: "???")
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    Label("Encrypted path")
+                    Label(stringResource(R.string.repo_file_info_encrypted_path_label))
                     Value(file.encryptedPath)
 
                     Spacer(modifier = Modifier.height(30.dp))

@@ -8,8 +8,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import net.koofr.vault.LocalSnackbarHostState
+import net.koofr.vault.R
 import net.koofr.vault.RepoCreateInfo
 import net.koofr.vault.Status
 import net.koofr.vault.composables.ErrorView
@@ -28,7 +30,7 @@ fun RepoCreateScreen(
 
     Scaffold(topBar = {
         TopAppBar(title = {
-            Text("Create a new Safe Box")
+            Text(stringResource(R.string.repo_create_title))
         })
     }, snackbarHost = { SnackbarHost(LocalSnackbarHostState.current) }) { paddingValues ->
         info.value?.let { info ->

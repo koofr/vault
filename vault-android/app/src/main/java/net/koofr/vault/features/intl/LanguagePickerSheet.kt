@@ -22,11 +22,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import net.koofr.vault.IntlLocale
+import net.koofr.vault.R
 import net.koofr.vault.features.mobilevault.subscribe
 import net.koofr.vault.ui.theme.KoofrGreen
 
@@ -59,7 +61,7 @@ fun LanguagePickerSheet(
         ) {
             item {
                 Text(
-                    "Change language",
+                    stringResource(R.string.language_picker_title),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(bottom = 10.dp),
                 )

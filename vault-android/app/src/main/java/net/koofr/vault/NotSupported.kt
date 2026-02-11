@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import net.koofr.vault.ui.theme.VaultTheme
@@ -24,13 +25,12 @@ fun NotSupported() {
     val context = LocalContext.current
 
     @Suppress("DEPRECATION")
-    val text =
-        "${context.resources.getString(R.string.app_name)} app version that you've installed does not contain the native library for your architecture (${Build.CPU_ABI}). Please make sure you've installed the correct version."
+    val cpuAbi = Build.CPU_ABI
 
     VaultTheme {
         Scaffold(topBar = {
             TopAppBar(title = {
-                Text(text = "Vault")
+                Text(text = stringResource(R.string.not_supported_title))
             })
         }) { paddingValues ->
             Column(
@@ -41,7 +41,10 @@ fun NotSupported() {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text,
+                    stringResource(
+                        R.string.not_supported_message,
+                        cpuAbi,
+                    ),
                     style = MaterialTheme.typography.titleMedium.copy(textAlign = TextAlign.Center),
                     modifier = Modifier.padding(20.dp),
                 )

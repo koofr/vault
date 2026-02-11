@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -73,7 +74,7 @@ fun InfoScreen(vm: InfoScreenViewModel = hiltViewModel()) {
 
     Scaffold(topBar = {
         TopAppBar(title = {
-            Text(text = "Information")
+            Text(text = stringResource(R.string.settings_info_title))
         })
     }, snackbarHost = { SnackbarHost(LocalSnackbarHostState.current) }) { paddingValues ->
         LazyColumn(
@@ -89,7 +90,7 @@ fun InfoScreen(vm: InfoScreenViewModel = hiltViewModel()) {
                 ) {
                     Column(modifier = Modifier.padding(17.dp, 0.dp)) {
                         Text(
-                            text = context.resources.getString(R.string.app_name),
+                            text = stringResource(R.string.app_name),
                             style = MaterialTheme.typography.bodyLarge,
                         )
                         Text(
@@ -109,7 +110,10 @@ fun InfoScreen(vm: InfoScreenViewModel = hiltViewModel()) {
                     },
                 ) {
                     Text(
-                        text = "Version: ${version.gitRelease ?: "unknown"}",
+                        text = stringResource(
+                            R.string.settings_info_version_label,
+                            version.gitRelease ?: "unknown",
+                        ),
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier
                             .padding(17.dp, 0.dp),
@@ -126,7 +130,10 @@ fun InfoScreen(vm: InfoScreenViewModel = hiltViewModel()) {
                     },
                 ) {
                     Text(
-                        text = "Git revision: ${version.gitRevision ?: "unknown"}",
+                        text = stringResource(
+                            R.string.settings_info_git_revision_label,
+                            version.gitRevision ?: "unknown",
+                        ),
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier
                             .padding(17.dp, 0.dp),
@@ -141,7 +148,7 @@ fun InfoScreen(vm: InfoScreenViewModel = hiltViewModel()) {
                     },
                 ) {
                     Text(
-                        text = "Terms of Service",
+                        text = stringResource(R.string.settings_info_terms_of_service_label),
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier
                             .padding(17.dp, 0.dp),
@@ -156,7 +163,7 @@ fun InfoScreen(vm: InfoScreenViewModel = hiltViewModel()) {
                     },
                 ) {
                     Text(
-                        text = "Privacy Policy",
+                        text = stringResource(R.string.settings_info_privacy_policy_label),
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier
                             .padding(17.dp, 0.dp),
@@ -171,7 +178,7 @@ fun InfoScreen(vm: InfoScreenViewModel = hiltViewModel()) {
                     },
                 ) {
                     Text(
-                        text = "Help",
+                        text = stringResource(R.string.settings_info_help_label),
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier
                             .padding(17.dp, 0.dp),
@@ -185,12 +192,17 @@ fun InfoScreen(vm: InfoScreenViewModel = hiltViewModel()) {
                         try {
                             uriHandler.openUri(vm.reportABugUrl(version))
                         } catch (e: ActivityNotFoundException) {
-                            vm.mobileVault.notificationsShow(message = "Please write an email to support@koofr.net")
+                            vm.mobileVault.notificationsShow(
+                                message = context.getString(
+                                    R.string.settings_info_report_bug_fallback_message,
+                                    "support@koofr.net",
+                                ),
+                            )
                         }
                     },
                 ) {
                     Text(
-                        text = "Report a bug",
+                        text = stringResource(R.string.settings_info_report_bug_label),
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier
                             .padding(17.dp, 0.dp),

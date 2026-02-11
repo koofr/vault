@@ -4,6 +4,8 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import net.koofr.vault.R
 import net.koofr.vault.RepoFilesBrowserItem
 import net.koofr.vault.RepoFilesMoveMode
 import net.koofr.vault.features.navigation.LocalNavController
@@ -22,14 +24,14 @@ fun RepoFileMenu(
         expanded = isExpanded,
         onDismissRequest = onDismiss,
     ) {
-        DropdownMenuItem(text = { Text(text = "Info") }, onClick = {
+        DropdownMenuItem(text = { Text(text = stringResource(R.string.repo_file_menu_get_info_menu_item)) }, onClick = {
             onDismiss()
 
             showFileInfo()
         })
 
         item.file.let { file ->
-            DropdownMenuItem(text = { Text(text = "Rename") }, onClick = {
+            DropdownMenuItem(text = { Text(text = stringResource(R.string.repo_file_menu_rename_menu_item)) }, onClick = {
                 onDismiss()
 
                 vm.mobileVault.repoFilesRenameFile(
@@ -38,7 +40,7 @@ fun RepoFileMenu(
                 )
             })
 
-            DropdownMenuItem(text = { Text(text = "Copy") }, onClick = {
+            DropdownMenuItem(text = { Text(text = stringResource(R.string.repo_file_menu_copy_menu_item)) }, onClick = {
                 onDismiss()
 
                 vm.mobileVault.repoFilesMoveFile(
@@ -48,7 +50,7 @@ fun RepoFileMenu(
                 )
             })
 
-            DropdownMenuItem(text = { Text(text = "Move") }, onClick = {
+            DropdownMenuItem(text = { Text(text = stringResource(R.string.repo_file_menu_move_menu_item)) }, onClick = {
                 onDismiss()
 
                 vm.mobileVault.repoFilesMoveFile(
@@ -58,7 +60,7 @@ fun RepoFileMenu(
                 )
             })
 
-            DropdownMenuItem(text = { Text(text = "Delete") }, onClick = {
+            DropdownMenuItem(text = { Text(text = stringResource(R.string.repo_file_menu_delete_menu_item)) }, onClick = {
                 onDismiss()
 
                 vm.mobileVault.repoFilesDeleteFile(
@@ -67,7 +69,7 @@ fun RepoFileMenu(
                 )
             })
 
-            DropdownMenuItem(text = { Text(text = "Download") }, onClick = {
+            DropdownMenuItem(text = { Text(text = stringResource(R.string.repo_file_menu_download_menu_item)) }, onClick = {
                 onDismiss()
 
                 vm.downloadFile(navController, item.file)

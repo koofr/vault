@@ -16,7 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,6 +28,8 @@ import net.koofr.vault.ui.theme.VaultTheme
 
 @Composable
 fun RecentRow(repoName: String, onClick: () -> Unit) {
+    val context = LocalContext.current
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -35,7 +39,7 @@ fun RecentRow(repoName: String, onClick: () -> Unit) {
             .height(60.dp)
             .fillMaxWidth()
             .semantics {
-                contentDescription = "Recent $repoName"
+                contentDescription = context.getString(R.string.repos_recent_content_desc, repoName)
             },
     ) {
         Column(
@@ -48,7 +52,7 @@ fun RecentRow(repoName: String, onClick: () -> Unit) {
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_recent),
-                contentDescription = "Recent",
+                contentDescription = stringResource(R.string.repos_recent_label),
                 tint = Color.Unspecified,
                 modifier = Modifier
                     .padding(10.dp)
@@ -56,7 +60,7 @@ fun RecentRow(repoName: String, onClick: () -> Unit) {
             )
         }
         Text(
-            text = "Recent",
+            text = stringResource(R.string.repos_recent_label),
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier
                 .padding(0.dp, 0.dp, 10.dp, 0.dp)

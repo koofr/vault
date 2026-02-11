@@ -27,6 +27,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,6 +38,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import net.koofr.vault.LocalSnackbarHostState
 import net.koofr.vault.MobileVault
+import net.koofr.vault.R
 import net.koofr.vault.RemoteFileType
 import net.koofr.vault.RemoteFilesBrowserDirCreated
 import net.koofr.vault.RemoteFilesBrowserItemType
@@ -47,6 +49,7 @@ import net.koofr.vault.features.fileicon.FileIconCache
 import net.koofr.vault.features.mobilevault.subscribe
 import net.koofr.vault.features.navigation.LocalNavController
 import net.koofr.vault.features.remotefilesbrowsers.RemoteFilesBrowserItemRow
+import net.koofr.vault.utils.uppercaseCurrentLocale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -120,7 +123,10 @@ fun RemoteFilesDirPickerScreen(
                     },
                     enabled = vm.location != "",
                 ) {
-                    Icon(Icons.Filled.CreateNewFolder, "New folder")
+                    Icon(
+                        Icons.Filled.CreateNewFolder,
+                        stringResource(R.string.remote_files_dir_picker_new_folder_content_desc),
+                    )
                 }
             })
         },
@@ -139,7 +145,10 @@ fun RemoteFilesDirPickerScreen(
                     TextButton(onClick = {
                         delegate.cancel()
                     }) {
-                        Text("CANCEL", fontSize = 16.sp)
+                        Text(
+                            stringResource(R.string.remote_files_dir_picker_cancel_button).uppercaseCurrentLocale(),
+                            fontSize = 16.sp,
+                        )
                     }
 
                     TextButton(
@@ -158,7 +167,10 @@ fun RemoteFilesDirPickerScreen(
                             }
                         } ?: false,
                     ) {
-                        Text("SELECT", fontSize = 16.sp)
+                        Text(
+                            stringResource(R.string.remote_files_dir_picker_select_button).uppercaseCurrentLocale(),
+                            fontSize = 16.sp,
+                        )
                     }
                 }
             }

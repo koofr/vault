@@ -16,6 +16,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import net.koofr.vault.DownloadStreamProvider
 import net.koofr.vault.MobileVault
+import net.koofr.vault.R
 import net.koofr.vault.RepoFile
 import net.koofr.vault.TransfersDownloadDone
 import net.koofr.vault.TransfersDownloadOpen
@@ -139,7 +140,7 @@ class TransfersDownloadHandler(
             @Suppress("DEPRECATION")
             val id = downloadManager.addCompletedDownload(
                 localFile.name,
-                "Koofr Vault download",
+                appContext.getString(R.string.downloads_download_completed_title),
                 false,
                 contentType ?: "application/octet-stream",
                 localFilePath,
