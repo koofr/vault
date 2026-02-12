@@ -59,7 +59,8 @@ export const fileHasImageViewer = (ext: string | undefined): boolean =>
   ext === 'jpeg' ||
   ext === 'gif' ||
   ext === 'png' ||
-  ext === 'svg';
+  ext === 'svg' ||
+  ext === 'bmp';
 
 export const fileHasDetails = (file: RepoFile): boolean =>
   file.nameError === undefined &&

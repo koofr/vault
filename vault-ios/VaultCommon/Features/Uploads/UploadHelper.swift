@@ -4,6 +4,7 @@ import UniformTypeIdentifiers
 import VaultMobile
 
 // used for PasteButton supportedContentTypes
+// keep this in sync with itemProviderContentTypeHandler
 public let uploadHelperUTTypes = [
     UTType.plainText,
     UTType.utf8PlainText,
@@ -19,6 +20,7 @@ public let uploadHelperUTTypes = [
     UTType.png,
     UTType.gif,
     UTType.tiff,
+    UTType.bmp,
     // url is not included in uploadHelperUTTypes because we want the cliboard
     // data to be in text format not binary plist
     // UTType.url,
@@ -235,6 +237,8 @@ public class UploadHelper {
             return fileHandler("gif")
         case UTType.tiff:
             return fileHandler("tiff")
+        case UTType.bmp:
+            return fileHandler("bmp")
         case UTType.webP:
             return fileHandler("webp")
         case UTType.mpeg4Movie:
