@@ -4,13 +4,17 @@ import VaultMobile
 public class ShareTargetViewModel: ObservableObject {
     public let container: Container
     @Published public var files: [ShareTargetFile]
+    public let beforeUpload: () -> Void
     public let onUpload: () -> Void
     public let onCancel: () -> Void
 
     public let navController: ShareTargetVaultNavController
 
     public init(
-        container: Container, files: [UploadFile], onUpload: @escaping () -> Void,
+        container: Container,
+        files: [UploadFile],
+        beforeUpload: @escaping () -> Void,
+        onUpload: @escaping () -> Void,
         onCancel: @escaping () -> Void
     ) {
         self.container = container
@@ -20,6 +24,7 @@ public class ShareTargetViewModel: ObservableObject {
 
             return ShareTargetFile(localFile: localFile, uploadFile: uploadFile)
         }
+        self.beforeUpload = beforeUpload
         self.onUpload = onUpload
         self.onCancel = onCancel
 
@@ -33,6 +38,8 @@ public class ShareTargetViewModel: ObservableObject {
     }
 
     public func upload(repoId: String, encryptedPath: String) {
+        beforeUpload()
+
         container.uploadHelper.uploadFiles(
             repoId: repoId, encryptedParentPath: encryptedPath, files: files.map { $0.uploadFile })
 
