@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -36,6 +37,8 @@ import kotlinx.coroutines.launch
 import net.koofr.vault.LocalSnackbarHostState
 import net.koofr.vault.MobileVault
 import net.koofr.vault.features.auth.AuthHelper
+import net.koofr.vault.features.intl.IntlHelper
+import net.koofr.vault.features.intl.LanguagePickerSheet
 import net.koofr.vault.features.mobilevault.subscribe
 import net.koofr.vault.features.navigation.LocalNavController
 import net.koofr.vault.features.storage.StorageHelper
@@ -47,6 +50,7 @@ import javax.inject.Inject
 class SettingsScreenViewModel @Inject constructor(
     val mobileVault: MobileVault,
     val authHelper: AuthHelper,
+    val intlHelper: IntlHelper,
     private val storageHelper: StorageHelper,
 ) : ViewModel() {
     val isClearingCache = mutableStateOf(false)
@@ -73,6 +77,7 @@ class SettingsScreenViewModel @Inject constructor(
 fun SettingsScreen(vm: SettingsScreenViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val navController = LocalNavController.current
+    val languagePickerVisible = remember { mutableStateOf(false) }
 
     val user = subscribe(
         { v, cb -> v.userSubscribe(cb = cb) },
@@ -137,6 +142,21 @@ fun SettingsScreen(vm: SettingsScreenViewModel = hiltViewModel()) {
 
             item {
                 SettingsButton(
+                    onClick = {
+                        languagePickerVisible.value = true
+                    },
+                ) {
+                    Text(
+                        text = "Change language",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .padding(17.dp, 0.dp),
+                    )
+                }
+            }
+
+            item {
+                SettingsButton(
                     enabled = !vm.isClearingCache.value,
                     onClick = {
                         vm.clearCache()
@@ -165,6 +185,15 @@ fun SettingsScreen(vm: SettingsScreenViewModel = hiltViewModel()) {
                     )
                 }
             }
+        }
+
+        if (languagePickerVisible.value) {
+            LanguagePickerSheet(
+                intlHelper = vm.intlHelper,
+                onDismiss = {
+                    languagePickerVisible.value = false
+                },
+            )
         }
     }
 }

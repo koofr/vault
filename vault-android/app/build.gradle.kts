@@ -41,6 +41,12 @@ android {
         }
     }
 
+    androidResources {
+        generateLocaleConfig = true
+
+        localeFilters += listOf()
+    }
+
     if (!localProperties.getProperty("signingConfigs.release.storeFile").isNullOrEmpty()) {
         signingConfigs {
             create("release") {

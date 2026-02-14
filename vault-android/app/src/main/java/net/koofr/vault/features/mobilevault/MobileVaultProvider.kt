@@ -8,6 +8,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import net.koofr.vault.BuildConfig
+import net.koofr.vault.IntlOwnership
 import net.koofr.vault.LoggerLevel
 import net.koofr.vault.MobileVault
 import net.koofr.vault.RepoAutoLock
@@ -100,7 +101,8 @@ class MobileVaultProvider constructor(private val secureStorage: SecureStorage) 
         val oauth2ClientId = "7ZEK2BNCEVYEJIZC5OR3TR6PQDUJ4NP3"
         val oauth2ClientSecret = "VWTMENEWUYWH6G523CEV5CWOCHH7FMECW36PPQENOASYYZOQJOSGQXSR2Y62N3HB"
         val oauth2RedirectUri = "koofrvault://oauth2callback"
-        val intlPreferredLocales = emptyList<String>()
+
+        val intlOwnership = IntlOwnership.External
 
         val mobileVault =
             MobileVault(
@@ -110,7 +112,7 @@ class MobileVaultProvider constructor(private val secureStorage: SecureStorage) 
                 oauth2ClientId,
                 oauth2ClientSecret,
                 oauth2RedirectUri,
-                intlPreferredLocales,
+                intlOwnership,
                 secureStorage,
             )
 

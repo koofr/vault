@@ -8,6 +8,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import net.koofr.vault.FakeRemote
+import net.koofr.vault.IntlOwnership
 import net.koofr.vault.MobileVault
 import org.json.JSONObject
 import java.io.Closeable
@@ -69,6 +70,8 @@ class Fixture constructor(
                 debugClient.createTestVaultRepo()
             }
 
+            val intlOwnership = IntlOwnership.External
+
             val memorySecureStorage = MemorySecureStorage()
 
             if (authenticate) {
@@ -86,6 +89,7 @@ class Fixture constructor(
                     oauth2ClientId,
                     oauth2ClientSecret,
                     oauth2RedirectUri,
+                    intlOwnership,
                     memorySecureStorage,
                 )
             val mobileVaultHelper = MobileVaultHelper(mobileVault)
