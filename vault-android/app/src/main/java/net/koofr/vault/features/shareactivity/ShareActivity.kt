@@ -1,18 +1,23 @@
 package net.koofr.vault.features.shareactivity
 
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.fragment.app.FragmentActivity
+import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
 import net.koofr.vault.CommonContent
+import net.koofr.vault.features.intl.IntlHelper
 import net.koofr.vault.features.mobilevault.MobileVaultProvider
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ShareActivity : FragmentActivity() {
+class ShareActivity : AppCompatActivity() {
     @Inject
     lateinit var mobileVaultProvider: MobileVaultProvider
+
+    @Inject
+    lateinit var intlHelper: IntlHelper
 
     private val vm: ShareActivityViewModel by viewModels()
 
@@ -20,6 +25,8 @@ class ShareActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
 
         mobileVaultProvider.loadConfigFromIntent(intent)
+
+        intlHelper.updateMobileVaultIntlCurrentLocale(resources.configuration)
 
         vm.onCancel = {
             setResult(RESULT_CANCELED)
@@ -38,5 +45,11 @@ class ShareActivity : FragmentActivity() {
                 ShareActivityScreen(vm)
             }
         }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+        intlHelper.updateMobileVaultIntlCurrentLocale(newConfig)
     }
 }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,6 +22,8 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,6 +42,8 @@ import net.koofr.vault.LocalSnackbarHostState
 import net.koofr.vault.MobileVault
 import net.koofr.vault.R
 import net.koofr.vault.features.auth.AuthHelper
+import net.koofr.vault.features.intl.IntlHelper
+import net.koofr.vault.features.intl.LanguagePickerSheet
 import net.koofr.vault.features.navigation.LocalNavController
 import net.koofr.vault.ui.theme.KoofrBlue
 import javax.inject.Inject
@@ -47,6 +52,7 @@ import javax.inject.Inject
 class LandingScreenViewModel @Inject constructor(
     val mobileVault: MobileVault,
     val authHelper: AuthHelper,
+    val intlHelper: IntlHelper,
 ) : ViewModel()
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,9 +60,15 @@ class LandingScreenViewModel @Inject constructor(
 fun LandingScreen(vm: LandingScreenViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val navController = LocalNavController.current
+    val languagePickerVisible = remember { mutableStateOf(false) }
 
     Scaffold(topBar = {
         TopAppBar(title = {}, actions = {
+            IconButton(onClick = {
+                languagePickerVisible.value = true
+            }) {
+                Icon(Icons.Outlined.Language, "Change language")
+            }
             IconButton(onClick = {
                 navController.navigate("info")
             }) {
@@ -136,6 +148,15 @@ fun LandingScreen(vm: LandingScreenViewModel = hiltViewModel()) {
                     )
                 }
             }
+        }
+
+        if (languagePickerVisible.value) {
+            LanguagePickerSheet(
+                intlHelper = vm.intlHelper,
+                onDismiss = {
+                    languagePickerVisible.value = false
+                },
+            )
         }
     }
 }
