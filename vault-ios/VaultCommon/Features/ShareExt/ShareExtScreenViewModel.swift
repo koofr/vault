@@ -15,8 +15,8 @@ public class ShareExtScreenViewModel: ObservableObject {
 
     @Published public var state: ShareExtState
 
-    private var transfersIsActive: Subscription<Bool>
-    private var transfersWasActive: Bool
+    private var transfersDoneSessionsCount: Subscription<UInt32>
+    private var transfersDoneSessionsCountBeforeUpload: UInt32?
     private var transfersAborted: Bool
 
     public init(container: Container, onDismiss: @escaping () -> Void) {
@@ -25,32 +25,30 @@ public class ShareExtScreenViewModel: ObservableObject {
 
         self.state = .preparingFiles
 
-        self.transfersWasActive = false
-
         self.transfersAborted = false
 
-        self.transfersIsActive = Subscription(
+        self.transfersDoneSessionsCount = Subscription(
             mobileVault: container.mobileVault,
             subscribe: { v, cb in
-                v.transfersIsActiveSubscribe(cb: cb)
+                v.transfersDoneSessionsCountSubscribe(cb: cb)
             },
             getData: { v, id in
-                v.transfersIsActiveData(id: id)
+                v.transfersDoneSessionsCountData(id: id)
             })
 
-        self.transfersIsActive.setOnData { [weak self] isActive in
-            if let self = self {
-                if let isActive = isActive {
-                    if isActive && !self.transfersWasActive {
-                        self.transfersWasActive = true
-                    }
-                    if !isActive && self.transfersWasActive {
-                        if transfersAborted {
-                            dismiss()
-                        } else {
-                            self.state = .done
-                        }
-                    }
+        self.transfersDoneSessionsCount.setOnData { [weak self] transfersDoneSessionsCount in
+            // If there are more done sessions then before the upload, transfers
+            // are done.
+            if let self = self,
+                let transfersDoneSessionsCount = transfersDoneSessionsCount,
+                let transfersDoneSessionsCountBeforeUpload = self
+                    .transfersDoneSessionsCountBeforeUpload,
+                transfersDoneSessionsCount > transfersDoneSessionsCountBeforeUpload
+            {
+                if transfersAborted {
+                    dismiss()
+                } else {
+                    self.state = .done
                 }
             }
         }
@@ -75,6 +73,9 @@ public class ShareExtScreenViewModel: ObservableObject {
         let vm = ShareTargetViewModel(
             container: container,
             files: files,
+            beforeUpload: {
+                self.transfersDoneSessionsCountBeforeUpload = self.transfersDoneSessionsCount.data
+            },
             onUpload: {
                 self.state = .transfers
             },
