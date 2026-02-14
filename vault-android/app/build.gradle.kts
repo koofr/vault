@@ -18,7 +18,7 @@ android {
 
     defaultConfig {
         applicationId = "net.koofr.vault"
-        minSdk = 23
+        minSdk = 24
         targetSdk = 35
         versionCode = 122001
         versionName = "0.1.22"
