@@ -6,6 +6,7 @@ use crate::{
         mutations::{add_mount_subscriber, remove_mount_subscriber},
         state::MountSubscription,
     },
+    intl,
     remote_files::errors::RemoteFilesErrors,
     repo_files::{
         errors::LoadFilesError,
@@ -128,6 +129,7 @@ pub fn create(
     mutation_state: &mut store::MutationState,
     source: RepoFilesBrowserSource,
     options: RepoFilesBrowserOptions,
+    intl_service: &intl::IntlService,
 ) -> u32 {
     notify(store::Event::RepoFilesBrowsers);
 
@@ -172,7 +174,7 @@ pub fn create(
         .browsers
         .insert(browser_id, browser);
 
-    update_browser(state, notify, mutation_state, browser_id);
+    update_browser(state, notify, mutation_state, browser_id, intl_service);
 
     browser_id
 }
@@ -225,6 +227,7 @@ pub fn loaded(
     browser_id: u32,
     loaded_location: &RepoFilesBrowserLocation,
     error: Option<&LoadFilesError>,
+    intl_service: &intl::IntlService,
 ) {
     let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
@@ -250,7 +253,7 @@ pub fn loaded(
         }
     }
 
-    update_browser(state, notify, mutation_state, browser_id);
+    update_browser(state, notify, mutation_state, browser_id, &intl_service);
 }
 
 pub fn update_browser(
@@ -258,6 +261,7 @@ pub fn update_browser(
     notify: &store::Notify,
     mutation_state: &mut store::MutationState,
     browser_id: u32,
+    intl_service: &intl::IntlService,
 ) {
     let browser = match state.repo_files_browsers.browsers.get(&browser_id) {
         Some(browser) => browser,
@@ -284,9 +288,9 @@ pub fn update_browser(
             Some(RepoFilesBrowserLocation::Storage { repo_id, path, .. }) => Some(
                 repo_files_selectors::select_breadcrumbs(state, repo_id, path, &cipher),
             ),
-            Some(RepoFilesBrowserLocation::Recent { repo_id, .. }) => {
-                Some(repo_files_selectors::get_recent_breadcrumbs(repo_id))
-            }
+            Some(RepoFilesBrowserLocation::Recent { repo_id, .. }) => Some(
+                repo_files_selectors::get_recent_breadcrumbs(repo_id, intl_service),
+            ),
             None => None,
         }),
         (Some(_), None) => Some(None),
@@ -515,6 +519,7 @@ pub fn sort_by(
     browser_id: u32,
     field: RepoFilesSortField,
     direction: Option<SortDirection>,
+    intl_service: &intl::IntlService,
 ) {
     let browser = match state.repo_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
@@ -544,13 +549,14 @@ pub fn sort_by(
         state.repo_files_browsers.last_storage_sort = Some(browser.sort.clone());
     }
 
-    update_browser(state, notify, mutation_state, browser_id);
+    update_browser(state, notify, mutation_state, browser_id, intl_service);
 }
 
 pub fn handle_mutation(
     state: &mut store::State,
     notify: &store::Notify,
     mutation_state: &mut store::MutationState,
+    intl_service: &intl::IntlService,
 ) {
     for browser_id in state
         .repo_files_browsers
@@ -559,6 +565,6 @@ pub fn handle_mutation(
         .map(ToOwned::to_owned)
         .collect::<Vec<_>>()
     {
-        update_browser(state, notify, mutation_state, browser_id)
+        update_browser(state, notify, mutation_state, browser_id, intl_service)
     }
 }

@@ -6,6 +6,7 @@ use futures::{
 };
 
 use crate::{
+    intl,
     repo_files::{
         RepoFilesService,
         errors::{
@@ -27,6 +28,7 @@ use crate::{
 use super::{mutations, selectors, state::RepoFilesBrowserOptions};
 
 pub struct RepoFilesBrowsersService {
+    intl_service: Arc<intl::IntlService>,
     repo_files_service: Arc<RepoFilesService>,
     repo_files_read_service: Arc<RepoFilesReadService>,
     repo_files_move_service: Arc<RepoFilesMoveService>,
@@ -37,6 +39,7 @@ pub struct RepoFilesBrowsersService {
 
 impl RepoFilesBrowsersService {
     pub fn new(
+        intl_service: Arc<intl::IntlService>,
         repo_files_service: Arc<RepoFilesService>,
         repo_files_read_service: Arc<RepoFilesReadService>,
         repo_files_move_service: Arc<RepoFilesMoveService>,
@@ -44,6 +47,7 @@ impl RepoFilesBrowsersService {
         runtime: Arc<runtime::BoxRuntime>,
     ) -> Self {
         let repos_subscription_id = store.get_next_id();
+        let repos_subscription_intl_service = intl_service.clone();
         let repos_subscription_repo_files_service = repo_files_service.clone();
         let repos_subscription_store = store.clone();
         let repos_subscription_runtime = runtime.clone();
@@ -55,6 +59,7 @@ impl RepoFilesBrowsersService {
                 for browser_id in repos_subscription_store
                     .with_state(|state| selectors::select_browsers_to_load(state, mutation_state))
                 {
+                    let intl_service = repos_subscription_intl_service.clone();
                     let repo_files_service = repos_subscription_repo_files_service.clone();
                     let store = repos_subscription_store.clone();
                     let runtime = repos_subscription_runtime.clone();
@@ -63,6 +68,7 @@ impl RepoFilesBrowsersService {
                         // load errors are displayed inside browser
                         runtime.spawn(
                             Self::load_files_inner(
+                                intl_service.clone(),
                                 repo_files_service.clone(),
                                 store.clone(),
                                 browser_id,
@@ -77,15 +83,20 @@ impl RepoFilesBrowsersService {
 
         let mutation_subscription_id = store.get_next_id();
 
-        store.mutation_on(
-            mutation_subscription_id,
-            &[store::MutationEvent::RepoFiles, store::MutationEvent::Repos],
-            Box::new(move |state, notify, mutation_state, _| {
-                mutations::handle_mutation(state, notify, mutation_state);
-            }),
-        );
+        {
+            let intl_service = intl_service.clone();
+
+            store.mutation_on(
+                mutation_subscription_id,
+                &[store::MutationEvent::RepoFiles, store::MutationEvent::Repos],
+                Box::new(move |state, notify, mutation_state, _| {
+                    mutations::handle_mutation(state, notify, mutation_state, &intl_service);
+                }),
+            );
+        }
 
         Self {
+            intl_service,
             repo_files_service,
             repo_files_read_service,
             repo_files_move_service,
@@ -101,7 +112,14 @@ impl RepoFilesBrowsersService {
         options: RepoFilesBrowserOptions,
     ) -> (u32, BoxFuture<'static, Result<(), LoadFilesError>>) {
         let browser_id = self.store.mutate(|state, notify, mutation_state, _| {
-            mutations::create(state, notify, mutation_state, source, options)
+            mutations::create(
+                state,
+                notify,
+                mutation_state,
+                source,
+                options,
+                &self.intl_service,
+            )
         });
 
         let load_future: BoxFuture<'static, Result<(), LoadFilesError>> = if self
@@ -109,6 +127,7 @@ impl RepoFilesBrowsersService {
             .with_state(|state| selectors::select_is_unlocked(state, browser_id))
         {
             Self::load_files_inner(
+                self.intl_service.clone(),
                 self.repo_files_service.clone(),
                 self.store.clone(),
                 browser_id,
@@ -129,6 +148,7 @@ impl RepoFilesBrowsersService {
 
     pub async fn load_files(&self, browser_id: u32) -> Result<(), LoadFilesError> {
         Self::load_files_inner(
+            self.intl_service.clone(),
             self.repo_files_service.clone(),
             self.store.clone(),
             browser_id,
@@ -137,6 +157,7 @@ impl RepoFilesBrowsersService {
     }
 
     pub async fn load_files_inner(
+        intl_service: Arc<intl::IntlService>,
         repo_files_service: Arc<RepoFilesService>,
         store: Arc<store::Store>,
         browser_id: u32,
@@ -168,6 +189,7 @@ impl RepoFilesBrowsersService {
                     browser_id,
                     &location,
                     res.as_ref().err(),
+                    &intl_service,
                 );
             });
 
@@ -215,7 +237,15 @@ impl RepoFilesBrowsersService {
         direction: Option<SortDirection>,
     ) {
         self.store.mutate(|state, notify, mutation_state, _| {
-            mutations::sort_by(state, notify, mutation_state, browser_id, field, direction);
+            mutations::sort_by(
+                state,
+                notify,
+                mutation_state,
+                browser_id,
+                field,
+                direction,
+                &self.intl_service,
+            );
         });
     }
 

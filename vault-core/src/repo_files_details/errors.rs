@@ -2,6 +2,7 @@ use thiserror::Error;
 
 use crate::{
     cipher::errors::DecryptFilenameError,
+    intl,
     remote::RemoteError,
     repo_files::errors::{LoadFilesError, UploadFileReaderError},
     repos::errors::{GetCipherError, RepoLockedError, RepoNotFoundError},
@@ -20,11 +21,11 @@ pub enum LoadDetailsError {
 }
 
 impl UserError for LoadDetailsError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::RepoLocked(err) => err.user_error(),
-            Self::RemoteError(err) => err.user_error(),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::RepoLocked(err) => err.user_error(intl_service),
+            Self::RemoteError(err) => err.user_error(intl_service),
         }
     }
 }
@@ -58,13 +59,18 @@ pub enum LoadContentError {
 }
 
 impl UserError for LoadContentError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::RepoLocked(err) => err.user_error(),
-            Self::TransferError(err) => err.user_error(),
-            Self::FileNotFound => "File not found".into(),
-            Self::DecryptFilenameError(err) => err.user_error(),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::RepoLocked(err) => err.user_error(intl_service),
+            Self::TransferError(err) => err.user_error(intl_service),
+            Self::FileNotFound => intl::format_message!(
+                intl_service,
+                "core.repo_files_details.file_not_found.error",
+                "Error shown in the file details view when the file cannot be found.",
+                "File not found"
+            ),
+            Self::DecryptFilenameError(err) => err.user_error(intl_service),
             Self::AlreadyLoading => self.to_string(),
             Self::LoadFilterMismatch => self.to_string(),
         }
@@ -109,11 +115,11 @@ pub enum SaveError {
 }
 
 impl UserError for SaveError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::RepoLocked(err) => err.user_error(),
-            Self::DecryptFilenameError(err) => err.user_error(),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::RepoLocked(err) => err.user_error(intl_service),
+            Self::DecryptFilenameError(err) => err.user_error(intl_service),
             Self::DecryptDataError(err) => err.clone(),
             Self::AlreadySaving => self.to_string(),
             Self::NotDirty => self.to_string(),
@@ -122,7 +128,7 @@ impl UserError for SaveError {
             Self::DiscardChanges { .. } => self.to_string(),
             Self::Canceled => self.to_string(),
             Self::CannotSaveRoot => self.to_string(),
-            Self::RemoteError(err) => err.user_error(),
+            Self::RemoteError(err) => err.user_error(intl_service),
         }
     }
 }
@@ -165,9 +171,9 @@ pub enum SetContentError {
 }
 
 impl UserError for SetContentError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoLocked(err) => err.user_error(),
+            Self::RepoLocked(err) => err.user_error(intl_service),
         }
     }
 }

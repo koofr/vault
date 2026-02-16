@@ -7,6 +7,7 @@ use crate::{
         DirPickersHelper, selectors as dir_pickers_selectors,
         state::{DirPickerItem, DirPickerItemId},
     },
+    intl,
     remote::RemoteError,
     remote_files::{
         RemoteFilesService,
@@ -28,13 +29,17 @@ pub struct RemoteFilesDirPickersService {
 }
 
 impl RemoteFilesDirPickersService {
-    pub fn new(remote_files_service: Arc<RemoteFilesService>, store: Arc<store::Store>) -> Self {
+    pub fn new(
+        intl_service: Arc<intl::IntlService>,
+        remote_files_service: Arc<RemoteFilesService>,
+        store: Arc<store::Store>,
+    ) -> Self {
         let on_expand_remote_files_service = remote_files_service.clone();
         let on_expand_store = store.clone();
 
         let helper = Arc::new(DirPickersHelper::<RemoteError>::new(
             store.clone(),
-            Box::new(selectors::select_items),
+            Box::new(move |state, picker| selectors::select_items(state, picker, &intl_service)),
             Box::new(move |_, item_id| {
                 let on_expand_remote_files_service = on_expand_remote_files_service.clone();
                 let on_expand_store = on_expand_store.clone();

@@ -26,7 +26,7 @@ use vault_core::{
     common::state as common_state,
     dialogs::state as dialogs_state,
     files::{self, file_category, files_filter},
-    lifecycle,
+    intl, lifecycle,
     notifications::state as notifications_state,
     oauth2::OAuth2Config,
     relative_time,
@@ -157,16 +157,16 @@ pub enum Status {
     Err { error: String, loaded: bool },
 }
 
-impl<E: std::error::Error + Clone + PartialEq + UserError> From<&common_state::Status<E>>
-    for Status
+impl<E: std::error::Error + Clone + PartialEq + UserError>
+    From<(&common_state::Status<E>, &intl::IntlService)> for Status
 {
-    fn from(status: &common_state::Status<E>) -> Self {
+    fn from((status, intl_service): (&common_state::Status<E>, &intl::IntlService)) -> Self {
         match status {
             common_state::Status::Initial => Self::Initial,
             common_state::Status::Loading { loaded } => Self::Loading { loaded: *loaded },
             common_state::Status::Loaded => Self::Loaded,
             common_state::Status::Error { error, loaded } => Self::Err {
-                error: error.user_error(),
+                error: error.user_error(intl_service),
                 loaded: *loaded,
             },
         }
@@ -877,16 +877,26 @@ pub struct RemoteFilesBrowserInfo {
     pub items: Vec<RemoteFilesBrowserItem>,
 }
 
-impl<'a> From<&remote_files_browsers_state::RemoteFilesBrowserInfo<'a>> for RemoteFilesBrowserInfo {
-    fn from(info: &remote_files_browsers_state::RemoteFilesBrowserInfo<'a>) -> Self {
+impl<'a>
+    From<(
+        &remote_files_browsers_state::RemoteFilesBrowserInfo<'a>,
+        &intl::IntlService,
+    )> for RemoteFilesBrowserInfo
+{
+    fn from(
+        (info, intl_service): (
+            &remote_files_browsers_state::RemoteFilesBrowserInfo<'a>,
+            &intl::IntlService,
+        ),
+    ) -> Self {
         Self {
             mount_id: info.mount_id.as_ref().map(|x| x.0.clone()),
             path: info.path.as_ref().map(|x| x.0.clone()),
             selection_summary: (&info.selection_summary).into(),
             sort: (&info.sort).into(),
-            status: info.status.into(),
+            status: (info.status, intl_service).into(),
             error: match &info.status {
-                common_state::Status::Error { error, .. } => Some(error.user_error()),
+                common_state::Status::Error { error, .. } => Some(error.user_error(intl_service)),
                 _ => None,
             },
             title: info.title.as_ref().map(|x| x.0.clone()),
@@ -1054,12 +1064,12 @@ pub struct Repos {
     pub repos: Vec<Repo>,
 }
 
-impl From<&store::State> for Repos {
-    fn from(state: &store::State) -> Self {
+impl<'a> From<(&'a store::State, &intl::IntlService)> for Repos {
+    fn from((state, intl_service): (&'a store::State, &intl::IntlService)) -> Self {
         let default_auto_lock = repos_selectors::select_default_auto_lock(state);
 
         Self {
-            status: (&state.repos.status).into(),
+            status: (&state.repos.status, intl_service).into(),
             repos: repos_selectors::select_repos(state)
                 .into_iter()
                 .map(|repo| (repo, default_auto_lock).into())
@@ -1074,10 +1084,10 @@ pub struct RepoInfo {
     pub repo: Option<Repo>,
 }
 
-impl<'a> From<&repos_state::RepoInfo<'a>> for RepoInfo {
-    fn from(info: &repos_state::RepoInfo<'a>) -> Self {
+impl<'a> From<(&repos_state::RepoInfo<'a>, &intl::IntlService)> for RepoInfo {
+    fn from((info, intl_service): (&repos_state::RepoInfo<'a>, &intl::IntlService)) -> Self {
         Self {
-            status: (&info.status).into(),
+            status: (&info.status, intl_service).into(),
             repo: info.repo.map(|repo| (repo, info.default_auto_lock).into()),
         }
     }
@@ -1185,10 +1195,12 @@ pub struct RepoRemoveInfo {
     pub repo_name: Option<String>,
 }
 
-impl<'a> From<&repo_remove_state::RepoRemoveInfo<'a>> for RepoRemoveInfo {
-    fn from(info: &repo_remove_state::RepoRemoveInfo<'a>) -> Self {
+impl<'a> From<(&repo_remove_state::RepoRemoveInfo<'a>, &intl::IntlService)> for RepoRemoveInfo {
+    fn from(
+        (info, intl_service): (&repo_remove_state::RepoRemoveInfo<'a>, &intl::IntlService),
+    ) -> Self {
         Self {
-            status: info.status.into(),
+            status: (info.status, intl_service).into(),
             repo_name: info.repo_name.map(|x| x.0.clone()),
         }
     }
@@ -1232,8 +1244,8 @@ pub struct RepoFile {
     pub file_icon_attrs: FileIconAttrs,
 }
 
-impl From<&repo_files_state::RepoFile> for RepoFile {
-    fn from(file: &repo_files_state::RepoFile) -> Self {
+impl From<(&repo_files_state::RepoFile, &intl::IntlService)> for RepoFile {
+    fn from((file, intl_service): (&repo_files_state::RepoFile, &intl::IntlService)) -> Self {
         Self {
             id: file.id.0.clone(),
             repo_id: file.repo_id.0.clone(),
@@ -1251,7 +1263,7 @@ impl From<&repo_files_state::RepoFile> for RepoFile {
             name_error: match &file.name {
                 repo_files_state::RepoFileName::Decrypted { .. } => None,
                 repo_files_state::RepoFileName::DecryptError { error, .. } => {
-                    Some(error.user_error())
+                    Some(error.user_error(intl_service))
                 }
             },
             ext: file.ext.clone(),
@@ -1364,14 +1376,14 @@ pub enum TransferState {
     Done,
 }
 
-impl From<&transfers_state::TransferState> for TransferState {
-    fn from(typ: &transfers_state::TransferState) -> Self {
-        match typ {
+impl From<(&transfers_state::TransferState, &intl::IntlService)> for TransferState {
+    fn from((state, intl_service): (&transfers_state::TransferState, &intl::IntlService)) -> Self {
+        match state {
             transfers_state::TransferState::Waiting => Self::Waiting,
             transfers_state::TransferState::Processing => Self::Processing,
             transfers_state::TransferState::Transferring => Self::Transferring,
             transfers_state::TransferState::Failed { error } => Self::Failed {
-                error: error.user_error(),
+                error: error.user_error(intl_service),
             },
             transfers_state::TransferState::Done => Self::Done,
         }
@@ -1396,8 +1408,10 @@ pub struct Transfer {
     pub can_open: bool,
 }
 
-impl From<(&transfers_state::Transfer, TimeMillis)> for Transfer {
-    fn from((transfer, now): (&transfers_state::Transfer, TimeMillis)) -> Self {
+impl From<(&transfers_state::Transfer, TimeMillis, &intl::IntlService)> for Transfer {
+    fn from(
+        (transfer, now, intl_service): (&transfers_state::Transfer, TimeMillis, &intl::IntlService),
+    ) -> Self {
         Self {
             id: transfer.id,
             typ: (&transfer.typ).into(),
@@ -1422,7 +1436,7 @@ impl From<(&transfers_state::Transfer, TimeMillis)> for Transfer {
                     duration,
                 )
             }),
-            state: (&transfer.state).into(),
+            state: (&transfer.state, intl_service).into(),
             can_retry: transfers_selectors::can_retry(transfer),
             can_open: transfers_selectors::can_open(transfer),
         }
@@ -1533,10 +1547,20 @@ pub struct RepoFilesBrowserItem {
     pub is_selected: bool,
 }
 
-impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserItem<'a>> for RepoFilesBrowserItem {
-    fn from(item: &repo_files_browsers_state::RepoFilesBrowserItem<'a>) -> Self {
+impl<'a>
+    From<(
+        &repo_files_browsers_state::RepoFilesBrowserItem<'a>,
+        &intl::IntlService,
+    )> for RepoFilesBrowserItem
+{
+    fn from(
+        (item, intl_service): (
+            &repo_files_browsers_state::RepoFilesBrowserItem<'a>,
+            &intl::IntlService,
+        ),
+    ) -> Self {
         Self {
-            file: item.file.into(),
+            file: (item.file, intl_service).into(),
             is_selected: item.is_selected,
         }
     }
@@ -1560,16 +1584,26 @@ pub struct RepoFilesBrowserInfo {
     pub is_locked: bool,
 }
 
-impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFilesBrowserInfo {
-    fn from(info: &repo_files_browsers_state::RepoFilesBrowserInfo<'a>) -> Self {
+impl<'a>
+    From<(
+        &repo_files_browsers_state::RepoFilesBrowserInfo<'a>,
+        &intl::IntlService,
+    )> for RepoFilesBrowserInfo
+{
+    fn from(
+        (info, intl_service): (
+            &repo_files_browsers_state::RepoFilesBrowserInfo<'a>,
+            &intl::IntlService,
+        ),
+    ) -> Self {
         Self {
             repo_id: info.repo_id.map(|x| x.0.clone()),
             encrypted_path: info.path.map(|x| x.0.clone()),
             selection_summary: (&info.selection_summary).into(),
             sort: (&info.sort).into(),
-            status: (&info.status).into(),
+            status: (&info.status, intl_service).into(),
             error: match &info.status {
-                common_state::Status::Error { error, .. } => Some(error.user_error()),
+                common_state::Status::Error { error, .. } => Some(error.user_error(intl_service)),
                 _ => None,
             },
             title: info.title.as_ref().map(|x| x.clone()),
@@ -1577,8 +1611,12 @@ impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFile
             total_size_display: vault_core::files::file_size::size_display(info.total_size),
             selected_count: info.selected_count as u32,
             selected_size_display: vault_core::files::file_size::size_display(info.selected_size),
-            items: info.items.iter().map(Into::into).collect(),
-            repo_status: (&info.repo_status).into(),
+            items: info
+                .items
+                .iter()
+                .map(|x| (x, intl_service).into())
+                .collect(),
+            repo_status: (&info.repo_status, intl_service).into(),
             is_locked: info.is_locked,
         }
     }
@@ -1637,8 +1675,18 @@ pub struct RepoFilesDetailsInfo {
     pub is_locked: bool,
 }
 
-impl<'a> From<&repo_files_details_state::RepoFilesDetailsInfo<'a>> for RepoFilesDetailsInfo {
-    fn from(info: &repo_files_details_state::RepoFilesDetailsInfo<'a>) -> Self {
+impl<'a>
+    From<(
+        &repo_files_details_state::RepoFilesDetailsInfo<'a>,
+        &intl::IntlService,
+    )> for RepoFilesDetailsInfo
+{
+    fn from(
+        (info, intl_service): (
+            &repo_files_details_state::RepoFilesDetailsInfo<'a>,
+            &intl::IntlService,
+        ),
+    ) -> Self {
         Self {
             repo_id: info.repo_id.map(|x| x.0.clone()),
             encrypted_parent_path: info.parent_path.as_ref().map(|x| x.0.clone()),
@@ -1648,15 +1696,15 @@ impl<'a> From<&repo_files_details_state::RepoFilesDetailsInfo<'a>> for RepoFiles
                 .map(|x| vault_core::utils::path_utils::paths_chain(&x.0))
                 .unwrap_or_default(),
             encrypted_path: info.path.map(|x| x.0.clone()),
-            status: (&info.status).into(),
+            status: (&info.status, intl_service).into(),
             file_name: info.file_name.as_ref().map(|x| x.0.clone()),
             file_ext: info.file_ext.clone(),
             file_category: info.file_category.as_ref().map(Into::into),
             file_modified: info.file_modified,
             file_exists: info.file_exists,
-            content_status: (&info.content_status).into(),
+            content_status: (&info.content_status, intl_service).into(),
             transfer_id: info.transfer_id,
-            save_status: (&info.save_status).into(),
+            save_status: (&info.save_status, intl_service).into(),
             error: info.error.clone(),
             is_editing: info.is_editing,
             is_dirty: info.is_dirty,
@@ -1666,7 +1714,7 @@ impl<'a> From<&repo_files_details_state::RepoFilesDetailsInfo<'a>> for RepoFiles
             can_copy: info.can_copy,
             can_move: info.can_move,
             can_delete: info.can_delete,
-            repo_status: (&info.repo_status).into(),
+            repo_status: (&info.repo_status, intl_service).into(),
             is_locked: info.is_locked,
         }
     }
@@ -2111,7 +2159,13 @@ impl MobileVault {
             cb,
             self.subscription_data.oauth2_status.clone(),
             move |vault| {
-                vault.with_state(|state| vault_core::oauth2::selectors::select_status(state).into())
+                vault.with_state(|state| {
+                    (
+                        vault_core::oauth2::selectors::select_status(state),
+                        vault.intl_service.as_ref(),
+                    )
+                        .into()
+                })
             },
         )
     }
@@ -2253,9 +2307,13 @@ impl MobileVault {
             self.subscription_data.remote_files_browsers_info.clone(),
             move |vault| {
                 vault.with_state(|state| {
-                    vault_core::remote_files_browsers::selectors::select_info(state, browser_id)
-                        .as_ref()
-                        .map(RemoteFilesBrowserInfo::from)
+                    vault_core::remote_files_browsers::selectors::select_info(
+                        state,
+                        browser_id,
+                        vault.intl_service.as_ref(),
+                    )
+                    .as_ref()
+                    .map(|info| RemoteFilesBrowserInfo::from((info, vault.intl_service.as_ref())))
                 })
             },
         )
@@ -2283,7 +2341,9 @@ impl MobileVault {
             move |vault| {
                 vault.with_state(|state| {
                     vault_core::remote_files_browsers::selectors::select_breadcrumbs(
-                        state, browser_id,
+                        state,
+                        browser_id,
+                        vault.intl_service.as_ref(),
                     )
                     .iter()
                     .map(Into::into)
@@ -2387,7 +2447,9 @@ impl MobileVault {
             &[Event::Repos],
             cb,
             self.subscription_data.repos.clone(),
-            move |vault| vault.with_state(|state| Repos::from(state)),
+            move |vault| {
+                vault.with_state(|state| Repos::from((state, vault.intl_service.as_ref())))
+            },
         )
     }
 
@@ -2409,7 +2471,11 @@ impl MobileVault {
             self.subscription_data.repos_repo.clone(),
             move |vault| {
                 vault.with_state(|state| {
-                    (&vault_core::repos::selectors::select_repo_info(state, &repo_id)).into()
+                    (
+                        &vault_core::repos::selectors::select_repo_info(state, &repo_id),
+                        vault.intl_service.as_ref(),
+                    )
+                        .into()
                 })
             },
         )
@@ -2512,11 +2578,16 @@ impl MobileVault {
                                     .as_ref()
                                     .map(|e| e.to_string());
                                 let can_create = selectors::select_can_create(state, create_id);
-                                let create_repo_status = (&form.create_repo_status).into();
+                                let create_repo_status =
+                                    (&form.create_repo_status, vault.intl_service.as_ref()).into();
 
                                 RepoCreateInfo::Form {
                                     form: RepoCreateForm {
-                                        create_load_status: (&form.create_load_status).into(),
+                                        create_load_status: (
+                                            &form.create_load_status,
+                                            vault.intl_service.as_ref(),
+                                        )
+                                            .into(),
                                         location,
                                         location_breadcrumbs,
                                         password,
@@ -2586,7 +2657,7 @@ impl MobileVault {
                 vault.with_state(|state| {
                     vault_core::repo_unlock::selectors::select_info(state, repo_id).map(|info| {
                         RepoUnlockInfo {
-                            status: info.status.into(),
+                            status: (info.status, vault.intl_service.as_ref()).into(),
                             repo_name: info.repo_name.map(|x| x.0.clone()),
                         }
                     })
@@ -2645,7 +2716,7 @@ impl MobileVault {
                 vault.with_state(|state| {
                     vault_core::repo_remove::selectors::select_info(state, remove_id)
                         .as_ref()
-                        .map(Into::into)
+                        .map(|info| (info, vault.intl_service.as_ref()).into())
                 })
             },
         )
@@ -2693,7 +2764,8 @@ impl MobileVault {
             self.subscription_data.repo_files_file.clone(),
             move |vault| {
                 vault.with_state(|state| {
-                    vault_core::repo_files::selectors::select_file(state, &file_id).map(Into::into)
+                    vault_core::repo_files::selectors::select_file(state, &file_id)
+                        .map(|file| (file, vault.intl_service.as_ref()).into())
                 })
             },
         )
@@ -2840,7 +2912,7 @@ impl MobileVault {
                 vault.with_state(|state| {
                     transfers::selectors::select_transfers(state)
                         .into_iter()
-                        .map(|transfer| (transfer, now).into())
+                        .map(|transfer| (transfer, now, vault.intl_service.as_ref()).into())
                         .collect()
                 })
             },
@@ -2865,7 +2937,7 @@ impl MobileVault {
 
                 vault.with_state(|state| {
                     transfers::selectors::select_transfer(state, transfer_id)
-                        .map(|transfer| (transfer, now).into())
+                        .map(|transfer| (transfer, now, vault.intl_service.as_ref()).into())
                 })
             },
         )
@@ -3139,7 +3211,7 @@ impl MobileVault {
                 vault.with_state(|state| {
                     vault_core::repo_files_browsers::selectors::select_info(state, browser_id)
                         .as_ref()
-                        .map(RepoFilesBrowserInfo::from)
+                        .map(|info| (info, vault.intl_service.as_ref()).into())
                 })
             },
         )
@@ -3411,9 +3483,13 @@ impl MobileVault {
             self.subscription_data.repo_files_details_info.clone(),
             move |vault| {
                 vault.with_state(|state| {
-                    vault_core::repo_files_details::selectors::select_info(state, details_id)
-                        .as_ref()
-                        .map(Into::into)
+                    vault_core::repo_files_details::selectors::select_info(
+                        state,
+                        details_id,
+                        vault.intl_service.as_ref(),
+                    )
+                    .as_ref()
+                    .map(|info| (info, vault.intl_service.as_ref()).into())
                 })
             },
         )
@@ -3436,7 +3512,7 @@ impl MobileVault {
             move |vault| {
                 vault.with_state(|state| {
                     vault_core::repo_files_details::selectors::select_file(state, details_id)
-                        .map(Into::into)
+                        .map(|file| (file, vault.intl_service.as_ref()).into())
                 })
             },
         )

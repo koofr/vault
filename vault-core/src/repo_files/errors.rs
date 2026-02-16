@@ -2,6 +2,7 @@ use thiserror::Error;
 
 use crate::{
     cipher::errors::DecryptFilenameError,
+    intl,
     remote::{ApiErrorCode, RemoteError},
     repos::errors::{GetCipherError, RepoLockedError, RepoNotFoundError},
     user_error::UserError,
@@ -48,11 +49,11 @@ pub enum LoadFilesError {
 }
 
 impl UserError for LoadFilesError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::RepoLocked(err) => err.user_error(),
-            Self::RemoteError(err) => err.user_error(),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::RepoLocked(err) => err.user_error(intl_service),
+            Self::RemoteError(err) => err.user_error(intl_service),
         }
     }
 }
@@ -76,10 +77,10 @@ pub enum FileNameError {
 }
 
 impl UserError for FileNameError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::DecryptFilenameError(err) => err.user_error(),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::DecryptFilenameError(err) => err.user_error(intl_service),
         }
     }
 }
@@ -99,13 +100,13 @@ pub enum UploadFileReaderError {
 }
 
 impl UserError for UploadFileReaderError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::RepoLocked(err) => err.user_error(),
-            Self::DecryptFilenameError(err) => err.user_error(),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::RepoLocked(err) => err.user_error(intl_service),
+            Self::DecryptFilenameError(err) => err.user_error(intl_service),
             Self::Canceled => self.to_string(),
-            Self::RemoteError(err) => err.user_error(),
+            Self::RemoteError(err) => err.user_error(intl_service),
         }
     }
 }
@@ -144,12 +145,12 @@ pub enum DeleteFileError {
 }
 
 impl UserError for DeleteFileError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::RepoLocked(err) => err.user_error(),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::RepoLocked(err) => err.user_error(intl_service),
             Self::Canceled => self.to_string(),
-            Self::RemoteError(err) => err.user_error(),
+            Self::RemoteError(err) => err.user_error(intl_service),
         }
     }
 }
@@ -169,17 +170,22 @@ pub enum CreateDirError {
 }
 
 impl UserError for CreateDirError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::RepoLocked(err) => err.user_error(),
-            Self::DecryptFilenameError(err) => err.user_error(),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::RepoLocked(err) => err.user_error(intl_service),
+            Self::DecryptFilenameError(err) => err.user_error(intl_service),
             Self::Canceled => self.to_string(),
             Self::RemoteError(RemoteError::ApiError {
                 code: ApiErrorCode::AlreadyExists,
                 ..
-            }) => String::from("Folder with this name already exists."),
-            Self::RemoteError(err) => err.user_error(),
+            }) => intl::format_message!(
+                intl_service,
+                "core.files.create_dir_already_exists.error",
+                "Error shown when creating a folder and the name already exists.",
+                "Folder with this name already exists."
+            ),
+            Self::RemoteError(err) => err.user_error(intl_service),
         }
     }
 }
@@ -218,17 +224,22 @@ pub enum CreateFileError {
 }
 
 impl UserError for CreateFileError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::RepoLocked(err) => err.user_error(),
-            Self::DecryptFilenameError(err) => err.user_error(),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::RepoLocked(err) => err.user_error(intl_service),
+            Self::DecryptFilenameError(err) => err.user_error(intl_service),
             Self::Canceled => self.to_string(),
             Self::RemoteError(RemoteError::ApiError {
                 code: ApiErrorCode::AlreadyExists,
                 ..
-            }) => String::from("File with this name already exists."),
-            Self::RemoteError(err) => err.user_error(),
+            }) => intl::format_message!(
+                intl_service,
+                "core.files.create_file_already_exists.error",
+                "Error shown when creating a file and the name already exists.",
+                "File with this name already exists."
+            ),
+            Self::RemoteError(err) => err.user_error(intl_service),
         }
     }
 }
@@ -305,13 +316,18 @@ pub enum RenameFileError {
 }
 
 impl UserError for RenameFileError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::RepoLocked(err) => err.user_error(),
-            Self::DecryptFilenameError(err) => err.user_error(),
-            Self::RenameRoot => "Cannot rename root folder".into(),
-            Self::RemoteError(err) => err.user_error(),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::RepoLocked(err) => err.user_error(intl_service),
+            Self::DecryptFilenameError(err) => err.user_error(intl_service),
+            Self::RenameRoot => intl::format_message!(
+                intl_service,
+                "core.files.rename_root.error",
+                "Error shown when attempting to rename the root folder.",
+                "Cannot rename root folder"
+            ),
+            Self::RemoteError(err) => err.user_error(intl_service),
         }
     }
 }
@@ -340,13 +356,13 @@ pub enum CopyFileError {
 }
 
 impl UserError for CopyFileError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
             Self::InvalidPath => self.to_string(),
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::RepoLocked(err) => err.user_error(),
-            Self::DecryptFilenameError(err) => err.user_error(),
-            Self::RemoteError(err) => err.user_error(),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::RepoLocked(err) => err.user_error(intl_service),
+            Self::DecryptFilenameError(err) => err.user_error(intl_service),
+            Self::RemoteError(err) => err.user_error(intl_service),
         }
     }
 }
@@ -368,14 +384,19 @@ pub enum MoveFileError {
 }
 
 impl UserError for MoveFileError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
             Self::InvalidPath => self.to_string(),
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::RepoLocked(err) => err.user_error(),
-            Self::DecryptFilenameError(err) => err.user_error(),
-            Self::MoveRoot => "Cannot move root folder".into(),
-            Self::RemoteError(err) => err.user_error(),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::RepoLocked(err) => err.user_error(intl_service),
+            Self::DecryptFilenameError(err) => err.user_error(intl_service),
+            Self::MoveRoot => intl::format_message!(
+                intl_service,
+                "core.files.move_root.error",
+                "Error shown when attempting to move the root folder.",
+                "Cannot move root folder"
+            ),
+            Self::RemoteError(err) => err.user_error(intl_service),
         }
     }
 }

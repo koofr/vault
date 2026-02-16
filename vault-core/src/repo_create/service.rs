@@ -5,7 +5,7 @@ use vault_crypto::random_password::random_password;
 
 use crate::{
     dir_pickers::{selectors as dir_pickers_selectors, state::DirPickerItemId},
-    rclone, remote,
+    intl, rclone, remote,
     remote_files::{
         RemoteFilesService,
         errors::{CreateDirError, RemoteFilesErrors},
@@ -21,6 +21,7 @@ use crate::{
 use super::{errors::CreateLoadError, mutations, selectors};
 
 pub struct RepoCreateService {
+    intl_service: Arc<intl::IntlService>,
     repos_service: Arc<ReposService>,
     remote_files_service: Arc<RemoteFilesService>,
     remote_files_dir_pickers_service: Arc<RemoteFilesDirPickersService>,
@@ -29,12 +30,14 @@ pub struct RepoCreateService {
 
 impl RepoCreateService {
     pub fn new(
+        intl_service: Arc<intl::IntlService>,
         repos_service: Arc<ReposService>,
         remote_files_service: Arc<RemoteFilesService>,
         remote_files_dir_pickers_service: Arc<RemoteFilesDirPickersService>,
         store: Arc<store::Store>,
     ) -> Self {
         Self {
+            intl_service,
             repos_service,
             remote_files_service,
             remote_files_dir_pickers_service,
@@ -76,7 +79,7 @@ impl RepoCreateService {
         let res_err = res.as_ref().map(|_| ()).map_err(|err| err.clone());
 
         self.store.mutate(|state, notify, _, _| {
-            mutations::create_loaded(state, notify, create_id, res);
+            mutations::create_loaded(state, notify, create_id, res, &self.intl_service);
         });
 
         res_err

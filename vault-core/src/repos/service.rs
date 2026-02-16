@@ -1,10 +1,8 @@
 use std::{collections::HashMap, sync::Arc};
 
-use lazy_static::lazy_static;
-
 use crate::{
     cipher::Cipher,
-    rclone,
+    intl, rclone,
     remote::{self, models},
     remote_files::RemoteFilesService,
     runtime,
@@ -25,19 +23,12 @@ use super::{
     state::{Repo, RepoAutoLock, RepoConfig, RepoCreated, RepoUnlockMode},
 };
 
-lazy_static! {
-    pub static ref DEFAULT_DIR_NAMES: Vec<DecryptedName> = vec![
-        DecryptedName("My private documents".into()),
-        DecryptedName("My private pictures".into()),
-        DecryptedName("My private videos".into()),
-    ];
-}
-
 type RepoAutoLocks = HashMap<RepoId, RepoAutoLock>;
 
 pub const REPO_AUTO_LOCKS_STORAGE_KEY: &str = "vaultRepoAutoLocks";
 
 pub struct ReposService {
+    intl_service: Arc<intl::IntlService>,
     remote: Arc<remote::Remote>,
     remote_files_service: Arc<RemoteFilesService>,
     secure_storage_service: Arc<SecureStorageService>,
@@ -47,6 +38,7 @@ pub struct ReposService {
 
 impl ReposService {
     pub fn new(
+        intl_service: Arc<intl::IntlService>,
         remote: Arc<remote::Remote>,
         remote_files_service: Arc<RemoteFilesService>,
         secure_storage_service: Arc<SecureStorageService>,
@@ -54,6 +46,7 @@ impl ReposService {
         runtime: Arc<runtime::BoxRuntime>,
     ) -> Self {
         Self {
+            intl_service,
             remote,
             remote_files_service,
             secure_storage_service,
@@ -213,7 +206,28 @@ impl ReposService {
         let repo_id = repo.id.clone();
 
         if !already_exists {
-            for name in DEFAULT_DIR_NAMES.iter() {
+            let default_dir_names = vec![
+                DecryptedName(intl::format_message!(
+                    self.intl_service,
+                    "core.repos.default_dir_name.documents",
+                    "Default folder name for documents created in the first Safe Box.",
+                    "My private documents"
+                )),
+                DecryptedName(intl::format_message!(
+                    self.intl_service,
+                    "core.repos.default_dir_name.pictures",
+                    "Default folder name for pictures created in the first Safe Box.",
+                    "My private pictures"
+                )),
+                DecryptedName(intl::format_message!(
+                    self.intl_service,
+                    "core.repos.default_dir_name.videos",
+                    "Default folder name for videos created in the first Safe Box.",
+                    "My private videos"
+                )),
+            ];
+
+            for name in default_dir_names.iter() {
                 let encrypted_name = cipher.encrypt_filename(name);
 
                 self.remote_files_service

@@ -77,7 +77,7 @@ fn main() {
         vault.notifications_show(err);
     }
 
-    let web_vault = WebVaultBase::new(vault);
+    let web_vault = WebVaultBase::new(vault.clone());
 
     web_vault.load();
 
@@ -94,31 +94,18 @@ fn main() {
 
     let handle = app.handle().clone();
 
-    let file_handlers = Arc::new(FileHandlers {
-        pick_files: Some(Arc::new(Box::new(move || {
-            let (sender, receiver) = oneshot::channel();
-            let handle = handle.clone();
+    let file_handlers = {
+        #[cfg(target_os = "windows")]
+        let intl_service = vault.intl_service.clone();
 
-            handle.dialog().file().pick_files(move |res| {
-                let _ = sender.send(res.map(|files| {
-                    files
-                        .into_iter()
-                        .filter_map(|f| f.into_path().ok())
-                        .collect()
-                }));
-            });
-
-            receiver.unwrap_or_else(|_| None).boxed()
-        }))),
-        pick_dirs: Some(Arc::new(Box::new({
-            let handle = app.handle().clone();
-            move || {
+        Arc::new(FileHandlers {
+            pick_files: Some(Arc::new(Box::new(move || {
                 let (sender, receiver) = oneshot::channel();
                 let handle = handle.clone();
 
-                handle.dialog().file().pick_folders(move |res| {
-                    let _ = sender.send(res.map(|folders| {
-                        folders
+                handle.dialog().file().pick_files(move |res| {
+                    let _ = sender.send(res.map(|files| {
+                        files
                             .into_iter()
                             .filter_map(|f| f.into_path().ok())
                             .collect()
@@ -126,33 +113,62 @@ fn main() {
                 });
 
                 receiver.unwrap_or_else(|_| None).boxed()
-            }
-        }))),
-        save_file: Some(Arc::new(Box::new({
-            let handle = app.handle().clone();
-            move |name| {
-                let (sender, receiver) = oneshot::channel();
-                let handle = handle.clone();
+            }))),
+            pick_dirs: Some(Arc::new(Box::new({
+                let handle = app.handle().clone();
+                move || {
+                    let (sender, receiver) = oneshot::channel();
+                    let handle = handle.clone();
 
-                let builder = handle.dialog().file().set_file_name(&name);
+                    handle.dialog().file().pick_folders(move |res| {
+                        let _ = sender.send(res.map(|folders| {
+                            folders
+                                .into_iter()
+                                .filter_map(|f| f.into_path().ok())
+                                .collect()
+                        }));
+                    });
 
-                #[cfg(target_os = "windows")]
-                let builder = {
-                    if let Some(ext) = vault_core::utils::name_utils::name_to_ext(&name) {
-                        builder.add_filter(format!("File (.{})", ext), &[&ext])
-                    } else {
-                        builder
-                    }
-                };
+                    receiver.unwrap_or_else(|_| None).boxed()
+                }
+            }))),
+            save_file: Some(Arc::new(Box::new({
+                let handle = app.handle().clone();
+                move |name| {
+                    let (sender, receiver) = oneshot::channel();
+                    let handle = handle.clone();
 
-                builder.save_file(move |res| {
-                    let _ = sender.send(res.and_then(|f| f.into_path().ok()));
-                });
+                    let builder = handle.dialog().file().set_file_name(&name);
 
-                receiver.unwrap_or_else(|_| None).boxed()
-            }
-        }))),
-    });
+                    #[cfg(target_os = "windows")]
+                    let builder = {
+                        if let Some(ext) = vault_core::utils::name_utils::name_to_ext(&name) {
+                            let ext = format!(".{}", ext);
+
+                            builder.add_filter(
+                                vault_core::intl::format_message!(
+                                    intl_service,
+                                    "desktop.save_file.file_filter",
+                                    "Desktop download file dialog file extension filter (only on Windows).",
+                                    "File ({ext})",
+                                    &[("ext", vault_core::intl::FormatValue::String(&ext))]
+                                ),
+                                &[&ext],
+                            )
+                        } else {
+                            builder
+                        }
+                    };
+
+                    builder.save_file(move |res| {
+                        let _ = sender.send(res.and_then(|f| f.into_path().ok()));
+                    });
+
+                    receiver.unwrap_or_else(|_| None).boxed()
+                }
+            }))),
+        })
+    };
 
     tauri::async_runtime::spawn(app_server(
         port,

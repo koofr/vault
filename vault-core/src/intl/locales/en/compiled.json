@@ -1,1 +1,636 @@
-{}
+{
+  "core.cipher.decrypt_filename_decode.error": [
+    {
+      "type": 0,
+      "value": "Failed to decode file name"
+    }
+  ],
+  "core.cipher.decrypt_filename_decrypt.error": [
+    {
+      "type": 0,
+      "value": "Failed to decrypt file name. Vault files can only be uploaded using Vault apps or rclone. If all your files have errors please check that you've used the correct salt."
+    }
+  ],
+  "core.cipher.decrypt_filename_unicode.error": [
+    {
+      "type": 0,
+      "value": "File name is not a valid Unicode text"
+    }
+  ],
+  "core.cipher.decrypt_size.error": [
+    {
+      "type": 0,
+      "value": "Failed to decrypt size: "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    }
+  ],
+  "core.common.invalid_name.error": [
+    {
+      "type": 0,
+      "value": "Name is not valid"
+    }
+  ],
+  "core.common.invalid_path.error": [
+    {
+      "type": 0,
+      "value": "Path is not valid"
+    }
+  ],
+  "core.dialogs.confirm.cancel.button": [
+    {
+      "type": 0,
+      "value": "Cancel"
+    }
+  ],
+  "core.dialogs.prompt.cancel.button": [
+    {
+      "type": 0,
+      "value": "Cancel"
+    }
+  ],
+  "core.dialogs.prompt.confirm.button": [
+    {
+      "type": 0,
+      "value": "Ok"
+    }
+  ],
+  "core.files.create_dir_already_exists.error": [
+    {
+      "type": 0,
+      "value": "Folder with this name already exists."
+    }
+  ],
+  "core.files.create_dir_dialog.confirm.button": [
+    {
+      "type": 0,
+      "value": "Create folder"
+    }
+  ],
+  "core.files.create_dir_dialog.input.placeholder": [
+    {
+      "type": 0,
+      "value": "Folder name"
+    }
+  ],
+  "core.files.create_dir_dialog.title": [
+    {
+      "type": 0,
+      "value": "Enter new folder name"
+    }
+  ],
+  "core.files.create_file_already_exists.error": [
+    {
+      "type": 0,
+      "value": "File with this name already exists."
+    }
+  ],
+  "core.files.create_file_dialog.confirm.button": [
+    {
+      "type": 0,
+      "value": "Create file"
+    }
+  ],
+  "core.files.create_file_dialog.input.placeholder": [
+    {
+      "type": 0,
+      "value": "File name"
+    }
+  ],
+  "core.files.create_file_dialog.title": [
+    {
+      "type": 0,
+      "value": "Enter new file name"
+    }
+  ],
+  "core.files.delete_files_dialog.cancel.button": [
+    {
+      "type": 0,
+      "value": "Cancel"
+    }
+  ],
+  "core.files.delete_files_dialog.confirm.button": [
+    {
+      "type": 0,
+      "value": "Delete"
+    }
+  ],
+  "core.files.delete_files_dialog.message": [
+    {
+      "type": 0,
+      "value": "Do you really want to delete "
+    },
+    {
+      "offset": 0,
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " item"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " items"
+            }
+          ]
+        }
+      },
+      "pluralType": "cardinal",
+      "type": 6,
+      "value": "count"
+    },
+    {
+      "type": 0,
+      "value": "?"
+    }
+  ],
+  "core.files.delete_files_dialog.title": [
+    {
+      "type": 0,
+      "value": "Delete files"
+    }
+  ],
+  "core.files.move_root.error": [
+    {
+      "type": 0,
+      "value": "Cannot move root folder"
+    }
+  ],
+  "core.files.rename_file_dialog.confirm.button": [
+    {
+      "type": 0,
+      "value": "Rename"
+    }
+  ],
+  "core.files.rename_file_dialog.input.placeholder": [
+    {
+      "type": 0,
+      "value": "New name"
+    }
+  ],
+  "core.files.rename_file_dialog.title": [
+    {
+      "type": 0,
+      "value": "Enter new name for '"
+    },
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "type": 0,
+      "value": "'"
+    }
+  ],
+  "core.files.rename_root.error": [
+    {
+      "type": 0,
+      "value": "Cannot rename root folder"
+    }
+  ],
+  "core.http.http_response.error": [
+    {
+      "type": 0,
+      "value": "HTTP error: "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    }
+  ],
+  "core.lifecycle.logout_success.message": [
+    {
+      "type": 0,
+      "value": "You've been logged out. Please log in again."
+    }
+  ],
+  "core.lifecycle.on_login_load_repos.error": [
+    {
+      "type": 0,
+      "value": "Failed to load safe boxes: "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    }
+  ],
+  "core.lifecycle.on_login_load_space_usage.error": [
+    {
+      "type": 0,
+      "value": "Failed to load space usage: "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    }
+  ],
+  "core.lifecycle.on_login_load_user.error": [
+    {
+      "type": 0,
+      "value": "Failed to load user: "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    }
+  ],
+  "core.oauth2.invalid_grant.error": [
+    {
+      "type": 0,
+      "value": "Invalid authentication permissions: "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    }
+  ],
+  "core.oauth2.invalid_oauth2_state.error": [
+    {
+      "type": 0,
+      "value": "Invalid authentication state. Please try again."
+    }
+  ],
+  "core.oauth2.invalid_oauth2_token.error": [
+    {
+      "type": 0,
+      "value": "Invalid OAuth 2 token: "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    }
+  ],
+  "core.oauth2.unknown.error": [
+    {
+      "type": 0,
+      "value": "Unknown error: "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    }
+  ],
+  "core.remote.api.error": [
+    {
+      "type": 0,
+      "value": "API error: "
+    },
+    {
+      "type": 1,
+      "value": "message"
+    }
+  ],
+  "core.remote.unexpected_status.error": [
+    {
+      "type": 0,
+      "value": "Unexpected HTTP status: "
+    },
+    {
+      "type": 1,
+      "value": "status_code"
+    },
+    {
+      "type": 0,
+      "value": ": "
+    },
+    {
+      "type": 1,
+      "value": "message"
+    }
+  ],
+  "core.remote_files.items.bookmarks": [
+    {
+      "type": 0,
+      "value": "Bookmarks"
+    }
+  ],
+  "core.remote_files.items.shared": [
+    {
+      "type": 0,
+      "value": "Shared"
+    }
+  ],
+  "core.repo_create.default_repo_name": [
+    {
+      "type": 0,
+      "value": "My safe box"
+    }
+  ],
+  "core.repo_files.items.recent": [
+    {
+      "type": 0,
+      "value": "Recent files"
+    }
+  ],
+  "core.repo_files_details.conflict.error": [
+    {
+      "type": 0,
+      "value": "File was changed by someone else since your last save. Automatic saving is disabled."
+    }
+  ],
+  "core.repo_files_details.file_could_not_be_saved_dialog.cancel.button": [
+    {
+      "type": 0,
+      "value": "Discard changes"
+    }
+  ],
+  "core.repo_files_details.file_could_not_be_saved_dialog.confirm.button": [
+    {
+      "type": 0,
+      "value": "Try again"
+    }
+  ],
+  "core.repo_files_details.file_could_not_be_saved_dialog.message": [
+    {
+      "type": 0,
+      "value": "File could not be saved ("
+    },
+    {
+      "type": 1,
+      "value": "error"
+    },
+    {
+      "type": 0,
+      "value": "). Do you want to Try again or Discard the changes?"
+    }
+  ],
+  "core.repo_files_details.file_could_not_be_saved_dialog.title": [
+    {
+      "type": 0,
+      "value": "File could not be saved"
+    }
+  ],
+  "core.repo_files_details.file_no_longer_accessible.error": [
+    {
+      "type": 0,
+      "value": "This file is no longer accessible. Probably it was deleted or you no longer have access to it."
+    }
+  ],
+  "core.repo_files_details.file_not_found.error": [
+    {
+      "type": 0,
+      "value": "File not found"
+    }
+  ],
+  "core.repo_files_details.file_removed_dialog.message": [
+    {
+      "type": 0,
+      "value": "File "
+    },
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "type": 0,
+      "value": " is no longer accessible. Probably it was deleted or you no longer have access to it."
+    }
+  ],
+  "core.repo_files_details.file_removed_dialog.title": [
+    {
+      "type": 0,
+      "value": "File not accessible"
+    }
+  ],
+  "core.repo_files_details.save_deleted_confirm_new_location_cancel_dialog.cancel.button": [
+    {
+      "type": 0,
+      "value": "Discard changes"
+    }
+  ],
+  "core.repo_files_details.save_deleted_confirm_new_location_cancel_dialog.confirm.button": [
+    {
+      "type": 0,
+      "value": "Save to a new location"
+    }
+  ],
+  "core.repo_files_details.save_deleted_confirm_new_location_cancel_dialog.message": [
+    {
+      "type": 0,
+      "value": "File "
+    },
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "type": 0,
+      "value": " is no longer accessible. Probably it was deleted or you no longer have access to it. Do you want to Save the file to a new location or Discard the changes?"
+    }
+  ],
+  "core.repo_files_details.save_deleted_confirm_new_location_cancel_dialog.title": [
+    {
+      "type": 0,
+      "value": "File not accessible"
+    }
+  ],
+  "core.repo_files_details.save_deleted_confirm_new_location_user_dialog.confirm.button": [
+    {
+      "type": 0,
+      "value": "Save to a new location"
+    }
+  ],
+  "core.repo_files_details.save_deleted_confirm_new_location_user_dialog.message": [
+    {
+      "type": 0,
+      "value": "File "
+    },
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "type": 0,
+      "value": " is no longer accessible. Probably it was deleted or you no longer have access to it. Do you want to Save the file to a new location?"
+    }
+  ],
+  "core.repo_files_details.save_deleted_confirm_new_location_user_dialog.title": [
+    {
+      "type": 0,
+      "value": "File not accessible"
+    }
+  ],
+  "core.repo_files_details.save_handle_conflict_cancel_dialog.cancel.button": [
+    {
+      "type": 0,
+      "value": "Discard changes"
+    }
+  ],
+  "core.repo_files_details.save_handle_conflict_cancel_dialog.confirm.button": [
+    {
+      "type": 0,
+      "value": "Save as a new file"
+    }
+  ],
+  "core.repo_files_details.save_handle_conflict_cancel_dialog.message": [
+    {
+      "type": 0,
+      "value": "Saving into the existing file is not possible. Do you want to Save your changes as a new file or Discard them?"
+    }
+  ],
+  "core.repo_files_details.save_handle_conflict_cancel_dialog.title": [
+    {
+      "type": 0,
+      "value": "File was changed by someone else since your last save"
+    }
+  ],
+  "core.repo_files_details.save_handle_conflict_user_dialog.confirm.button": [
+    {
+      "type": 0,
+      "value": "Save as a new file"
+    }
+  ],
+  "core.repo_files_details.save_handle_conflict_user_dialog.message": [
+    {
+      "type": 0,
+      "value": "Saving into the existing file is not possible. Do you want to Save your changes as a new file?"
+    }
+  ],
+  "core.repo_files_details.save_handle_conflict_user_dialog.title": [
+    {
+      "type": 0,
+      "value": "File was changed by someone else since your last save"
+    }
+  ],
+  "core.repo_files_details.save_location_changed_dialog.message": [
+    {
+      "type": 0,
+      "value": "File "
+    },
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "type": 0,
+      "value": " was saved here because it could not be saved in its original location."
+    }
+  ],
+  "core.repo_files_details.save_location_changed_dialog.title": [
+    {
+      "type": 0,
+      "value": "File location changed"
+    }
+  ],
+  "core.repos.create_repo_already_exists.error": [
+    {
+      "type": 0,
+      "value": "This location is already a Safe Box."
+    }
+  ],
+  "core.repos.create_repo_max_total_limit_exceeded.error": [
+    {
+      "type": 0,
+      "value": "You cannot create more Safe Boxes. Please upgrade your account."
+    }
+  ],
+  "core.repos.default_dir_name.documents": [
+    {
+      "type": 0,
+      "value": "My private documents"
+    }
+  ],
+  "core.repos.default_dir_name.pictures": [
+    {
+      "type": 0,
+      "value": "My private pictures"
+    }
+  ],
+  "core.repos.default_dir_name.videos": [
+    {
+      "type": 0,
+      "value": "My private videos"
+    }
+  ],
+  "core.repos.invalid_password.error": [
+    {
+      "type": 0,
+      "value": "Safe Key is not correct."
+    }
+  ],
+  "core.repos.repo_locked.error": [
+    {
+      "type": 0,
+      "value": "Safe Box is locked."
+    }
+  ],
+  "core.repos.repo_not_found.error": [
+    {
+      "type": 0,
+      "value": "Safe Box not found."
+    }
+  ],
+  "core.repos.repo_unlocked.error": [
+    {
+      "type": 0,
+      "value": "Safe Box is unlocked."
+    }
+  ],
+  "core.secure_storage.secure_storage.error": [
+    {
+      "type": 0,
+      "value": "Storage error: "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    }
+  ],
+  "core.transfers.aborted.error": [
+    {
+      "type": 0,
+      "value": "Transfer has been aborted."
+    }
+  ],
+  "desktop.oauth.close_page.message": [
+    {
+      "type": 0,
+      "value": "You can now close this page."
+    }
+  ],
+  "desktop.save_file.file_filter": [
+    {
+      "type": 0,
+      "value": "File ("
+    },
+    {
+      "type": 1,
+      "value": "ext"
+    },
+    {
+      "type": 0,
+      "value": ")"
+    }
+  ],
+  "desktop.upload_failed.error": [
+    {
+      "type": 0,
+      "value": "Failed to upload: "
+    },
+    {
+      "type": 1,
+      "value": "path"
+    },
+    {
+      "type": 0,
+      "value": ": "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    }
+  ]
+}

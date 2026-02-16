@@ -293,7 +293,15 @@ impl WebVaultBase {
             &[Event::Auth],
             cb,
             self.subscription_data.oauth2_status.clone(),
-            move |vault| vault.with_state(|state| oauth2::selectors::select_status(state).into()),
+            move |vault| {
+                vault.with_state(|state| {
+                    (
+                        oauth2::selectors::select_status(state),
+                        vault.intl_service.as_ref(),
+                    )
+                        .into()
+                })
+            },
         )
     }
 
@@ -412,7 +420,9 @@ impl WebVaultBase {
             &[Event::Repos],
             cb,
             self.subscription_data.repos.clone(),
-            move |vault| vault.with_state(|state| dto::Repos::from(state)),
+            move |vault| {
+                vault.with_state(|state| dto::Repos::from((state, vault.intl_service.as_ref())))
+            },
         )
     }
 
@@ -429,7 +439,11 @@ impl WebVaultBase {
             self.subscription_data.repos_repo.clone(),
             move |vault| {
                 vault.with_state(|state| {
-                    (&repos::selectors::select_repo_info(state, &repo_id)).into()
+                    (
+                        &repos::selectors::select_repo_info(state, &repo_id),
+                        vault.intl_service.as_ref(),
+                    )
+                        .into()
                 })
             },
         )
@@ -525,7 +539,11 @@ impl WebVaultBase {
                                     .unwrap_or(Vec::new());
 
                                 dto::RepoCreateInfo::Form(dto::RepoCreateForm {
-                                    create_load_status: (&form.create_load_status).into(),
+                                    create_load_status: (
+                                        &form.create_load_status,
+                                        vault.intl_service.as_ref(),
+                                    )
+                                        .into(),
                                     location: form
                                         .location
                                         .as_ref()
@@ -550,7 +568,11 @@ impl WebVaultBase {
                                         .as_ref()
                                         .map(|e| e.to_string()),
                                     can_create: selectors::select_can_create(state, create_id),
-                                    create_repo_status: (&form.create_repo_status).into(),
+                                    create_repo_status: (
+                                        &form.create_repo_status,
+                                        vault.intl_service.as_ref(),
+                                    )
+                                        .into(),
                                 })
                             }
                             RepoCreate::Created(created) => {
@@ -658,7 +680,7 @@ impl WebVaultBase {
                 vault.with_state(|state| {
                     repo_unlock::selectors::select_info(state, unlock_id).map(|info| {
                         dto::RepoUnlockInfo {
-                            status: info.status.into(),
+                            status: (info.status, vault.intl_service.as_ref()).into(),
                             repo_name: info.repo_name.map(|x| x.0.clone()),
                         }
                     })
@@ -695,7 +717,7 @@ impl WebVaultBase {
                 vault.with_state(|state| {
                     repo_remove::selectors::select_info(state, remove_id)
                         .as_ref()
-                        .map(Into::into)
+                        .map(|info| (info, vault.intl_service.as_ref()).into())
                 })
             },
         )
@@ -732,7 +754,7 @@ impl WebVaultBase {
                 vault.with_state(|state| {
                     repo_space_usage::selectors::select_info(state, usage_id)
                         .as_ref()
-                        .map(Into::into)
+                        .map(|info| (info, vault.intl_service.as_ref()).into())
                 })
             },
         )
@@ -767,7 +789,8 @@ impl WebVaultBase {
             self.subscription_data.repo_files_file.clone(),
             move |vault| {
                 vault.with_state(|state| {
-                    repo_files::selectors::select_file(state, &file_id).map(Into::into)
+                    repo_files::selectors::select_file(state, &file_id)
+                        .map(|file| (file, vault.intl_service.as_ref()).into())
                 })
             },
         )
@@ -879,7 +902,7 @@ impl WebVaultBase {
                 vault.with_state(|state| dto::TransfersList {
                     transfers: transfers::selectors::select_transfers(state)
                         .into_iter()
-                        .map(|transfer| (transfer, now).into())
+                        .map(|transfer| (transfer, now, vault.intl_service.as_ref()).into())
                         .collect(),
                 })
             },
@@ -962,7 +985,7 @@ impl WebVaultBase {
         self.vault.with_state(|state| {
             repo_files_browsers::selectors::select_info(state, browser_id)
                 .as_ref()
-                .map(dto::RepoFilesBrowserInfo::from)
+                .map(|info| (info, self.vault.intl_service.as_ref()).into())
         })
     }
 
@@ -975,7 +998,7 @@ impl WebVaultBase {
                 vault.with_state(|state| {
                     repo_files_browsers::selectors::select_info(state, browser_id)
                         .as_ref()
-                        .map(Into::into)
+                        .map(|info| (info, vault.intl_service.as_ref()).into())
                 })
             },
         )
@@ -1118,9 +1141,13 @@ impl WebVaultBase {
             self.subscription_data.repo_files_details_info.clone(),
             move |vault| {
                 vault.with_state(|state| {
-                    repo_files_details::selectors::select_info(state, details_id)
-                        .as_ref()
-                        .map(Into::into)
+                    repo_files_details::selectors::select_info(
+                        state,
+                        details_id,
+                        &vault.intl_service,
+                    )
+                    .as_ref()
+                    .map(|info| (info, vault.intl_service.as_ref()).into())
                 })
             },
         )
@@ -1138,7 +1165,8 @@ impl WebVaultBase {
             self.subscription_data.repo_files_details_file.clone(),
             move |vault| {
                 vault.with_state(|state| {
-                    repo_files_details::selectors::select_file(state, details_id).map(Into::into)
+                    repo_files_details::selectors::select_file(state, details_id)
+                        .map(|file| (file, vault.intl_service.as_ref()).into())
                 })
             },
         )

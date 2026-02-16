@@ -1,14 +1,19 @@
 use thiserror::Error;
 
-use crate::user_error::UserError;
+use crate::{intl, user_error::UserError};
 
 #[derive(Error, Debug, Clone, PartialEq)]
 #[error("invalid path")]
 pub struct InvalidPathError;
 
 impl UserError for InvalidPathError {
-    fn user_error(&self) -> String {
-        "Path is not valid".into()
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
+        intl::format_message!(
+            intl_service,
+            "core.common.invalid_path.error",
+            "Validation error shown when the provided path is invalid.",
+            "Path is not valid"
+        )
     }
 }
 
@@ -38,8 +43,13 @@ impl InvalidNameError {
 }
 
 impl UserError for InvalidNameError {
-    fn user_error(&self) -> String {
-        "Name is not valid".into()
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
+        intl::format_message!(
+            intl_service,
+            "core.common.invalid_name.error",
+            "Validation error shown when a file or folder name is invalid.",
+            "Name is not valid"
+        )
     }
 }
 

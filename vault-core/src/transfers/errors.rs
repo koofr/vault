@@ -2,6 +2,7 @@ use thiserror::Error;
 
 use crate::{
     cipher::errors::{DecryptFilenameError, DecryptSizeError},
+    intl,
     remote::RemoteError,
     repo_files::errors::{FileNameError, LoadFilesError, UploadFileReaderError},
     repo_files_read::errors::GetFilesReaderError,
@@ -18,7 +19,7 @@ pub enum UploadableError {
 }
 
 impl UserError for UploadableError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, _intl_service: &intl::IntlService) -> String {
         match self {
             Self::LocalFileError(_) => self.to_string(),
             Self::NotRetriable => self.to_string(),
@@ -45,7 +46,7 @@ pub enum DownloadableError {
 }
 
 impl UserError for DownloadableError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, _intl_service: &intl::IntlService) -> String {
         match self {
             Self::LocalFileError(_) => self.to_string(),
             Self::NotOpenable => self.to_string(),
@@ -94,13 +95,13 @@ pub enum TransferError {
 }
 
 impl UserError for TransferError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::RepoLocked(err) => err.user_error(),
-            Self::DecryptFilenameError(err) => err.user_error(),
-            Self::DecryptSizeError(err) => err.user_error(),
-            Self::RemoteError(err) => err.user_error(),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::RepoLocked(err) => err.user_error(intl_service),
+            Self::DecryptFilenameError(err) => err.user_error(intl_service),
+            Self::DecryptSizeError(err) => err.user_error(intl_service),
+            Self::RemoteError(err) => err.user_error(intl_service),
             Self::LocalFileError(_) => self.to_string(),
             Self::NotRetriable => self.to_string(),
             Self::NotOpenable => self.to_string(),
@@ -109,7 +110,12 @@ impl UserError for TransferError {
             Self::TransferNotFound => self.to_string(),
             Self::AlreadyExists => self.to_string(),
             Self::IOError(_) => self.to_string(),
-            Self::Aborted => "Transfer has been aborted.".into(),
+            Self::Aborted => intl::format_message!(
+                intl_service,
+                "core.transfers.aborted.error",
+                "Error shown when an upload or download transfer is cancelled or aborted.",
+                "Transfer has been aborted."
+            ),
         }
     }
 }

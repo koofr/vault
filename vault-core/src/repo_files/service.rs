@@ -13,7 +13,7 @@ use vault_crypto::data_cipher::encrypted_size;
 use crate::{
     cipher::decrypt_on_progress::decrypt_on_progress,
     common::state::BoxAsyncRead,
-    dialogs, remote,
+    dialogs, intl, remote,
     remote_files::RemoteFilesService,
     repo_files_read::{
         RepoFilesReadService, errors::GetFilesReaderError, state::RepoFileReaderProvider,
@@ -42,6 +42,7 @@ use super::{
 };
 
 pub struct RepoFilesService {
+    intl_service: Arc<intl::IntlService>,
     repos_service: Arc<ReposService>,
     remote_files_service: Arc<RemoteFilesService>,
     repo_files_tags_service: Arc<RepoFilesTagsService>,
@@ -56,6 +57,7 @@ pub struct RepoFilesService {
 
 impl RepoFilesService {
     pub fn new(
+        intl_service: Arc<intl::IntlService>,
         repos_service: Arc<ReposService>,
         remote_files_service: Arc<RemoteFilesService>,
         repo_files_tags_service: Arc<RepoFilesTagsService>,
@@ -89,6 +91,7 @@ impl RepoFilesService {
         );
 
         Self {
+            intl_service,
             repos_service,
             remote_files_service,
             repo_files_tags_service,
@@ -238,14 +241,31 @@ impl RepoFilesService {
         if self
             .dialogs_service
             .show(dialogs::state::DialogShowOptions {
-                title: String::from("Delete files"),
-                message: Some(if files.len() == 1 {
-                    String::from("Do you really want to delete 1 item?")
-                } else {
-                    format!("Do you really want to delete {} items?", files.len())
-                }),
-                confirm_button_text: String::from("Delete"),
-                cancel_button_text: Some(String::from("Cancel")),
+                title: intl::format_message!(
+                    self.intl_service,
+                    "core.files.delete_files_dialog.title",
+                    "Title of the delete files dialog.",
+                    "Delete files"
+                ),
+                message: Some(intl::format_message!(
+                    self.intl_service,
+                    "core.files.delete_files_dialog.message",
+                    "Confirmation message for the delete files dialog.",
+                    "Do you really want to delete {count, plural, one {# item} other {# items}}?",
+                    &[("count", intl::FormatValue::Integer(files.len() as i64))]
+                )),
+                confirm_button_text: intl::format_message!(
+                    self.intl_service,
+                    "core.files.delete_files_dialog.confirm.button",
+                    "Confirm button label for the delete files dialog.",
+                    "Delete"
+                ),
+                cancel_button_text: Some(intl::format_message!(
+                    self.intl_service,
+                    "core.files.delete_files_dialog.cancel.button",
+                    "Cancel button label for the delete files dialog.",
+                    "Cancel"
+                )),
                 ..self.dialogs_service.build_confirm()
             })
             .await
@@ -284,11 +304,24 @@ impl RepoFilesService {
             .dialogs_service
             .show_validator(
                 dialogs::state::DialogShowOptions {
-                    input_placeholder: Some(String::from("Folder name")),
-                    confirm_button_text: String::from("Create folder"),
-                    ..self
-                        .dialogs_service
-                        .build_prompt(String::from("Enter new folder name"))
+                    input_placeholder: Some(intl::format_message!(
+                        self.intl_service,
+                        "core.files.create_dir_dialog.input.placeholder",
+                        "Placeholder text for the folder name input in the create folder dialog.",
+                        "Folder name"
+                    )),
+                    confirm_button_text: intl::format_message!(
+                        self.intl_service,
+                        "core.files.create_dir_dialog.confirm.button",
+                        "Confirm button label in the create folder dialog.",
+                        "Create folder"
+                    ),
+                    ..self.dialogs_service.build_prompt(intl::format_message!(
+                        self.intl_service,
+                        "core.files.create_dir_dialog.title",
+                        "Title of the create folder dialog.",
+                        "Enter new folder name"
+                    ))
                 },
                 move |value| {
                     let new_name = DecryptedName(value.clone());
@@ -458,11 +491,24 @@ impl RepoFilesService {
                 dialogs::state::DialogShowOptions {
                     input_value: name.to_owned(),
                     input_value_selected,
-                    input_placeholder: Some(String::from("File name")),
-                    confirm_button_text: String::from("Create file"),
-                    ..self
-                        .dialogs_service
-                        .build_prompt(String::from("Enter new file name"))
+                    input_placeholder: Some(intl::format_message!(
+                        self.intl_service,
+                        "core.files.create_file_dialog.input.placeholder",
+                        "Placeholder text for the file name input in the create file dialog.",
+                        "File name"
+                    )),
+                    confirm_button_text: intl::format_message!(
+                        self.intl_service,
+                        "core.files.create_file_dialog.confirm.button",
+                        "Confirm button label in the create file dialog.",
+                        "Create file"
+                    ),
+                    ..self.dialogs_service.build_prompt(intl::format_message!(
+                        self.intl_service,
+                        "core.files.create_file_dialog.title",
+                        "Title of the create file dialog.",
+                        "Enter new file name"
+                    ))
                 },
                 move |value| {
                     let new_name = DecryptedName(value.clone());
@@ -554,11 +600,25 @@ impl RepoFilesService {
                 dialogs::state::DialogShowOptions {
                     input_value,
                     input_value_selected,
-                    input_placeholder: Some(String::from("New name")),
-                    confirm_button_text: String::from("Rename"),
-                    ..self
-                        .dialogs_service
-                        .build_prompt(format!("Enter new name for '{}'", original_name.0))
+                    input_placeholder: Some(intl::format_message!(
+                        self.intl_service,
+                        "core.files.rename_file_dialog.input.placeholder",
+                        "Placeholder text for the new name input in the rename file dialog.",
+                        "New name"
+                    )),
+                    confirm_button_text: intl::format_message!(
+                        self.intl_service,
+                        "core.files.rename_file_dialog.confirm.button",
+                        "Confirm button label in the rename file dialog.",
+                        "Rename"
+                    ),
+                    ..self.dialogs_service.build_prompt(intl::format_message!(
+                        self.intl_service,
+                        "core.files.rename_file_dialog.title",
+                        "Title of the rename file dialog showing the current item name. Single quotes MUST be repeated.",
+                        "Enter new name for ''{name}''",
+                        &[("name", intl::FormatValue::String(&original_name.0))]
+                    ))
                 },
                 move |value| {
                     let new_name = DecryptedName(value.clone());

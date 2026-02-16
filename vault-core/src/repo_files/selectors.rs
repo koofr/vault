@@ -6,6 +6,7 @@ use crate::{
         content_type::ext_to_content_type,
         file_category::{FileCategory, ext_to_file_category},
     },
+    intl,
     remote::RemoteError,
     remote_files::{selectors as remote_files_selectors, state::RemoteFile},
     repos::{errors::RepoNotFoundError, selectors as repos_selectors},
@@ -257,12 +258,22 @@ pub fn select_breadcrumbs(
         .collect()
 }
 
-pub fn get_recent_breadcrumbs(repo_id: &RepoId) -> Vec<RepoFilesBreadcrumb> {
+pub fn get_recent_breadcrumbs(
+    repo_id: &RepoId,
+    intl_service: &intl::IntlService,
+) -> Vec<RepoFilesBreadcrumb> {
+    let name = intl::format_message!(
+        intl_service,
+        "core.repo_files.items.recent",
+        "Label for the Recent files in the breadcrumbs.",
+        "Recent files"
+    );
+
     vec![RepoFilesBreadcrumb {
         id: RepoFileId(format!("recent:{}", repo_id.0)),
         repo_id: repo_id.to_owned(),
         path: EncryptedPath("/".into()),
-        name: "Recent".into(),
+        name: name,
         last: true,
     }]
 }

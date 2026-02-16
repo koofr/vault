@@ -1,6 +1,7 @@
 use thiserror::Error;
 
 use crate::{
+    intl,
     remote::{self, RemoteError},
     secure_storage::errors::SecureStorageError,
     user_error::UserError,
@@ -11,8 +12,13 @@ use crate::{
 pub struct RepoNotFoundError;
 
 impl UserError for RepoNotFoundError {
-    fn user_error(&self) -> String {
-        return "Safe Box not found".into();
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
+        intl::format_message!(
+            intl_service,
+            "core.repos.repo_not_found.error",
+            "Error shown when a Safe Box cannot be found or is no longer accessible.",
+            "Safe Box not found."
+        )
     }
 }
 
@@ -21,8 +27,13 @@ impl UserError for RepoNotFoundError {
 pub struct RepoLockedError;
 
 impl UserError for RepoLockedError {
-    fn user_error(&self) -> String {
-        return "Safe Box is locked".into();
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
+        intl::format_message!(
+            intl_service,
+            "core.repos.repo_locked.error",
+            "Error shown when a Safe Box is locked and requires the Safe Key.",
+            "Safe Box is locked."
+        )
     }
 }
 
@@ -31,8 +42,13 @@ impl UserError for RepoLockedError {
 pub struct RepoUnlockedError;
 
 impl UserError for RepoUnlockedError {
-    fn user_error(&self) -> String {
-        return "Safe Box is unlocked".into();
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
+        intl::format_message!(
+            intl_service,
+            "core.repos.repo_unlocked.error",
+            "Error shown when attempting to unlock a Safe Box that is already unlocked.",
+            "Safe Box is unlocked."
+        )
     }
 }
 
@@ -41,8 +57,13 @@ impl UserError for RepoUnlockedError {
 pub struct InvalidPasswordError;
 
 impl UserError for InvalidPasswordError {
-    fn user_error(&self) -> String {
-        String::from("Safe Key is not correct.")
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
+        intl::format_message!(
+            intl_service,
+            "core.repos.invalid_password.error",
+            "Error shown when the provided Safe Key is incorrect.",
+            "Safe Key is not correct."
+        )
     }
 }
 
@@ -63,10 +84,15 @@ pub enum RepoInfoError {
 }
 
 impl UserError for RepoInfoError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoNotFound(_) => String::from("Safe Box not found."),
-            Self::RemoteError(err) => err.user_error(),
+            Self::RepoNotFound(_) => intl::format_message!(
+                intl_service,
+                "core.repos.repo_not_found.error",
+                "Error shown when a Safe Box cannot be found or is no longer accessible.",
+                "Safe Box not found."
+            ),
+            Self::RemoteError(err) => err.user_error(intl_service),
         }
     }
 }
@@ -80,10 +106,10 @@ pub enum LockRepoError {
 }
 
 impl UserError for LockRepoError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::RepoLocked(err) => err.user_error(),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::RepoLocked(err) => err.user_error(intl_service),
         }
     }
 }
@@ -97,10 +123,10 @@ pub enum LoadReposError {
 }
 
 impl UserError for LoadReposError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::StorageError(err) => format!("Storage error: {}", err),
-            Self::RemoteError(err) => err.user_error(),
+            Self::StorageError(err) => err.user_error(intl_service),
+            Self::RemoteError(err) => err.user_error(intl_service),
         }
     }
 }
@@ -116,11 +142,11 @@ pub enum UnlockRepoError {
 }
 
 impl UserError for UnlockRepoError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::RepoUnlocked(err) => err.user_error(),
-            Self::InvalidPassword(err) => err.user_error(),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::RepoUnlocked(err) => err.user_error(intl_service),
+            Self::InvalidPassword(err) => err.user_error(intl_service),
         }
     }
 }
@@ -143,10 +169,10 @@ pub enum GetCipherError {
 }
 
 impl UserError for GetCipherError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::RepoLocked(err) => err.user_error(),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::RepoLocked(err) => err.user_error(intl_service),
         }
     }
 }
@@ -158,17 +184,27 @@ pub enum CreateRepoError {
 }
 
 impl UserError for CreateRepoError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
             Self::RemoteError(remote::RemoteError::ApiError {
                 code: remote::ApiErrorCode::VaultReposAlreadyExists,
                 ..
-            }) => String::from("This location is already a Safe Box."),
+            }) => intl::format_message!(
+                intl_service,
+                "core.repos.create_repo_already_exists.error",
+                "Error shown when creating a Safe Box at a location that already contains one.",
+                "This location is already a Safe Box."
+            ),
             Self::RemoteError(remote::RemoteError::ApiError {
                 code: remote::ApiErrorCode::VaultReposMaxTotalLimitExceeded,
                 ..
-            }) => String::from("You cannot create more Safe Boxes. Please upgrade your account."),
-            Self::RemoteError(err) => err.user_error(),
+            }) => intl::format_message!(
+                intl_service,
+                "core.repos.create_repo_max_total_limit_exceeded.error",
+                "Error shown when the Safe Box creation limit for the account is exceeded.",
+                "You cannot create more Safe Boxes. Please upgrade your account."
+            ),
+            Self::RemoteError(err) => err.user_error(intl_service),
         }
     }
 }
@@ -184,11 +220,11 @@ pub enum RemoveRepoError {
 }
 
 impl UserError for RemoveRepoError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::InvalidPassword(err) => err.user_error(),
-            Self::RemoteError(err) => err.user_error(),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::InvalidPassword(err) => err.user_error(intl_service),
+            Self::RemoteError(err) => err.user_error(intl_service),
         }
     }
 }
@@ -211,10 +247,10 @@ pub enum SetAutoLockError {
 }
 
 impl UserError for SetAutoLockError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::StorageError(err) => format!("Storage error: {}", err),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::StorageError(err) => err.user_error(intl_service),
         }
     }
 }

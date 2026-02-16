@@ -80,7 +80,10 @@ impl Vault {
             store.clone(),
             runtime.clone(),
         ));
-        let dialogs_service = Arc::new(dialogs::DialogsService::new(store.clone()));
+        let dialogs_service = Arc::new(dialogs::DialogsService::new(
+            intl_service.clone(),
+            store.clone(),
+        ));
         let oauth2_service = Arc::new(oauth2::OAuth2Service::new(
             oauth2_config,
             secure_storage_service.clone(),
@@ -105,21 +108,25 @@ impl Vault {
             runtime.clone(),
         );
         let remote_files_service = Arc::new(remote_files::RemoteFilesService::new(
+            intl_service.clone(),
             remote.clone(),
             dialogs_service.clone(),
             store.clone(),
         ));
         let remote_files_browsers_service =
             Arc::new(remote_files_browsers::RemoteFilesBrowsersService::new(
+                intl_service.clone(),
                 remote_files_service.clone(),
                 store.clone(),
             ));
         let remote_files_dir_pickers_service =
             Arc::new(remote_files_dir_pickers::RemoteFilesDirPickersService::new(
+                intl_service.clone(),
                 remote_files_service.clone(),
                 store.clone(),
             ));
         let repos_service = Arc::new(repos::ReposService::new(
+            intl_service.clone(),
             remote.clone(),
             remote_files_service.clone(),
             secure_storage_service.clone(),
@@ -162,6 +169,7 @@ impl Vault {
             runtime.clone(),
         ));
         let repo_files_service = Arc::new(repo_files::RepoFilesService::new(
+            intl_service.clone(),
             repos_service.clone(),
             remote_files_service.clone(),
             repo_files_tags_service.clone(),
@@ -170,6 +178,7 @@ impl Vault {
             store.clone(),
         ));
         let repo_create_service = Arc::new(repo_create::RepoCreateService::new(
+            intl_service.clone(),
             repos_service.clone(),
             remote_files_service.clone(),
             remote_files_dir_pickers_service.clone(),
@@ -193,6 +202,7 @@ impl Vault {
         ));
         let repo_files_browsers_service =
             Arc::new(repo_files_browsers::RepoFilesBrowsersService::new(
+                intl_service.clone(),
                 repo_files_service.clone(),
                 repo_files_read_service.clone(),
                 repo_files_move_service.clone(),
@@ -201,6 +211,7 @@ impl Vault {
             ));
         let repo_files_details_service =
             Arc::new(repo_files_details::RepoFilesDetailsService::new(
+                intl_service.clone(),
                 repos_service.clone(),
                 repo_files_service.clone(),
                 repo_files_read_service.clone(),

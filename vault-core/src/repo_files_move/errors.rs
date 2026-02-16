@@ -2,6 +2,7 @@ use thiserror::Error;
 
 use crate::{
     cipher::errors::DecryptFilenameError,
+    intl,
     remote::RemoteError,
     repo_files::errors::LoadFilesError,
     repos::errors::{RepoLockedError, RepoNotFoundError},
@@ -21,11 +22,11 @@ pub enum ShowError {
 }
 
 impl UserError for ShowError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::RepoLocked(err) => err.user_error(),
-            Self::RemoteError(err) => err.user_error(),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::RepoLocked(err) => err.user_error(intl_service),
+            Self::RemoteError(err) => err.user_error(intl_service),
             Self::FilesEmpty => self.to_string(),
         }
     }
@@ -54,12 +55,12 @@ pub enum DirPickerClickError {
 }
 
 impl UserError for DirPickerClickError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::RepoLocked(err) => err.user_error(),
-            Self::DecryptFilenameError(err) => err.user_error(),
-            Self::RemoteError(err) => err.user_error(),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::RepoLocked(err) => err.user_error(intl_service),
+            Self::DecryptFilenameError(err) => err.user_error(intl_service),
+            Self::RemoteError(err) => err.user_error(intl_service),
         }
     }
 }

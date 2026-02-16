@@ -1,5 +1,6 @@
 use crate::{
     common::state::Status,
+    intl,
     remote::ApiErrorCode,
     remote_files::state::RemoteFile,
     repo_files::{
@@ -144,10 +145,13 @@ pub fn get_is_content_conflict(
         }
 }
 
-pub fn get_conflict_error(is_conflict: bool) -> Option<String> {
+pub fn get_conflict_error(is_conflict: bool, intl_service: &intl::IntlService) -> Option<String> {
     if is_conflict {
-        Some(String::from(
-            "File was changed by someone else since your last save. Automatic saving is disabled.",
+        Some(intl::format_message!(
+            intl_service,
+            "core.repo_files_details.conflict.error",
+            "Error shown in the text editor when the remote file changed and autosave is disabled.",
+            "File was changed by someone else since your last save. Automatic saving is disabled."
         ))
     } else {
         None
@@ -175,44 +179,59 @@ pub fn get_is_conflict(
             || get_is_save_conflict(save_status))
 }
 
-pub fn get_save_error(status: &Status<SaveError>) -> Option<String> {
+pub fn get_save_error(
+    status: &Status<SaveError>,
+    intl_service: &intl::IntlService,
+) -> Option<String> {
     if get_is_save_conflict(status) {
-        get_conflict_error(true)
+        get_conflict_error(true, intl_service)
     } else {
         match status {
-            Status::Error { error, .. } => Some(error.user_error()),
+            Status::Error { error, .. } => Some(error.user_error(intl_service)),
             _ => None,
         }
     }
 }
 
-pub fn get_load_error(status: &Status<LoadFilesError>) -> Option<String> {
+pub fn get_load_error(
+    status: &Status<LoadFilesError>,
+    intl_service: &intl::IntlService,
+) -> Option<String> {
     match status {
         Status::Error { error, .. } => match error {
             LoadFilesError::RemoteError(error)
                 if error.is_api_error_code(ApiErrorCode::NotFound) =>
             {
-                Some(String::from(
-                    "This file is no longer accessible. Probably it was deleted or you no longer have access to it.",
+                Some(intl::format_message!(
+                    intl_service,
+                    "core.repo_files_details.file_no_longer_accessible.error",
+                    "Error shown in the text editor when the file was deleted or access was removed.",
+                    "This file is no longer accessible. Probably it was deleted or you no longer have access to it."
                 ))
             }
-            _ => Some(error.user_error()),
+            _ => Some(error.user_error(intl_service)),
         },
         _ => None,
     }
 }
 
-pub fn get_content_error(status: &Status<TransferError>) -> Option<String> {
+pub fn get_content_error(
+    status: &Status<TransferError>,
+    intl_service: &intl::IntlService,
+) -> Option<String> {
     match status {
         Status::Error { error, .. } => match error {
             TransferError::RemoteError(error)
                 if error.is_api_error_code(ApiErrorCode::NotFound) =>
             {
-                Some(String::from(
-                    "This file is no longer accessible. Probably it was deleted or you no longer have access to it.",
+                Some(intl::format_message!(
+                    intl_service,
+                    "core.repo_files_details.file_no_longer_accessible.error",
+                    "Error shown in the text editor when the file was deleted or access was removed.",
+                    "This file is no longer accessible. Probably it was deleted or you no longer have access to it."
                 ))
             }
-            _ => Some(error.user_error()),
+            _ => Some(error.user_error(intl_service)),
         },
         _ => None,
     }
@@ -239,6 +258,7 @@ pub fn content_loading_matches_remote_file(
 pub fn select_info<'a>(
     state: &'a store::State,
     details_id: u32,
+    intl_service: &intl::IntlService,
 ) -> Option<RepoFilesDetailsInfo<'a>> {
     select_details(state, details_id).map(|details| {
         let location = details.location.as_ref();
@@ -298,10 +318,10 @@ pub fn select_info<'a>(
         let is_dirty = location.map(|loc| loc.is_dirty).unwrap_or(false);
         let should_destroy = location.map(|loc| loc.should_destroy).unwrap_or(false);
         let is_conflict = get_is_conflict(is_dirty, content_data, remote_file, &save_status);
-        let error = get_save_error(&save_status)
-            .or_else(|| get_load_error(&status))
-            .or_else(|| get_content_error(&content_status))
-            .or_else(|| get_conflict_error(is_conflict));
+        let error = get_save_error(&save_status, intl_service)
+            .or_else(|| get_load_error(&status, intl_service))
+            .or_else(|| get_content_error(&content_status, intl_service))
+            .or_else(|| get_conflict_error(is_conflict, intl_service));
         let is_editing = location.map(|loc| loc.is_editing).unwrap_or(false);
         let can_save = is_editing && is_dirty && !matches!(save_status, Status::Loading { .. });
         let can_download = true;

@@ -5,6 +5,7 @@ use crate::{
         selectors as dir_pickers_selectors,
         state::{DirPicker, DirPickerFileId, DirPickerItem, DirPickerItemId, DirPickerItemType},
     },
+    intl,
     remote::RemoteError,
     remote_files::{
         errors::RemoteFilesErrors,
@@ -42,14 +43,18 @@ pub fn get_options(picker: &DirPicker) -> Options {
     dir_pickers_selectors::select_picker_options(picker)
 }
 
-pub fn select_items(state: &store::State, picker: &DirPicker) -> Vec<DirPickerItem> {
+pub fn select_items(
+    state: &store::State,
+    picker: &DirPicker,
+    intl_service: &intl::IntlService,
+) -> Vec<DirPickerItem> {
     let options = get_options(picker);
 
     let mut items: Vec<DirPickerItem> = Vec::new();
 
-    select_items_bookmarks(state, picker, &mut items, &options);
+    select_items_bookmarks(state, picker, &mut items, &options, &intl_service);
     select_items_places(state, picker, &mut items, &options);
-    select_items_shared(state, picker, &mut items, &options);
+    select_items_shared(state, picker, &mut items, &options, &intl_service);
 
     items
 }
@@ -59,6 +64,7 @@ pub fn select_items_bookmarks(
     picker: &DirPicker,
     items: &mut Vec<DirPickerItem>,
     options: &Options,
+    intl_service: &intl::IntlService,
 ) {
     let bookmarks: Vec<&RemoteFile> = state
         .remote_files
@@ -71,6 +77,12 @@ pub fn select_items_bookmarks(
         let id = BOOKMARKS_ITEM_ID.to_owned();
         let is_open = picker.open_ids.contains(&id);
         let is_loading = picker.loading_ids.contains(&id);
+        let name = intl::format_message!(
+            intl_service,
+            "core.remote_files.items.bookmarks",
+            "Label for the Bookmarks root item in the remote files browser list and breadcrumb (e.g. in the location selector when creating a new Safe Box).",
+            "Bookmarks"
+        );
 
         items.push(DirPickerItem {
             id,
@@ -82,7 +94,7 @@ pub fn select_items_bookmarks(
             is_loading,
             spaces: 0,
             has_arrow: false,
-            text: String::from("Bookmarks"),
+            text: name,
         });
 
         if is_open {
@@ -135,6 +147,7 @@ pub fn select_items_shared(
     picker: &DirPicker,
     items: &mut Vec<DirPickerItem>,
     options: &Options,
+    intl_service: &intl::IntlService,
 ) {
     if options.only_hosted_devices {
         return;
@@ -151,6 +164,12 @@ pub fn select_items_shared(
         let id = SHARED_ITEM_ID.to_owned();
         let is_open = picker.open_ids.contains(&id);
         let is_loading = picker.loading_ids.contains(&id);
+        let name = intl::format_message!(
+            intl_service,
+            "core.remote_files.items.shared",
+            "Label for the Shared root item in the remote files browser list and breadcrumb (e.g. in the location selector when creating a new Safe Box).",
+            "Shared"
+        );
 
         items.push(DirPickerItem {
             id,
@@ -162,7 +181,7 @@ pub fn select_items_shared(
             is_loading,
             spaces: 0,
             has_arrow: false,
-            text: String::from("Shared"),
+            text: name,
         });
 
         if is_open {

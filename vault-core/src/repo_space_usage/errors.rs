@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-use crate::{remote, repos::errors::RepoNotFoundError, user_error::UserError};
+use crate::{intl, remote, repos::errors::RepoNotFoundError, user_error::UserError};
 
 #[derive(Error, Debug, Clone, PartialEq)]
 pub enum RepoSpaceUsageError {
@@ -11,10 +11,10 @@ pub enum RepoSpaceUsageError {
 }
 
 impl UserError for RepoSpaceUsageError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::RemoteError(err) => err.user_error(),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::RemoteError(err) => err.user_error(intl_service),
         }
     }
 }

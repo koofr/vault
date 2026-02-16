@@ -63,13 +63,17 @@ impl RepoFileTags {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
+    use std::{collections::HashMap, sync::Arc};
 
     use data_encoding::BASE64URL_NOPAD;
     use similar_asserts::assert_eq;
 
     use crate::{
-        cipher::test_helpers::create_cipher, repo_files_tags::errors::RepoFileTagsDecodeError,
+        cipher::test_helpers::create_cipher,
+        intl,
+        repo_files_tags::errors::RepoFileTagsDecodeError,
+        secure_storage::{MemorySecureStorage, SecureStorageService},
+        store,
         user_error::UserError,
     };
 
@@ -118,19 +122,31 @@ mod tests {
 
     #[test]
     fn from_string_base64_error() {
+        let intl_service = intl::IntlService::new(
+            Arc::new(SecureStorageService::new(Box::new(
+                MemorySecureStorage::new(),
+            ))),
+            Arc::new(store::Store::new(store::State::default())),
+        );
         let cipher = create_cipher();
 
         let err = RepoFileTags::from_string(&"a", &cipher).unwrap_err();
 
         assert!(matches!(err, RepoFileTagsDecodeError::Base64Error(..)));
         assert_eq!(
-            err.user_error(),
+            err.user_error(&intl_service),
             "Failed to base64 decode tags: invalid length at 0"
         );
     }
 
     #[test]
     fn from_string_decrypt_error() {
+        let intl_service = intl::IntlService::new(
+            Arc::new(SecureStorageService::new(Box::new(
+                MemorySecureStorage::new(),
+            ))),
+            Arc::new(store::Store::new(store::State::default())),
+        );
         let cipher = create_cipher();
 
         let err = RepoFileTags::from_string(&BASE64URL_NOPAD.encode("a".as_bytes()), &cipher)
@@ -138,13 +154,19 @@ mod tests {
 
         assert!(matches!(err, RepoFileTagsDecodeError::DecryptError(..)));
         assert_eq!(
-            err.user_error(),
+            err.user_error(&intl_service),
             "Failed to decrypt tags: file is too short to be decrypted"
         );
     }
 
     #[test]
     fn from_string_rmpserde_error() {
+        let intl_service = intl::IntlService::new(
+            Arc::new(SecureStorageService::new(Box::new(
+                MemorySecureStorage::new(),
+            ))),
+            Arc::new(store::Store::new(store::State::default())),
+        );
         let cipher = create_cipher();
 
         let err = RepoFileTags::from_string(
@@ -155,7 +177,7 @@ mod tests {
 
         assert!(matches!(err, RepoFileTagsDecodeError::RMPSerdeError(..)));
         assert_eq!(
-            err.user_error(),
+            err.user_error(&intl_service),
             "Failed to deserialize tags: invalid type: integer `97`, expected struct RepoFileTags"
         );
     }

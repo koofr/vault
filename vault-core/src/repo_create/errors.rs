@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-use crate::{remote::RemoteError, repos::errors::LoadReposError, user_error::UserError};
+use crate::{intl, remote::RemoteError, repos::errors::LoadReposError, user_error::UserError};
 
 #[derive(Error, Debug, Clone, PartialEq)]
 pub enum CreateLoadError {
@@ -11,10 +11,10 @@ pub enum CreateLoadError {
 }
 
 impl UserError for CreateLoadError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::LoadReposError(err) => err.user_error(),
-            Self::LoadPrimaryMountError(err) => err.user_error(),
+            Self::LoadReposError(err) => err.user_error(intl_service),
+            Self::LoadPrimaryMountError(err) => err.user_error(intl_service),
         }
     }
 }

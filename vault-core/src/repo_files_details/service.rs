@@ -14,6 +14,7 @@ use crate::{
     common::state::SizeInfo,
     dialogs::{self, state::DialogShowOptions},
     http::HttpError,
+    intl,
     remote::{ApiErrorCode, RemoteError},
     remote_files::errors::RemoteFilesErrors,
     repo_files::{
@@ -44,6 +45,7 @@ use super::{
 };
 
 pub struct RepoFilesDetailsService {
+    intl_service: Arc<intl::IntlService>,
     repos_service: Arc<ReposService>,
     repo_files_service: Arc<RepoFilesService>,
     repo_files_read_service: Arc<RepoFilesReadService>,
@@ -59,6 +61,7 @@ pub struct RepoFilesDetailsService {
 
 impl RepoFilesDetailsService {
     pub fn new(
+        intl_service: Arc<intl::IntlService>,
         repos_service: Arc<ReposService>,
         repo_files_service: Arc<RepoFilesService>,
         repo_files_read_service: Arc<RepoFilesReadService>,
@@ -112,6 +115,7 @@ impl RepoFilesDetailsService {
         );
 
         Self {
+            intl_service,
             repos_service,
             repo_files_service,
             repo_files_read_service,
@@ -211,18 +215,34 @@ impl RepoFilesDetailsService {
             match self.clone().edit_cancel(details_id).await {
                 Ok(()) => {}
                 Err(err) => {
-                    let message = format!(
-                        "File could not be saved ({}). Do you want to Try again or Discard the changes?",
-                        err.user_error()
-                    );
-
                     match self
                         .dialogs_service
                         .show(DialogShowOptions {
-                            title: String::from("File could not be saved"),
-                            message: Some(message),
-                            confirm_button_text: String::from("Try again"),
-                            cancel_button_text: Some(String::from("Discard changes")),
+                            title: intl::format_message!(
+                                self.intl_service,
+                                "core.repo_files_details.file_could_not_be_saved_dialog.title",
+                                "Title of the dialog shown when a file fails to save while closing the text editor.",
+                                "File could not be saved"
+                            ),
+                            message: Some(intl::format_message!(
+                                self.intl_service,
+                                "core.repo_files_details.file_could_not_be_saved_dialog.message",
+                                "Message explaining that saving failed and asking whether to retry or discard changes.",
+                                "File could not be saved ({error}). Do you want to Try again or Discard the changes?",
+                                &[("error", intl::FormatValue::String(&err.user_error(&self.intl_service)))]
+                            )),
+                            confirm_button_text: intl::format_message!(
+                                self.intl_service,
+                                "core.repo_files_details.file_could_not_be_saved_dialog.confirm.button",
+                                "Confirm button label to retry saving in the failed save dialog.",
+                                "Try again"
+                            ),
+                            cancel_button_text: Some(intl::format_message!(
+                                self.intl_service,
+                                "core.repo_files_details.file_could_not_be_saved_dialog.cancel.button",
+                                "Cancel button label to discard changes in the failed save dialog.",
+                                "Discard changes"
+                            )),
                             ..self.dialogs_service.build_confirm()
                         })
                         .await
@@ -697,18 +717,28 @@ impl RepoFilesDetailsService {
     ) -> Result<(), SaveError> {
         match &initiator {
             SaveInitiator::User => {
-                let message = format!(
-                    "File {} is no longer accessible. Probably it was deleted or you no longer have access to it. Do you want to Save the file to a new location?",
-                    name.0
-                );
-
                 match self
                     .dialogs_service
                     .show(DialogShowOptions {
-                        title: String::from("File not accessible"),
-                        message: Some(message),
-                        confirm_button_text: String::from("Save to a new location"),
-                        cancel_button_text: Some(String::from("Cancel")),
+                        title: intl::format_message!(
+                            self.intl_service,
+                            "core.repo_files_details.save_deleted_confirm_new_location_user_dialog.title",
+                            "Title of the dialog shown when saving and the original file is no longer accessible.",
+                            "File not accessible"
+                        ),
+                        message: Some(intl::format_message!(
+                            self.intl_service,
+                            "core.repo_files_details.save_deleted_confirm_new_location_user_dialog.message",
+                            "Dialog message asking whether to save the file to a new location after the original became inaccessible.",
+                            "File {name} is no longer accessible. Probably it was deleted or you no longer have access to it. Do you want to Save the file to a new location?",
+                            &[("name", intl::FormatValue::String(&name.0))]
+                        )),
+                        confirm_button_text: intl::format_message!(
+                            self.intl_service,
+                            "core.repo_files_details.save_deleted_confirm_new_location_user_dialog.confirm.button",
+                            "Confirm button label for dialog to save to a new location when the original file is inaccessible.",
+                            "Save to a new location"
+                        ),
                         ..self.dialogs_service.build_confirm()
                     })
                     .await
@@ -722,18 +752,34 @@ impl RepoFilesDetailsService {
                 Err(SaveError::Canceled)
             }
             SaveInitiator::Cancel => {
-                let message = format!(
-                    "File {} is no longer accessible. Probably it was deleted or you no longer have access to it. Do you want to Save the file to a new location or Discard the changes?",
-                    name.0
-                );
-
                 match self
                     .dialogs_service
                     .show(DialogShowOptions {
-                        title: String::from("File not accessible"),
-                        message: Some(message),
-                        confirm_button_text: String::from("Save to a new location"),
-                        cancel_button_text: Some(String::from("Discard changes")),
+                        title: intl::format_message!(
+                            self.intl_service,
+                            "core.repo_files_details.save_deleted_confirm_new_location_cancel_dialog.title",
+                            "Title of the dialog shown when cancelling edits and the original file is no longer accessible.",
+                            "File not accessible"
+                        ),
+                        message: Some(intl::format_message!(
+                            self.intl_service,
+                            "core.repo_files_details.save_deleted_confirm_new_location_cancel_dialog.message",
+                            "Dialog message asking whether to save to a new location or discard changes when the original file is inaccessible.",
+                            "File {name} is no longer accessible. Probably it was deleted or you no longer have access to it. Do you want to Save the file to a new location or Discard the changes?",
+                            &[("name", intl::FormatValue::String(&name.0))]
+                        )),
+                        confirm_button_text: intl::format_message!(
+                            self.intl_service,
+                            "core.repo_files_details.save_deleted_confirm_new_location_cancel_dialog.confirm.button",
+                            "Confirm button label for dialog to save to a new location from the cancel flow.",
+                            "Save to a new location"
+                        ),
+                        cancel_button_text: Some(intl::format_message!(
+                            self.intl_service,
+                            "core.repo_files_details.save_deleted_confirm_new_location_cancel_dialog.cancel.button",
+                            "Cancel button label for dialog to discard changes when the original file is inaccessible.",
+                            "Discard changes"
+                        )),
                         ..self.dialogs_service.build_confirm()
                     })
                     .await
@@ -777,19 +823,27 @@ impl RepoFilesDetailsService {
     async fn save_handle_conflict(&self, initiator: &SaveInitiator) -> Result<bool, SaveError> {
         match &initiator {
             SaveInitiator::User => {
-                let message = String::from(
-                    "Saving into the existing file is not possible. Do you want to Save your changes as a new file?",
-                );
-
                 match self
                     .dialogs_service
                     .show(DialogShowOptions {
-                        title: String::from(
-                            "File was changed by someone else since your last save",
+                        title: intl::format_message!(
+                            self.intl_service,
+                            "core.repo_files_details.save_handle_conflict_user_dialog.title",
+                            "Title of the conflict dialog shown when the file changed remotely during save.",
+                            "File was changed by someone else since your last save"
                         ),
-                        message: Some(message),
-                        confirm_button_text: String::from("Save as a new file"),
-                        cancel_button_text: Some(String::from("Cancel")),
+                        message: Some(intl::format_message!(
+                            self.intl_service,
+                            "core.repo_files_details.save_handle_conflict_user_dialog.message",
+                            "Dialog message explaining a save conflict and asking to save as a new file.",
+                            "Saving into the existing file is not possible. Do you want to Save your changes as a new file?"
+                        )),
+                        confirm_button_text: intl::format_message!(
+                            self.intl_service,
+                            "core.repo_files_details.save_handle_conflict_user_dialog.confirm.button",
+                            "Confirm button label for dialog to save changes as a new file after a conflict.",
+                            "Save as a new file"
+                        ),
                         ..self.dialogs_service.build_confirm()
                     })
                     .await
@@ -800,19 +854,33 @@ impl RepoFilesDetailsService {
             }
             SaveInitiator::Autosave => panic!("unreachable"),
             SaveInitiator::Cancel => {
-                let message = String::from(
-                    "Saving into the existing file is not possible. Do you want to Save your changes as a new file or Discard them?",
-                );
-
                 match self
                     .dialogs_service
                     .show(DialogShowOptions {
-                        title: String::from(
-                            "File was changed by someone else since your last save",
+                        title: intl::format_message!(
+                            self.intl_service,
+                            "core.repo_files_details.save_handle_conflict_cancel_dialog.title",
+                            "Title of the conflict dialog shown when cancelling edits and the file changed remotely.",
+                            "File was changed by someone else since your last save"
                         ),
-                        message: Some(message),
-                        confirm_button_text: String::from("Save as a new file"),
-                        cancel_button_text: Some(String::from("Discard changes")),
+                        message: Some(intl::format_message!(
+                            self.intl_service,
+                            "core.repo_files_details.save_handle_conflict_cancel_dialog.message",
+                            "Dialog message explaining a save conflict and offering to save as a new file or discard changes.",
+                            "Saving into the existing file is not possible. Do you want to Save your changes as a new file or Discard them?"
+                        )),
+                        confirm_button_text: intl::format_message!(
+                            self.intl_service,
+                            "core.repo_files_details.save_handle_conflict_cancel_dialog.confirm.button",
+                            "Confirm button label for dialog to save changes as a new file from the cancel flow.",
+                            "Save as a new file"
+                        ),
+                        cancel_button_text: Some(intl::format_message!(
+                            self.intl_service,
+                            "core.repo_files_details.save_handle_conflict_cancel_dialog.cancel.button",
+                            "Cancel button label for dialog to discard changes in the conflict dialog.",
+                            "Discard changes"
+                        )),
                         ..self.dialogs_service.build_confirm()
                     })
                     .await
@@ -830,18 +898,24 @@ impl RepoFilesDetailsService {
         let location_changed_alert_self = self.clone();
 
         self.runtime.spawn(Box::pin(async move {
-            let message = format!(
-                "File {} was saved here because it could not be saved in its original location.",
-                name.0
-            );
-
             location_changed_alert_self
                 .dialogs_service
                 .show(DialogShowOptions {
-                    message: Some(message),
-                    ..location_changed_alert_self
-                        .dialogs_service
-                        .build_alert(String::from("File location changed"))
+                    message: Some(intl::format_message!(
+                        location_changed_alert_self.intl_service,
+                        "core.repo_files_details.save_location_changed_dialog.message",
+                        "Alert message shown after saving to a new location because the original location was unavailable.",
+                        "File {name} was saved here because it could not be saved in its original location.",
+                        &[("name", intl::FormatValue::String(&name.0))]
+                    )),
+                    ..location_changed_alert_self.dialogs_service.build_alert(
+                        intl::format_message!(
+                            location_changed_alert_self.intl_service,
+                            "core.repo_files_details.save_location_changed_dialog.title",
+                            "Title of the alert shown when a file is saved to a new location.",
+                            "File location changed"
+                        ),
+                    )
                 })
                 .await;
         }));
@@ -898,17 +972,21 @@ impl RepoFilesDetailsService {
                 None
             }
         }) {
-            let message = format!(
-                "File {} is no longer accessible. Probably it was deleted or you no longer have access to it.",
-                file_name.0
-            );
-
             self.dialogs_service
                 .show(DialogShowOptions {
-                    message: Some(message),
-                    ..self
-                        .dialogs_service
-                        .build_alert(String::from("File not accessible"))
+                    message: Some(intl::format_message!(
+                        self.intl_service,
+                        "core.repo_files_details.file_removed_dialog.message",
+                        "Alert message shown when an open file becomes inaccessible.",
+                        "File {name} is no longer accessible. Probably it was deleted or you no longer have access to it.",
+                        &[("name", intl::FormatValue::String(&file_name.0))]
+                    )),
+                    ..self.dialogs_service.build_alert(intl::format_message!(
+                        self.intl_service,
+                        "core.repo_files_details.file_removed_dialog.title",
+                        "Title of the alert shown when an open file is no longer accessible.",
+                        "File not accessible"
+                    ))
                 })
                 .await;
         }

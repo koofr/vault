@@ -1,6 +1,7 @@
 use lazy_static::lazy_static;
 
 use crate::{
+    intl,
     remote_files::{
         selectors as remote_files_selectors,
         state::{
@@ -84,13 +85,21 @@ pub fn get_eventstream_mount_subscriber(browser_id: u32) -> String {
     format!("RemoteFilesBrowsers:{}", browser_id)
 }
 
-pub fn get_bookmarks_item() -> RemoteFilesBrowserItem {
+pub fn get_bookmarks_item(intl_service: &intl::IntlService) -> RemoteFilesBrowserItem {
+    let name = intl::format_message!(
+        intl_service,
+        "core.remote_files.items.bookmarks",
+        "Label for the Bookmarks root item in the remote files browser list and breadcrumb (e.g. in the location selector when creating a new Safe Box).",
+        "Bookmarks"
+    );
+    let name_lower = name.to_lowercase();
+
     RemoteFilesBrowserItem {
         id: ITEM_ID_BOOKMARKS.to_owned(),
         mount_id: None,
         path: None,
-        name: RemoteName("Bookmarks".into()),
-        name_lower: RemoteNameLower("bookmarks".into()),
+        name: RemoteName(name),
+        name_lower: RemoteNameLower(name_lower),
         typ: RemoteFilesBrowserItemType::Bookmarks,
         size: None,
         modified: None,
@@ -133,13 +142,21 @@ pub fn get_file_item(
     }
 }
 
-pub fn get_shared_item() -> RemoteFilesBrowserItem {
+pub fn get_shared_item(intl_service: &intl::IntlService) -> RemoteFilesBrowserItem {
+    let name = intl::format_message!(
+        intl_service,
+        "core.remote_files.items.shared",
+        "Label for the Shared root item in the remote files browser list and breadcrumb (e.g. in the location selector when creating a new Safe Box).",
+        "Shared"
+    );
+    let name_lower = name.to_lowercase();
+
     RemoteFilesBrowserItem {
         id: ITEM_ID_SHARED.to_owned(),
         mount_id: None,
         path: None,
-        name: RemoteName("Shared".into()),
-        name_lower: RemoteNameLower("shared".into()),
+        name: RemoteName(name),
+        name_lower: RemoteNameLower(name_lower),
         typ: RemoteFilesBrowserItemType::Shared,
         size: None,
         modified: None,
@@ -188,22 +205,36 @@ pub fn get_home_breadcrumb() -> RemoteFilesBrowserBreadcrumb {
     }
 }
 
-pub fn get_bookmarks_breadcrumb() -> RemoteFilesBrowserBreadcrumb {
+pub fn get_bookmarks_breadcrumb(intl_service: &intl::IntlService) -> RemoteFilesBrowserBreadcrumb {
+    let name = intl::format_message!(
+        intl_service,
+        "core.remote_files.items.bookmarks",
+        "Label for the Bookmarks root item in the remote files browser list and breadcrumb (e.g. in the location selector when creating a new Safe Box).",
+        "Bookmarks"
+    );
+
     RemoteFilesBrowserBreadcrumb {
         id: ITEM_ID_BOOKMARKS.clone(),
         mount_id: None,
         path: None,
-        name: RemoteName("Bookmarks".into()),
+        name: RemoteName(name),
         last: false,
     }
 }
 
-pub fn get_shared_breadcrumb() -> RemoteFilesBrowserBreadcrumb {
+pub fn get_shared_breadcrumb(intl_service: &intl::IntlService) -> RemoteFilesBrowserBreadcrumb {
+    let name = intl::format_message!(
+        intl_service,
+        "core.remote_files.items.shared",
+        "Label for the Shared root item in the remote files browser list and breadcrumb (e.g. in the location selector when creating a new Safe Box).",
+        "Shared"
+    );
+
     RemoteFilesBrowserBreadcrumb {
         id: ITEM_ID_SHARED.clone(),
         mount_id: None,
         path: None,
-        name: RemoteName("Shared".into()),
+        name: RemoteName(name),
         last: false,
     }
 }
@@ -225,13 +256,14 @@ pub fn select_browser_location<'a>(
 pub fn select_home_items(
     state: &store::State,
     options: &RemoteFilesBrowserOptions,
+    intl_service: &intl::IntlService,
 ) -> Vec<RemoteFilesBrowserItem> {
     let mut items = vec![];
 
     let bookmarks_files = remote_files_selectors::select_bookmarks_files(state);
 
     if bookmarks_files.len() > 0 {
-        items.push(get_bookmarks_item());
+        items.push(get_bookmarks_item(intl_service));
     }
 
     let places_mount_files = remote_files_selectors::select_places_mount_files(state);
@@ -250,7 +282,7 @@ pub fn select_home_items(
         let shared_mount_files = remote_files_selectors::select_shared_mount_files(state);
 
         if shared_mount_files.len() > 0 {
-            items.push(get_shared_item());
+            items.push(get_shared_item(intl_service));
         }
     }
 
@@ -321,9 +353,10 @@ pub fn select_selection_summary(state: &store::State, browser_id: u32) -> Select
 pub fn select_info<'a>(
     state: &'a store::State,
     browser_id: u32,
+    intl_service: &intl::IntlService,
 ) -> Option<RemoteFilesBrowserInfo<'a>> {
     select_browser(state, browser_id).map(|browser| {
-        let breadcrumbs = select_breadcrumbs(state, browser_id);
+        let breadcrumbs = select_breadcrumbs(state, browser_id, intl_service);
         let last_breadcrumb: Option<&RemoteFilesBrowserBreadcrumb> = breadcrumbs.last();
         let items = select_items_infos(state, browser_id);
         let get_selected_items = || items.iter().filter(|item| item.is_selected);
@@ -388,13 +421,16 @@ pub fn select_items_infos<'a>(
 pub fn select_breadcrumbs(
     state: &store::State,
     browser_id: u32,
+    intl_service: &intl::IntlService,
 ) -> Vec<RemoteFilesBrowserBreadcrumb> {
     let mut breadcrumbs = vec![get_home_breadcrumb()];
 
     if let Some(location) = select_browser_location(state, browser_id) {
         match location {
             RemoteFilesBrowserLocation::Home => {}
-            RemoteFilesBrowserLocation::Bookmarks => breadcrumbs.push(get_bookmarks_breadcrumb()),
+            RemoteFilesBrowserLocation::Bookmarks => {
+                breadcrumbs.push(get_bookmarks_breadcrumb(intl_service))
+            }
             RemoteFilesBrowserLocation::Files(location) => match &location.item_id_prefix {
                 prefix
                     if prefix == &*ITEM_ID_PREFIX_BOOKMARKS
@@ -419,11 +455,13 @@ pub fn select_breadcrumbs(
                     }
                 }
                 prefix if prefix == &*ITEM_ID_PREFIX_SHARED => {
-                    breadcrumbs.push(get_shared_breadcrumb());
+                    breadcrumbs.push(get_shared_breadcrumb(intl_service));
                 }
                 _ => {}
             },
-            RemoteFilesBrowserLocation::Shared => breadcrumbs.push(get_shared_breadcrumb()),
+            RemoteFilesBrowserLocation::Shared => {
+                breadcrumbs.push(get_shared_breadcrumb(intl_service))
+            }
         }
     }
 
