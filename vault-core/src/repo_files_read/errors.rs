@@ -2,6 +2,7 @@ use thiserror::Error;
 
 use crate::{
     cipher::errors::{DecryptFilenameError, DecryptSizeError},
+    intl,
     remote::RemoteError,
     repos::errors::{GetCipherError, RepoLockedError, RepoNotFoundError},
     user_error::UserError,
@@ -30,15 +31,15 @@ pub enum GetFilesReaderError {
 }
 
 impl UserError for GetFilesReaderError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::RepoLocked(err) => err.user_error(),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::RepoLocked(err) => err.user_error(intl_service),
             Self::FileNotFound => self.to_string(),
             Self::FilesEmpty => self.to_string(),
-            Self::DecryptFilenameError(err) => err.user_error(),
-            Self::DecryptSizeError(err) => err.user_error(),
-            Self::RemoteError(err) => err.user_error(),
+            Self::DecryptFilenameError(err) => err.user_error(intl_service),
+            Self::DecryptSizeError(err) => err.user_error(intl_service),
+            Self::RemoteError(err) => err.user_error(intl_service),
             Self::IOError(err) => err.to_string(),
             Self::Aborted => self.to_string(),
         }

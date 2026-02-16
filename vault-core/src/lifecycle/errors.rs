@@ -1,7 +1,7 @@
 use thiserror::Error;
 
 use crate::{
-    oauth2::errors::OAuth2Error, remote::RemoteError, repos::errors::LoadReposError,
+    intl, oauth2::errors::OAuth2Error, remote::RemoteError, repos::errors::LoadReposError,
     secure_storage::errors::SecureStorageError, user_error::UserError,
 };
 
@@ -14,10 +14,10 @@ pub enum LoadError {
 }
 
 impl UserError for LoadError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::OAuth2LoadError(err) => err.user_error(),
-            Self::OnLoginError(err) => err.user_error(),
+            Self::OAuth2LoadError(err) => err.user_error(intl_service),
+            Self::OnLoginError(err) => err.user_error(intl_service),
         }
     }
 }
@@ -33,13 +33,38 @@ pub enum OnLoginError {
 }
 
 impl UserError for OnLoginError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::LoadUserError(err) => format!("Failed to load user: {}", err.user_error()),
-            Self::LoadReposError(err) => format!("Failed to load safe boxes: {}", err.user_error()),
-            Self::LoadSpaceUsageError(err) => {
-                format!("Failed to load space usage: {}", err.user_error())
-            }
+            Self::LoadUserError(err) => intl::format_message!(
+                intl_service,
+                "core.lifecycle.on_login_load_user.error",
+                "Error shown after login when loading the user profile fails.",
+                "Failed to load user: {error}",
+                &[(
+                    "error",
+                    intl::FormatValue::String(&err.user_error(intl_service))
+                )]
+            ),
+            Self::LoadReposError(err) => intl::format_message!(
+                intl_service,
+                "core.lifecycle.on_login_load_repos.error",
+                "Error shown after login when loading the Safe Boxes fails.",
+                "Failed to load safe boxes: {error}",
+                &[(
+                    "error",
+                    intl::FormatValue::String(&err.user_error(intl_service))
+                )]
+            ),
+            Self::LoadSpaceUsageError(err) => intl::format_message!(
+                intl_service,
+                "core.lifecycle.on_login_load_space_usage.error",
+                "Error shown after login when loading the storage space usage fails.",
+                "Failed to load space usage: {error}",
+                &[(
+                    "error",
+                    intl::FormatValue::String(&err.user_error(intl_service))
+                )]
+            ),
         }
     }
 }
@@ -53,10 +78,10 @@ pub enum LogoutError {
 }
 
 impl UserError for LogoutError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::OAuth2LogoutError(err) => err.user_error(),
-            Self::OnLogoutError(err) => err.user_error(),
+            Self::OAuth2LogoutError(err) => err.user_error(intl_service),
+            Self::OnLogoutError(err) => err.user_error(intl_service),
         }
     }
 }
@@ -68,7 +93,7 @@ pub enum OnLogoutError {
 }
 
 impl UserError for OnLogoutError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, _intl_service: &intl::IntlService) -> String {
         match self {
             Self::ClearStorageError(err) => format!("Failed to clear storage: {}", err),
         }
@@ -86,11 +111,11 @@ pub enum OAuth2FinishFlowUrlError {
 }
 
 impl UserError for OAuth2FinishFlowUrlError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::OAuth2Error(err) => err.user_error(),
-            Self::OnLoginError(err) => err.user_error(),
-            Self::OnLogoutError(err) => err.user_error(),
+            Self::OAuth2Error(err) => err.user_error(intl_service),
+            Self::OnLoginError(err) => err.user_error(intl_service),
+            Self::OnLogoutError(err) => err.user_error(intl_service),
         }
     }
 }

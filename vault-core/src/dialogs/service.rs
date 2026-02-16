@@ -5,7 +5,7 @@ use std::{
 
 use futures::channel::oneshot;
 
-use crate::store;
+use crate::{intl, store};
 
 use super::{
     mutations, selectors,
@@ -13,6 +13,7 @@ use super::{
 };
 
 pub struct DialogsService {
+    intl_service: Arc<intl::IntlService>,
     store: Arc<store::Store>,
     input_value_validators:
         Arc<RwLock<HashMap<u32, Box<dyn Fn(String) -> bool + Send + Sync + 'static>>>>,
@@ -20,8 +21,9 @@ pub struct DialogsService {
 }
 
 impl DialogsService {
-    pub fn new(store: Arc<store::Store>) -> Self {
+    pub fn new(intl_service: Arc<intl::IntlService>, store: Arc<store::Store>) -> Self {
         Self {
+            intl_service,
             store,
             input_value_validators: Arc::new(RwLock::new(HashMap::new())),
             results: Arc::new(RwLock::new(HashMap::new())),
@@ -36,7 +38,12 @@ impl DialogsService {
             input_value: String::from(""),
             input_value_selected: None,
             input_placeholder: None,
-            confirm_button_text: String::from("Ok"),
+            confirm_button_text: intl::format_message!(
+                &self.intl_service,
+                "core.dialogs.prompt.confirm.button",
+                "Label for the primary button in generic alert dialogs.",
+                "Ok"
+            ),
             confirm_button_style: DialogButtonStyle::Primary,
             cancel_button_text: None,
         }
@@ -45,14 +52,19 @@ impl DialogsService {
     pub fn build_confirm(&self) -> DialogShowOptions {
         DialogShowOptions {
             typ: DialogType::Confirm,
-            title: String::from("Are you sure?"),
+            title: String::from(""),
             message: None,
             input_value: String::from(""),
             input_value_selected: None,
             input_placeholder: None,
-            confirm_button_text: String::from("Yes"),
+            confirm_button_text: String::from(""),
             confirm_button_style: DialogButtonStyle::Primary,
-            cancel_button_text: Some(String::from("No")),
+            cancel_button_text: Some(intl::format_message!(
+                &self.intl_service,
+                "core.dialogs.confirm.cancel.button",
+                "Label for the cancel button in confirmation dialogs.",
+                "Cancel"
+            )),
         }
     }
 
@@ -64,9 +76,14 @@ impl DialogsService {
             input_value: String::from(""),
             input_value_selected: None,
             input_placeholder: None,
-            confirm_button_text: String::from("Ok"),
+            confirm_button_text: String::from(""),
             confirm_button_style: DialogButtonStyle::Primary,
-            cancel_button_text: Some(String::from("Cancel")),
+            cancel_button_text: Some(intl::format_message!(
+                &self.intl_service,
+                "core.dialogs.prompt.cancel.button",
+                "Label for the cancel button in input prompt dialogs.",
+                "Cancel"
+            )),
         }
     }
 

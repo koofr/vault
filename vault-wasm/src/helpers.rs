@@ -13,6 +13,7 @@ use web_sys::AbortSignal;
 use vault_core::{
     Vault,
     common::state::{BoxAsyncRead, SizeInfo},
+    intl,
     user_error::UserError,
     utils::on_end_reader::OnEndReader,
 };
@@ -69,7 +70,7 @@ pub fn bytes_to_blob(bytes: &[u8], content_type: Option<&str>) -> JsValue {
 pub struct ReaderToBlobError(String);
 
 impl UserError for ReaderToBlobError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, _intl_service: &intl::IntlService) -> String {
         self.to_string()
     }
 }
@@ -125,7 +126,7 @@ pub enum ReaderToFileStreamError {
 }
 
 impl UserError for ReaderToFileStreamError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, _intl_service: &intl::IntlService) -> String {
         self.to_string()
     }
 }

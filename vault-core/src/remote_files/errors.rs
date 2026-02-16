@@ -1,6 +1,7 @@
 use thiserror::Error;
 
 use crate::{
+    intl,
     remote::{ApiErrorCode, RemoteError},
     user_error::UserError,
 };
@@ -34,14 +35,19 @@ pub enum CreateDirError {
 }
 
 impl UserError for CreateDirError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
             Self::Canceled => self.to_string(),
             Self::RemoteError(RemoteError::ApiError {
                 code: ApiErrorCode::AlreadyExists,
                 ..
-            }) => String::from("Folder with this name already exists."),
-            Self::RemoteError(err) => err.user_error(),
+            }) => intl::format_message!(
+                intl_service,
+                "core.files.create_dir_already_exists.error",
+                "Error shown when creating a folder and the name already exists.",
+                "Folder with this name already exists."
+            ),
+            Self::RemoteError(err) => err.user_error(intl_service),
         }
     }
 }

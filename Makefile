@@ -151,3 +151,13 @@ test-android-ui: check-android-env build-android-bindings build-android-library-
 
 intl-generate-icu-data:
 	vault-core/scripts/intl-generate-icu-data.sh
+
+intl-extract: intl-core-extract
+
+intl-compile: intl-core-compile
+
+intl-core-extract:
+	vault-core/scripts/intl-extract.sh
+
+intl-core-compile:
+	vault-core/scripts/intl-compile.sh

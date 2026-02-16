@@ -7,7 +7,7 @@ use futures::{
 };
 
 use crate::{
-    remote,
+    intl, remote,
     remote_files::{
         RemoteFilesService,
         errors::{CreateDirError, RemoteFilesErrors},
@@ -23,24 +23,34 @@ use super::{
 };
 
 pub struct RemoteFilesBrowsersService {
+    intl_service: Arc<intl::IntlService>,
     remote_files_service: Arc<RemoteFilesService>,
     store: Arc<store::Store>,
     remote_files_mutation_subscription_id: u32,
 }
 
 impl RemoteFilesBrowsersService {
-    pub fn new(remote_files_service: Arc<RemoteFilesService>, store: Arc<store::Store>) -> Self {
+    pub fn new(
+        intl_service: Arc<intl::IntlService>,
+        remote_files_service: Arc<RemoteFilesService>,
+        store: Arc<store::Store>,
+    ) -> Self {
         let remote_files_mutation_subscription_id = store.get_next_id();
 
-        store.mutation_on(
-            remote_files_mutation_subscription_id,
-            &[store::MutationEvent::RemoteFiles],
-            Box::new(|state, notify, _, _| {
-                mutations::handle_remote_files_mutation(state, notify);
-            }),
-        );
+        {
+            let intl_service = intl_service.clone();
+
+            store.mutation_on(
+                remote_files_mutation_subscription_id,
+                &[store::MutationEvent::RemoteFiles],
+                Box::new(move |state, notify, _, _| {
+                    mutations::handle_remote_files_mutation(state, notify, &intl_service);
+                }),
+            );
+        }
 
         Self {
+            intl_service,
             remote_files_service,
             store,
             remote_files_mutation_subscription_id,
@@ -53,7 +63,14 @@ impl RemoteFilesBrowsersService {
         options: RemoteFilesBrowserOptions,
     ) -> (u32, BoxFuture<'static, Result<(), remote::RemoteError>>) {
         let browser_id = self.store.mutate(|state, notify, mutation_state, _| {
-            mutations::create(state, notify, mutation_state, options, location)
+            mutations::create(
+                state,
+                notify,
+                mutation_state,
+                options,
+                location,
+                &self.intl_service,
+            )
         });
 
         let load_self = self.clone();
@@ -108,7 +125,14 @@ impl RemoteFilesBrowsersService {
         };
 
         self.store.mutate(|state, notify, _, _| {
-            mutations::loaded(state, notify, browser_id, &location, res.clone());
+            mutations::loaded(
+                state,
+                notify,
+                browser_id,
+                &location,
+                res.clone(),
+                &self.intl_service,
+            );
         });
 
         res
@@ -152,7 +176,14 @@ impl RemoteFilesBrowsersService {
         direction: Option<SortDirection>,
     ) {
         self.store.mutate(|state, notify, _, _| {
-            mutations::sort_by(state, notify, browser_id, field, direction);
+            mutations::sort_by(
+                state,
+                notify,
+                browser_id,
+                field,
+                direction,
+                &self.intl_service,
+            );
         });
     }
 

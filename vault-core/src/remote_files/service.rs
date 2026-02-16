@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::Arc};
 
 use crate::{
     common::state::BoxAsyncRead,
-    dialogs,
+    dialogs, intl,
     remote::{
         Remote, RemoteError, RemoteFileUploadConflictResolution,
         remote::{
@@ -21,6 +21,7 @@ use super::{
 };
 
 pub struct RemoteFilesService {
+    intl_service: Arc<intl::IntlService>,
     remote: Arc<Remote>,
     dialogs_service: Arc<dialogs::DialogsService>,
     store: Arc<store::Store>,
@@ -29,6 +30,7 @@ pub struct RemoteFilesService {
 
 impl RemoteFilesService {
     pub fn new(
+        intl_service: Arc<intl::IntlService>,
         remote: Arc<Remote>,
         dialogs_service: Arc<dialogs::DialogsService>,
         store: Arc<store::Store>,
@@ -36,6 +38,7 @@ impl RemoteFilesService {
         let eventstream_events_mutation_subscription_id = store.get_next_id();
 
         let remote_files_service = Self {
+            intl_service,
             remote,
             dialogs_service,
             store: store.clone(),
@@ -271,11 +274,24 @@ impl RemoteFilesService {
             .dialogs_service
             .show_validator(
                 dialogs::state::DialogShowOptions {
-                    input_placeholder: Some(String::from("Folder name")),
-                    confirm_button_text: String::from("Create folder"),
-                    ..self
-                        .dialogs_service
-                        .build_prompt(String::from("Enter new folder name"))
+                    input_placeholder: Some(intl::format_message!(
+                        self.intl_service,
+                        "core.files.create_dir_dialog.input.placeholder",
+                        "Placeholder text for the folder name input in the create folder dialog.",
+                        "Folder name"
+                    )),
+                    confirm_button_text: intl::format_message!(
+                        self.intl_service,
+                        "core.files.create_dir_dialog.confirm.button",
+                        "Confirm button label in the create folder dialog.",
+                        "Create folder"
+                    ),
+                    ..self.dialogs_service.build_prompt(intl::format_message!(
+                        self.intl_service,
+                        "core.files.create_dir_dialog.title",
+                        "Title of the create folder dialog.",
+                        "Enter new folder name"
+                    ))
                 },
                 move |value| {
                     input_value_validator_store.with_state(|state| {

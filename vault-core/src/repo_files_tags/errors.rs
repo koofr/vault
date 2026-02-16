@@ -3,6 +3,7 @@ use thiserror::Error;
 use std::sync::Arc;
 
 use crate::{
+    intl,
     remote::RemoteError,
     repos::errors::{GetCipherError, RepoLockedError, RepoNotFoundError},
     user_error::UserError,
@@ -25,7 +26,7 @@ impl PartialEq for RepoFileTagsDecodeError {
 }
 
 impl UserError for RepoFileTagsDecodeError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, _intl_service: &intl::IntlService) -> String {
         match self {
             Self::Base64Error(err) => format!("Failed to base64 decode tags: {}", err.to_string()),
             Self::DecryptError(err) => format!("Failed to decrypt tags: {}", err.to_string()),
@@ -49,7 +50,7 @@ impl PartialEq for RepoFileTagsEncodeError {
 }
 
 impl UserError for RepoFileTagsEncodeError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, _intl_service: &intl::IntlService) -> String {
         match self {
             Self::RMPSerdeError(err) => format!("Failed to serialize tags: {}", err.to_string()),
             Self::EncryptError(err) => format!("Failed to encrypt tags: {}", err.to_string()),
@@ -71,7 +72,7 @@ pub enum DecryptTagsError {
 }
 
 impl UserError for DecryptTagsError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
             Self::MultipleValues => format!("Multiple tags values found"),
             Self::EncryptedHashMismatch {
@@ -81,7 +82,7 @@ impl UserError for DecryptTagsError {
                 "Encrypted file hash does not match the encrypted hash in tags: {:?} != {:?}",
                 expected_encrypted_hash, encrypted_hash
             ),
-            Self::DecodeError(err) => err.user_error(),
+            Self::DecodeError(err) => err.user_error(intl_service),
         }
     }
 }
@@ -108,22 +109,6 @@ pub enum SetTagsError {
     #[error("{0}")]
     RemoteError(#[from] RemoteError),
 }
-
-// impl UserError for SetTagsError {
-//     fn user_error(&self) -> String {
-//         match self {
-//             Self::RepoNotFound(err) => err.user_error(),
-//             Self::RepoLocked(err) => err.user_error(),
-//             Self::FileNotFound => self.to_string(),
-//             Self::FilesEmpty => self.to_string(),
-//             Self::DecryptFilenameError(err) => err.user_error(),
-//             Self::DecryptSizeError(err) => err.user_error(),
-//             Self::RemoteError(err) => err.user_error(),
-//             Self::IOError(err) => err.to_string(),
-//             Self::Aborted => self.to_string(),
-//         }
-//     }
-// }
 
 impl From<GetCipherError> for SetTagsError {
     fn from(err: GetCipherError) -> Self {

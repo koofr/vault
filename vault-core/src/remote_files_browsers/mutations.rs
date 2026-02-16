@@ -3,6 +3,7 @@ use std::collections::HashSet;
 use crate::{
     common::state::Status,
     eventstream::mutations::{add_mount_subscriber, remove_mount_subscriber},
+    intl,
     remote::{self, RemoteError},
     remote_files::{errors::RemoteFilesErrors, state::RemoteFilesSortField},
     selection::mutations as selection_mutations,
@@ -80,6 +81,7 @@ pub fn create(
     mutation_state: &mut store::MutationState,
     options: RemoteFilesBrowserOptions,
     location: &RemoteFilesBrowserItemId,
+    intl_service: &intl::IntlService,
 ) -> u32 {
     notify(store::Event::RemoteFilesBrowsers);
 
@@ -103,7 +105,7 @@ pub fn create(
         .browsers
         .insert(browser_id, browser);
 
-    update_items(state, notify, browser_id);
+    update_items(state, notify, browser_id, intl_service);
 
     browser_id
 }
@@ -134,6 +136,7 @@ pub fn loaded(
     browser_id: u32,
     location: &RemoteFilesBrowserLocation,
     res: Result<(), remote::RemoteError>,
+    intl_service: &intl::IntlService,
 ) {
     let browser = match state.remote_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
@@ -159,10 +162,15 @@ pub fn loaded(
         }
     }
 
-    update_items(state, notify, browser_id);
+    update_items(state, notify, browser_id, intl_service);
 }
 
-pub fn update_items(state: &mut store::State, notify: &store::Notify, browser_id: u32) {
+pub fn update_items(
+    state: &mut store::State,
+    notify: &store::Notify,
+    browser_id: u32,
+    intl_service: &intl::IntlService,
+) {
     let browser = match state.remote_files_browsers.browsers.get(&browser_id) {
         Some(browser) => browser,
         _ => return,
@@ -173,7 +181,7 @@ pub fn update_items(state: &mut store::State, notify: &store::Notify, browser_id
         .as_ref()
         .map(|location| match location {
             RemoteFilesBrowserLocation::Home => {
-                selectors::select_home_items(state, &browser.options)
+                selectors::select_home_items(state, &browser.options, intl_service)
             }
             RemoteFilesBrowserLocation::Bookmarks => {
                 selectors::sort_items(selectors::select_bookmarks_items(state), &browser.sort)
@@ -312,6 +320,7 @@ pub fn sort_by(
     browser_id: u32,
     field: RemoteFilesSortField,
     direction: Option<SortDirection>,
+    intl_service: &intl::IntlService,
 ) {
     let browser = match state.remote_files_browsers.browsers.get_mut(&browser_id) {
         Some(browser) => browser,
@@ -334,10 +343,14 @@ pub fn sort_by(
     browser.sort.field = field;
     browser.sort.direction = direction;
 
-    update_items(state, notify, browser_id);
+    update_items(state, notify, browser_id, intl_service);
 }
 
-pub fn handle_remote_files_mutation(state: &mut store::State, notify: &store::Notify) {
+pub fn handle_remote_files_mutation(
+    state: &mut store::State,
+    notify: &store::Notify,
+    intl_service: &intl::IntlService,
+) {
     for browser_id in state
         .remote_files_browsers
         .browsers
@@ -345,6 +358,6 @@ pub fn handle_remote_files_mutation(state: &mut store::State, notify: &store::No
         .cloned()
         .collect::<Vec<_>>()
     {
-        update_items(state, notify, browser_id);
+        update_items(state, notify, browser_id, intl_service);
     }
 }

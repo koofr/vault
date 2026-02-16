@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-use crate::{http, secure_storage::errors::SecureStorageError, user_error::UserError};
+use crate::{http, intl, secure_storage::errors::SecureStorageError, user_error::UserError};
 
 #[derive(Error, Debug, Clone, PartialEq)]
 pub enum OAuth2Error {
@@ -19,14 +19,37 @@ pub enum OAuth2Error {
 }
 
 impl UserError for OAuth2Error {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::InvalidOAuth2Token(err) => format!("Invalid OAuth 2 token: {}", err),
-            Self::InvalidOAuth2State => "Invalid authentication state. Please try again.".into(),
-            Self::InvalidGrant(err) => format!("Invalid authentication permissions: {}", err),
-            Self::HttpError(err) => err.user_error(),
-            Self::StorageError(err) => format!("Storage error: {}", err),
-            Self::Unknown(err) => format!("Unknown error: {}", err),
+            Self::InvalidOAuth2Token(err) => intl::format_message!(
+                intl_service,
+                "core.oauth2.invalid_oauth2_token.error",
+                "Error shown when the OAuth token returned from login is invalid.",
+                "Invalid OAuth 2 token: {error}",
+                &[("error", intl::FormatValue::String(err))]
+            ),
+            Self::InvalidOAuth2State => intl::format_message!(
+                intl_service,
+                "core.oauth2.invalid_oauth2_state.error",
+                "Error shown when OAuth state validation fails during login.",
+                "Invalid authentication state. Please try again."
+            ),
+            Self::InvalidGrant(err) => intl::format_message!(
+                intl_service,
+                "core.oauth2.invalid_grant.error",
+                "Error shown when OAuth permissions or grant is invalid or denied during login.",
+                "Invalid authentication permissions: {error}",
+                &[("error", intl::FormatValue::String(err))]
+            ),
+            Self::HttpError(err) => err.user_error(intl_service),
+            Self::StorageError(err) => err.user_error(intl_service),
+            Self::Unknown(err) => intl::format_message!(
+                intl_service,
+                "core.oauth2.unknown.error",
+                "Error shown for unexpected OAuth login issues.",
+                "Unknown error: {error}",
+                &[("error", intl::FormatValue::String(err))]
+            ),
         }
     }
 }

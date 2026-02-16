@@ -1,1 +1,322 @@
-{}
+{
+  "core.cipher.decrypt_filename_decode.error": {
+    "description": "Error shown when decoding an encrypted file name fails.",
+    "defaultMessage": "Failed to decode file name"
+  },
+  "core.cipher.decrypt_filename_decrypt.error": {
+    "description": "Error shown when decrypting a file name fails.",
+    "defaultMessage": "Failed to decrypt file name. Vault files can only be uploaded using Vault apps or rclone. If all your files have errors please check that you've used the correct salt."
+  },
+  "core.cipher.decrypt_filename_unicode.error": {
+    "description": "Error shown when a decrypted file name is not valid Unicode text.",
+    "defaultMessage": "File name is not a valid Unicode text"
+  },
+  "core.cipher.decrypt_size.error": {
+    "description": "Error shown when decrypting an encrypted file size fails.",
+    "defaultMessage": "Failed to decrypt size: {error}"
+  },
+  "core.common.invalid_name.error": {
+    "description": "Validation error shown when a file or folder name is invalid.",
+    "defaultMessage": "Name is not valid"
+  },
+  "core.common.invalid_path.error": {
+    "description": "Validation error shown when the provided path is invalid.",
+    "defaultMessage": "Path is not valid"
+  },
+  "core.dialogs.confirm.cancel.button": {
+    "description": "Label for the cancel button in confirmation dialogs.",
+    "defaultMessage": "Cancel"
+  },
+  "core.dialogs.prompt.cancel.button": {
+    "description": "Label for the cancel button in input prompt dialogs.",
+    "defaultMessage": "Cancel"
+  },
+  "core.dialogs.prompt.confirm.button": {
+    "description": "Label for the primary button in generic alert dialogs.",
+    "defaultMessage": "Ok"
+  },
+  "core.files.create_dir_already_exists.error": {
+    "description": "Error shown when creating a folder and the name already exists.",
+    "defaultMessage": "Folder with this name already exists."
+  },
+  "core.files.create_dir_dialog.confirm.button": {
+    "description": "Confirm button label in the create folder dialog.",
+    "defaultMessage": "Create folder"
+  },
+  "core.files.create_dir_dialog.input.placeholder": {
+    "description": "Placeholder text for the folder name input in the create folder dialog.",
+    "defaultMessage": "Folder name"
+  },
+  "core.files.create_dir_dialog.title": {
+    "description": "Title of the create folder dialog.",
+    "defaultMessage": "Enter new folder name"
+  },
+  "core.files.create_file_already_exists.error": {
+    "description": "Error shown when creating a file and the name already exists.",
+    "defaultMessage": "File with this name already exists."
+  },
+  "core.files.create_file_dialog.confirm.button": {
+    "description": "Confirm button label in the create file dialog.",
+    "defaultMessage": "Create file"
+  },
+  "core.files.create_file_dialog.input.placeholder": {
+    "description": "Placeholder text for the file name input in the create file dialog.",
+    "defaultMessage": "File name"
+  },
+  "core.files.create_file_dialog.title": {
+    "description": "Title of the create file dialog.",
+    "defaultMessage": "Enter new file name"
+  },
+  "core.files.delete_files_dialog.cancel.button": {
+    "description": "Cancel button label for the delete files dialog.",
+    "defaultMessage": "Cancel"
+  },
+  "core.files.delete_files_dialog.confirm.button": {
+    "description": "Confirm button label for the delete files dialog.",
+    "defaultMessage": "Delete"
+  },
+  "core.files.delete_files_dialog.message": {
+    "description": "Confirmation message for the delete files dialog.",
+    "defaultMessage": "Do you really want to delete {count, plural, one {# item} other {# items}}?"
+  },
+  "core.files.delete_files_dialog.title": {
+    "description": "Title of the delete files dialog.",
+    "defaultMessage": "Delete files"
+  },
+  "core.files.move_root.error": {
+    "description": "Error shown when attempting to move the root folder.",
+    "defaultMessage": "Cannot move root folder"
+  },
+  "core.files.rename_file_dialog.confirm.button": {
+    "description": "Confirm button label in the rename file dialog.",
+    "defaultMessage": "Rename"
+  },
+  "core.files.rename_file_dialog.input.placeholder": {
+    "description": "Placeholder text for the new name input in the rename file dialog.",
+    "defaultMessage": "New name"
+  },
+  "core.files.rename_file_dialog.title": {
+    "description": "Title of the rename file dialog showing the current item name. Single quotes MUST be repeated.",
+    "defaultMessage": "Enter new name for ''{name}''"
+  },
+  "core.files.rename_root.error": {
+    "description": "Error shown when attempting to rename the root folder.",
+    "defaultMessage": "Cannot rename root folder"
+  },
+  "core.http.http_response.error": {
+    "description": "Error shown when an HTTP API response fails (usually for unexpected reasons).",
+    "defaultMessage": "HTTP error: {error}"
+  },
+  "core.lifecycle.logout_success.message": {
+    "description": "Notification shown after a remote logout completes successfully.",
+    "defaultMessage": "You've been logged out. Please log in again."
+  },
+  "core.lifecycle.on_login_load_repos.error": {
+    "description": "Error shown after login when loading the Safe Boxes fails.",
+    "defaultMessage": "Failed to load safe boxes: {error}"
+  },
+  "core.lifecycle.on_login_load_space_usage.error": {
+    "description": "Error shown after login when loading the storage space usage fails.",
+    "defaultMessage": "Failed to load space usage: {error}"
+  },
+  "core.lifecycle.on_login_load_user.error": {
+    "description": "Error shown after login when loading the user profile fails.",
+    "defaultMessage": "Failed to load user: {error}"
+  },
+  "core.oauth2.invalid_grant.error": {
+    "description": "Error shown when OAuth permissions or grant is invalid or denied during login.",
+    "defaultMessage": "Invalid authentication permissions: {error}"
+  },
+  "core.oauth2.invalid_oauth2_state.error": {
+    "description": "Error shown when OAuth state validation fails during login.",
+    "defaultMessage": "Invalid authentication state. Please try again."
+  },
+  "core.oauth2.invalid_oauth2_token.error": {
+    "description": "Error shown when the OAuth token returned from login is invalid.",
+    "defaultMessage": "Invalid OAuth 2 token: {error}"
+  },
+  "core.oauth2.unknown.error": {
+    "description": "Error shown for unexpected OAuth login issues.",
+    "defaultMessage": "Unknown error: {error}"
+  },
+  "core.remote.api.error": {
+    "description": "Error shown when the server returns an unexpected response.",
+    "defaultMessage": "API error: {message}"
+  },
+  "core.remote.unexpected_status.error": {
+    "description": "Error shown when the server returns an unexpected HTTP status code.",
+    "defaultMessage": "Unexpected HTTP status: {status_code}: {message}"
+  },
+  "core.remote_files.items.bookmarks": {
+    "description": "Label for the Bookmarks root item in the remote files browser list and breadcrumb (e.g. in the location selector when creating a new Safe Box).",
+    "defaultMessage": "Bookmarks"
+  },
+  "core.remote_files.items.shared": {
+    "description": "Label for the Shared root item in the remote files browser list and breadcrumb (e.g. in the location selector when creating a new Safe Box).",
+    "defaultMessage": "Shared"
+  },
+  "core.repo_create.default_repo_name": {
+    "description": "Default Safe Box name suggested in the create Safe Box flow.",
+    "defaultMessage": "My safe box"
+  },
+  "core.repo_files.items.recent": {
+    "description": "Label for the Recent files in the breadcrumbs.",
+    "defaultMessage": "Recent files"
+  },
+  "core.repo_files_details.conflict.error": {
+    "description": "Error shown in the text editor when the remote file changed and autosave is disabled.",
+    "defaultMessage": "File was changed by someone else since your last save. Automatic saving is disabled."
+  },
+  "core.repo_files_details.file_could_not_be_saved_dialog.cancel.button": {
+    "description": "Cancel button label to discard changes in the failed save dialog.",
+    "defaultMessage": "Discard changes"
+  },
+  "core.repo_files_details.file_could_not_be_saved_dialog.confirm.button": {
+    "description": "Confirm button label to retry saving in the failed save dialog.",
+    "defaultMessage": "Try again"
+  },
+  "core.repo_files_details.file_could_not_be_saved_dialog.message": {
+    "description": "Message explaining that saving failed and asking whether to retry or discard changes.",
+    "defaultMessage": "File could not be saved ({error}). Do you want to Try again or Discard the changes?"
+  },
+  "core.repo_files_details.file_could_not_be_saved_dialog.title": {
+    "description": "Title of the dialog shown when a file fails to save while closing the text editor.",
+    "defaultMessage": "File could not be saved"
+  },
+  "core.repo_files_details.file_no_longer_accessible.error": {
+    "description": "Error shown in the text editor when the file was deleted or access was removed.",
+    "defaultMessage": "This file is no longer accessible. Probably it was deleted or you no longer have access to it."
+  },
+  "core.repo_files_details.file_not_found.error": {
+    "description": "Error shown in the file details view when the file cannot be found.",
+    "defaultMessage": "File not found"
+  },
+  "core.repo_files_details.file_removed_dialog.message": {
+    "description": "Alert message shown when an open file becomes inaccessible.",
+    "defaultMessage": "File {name} is no longer accessible. Probably it was deleted or you no longer have access to it."
+  },
+  "core.repo_files_details.file_removed_dialog.title": {
+    "description": "Title of the alert shown when an open file is no longer accessible.",
+    "defaultMessage": "File not accessible"
+  },
+  "core.repo_files_details.save_deleted_confirm_new_location_cancel_dialog.cancel.button": {
+    "description": "Cancel button label for dialog to discard changes when the original file is inaccessible.",
+    "defaultMessage": "Discard changes"
+  },
+  "core.repo_files_details.save_deleted_confirm_new_location_cancel_dialog.confirm.button": {
+    "description": "Confirm button label for dialog to save to a new location from the cancel flow.",
+    "defaultMessage": "Save to a new location"
+  },
+  "core.repo_files_details.save_deleted_confirm_new_location_cancel_dialog.message": {
+    "description": "Dialog message asking whether to save to a new location or discard changes when the original file is inaccessible.",
+    "defaultMessage": "File {name} is no longer accessible. Probably it was deleted or you no longer have access to it. Do you want to Save the file to a new location or Discard the changes?"
+  },
+  "core.repo_files_details.save_deleted_confirm_new_location_cancel_dialog.title": {
+    "description": "Title of the dialog shown when cancelling edits and the original file is no longer accessible.",
+    "defaultMessage": "File not accessible"
+  },
+  "core.repo_files_details.save_deleted_confirm_new_location_user_dialog.confirm.button": {
+    "description": "Confirm button label for dialog to save to a new location when the original file is inaccessible.",
+    "defaultMessage": "Save to a new location"
+  },
+  "core.repo_files_details.save_deleted_confirm_new_location_user_dialog.message": {
+    "description": "Dialog message asking whether to save the file to a new location after the original became inaccessible.",
+    "defaultMessage": "File {name} is no longer accessible. Probably it was deleted or you no longer have access to it. Do you want to Save the file to a new location?"
+  },
+  "core.repo_files_details.save_deleted_confirm_new_location_user_dialog.title": {
+    "description": "Title of the dialog shown when saving and the original file is no longer accessible.",
+    "defaultMessage": "File not accessible"
+  },
+  "core.repo_files_details.save_handle_conflict_cancel_dialog.cancel.button": {
+    "description": "Cancel button label for dialog to discard changes in the conflict dialog.",
+    "defaultMessage": "Discard changes"
+  },
+  "core.repo_files_details.save_handle_conflict_cancel_dialog.confirm.button": {
+    "description": "Confirm button label for dialog to save changes as a new file from the cancel flow.",
+    "defaultMessage": "Save as a new file"
+  },
+  "core.repo_files_details.save_handle_conflict_cancel_dialog.message": {
+    "description": "Dialog message explaining a save conflict and offering to save as a new file or discard changes.",
+    "defaultMessage": "Saving into the existing file is not possible. Do you want to Save your changes as a new file or Discard them?"
+  },
+  "core.repo_files_details.save_handle_conflict_cancel_dialog.title": {
+    "description": "Title of the conflict dialog shown when cancelling edits and the file changed remotely.",
+    "defaultMessage": "File was changed by someone else since your last save"
+  },
+  "core.repo_files_details.save_handle_conflict_user_dialog.confirm.button": {
+    "description": "Confirm button label for dialog to save changes as a new file after a conflict.",
+    "defaultMessage": "Save as a new file"
+  },
+  "core.repo_files_details.save_handle_conflict_user_dialog.message": {
+    "description": "Dialog message explaining a save conflict and asking to save as a new file.",
+    "defaultMessage": "Saving into the existing file is not possible. Do you want to Save your changes as a new file?"
+  },
+  "core.repo_files_details.save_handle_conflict_user_dialog.title": {
+    "description": "Title of the conflict dialog shown when the file changed remotely during save.",
+    "defaultMessage": "File was changed by someone else since your last save"
+  },
+  "core.repo_files_details.save_location_changed_dialog.message": {
+    "description": "Alert message shown after saving to a new location because the original location was unavailable.",
+    "defaultMessage": "File {name} was saved here because it could not be saved in its original location."
+  },
+  "core.repo_files_details.save_location_changed_dialog.title": {
+    "description": "Title of the alert shown when a file is saved to a new location.",
+    "defaultMessage": "File location changed"
+  },
+  "core.repos.create_repo_already_exists.error": {
+    "description": "Error shown when creating a Safe Box at a location that already contains one.",
+    "defaultMessage": "This location is already a Safe Box."
+  },
+  "core.repos.create_repo_max_total_limit_exceeded.error": {
+    "description": "Error shown when the Safe Box creation limit for the account is exceeded.",
+    "defaultMessage": "You cannot create more Safe Boxes. Please upgrade your account."
+  },
+  "core.repos.default_dir_name.documents": {
+    "description": "Default folder name for documents created in the first Safe Box.",
+    "defaultMessage": "My private documents"
+  },
+  "core.repos.default_dir_name.pictures": {
+    "description": "Default folder name for pictures created in the first Safe Box.",
+    "defaultMessage": "My private pictures"
+  },
+  "core.repos.default_dir_name.videos": {
+    "description": "Default folder name for videos created in the first Safe Box.",
+    "defaultMessage": "My private videos"
+  },
+  "core.repos.invalid_password.error": {
+    "description": "Error shown when the provided Safe Key is incorrect.",
+    "defaultMessage": "Safe Key is not correct."
+  },
+  "core.repos.repo_locked.error": {
+    "description": "Error shown when a Safe Box is locked and requires the Safe Key.",
+    "defaultMessage": "Safe Box is locked."
+  },
+  "core.repos.repo_not_found.error": {
+    "description": "Error shown when a Safe Box cannot be found or is no longer accessible.",
+    "defaultMessage": "Safe Box not found."
+  },
+  "core.repos.repo_unlocked.error": {
+    "description": "Error shown when attempting to unlock a Safe Box that is already unlocked.",
+    "defaultMessage": "Safe Box is unlocked."
+  },
+  "core.secure_storage.secure_storage.error": {
+    "description": "Error shown when secure storage (keychain/keystore) operations fail.",
+    "defaultMessage": "Storage error: {error}"
+  },
+  "core.transfers.aborted.error": {
+    "description": "Error shown when an upload or download transfer is cancelled or aborted.",
+    "defaultMessage": "Transfer has been aborted."
+  },
+  "desktop.oauth.close_page.message": {
+    "description": "A message that appears after a successful login or logout in the desktop app.",
+    "defaultMessage": "You can now close this page."
+  },
+  "desktop.save_file.file_filter": {
+    "description": "Desktop download file dialog file extension filter (only on Windows).",
+    "defaultMessage": "File ({ext})"
+  },
+  "desktop.upload_failed.error": {
+    "description": "Error shown when an upload has failed.",
+    "defaultMessage": "Failed to upload: {path}: {error}"
+  }
+}

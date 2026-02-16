@@ -38,19 +38,27 @@ fn test_eventstream() {
 
             fixture1.upload_remote_file("/file.txt", "test").await;
 
-            let wait_for_store = fixture.vault.store.clone();
-            store::wait_for(
-                wait_for_store.clone(),
-                &[store::Event::RemoteFilesBrowsers],
-                move |_| {
-                    wait_for_store.with_state(|state| {
-                        remote_files_browsers::selectors::select_info(state, browser_id)
+            {
+                let store = fixture.vault.store.clone();
+                let intl_service = fixture.vault.intl_service.clone();
+
+                store::wait_for(
+                    store.clone(),
+                    &[store::Event::RemoteFilesBrowsers],
+                    move |_| {
+                        store.with_state(|state| {
+                            remote_files_browsers::selectors::select_info(
+                                state,
+                                browser_id,
+                                &intl_service,
+                            )
                             .filter(|info| !info.items.is_empty())
                             .map(|_| ())
-                    })
-                },
-            )
-            .await;
+                        })
+                    },
+                )
+                .await;
+            }
 
             fixture.vault.remote_files_browsers_destroy(browser_id);
         }
@@ -90,35 +98,51 @@ fn test_eventstream_not_loaded() {
             )
             .await;
 
-            let wait_for_store = fixture.vault.store.clone();
-            store::wait_for(
-                wait_for_store.clone(),
-                &[store::Event::RemoteFilesBrowsers],
-                move |_| {
-                    wait_for_store.with_state(|state| {
-                        remote_files_browsers::selectors::select_info(state, browser_id)
+            {
+                let store = fixture.vault.store.clone();
+                let intl_service = fixture.vault.intl_service.clone();
+
+                store::wait_for(
+                    store.clone(),
+                    &[store::Event::RemoteFilesBrowsers],
+                    move |_| {
+                        store.with_state(|state| {
+                            remote_files_browsers::selectors::select_info(
+                                state,
+                                browser_id,
+                                &intl_service,
+                            )
                             .filter(|info| info.status.loaded())
                             .map(|_| ())
-                    })
-                },
-            )
-            .await;
+                        })
+                    },
+                )
+                .await;
+            }
 
             fixture1.upload_remote_file("/file.txt", "test").await;
 
-            let wait_for_store = fixture.vault.store.clone();
-            store::wait_for(
-                wait_for_store.clone(),
-                &[store::Event::RemoteFilesBrowsers],
-                move |_| {
-                    wait_for_store.with_state(|state| {
-                        remote_files_browsers::selectors::select_info(state, browser_id)
+            {
+                let store = fixture.vault.store.clone();
+                let intl_service = fixture.vault.intl_service.clone();
+
+                store::wait_for(
+                    store.clone(),
+                    &[store::Event::RemoteFilesBrowsers],
+                    move |_| {
+                        store.with_state(|state| {
+                            remote_files_browsers::selectors::select_info(
+                                state,
+                                browser_id,
+                                &intl_service,
+                            )
                             .filter(|info| !info.items.is_empty())
                             .map(|_| ())
-                    })
-                },
-            )
-            .await;
+                        })
+                    },
+                )
+                .await;
+            }
 
             fixture.vault.remote_files_browsers_destroy(browser_id);
         }

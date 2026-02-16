@@ -24,7 +24,7 @@ use vault_core::{
         errors::{DownloadableError, TransferError},
     },
     types::{EncryptedPath, RepoId},
-    user_error::StringUserError,
+    user_error::FnUserError,
     utils::reader_stream::ReaderStream,
 };
 use vault_crypto::constants::BLOCK_SIZE;
@@ -464,16 +464,30 @@ pub async fn oauth2_callback(
 ) -> Response {
     let url = format!("http://host{}", parts.uri.to_string());
 
-    base.clone().spawn(|_| {
-        async move {
-            let _ = base.oauth2_finish_flow_url(url).await;
-        }
-        .boxed()
-    });
+    {
+        let base = base.clone();
+
+        base.clone().spawn(move |_| {
+            async move {
+                let _ = base.oauth2_finish_flow_url(url).await;
+            }
+            .boxed()
+        });
+    }
+
+    let message = vault_core::intl::format_message!(
+        &base.vault.intl_service,
+        "desktop.oauth.close_page.message",
+        "A message that appears after a successful login or logout in the desktop app.",
+        "You can now close this page."
+    );
 
     (
         [(CONTENT_TYPE, "text/html; charset=utf-8")],
-        "<center><h1>You can now close this page.</h1></center>",
+        format!(
+            "<center><h1>{}</h1></center>",
+            html_escape::encode_text(&message)
+        ),
     )
         .into_response()
 }
@@ -1519,10 +1533,24 @@ fn repo_files_upload_path(
             });
         }),
         Box::new(move |path, err| {
-            on_error_base.handle_error(StringUserError(format!(
-                "Failed to upload {:?}: {}",
-                path, err
-            )));
+            on_error_base.handle_error(FnUserError(|intl_service| {
+                vault_core::intl::format_message!(
+                    intl_service,
+                    "desktop.upload_failed.error",
+                    "Error shown when an upload has failed.",
+                    "Failed to upload: {path}: {error}",
+                    &[
+                        (
+                            "path",
+                            vault_core::intl::FormatValue::String(&path.display().to_string()),
+                        ),
+                        (
+                            "error",
+                            vault_core::intl::FormatValue::String(&err.to_string()),
+                        ),
+                    ]
+                )
+            }));
         }),
     );
 }

@@ -16,7 +16,7 @@ impl WebErrors {
     }
 
     pub fn handle_error(&self, user_error: impl UserError) {
-        self.handle_error_str(user_error.user_error());
+        self.handle_error_str(user_error.user_error(&self.vault.intl_service));
     }
 
     pub fn handle_result(&self, result: Result<(), impl UserError>) {

@@ -238,7 +238,12 @@ fn test_content_loaded_error() {
 
             // error should be some because status and content status are error
             fixture.vault.with_state(|state| {
-                let info = repo_files_details::selectors::select_info(state, details_id).unwrap();
+                let info = repo_files_details::selectors::select_info(
+                    state,
+                    details_id,
+                    &fixture.vault.intl_service,
+                )
+                .unwrap();
                 assert!(info.error.is_some());
                 assert!(matches!(info.status, Status::Error { .. }));
                 assert!(matches!(info.content_status, Status::Error { .. }));
@@ -258,7 +263,12 @@ fn test_content_loaded_error() {
 
             // error should still be some because status is still error
             fixture.vault.with_state(|state| {
-                let info = repo_files_details::selectors::select_info(state, details_id).unwrap();
+                let info = repo_files_details::selectors::select_info(
+                    state,
+                    details_id,
+                    &fixture.vault.intl_service,
+                )
+                .unwrap();
                 assert!(info.error.is_some());
                 assert!(matches!(info.status, Status::Error { .. }));
                 assert!(matches!(info.content_status, Status::Loaded));
@@ -624,7 +634,7 @@ fn test_repo_not_loaded() {
                 |len| assert_eq!(len, 3),
                 |i, state| match i {
                     0 => assert_eq!(
-                        select_info(&state, details_id).unwrap(),
+                        select_info(&state, details_id, &fixture.vault.intl_service).unwrap(),
                         RepoFilesDetailsInfo {
                             repo_id: Some(&RepoId(fixture.repo_id.0.clone())),
                             parent_path: Some(EncryptedPath("/".into())),
@@ -652,7 +662,7 @@ fn test_repo_not_loaded() {
                         }
                     ),
                     1 => assert_eq!(
-                        select_info(&state, details_id).unwrap(),
+                        select_info(&state, details_id, &fixture.vault.intl_service).unwrap(),
                         RepoFilesDetailsInfo {
                             repo_id: Some(&RepoId(fixture.repo_id.0.clone())),
                             parent_path: Some(EncryptedPath("/".into())),
@@ -680,7 +690,7 @@ fn test_repo_not_loaded() {
                         }
                     ),
                     2 => assert_eq!(
-                        select_info(&state, details_id).unwrap(),
+                        select_info(&state, details_id, &fixture.vault.intl_service).unwrap(),
                         RepoFilesDetailsInfo {
                             repo_id: Some(&RepoId(fixture.repo_id.0.clone())),
                             parent_path: Some(EncryptedPath("/".into())),
@@ -697,7 +707,7 @@ fn test_repo_not_loaded() {
                             content_status: Status::Initial,
                             transfer_id: None,
                             save_status: Status::Initial,
-                            error: Some("Safe Box is locked".into()),
+                            error: Some("Safe Box is locked.".into()),
                             is_editing: false,
                             is_dirty: false,
                             should_destroy: false,
@@ -710,7 +720,10 @@ fn test_repo_not_loaded() {
                             is_locked: true,
                         }
                     ),
-                    _ => panic!("unexpected state: {:#?}", select_info(&state, details_id)),
+                    _ => panic!(
+                        "unexpected state: {:#?}",
+                        select_info(&state, details_id, &fixture.vault.intl_service)
+                    ),
                 },
             );
 
@@ -774,7 +787,7 @@ fn test_repo_locked_unlock() {
                 |len| assert_eq!(len, 5),
                 |i, state| match i {
                     0 => assert_eq!(
-                        select_info(&state, details_id).unwrap(),
+                        select_info(&state, details_id, &fixture.vault.intl_service).unwrap(),
                         RepoFilesDetailsInfo {
                             repo_id: Some(&RepoId(fixture.repo_id.0.clone())),
                             parent_path: Some(EncryptedPath("/".into())),
@@ -791,7 +804,7 @@ fn test_repo_locked_unlock() {
                             content_status: Status::Initial,
                             transfer_id: None,
                             save_status: Status::Initial,
-                            error: Some("Safe Box is locked".into()),
+                            error: Some("Safe Box is locked.".into()),
                             is_editing: false,
                             is_dirty: false,
                             should_destroy: false,
@@ -805,7 +818,7 @@ fn test_repo_locked_unlock() {
                         }
                     ),
                     1 => assert_eq!(
-                        select_info(&state, details_id).unwrap(),
+                        select_info(&state, details_id, &fixture.vault.intl_service).unwrap(),
                         RepoFilesDetailsInfo {
                             repo_id: Some(&RepoId(fixture.repo_id.0.clone())),
                             parent_path: Some(EncryptedPath("/".into())),
@@ -833,7 +846,7 @@ fn test_repo_locked_unlock() {
                         }
                     ),
                     2 => assert_eq!(
-                        select_info(&state, details_id).unwrap(),
+                        select_info(&state, details_id, &fixture.vault.intl_service).unwrap(),
                         RepoFilesDetailsInfo {
                             repo_id: Some(&RepoId(fixture.repo_id.0.clone())),
                             parent_path: Some(EncryptedPath("/".into())),
@@ -843,7 +856,7 @@ fn test_repo_locked_unlock() {
                             file_ext: Some("txt".into()),
                             file_category: Some(FileCategory::Text),
                             file_modified: Some(
-                                select_info(&state, details_id)
+                                select_info(&state, details_id, &fixture.vault.intl_service)
                                     .unwrap()
                                     .file_modified
                                     .unwrap()
@@ -866,7 +879,7 @@ fn test_repo_locked_unlock() {
                         }
                     ),
                     3 => assert_eq!(
-                        select_info(&state, details_id).unwrap(),
+                        select_info(&state, details_id, &fixture.vault.intl_service).unwrap(),
                         RepoFilesDetailsInfo {
                             repo_id: Some(&RepoId(fixture.repo_id.0.clone())),
                             parent_path: Some(EncryptedPath("/".into())),
@@ -876,7 +889,7 @@ fn test_repo_locked_unlock() {
                             file_ext: Some("txt".into()),
                             file_category: Some(FileCategory::Text),
                             file_modified: Some(
-                                select_info(&state, details_id)
+                                select_info(&state, details_id, &fixture.vault.intl_service)
                                     .unwrap()
                                     .file_modified
                                     .unwrap()
@@ -899,7 +912,7 @@ fn test_repo_locked_unlock() {
                         }
                     ),
                     4 => assert_eq!(
-                        select_info(&state, details_id).unwrap(),
+                        select_info(&state, details_id, &fixture.vault.intl_service).unwrap(),
                         RepoFilesDetailsInfo {
                             repo_id: Some(&RepoId(fixture.repo_id.0.clone())),
                             parent_path: Some(EncryptedPath("/".into())),
@@ -909,7 +922,7 @@ fn test_repo_locked_unlock() {
                             file_ext: Some("txt".into()),
                             file_category: Some(FileCategory::Text),
                             file_modified: Some(
-                                select_info(&state, details_id)
+                                select_info(&state, details_id, &fixture.vault.intl_service)
                                     .unwrap()
                                     .file_modified
                                     .unwrap()
@@ -931,7 +944,10 @@ fn test_repo_locked_unlock() {
                             is_locked: false,
                         }
                     ),
-                    _ => panic!("unexpected state: {:#?}", select_info(&state, details_id)),
+                    _ => panic!(
+                        "unexpected state: {:#?}",
+                        select_info(&state, details_id, &fixture.vault.intl_service)
+                    ),
                 },
             );
 
@@ -974,8 +990,14 @@ fn test_repo_lock_unlock_remove() {
             .await;
 
             let get_state = || fixture.vault.with_state(|state| state.clone());
-            let select_info =
-                |state| repo_files_details::selectors::select_info(state, details_id).unwrap();
+            let select_info = |state| {
+                repo_files_details::selectors::select_info(
+                    state,
+                    details_id,
+                    &fixture.vault.intl_service,
+                )
+                .unwrap()
+            };
             fn fix_content_status_loaded<'a>(
                 info: RepoFilesDetailsInfo<'a>,
             ) -> RepoFilesDetailsInfo<'a> {
@@ -1058,7 +1080,7 @@ fn test_repo_lock_unlock_remove() {
                     content_status: Status::Loaded,
                     transfer_id: None,
                     save_status: Status::Initial,
-                    error: Some("Safe Box is locked".into()),
+                    error: Some("Safe Box is locked.".into()),
                     is_editing: false,
                     is_dirty: false,
                     should_destroy: false,
@@ -1137,7 +1159,7 @@ fn test_repo_lock_unlock_remove() {
                     content_status: Status::Loaded,
                     transfer_id: None,
                     save_status: Status::Initial,
-                    error: Some("Safe Box not found".into()),
+                    error: Some("Safe Box not found.".into()),
                     is_editing: false,
                     is_dirty: false,
                     should_destroy: false,

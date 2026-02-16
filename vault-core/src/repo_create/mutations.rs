@@ -1,6 +1,6 @@
 use crate::{
     common::state::Status,
-    rclone, remote,
+    intl, rclone, remote,
     remote_files::state::RemoteFilesLocation,
     repos::{errors::CreateRepoError, state::RepoCreated},
     store,
@@ -12,8 +12,6 @@ use super::{
     selectors,
     state::{RepoCreate, RepoCreateForm},
 };
-
-pub const DEFAULT_REPO_NAME: &'static str = "My safe box";
 
 pub fn create(state: &mut store::State, notify: &store::Notify, salt: String) -> u32 {
     notify(store::Event::RepoCreate);
@@ -41,6 +39,7 @@ pub fn create_loaded(
     notify: &store::Notify,
     create_id: u32,
     res: Result<MountId, CreateLoadError>,
+    intl_service: &intl::IntlService,
 ) {
     let no_existing_repos = state.repos.repos_by_id.is_empty();
 
@@ -76,9 +75,16 @@ pub fn create_loaded(
 
     if no_existing_repos {
         if let Some(primary_mount_id) = &form.primary_mount_id {
+            let default_repo_name = intl::format_message!(
+                intl_service,
+                "core.repo_create.default_repo_name",
+                "Default Safe Box name suggested in the create Safe Box flow.",
+                "My safe box"
+            );
+
             form.location = Some(RemoteFilesLocation {
                 mount_id: primary_mount_id.to_owned(),
-                path: RemotePath(format!("/{}", DEFAULT_REPO_NAME)),
+                path: RemotePath(format!("/{}", default_repo_name)),
             });
         }
     }

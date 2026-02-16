@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use thiserror::Error;
 
-use crate::{http, user_error::UserError};
+use crate::{http, intl, user_error::UserError};
 
 use super::models;
 
@@ -115,14 +115,32 @@ impl RemoteError {
 }
 
 impl UserError for RemoteError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::ApiError { message, .. } => format!("API error: {}", message),
+            Self::ApiError { message, .. } => intl::format_message!(
+                intl_service,
+                "core.remote.api.error",
+                "Error shown when the server returns an unexpected response.",
+                "API error: {message}",
+                &[("message", intl::FormatValue::String(message))]
+            ),
             Self::UnexpectedStatus {
                 status_code,
                 message,
-            } => format!("unexpected HTTP status: {}: {}", status_code, message),
-            Self::HttpError(err) => err.user_error(),
+            } => intl::format_message!(
+                intl_service,
+                "core.remote.unexpected_status.error",
+                "Error shown when the server returns an unexpected HTTP status code.",
+                "Unexpected HTTP status: {status_code}: {message}",
+                &[
+                    (
+                        "status_code",
+                        intl::FormatValue::Integer(*status_code as i64)
+                    ),
+                    ("message", intl::FormatValue::String(message))
+                ]
+            ),
+            Self::HttpError(err) => err.user_error(intl_service),
         }
     }
 }

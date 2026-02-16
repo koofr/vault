@@ -1,11 +1,13 @@
+use crate::intl;
+
 pub trait UserError {
-    fn user_error(&self) -> String;
+    fn user_error(&self, intl_service: &intl::IntlService) -> String;
 }
 
-pub struct StringUserError(pub String);
+pub struct FnUserError<F: Fn(&intl::IntlService) -> String>(pub F);
 
-impl UserError for StringUserError {
-    fn user_error(&self) -> String {
-        self.0.clone()
+impl<F: Fn(&intl::IntlService) -> String> UserError for FnUserError<F> {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
+        self.0(intl_service)
     }
 }

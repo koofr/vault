@@ -2,6 +2,7 @@ use thiserror::Error;
 
 use crate::{
     cipher::errors::DecryptFilenameError,
+    intl,
     remote::RemoteError,
     repos::errors::{GetCipherError, RepoLockedError, RepoNotFoundError},
     user_error::UserError,
@@ -16,10 +17,10 @@ pub enum FilesListRecursiveItemError {
 }
 
 impl UserError for FilesListRecursiveItemError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::DecryptFilenameError(err) => err.user_error(),
-            Self::RemoteError(err) => err.user_error(),
+            Self::DecryptFilenameError(err) => err.user_error(intl_service),
+            Self::RemoteError(err) => err.user_error(intl_service),
         }
     }
 }
@@ -37,12 +38,12 @@ pub enum GetListRecursiveError {
 }
 
 impl UserError for GetListRecursiveError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
-            Self::RepoNotFound(err) => err.user_error(),
-            Self::RepoLocked(err) => err.user_error(),
-            Self::DecryptFilenameError(err) => err.user_error(),
-            Self::RemoteError(err) => err.user_error(),
+            Self::RepoNotFound(err) => err.user_error(intl_service),
+            Self::RepoLocked(err) => err.user_error(intl_service),
+            Self::DecryptFilenameError(err) => err.user_error(intl_service),
+            Self::RemoteError(err) => err.user_error(intl_service),
         }
     }
 }

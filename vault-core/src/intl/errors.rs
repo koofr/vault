@@ -2,7 +2,7 @@ use thiserror::Error;
 
 use vault_intl::{FormatterError, LanguageIdentifier, LanguageIdentifierParseError};
 
-use crate::{secure_storage::errors::SecureStorageError, user_error::UserError};
+use crate::{intl, secure_storage::errors::SecureStorageError, user_error::UserError};
 
 #[derive(Error, Debug, Clone, PartialEq)]
 pub enum SetLocaleError {
@@ -19,13 +19,13 @@ pub enum SetLocaleError {
 }
 
 impl UserError for SetLocaleError {
-    fn user_error(&self) -> String {
+    fn user_error(&self, intl_service: &intl::IntlService) -> String {
         match self {
             Self::LocaleParse(..) => self.to_string(),
             Self::LocaleNotFound(..) => self.to_string(),
             Self::LookupFailed(..) => self.to_string(),
             Self::FormatterError(..) => self.to_string(),
-            Self::StorageError(err) => format!("Storage error: {}", err),
+            Self::StorageError(err) => err.user_error(intl_service),
         }
     }
 }

@@ -12,6 +12,7 @@ use vault_core::{
         file_size::{size_display, speed_display_bytes_duration},
         files_filter,
     },
+    intl,
     notifications::state as notifications_state,
     relative_time,
     remote_files::state as remote_files_state,
@@ -43,16 +44,16 @@ pub enum Status {
     Error { error: String, loaded: bool },
 }
 
-impl<E: std::error::Error + Clone + PartialEq + UserError> From<&common_state::Status<E>>
-    for Status
+impl<E: std::error::Error + Clone + PartialEq + UserError>
+    From<(&common_state::Status<E>, &intl::IntlService)> for Status
 {
-    fn from(status: &common_state::Status<E>) -> Self {
+    fn from((status, intl_service): (&common_state::Status<E>, &intl::IntlService)) -> Self {
         match status {
             common_state::Status::Initial => Self::Initial,
             common_state::Status::Loading { loaded } => Self::Loading { loaded: *loaded },
             common_state::Status::Loaded => Self::Loaded,
             common_state::Status::Error { error, loaded } => Self::Error {
-                error: error.user_error(),
+                error: error.user_error(intl_service),
                 loaded: *loaded,
             },
         }
@@ -558,12 +559,12 @@ pub struct Repos {
     pub repos: Vec<Repo>,
 }
 
-impl From<&store::State> for Repos {
-    fn from(state: &store::State) -> Self {
+impl From<(&store::State, &intl::IntlService)> for Repos {
+    fn from((state, intl_service): (&store::State, &intl::IntlService)) -> Self {
         let default_auto_lock = repos_selectors::select_default_auto_lock(state);
 
         Self {
-            status: (&state.repos.status).into(),
+            status: (&state.repos.status, intl_service).into(),
             repos: repos_selectors::select_repos(state)
                 .into_iter()
                 .map(|repo| (repo, default_auto_lock).into())
@@ -578,10 +579,10 @@ pub struct RepoInfo {
     pub repo: Option<Repo>,
 }
 
-impl<'a> From<&repos_state::RepoInfo<'a>> for RepoInfo {
-    fn from(info: &repos_state::RepoInfo<'a>) -> Self {
+impl<'a> From<(&repos_state::RepoInfo<'a>, &intl::IntlService)> for RepoInfo {
+    fn from((info, intl_service): (&repos_state::RepoInfo<'a>, &intl::IntlService)) -> Self {
         Self {
-            status: (&info.status).into(),
+            status: (&info.status, intl_service).into(),
             repo: info.repo.map(|repo| (repo, info.default_auto_lock).into()),
         }
     }
@@ -726,10 +727,12 @@ pub struct RepoUnlockInfo {
     pub repo_name: Option<String>,
 }
 
-impl<'a> From<&repo_unlock_state::RepoUnlockInfo<'a>> for RepoUnlockInfo {
-    fn from(info: &repo_unlock_state::RepoUnlockInfo<'a>) -> Self {
+impl<'a> From<(&repo_unlock_state::RepoUnlockInfo<'a>, &intl::IntlService)> for RepoUnlockInfo {
+    fn from(
+        (info, intl_service): (&repo_unlock_state::RepoUnlockInfo<'a>, &intl::IntlService),
+    ) -> Self {
         Self {
-            status: info.status.into(),
+            status: (info.status, intl_service).into(),
             repo_name: info.repo_name.map(|x| x.0.to_owned()),
         }
     }
@@ -742,10 +745,12 @@ pub struct RepoRemoveInfo {
     pub repo_name: Option<String>,
 }
 
-impl<'a> From<&repo_remove_state::RepoRemoveInfo<'a>> for RepoRemoveInfo {
-    fn from(info: &repo_remove_state::RepoRemoveInfo<'a>) -> Self {
+impl<'a> From<(&repo_remove_state::RepoRemoveInfo<'a>, &intl::IntlService)> for RepoRemoveInfo {
+    fn from(
+        (info, intl_service): (&repo_remove_state::RepoRemoveInfo<'a>, &intl::IntlService),
+    ) -> Self {
         Self {
-            status: info.status.into(),
+            status: (info.status, intl_service).into(),
             repo_name: info.repo_name.map(|x| x.0.to_owned()),
         }
     }
@@ -758,10 +763,20 @@ pub struct RepoSpaceUsageInfo {
     pub space_used_display: Option<String>,
 }
 
-impl<'a> From<&repo_space_usage_state::RepoSpaceUsageInfo<'a>> for RepoSpaceUsageInfo {
-    fn from(info: &repo_space_usage_state::RepoSpaceUsageInfo<'a>) -> Self {
+impl<'a>
+    From<(
+        &repo_space_usage_state::RepoSpaceUsageInfo<'a>,
+        &intl::IntlService,
+    )> for RepoSpaceUsageInfo
+{
+    fn from(
+        (info, intl_service): (
+            &repo_space_usage_state::RepoSpaceUsageInfo<'a>,
+            &intl::IntlService,
+        ),
+    ) -> Self {
         Self {
-            status: info.status.into(),
+            status: (info.status, intl_service).into(),
             space_used_display: info.space_used.map(size_display),
         }
     }
@@ -831,16 +846,23 @@ pub struct RepoFileTags {
 }
 
 impl
-    From<
+    From<(
         &Option<
             Result<repo_files_tags::state::RepoFileTags, repo_files_tags::errors::DecryptTagsError>,
         >,
-    > for RepoFileTags
+        &intl::IntlService,
+    )> for RepoFileTags
 {
     fn from(
-        tags: &Option<
-            Result<repo_files_tags::state::RepoFileTags, repo_files_tags::errors::DecryptTagsError>,
-        >,
+        (tags, intl_service): (
+            &Option<
+                Result<
+                    repo_files_tags::state::RepoFileTags,
+                    repo_files_tags::errors::DecryptTagsError,
+                >,
+            >,
+            &intl::IntlService,
+        ),
     ) -> Self {
         match tags {
             Some(Ok(tags)) => Self {
@@ -848,7 +870,7 @@ impl
                 ..Default::default()
             },
             Some(Err(err)) => RepoFileTags {
-                error: Some(err.user_error()),
+                error: Some(err.user_error(intl_service)),
                 ..Default::default()
             },
             None => Default::default(),
@@ -884,8 +906,8 @@ pub struct RepoFile {
     pub file_icon_attrs: FileIconAttrs,
 }
 
-impl From<&repo_files_state::RepoFile> for RepoFile {
-    fn from(file: &repo_files_state::RepoFile) -> Self {
+impl From<(&repo_files_state::RepoFile, &intl::IntlService)> for RepoFile {
+    fn from((file, intl_service): (&repo_files_state::RepoFile, &intl::IntlService)) -> Self {
         Self {
             id: file.id.0.clone(),
             repo_id: file.repo_id.0.clone(),
@@ -903,7 +925,7 @@ impl From<&repo_files_state::RepoFile> for RepoFile {
             name_error: match &file.name {
                 repo_files_state::RepoFileName::Decrypted { .. } => None,
                 repo_files_state::RepoFileName::DecryptError { error, .. } => {
-                    Some(error.user_error())
+                    Some(error.user_error(intl_service))
                 }
             },
             ext: file.ext.clone(),
@@ -915,7 +937,7 @@ impl From<&repo_files_state::RepoFile> for RepoFile {
                 None => "".into(),
             },
             modified: file.modified.map(|modified| modified as f64),
-            tags: (&file.tags).into(),
+            tags: (&file.tags, intl_service).into(),
             remote_hash: file.remote_hash.clone(),
             category: (&file.category).into(),
             file_icon_attrs: file.file_icon_attrs().into(),
@@ -1103,19 +1125,29 @@ pub struct RepoFilesBrowserInfo {
     pub is_locked: bool,
 }
 
-impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFilesBrowserInfo {
-    fn from(info: &repo_files_browsers_state::RepoFilesBrowserInfo<'a>) -> Self {
+impl<'a>
+    From<(
+        &repo_files_browsers_state::RepoFilesBrowserInfo<'a>,
+        &intl::IntlService,
+    )> for RepoFilesBrowserInfo
+{
+    fn from(
+        (info, intl_service): (
+            &repo_files_browsers_state::RepoFilesBrowserInfo<'a>,
+            &intl::IntlService,
+        ),
+    ) -> Self {
         Self {
             repo_id: info.repo_id.map(|x| x.0.to_owned()),
             encrypted_path: info.path.map(|x| x.0.to_owned()),
             selection_summary: (&info.selection_summary).into(),
             sort: (&info.sort).into(),
-            status: (&info.status).into(),
+            status: (&info.status, intl_service).into(),
             total_count: info.total_count,
             total_size_display: size_display(info.total_size),
             selected_count: info.selected_count,
             selected_size_display: size_display(info.selected_size),
-            selected_file: info.selected_file.map(Into::into),
+            selected_file: info.selected_file.map(|x| (x, intl_service).into()),
             can_download_selected: info.can_download_selected,
             can_copy_selected: info.can_copy_selected,
             can_move_selected: info.can_move_selected,
@@ -1125,7 +1157,7 @@ impl<'a> From<&repo_files_browsers_state::RepoFilesBrowserInfo<'a>> for RepoFile
                 .breadcrumbs
                 .map(|breadcrumbs| breadcrumbs.iter().map(Into::into).collect())
                 .unwrap_or(vec![]),
-            repo_status: (&info.repo_status).into(),
+            repo_status: (&info.repo_status, intl_service).into(),
             is_locked: info.is_locked,
         }
     }
@@ -1194,20 +1226,30 @@ pub struct RepoFilesDetailsInfo {
     pub is_locked: bool,
 }
 
-impl<'a> From<&repo_files_details_state::RepoFilesDetailsInfo<'a>> for RepoFilesDetailsInfo {
-    fn from(info: &repo_files_details_state::RepoFilesDetailsInfo<'a>) -> Self {
+impl<'a>
+    From<(
+        &repo_files_details_state::RepoFilesDetailsInfo<'a>,
+        &intl::IntlService,
+    )> for RepoFilesDetailsInfo
+{
+    fn from(
+        (info, intl_service): (
+            &repo_files_details_state::RepoFilesDetailsInfo<'a>,
+            &intl::IntlService,
+        ),
+    ) -> Self {
         Self {
             repo_id: info.repo_id.map(|x| x.0.to_owned()),
             encrypted_parent_path: info.parent_path.as_ref().map(|x| x.0.to_owned()),
             encrypted_path: info.path.map(|x| x.0.to_owned()),
-            status: (&info.status).into(),
+            status: (&info.status, intl_service).into(),
             file_name: info.file_name.as_ref().map(|x| x.0.to_owned()),
             file_ext: info.file_ext.clone(),
             file_category: info.file_category.as_ref().map(Into::into),
             file_modified: info.file_modified.map(|x| x as f64),
             file_exists: info.file_exists,
-            content_status: (&info.content_status).into(),
-            save_status: (&info.save_status).into(),
+            content_status: (&info.content_status, intl_service).into(),
+            save_status: (&info.save_status, intl_service).into(),
             error: info.error.clone(),
             is_editing: info.is_editing,
             is_dirty: info.is_dirty,
@@ -1217,7 +1259,7 @@ impl<'a> From<&repo_files_details_state::RepoFilesDetailsInfo<'a>> for RepoFiles
             can_copy: info.can_copy,
             can_move: info.can_move,
             can_delete: info.can_delete,
-            repo_status: (&info.repo_status).into(),
+            repo_status: (&info.repo_status, intl_service).into(),
             is_locked: info.is_locked,
         }
     }
@@ -1294,14 +1336,14 @@ pub enum TransferState {
     Done,
 }
 
-impl From<&transfers_state::TransferState> for TransferState {
-    fn from(typ: &transfers_state::TransferState) -> Self {
-        match typ {
+impl From<(&transfers_state::TransferState, &intl::IntlService)> for TransferState {
+    fn from((state, intl_service): (&transfers_state::TransferState, &intl::IntlService)) -> Self {
+        match state {
             transfers_state::TransferState::Waiting => Self::Waiting,
             transfers_state::TransferState::Processing => Self::Processing,
             transfers_state::TransferState::Transferring => Self::Transferring,
             transfers_state::TransferState::Failed { error } => Self::Failed {
-                error: error.user_error(),
+                error: error.user_error(intl_service),
             },
             transfers_state::TransferState::Done => Self::Done,
         }
@@ -1331,8 +1373,10 @@ pub struct Transfer {
     pub can_open: bool,
 }
 
-impl From<(&transfers_state::Transfer, TimeMillis)> for Transfer {
-    fn from((transfer, now): (&transfers_state::Transfer, TimeMillis)) -> Self {
+impl From<(&transfers_state::Transfer, TimeMillis, &intl::IntlService)> for Transfer {
+    fn from(
+        (transfer, now, intl_service): (&transfers_state::Transfer, TimeMillis, &intl::IntlService),
+    ) -> Self {
         Self {
             id: transfer.id,
             typ: (&transfer.typ).into(),
@@ -1344,7 +1388,7 @@ impl From<(&transfers_state::Transfer, TimeMillis)> for Transfer {
             transferred_display: size_display(transfer.transferred_bytes),
             speed_display: transfers_selectors::transfer_duration(&transfer, now)
                 .map(|duration| speed_display_bytes_duration(transfer.transferred_bytes, duration)),
-            state: (&transfer.state).into(),
+            state: (&transfer.state, intl_service).into(),
             can_retry: transfers_selectors::can_retry(transfer),
             can_open: transfers_selectors::can_open(transfer),
         }
