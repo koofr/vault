@@ -1,3 +1,4 @@
+mod lifecycle_tests;
 mod oauth2_tests;
 mod remote_files_browsers_tests;
 mod remote_files_tests;
