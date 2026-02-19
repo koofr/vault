@@ -195,9 +195,17 @@ impl WebVault {
             redirect_uri: oauth2_redirect_uri,
         };
 
+        let intl_config = vault_core::intl::IntlConfig {
+            ownership: vault_core::intl::IntlConfigOwnership::Core {
+                // TODO: get preferred locales from browser
+                preferred_locales: Vec::new(),
+            },
+        };
+
         let vault = Arc::new(vault_core::Vault::new(
             base_url,
             oauth2_config,
+            intl_config,
             Box::new(BrowserHttpClient::new(browser_http_client_delegate)),
             Box::new(BrowserEventstreamWebSocketClient::new(
                 browser_eventstream_websocket_delegate,

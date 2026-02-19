@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use vault_core::{Vault, oauth2::OAuth2Config, secure_storage::SecureStorage};
+use vault_core::{Vault, intl::IntlConfig, oauth2::OAuth2Config, secure_storage::SecureStorage};
 
 use crate::{
     native_eventstream_websocket_client::{
@@ -20,6 +20,7 @@ pub fn build_vault(
     base_url: String,
     user_agent: String,
     oauth2_config: OAuth2Config,
+    intl_config: IntlConfig,
     secure_storage: Box<dyn SecureStorage + Send + Sync>,
     tokio_runtime: Arc<tokio::runtime::Runtime>,
 ) -> (
@@ -43,6 +44,7 @@ pub fn build_vault(
     let vault = Arc::new(Vault::new(
         base_url.clone(),
         oauth2_config,
+        intl_config,
         http_client,
         eventstream_websocket_client,
         secure_storage,

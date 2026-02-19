@@ -57,10 +57,18 @@ fn main() {
         redirect_uri: oauth2_redirect_uri,
     };
 
+    let intl_config = vault_core::intl::IntlConfig {
+        ownership: vault_core::intl::IntlConfigOwnership::Core {
+            // TODO: get preferred locales from system
+            preferred_locales: Vec::new(),
+        },
+    };
+
     let (vault, _, _) = build_vault(
         base_url,
         user_agent,
         oauth2_config,
+        intl_config,
         secure_storage,
         tokio_runtime.clone(),
     );

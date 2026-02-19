@@ -6646,6 +6646,7 @@ dependencies = [
  "urlencoding",
  "uuid",
  "vault-crypto",
+ "vault-intl",
  "vault-store",
 ]
 

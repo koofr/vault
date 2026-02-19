@@ -26,8 +26,11 @@ fn test_load_get_item_error() {
             let mut secure_storage = TestSecureStorage::wrap_memory();
             secure_storage.get_item_fn = Box::new(|_| Err("secure storage get error".into()));
 
-            let vault_fixture =
-                VaultFixture::create_with_options(fake_remote_fixture, Box::new(secure_storage));
+            let vault_fixture = VaultFixture::create_with_options(
+                fake_remote_fixture,
+                VaultFixture::default_intl_config(),
+                Box::new(secure_storage),
+            );
             let user_fixture = UserFixture::create(vault_fixture.clone());
             let oauth2_fixture = OAuth2Fixture::create(user_fixture.clone());
 
@@ -119,8 +122,11 @@ fn test_oauth2_logout_clear_error() {
             let mut secure_storage = TestSecureStorage::wrap_memory();
             secure_storage.clear_fn = Box::new(|| Err("secure storage clear error".into()));
 
-            let vault_fixture =
-                VaultFixture::create_with_options(fake_remote_fixture, Box::new(secure_storage));
+            let vault_fixture = VaultFixture::create_with_options(
+                fake_remote_fixture,
+                VaultFixture::default_intl_config(),
+                Box::new(secure_storage),
+            );
             let user_fixture = UserFixture::create(vault_fixture.clone());
             let oauth2_fixture = OAuth2Fixture::create(user_fixture.clone());
 

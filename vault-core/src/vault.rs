@@ -3,7 +3,7 @@ use std::{sync::Arc, time::Duration};
 use futures::future::BoxFuture;
 
 use crate::{
-    auth, config, dialogs, dir_pickers, eventstream, http, lifecycle, notifications, oauth2,
+    auth, config, dialogs, dir_pickers, eventstream, http, intl, lifecycle, notifications, oauth2,
     rclone, relative_time, remote, remote_files, remote_files_browsers, remote_files_dir_pickers,
     repo_create, repo_files, repo_files_browsers, repo_files_details, repo_files_dir_pickers,
     repo_files_list, repo_files_move, repo_files_read, repo_files_tags, repo_locker, repo_remove,
@@ -18,6 +18,7 @@ pub struct Vault {
     pub http_client: Arc<Box<dyn http::HttpClient + Send + Sync>>,
     pub runtime: Arc<runtime::BoxRuntime>,
     pub secure_storage_service: Arc<secure_storage::SecureStorageService>,
+    pub intl_service: Arc<intl::IntlService>,
     pub notifications_service: Arc<notifications::NotificationsService>,
     pub dialogs_service: Arc<dialogs::DialogsService>,
     pub oauth2_service: Arc<oauth2::OAuth2Service>,
@@ -52,6 +53,7 @@ impl Vault {
     pub fn new(
         base_url: String,
         oauth2_config: oauth2::OAuth2Config,
+        intl_config: intl::IntlConfig,
         http_client: Box<dyn http::HttpClient + Send + Sync>,
         eventstream_websocket_client: Box<dyn eventstream::WebSocketClient + Send + Sync>,
         secure_storage: Box<dyn secure_storage::SecureStorage + Send + Sync>,
@@ -62,6 +64,7 @@ impl Vault {
                 base_url: base_url.clone(),
                 ..Default::default()
             },
+            intl: intl::state::IntlState::new(intl_config),
             ..Default::default()
         };
         let store = Arc::new(store::Store::new(state));
@@ -69,6 +72,10 @@ impl Vault {
         let runtime = Arc::new(runtime);
         let secure_storage_service =
             Arc::new(secure_storage::SecureStorageService::new(secure_storage));
+        let intl_service = Arc::new(intl::IntlService::new(
+            secure_storage_service.clone(),
+            store.clone(),
+        ));
         let notifications_service = Arc::new(notifications::NotificationsService::new(
             store.clone(),
             runtime.clone(),
@@ -208,6 +215,7 @@ impl Vault {
         ));
         let lifecycle_service = lifecycle::LifecycleService::new(
             secure_storage_service.clone(),
+            intl_service.clone(),
             notifications_service.clone(),
             oauth2_service.clone(),
             user_service.clone(),
@@ -222,6 +230,7 @@ impl Vault {
             store,
             http_client,
             runtime,
+            intl_service,
             notifications_service,
             secure_storage_service,
             dialogs_service,
@@ -318,6 +327,15 @@ impl Vault {
                 with_modifier,
             )
         })
+    }
+
+    // intl
+
+    pub fn intl_change_locale(
+        &self,
+        strategy: intl::state::ChangeLocaleStrategy,
+    ) -> Result<(), intl::errors::SetLocaleError> {
+        self.intl_service.change_locale(strategy)
     }
 
     // notifications

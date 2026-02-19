@@ -1,5 +1,14 @@
 # vault-core
 
+## Intl
+
+### Regenerate ICU data
+
+```sh
+cd ..
+make intl-generate-icu-data
+```
+
 ## Testing
 
 ### Code coverage
