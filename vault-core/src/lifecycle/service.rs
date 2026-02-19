@@ -8,6 +8,7 @@ use futures::{
 
 use crate::{
     eventstream::EventStreamService,
+    intl,
     notifications::NotificationsService,
     oauth2::{OAuth2Service, state::FinishFlowResult},
     remote::Remote,
@@ -25,6 +26,7 @@ use super::{
 
 pub struct LifecycleService {
     secure_storage_service: Arc<SecureStorageService>,
+    intl_service: Arc<intl::IntlService>,
     oauth2_service: Arc<OAuth2Service>,
     user_service: Arc<UserService>,
     repos_service: Arc<ReposService>,
@@ -36,6 +38,7 @@ pub struct LifecycleService {
 impl LifecycleService {
     pub fn new(
         secure_storage_service: Arc<SecureStorageService>,
+        intl_service: Arc<intl::IntlService>,
         notifications_service: Arc<NotificationsService>,
         oauth2_service: Arc<OAuth2Service>,
         user_service: Arc<UserService>,
@@ -47,6 +50,7 @@ impl LifecycleService {
     ) -> Arc<Self> {
         let lifecycle_service = Arc::new(Self {
             secure_storage_service,
+            intl_service: intl_service.clone(),
             oauth2_service,
             user_service,
             repos_service,
@@ -73,6 +77,11 @@ impl LifecycleService {
     /// BoxFuture is used so that calling load immediately loads oauth2 service
     /// and then loads the rest asynchronously
     pub fn load(self: Arc<Self>) -> Result<BoxFuture<'static, Result<(), LoadError>>, LoadError> {
+        if let Err(err) = self.intl_service.load() {
+            // Invalid locale should not prevent loading the rest of the app
+            log::warn!("IntlService load error: {}", err);
+        }
+
         self.oauth2_service
             .load()
             .map_err(LoadError::OAuth2LoadError)?;
@@ -141,6 +150,8 @@ impl LifecycleService {
         self.secure_storage_service
             .clear()
             .map_err(OnLogoutError::ClearStorageError)?;
+
+        self.intl_service.reset();
 
         Ok(())
     }

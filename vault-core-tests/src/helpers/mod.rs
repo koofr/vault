@@ -7,6 +7,11 @@ use std::sync::Arc;
 
 use futures::{FutureExt, future::BoxFuture};
 
+use vault_core::{
+    intl::{IntlConfig, IntlConfigOwnership},
+    secure_storage::{MemorySecureStorage, SecureStorage},
+};
+
 use crate::fixtures::{
     fake_remote_fixture::FakeRemoteFixture, repo_fixture::RepoFixture, user_fixture::UserFixture,
     vault_fixture::VaultFixture,
@@ -66,9 +71,24 @@ pub fn with_fake_remote(
 pub fn with_vault(
     f: impl FnOnce(Arc<VaultFixture>) -> BoxFuture<'static, ()> + Send + Sync + 'static,
 ) {
+    let intl_config = IntlConfig {
+        ownership: IntlConfigOwnership::Core {
+            preferred_locales: vec![],
+        },
+    };
+
+    with_vault_options(intl_config, Box::new(MemorySecureStorage::new()), f);
+}
+
+pub fn with_vault_options(
+    intl_config: IntlConfig,
+    secure_storage: Box<dyn SecureStorage + Send + Sync>,
+    f: impl FnOnce(Arc<VaultFixture>) -> BoxFuture<'static, ()> + Send + Sync + 'static,
+) {
     with_fake_remote(|fake_remote_fixture| {
         async move {
-            let vault_fixture = VaultFixture::create(fake_remote_fixture);
+            let vault_fixture =
+                VaultFixture::create_with_options(fake_remote_fixture, intl_config, secure_storage);
 
             let store_weak = Arc::downgrade(&vault_fixture.vault.store);
             let runtime_weak = Arc::downgrade(&vault_fixture.vault.runtime);

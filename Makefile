@@ -146,3 +146,8 @@ test-android-unit: check-android-env build-android-bindings
 
 test-android-ui: check-android-env build-android-bindings build-android-library-debug
 	cd vault-android && ./gradlew connectedAndroidTest
+
+# intl
+
+intl-generate-icu-data:
+	vault-core/scripts/intl-generate-icu-data.sh

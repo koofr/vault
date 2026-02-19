@@ -5,7 +5,7 @@ use std::{
 
 use super::SecureStorage;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MemorySecureStorage {
     data: Arc<RwLock<HashMap<String, String>>>,
 }

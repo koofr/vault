@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use vault_core::{
     Vault,
+    intl::{IntlConfig, IntlConfigOwnership},
     oauth2::OAuth2Config,
     secure_storage::{MemorySecureStorage, SecureStorage},
 };
@@ -19,11 +20,16 @@ impl VaultFixture {
     pub fn create(fake_remote_fixture: Arc<FakeRemoteFixture>) -> Arc<Self> {
         let secure_storage = Box::new(MemorySecureStorage::new());
 
-        Self::create_with_options(fake_remote_fixture, secure_storage)
+        Self::create_with_options(
+            fake_remote_fixture,
+            Self::default_intl_config(),
+            secure_storage,
+        )
     }
 
     pub fn create_with_options(
         fake_remote_fixture: Arc<FakeRemoteFixture>,
+        intl_config: IntlConfig,
         secure_storage: Box<dyn SecureStorage + Send + Sync>,
     ) -> Arc<Self> {
         let user_agent = "vault-core-tests".into();
@@ -40,6 +46,7 @@ impl VaultFixture {
             fake_remote_fixture.base_url.clone(),
             user_agent,
             oauth2_config,
+            intl_config,
             secure_storage,
             fake_remote_fixture.tokio_runtime.clone(),
         );
@@ -53,5 +60,13 @@ impl VaultFixture {
 
     pub fn new_session(&self) -> Arc<Self> {
         Self::create(self.fake_remote_fixture.clone())
+    }
+
+    pub fn default_intl_config() -> IntlConfig {
+        IntlConfig {
+            ownership: IntlConfigOwnership::Core {
+                preferred_locales: vec![],
+            },
+        }
     }
 }

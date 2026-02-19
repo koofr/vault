@@ -1873,12 +1873,20 @@ impl MobileVault {
             redirect_uri: oauth2_redirect_uri,
         };
 
+        let intl_config = vault_core::intl::IntlConfig {
+            ownership: vault_core::intl::IntlConfigOwnership::Core {
+                // TODO: get preferred locales for iOS/Android
+                preferred_locales: Vec::new(),
+            },
+        };
+
         let secure_storage = Box::new(MobileSecureStorage::new(secure_storage));
 
         let (vault, reqwest_client, tokio_tungstenite_connector) = build_vault(
             base_url,
             user_agent,
             oauth2_config,
+            intl_config,
             secure_storage,
             tokio_runtime.clone(),
         );
