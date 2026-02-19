@@ -25,6 +25,9 @@ impl MobileVaultFixture {
         let oauth2_client_secret =
             "VWTMENEWUYWH6G523CEV5CWOCHH7FMECW36PPQENOASYYZOQJOSGQXSR2Y62N3HB".into();
         let oauth2_redirect_uri = "http://127.0.0.1:5173/oauth2callback".into();
+        let intl_ownership = vault_mobile::IntlOwnership::Core {
+            preferred_locales: Vec::new(),
+        };
         let secure_storage = Box::new(MemorySecureStorage::new());
         let tokio_runtime = fake_remote_fixture.tokio_runtime.clone();
 
@@ -35,6 +38,7 @@ impl MobileVaultFixture {
             oauth2_client_id,
             oauth2_client_secret,
             oauth2_redirect_uri,
+            intl_ownership,
             secure_storage,
             tokio_runtime,
         ));

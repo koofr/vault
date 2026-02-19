@@ -192,6 +192,25 @@ callback interface DownloadStreamProvider {
   void dispose();
 };
 
+// intl
+
+[Enum]
+interface IntlOwnership {
+  Core(sequence<string> preferred_locales);
+  External();
+};
+
+dictionary IntlLocale {
+  string locale;
+  string name;
+};
+
+[Enum]
+interface IntlChangeLocaleStrategy {
+  Exact(string locale);
+  Lookup(sequence<string> locales);
+};
+
 // notifications
 
 dictionary Notification {
@@ -663,12 +682,21 @@ interface MobileVault {
     string oauth2_client_id,
     string oauth2_client_secret,
     string oauth2_redirect_uri,
+    IntlOwnership intl_ownership,
     SecureStorage secure_storage
   );
 
   // subscription
 
   void unsubscribe(u32 id);
+
+  // intl
+
+  u32 intl_locales_subscribe(SubscriptionCallback cb);
+  sequence<IntlLocale>? intl_locales_data(u32 id);
+  u32 intl_current_locale_subscribe(SubscriptionCallback cb);
+  IntlLocale? intl_current_locale_data(u32 id);
+  void intl_change_locale(IntlChangeLocaleStrategy strategy);
 
   // lifecycle
 

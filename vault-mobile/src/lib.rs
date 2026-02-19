@@ -26,7 +26,8 @@ use vault_core::{
     common::state as common_state,
     dialogs::state as dialogs_state,
     files::{self, file_category, files_filter},
-    intl, lifecycle,
+    intl::{self, IntlConfig},
+    lifecycle,
     notifications::state as notifications_state,
     oauth2::OAuth2Config,
     relative_time,
@@ -530,6 +531,73 @@ pub trait DownloadStreamProvider: Send + Sync + Debug {
     fn done(&self, error: Option<String>) -> Result<(), StreamError>;
     fn open_file(&self) -> Result<(), StreamError>;
     fn dispose(&self) -> Result<(), StreamError>;
+}
+
+// intl
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum IntlOwnership {
+    Core { preferred_locales: Vec<String> },
+    External,
+}
+
+impl From<IntlOwnership> for intl::state::IntlConfigOwnership {
+    fn from(ownership: IntlOwnership) -> Self {
+        match ownership {
+            IntlOwnership::Core { preferred_locales } => Self::Core {
+                preferred_locales: preferred_locales
+                    .iter()
+                    .flat_map(|locale| match locale.parse() {
+                        Ok(locale) => Some(locale),
+                        Err(_) => {
+                            log::warn!("Invalid preferred locale: {}", locale);
+                            None
+                        }
+                    })
+                    .collect(),
+            },
+            IntlOwnership::External => Self::External,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct IntlLocale {
+    pub locale: String,
+    pub name: String,
+}
+
+impl From<&intl::locales::IntlLocale> for IntlLocale {
+    fn from(locale: &intl::locales::IntlLocale) -> Self {
+        Self {
+            locale: locale.locale.to_string(),
+            name: locale.name.clone(),
+        }
+    }
+}
+
+pub enum IntlChangeLocaleStrategy {
+    Exact { locale: String },
+    Lookup { locales: Vec<String> },
+}
+
+impl TryFrom<IntlChangeLocaleStrategy> for intl::state::ChangeLocaleStrategy {
+    type Error = intl::errors::SetLocaleError;
+
+    fn try_from(value: IntlChangeLocaleStrategy) -> Result<Self, Self::Error> {
+        match value {
+            IntlChangeLocaleStrategy::Exact { locale } => locale
+                .parse()
+                .map(Self::Exact)
+                .map_err(Self::Error::LocaleParse),
+            IntlChangeLocaleStrategy::Lookup { locales } => locales
+                .into_iter()
+                .map(|locale| locale.parse())
+                .collect::<Result<Vec<_>, _>>()
+                .map(Self::Lookup)
+                .map_err(Self::Error::LocaleParse),
+        }
+    }
 }
 
 // notifications
@@ -1808,6 +1876,8 @@ struct VersionedFileBytes {
 
 #[derive(Default)]
 struct SubscriptionData {
+    intl_locales: Data<Vec<IntlLocale>>,
+    intl_current_locale: Data<Option<IntlLocale>>,
     notifications: Data<Vec<Notification>>,
     dialogs: Data<Vec<u32>>,
     dialog: Data<Option<Dialog>>,
@@ -1877,6 +1947,7 @@ impl MobileVault {
         oauth2_client_id: String,
         oauth2_client_secret: String,
         oauth2_redirect_uri: String,
+        intl_ownership: IntlOwnership,
         secure_storage: Box<dyn SecureStorage>,
     ) -> Self {
         mobile_logger::try_init_env_logger();
@@ -1888,6 +1959,7 @@ impl MobileVault {
             oauth2_client_id,
             oauth2_client_secret,
             oauth2_redirect_uri,
+            intl_ownership,
             secure_storage,
             RT.clone(),
         )
@@ -1900,6 +1972,7 @@ impl MobileVault {
         oauth2_client_id: String,
         oauth2_client_secret: String,
         oauth2_redirect_uri: String,
+        intl_ownership: IntlOwnership,
         secure_storage: Box<dyn SecureStorage>,
         tokio_runtime: Arc<tokio::runtime::Runtime>,
     ) -> Self {
@@ -1921,11 +1994,8 @@ impl MobileVault {
             redirect_uri: oauth2_redirect_uri,
         };
 
-        let intl_config = vault_core::intl::IntlConfig {
-            ownership: vault_core::intl::IntlConfigOwnership::Core {
-                // TODO: get preferred locales for iOS/Android
-                preferred_locales: Vec::new(),
-            },
+        let intl_config = IntlConfig {
+            ownership: intl_ownership.into(),
         };
 
         let secure_storage = Box::new(MobileSecureStorage::new(secure_storage));
@@ -2017,6 +2087,54 @@ impl MobileVault {
 
     pub fn unsubscribe(&self, id: u32) {
         self.subscription.unsubscribe(id)
+    }
+
+    // intl
+
+    pub fn intl_locales_subscribe(&self, cb: Box<dyn SubscriptionCallback>) -> u32 {
+        self.subscribe(
+            &[Event::Intl],
+            cb,
+            self.subscription_data.intl_locales.clone(),
+            move |vault| {
+                vault.with_state(|state| {
+                    intl::selectors::select_locales(state)
+                        .iter()
+                        .map(Into::into)
+                        .collect()
+                })
+            },
+        )
+    }
+
+    pub fn intl_locales_data(&self, id: u32) -> Option<Vec<IntlLocale>> {
+        self.get_data(id, self.subscription_data.intl_locales.clone())
+    }
+
+    pub fn intl_current_locale_subscribe(&self, cb: Box<dyn SubscriptionCallback>) -> u32 {
+        self.subscribe(
+            &[Event::Intl],
+            cb,
+            self.subscription_data.intl_current_locale.clone(),
+            move |vault| {
+                vault.with_state(|state| {
+                    intl::selectors::select_current_locale(state).map(Into::into)
+                })
+            },
+        )
+    }
+
+    pub fn intl_current_locale_data(&self, id: u32) -> Option<IntlLocale> {
+        self.get_data(id, self.subscription_data.intl_current_locale.clone())
+            .flatten()
+    }
+
+    pub fn intl_change_locale(&self, strategy: IntlChangeLocaleStrategy) {
+        self.errors.handle_result(
+            strategy
+                .try_into()
+                .and_then(|strategy| self.vault.intl_change_locale(strategy)),
+        );
     }
 
     // lifecycle

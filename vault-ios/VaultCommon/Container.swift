@@ -60,7 +60,8 @@ public class Container: ObservableObject {
         mobileVault = MobileVault(
             baseUrl: baseURL, appName: appName, oauth2AuthBaseUrl: oauth2AuthBaseURL,
             oauth2ClientId: oauth2ClientId, oauth2ClientSecret: oauth2ClientSecret,
-            oauth2RedirectUri: oauth2RedirectUri, secureStorage: keychainSecureStorage)
+            oauth2RedirectUri: oauth2RedirectUri, intlPreferredLocales: [],
+            secureStorage: keychainSecureStorage)
 
         if let reposSetDefaultAutoLock = reposSetDefaultAutoLock {
             if reposSetDefaultAutoLock == "onapphidden" {

@@ -100,6 +100,7 @@ class MobileVaultProvider constructor(private val secureStorage: SecureStorage) 
         val oauth2ClientId = "7ZEK2BNCEVYEJIZC5OR3TR6PQDUJ4NP3"
         val oauth2ClientSecret = "VWTMENEWUYWH6G523CEV5CWOCHH7FMECW36PPQENOASYYZOQJOSGQXSR2Y62N3HB"
         val oauth2RedirectUri = "koofrvault://oauth2callback"
+        val intlPreferredLocales = emptyList<String>()
 
         val mobileVault =
             MobileVault(
@@ -109,6 +110,7 @@ class MobileVaultProvider constructor(private val secureStorage: SecureStorage) 
                 oauth2ClientId,
                 oauth2ClientSecret,
                 oauth2RedirectUri,
+                intlPreferredLocales,
                 secureStorage,
             )
 
