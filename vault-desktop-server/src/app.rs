@@ -59,7 +59,7 @@ pub async fn app(
     .layer(app);
 
     let addr = SocketAddr::from(([127, 0, 0, 1], port));
-    println!("Backend is listening on http://{}", addr);
+    log::info!("Backend is listening on http://{}", addr);
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     axum::serve(listener, app.into_make_service())
         .await

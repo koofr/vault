@@ -9,6 +9,7 @@ pub mod file_secure_storage;
 pub mod handlers;
 pub mod init_secure_storage;
 pub mod keyring_secure_storage;
+pub mod logging;
 pub mod request_encryption;
 pub mod request_id;
 pub mod sessions;
