@@ -6,11 +6,14 @@ use vault_desktop_server::{
     encryption::Encryption,
     file_handlers::FileHandlers,
     init_secure_storage::{init_file_secure_storage, init_keyring_secure_storage},
+    logging::setup_logging,
 };
 use vault_native::vault::build_vault;
 use vault_web_api::web_vault_base::WebVaultBase;
 
 fn main() {
+    setup_logging();
+
     let port = 1421;
 
     let base_url = String::from("https://app.koofr.net");

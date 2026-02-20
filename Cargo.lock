@@ -6664,6 +6664,7 @@ dependencies = [
  "directories",
  "dirs-sys",
  "drop-stream",
+ "env_logger",
  "futures",
  "http-body-util",
  "keyring",
