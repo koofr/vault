@@ -8,6 +8,8 @@ struct RepoFileInfoSheet: View {
 
     @ObservedObject var modifiedRelativeTime: RelativeTimeHelper
 
+    @ObservedObject var repoInfo: Subscription<RepoInfo>
+
     var categoryDisplay: String {
         switch file.category {
         case .generic: return "File"
@@ -32,6 +34,25 @@ struct RepoFileInfoSheet: View {
 
         self.modifiedRelativeTime = RelativeTimeHelper(
             mobileVault: vm.container.mobileVault, value: file.modified)
+
+        self.repoInfo = Subscription(
+            mobileVault: vm.container.mobileVault,
+            subscribe: { v, cb in
+                v.reposRepoSubscribe(repoId: file.repoId, cb: cb)
+            },
+            getData: { v, id in
+                v.reposRepoData(id: id)
+            })
+
+        self.repoInfo.setOnData { data in
+            if let repo = data?.repo {
+                if repo.state == .locked {
+                    // dismiss the repo file info sheet when repo is locked
+                    onDismiss()
+                }
+            }
+        }
+
     }
 
     var body: some View {
