@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "1D4F5C82-686B-4656-BE42-6852A2F2209A",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Vault.xcodeproj",
+        "identifier" : "A1AC30F42F4D178B00A51BE3",
+        "name" : "VaultUtilsTests"
+      }
+    }
+  ],
+  "version" : 1
+}

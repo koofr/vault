@@ -136,7 +136,7 @@ test-web-tests-headed: test-web-tests-prepare
 	cd vault-web-tests && npx playwright test --headed --project=chromium
 
 test-ios-unit:
-	cd vault-ios && xcodebuild test -scheme Vault -testPlan VaultTests -destination "platform=iOS Simulator,name=iPhone 17 Pro"
+	cd vault-ios && xcodebuild test -scheme VaultUtils -testPlan VaultUtilsTests -destination "platform=iOS Simulator,name=iPhone 17 Pro"
 
 test-ios-ui:
 	cd vault-ios && xcodebuild test -scheme Vault -testPlan VaultUITests -destination "platform=iOS Simulator,name=iPhone 17 Pro"
