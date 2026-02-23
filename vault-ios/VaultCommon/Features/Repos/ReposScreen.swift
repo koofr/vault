@@ -101,7 +101,7 @@ public struct ReposScreen: View {
                 RefreshableList(
                     status: data.status, isEmpty: data.repos.isEmpty,
                     onRefresh: {
-                        vm.container.mobileVault.reposLoad()
+                        vm.container.mobileVault.load()
                     },
                     empty: {
                         HStack {
