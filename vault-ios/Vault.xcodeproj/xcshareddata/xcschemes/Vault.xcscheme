@@ -40,9 +40,6 @@
       </CodeCoverageTargets>
       <TestPlans>
          <TestPlanReference
-            reference = "container:VaultTests.xctestplan">
-         </TestPlanReference>
-         <TestPlanReference
             reference = "container:VaultUITests.xctestplan"
             default = "YES">
          </TestPlanReference>
