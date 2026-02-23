@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.net.toUri
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,7 +18,7 @@ class AuthHelper constructor(private val mobileVault: MobileVault) {
         context: Context,
     ) {
         mobileVault.oauth2StartLoginFlow()?.let {
-            val url = Uri.parse("$it&platform=android")
+            val url = "$it&platform=android".toUri()
 
             startFlow(context, url)
         }
@@ -27,7 +28,7 @@ class AuthHelper constructor(private val mobileVault: MobileVault) {
         context: Context,
     ) {
         mobileVault.oauth2StartLogoutFlow()?.let {
-            val url = Uri.parse("$it&platform=android")
+            val url = "$it&platform=android".toUri()
 
             startFlow(context, url)
         }
@@ -51,7 +52,7 @@ class AuthHelper constructor(private val mobileVault: MobileVault) {
         )
         intent.intent.putExtra(
             Intent.EXTRA_REFERRER,
-            Uri.parse("android-app://" + context.packageName),
+            ("android-app://" + context.packageName).toUri(),
         )
 
         try {
