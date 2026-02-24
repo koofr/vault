@@ -15,9 +15,12 @@ struct VaultApp: App {
                 "VAULT_TEXT_EDITOR_AUTOSAVE_INTERVAL_MS"])
     )
     let lifecycleHandler: LifecycleHandler
+    let contentViewModel: ContentViewModel
 
     init() {
         lifecycleHandler = LifecycleHandler(container: container)
+
+        contentViewModel = ContentViewModel(container: container)
 
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback)
@@ -28,7 +31,7 @@ struct VaultApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView(container: container)
+            ContentView(vm: contentViewModel)
         }
     }
 

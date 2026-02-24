@@ -1,16 +1,16 @@
 import SwiftUI
 import VaultMobile
 
-enum AuthGuardState {
+public enum AuthGuardState {
     case loading
     case navigation(navController: MainVaultNavController)
     case landing
 }
 
-public struct AuthGuard: View {
+public class AuthGuardViewModel: ObservableObject {
     public let container: Container
 
-    @ObservedObject private var state: Subscription<AuthGuardState>
+    @Published public var state: VaultMobile.Subscription<AuthGuardState>
 
     public init(container: Container) {
         self.container = container
@@ -37,15 +37,27 @@ public struct AuthGuard: View {
                 }
             })
     }
+}
+
+public struct AuthGuard: View {
+    @ObservedObject var vm: AuthGuardViewModel
+
+    @ObservedObject private var state: Subscription<AuthGuardState>
+
+    public init(vm: AuthGuardViewModel) {
+        self.vm = vm
+
+        state = vm.state
+    }
 
     public var body: some View {
         switch state.data! {
         case .loading:
             LoadingView()
         case .navigation(let navController):
-            MainNavigation(container: container, navController: navController.navController)
+            MainNavigation(container: vm.container, navController: navController.navController)
         case .landing:
-            LandingScreen(container: container)
+            LandingScreen(container: vm.container)
         }
     }
 }
