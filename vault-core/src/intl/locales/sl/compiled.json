@@ -1,0 +1,1746 @@
+{
+  "core.cipher.decrypt_filename_decode.error": [
+    {
+      "type": 0,
+      "value": "Imena datoteke ni bilo mogoče dekodirati"
+    }
+  ],
+  "core.cipher.decrypt_filename_decrypt.error": [
+    {
+      "type": 0,
+      "value": "Imena datoteke ni bilo mogoče dešifrirati. Datoteke Vault je mogoče naložiti samo z aplikacijami Vault ali rclone. Če imajo vse vaše datoteke napake, preverite, ali ste uporabili pravilno sol (salt)."
+    }
+  ],
+  "core.cipher.decrypt_filename_unicode.error": [
+    {
+      "type": 0,
+      "value": "Ime datoteke ni veljavno besedilo Unicode"
+    }
+  ],
+  "core.cipher.decrypt_size.error": [
+    {
+      "type": 0,
+      "value": "Velikosti ni bilo mogoče dešifrirati: "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    }
+  ],
+  "core.common.invalid_name.error": [
+    {
+      "type": 0,
+      "value": "Ime ni veljavno"
+    }
+  ],
+  "core.common.invalid_path.error": [
+    {
+      "type": 0,
+      "value": "Pot ni veljavna"
+    }
+  ],
+  "core.dialogs.confirm.cancel.button": [
+    {
+      "type": 0,
+      "value": "Prekliči"
+    }
+  ],
+  "core.dialogs.prompt.cancel.button": [
+    {
+      "type": 0,
+      "value": "Prekliči"
+    }
+  ],
+  "core.dialogs.prompt.confirm.button": [
+    {
+      "type": 0,
+      "value": "V redu"
+    }
+  ],
+  "core.files.create_dir_already_exists.error": [
+    {
+      "type": 0,
+      "value": "Mapa s tem imenom že obstaja."
+    }
+  ],
+  "core.files.create_dir_dialog.confirm.button": [
+    {
+      "type": 0,
+      "value": "Ustvari mapo"
+    }
+  ],
+  "core.files.create_dir_dialog.input.placeholder": [
+    {
+      "type": 0,
+      "value": "Ime mape"
+    }
+  ],
+  "core.files.create_dir_dialog.title": [
+    {
+      "type": 0,
+      "value": "Vnesite ime nove mape"
+    }
+  ],
+  "core.files.create_file_already_exists.error": [
+    {
+      "type": 0,
+      "value": "Datoteka s tem imenom že obstaja."
+    }
+  ],
+  "core.files.create_file_dialog.confirm.button": [
+    {
+      "type": 0,
+      "value": "Ustvari datoteko"
+    }
+  ],
+  "core.files.create_file_dialog.input.placeholder": [
+    {
+      "type": 0,
+      "value": "Ime datoteke"
+    }
+  ],
+  "core.files.create_file_dialog.title": [
+    {
+      "type": 0,
+      "value": "Vnesite ime nove datoteke"
+    }
+  ],
+  "core.files.delete_files_dialog.cancel.button": [
+    {
+      "type": 0,
+      "value": "Prekliči"
+    }
+  ],
+  "core.files.delete_files_dialog.confirm.button": [
+    {
+      "type": 0,
+      "value": "Izbriši"
+    }
+  ],
+  "core.files.delete_files_dialog.message": [
+    {
+      "type": 0,
+      "value": "Ali res želite izbrisati "
+    },
+    {
+      "offset": 0,
+      "options": {
+        "few": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " elemente"
+            }
+          ]
+        },
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " element"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " elementov"
+            }
+          ]
+        },
+        "two": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " elementa"
+            }
+          ]
+        }
+      },
+      "pluralType": "cardinal",
+      "type": 6,
+      "value": "count"
+    },
+    {
+      "type": 0,
+      "value": "?"
+    }
+  ],
+  "core.files.delete_files_dialog.title": [
+    {
+      "type": 0,
+      "value": "Izbriši datoteke"
+    }
+  ],
+  "core.files.move_root.error": [
+    {
+      "type": 0,
+      "value": "Korenske mape ni mogoče premakniti"
+    }
+  ],
+  "core.files.rename_file_dialog.confirm.button": [
+    {
+      "type": 0,
+      "value": "Preimenuj"
+    }
+  ],
+  "core.files.rename_file_dialog.input.placeholder": [
+    {
+      "type": 0,
+      "value": "Novo ime"
+    }
+  ],
+  "core.files.rename_file_dialog.title": [
+    {
+      "type": 0,
+      "value": "Vnesite novo ime za '"
+    },
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "type": 0,
+      "value": "'"
+    }
+  ],
+  "core.files.rename_root.error": [
+    {
+      "type": 0,
+      "value": "Korenske mape ni mogoče preimenovati"
+    }
+  ],
+  "core.http.http_response.error": [
+    {
+      "type": 0,
+      "value": "Napaka HTTP: "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    }
+  ],
+  "core.lifecycle.logout_success.message": [
+    {
+      "type": 0,
+      "value": "Odjavljeni ste. Prosimo, prijavite se znova."
+    }
+  ],
+  "core.lifecycle.on_login_load_repos.error": [
+    {
+      "type": 0,
+      "value": "Nalaganje sefov ni uspelo: "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    }
+  ],
+  "core.lifecycle.on_login_load_space_usage.error": [
+    {
+      "type": 0,
+      "value": "Nalaganje porabe prostora ni uspelo: "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    }
+  ],
+  "core.lifecycle.on_login_load_user.error": [
+    {
+      "type": 0,
+      "value": "Nalaganje uporabnika ni uspelo: "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    }
+  ],
+  "core.oauth2.invalid_grant.error": [
+    {
+      "type": 0,
+      "value": "Neveljavna dovoljenja za preverjanje pristnosti: "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    }
+  ],
+  "core.oauth2.invalid_oauth2_state.error": [
+    {
+      "type": 0,
+      "value": "Neveljavno stanje preverjanja pristnosti. Poskusite znova."
+    }
+  ],
+  "core.oauth2.invalid_oauth2_token.error": [
+    {
+      "type": 0,
+      "value": "Neveljaven žeton OAuth 2: "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    }
+  ],
+  "core.oauth2.unknown.error": [
+    {
+      "type": 0,
+      "value": "Neznana napaka: "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    }
+  ],
+  "core.relative_time": [
+    {
+      "options": {
+        "future": {
+          "value": [
+            {
+              "options": {
+                "days": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "few": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " dni"
+                            }
+                          ]
+                        },
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez eno dan"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " dni"
+                            }
+                          ]
+                        },
+                        "two": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez dva dni"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "few_seconds": {
+                  "value": [
+                    {
+                      "type": 0,
+                      "value": "čez nekaj sekund"
+                    }
+                  ]
+                },
+                "hours": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "few": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " ure"
+                            }
+                          ]
+                        },
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez eno uro"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " ur"
+                            }
+                          ]
+                        },
+                        "two": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez dve uri"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "minutes": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "few": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " minute"
+                            }
+                          ]
+                        },
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez eno minuto"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " minut"
+                            }
+                          ]
+                        },
+                        "two": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez dve minuti"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "months": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "few": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " mesece"
+                            }
+                          ]
+                        },
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez eno mesec"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " mesecev"
+                            }
+                          ]
+                        },
+                        "two": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez dve meseca"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "other": {
+                  "value": [
+                  ]
+                },
+                "seconds": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "few": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " sekunde"
+                            }
+                          ]
+                        },
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez eno sekundo"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " sekund"
+                            }
+                          ]
+                        },
+                        "two": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez dve sekundi"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "years": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "few": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " leta"
+                            }
+                          ]
+                        },
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez eno leto"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " let"
+                            }
+                          ]
+                        },
+                        "two": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "čez dve leti"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                }
+              },
+              "type": 5,
+              "value": "diff"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "options": {
+                "days": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "few": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " dni"
+                            }
+                          ]
+                        },
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "ena dan"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " dni"
+                            }
+                          ]
+                        },
+                        "two": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "dve dni"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "few_seconds": {
+                  "value": [
+                    {
+                      "type": 0,
+                      "value": "nekaj sekund"
+                    }
+                  ]
+                },
+                "hours": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "few": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " ure"
+                            }
+                          ]
+                        },
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "ena ura"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " ur"
+                            }
+                          ]
+                        },
+                        "two": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "dve uri"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "minutes": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "few": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " minute"
+                            }
+                          ]
+                        },
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "ena minuta"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " minut"
+                            }
+                          ]
+                        },
+                        "two": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "dve minuti"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "months": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "few": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " meseci"
+                            }
+                          ]
+                        },
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "en mesec"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " mesecev"
+                            }
+                          ]
+                        },
+                        "two": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "dva meseca"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "other": {
+                  "value": [
+                  ]
+                },
+                "seconds": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "few": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " sekunde"
+                            }
+                          ]
+                        },
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "ena sekunda"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " sekund"
+                            }
+                          ]
+                        },
+                        "two": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "dve sekundi"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "years": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "few": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " leta"
+                            }
+                          ]
+                        },
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "eno leto"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " let"
+                            }
+                          ]
+                        },
+                        "two": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "dva leti"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                }
+              },
+              "type": 5,
+              "value": "diff"
+            }
+          ]
+        },
+        "past": {
+          "value": [
+            {
+              "options": {
+                "days": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "few": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " dnevi"
+                            }
+                          ]
+                        },
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred enim dnem"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " dnevi"
+                            }
+                          ]
+                        },
+                        "two": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred dvema dnevoma"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "few_seconds": {
+                  "value": [
+                    {
+                      "type": 0,
+                      "value": "pred nekaj sekundami"
+                    }
+                  ]
+                },
+                "hours": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "few": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " urami"
+                            }
+                          ]
+                        },
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred eno uro"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " urami"
+                            }
+                          ]
+                        },
+                        "two": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred dvema urama"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "minutes": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "few": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " minutami"
+                            }
+                          ]
+                        },
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred eno minuto"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " minutami"
+                            }
+                          ]
+                        },
+                        "two": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred dvema minutama"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "months": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "few": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " meseci"
+                            }
+                          ]
+                        },
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred enim mesecem"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " meseci"
+                            }
+                          ]
+                        },
+                        "two": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred dvema mesecema"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "other": {
+                  "value": [
+                  ]
+                },
+                "seconds": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "few": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " sekundami"
+                            }
+                          ]
+                        },
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred eno sekundo"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " sekundami"
+                            }
+                          ]
+                        },
+                        "two": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred dvema sekundama"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                },
+                "years": {
+                  "value": [
+                    {
+                      "offset": 0,
+                      "options": {
+                        "few": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " leti"
+                            }
+                          ]
+                        },
+                        "one": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred enim letom"
+                            }
+                          ]
+                        },
+                        "other": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred "
+                            },
+                            {
+                              "type": 7
+                            },
+                            {
+                              "type": 0,
+                              "value": " leti"
+                            }
+                          ]
+                        },
+                        "two": {
+                          "value": [
+                            {
+                              "type": 0,
+                              "value": "pred dvema letoma"
+                            }
+                          ]
+                        }
+                      },
+                      "pluralType": "cardinal",
+                      "type": 6,
+                      "value": "value"
+                    }
+                  ]
+                }
+              },
+              "type": 5,
+              "value": "diff"
+            }
+          ]
+        }
+      },
+      "type": 5,
+      "value": "modifier"
+    }
+  ],
+  "core.remote.api.error": [
+    {
+      "type": 0,
+      "value": "napaka API: "
+    },
+    {
+      "type": 1,
+      "value": "message"
+    }
+  ],
+  "core.remote.unexpected_status.error": [
+    {
+      "type": 0,
+      "value": "Nepričakovano stanje HTTP: "
+    },
+    {
+      "type": 1,
+      "value": "status_code"
+    },
+    {
+      "type": 0,
+      "value": ": "
+    },
+    {
+      "type": 1,
+      "value": "message"
+    }
+  ],
+  "core.remote_files.create_dir_dialog.confirm.button": [
+    {
+      "type": 0,
+      "value": "Ustvari mapo"
+    }
+  ],
+  "core.remote_files.create_dir_dialog.input.placeholder": [
+    {
+      "type": 0,
+      "value": "Ime mape"
+    }
+  ],
+  "core.remote_files.create_dir_dialog.title": [
+    {
+      "type": 0,
+      "value": "Vnesite novo ime mape"
+    }
+  ],
+  "core.remote_files.items.bookmarks": [
+    {
+      "type": 0,
+      "value": "Zaznamki"
+    }
+  ],
+  "core.remote_files.items.shared": [
+    {
+      "type": 0,
+      "value": "Deljeno"
+    }
+  ],
+  "core.repo_create.default_repo_name": [
+    {
+      "type": 0,
+      "value": "Moj sef"
+    }
+  ],
+  "core.repo_files.items.recent": [
+    {
+      "type": 0,
+      "value": "Nedavne datoteke"
+    }
+  ],
+  "core.repo_files_details.conflict.error": [
+    {
+      "type": 0,
+      "value": "Datoteko je od zadnjega shranjevanja spremenil nekdo drug. Samodejno shranjevanje je onemogočeno."
+    }
+  ],
+  "core.repo_files_details.file_could_not_be_saved_dialog.cancel.button": [
+    {
+      "type": 0,
+      "value": "Zavrzi spremembe"
+    }
+  ],
+  "core.repo_files_details.file_could_not_be_saved_dialog.confirm.button": [
+    {
+      "type": 0,
+      "value": "Poskusi znova"
+    }
+  ],
+  "core.repo_files_details.file_could_not_be_saved_dialog.message": [
+    {
+      "type": 0,
+      "value": "Datoteke ni bilo mogoče shraniti ("
+    },
+    {
+      "type": 1,
+      "value": "error"
+    },
+    {
+      "type": 0,
+      "value": "). Ali želite poskusiti znova ali zavreči spremembe?"
+    }
+  ],
+  "core.repo_files_details.file_could_not_be_saved_dialog.title": [
+    {
+      "type": 0,
+      "value": "Datoteke ni bilo mogoče shraniti"
+    }
+  ],
+  "core.repo_files_details.file_no_longer_accessible.error": [
+    {
+      "type": 0,
+      "value": "Ta datoteka ni več dostopna. Verjetno je bila izbrisana ali do nje nimate več dostopa."
+    }
+  ],
+  "core.repo_files_details.file_not_found.error": [
+    {
+      "type": 0,
+      "value": "Datoteka ne obstaja"
+    }
+  ],
+  "core.repo_files_details.file_removed_dialog.message": [
+    {
+      "type": 0,
+      "value": "Datoteka "
+    },
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "type": 0,
+      "value": " ni več dostopna. Verjetno je bila izbrisana ali pa do nje nimate več dostopa."
+    }
+  ],
+  "core.repo_files_details.file_removed_dialog.title": [
+    {
+      "type": 0,
+      "value": "Datoteka ni dostopna"
+    }
+  ],
+  "core.repo_files_details.save_deleted_confirm_new_location_cancel_dialog.cancel.button": [
+    {
+      "type": 0,
+      "value": "Zavrzi spremembe"
+    }
+  ],
+  "core.repo_files_details.save_deleted_confirm_new_location_cancel_dialog.confirm.button": [
+    {
+      "type": 0,
+      "value": "Shrani na novo lokacijo"
+    }
+  ],
+  "core.repo_files_details.save_deleted_confirm_new_location_cancel_dialog.message": [
+    {
+      "type": 0,
+      "value": "Datoteka "
+    },
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "type": 0,
+      "value": " ni več dostopna. Verjetno je bila izbrisana ali pa do nje nimate več dostopa. Ali želite shraniti datoteko na novo lokacijo ali zavreči spremembe?"
+    }
+  ],
+  "core.repo_files_details.save_deleted_confirm_new_location_cancel_dialog.title": [
+    {
+      "type": 0,
+      "value": "Datoteka ni dostopna"
+    }
+  ],
+  "core.repo_files_details.save_deleted_confirm_new_location_user_dialog.confirm.button": [
+    {
+      "type": 0,
+      "value": "Shrani na novo lokacijo"
+    }
+  ],
+  "core.repo_files_details.save_deleted_confirm_new_location_user_dialog.message": [
+    {
+      "type": 0,
+      "value": "Datoteka "
+    },
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "type": 0,
+      "value": " ni več dostopna. Verjetno je bila izbrisana ali pa do nje nimate več dostopa. Ali želite shraniti datoteko na novo lokacijo?"
+    }
+  ],
+  "core.repo_files_details.save_deleted_confirm_new_location_user_dialog.title": [
+    {
+      "type": 0,
+      "value": "Datoteka ni dostopna"
+    }
+  ],
+  "core.repo_files_details.save_handle_conflict_cancel_dialog.cancel.button": [
+    {
+      "type": 0,
+      "value": "Zavrzi spremembe"
+    }
+  ],
+  "core.repo_files_details.save_handle_conflict_cancel_dialog.confirm.button": [
+    {
+      "type": 0,
+      "value": "Shrani kot novo datoteko"
+    }
+  ],
+  "core.repo_files_details.save_handle_conflict_cancel_dialog.message": [
+    {
+      "type": 0,
+      "value": "Shranjevanje v obstoječo datoteko ni mogoče. Ali želite spremembe shraniti kot novo datoteko ali jih zavreči?"
+    }
+  ],
+  "core.repo_files_details.save_handle_conflict_cancel_dialog.title": [
+    {
+      "type": 0,
+      "value": "Datoteko je od zadnjega shranjevanja spremenil nekdo drug"
+    }
+  ],
+  "core.repo_files_details.save_handle_conflict_user_dialog.confirm.button": [
+    {
+      "type": 0,
+      "value": "Shrani kot novo datoteko"
+    }
+  ],
+  "core.repo_files_details.save_handle_conflict_user_dialog.message": [
+    {
+      "type": 0,
+      "value": "Shranjevanje v obstoječo datoteko ni mogoče. Ali želite shraniti spremembe kot novo datoteko?"
+    }
+  ],
+  "core.repo_files_details.save_handle_conflict_user_dialog.title": [
+    {
+      "type": 0,
+      "value": "Datoteko je od zadnjega shranjevanja spremenil nekdo drug"
+    }
+  ],
+  "core.repo_files_details.save_location_changed_dialog.message": [
+    {
+      "type": 0,
+      "value": "Datoteka "
+    },
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "type": 0,
+      "value": " je bila shranjena tukaj, ker je ni bilo mogoče shraniti na prvotno lokacijo."
+    }
+  ],
+  "core.repo_files_details.save_location_changed_dialog.title": [
+    {
+      "type": 0,
+      "value": "Lokacija datoteke je bila spremenjena"
+    }
+  ],
+  "core.repos.create_repo_already_exists.error": [
+    {
+      "type": 0,
+      "value": "Ta lokacija je že sef."
+    }
+  ],
+  "core.repos.create_repo_max_total_limit_exceeded.error": [
+    {
+      "type": 0,
+      "value": "Ne morete ustvariti več sefov. Nadgradite svoj račun."
+    }
+  ],
+  "core.repos.default_dir_name.documents": [
+    {
+      "type": 0,
+      "value": "Moji zasebni dokumenti"
+    }
+  ],
+  "core.repos.default_dir_name.pictures": [
+    {
+      "type": 0,
+      "value": "Moje zasebne slike"
+    }
+  ],
+  "core.repos.default_dir_name.videos": [
+    {
+      "type": 0,
+      "value": "Moji zasebni videi"
+    }
+  ],
+  "core.repos.invalid_password.error": [
+    {
+      "type": 0,
+      "value": "Zasebni ključ ni pravilen."
+    }
+  ],
+  "core.repos.repo_locked.error": [
+    {
+      "type": 0,
+      "value": "Sef je zaklenjen."
+    }
+  ],
+  "core.repos.repo_not_found.error": [
+    {
+      "type": 0,
+      "value": "Sef ne obstaja."
+    }
+  ],
+  "core.repos.repo_unlocked.error": [
+    {
+      "type": 0,
+      "value": "Sef je odklenjen."
+    }
+  ],
+  "core.secure_storage.secure_storage.error": [
+    {
+      "type": 0,
+      "value": "Napaka shrambe: "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    }
+  ],
+  "core.transfers.aborted.error": [
+    {
+      "type": 0,
+      "value": "Prenos je bil prekinjen."
+    }
+  ],
+  "desktop.oauth.close_page.message": [
+    {
+      "type": 0,
+      "value": "Zdaj lahko zaprete to stran."
+    }
+  ],
+  "desktop.save_file.file_filter": [
+    {
+      "type": 0,
+      "value": "Datoteka ("
+    },
+    {
+      "type": 1,
+      "value": "ext"
+    },
+    {
+      "type": 0,
+      "value": ")"
+    }
+  ],
+  "desktop.upload_failed.error": [
+    {
+      "type": 0,
+      "value": "Nalaganje ni uspelo: "
+    },
+    {
+      "type": 1,
+      "value": "path"
+    },
+    {
+      "type": 0,
+      "value": ": "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    }
+  ]
+}

@@ -10,6 +10,12 @@
             "state" : "new",
             "value" : "Get started"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Želim pričeti"
+          }
         }
       }
     },
@@ -21,6 +27,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Powerful, open source client-side encryption. Unlock enhanced security for your most sensitive files."
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zmogljivo, odprtokodno šifriranje z ničelnim znanjem na strani odjemalca. Nadgradi varnost svojih najbolj občutljivih datotek."
           }
         }
       }
@@ -34,6 +46,12 @@
             "state" : "new",
             "value" : "One vault for all\nyour private files."
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En trezor za vse tvoje\nzasebne datoteke."
+          }
         }
       }
     },
@@ -45,6 +63,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Dismiss"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skrij"
           }
         }
       }
@@ -58,6 +82,12 @@
             "state" : "new",
             "value" : "Change language"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spremeni jezik"
+          }
         }
       }
     },
@@ -69,6 +99,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Dismiss"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skrij"
           }
         }
       }
@@ -82,6 +118,12 @@
             "state" : "new",
             "value" : "Cancel"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prekliči"
+          }
         }
       }
     },
@@ -93,6 +135,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "New folder"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nova mapa"
           }
         }
       }
@@ -106,6 +154,12 @@
             "state" : "new",
             "value" : "Select"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Izberi"
+          }
         }
       }
     },
@@ -117,6 +171,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "**Encrypt directory names**: %@"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**Šifriraj imena imenikov**: %@"
           }
         }
       }
@@ -130,6 +190,12 @@
             "state" : "new",
             "value" : "**Filename encryption**: %@"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**Šifriranje imen datotek**: %@"
+          }
         }
       }
     },
@@ -141,6 +207,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "**Location**: %@"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**Lokacija**: %@"
           }
         }
       }
@@ -154,6 +226,12 @@
             "state" : "new",
             "value" : "**rclone config**:"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**Konfiguracija rclone**:"
+          }
         }
       }
     },
@@ -165,6 +243,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "**Salt (password2)**: %@"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**Sol (salt/password2)**: %@"
           }
         }
       }
@@ -178,6 +262,12 @@
             "state" : "new",
             "value" : "Cancel"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prekliči"
+          }
         }
       }
     },
@@ -189,6 +279,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Fill"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Izpolni"
           }
         }
       }
@@ -202,6 +298,12 @@
             "state" : "new",
             "value" : "rclone config"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konfiguracija rclone"
+          }
         }
       }
     },
@@ -213,6 +315,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "rclone config\n\nFormat:\n\n%@"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konfiguracija rclone\n\nOblika:\n\n%@"
           }
         }
       }
@@ -226,6 +334,12 @@
             "state" : "new",
             "value" : "From rclone config"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iz konfiguracije rclone"
+          }
         }
       }
     },
@@ -237,6 +351,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Continue"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nadaljuj"
           }
         }
       }
@@ -250,6 +370,12 @@
             "state" : "new",
             "value" : "Before you start using your Safe Box please safely store the configuration."
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preden začnete uporabljati svoj sef, varno shranite konfiguracijo."
+          }
         }
       }
     },
@@ -261,6 +387,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Your Safe Box has been created"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vaš sef je bil ustvarjen"
           }
         }
       }
@@ -274,6 +406,12 @@
             "state" : "new",
             "value" : "Create"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustvari"
+          }
         }
       }
     },
@@ -285,6 +423,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "From rclone config"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iz konfiguracije rclone"
           }
         }
       }
@@ -298,6 +442,12 @@
             "state" : "new",
             "value" : "Location"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lokacija"
+          }
         }
       }
     },
@@ -309,6 +459,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Location info"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informacije o lokaciji"
           }
         }
       }
@@ -322,6 +478,12 @@
             "state" : "new",
             "value" : "Location refers to a folder within your Koofr where all of your Safe Box files and folders are securely stored.\n\nIf this is your first Safe Box, the default location will be \"My safe box.\" You can change it if you prefer.\n\nIf you already have a Safe Box or wish to use an existing folder (e.g. one created with rclone), you can select that folder.\n\nPlease note that you can only select a folder located within your Koofr."
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lokacija se nanaša na mapo v vašem Koofru, kjer so varno shranjene vse datoteke in mape vašega sefa.\n\nČe je to vaš prvi sef, bo privzeta lokacija »Moj sef«. Po želji jo lahko spremenite.\n\nČe sef že imate ali želite uporabiti obstoječo mapo (npr. ustvarjeno z rclone), lahko izberete to mapo.\n\nIzberete lahko samo mapo, ki se nahaja v vašem Koofru."
+          }
         }
       }
     },
@@ -333,6 +495,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Location"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lokacija"
           }
         }
       }
@@ -346,6 +514,12 @@
             "state" : "new",
             "value" : "Location"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lokacija"
+          }
         }
       }
     },
@@ -357,6 +531,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Location"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lokacija"
           }
         }
       }
@@ -370,6 +550,12 @@
             "state" : "new",
             "value" : "Safe Key info"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informacije o zasebnem ključu"
+          }
         }
       }
     },
@@ -381,6 +567,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Safe Key is a password used to encrypt your files. Each Safe Box can have its own unique Safe Key.\n\nPlease be aware that once you set your Safe Key, it cannot be changed later. All the files within the Safe Box will be encrypted using this key.\n\nIMPORTANT: Your Safe Key cannot be reset, and there is no way to recover your files if you forget it, as it is never sent to or stored on Koofr servers."
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zasebni ključ je geslo, ki se uporablja za šifriranje vaših datotek. Vsak sef ima lahko svoj edinstven zasebni ključ.\n\nKo nastavite zasebni ključ, ga kasneje ne morete več spremeniti. Vse datoteke v sefu bodo šifrirane s tem ključem.\n\nPOMEMBNO: Vašega zasebnega ključa ni mogoče ponastaviti in datotek ni mogoče obnoviti, če ga pozabite, saj se nikoli ne pošlje ali shrani na strežnike Koofr."
           }
         }
       }
@@ -394,6 +586,12 @@
             "state" : "new",
             "value" : "Safe Key"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zasebni ključ"
+          }
         }
       }
     },
@@ -405,6 +603,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Safe Key"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zasebni ključ"
           }
         }
       }
@@ -418,6 +622,12 @@
             "state" : "new",
             "value" : "Must be at least 8 characters long"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dolžina mora biti vsaj 8 znakov"
+          }
         }
       }
     },
@@ -429,6 +639,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Salt"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sol"
           }
         }
       }
@@ -442,6 +658,12 @@
             "state" : "new",
             "value" : "Salt info"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informacije o soli"
+          }
         }
       }
     },
@@ -453,6 +675,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Salt is used in the key derivation process to create a unique encryption key and helps to protect against potential attacks. It will be stored on the Koofr servers in a secure manner.\n\nA random Salt has been generated for you. If you prefer, you can leave the Salt field empty, and the default salt will be used (same as in rclone). However, it is recommended to use a unique salt for enhanced security. Using a unique salt helps to increase the complexity of the encryption process, making it more difficult for potential attackers to access the encrypted data.\n\nIf you wish to transfer the encrypted files to another service, it is necessary to also export the salt, otherwise you won't be able to decrypt your files."
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sol (salt) se uporablja v procesu izpeljave ključev za ustvarjanje edinstvenega šifrirnega ključa in pomaga pri zaščiti pred morebitnimi napadi. Varno bo shranjena na Koofrovih strežnikih.\n\nZa vas je bila ustvarjena naključna sol. Če želite, lahko polje Sol pustite prazno in uporabljena bo privzeta sol (enako kot v rclone). Vendar pa je za večjo varnost priporočljivo uporabiti edinstveno sol. Uporaba edinstvene soli pomaga povečati zahtevnost postopka šifriranja, zaradi česar je morebitnim napadalcem otežen dostop do šifriranih podatkov.\n\nČe želite šifrirane datoteke prenesti v drugo storitev, je potrebno izvoziti tudi sol, sicer datotek ne boste mogli dešifrirati."
           }
         }
       }
@@ -466,6 +694,12 @@
             "state" : "new",
             "value" : "Salt"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sol"
+          }
         }
       }
     },
@@ -477,6 +711,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Salt"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sol"
           }
         }
       }
@@ -490,6 +730,12 @@
             "state" : "new",
             "value" : "Salt"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sol"
+          }
         }
       }
     },
@@ -501,6 +747,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Show advanced settings"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokaži napredne nastavitve"
           }
         }
       }
@@ -514,6 +766,12 @@
             "state" : "new",
             "value" : "Create a new Safe Box"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustvari nov sef"
+          }
         }
       }
     },
@@ -525,6 +783,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Archive"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arhiv"
           }
         }
       }
@@ -538,6 +802,12 @@
             "state" : "new",
             "value" : "Audio"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avdio"
+          }
         }
       }
     },
@@ -549,6 +819,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Code"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koda"
           }
         }
       }
@@ -562,6 +838,12 @@
             "state" : "new",
             "value" : "Document"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dokument"
+          }
         }
       }
     },
@@ -573,6 +855,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "File"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datoteka"
           }
         }
       }
@@ -586,6 +874,12 @@
             "state" : "new",
             "value" : "Folder"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mapa"
+          }
         }
       }
     },
@@ -598,6 +892,12 @@
             "state" : "new",
             "value" : "Image"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slika"
+          }
         }
       }
     },
@@ -608,6 +908,12 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
+            "value" : "PDF"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
             "value" : "PDF"
           }
         }
@@ -622,6 +928,12 @@
             "state" : "new",
             "value" : "Presentation"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Predstavitev"
+          }
         }
       }
     },
@@ -633,6 +945,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Spreadsheet"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preglednica"
           }
         }
       }
@@ -646,6 +964,12 @@
             "state" : "new",
             "value" : "Text"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Besedilo"
+          }
         }
       }
     },
@@ -656,6 +980,12 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
+            "value" : "Video"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
             "value" : "Video"
           }
         }
@@ -670,6 +1000,12 @@
             "state" : "new",
             "value" : "Done"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaključi"
+          }
         }
       }
     },
@@ -681,6 +1017,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Encrypted path"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Šifrirana pot"
           }
         }
       }
@@ -694,6 +1036,12 @@
             "state" : "new",
             "value" : "Information"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informacije"
+          }
         }
       }
     },
@@ -705,6 +1053,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Modified"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spremenjeno"
           }
         }
       }
@@ -718,6 +1072,12 @@
             "state" : "new",
             "value" : "Path"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pot"
+          }
         }
       }
     },
@@ -729,6 +1089,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Size"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Velikost"
           }
         }
       }
@@ -742,6 +1108,12 @@
             "state" : "new",
             "value" : "Info"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informacije"
+          }
         }
       }
     },
@@ -753,6 +1125,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Type"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vrsta"
           }
         }
       }
@@ -766,6 +1144,12 @@
             "state" : "new",
             "value" : "Copy"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopiraj"
+          }
         }
       }
     },
@@ -777,6 +1161,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Delete"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Izbriši"
           }
         }
       }
@@ -790,6 +1180,12 @@
             "state" : "new",
             "value" : "Download"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prenesi"
+          }
         }
       }
     },
@@ -801,6 +1197,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Get Info"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pridobi informacije"
           }
         }
       }
@@ -814,6 +1216,12 @@
             "state" : "new",
             "value" : "Move"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premakni"
+          }
         }
       }
     },
@@ -825,6 +1233,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Rename"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preimenuj"
           }
         }
       }
@@ -838,6 +1252,12 @@
             "state" : "new",
             "value" : "Changes are saved automatically."
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spremembe so shranjene samodejno."
+          }
         }
       }
     },
@@ -849,6 +1269,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Delete"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Izbriši"
           }
         }
       }
@@ -862,6 +1288,12 @@
             "state" : "new",
             "value" : "Done"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaključi"
+          }
         }
       }
     },
@@ -873,6 +1305,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Download"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prenesi"
           }
         }
       }
@@ -886,6 +1324,12 @@
             "state" : "new",
             "value" : "Edit"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uredi"
+          }
         }
       }
     },
@@ -897,6 +1341,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Last saved %@"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zadnjič shranjeno %@"
           }
         }
       }
@@ -910,6 +1360,12 @@
             "state" : "new",
             "value" : "Loading…"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nalaganje…"
+          }
         }
       }
     },
@@ -921,6 +1377,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Not supported"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ni podprto"
           }
         }
       }
@@ -934,6 +1396,12 @@
             "state" : "new",
             "value" : "Rename"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preimenuj"
+          }
         }
       }
     },
@@ -945,6 +1413,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Save"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shrani"
           }
         }
       }
@@ -958,6 +1432,12 @@
             "state" : "new",
             "value" : "Saving…"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shranjevanje…"
+          }
         }
       }
     },
@@ -969,6 +1449,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Share"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deli"
           }
         }
       }
@@ -982,6 +1468,12 @@
             "state" : "new",
             "value" : "File modified"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datoteka spremenjena"
+          }
         }
       }
     },
@@ -993,6 +1485,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "File unchanged"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datoteka nespremenjena"
           }
         }
       }
@@ -1006,6 +1504,12 @@
             "state" : "new",
             "value" : "Cancel"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prekliči"
+          }
         }
       }
     },
@@ -1017,6 +1521,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Copy"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopiraj"
           }
         }
       }
@@ -1041,6 +1551,36 @@
               }
             }
           }
+        },
+        "sl" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%u elementi"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%u element"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%u elementov"
+                }
+              },
+              "two" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%u elementa"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -1052,6 +1592,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Move"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premakni"
           }
         }
       }
@@ -1065,6 +1611,12 @@
             "state" : "new",
             "value" : "New folder"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nova mapa"
+          }
         }
       }
     },
@@ -1076,6 +1628,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "new text file %@"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nova besedilna datoteka %@"
           }
         }
       }
@@ -1089,6 +1647,12 @@
             "state" : "new",
             "value" : "Copy selected"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopiraj izbrano"
+          }
         }
       }
     },
@@ -1100,6 +1664,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Delete selected"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Izbriši izbrano"
           }
         }
       }
@@ -1113,6 +1683,12 @@
             "state" : "new",
             "value" : "Deselect All"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prekliči vse izbire"
+          }
         }
       }
     },
@@ -1125,6 +1701,12 @@
             "state" : "new",
             "value" : "Done"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaključi"
+          }
         }
       }
     },
@@ -1136,6 +1718,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Download selected"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prenesi izbrano"
           }
         }
       }
@@ -1160,6 +1748,36 @@
               }
             }
           }
+        },
+        "sl" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%u elementi"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%u element"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%u elementov"
+                }
+              },
+              "two" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%u elementa"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -1171,6 +1789,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Move selected"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premakni izbrano"
           }
         }
       }
@@ -1184,6 +1808,12 @@
             "state" : "new",
             "value" : "Select All"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Izberi vse"
+          }
         }
       }
     },
@@ -1195,6 +1825,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Selected items"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Izbrani elementi"
           }
         }
       }
@@ -1208,6 +1844,12 @@
             "state" : "new",
             "value" : "Create new text file"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nova besedilna datoteka"
+          }
         }
       }
     },
@@ -1219,6 +1861,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "New folder"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nova mapa"
           }
         }
       }
@@ -1232,6 +1880,12 @@
             "state" : "new",
             "value" : "Select"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Izberi"
+          }
         }
       }
     },
@@ -1243,6 +1897,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Sort by"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Razvrsti po"
           }
         }
       }
@@ -1256,6 +1916,12 @@
             "state" : "new",
             "value" : "Upload files"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Naloži datoteke"
+          }
         }
       }
     },
@@ -1267,6 +1933,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Upload a folder"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Naloži mapo"
           }
         }
       }
@@ -1280,6 +1952,12 @@
             "state" : "new",
             "value" : "Upload photo"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Naloži fotografijo"
+          }
         }
       }
     },
@@ -1291,6 +1969,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Modified"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spremenjeno"
           }
         }
       }
@@ -1304,6 +1988,12 @@
             "state" : "new",
             "value" : "Name"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ime"
+          }
         }
       }
     },
@@ -1315,6 +2005,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Size"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Velikost"
           }
         }
       }
@@ -1339,6 +2035,36 @@
               }
             }
           }
+        },
+        "sl" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementi"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld element"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementov"
+                }
+              },
+              "two" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementa"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -1350,6 +2076,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "New folder"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nova mapa"
           }
         }
       }
@@ -1374,6 +2106,36 @@
               }
             }
           }
+        },
+        "sl" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Po meri (%llu sekunde)"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Po meri (%llu sekunda)"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Po meri (%llu sekund)"
+                }
+              },
+              "two" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Po meri (%llu sekundi)"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -1385,6 +2147,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "1 hour of inactivity"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 uri neaktivnosti"
           }
         }
       }
@@ -1398,6 +2166,12 @@
             "state" : "new",
             "value" : "1 minute of inactivity"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 minuti neaktivnosti"
+          }
         }
       }
     },
@@ -1409,6 +2183,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "2 hours of inactivity"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2 urah neaktivnosti"
           }
         }
       }
@@ -1422,6 +2202,12 @@
             "state" : "new",
             "value" : "4 hours of inactivity"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "4 urah neaktivnosti"
+          }
         }
       }
     },
@@ -1433,6 +2219,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "5 minutes of inactivity"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5 minutah neaktivnosti"
           }
         }
       }
@@ -1446,6 +2238,12 @@
             "state" : "new",
             "value" : "10 minutes of inactivity"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10 minutah neaktivnosti"
+          }
         }
       }
     },
@@ -1457,6 +2255,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "30 minutes of inactivity"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "30 minutah neaktivnosti"
           }
         }
       }
@@ -1470,6 +2274,12 @@
             "state" : "new",
             "value" : "Automatically lock after"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Samodejno zakleni po"
+          }
         }
       }
     },
@@ -1481,6 +2291,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "No time limit"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brez časovne omejitve"
           }
         }
       }
@@ -1494,6 +2310,12 @@
             "state" : "new",
             "value" : "Use biometrics to unlock the Safe Box"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uporabi biometrijo za odklepanje sefa"
+          }
         }
       }
     },
@@ -1505,6 +2327,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Biometric unlock"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Biometrično odklepanje"
           }
         }
       }
@@ -1518,6 +2346,12 @@
             "state" : "new",
             "value" : "Verify Safe Key and destroy the Safe box"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preveri zasebni ključ in uniči sef"
+          }
         }
       }
     },
@@ -1529,6 +2363,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Destroy Safe Box…"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uniči sef…"
           }
         }
       }
@@ -1542,6 +2382,12 @@
             "state" : "new",
             "value" : "When switching apps or locking the screen"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ob preklapljanju med aplikacijami ali zaklepanju zaslona"
+          }
         }
       }
     },
@@ -1553,6 +2399,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Lock when app hidden"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zakleni, ko je aplikacija skrita"
           }
         }
       }
@@ -1566,6 +2418,12 @@
             "state" : "new",
             "value" : "Locked"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaklenjen"
+          }
         }
       }
     },
@@ -1577,6 +2435,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Unlock or lock the Safe Box"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odkleni ali zakleni sef"
           }
         }
       }
@@ -1590,6 +2454,12 @@
             "state" : "new",
             "value" : "Unlocked"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odklenjen"
+          }
         }
       }
     },
@@ -1601,6 +2471,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Destroy"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uniči"
           }
         }
       }
@@ -1614,6 +2490,12 @@
             "state" : "new",
             "value" : "Do you really want to destroy Safe Box **%@**?\n\nDestroying the Safe Box will keep all the files on Koofr but remove the configuration so you won't be able to decrypt the files if you didn't save the configuration.\n\n**This action cannot be undone.**\n\nEnter your Safe Key to confirm the removal:"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ali res želite uničiti sef **%@**?\n\nZ uničenjem sefa boste ohranili vse datoteke v Koofru, vendar boste odstranili konfiguracijo, tako da datotek ne boste mogli dešifrirati, če konfiguracije niste shranili.\n\n**Te akcije ne morete preklicati.**\n\nVnesite svoj zasebni ključ, da potrdite odstranitev:"
+          }
         }
       }
     },
@@ -1625,6 +2507,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Destroy Safe Box"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uniči sef"
           }
         }
       }
@@ -1638,6 +2526,12 @@
             "state" : "new",
             "value" : "Cancel"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prekliči"
+          }
         }
       }
     },
@@ -1649,6 +2543,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Enter your Safe Key to setup biometric unlock"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vnesite svoj zasebni ključ za nastavitev biometričnega odklepanja"
           }
         }
       }
@@ -1662,6 +2562,12 @@
             "state" : "new",
             "value" : "Biometric unlock"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Biometrično odklepanje"
+          }
         }
       }
     },
@@ -1673,6 +2579,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Cancel"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prekliči"
           }
         }
       }
@@ -1686,6 +2598,12 @@
             "state" : "new",
             "value" : "Continue"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nadaljuj"
+          }
         }
       }
     },
@@ -1697,6 +2615,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Enter your Safe Key to continue"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Za nadaljevanje vnesite svoj zasebni ključ"
           }
         }
       }
@@ -1710,6 +2634,12 @@
             "state" : "new",
             "value" : "Setup biometric unlock"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nastavi biometrično odklepanje"
+          }
         }
       }
     },
@@ -1721,6 +2651,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Unlocking…"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odklepanje…"
           }
         }
       }
@@ -1734,6 +2670,12 @@
             "state" : "new",
             "value" : "Create new"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustvari nov sef"
+          }
         }
       }
     },
@@ -1745,6 +2687,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Create your first one"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustvari prvi sef"
           }
         }
       }
@@ -1758,6 +2706,12 @@
             "state" : "new",
             "value" : "No Safe Boxes yet"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ni sefov"
+          }
         }
       }
     },
@@ -1769,6 +2723,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Recent files"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nedavne datoteke"
           }
         }
       }
@@ -1782,6 +2742,12 @@
             "state" : "new",
             "value" : "Change language"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spremeni jezik"
+          }
         }
       }
     },
@@ -1793,6 +2759,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Clear cache"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Počisti predpomnilnik"
           }
         }
       }
@@ -1806,6 +2778,12 @@
             "state" : "new",
             "value" : "Cache has been cleared"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Predpomnilnik je bil počiščen"
+          }
         }
       }
     },
@@ -1817,6 +2795,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Done"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaključi"
           }
         }
       }
@@ -1830,6 +2814,12 @@
             "state" : "new",
             "value" : "Done"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaključi"
+          }
         }
       }
     },
@@ -1841,6 +2831,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Git revision: %@"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revizija Git: %@"
           }
         }
       }
@@ -1854,6 +2850,12 @@
             "state" : "new",
             "value" : "Help"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pomoč"
+          }
         }
       }
     },
@@ -1865,6 +2867,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Privacy Policy"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Politika zasebnosti"
           }
         }
       }
@@ -1878,6 +2886,12 @@
             "state" : "new",
             "value" : "Report a bug"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prijavi napako"
+          }
         }
       }
     },
@@ -1889,6 +2903,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Terms of Service"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pogoji uporabe"
           }
         }
       }
@@ -1902,6 +2922,12 @@
             "state" : "new",
             "value" : "Information"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informacije"
+          }
         }
       }
     },
@@ -1913,6 +2939,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Version: %@"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Različica: %@"
           }
         }
       }
@@ -1926,6 +2958,12 @@
             "state" : "new",
             "value" : "Service and application information"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informacije o storitvi in aplikaciji"
+          }
         }
       }
     },
@@ -1937,6 +2975,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Information"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informacije"
           }
         }
       }
@@ -1950,6 +2994,12 @@
             "state" : "new",
             "value" : "Logout"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odjava"
+          }
         }
       }
     },
@@ -1961,6 +3011,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Remove account…"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Izbriši račun…"
           }
         }
       }
@@ -1974,6 +3030,12 @@
             "state" : "new",
             "value" : "Settings"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nastavitve"
+          }
         }
       }
     },
@@ -1985,6 +3047,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Cancel"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prekliči"
           }
         }
       }
@@ -1998,6 +3066,12 @@
             "state" : "new",
             "value" : "Dismiss"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skrij"
+          }
         }
       }
     },
@@ -2009,6 +3083,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "No files to upload."
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ni datotek za nalaganje."
           }
         }
       }
@@ -2022,6 +3102,12 @@
             "state" : "new",
             "value" : "Preparing files"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pripravljanje datotek"
+          }
         }
       }
     },
@@ -2033,6 +3119,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Open Koofr Vault app and sign in."
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odprite Koofr Vault in se prijavite."
           }
         }
       }
@@ -2046,6 +3138,12 @@
             "state" : "new",
             "value" : "Not signed in"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niste prijavljeni"
+          }
         }
       }
     },
@@ -2058,6 +3156,12 @@
             "state" : "new",
             "value" : "Upload successful"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nalaganje uspešno"
+          }
         }
       }
     },
@@ -2069,6 +3173,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Dismiss"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skrij"
           }
         }
       }
@@ -2089,6 +3199,36 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "%lld items"
+                }
+              }
+            }
+          }
+        },
+        "sl" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementi"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld element"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementov"
+                }
+              },
+              "two" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementa"
                 }
               }
             }
@@ -2116,6 +3256,36 @@
               }
             }
           }
+        },
+        "sl" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementi…"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld element…"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementov…"
+                }
+              },
+              "two" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementa…"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -2127,6 +3297,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "New folder"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nova mapa"
           }
         }
       }
@@ -2140,6 +3316,12 @@
             "state" : "new",
             "value" : "Upload"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Naloži"
+          }
         }
       }
     },
@@ -2151,6 +3333,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Cancel"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prekliči"
           }
         }
       }
@@ -2164,6 +3352,12 @@
             "state" : "new",
             "value" : "No Safe Boxes yet"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ni sefov"
+          }
         }
       }
     },
@@ -2175,6 +3369,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Open Koofr Vault app and create one."
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odprite Koofr Vault in ustvarite sef."
           }
         }
       }
@@ -2188,6 +3388,12 @@
             "state" : "new",
             "value" : "Save to Koofr Vault"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shrani v Koofr Vault"
+          }
         }
       }
     },
@@ -2199,6 +3405,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Cancel all"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prekliči vse"
           }
         }
       }
@@ -2212,6 +3424,12 @@
             "state" : "new",
             "value" : "Clear"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Počisti"
+          }
         }
       }
     },
@@ -2223,6 +3441,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Hide"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skrij"
           }
         }
       }
@@ -2236,6 +3460,12 @@
             "state" : "new",
             "value" : "Retry all"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poskusi vse znova"
+          }
         }
       }
     },
@@ -2247,6 +3477,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Try again"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poskusi znova"
           }
         }
       }
@@ -2260,6 +3496,12 @@
             "state" : "new",
             "value" : "Show transfers"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokaži prenose"
+          }
         }
       }
     },
@@ -2271,6 +3513,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "%@ remaining"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ preostalo"
           }
         }
       }
@@ -2284,6 +3532,12 @@
             "state" : "new",
             "value" : "%1$u / %2$u done"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$u / %2$u končano"
+          }
         }
       }
     },
@@ -2295,6 +3549,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Cancel"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prekliči"
           }
         }
       }
@@ -2308,6 +3568,12 @@
             "state" : "new",
             "value" : "Open"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odpri"
+          }
         }
       }
     },
@@ -2319,6 +3585,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Retry"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poskusi znova"
           }
         }
       }
@@ -2332,6 +3604,12 @@
             "state" : "new",
             "value" : "Done"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaključi"
+          }
         }
       }
     },
@@ -2343,6 +3621,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Failed: %@"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neuspelo: %@"
           }
         }
       }
@@ -2356,6 +3640,12 @@
             "state" : "new",
             "value" : "Processing"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obdelava"
+          }
         }
       }
     },
@@ -2367,6 +3657,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Transferring"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prenašanje"
           }
         }
       }
@@ -2380,6 +3676,12 @@
             "state" : "new",
             "value" : "Waiting"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Čakanje"
+          }
         }
       }
     },
@@ -2391,6 +3693,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Folder is Empty"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mapa je prazna"
           }
         }
       }
@@ -2404,6 +3712,12 @@
             "state" : "new",
             "value" : "Error"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Napaka"
+          }
         }
       }
     },
@@ -2415,6 +3729,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Try again"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poskusi znova"
           }
         }
       }
@@ -2428,6 +3748,12 @@
             "state" : "new",
             "value" : "Dismiss"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skrij"
+          }
         }
       }
     },
@@ -2439,6 +3765,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Loading…"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nalaganje…"
           }
         }
       }
@@ -2452,6 +3784,12 @@
             "state" : "new",
             "value" : "Safe Key"
           }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zasebni ključ"
+          }
         }
       }
     },
@@ -2463,6 +3801,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Safe Key"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zasebni ključ"
           }
         }
       }

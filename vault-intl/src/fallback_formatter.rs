@@ -240,8 +240,7 @@ mod tests {
             formatter
                 .format_message("test.message", &[("count", FormatValue::Integer(1))])
                 .unwrap(),
-            // incorrect because of missing plural rules for sl
-            "Ali res želite odstraniti 1 datotek?"
+            "Ali res želite odstraniti 1 datoteko?"
         );
     }
 

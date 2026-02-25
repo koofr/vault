@@ -4,8 +4,8 @@
 /// `icu`'s `_unstable` constructors.
 ///
 /// Using this implementation will embed the following data in the binary's data segment:
-/// * 41B for the lookup data structure (2 data identifiers)
-/// * 270B[^1] for the actual data (2 unique structs)
+/// * 45B for the lookup data structure (3 data identifiers)
+/// * 495B[^1] for the actual data (3 unique structs)
 ///
 /// [^1]: these numbers can be smaller in practice due to linker deduplication
 ///
@@ -23,8 +23,8 @@ macro_rules! __impl_plurals_cardinal_v1 {
         #[clippy::msrv = "1.83"]
         impl $provider {
             const DATA_PLURALS_CARDINAL_V1: icu_provider::baked::zerotrie::Data<icu_plurals::provider::PluralsCardinalV1> = {
-                const TRIE: icu_provider::baked::zerotrie::ZeroTrieSimpleAscii<&'static [u8]> = icu_provider::baked::zerotrie::ZeroTrieSimpleAscii { store: b"\xC2eu\x02n\x80nd\x81" };
-                const VALUES: &'static [<icu_plurals::provider::PluralsCardinalV1 as icu_provider::baked::zerotrie::DynamicDataMarker>::DataStruct] = &[icu_plurals::provider::PluralRulesData { zero: None, one: Some(icu_plurals::provider::rules::runtime::ast::Rule(unsafe { zerovec::vecs::VarZeroVec16::from_bytes_unchecked(b"\x02\0\r\0\xC1\0\0\0\0\x01\0\0\0\x01\0\0\0\xC2\0\0\0\0\0\0\0\0\0\0\0\0") })), two: None, few: None, many: None }, icu_plurals::provider::PluralRulesData { zero: None, one: None, two: None, few: None, many: None }];
+                const TRIE: icu_provider::baked::zerotrie::ZeroTrieSimpleAscii<&'static [u8]> = icu_provider::baked::zerotrie::ZeroTrieSimpleAscii { store: b"\xC3esu\x02\x04n\x80l\x81nd\x82" };
+                const VALUES: &'static [<icu_plurals::provider::PluralsCardinalV1 as icu_provider::baked::zerotrie::DynamicDataMarker>::DataStruct] = &[icu_plurals::provider::PluralRulesData { zero: None, one: Some(icu_plurals::provider::rules::runtime::ast::Rule(unsafe { zerovec::vecs::VarZeroVec16::from_bytes_unchecked(b"\x02\0\r\0\xC1\0\0\0\0\x01\0\0\0\x01\0\0\0\xC2\0\0\0\0\0\0\0\0\0\0\0\0") })), two: None, few: None, many: None }, icu_plurals::provider::PluralRulesData { zero: None, one: Some(icu_plurals::provider::rules::runtime::ast::Rule(unsafe { zerovec::vecs::VarZeroVec16::from_bytes_unchecked(b"\x02\0\r\0\xC2\0\0\0\0\0\0\0\0\0\0\0\0\xC1d\0\0\0\x01\0\0\0\x01\0\0\0") })), two: Some(icu_plurals::provider::rules::runtime::ast::Rule(unsafe { zerovec::vecs::VarZeroVec16::from_bytes_unchecked(b"\x02\0\r\0\xC2\0\0\0\0\0\0\0\0\0\0\0\0\xC1d\0\0\0\x02\0\0\0\x02\0\0\0") })), few: Some(icu_plurals::provider::rules::runtime::ast::Rule(unsafe { zerovec::vecs::VarZeroVec16::from_bytes_unchecked(b"\x03\0\r\0\x1A\0\xC2\0\0\0\0\0\0\0\0\0\0\0\0\xC1d\0\0\0\x03\0\0\0\x04\0\0\0\x02\0\0\0\0\0\0\0\0\0\0\0\0") })), many: None }, icu_plurals::provider::PluralRulesData { zero: None, one: None, two: None, few: None, many: None }];
                 unsafe { icu_provider::baked::zerotrie::Data::from_trie_and_values_unchecked(TRIE, VALUES) }
             };
         }

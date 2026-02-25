@@ -1,0 +1,2222 @@
+{
+  "web.dashboard_error.title": [
+    {
+      "type": 0,
+      "value": "Napaka"
+    }
+  ],
+  "web.dashboard_loading.title": [
+    {
+      "type": 0,
+      "value": "Nalaganje"
+    }
+  ],
+  "web.dashboard_menu.logout.menu_item": [
+    {
+      "type": 0,
+      "value": "Odjava"
+    }
+  ],
+  "web.dashboard_menu.open_remote.menu_item": [
+    {
+      "type": 0,
+      "value": "Odpri Koofr"
+    }
+  ],
+  "web.dashboard_navbar.header_fallback": [
+    {
+      "type": 0,
+      "value": "Vault"
+    }
+  ],
+  "web.dashboard_sidenav_links.help_and_support.link": [
+    {
+      "type": 0,
+      "value": "Pomoč in podpora"
+    }
+  ],
+  "web.dashboard_sidenav_links.intro.link": [
+    {
+      "type": 0,
+      "value": "Uvod"
+    }
+  ],
+  "web.dashboard_sidenav_links.landing_page.link": [
+    {
+      "type": 0,
+      "value": "Vstopna stran"
+    }
+  ],
+  "web.dashboard_sidenav_links.legal.link": [
+    {
+      "type": 0,
+      "value": "Pravno"
+    }
+  ],
+  "web.dashboard_user_icon.aria_label": [
+    {
+      "type": 0,
+      "value": "Uporabniški meni"
+    }
+  ],
+  "web.dir_picker.loading.aria_label": [
+    {
+      "type": 0,
+      "value": "Nalaganje…"
+    }
+  ],
+  "web.error_component.try_again.button": [
+    {
+      "type": 0,
+      "value": "Poskusi znova"
+    }
+  ],
+  "web.file_icon.alt": [
+    {
+      "type": 0,
+      "value": "Ikona datoteke"
+    }
+  ],
+  "web.git_revision.text": [
+    {
+      "type": 0,
+      "value": "Revizija Git: "
+    },
+    {
+      "type": 1,
+      "value": "git_revision"
+    }
+  ],
+  "web.intro.back.button": [
+    {
+      "type": 0,
+      "value": "Nazaj"
+    }
+  ],
+  "web.intro.done.button": [
+    {
+      "type": 0,
+      "value": "Zaključi"
+    }
+  ],
+  "web.intro.next.button": [
+    {
+      "type": 0,
+      "value": "Naprej"
+    }
+  ],
+  "web.intro.step_1.content": [
+    {
+      "type": 0,
+      "value": "Dobrodošel v Koofr Vault: tvoji najljubši oblačni shrambi s šifriranjem na strani odjemalca!"
+    }
+  ],
+  "web.intro.step_1.title": [
+    {
+      "type": 0,
+      "value": "Dobrodošel"
+    }
+  ],
+  "web.intro.step_2.content_1": [
+    {
+      "type": 0,
+      "value": "Vault je kot škatla z edinstveno ključavnico v prtljažniku: dodatna plast varnosti za zaščito tvojih najbolj občutljivih datotek."
+    }
+  ],
+  "web.intro.step_2.content_2": [
+    {
+      "type": 0,
+      "value": "Vault je "
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "odprtokodna"
+        }
+      ],
+      "type": 8,
+      "value": "a"
+    },
+    {
+      "type": 0,
+      "value": " programska oprema, zato lahko vedno preveriš, ali koda počne točno to, kar je obljubljeno - in nič več."
+    }
+  ],
+  "web.intro.step_2.content_3": [
+    {
+      "type": 0,
+      "value": "Združljivost z "
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "rclone"
+        }
+      ],
+      "type": 8,
+      "value": "a"
+    },
+    {
+      "type": 0,
+      "value": ": šifrirane datoteke lahko preneseš in jih lokalno dešifriraš z orodjem ukazne vrstice rclone."
+    }
+  ],
+  "web.intro.step_2.title": [
+    {
+      "type": 0,
+      "value": "O Vaultu"
+    }
+  ],
+  "web.intro.step_3.content_1": [
+    {
+      "type": 0,
+      "value": "V svojem Vaultu imaš lahko enega ali več sefov, z ločenimi ključi za vsak sef."
+    }
+  ],
+  "web.intro.step_3.content_2": [
+    {
+      "type": 0,
+      "value": "Vault šifrira tako imena datotek kot tudi vsebino, zato je vse berljivo le znotraj sefa."
+    }
+  ],
+  "web.intro.step_3.content_3": [
+    {
+      "type": 0,
+      "value": "V tvoji aplikaciji Koofr bodo datoteke prikazane s šifriranimi imeni in jih ne bo mogoče odpreti."
+    }
+  ],
+  "web.intro.step_3.title": [
+    {
+      "type": 0,
+      "value": "Sefi"
+    }
+  ],
+  "web.intro.step_4.content_1": [
+    {
+      "type": 0,
+      "value": "Ko ustvariš sef, zanj izbereš ločen zasebni ključ."
+    }
+  ],
+  "web.intro.step_4.content_2": [
+    {
+      "type": 0,
+      "value": "Ker se zasebni ključ uporablja za šifriranje datotek, ki jih shraniš v sefu, ga kasneje ni mogoče spremeniti."
+    }
+  ],
+  "web.intro.step_4.content_3": [
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Če pozabiš svoj zasebni ključ, datotek ne boš mogel obnoviti."
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    },
+    {
+      "type": 0,
+      "value": " Ključ se nikoli ne pošlje na strežnike Koofr in se tam tudi ne shrani."
+    }
+  ],
+  "web.intro.step_4.title": [
+    {
+      "type": 0,
+      "value": "Zasebni ključ"
+    }
+  ],
+  "web.intro.step_5.content": [
+    {
+      "type": 0,
+      "value": "Začni uporabljati Vault tako, da ustvariš svoj prvi sef."
+    }
+  ],
+  "web.intro.step_5.title": [
+    {
+      "type": 0,
+      "value": "Začni uporabljati Vault"
+    }
+  ],
+  "web.landing_page.copyright.text": [
+    {
+      "type": 0,
+      "value": "© "
+    },
+    {
+      "type": 1,
+      "value": "year"
+    },
+    {
+      "type": 0,
+      "value": ". "
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Koofr d.o.o."
+        }
+      ],
+      "type": 8,
+      "value": "a"
+    },
+    {
+      "type": 0,
+      "value": " vse pravice pridržane."
+    }
+  ],
+  "web.landing_page.description": [
+    {
+      "type": 0,
+      "value": "Zmogljivo, odprtokodno šifriranje z ničelnim znanjem na strani odjemalca. Nadgradi varnost svojih najbolj občutljivih datotek s Koofr Vaultom."
+    }
+  ],
+  "web.landing_page.get_started.button": [
+    {
+      "type": 0,
+      "value": "Želim pričeti"
+    }
+  ],
+  "web.landing_page.section_1.content": [
+    {
+      "type": 0,
+      "value": "Koofr Vault je odprtokodna aplikacija za shranjevanje z ničelnim znanjem, ki deluje na strani odjemalca za "
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "oblačno shrambo Koofr"
+        }
+      ],
+      "type": 8,
+      "value": "a"
+    },
+    {
+      "type": 0,
+      "value": ". Vault je kot škatla z edinstveno ključavnico v prtljažniku: dodatna plast varnosti za zaščito tvojih datotek."
+    }
+  ],
+  "web.landing_page.section_1.title": [
+    {
+      "type": 0,
+      "value": "Izjemno močna zaščita"
+    }
+  ],
+  "web.landing_page.section_10.description": [
+    {
+      "type": 0,
+      "value": "Začni šifrirati datoteke v oblaku v samo nekaj minutah. Vključeno v vseh "
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Koofrovih paketih"
+        }
+      ],
+      "type": 8,
+      "value": "a"
+    },
+    {
+      "type": 0,
+      "value": "."
+    }
+  ],
+  "web.landing_page.section_10.questions": [
+    {
+      "type": 0,
+      "value": "Imaš vprašanja o Koofr Vaultu? "
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Poišči odgovore tukaj"
+        }
+      ],
+      "type": 8,
+      "value": "a"
+    },
+    {
+      "type": 0,
+      "value": "."
+    }
+  ],
+  "web.landing_page.section_10.title": [
+    {
+      "type": 0,
+      "value": "Odkleni svoj Vault"
+    }
+  ],
+  "web.landing_page.section_2.content": [
+    {
+      "type": 0,
+      "value": "Izberi zasebni ključ in ustvari sef v svojem Koofr Vaultu."
+    }
+  ],
+  "web.landing_page.section_2.title": [
+    {
+      "type": 0,
+      "value": "Zasebni ključ"
+    }
+  ],
+  "web.landing_page.section_3.content": [
+    {
+      "type": 0,
+      "value": "Datoteke v tvojem sefu so šifrirane ali dešifrirane na zahtevo, v tvoji napravi."
+    }
+  ],
+  "web.landing_page.section_3.title": [
+    {
+      "type": 0,
+      "value": "Vse ostane v tvojem brskalniku"
+    }
+  ],
+  "web.landing_page.section_4.content": [
+    {
+      "type": 0,
+      "value": "Vsebina v oblaku je šifrirana in ni nikoli dostopna brez tvojega zasebnega ključa."
+    }
+  ],
+  "web.landing_page.section_4.title": [
+    {
+      "type": 0,
+      "value": "Samo ti imaš dostop"
+    }
+  ],
+  "web.landing_page.section_5.content_1": [
+    {
+      "type": 0,
+      "value": "Tvoje datoteke so šifrirane, vključno z imeni datotek in vso vsebino, lokalno v tvoji napravi s tvojih zasebnim ključem in nekaj čarobne soli, preden so poslane v tvoj Vault."
+    }
+  ],
+  "web.landing_page.section_5.content_2": [
+    {
+      "type": 0,
+      "value": "Ne tvoj zasebni ključ, niti nobeni drugi nešifrirani podatki ali metapodatki datotek niso poslani "
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Koofru"
+        }
+      ],
+      "type": 8,
+      "value": "a"
+    },
+    {
+      "type": 0,
+      "value": " ali shranjeni v njem. Samo ti lahko dešifriraš in dostopaš do svojih datotek v Vaultu."
+    }
+  ],
+  "web.landing_page.section_5.title": [
+    {
+      "type": 0,
+      "value": "Samo za tvoje oči"
+    }
+  ],
+  "web.landing_page.section_6.content_1": [
+    {
+      "type": 0,
+      "value": "Koofr Vault je "
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "odprtokoden"
+        }
+      ],
+      "type": 8,
+      "value": "a"
+    },
+    {
+      "type": 0,
+      "value": ", zato lahko vedno preveriš, ali koda počne točno to, kar je obljubljeno - in nič drugega. Šifriranje datotek se izvaja z uporabo NaCl SecretBox, ki uporablja šifro XSalsa20 in Poly1305 za zagotavljanje integritete."
+    }
+  ],
+  "web.landing_page.section_6.content_2": [
+    {
+      "type": 0,
+      "value": "Združljiv z orodjem "
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "rclone"
+        }
+      ],
+      "type": 8,
+      "value": "a"
+    },
+    {
+      "type": 0,
+      "value": ". To pomeni, da lahko preneseš šifrirane datoteke in jih lokalno dešifriraš z orodjem ukazne vrstice rclone."
+    }
+  ],
+  "web.landing_page.section_6.title": [
+    {
+      "type": 0,
+      "value": "Popolnoma odprtokoden"
+    }
+  ],
+  "web.landing_page.section_7.title": [
+    {
+      "type": 0,
+      "value": "Šifriranje na strani odjemalca"
+    }
+  ],
+  "web.landing_page.section_8.title": [
+    {
+      "type": 0,
+      "value": "Preverljiva izvorna koda"
+    }
+  ],
+  "web.landing_page.section_9.title": [
+    {
+      "type": 0,
+      "value": "Ničelno znanje"
+    }
+  ],
+  "web.landing_page.title": [
+    {
+      "type": 0,
+      "value": "En trezor za vse tvoje"
+    },
+    {
+      "children": [
+      ],
+      "type": 8,
+      "value": "br"
+    },
+    {
+      "children": [
+        {
+          "type": 1,
+          "value": "typing_text"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    }
+  ],
+  "web.landing_page.title.typing_text_1": [
+    {
+      "type": 0,
+      "value": "zasebne datoteke."
+    }
+  ],
+  "web.landing_page.title.typing_text_2": [
+    {
+      "type": 0,
+      "value": "zaupne podatke."
+    }
+  ],
+  "web.landing_page.title.typing_text_3": [
+    {
+      "type": 0,
+      "value": "skrivnosti."
+    }
+  ],
+  "web.landing_page_desktop.description": [
+    {
+      "type": 0,
+      "value": "Koofr Vault je odprtokodna aplikacija za shranjevanje na strani odjemalca, šifrirana z ničelnim znanjem za oblačno shrambo Koofr. Nadgradi varnost svojih datotek. Odkrij boljši način za varno shranjevanje in dostop do svojih fotografij, videoposnetkov in dokumentov."
+    }
+  ],
+  "web.landing_page_unofficial.warning": [
+    {
+      "type": 0,
+      "value": "To je neuradna stran Koofr Vault. Uporaba na lastno odgovornost."
+    }
+  ],
+  "web.loading_circle.aria_label": [
+    {
+      "type": 0,
+      "value": "Nalaganje…"
+    }
+  ],
+  "web.mobile_page.continue_with_web_app.button": [
+    {
+      "type": 0,
+      "value": "Ali nadaljuj z uporabo spletne aplikacije"
+    }
+  ],
+  "web.mobile_page.description": [
+    {
+      "type": 0,
+      "value": "Zdi se, da nimate nameščene mobilne aplikacije Koofr Vault."
+    }
+  ],
+  "web.mobile_page.header": [
+    {
+      "type": 0,
+      "value": "Odpri v mobilni aplikaciji"
+    }
+  ],
+  "web.mobile_page.install_app.button": [
+    {
+      "type": 0,
+      "value": "Namesti mobilno aplikacijo"
+    }
+  ],
+  "web.mobile_page.title": [
+    {
+      "type": 0,
+      "value": "Odpri v mobilni aplikaciji Vault"
+    }
+  ],
+  "web.modal.close.aria_label": [
+    {
+      "type": 0,
+      "value": "Zapri"
+    }
+  ],
+  "web.navbar.aria_label": [
+    {
+      "type": 0,
+      "value": "Navigacijska vrstica"
+    }
+  ],
+  "web.navbar_back.aria_label": [
+    {
+      "type": 0,
+      "value": "Nazaj"
+    }
+  ],
+  "web.navbar_breadcrumbs.aria_label": [
+    {
+      "type": 0,
+      "value": "Navigacijska sled"
+    }
+  ],
+  "web.navbar_close.aria_label": [
+    {
+      "type": 0,
+      "value": "Zapri"
+    }
+  ],
+  "web.navbar_header.aria_label": [
+    {
+      "type": 0,
+      "value": "Glava navigacijske vrstice"
+    }
+  ],
+  "web.navbar_left.aria_label": [
+    {
+      "type": 0,
+      "value": "Navigacijska vrstica levo"
+    }
+  ],
+  "web.navbar_logo.aria_label": [
+    {
+      "type": 0,
+      "value": "Logo Koofr Vault"
+    }
+  ],
+  "web.navbar_nav.aria_label": [
+    {
+      "type": 0,
+      "value": "Navigacijska vrstica navigacija"
+    }
+  ],
+  "web.navbar_right.aria_label": [
+    {
+      "type": 0,
+      "value": "Navigacijska vrstica desno"
+    }
+  ],
+  "web.not_found_page.go_to_dashboard.button": [
+    {
+      "type": 0,
+      "value": "Nazaj na prvo stran"
+    }
+  ],
+  "web.not_found_page.title": [
+    {
+      "type": 0,
+      "value": "Stran ne obstaja"
+    }
+  ],
+  "web.not_supported_page.description": [
+    {
+      "type": 0,
+      "value": "Vaš brskalnik ni podprt. Odprite to stran v sodobnem brskalniku na računalniku."
+    }
+  ],
+  "web.not_supported_page.title": [
+    {
+      "type": 0,
+      "value": "Ni podprto"
+    }
+  ],
+  "web.notifications.remove_all.button": [
+    {
+      "type": 0,
+      "value": "zapri vse"
+    }
+  ],
+  "web.pdf_viewer.tooltip": [
+    {
+      "type": 0,
+      "value": "Pregledovalnik PDF-jev"
+    }
+  ],
+  "web.remote_files_dir_picker.cancel.button": [
+    {
+      "type": 0,
+      "value": "Prekliči"
+    }
+  ],
+  "web.remote_files_dir_picker.create_folder.button": [
+    {
+      "type": 0,
+      "value": "Ustvari mapo"
+    }
+  ],
+  "web.remote_files_dir_picker.select.button": [
+    {
+      "type": 0,
+      "value": "Izberi"
+    }
+  ],
+  "web.remote_files_dir_picker.title": [
+    {
+      "type": 0,
+      "value": "Izberi mapo"
+    }
+  ],
+  "web.repo_config_backup.description": [
+    {
+      "type": 0,
+      "value": "Za generiranje konfiguracije rclone vnesite svoj zasebni ključ. Prepričajte se, da je pravilen."
+    }
+  ],
+  "web.repo_config_backup.password.aria_label": [
+    {
+      "type": 0,
+      "value": "Zasebni ključ"
+    }
+  ],
+  "web.repo_config_backup.password.placeholder": [
+    {
+      "type": 0,
+      "value": "Vaš zasebni ključ"
+    }
+  ],
+  "web.repo_config_backup.title": [
+    {
+      "type": 0,
+      "value": "Varnostno kopiranje konfiguracije"
+    }
+  ],
+  "web.repo_config_info.copy.button": [
+    {
+      "type": 0,
+      "value": "Kopiraj"
+    }
+  ],
+  "web.repo_config_info.copy.button.copied": [
+    {
+      "type": 0,
+      "value": "Kopirano"
+    }
+  ],
+  "web.repo_config_info.encrypt_directory_names": [
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Šifriraj imena imenikov"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    },
+    {
+      "type": 0,
+      "value": ": "
+    },
+    {
+      "type": 1,
+      "value": "encrypt_directory_names"
+    }
+  ],
+  "web.repo_config_info.filename_encryption": [
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Šifriranje imen datotek"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    },
+    {
+      "type": 0,
+      "value": ": "
+    },
+    {
+      "type": 1,
+      "value": "filename_encryption"
+    }
+  ],
+  "web.repo_config_info.location": [
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Lokacija"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    },
+    {
+      "type": 0,
+      "value": ": "
+    },
+    {
+      "type": 1,
+      "value": "location"
+    }
+  ],
+  "web.repo_config_info.rclone_config": [
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Konfiguracija rclone"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    },
+    {
+      "type": 0,
+      "value": ":"
+    }
+  ],
+  "web.repo_config_info.salt": [
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Sol (salt/password2)"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    },
+    {
+      "type": 0,
+      "value": ": "
+    },
+    {
+      "type": 1,
+      "value": "salt"
+    }
+  ],
+  "web.repo_create.created.continue.button": [
+    {
+      "type": 0,
+      "value": "Nadaljuj"
+    }
+  ],
+  "web.repo_create.created.description": [
+    {
+      "type": 0,
+      "value": "Preden začnete uporabljati svoj sef, varno shranite konfiguracijo."
+    }
+  ],
+  "web.repo_create.created.title": [
+    {
+      "type": 0,
+      "value": "Vaš sef je bil ustvarjen"
+    }
+  ],
+  "web.repo_create.form.create.button": [
+    {
+      "type": 0,
+      "value": "Ustvari"
+    }
+  ],
+  "web.repo_create.form.location.label": [
+    {
+      "type": 0,
+      "value": "Lokacija"
+    }
+  ],
+  "web.repo_create.form.location.select_folder.button": [
+    {
+      "type": 0,
+      "value": "Izberi mapo"
+    }
+  ],
+  "web.repo_create.form.password.label": [
+    {
+      "type": 0,
+      "value": "Zasebni ključ"
+    }
+  ],
+  "web.repo_create.form.password.placeholder": [
+    {
+      "type": 0,
+      "value": "Dolžina mora biti vsaj 8 znakov"
+    }
+  ],
+  "web.repo_create.form.rclone_config.fill.button": [
+    {
+      "type": 0,
+      "value": "Izpolni"
+    }
+  ],
+  "web.repo_create.form.rclone_config.format.label": [
+    {
+      "type": 0,
+      "value": "Oblika:"
+    }
+  ],
+  "web.repo_create.form.rclone_config.title": [
+    {
+      "type": 0,
+      "value": "Iz konfiguracije rclone"
+    }
+  ],
+  "web.repo_create.form.salt.description": [
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Sol (salt) se uporablja v procesu izpeljave ključev za ustvarjanje edinstvenega šifrirnega ključa in pomaga pri zaščiti pred morebitnimi napadi. Varno bo shranjena na Koofrovih strežnikih."
+        }
+      ],
+      "type": 8,
+      "value": "p"
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Za vas je bila ustvarjena naključna sol. Če želite, lahko polje Sol pustite prazno in uporabljena bo privzeta sol (enako kot v rclone). Vendar pa je za večjo varnost priporočljivo uporabiti edinstveno sol. Uporaba edinstvene soli pomaga povečati zahtevnost postopka šifriranja, zaradi česar je morebitnim napadalcem otežen dostop do šifriranih podatkov."
+        }
+      ],
+      "type": 8,
+      "value": "p"
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Če želite šifrirane datoteke prenesti v drugo storitev, je potrebno izvoziti tudi sol, sicer datotek ne boste mogli dešifrirati."
+        }
+      ],
+      "type": 8,
+      "value": "p"
+    }
+  ],
+  "web.repo_create.form.salt.label": [
+    {
+      "type": 0,
+      "value": "Sol"
+    }
+  ],
+  "web.repo_create.form.show_advanced_settings.button": [
+    {
+      "type": 0,
+      "value": "Prikaži napredne nastavitve"
+    }
+  ],
+  "web.repo_create.title": [
+    {
+      "type": 0,
+      "value": "Ustvari nov sef"
+    }
+  ],
+  "web.repo_file_category.archive": [
+    {
+      "type": 0,
+      "value": "Arhiv"
+    }
+  ],
+  "web.repo_file_category.audio": [
+    {
+      "type": 0,
+      "value": "Avdio"
+    }
+  ],
+  "web.repo_file_category.code": [
+    {
+      "type": 0,
+      "value": "Koda"
+    }
+  ],
+  "web.repo_file_category.document": [
+    {
+      "type": 0,
+      "value": "Dokument"
+    }
+  ],
+  "web.repo_file_category.file": [
+    {
+      "type": 0,
+      "value": "Datoteka"
+    }
+  ],
+  "web.repo_file_category.folder": [
+    {
+      "type": 0,
+      "value": "Mapa"
+    }
+  ],
+  "web.repo_file_category.image": [
+    {
+      "type": 0,
+      "value": "Slika"
+    }
+  ],
+  "web.repo_file_category.pdf": [
+    {
+      "type": 0,
+      "value": "PDF"
+    }
+  ],
+  "web.repo_file_category.presentation": [
+    {
+      "type": 0,
+      "value": "Predstavitev"
+    }
+  ],
+  "web.repo_file_category.spreadsheet": [
+    {
+      "type": 0,
+      "value": "Preglednica"
+    }
+  ],
+  "web.repo_file_category.text": [
+    {
+      "type": 0,
+      "value": "Besedilo"
+    }
+  ],
+  "web.repo_file_category.video": [
+    {
+      "type": 0,
+      "value": "Video"
+    }
+  ],
+  "web.repo_file_info.close.button": [
+    {
+      "type": 0,
+      "value": "Zapri"
+    }
+  ],
+  "web.repo_file_info.encrypted_md5.label": [
+    {
+      "type": 0,
+      "value": "Šifriran MD5"
+    }
+  ],
+  "web.repo_file_info.encrypted_path.label": [
+    {
+      "type": 0,
+      "value": "Šifrirana pot"
+    }
+  ],
+  "web.repo_file_info.md5.label": [
+    {
+      "type": 0,
+      "value": "MD5"
+    }
+  ],
+  "web.repo_file_info.modified.label": [
+    {
+      "type": 0,
+      "value": "Spremenjeno"
+    }
+  ],
+  "web.repo_file_info.name.label": [
+    {
+      "type": 0,
+      "value": "Ime"
+    }
+  ],
+  "web.repo_file_info.path.label": [
+    {
+      "type": 0,
+      "value": "Pot"
+    }
+  ],
+  "web.repo_file_info.size.label": [
+    {
+      "type": 0,
+      "value": "Velikost"
+    }
+  ],
+  "web.repo_file_info.tags_error.label": [
+    {
+      "type": 0,
+      "value": "Napaka oznak"
+    }
+  ],
+  "web.repo_file_info.title": [
+    {
+      "type": 0,
+      "value": "Podrobnosti"
+    }
+  ],
+  "web.repo_file_info.type.label": [
+    {
+      "type": 0,
+      "value": "Vrsta"
+    }
+  ],
+  "web.repo_files.create_text_file.default_filename": [
+    {
+      "type": 0,
+      "value": "nova besedilna datoteka "
+    },
+    {
+      "type": 1,
+      "value": "date"
+    }
+  ],
+  "web.repo_files.dir.aria_label": [
+    {
+      "type": 0,
+      "value": "Mapa "
+    },
+    {
+      "type": 1,
+      "value": "name"
+    }
+  ],
+  "web.repo_files.file.aria_label": [
+    {
+      "type": 0,
+      "value": "Datoteka "
+    },
+    {
+      "type": 1,
+      "value": "name"
+    }
+  ],
+  "web.repo_files.modified.column": [
+    {
+      "type": 0,
+      "value": "Spremenjeno"
+    }
+  ],
+  "web.repo_files.name.column": [
+    {
+      "type": 0,
+      "value": "Ime"
+    }
+  ],
+  "web.repo_files.name_with_error.text": [
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "type": 0,
+      "value": " (NAPAKA)"
+    }
+  ],
+  "web.repo_files.rename.tooltip": [
+    {
+      "type": 0,
+      "value": "Preimenuj"
+    }
+  ],
+  "web.repo_files.size.column": [
+    {
+      "type": 0,
+      "value": "Velikost"
+    }
+  ],
+  "web.repo_files.table.aria_label": [
+    {
+      "type": 0,
+      "value": "Seznam datotek"
+    }
+  ],
+  "web.repo_files_add_menu.create_dir.menu_item": [
+    {
+      "type": 0,
+      "value": "Nova mapa"
+    }
+  ],
+  "web.repo_files_add_menu.create_text_file.menu_item": [
+    {
+      "type": 0,
+      "value": "Nova besedilna datoteka"
+    }
+  ],
+  "web.repo_files_add_menu.upload_file.menu_item": [
+    {
+      "type": 0,
+      "value": "Naloži datoteko"
+    }
+  ],
+  "web.repo_files_add_menu.upload_folder.menu_item": [
+    {
+      "type": 0,
+      "value": "Naloži mapo"
+    }
+  ],
+  "web.repo_files_details.navbar.delete.button": [
+    {
+      "type": 0,
+      "value": "Izbriši"
+    }
+  ],
+  "web.repo_files_details.navbar.download.button": [
+    {
+      "type": 0,
+      "value": "Prenesi"
+    }
+  ],
+  "web.repo_files_details.navbar.edit.button": [
+    {
+      "type": 0,
+      "value": "Uredi"
+    }
+  ],
+  "web.repo_files_details.navbar.rename.button": [
+    {
+      "type": 0,
+      "value": "Preimenuj"
+    }
+  ],
+  "web.repo_files_details.navbar.save.button": [
+    {
+      "type": 0,
+      "value": "Shrani"
+    }
+  ],
+  "web.repo_files_details.navbar_header.auto_save.text": [
+    {
+      "type": 0,
+      "value": "Spremembe so shranjene samodejno. Zadnjič shranjeno "
+    },
+    {
+      "type": 1,
+      "value": "modified"
+    }
+  ],
+  "web.repo_files_details.navbar_header.error.aria_label": [
+    {
+      "type": 0,
+      "value": "Napaka datoteke"
+    }
+  ],
+  "web.repo_files_details.navbar_header.loading.text": [
+    {
+      "type": 0,
+      "value": "Nalaganje…"
+    }
+  ],
+  "web.repo_files_details.navbar_header.saving.text": [
+    {
+      "type": 0,
+      "value": "Shranjevanje…"
+    }
+  ],
+  "web.repo_files_details.navbar_header.status.aria_label": [
+    {
+      "type": 0,
+      "value": "Stanje datoteke"
+    }
+  ],
+  "web.repo_files_details.navbar_header.status.dirty": [
+    {
+      "type": 0,
+      "value": "Datoteka spremenjena"
+    }
+  ],
+  "web.repo_files_details.navbar_header.status.unchanged": [
+    {
+      "type": 0,
+      "value": "Datoteka nespremenjena"
+    }
+  ],
+  "web.repo_files_empty.title": [
+    {
+      "type": 0,
+      "value": "Ta mapa je prazna."
+    }
+  ],
+  "web.repo_files_move.cancel.button": [
+    {
+      "type": 0,
+      "value": "Prekliči"
+    }
+  ],
+  "web.repo_files_move.copy.button": [
+    {
+      "type": 0,
+      "value": "Kopiraj"
+    }
+  ],
+  "web.repo_files_move.copy.title": [
+    {
+      "type": 0,
+      "value": "Kopiraj "
+    },
+    {
+      "children": [
+        {
+          "offset": 0,
+          "options": {
+            "few": {
+              "value": [
+                {
+                  "type": 7
+                },
+                {
+                  "type": 0,
+                  "value": " elemente"
+                }
+              ]
+            },
+            "one": {
+              "value": [
+                {
+                  "type": 7
+                },
+                {
+                  "type": 0,
+                  "value": " element"
+                }
+              ]
+            },
+            "other": {
+              "value": [
+                {
+                  "type": 7
+                },
+                {
+                  "type": 0,
+                  "value": " elementov"
+                }
+              ]
+            },
+            "two": {
+              "value": [
+                {
+                  "type": 7
+                },
+                {
+                  "type": 0,
+                  "value": " elementa"
+                }
+              ]
+            }
+          },
+          "pluralType": "cardinal",
+          "type": 6,
+          "value": "count"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    },
+    {
+      "type": 0,
+      "value": " v "
+    },
+    {
+      "children": [
+        {
+          "type": 1,
+          "value": "dest"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    }
+  ],
+  "web.repo_files_move.create_dir.button": [
+    {
+      "type": 0,
+      "value": "Ustvari mapo"
+    }
+  ],
+  "web.repo_files_move.move.button": [
+    {
+      "type": 0,
+      "value": "Premakni"
+    }
+  ],
+  "web.repo_files_move.move.title": [
+    {
+      "type": 0,
+      "value": "Premakni "
+    },
+    {
+      "children": [
+        {
+          "offset": 0,
+          "options": {
+            "few": {
+              "value": [
+                {
+                  "type": 7
+                },
+                {
+                  "type": 0,
+                  "value": " elemente"
+                }
+              ]
+            },
+            "one": {
+              "value": [
+                {
+                  "type": 7
+                },
+                {
+                  "type": 0,
+                  "value": " element"
+                }
+              ]
+            },
+            "other": {
+              "value": [
+                {
+                  "type": 7
+                },
+                {
+                  "type": 0,
+                  "value": " elementov"
+                }
+              ]
+            },
+            "two": {
+              "value": [
+                {
+                  "type": 7
+                },
+                {
+                  "type": 0,
+                  "value": " elementa"
+                }
+              ]
+            }
+          },
+          "pluralType": "cardinal",
+          "type": 6,
+          "value": "count"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    },
+    {
+      "type": 0,
+      "value": " v "
+    },
+    {
+      "children": [
+        {
+          "type": 1,
+          "value": "dest"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    }
+  ],
+  "web.repo_files_nav.add.button": [
+    {
+      "type": 0,
+      "value": "Dodaj"
+    }
+  ],
+  "web.repo_files_summary.selected_count.text": [
+    {
+      "offset": 0,
+      "options": {
+        "few": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " elementi"
+            }
+          ]
+        },
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " element"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " elementov"
+            }
+          ]
+        },
+        "two": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " elementa"
+            }
+          ]
+        }
+      },
+      "pluralType": "cardinal",
+      "type": 6,
+      "value": "count"
+    },
+    {
+      "type": 0,
+      "value": " - "
+    },
+    {
+      "type": 1,
+      "value": "size"
+    },
+    {
+      "type": 0,
+      "value": " izbrano"
+    }
+  ],
+  "web.repo_files_summary.total_count.text": [
+    {
+      "offset": 0,
+      "options": {
+        "few": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " elementi"
+            }
+          ]
+        },
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " element"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " elementov"
+            }
+          ]
+        },
+        "two": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " elementa"
+            }
+          ]
+        }
+      },
+      "pluralType": "cardinal",
+      "type": 6,
+      "value": "count"
+    },
+    {
+      "type": 0,
+      "value": " - "
+    },
+    {
+      "type": 1,
+      "value": "size"
+    }
+  ],
+  "web.repo_files_toolbar.copy.button": [
+    {
+      "type": 0,
+      "value": "Kopiraj"
+    }
+  ],
+  "web.repo_files_toolbar.delete.button": [
+    {
+      "type": 0,
+      "value": "Izbriši"
+    }
+  ],
+  "web.repo_files_toolbar.download.button": [
+    {
+      "type": 0,
+      "value": "Prenesi"
+    }
+  ],
+  "web.repo_files_toolbar.edit_text.button": [
+    {
+      "type": 0,
+      "value": "Uredi besedilo"
+    }
+  ],
+  "web.repo_files_toolbar.info.button": [
+    {
+      "type": 0,
+      "value": "Podrobnosti"
+    }
+  ],
+  "web.repo_files_toolbar.move.button": [
+    {
+      "type": 0,
+      "value": "Premakni"
+    }
+  ],
+  "web.repo_files_toolbar.rename.button": [
+    {
+      "type": 0,
+      "value": "Preimenuj"
+    }
+  ],
+  "web.repo_files_upload_form.upload_dir.aria_label": [
+    {
+      "type": 0,
+      "value": "Naloži mapo"
+    }
+  ],
+  "web.repo_files_upload_form.upload_file.aria_label": [
+    {
+      "type": 0,
+      "value": "Naloži datoteko"
+    }
+  ],
+  "web.repo_info.backup_config.button": [
+    {
+      "type": 0,
+      "value": "Ustvari varnostno kopijo konfiguracije sefa"
+    }
+  ],
+  "web.repo_info.backup_config.heading": [
+    {
+      "type": 0,
+      "value": "Varnostna kopija konfiguracije"
+    }
+  ],
+  "web.repo_info.created_at.text": [
+    {
+      "type": 0,
+      "value": "Ustvarjen: "
+    },
+    {
+      "type": 1,
+      "value": "created"
+    }
+  ],
+  "web.repo_info.destroy_repo.button": [
+    {
+      "type": 0,
+      "value": "Uniči sef…"
+    }
+  ],
+  "web.repo_info.locked.text": [
+    {
+      "type": 0,
+      "value": "Zaklenjen"
+    }
+  ],
+  "web.repo_info.open_repo_in_remote.button": [
+    {
+      "type": 0,
+      "value": "Odpri v Koofru"
+    }
+  ],
+  "web.repo_info.unlocked.text": [
+    {
+      "type": 0,
+      "value": "Odklenjen"
+    }
+  ],
+  "web.repo_lock.lock_after.heading": [
+    {
+      "type": 0,
+      "value": "Zakleni po"
+    }
+  ],
+  "web.repo_lock.lock_after_options.custom": [
+    {
+      "type": 0,
+      "value": "Po meri ("
+    },
+    {
+      "offset": 0,
+      "options": {
+        "few": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " sekunde"
+            }
+          ]
+        },
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " sekunda"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " sekund"
+            }
+          ]
+        },
+        "two": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " sekundi"
+            }
+          ]
+        }
+      },
+      "pluralType": "cardinal",
+      "type": 6,
+      "value": "seconds"
+    },
+    {
+      "type": 0,
+      "value": ")"
+    }
+  ],
+  "web.repo_lock.lock_after_options.inactive_10_minutes": [
+    {
+      "type": 0,
+      "value": "10 minutah neaktivnosti"
+    }
+  ],
+  "web.repo_lock.lock_after_options.inactive_1_hour": [
+    {
+      "type": 0,
+      "value": "1 uri neaktivnosti"
+    }
+  ],
+  "web.repo_lock.lock_after_options.inactive_1_minute": [
+    {
+      "type": 0,
+      "value": "1 minuti neaktivnosti"
+    }
+  ],
+  "web.repo_lock.lock_after_options.inactive_2_hours": [
+    {
+      "type": 0,
+      "value": "2 urah neaktivnosti"
+    }
+  ],
+  "web.repo_lock.lock_after_options.inactive_30_minutes": [
+    {
+      "type": 0,
+      "value": "30 minutah neaktivnosti"
+    }
+  ],
+  "web.repo_lock.lock_after_options.inactive_4_hours": [
+    {
+      "type": 0,
+      "value": "4 urah neaktivnosti"
+    }
+  ],
+  "web.repo_lock.lock_after_options.inactive_5_minutes": [
+    {
+      "type": 0,
+      "value": "5 minutah neaktivnosti"
+    }
+  ],
+  "web.repo_lock.lock_after_options.no_limit": [
+    {
+      "type": 0,
+      "value": "Brez časovne omejitve"
+    }
+  ],
+  "web.repo_lock.lock_after_select.aria_label": [
+    {
+      "type": 0,
+      "value": "Zakleni sef po"
+    }
+  ],
+  "web.repo_lock.lock_now.button": [
+    {
+      "type": 0,
+      "value": "Zakleni zdaj"
+    }
+  ],
+  "web.repo_lock.lock_on.button": [
+    {
+      "type": 0,
+      "value": "Zakleni, ko je"
+    }
+  ],
+  "web.repo_lock.lock_on_app_hidden.text": [
+    {
+      "type": 0,
+      "value": "Aplikacija skrita"
+    }
+  ],
+  "web.repo_lock.title": [
+    {
+      "type": 0,
+      "value": "Zakleni sef"
+    }
+  ],
+  "web.repo_remove.cancel.button": [
+    {
+      "type": 0,
+      "value": "Prekliči"
+    }
+  ],
+  "web.repo_remove.confirm.button": [
+    {
+      "type": 0,
+      "value": "Uniči"
+    }
+  ],
+  "web.repo_remove.message": [
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Ali res želite uničiti sef "
+        },
+        {
+          "children": [
+            {
+              "type": 1,
+              "value": "name"
+            }
+          ],
+          "type": 8,
+          "value": "b"
+        },
+        {
+          "type": 0,
+          "value": "?"
+        }
+      ],
+      "type": 8,
+      "value": "p"
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Z uničenjem sefa boste ohranili vse datoteke v Koofru, vendar boste odstranili konfiguracijo, tako da datotek ne boste mogli dešifrirati, če konfiguracije niste shranili."
+        }
+      ],
+      "type": 8,
+      "value": "p"
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "type": 0,
+              "value": "Te akcije ne morete preklicati."
+            }
+          ],
+          "type": 8,
+          "value": "b"
+        }
+      ],
+      "type": 8,
+      "value": "p"
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": "Vnesite svoj zasebni ključ, da potrdite uničenje sefa:"
+        }
+      ],
+      "type": 8,
+      "value": "p"
+    }
+  ],
+  "web.repo_remove.title": [
+    {
+      "type": 0,
+      "value": "Uniči sef"
+    }
+  ],
+  "web.repo_space_usage.calculate.button": [
+    {
+      "type": 0,
+      "value": "Izračunaj"
+    }
+  ],
+  "web.repo_space_usage.heading": [
+    {
+      "type": 0,
+      "value": "Porabljen prostor"
+    }
+  ],
+  "web.repo_space_usage.loading.text": [
+    {
+      "type": 0,
+      "value": "Nalaganje…"
+    }
+  ],
+  "web.repo_unlock_form.message": [
+    {
+      "type": 0,
+      "value": "Za nadaljevanje vnesite svoj zasebni ključ"
+    }
+  ],
+  "web.repo_unlock_form.password.aria_label": [
+    {
+      "type": 0,
+      "value": "Zasebni ključ"
+    }
+  ],
+  "web.repo_unlock_form.submit.button": [
+    {
+      "type": 0,
+      "value": "Nadaljuj"
+    }
+  ],
+  "web.repos.create.button": [
+    {
+      "type": 0,
+      "value": "Ustvari nov sef"
+    }
+  ],
+  "web.repos.repo.info.aria_label": [
+    {
+      "type": 0,
+      "value": "Informacije o sefu"
+    }
+  ],
+  "web.repos.repo.locked.aria_label": [
+    {
+      "type": 0,
+      "value": "Sef zaklenjen"
+    }
+  ],
+  "web.repos.repo.recent.button": [
+    {
+      "type": 0,
+      "value": "Nedavne datoteke"
+    }
+  ],
+  "web.repos.repo.recent.button.aria_label": [
+    {
+      "type": 0,
+      "value": "Nedavne datoteke"
+    }
+  ],
+  "web.repos.repo.unlocked.aria_label": [
+    {
+      "type": 0,
+      "value": "Sef odklenjen"
+    }
+  ],
+  "web.show_password.hide": [
+    {
+      "type": 0,
+      "value": "Skrij geslo"
+    }
+  ],
+  "web.show_password.hide.aria_label": [
+    {
+      "type": 0,
+      "value": "Skrij geslo"
+    }
+  ],
+  "web.show_password.show": [
+    {
+      "type": 0,
+      "value": "Pokaži geslo"
+    }
+  ],
+  "web.show_password.show.aria_label": [
+    {
+      "type": 0,
+      "value": "Pokaži geslo"
+    }
+  ],
+  "web.space_usage.text": [
+    {
+      "type": 1,
+      "value": "used"
+    },
+    {
+      "type": 0,
+      "value": " od "
+    },
+    {
+      "type": 1,
+      "value": "total"
+    },
+    {
+      "type": 0,
+      "value": " zasedeno"
+    }
+  ],
+  "web.toolbar.cancel.button": [
+    {
+      "type": 0,
+      "value": "Prekliči"
+    }
+  ],
+  "web.transfers.summary.cancel_all.button": [
+    {
+      "type": 0,
+      "value": "Prekliči"
+    }
+  ],
+  "web.transfers.summary.cancel_all.tooltip": [
+    {
+      "type": 0,
+      "value": "Prekliči vse prenose"
+    }
+  ],
+  "web.transfers.summary.clear_all.button": [
+    {
+      "type": 0,
+      "value": "Počisti"
+    }
+  ],
+  "web.transfers.summary.clear_all.tooltip": [
+    {
+      "type": 0,
+      "value": "Počisti vse prenose"
+    }
+  ],
+  "web.transfers.summary.hide_details.button": [
+    {
+      "type": 0,
+      "value": "Skrij podrobnosti"
+    }
+  ],
+  "web.transfers.summary.progress.text": [
+    {
+      "children": [
+        {
+          "type": 1,
+          "value": "done_count"
+        },
+        {
+          "type": 0,
+          "value": " / "
+        },
+        {
+          "type": 1,
+          "value": "total_count"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    },
+    {
+      "type": 0,
+      "value": " končano"
+    }
+  ],
+  "web.transfers.summary.remaining_time.text": [
+    {
+      "children": [
+        {
+          "type": 1,
+          "value": "time"
+        }
+      ],
+      "type": 8,
+      "value": "b"
+    },
+    {
+      "type": 0,
+      "value": " preostalo"
+    }
+  ],
+  "web.transfers.summary.retry_all.button": [
+    {
+      "type": 0,
+      "value": "Poskusi znova"
+    }
+  ],
+  "web.transfers.summary.retry_all.tooltip": [
+    {
+      "type": 0,
+      "value": "Ponovni poskus neuspešnih prenosov"
+    }
+  ],
+  "web.transfers.summary.show_details.button": [
+    {
+      "type": 0,
+      "value": "Pokaži podrobnosti"
+    }
+  ],
+  "web.transfers.transfer.cancel.button": [
+    {
+      "type": 0,
+      "value": "Prekliči"
+    }
+  ],
+  "web.transfers.transfer.clear.aria_label": [
+    {
+      "type": 0,
+      "value": "Počisti"
+    }
+  ],
+  "web.transfers.transfer.message.done": [
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": " je bila prenesena"
+        }
+      ],
+      "type": 8,
+      "value": "status"
+    }
+  ],
+  "web.transfers.transfer.message.failed": [
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": " neuspešna. "
+        },
+        {
+          "type": 1,
+          "value": "error"
+        }
+      ],
+      "type": 8,
+      "value": "status"
+    }
+  ],
+  "web.transfers.transfer.message.processing": [
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": " se obdeluje"
+        }
+      ],
+      "type": 8,
+      "value": "status"
+    }
+  ],
+  "web.transfers.transfer.message.transferring": [
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": " se prenaša"
+        }
+      ],
+      "type": 8,
+      "value": "status"
+    }
+  ],
+  "web.transfers.transfer.message.waiting": [
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "children": [
+        {
+          "type": 0,
+          "value": " čaka na prenos"
+        }
+      ],
+      "type": 8,
+      "value": "status"
+    }
+  ],
+  "web.transfers.transfer.open.button": [
+    {
+      "type": 0,
+      "value": "Odpri"
+    }
+  ],
+  "web.transfers.transfer.retry.button": [
+    {
+      "type": 0,
+      "value": "Poskusi znova"
+    }
+  ],
+  "web.version.text": [
+    {
+      "type": 0,
+      "value": "Različica: "
+    },
+    {
+      "type": 1,
+      "value": "version"
+    }
+  ]
+}
