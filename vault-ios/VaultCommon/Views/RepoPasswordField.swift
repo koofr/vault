@@ -10,7 +10,7 @@ public struct RepoPasswordField: View {
     public var onSubmit: (() -> Void)? = nil
     public var autoFocus = false
     public var inline = false
-    public var label: String? = nil
+    public var label: LocalizedStringResource? = nil
 
     @State private var isPasswordVisible: Bool = false
     @FocusState private var focusedField: Field?
@@ -60,7 +60,7 @@ public struct RepoPasswordField: View {
     }
 
     @ViewBuilder var secureField: some View {
-        SecureField(label ?? "Safe Key", text: $text)
+        SecureField(String(stringLiteral: ""), text: $text)
             .textInputAutocapitalization(.never)
             .keyboardType(.asciiCapable)
             .autocorrectionDisabled()
@@ -72,11 +72,35 @@ public struct RepoPasswordField: View {
             .onTapGesture {
                 focusedField = .secure
             }
-            .accessibilityLabel("Safe Key")
+            .accessibilityLabel(
+                Text(
+                    LocalizedStringResource(
+                        "ios.views.repo_password.a11y.label",
+                        defaultValue: "Safe Key",
+                        bundle: #bundle,
+                        comment: "Accessibility label for the secure Safe Key input field."
+                    )
+                )
+            )
+            .overlay(alignment: .leading) {
+                if text.isEmpty {
+                    Text(
+                        label
+                            ?? LocalizedStringResource(
+                                "ios.views.repo_password.placeholder",
+                                defaultValue: "Safe Key",
+                                bundle: #bundle,
+                                comment: "Placeholder text inside the Safe Key input field."
+                            )
+                    )
+                    .foregroundColor(Color(.placeholderText))
+                    .opacity(isPasswordVisible ? 0 : 1)
+                }
+            }
     }
 
     @ViewBuilder var textField: some View {
-        TextField(label ?? "Safe Key", text: $text)
+        TextField(String(stringLiteral: ""), text: $text)
             .textInputAutocapitalization(.never)
             .keyboardType(.asciiCapable)
             .autocorrectionDisabled()
@@ -88,7 +112,31 @@ public struct RepoPasswordField: View {
             .onTapGesture {
                 focusedField = .plain
             }
-            .accessibilityLabel("Safe Key")
+            .accessibilityLabel(
+                Text(
+                    LocalizedStringResource(
+                        "ios.views.repo_password.a11y.label",
+                        defaultValue: "Safe Key",
+                        bundle: #bundle,
+                        comment: "Accessibility label for the secure Safe Key input field."
+                    )
+                )
+            )
+            .overlay(alignment: .leading) {
+                if text.isEmpty {
+                    Text(
+                        label
+                            ?? LocalizedStringResource(
+                                "ios.views.repo_password.placeholder",
+                                defaultValue: "Safe Key",
+                                bundle: #bundle,
+                                comment: "Placeholder text inside the Safe Key input field."
+                            )
+                    )
+                    .foregroundColor(Color(.placeholderText))
+                    .opacity(isPasswordVisible ? 1 : 0)
+                }
+            }
     }
 }
 

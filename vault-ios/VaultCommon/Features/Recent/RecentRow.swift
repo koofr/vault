@@ -5,8 +5,15 @@ public struct RecentRow: View {
         HStack {
             Image(systemName: "clock").renderingMode(.template)
                 .foregroundColor(Color(.label)).padding(7)
-            Text("Recent")
-                .foregroundColor(Color(.label))
+            Text(
+                LocalizedStringResource(
+                    "ios.repos.recent.label",
+                    defaultValue: "Recent files",
+                    bundle: #bundle,
+                    comment: "Label for the Recent files entry shown in the Safe Boxes list."
+                )
+            )
+            .foregroundColor(Color(.label))
         }
     }
 }

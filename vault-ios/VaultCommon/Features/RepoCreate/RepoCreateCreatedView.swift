@@ -16,15 +16,29 @@ public struct RepoCreateCreatedView: View {
         ScrollView {
             VStack {
                 HStack {
-                    Text("Your Safe Box has been created.")
-                        .font(.system(.largeTitle))
+                    Text(
+                        LocalizedStringResource(
+                            "ios.repo_create.created.title",
+                            defaultValue: "Your Safe Box has been created",
+                            bundle: #bundle,
+                            comment: "Success headline shown after a Safe Box is created."
+                        )
+                    )
+                    .font(.system(.largeTitle))
                     Spacer()
                 }
                 .padding(.bottom, 10)
 
                 HStack {
                     Text(
-                        "Before you start using your Safe Box please safely store the configuration."
+                        LocalizedStringResource(
+                            "ios.repo_create.created.description",
+                            defaultValue:
+                                "Before you start using your Safe Box please safely store the configuration.",
+                            bundle: #bundle,
+                            comment:
+                                "Instructional text on the Safe Box creationsuccess screen telling users to save configuration first."
+                        )
                     )
                     .font(.system(.title3))
                     Spacer()
@@ -42,12 +56,20 @@ public struct RepoCreateCreatedView: View {
             }
             .padding()
         }
-        .navigationTitle(Text("Create a new Safe Box"))
-        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
-                Button("Continue") {
+                Button {
                     onContinue()
+                } label: {
+                    Text(
+                        LocalizedStringResource(
+                            "ios.repo_create.created.continue.button",
+                            defaultValue: "Continue",
+                            bundle: #bundle,
+                            comment:
+                                "Toolbar button on the Safe Box creation success screen to continue to the Safe Box files."
+                        )
+                    )
                 }
                 .disabled(!saved)
             }

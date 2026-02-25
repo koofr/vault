@@ -16,13 +16,27 @@ public struct LandingScreen: View {
                     .frame(width: 233)
                     .padding(.bottom, 50)
 
-                Text("One vault for all\nyour private files.")
-                    .font(.system(size: 32, weight: .bold))
-                    .multilineTextAlignment(.center)
-                    .padding(.bottom, 20)
+                Text(
+                    LocalizedStringResource(
+                        "ios.landing.title",
+                        defaultValue: "One vault for all\nyour private files.",
+                        bundle: #bundle,
+                        comment: "Main headline on the landing screen before sign-in."
+                    )
+                )
+                .font(.system(size: 32, weight: .bold))
+                .multilineTextAlignment(.center)
+                .padding(.bottom, 20)
 
                 Text(
-                    "Powerful, open source client-side encryption. Unlock enhanced security for your most sensitive files."
+                    LocalizedStringResource(
+                        "ios.landing.message",
+                        defaultValue:
+                            "Powerful, open source client-side encryption. Unlock enhanced security for your most sensitive files.",
+                        bundle: #bundle,
+                        comment:
+                            "Supporting description text on the landing screen under the main headline."
+                    )
                 )
                 .font(.system(size: 18))
                 .multilineTextAlignment(.center)
@@ -46,7 +60,14 @@ public struct LandingScreen: View {
                         Spacer()
                         HStack {
                             Spacer()
-                            Text("Get started").font(.system(size: 20, weight: .bold))
+                            Text(
+                                LocalizedStringResource(
+                                    "ios.landing.get_started.button", defaultValue: "Get started",
+                                    bundle: #bundle,
+                                    comment:
+                                        "Primary call-to-action button on the landing screen that starts login."
+                                )
+                            ).font(.system(size: 20, weight: .bold))
                                 .foregroundColor(.white)
                             Spacer()
                         }

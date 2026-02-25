@@ -115,9 +115,35 @@ public struct RepoInfoScreen: View {
                     HStack {
                         Toggle(isOn: unlocked) {
                             VStack(alignment: .leading) {
-                                Text("Unlocked").padding(.bottom, 0.5)
-                                Text("Unlock or lock the Safe Box").font(.system(.footnote))
-                                    .foregroundColor(Color(.secondaryLabel))
+                                Text(
+                                    repo.state == .unlocked
+                                        ? LocalizedStringResource(
+                                            "ios.repo_info.unlocked.label",
+                                            defaultValue: "Unlocked",
+                                            bundle: #bundle,
+                                            comment:
+                                                "Toggle label in Safe Box settings when the Safe Box is currently unlocked."
+                                        )
+                                        : LocalizedStringResource(
+                                            "ios.repo_info.locked.label",
+                                            defaultValue: "Locked",
+                                            bundle: #bundle,
+                                            comment:
+                                                "Toggle label in Safe Box settings when the Safe Box is currently locked."
+                                        )
+                                )
+                                .padding(.bottom, 0.5)
+                                Text(
+                                    LocalizedStringResource(
+                                        "ios.repo_info.unlock.description",
+                                        defaultValue: "Unlock or lock the Safe Box",
+                                        bundle: #bundle,
+                                        comment:
+                                            "Description under the lock state toggle in Safe Box settings."
+                                    )
+                                )
+                                .font(.system(.footnote))
+                                .foregroundColor(Color(.secondaryLabel))
                             }
                         }
                     }
@@ -126,10 +152,27 @@ public struct RepoInfoScreen: View {
                     HStack {
                         Toggle(isOn: biometricUnlockEnabled) {
                             VStack(alignment: .leading) {
-                                Text("Biometric unlock").padding(.bottom, 0.5)
-                                Text("Use biometrics to unlock the Safe Box").font(
-                                    .system(.footnote)
-                                ).foregroundColor(Color(.secondaryLabel))
+                                Text(
+                                    LocalizedStringResource(
+                                        "ios.repo_info.biometric_unlock.label",
+                                        defaultValue: "Biometric unlock",
+                                        bundle: #bundle,
+                                        comment:
+                                            "Toggle label for enabling biometric unlock in Safe Box settings."
+                                    )
+                                )
+                                .padding(.bottom, 0.5)
+                                Text(
+                                    LocalizedStringResource(
+                                        "ios.repo_info.biometric_unlock.description",
+                                        defaultValue: "Use biometrics to unlock the Safe Box",
+                                        bundle: #bundle,
+                                        comment:
+                                            "Description under the biometric unlock toggle in Safe Box settings."
+                                    )
+                                )
+                                .font(.system(.footnote))
+                                .foregroundColor(Color(.secondaryLabel))
                             }
                         }
                     }
@@ -139,26 +182,46 @@ public struct RepoInfoScreen: View {
                         autoLockAfterOptionsPresented = true
                     } label: {
                         VStack(alignment: .leading) {
-                            Text("Automatically lock after").padding(.bottom, 0.5)
-                                .foregroundColor(Color(.label))
+                            Text(
+                                LocalizedStringResource(
+                                    "ios.repo_info.auto_lock_after.label",
+                                    defaultValue: "Automatically lock after",
+                                    bundle: #bundle,
+                                    comment:
+                                        "Label for the row that opens auto-lock timeout options in Safe Box settings."
+                                )
+                            )
+                            .padding(.bottom, 0.5)
+                            .foregroundColor(Color(.label))
 
-                            Text(repoAutoLockAfterDisplay(repo.autoLock.after)).font(
-                                .system(.footnote)
-                            ).foregroundColor(Color(.secondaryLabel))
+                            Text(repoAutoLockAfterDisplay(repo.autoLock.after))
+                                .font(.system(.footnote))
+                                .foregroundColor(Color(.secondaryLabel))
                         }
                     }
                     .padding(.vertical, 2)
                     .confirmationDialog(
-                        "Automatically lock after", isPresented: $autoLockAfterOptionsPresented
+                        Text(
+                            LocalizedStringResource(
+                                "ios.repo_info.auto_lock_after.label",
+                                defaultValue: "Automatically lock after",
+                                bundle: #bundle,
+                                comment:
+                                    "Title of the confirmation dialog for choosing auto-lock timeout."
+                            )
+                        ),
+                        isPresented: $autoLockAfterOptionsPresented
                     ) {
                         ForEach(
                             getRepoAutoLockAfterOptions(current: repo.autoLock.after), id: \.self
                         ) { option in
-                            Button(repoAutoLockAfterDisplay(option)) {
+                            Button {
                                 vm.container.mobileVault.reposSetAutoLock(
                                     repoId: vm.repoId,
                                     autoLock: RepoAutoLock(
                                         after: option, onAppHidden: repo.autoLock.onAppHidden))
+                            } label: {
+                                Text(repoAutoLockAfterDisplay(option))
                             }
                         }
                     }
@@ -166,10 +229,27 @@ public struct RepoInfoScreen: View {
                     HStack {
                         Toggle(isOn: repoAutoLockOnAppHidden) {
                             VStack(alignment: .leading) {
-                                Text("Lock when app hidden").padding(.bottom, 0.5)
-                                Text("When switching apps or locking the screen").font(
-                                    .system(.footnote)
-                                ).foregroundColor(Color(.secondaryLabel))
+                                Text(
+                                    LocalizedStringResource(
+                                        "ios.repo_info.lock_when_app_hidden.label",
+                                        defaultValue: "Lock when app hidden",
+                                        bundle: #bundle,
+                                        comment:
+                                            "Toggle label for locking the Safe Box when app goes to background."
+                                    )
+                                )
+                                .padding(.bottom, 0.5)
+                                Text(
+                                    LocalizedStringResource(
+                                        "ios.repo_info.lock_when_app_hidden.description",
+                                        defaultValue: "When switching apps or locking the screen",
+                                        bundle: #bundle,
+                                        comment:
+                                            "Description under the lock-on-background toggle in Safe Box settings."
+                                    )
+                                )
+                                .font(.system(.footnote))
+                                .foregroundColor(Color(.secondaryLabel))
                             }
                         }
                     }
@@ -182,11 +262,28 @@ public struct RepoInfoScreen: View {
                             vm.navController.push(.repoRemove(repoId: vm.repoId))
                         } label: {
                             VStack(alignment: .leading) {
-                                Text("Destroy Safe Box…").padding(.bottom, 0.5).foregroundColor(
-                                    Color(.label))
-                                Text("Verify Safe Key and destroy the Safe box").font(
-                                    .system(.footnote)
-                                ).foregroundColor(Color(.secondaryLabel))
+                                Text(
+                                    LocalizedStringResource(
+                                        "ios.repo_info.destroy_repo.label",
+                                        defaultValue: "Destroy Safe Box…",
+                                        bundle: #bundle,
+                                        comment:
+                                            "Row label in Safe Box settings that opens the destroy Safe Box dialog."
+                                    )
+                                )
+                                .padding(.bottom, 0.5)
+                                .foregroundColor(Color(.label))
+                                Text(
+                                    LocalizedStringResource(
+                                        "ios.repo_info.destroy_repo.description",
+                                        defaultValue: "Verify Safe Key and destroy the Safe box",
+                                        bundle: #bundle,
+                                        comment:
+                                            "Description under the destroy Safe Box row in Safe Box settings."
+                                    )
+                                )
+                                .font(.system(.footnote))
+                                .foregroundColor(Color(.secondaryLabel))
                             }
                         }
                     }
@@ -197,17 +294,72 @@ public struct RepoInfoScreen: View {
         }
     }
 
-    func repoAutoLockAfterDisplay(_ after: RepoAutoLockAfter) -> String {
+    func repoAutoLockAfterDisplay(_ after: RepoAutoLockAfter) -> LocalizedStringResource {
         switch after {
-        case .noLimit: return "No time limit"
-        case .inactive1Minute: return "1 minute of inactivity"
-        case .inactive5Mininutes: return "5 minutes of inactivity"
-        case .inactive10Minutes: return "10 minutes of inactivity"
-        case .inactive30Minutes: return "30 minutes of inactivity"
-        case .inactive1Hour: return "1 hour of inactivity"
-        case .inactive2Hours: return "2 hours of inactivity"
-        case .inactive4Hours: return "4 hours of inactivity"
-        case .custom(let seconds): return "Custom (\(seconds) seconds)"
+        case .noLimit:
+            return LocalizedStringResource(
+                "ios.repo_info.auto_lock_after.no_time_limit",
+                defaultValue: "No time limit",
+                bundle: #bundle,
+                comment:
+                    "Auto-lock timeout option label meaning the safe box should not auto-lock by time."
+            )
+        case .inactive1Minute:
+            return LocalizedStringResource(
+                "ios.repo_info.auto_lock_after.inactive_1_minute",
+                defaultValue: "1 minute of inactivity",
+                bundle: #bundle,
+                comment: "Auto-lock timeout option label for one minute of inactivity."
+            )
+        case .inactive5Mininutes:
+            return LocalizedStringResource(
+                "ios.repo_info.auto_lock_after.inactive_5_minutes",
+                defaultValue: "5 minutes of inactivity",
+                bundle: #bundle,
+                comment: "Auto-lock timeout option label for five minutes of inactivity."
+            )
+        case .inactive10Minutes:
+            return LocalizedStringResource(
+                "ios.repo_info.auto_lock_after.inactive_10_minutes",
+                defaultValue: "10 minutes of inactivity",
+                bundle: #bundle,
+                comment: "Auto-lock timeout option label for ten minutes of inactivity."
+            )
+        case .inactive30Minutes:
+            return LocalizedStringResource(
+                "ios.repo_info.auto_lock_after.inactive_30_minutes",
+                defaultValue: "30 minutes of inactivity",
+                bundle: #bundle,
+                comment: "Auto-lock timeout option label for thirty minutes of inactivity."
+            )
+        case .inactive1Hour:
+            return LocalizedStringResource(
+                "ios.repo_info.auto_lock_after.inactive_1_hour",
+                defaultValue: "1 hour of inactivity",
+                bundle: #bundle,
+                comment: "Auto-lock timeout option label for one hour of inactivity."
+            )
+        case .inactive2Hours:
+            return LocalizedStringResource(
+                "ios.repo_info.auto_lock_after.inactive_2_hours",
+                defaultValue: "2 hours of inactivity",
+                bundle: #bundle,
+                comment: "Auto-lock timeout option label for two hours of inactivity."
+            )
+        case .inactive4Hours:
+            return LocalizedStringResource(
+                "ios.repo_info.auto_lock_after.inactive_4_hours",
+                defaultValue: "4 hours of inactivity",
+                bundle: #bundle,
+                comment: "Auto-lock timeout option label for four hours of inactivity."
+            )
+        case .custom(let seconds):
+            return LocalizedStringResource(
+                "ios.repo_info.auto_lock_after.custom",
+                defaultValue: "Custom (\(seconds) seconds)",
+                bundle: #bundle,
+                comment: "Auto-lock timeout option label for a custom number of inactive seconds."
+            )
         }
     }
 

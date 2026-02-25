@@ -1,5 +1,6 @@
 import SwiftUI
 import VaultMobile
+import VaultUtils
 
 public class RepoRemoveScreenViewModel: ObservableObject {
     public let container: Container
@@ -40,6 +41,8 @@ public struct RepoRemoveScreen: View {
 
     @ObservedObject private var info: Subscription<RepoRemoveInfo>
 
+    @Environment(\.locale) private var locale
+
     public var canRemove: Bool {
         if let info = info.data {
             switch info.status {
@@ -69,17 +72,31 @@ public struct RepoRemoveScreen: View {
             VStack(alignment: .leading) {
                 if let info = info.data {
                     if let repoName = info.repoName {
-                        Text("Do you really want to destroy Safe Box **\(repoName)**?").padding(
-                            .bottom, 20)
+                        let repoNamePlaceholder = "REPO_NAME_PLACEHOLDER"
+                        Text.markdownLocalized(
+                            LocalizedStringResource(
+                                "ios.repo_remove.message",
+                                defaultValue:
+                                    """
+                                    Do you really want to destroy Safe Box **\(repoNamePlaceholder)**?
+
+                                    Destroying the Safe Box will keep all the files on Koofr but remove the configuration so you won't be able to decrypt the files if you didn't save the configuration.
+
+                                    **This action cannot be undone.**
+
+                                    Enter your Safe Key to confirm the removal:
+                                    """,
+                                locale: locale,
+                                bundle: #bundle,
+                                comment:
+                                    "Warning and confirmation instructions on the destroy Safe Box screen before entering the safe key."
+                            )
+                        ) { attributedString in
+                            attributedString.replaceLiteralToken(
+                                repoNamePlaceholder, with: repoName)
+                        }
+                        .padding(.bottom, 20)
                     }
-
-                    Text(
-                        "Destroying the Safe Box will keep all the files on Koofr but remove the configuration so you won't be able to decrypt the files if you didn't save the configuration."
-                    ).padding(.bottom, 20)
-
-                    Text("**This action cannot be undone.**").padding(.bottom, 20)
-
-                    Text("Enter your Safe Key to confirm the removal:").padding(.bottom, 20)
 
                     switch info.status {
                     case .err(let error, _):
@@ -105,7 +122,16 @@ public struct RepoRemoveScreen: View {
             }
             .padding()
         }
-        .navigationTitle("Destroy Safe Box")
+        .navigationTitle(
+            Text(
+                LocalizedStringResource(
+                    "ios.repo_remove.title",
+                    defaultValue: "Destroy Safe Box",
+                    bundle: #bundle,
+                    comment: "Navigation title for the screen that destroys a Safe Box."
+                )
+            )
+        )
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button(
@@ -113,7 +139,15 @@ public struct RepoRemoveScreen: View {
                         vm.destroy()
                     },
                     label: {
-                        Text("Destroy")
+                        Text(
+                            LocalizedStringResource(
+                                "ios.repo_remove.destroy.button",
+                                defaultValue: "Destroy",
+                                bundle: #bundle,
+                                comment:
+                                    "Confirmation button that permanently removes Safe Box configuration after password verification."
+                            )
+                        )
                     }
                 )
                 .tint(Color(.systemRed))

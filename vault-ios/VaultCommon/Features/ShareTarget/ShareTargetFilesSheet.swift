@@ -22,7 +22,15 @@ public struct ShareTargetFilesSheet: View {
             }
             .listStyle(.plain)
             .navigationTitle(
-                Text(vm.files.count == 1 ? "\(vm.files.count) item" : "\(vm.files.count) items")
+                Text(
+                    LocalizedStringResource(
+                        "ios.share_target_files.title",
+                        defaultValue: "\(vm.files.count) items",
+                        bundle: #bundle,
+                        comment:
+                            "Navigation title in the share extension file list sheet showing number of selected items."
+                    )
+                )
             )
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -30,7 +38,15 @@ public struct ShareTargetFilesSheet: View {
                     Button {
                         onClose()
                     } label: {
-                        Text("Dismiss")
+                        Text(
+                            LocalizedStringResource(
+                                "ios.share_target_files.dismiss.button",
+                                defaultValue: "Dismiss",
+                                bundle: #bundle,
+                                comment:
+                                    "Toolbar button that closes the share extension file list sheet."
+                            )
+                        )
                     }
                 }
             }

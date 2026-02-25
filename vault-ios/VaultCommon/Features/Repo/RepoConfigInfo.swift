@@ -1,50 +1,99 @@
 import SwiftUI
 import UniformTypeIdentifiers
 import VaultMobile
+import VaultUtils
 
 public struct RepoConfigInfo: View {
     public let config: RepoConfig
     public let onSave: () -> Void
 
+    @Environment(\.locale) private var locale
+
     func getInfo() -> AttributedString {
-        let normal: (String) -> AttributedString = { string in
-            var attributedString = AttributedString(string)
-            attributedString.font = .body
-            return attributedString
-        }
-        let bold: (String) -> AttributedString = { string in
-            var attributedString = AttributedString(string)
-            attributedString.font = .body.bold()
-            return attributedString
-        }
-        let monospaced: (String) -> AttributedString = { string in
-            var attributedString = AttributedString(string)
-            attributedString.font = .body.monospaced()
-            return attributedString
-        }
-
         var info = AttributedString()
+        info.font = .body
 
-        info.append(bold("Location: "))
-        info.append(normal(config.location.path))
-        info.append(normal("\n\n"))
+        let locationPlaceholder = "LOCATION_PLACEHOLDER"
+        info.append(
+            AttributedString.markdownLocalized(
+                LocalizedStringResource(
+                    "ios.repo_config_info.location",
+                    defaultValue: "**Location**: \(locationPlaceholder)",
+                    locale: locale,
+                    bundle: #bundle,
+                    comment:
+                        "Text in the Safe Box configuration summary indicating storage location."
+                )
+            ) { attributedString in
+                attributedString.replaceLiteralToken(
+                    locationPlaceholder, with: config.location.path)
+            })
+        info.append(AttributedString("\n\n"))
 
-        info.append(bold("Filename encryption: "))
-        info.append(normal("standard"))
-        info.append(normal("\n\n"))
+        let filenameEncryption = "standard"
+        info.append(
+            AttributedString(
+                localized: LocalizedStringResource(
+                    "ios.repo_config_info.filename_encryption",
+                    defaultValue: "**Filename encryption**: \(filenameEncryption)",
+                    locale: locale,
+                    bundle: #bundle,
+                    comment:
+                        "Text in the Safe Box configuration summary for filename encryption mode."
+                )
+            )
+        )
+        info.append(AttributedString("\n\n"))
 
-        info.append(bold("Encrypt directory names: "))
-        info.append(normal("true"))
-        info.append(normal("\n\n"))
+        let encryptDirectoryNames = "true"
+        info.append(
+            AttributedString(
+                localized: LocalizedStringResource(
+                    "ios.repo_config_info.encrypt_directory_names",
+                    defaultValue: "**Encrypt directory names**: \(encryptDirectoryNames)",
+                    locale: locale,
+                    bundle: #bundle,
+                    comment:
+                        "Text in the Safe Box configuration summary for directory name encryption setting."
+                )
 
-        info.append(bold("Salt (password2): "))
-        info.append(normal(config.salt ?? ""))
-        info.append(normal("\n\n"))
+            )
+        )
+        info.append(AttributedString("\n\n"))
 
-        info.append(bold("rclone config: "))
-        info.append(normal("\n\n"))
+        let saltPlaceholder = "SALT_PLACEHOLDER"
+        info.append(
+            AttributedString.markdownLocalized(
+                LocalizedStringResource(
+                    "ios.repo_config_info.salt",
+                    defaultValue: "**Salt (password2)**: \(saltPlaceholder)",
+                    locale: locale,
+                    bundle: #bundle,
+                    comment:
+                        "Text in the Safe Box configuration summary for the salt (password2) value."
+                )
+            ) { attributedString in
+                attributedString.replaceLiteralToken(saltPlaceholder, with: config.salt ?? "")
+            })
+        info.append(AttributedString("\n\n"))
 
-        info.append(monospaced(config.rcloneConfig))
+        info.append(
+            AttributedString(
+                localized: LocalizedStringResource(
+                    "ios.repo_config_info.rclone_config",
+                    defaultValue: "**rclone config**:",
+                    locale: locale,
+                    bundle: #bundle,
+                    comment:
+                        "Text before the raw rclone configuration block in the Safe Box setup summary."
+                )
+            )
+        )
+        info.append(AttributedString("\n\n"))
+
+        var rcloneConfig = AttributedString(config.rcloneConfig)
+        rcloneConfig.font = .body.monospaced()
+        info.append(rcloneConfig)
 
         return info
     }

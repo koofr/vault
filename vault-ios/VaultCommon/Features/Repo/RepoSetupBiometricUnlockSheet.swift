@@ -66,13 +66,29 @@ public struct RepoSetupBiometricUnlockSheet: View {
                                         password: password, onEnabled: onDismiss)
                                 }))
                         },
-                        message: "Enter your Safe Key to setup biometric unlock")
+                        message: LocalizedStringResource(
+                            "ios.repo_setup_biometric_unlock.message",
+                            defaultValue: "Enter your Safe Key to setup biometric unlock",
+                            bundle: #bundle,
+                            comment:
+                                "Instruction text above the password field when enabling biometric unlock for a Safe Box."
+                        ))
                 }
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button {
                         onDismiss()
+                    } label: {
+                        Text(
+                            LocalizedStringResource(
+                                "ios.repo_setup_biometric_unlock.cancel.button",
+                                defaultValue: "Cancel",
+                                bundle: #bundle,
+                                comment:
+                                    "Toolbar button that dismisses the biometric unlock setup sheet."
+                            )
+                        )
                     }
                 }
             }

@@ -14,8 +14,18 @@ public struct NotificationView: View {
 
                 Spacer()
 
-                Text("Dismiss").font(.system(.body)).bold().foregroundColor(
-                    Color(UIColor(rgb: 0x90B2F1)))
+                Text(
+                    LocalizedStringResource(
+                        "ios.notification.dismiss.button",
+                        defaultValue: "Dismiss",
+                        bundle: #bundle,
+                        comment:
+                            "Button label in the in-app notification toast to close the toast."
+                    )
+                )
+                .font(.system(.body))
+                .bold()
+                .foregroundColor(Color(UIColor(rgb: 0x90B2F1)))
             }
             .padding(.vertical, 15)
             .padding(.horizontal, 17)

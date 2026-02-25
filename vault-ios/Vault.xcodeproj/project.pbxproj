@@ -421,6 +421,7 @@
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A1118F572F0C6B2600B55356 /* Navigation */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Navigation; sourceTree = "<group>"; };
+		A12585BA2F34E86C0009F097 /* Resources */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Resources; sourceTree = "<group>"; };
 		A14B55642F1136A300CA8405 /* Helpers */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Helpers; sourceTree = "<group>"; };
 		A14B556F2F11399300CA8405 /* TestFiles */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TestFiles; sourceTree = "<group>"; };
 		A1522E172F38A12500113F8C /* Intl */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Intl; sourceTree = "<group>"; };
@@ -965,6 +966,7 @@
 				A18A8CEB2917988100B8F8B9 /* ContentView.swift */,
 				A18AB2C52A77D6FE0037156B /* Features */,
 				A17A7592291B96630037A015 /* PreviewsData.swift */,
+				A12585BA2F34E86C0009F097 /* Resources */,
 				A16D93372A7A77D800FB3249 /* Utils */,
 				A1AD92DF2A828283006172BF /* VaultCommon.h */,
 				A1228E672A7B83FF00AC1148 /* Views */,
@@ -1149,6 +1151,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				A1118F572F0C6B2600B55356 /* Navigation */,
+				A12585BA2F34E86C0009F097 /* Resources */,
 				A1522E172F38A12500113F8C /* Intl */,
 			);
 			name = VaultCommon;

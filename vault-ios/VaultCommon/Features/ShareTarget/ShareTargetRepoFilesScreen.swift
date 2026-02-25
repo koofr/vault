@@ -104,7 +104,19 @@ public struct ShareTargetRepoFilesScreen: View {
                                     .repoFiles(repoId: vm.repoId, encryptedPath: encryptedPath))
                             }))
                     } label: {
-                        Label("New folder", systemImage: "folder.badge.plus")
+                        Label {
+                            Text(
+                                LocalizedStringResource(
+                                    "ios.share_target.repo_files.new_folder.button",
+                                    defaultValue: "New folder",
+                                    bundle: #bundle,
+                                    comment:
+                                        "Overflow menu item in share extension destination picker for creating a folder."
+                                )
+                            )
+                        } icon: {
+                            Image(systemName: "folder.badge.plus")
+                        }
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
@@ -117,7 +129,15 @@ public struct ShareTargetRepoFilesScreen: View {
                         vm.shareTargetVm.upload(repoId: vm.repoId, encryptedPath: vm.encryptedPath)
                     },
                     label: {
-                        Text("Upload")
+                        Text(
+                            LocalizedStringResource(
+                                "ios.share_target.repo_files.upload.button",
+                                defaultValue: "Upload",
+                                bundle: #bundle,
+                                comment:
+                                    "Toolbar confirmation button in share extension destination picker to upload selected files."
+                            )
+                        )
                     }
                 )
                 .disabled(navController.state.isNavigating)

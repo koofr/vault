@@ -11,14 +11,36 @@ public struct RepoFileMenu: View {
                 RepoFileInfoSheet(vm: vm, file: file, onDismiss: hide)
             }
         } label: {
-            Label("Get Info", systemImage: "info.circle")
+            Label {
+                Text(
+                    LocalizedStringResource(
+                        "ios.repo_file_menu.get_info.menu_item",
+                        defaultValue: "Get Info",
+                        bundle: #bundle,
+                        comment: "Context menu item on a file row that opens the file info sheet."
+                    )
+                )
+            } icon: {
+                Image(systemName: "info.circle")
+            }
         }
 
         Button {
             vm.container.mobileVault.repoFilesRenameFile(
                 repoId: file.repoId, encryptedPath: file.encryptedPath)
         } label: {
-            Label("Rename", systemImage: "pencil")
+            Label {
+                Text(
+                    LocalizedStringResource(
+                        "ios.repo_file_menu.rename.menu_item",
+                        defaultValue: "Rename",
+                        bundle: #bundle,
+                        comment: "Context menu item on a file row that opens rename dialog."
+                    )
+                )
+            } icon: {
+                Image(systemName: "pencil")
+            }
         }
 
         Divider()
@@ -27,14 +49,36 @@ public struct RepoFileMenu: View {
             vm.container.mobileVault.repoFilesMoveFile(
                 repoId: file.repoId, encryptedPath: file.encryptedPath, mode: .copy)
         } label: {
-            Label("Copy", systemImage: "doc.on.doc")
+            Label {
+                Text(
+                    LocalizedStringResource(
+                        "ios.repo_file_menu.copy.menu_item",
+                        defaultValue: "Copy",
+                        bundle: #bundle,
+                        comment: "Context menu item on a file row that opens copy file sheet."
+                    )
+                )
+            } icon: {
+                Image(systemName: "doc.on.doc")
+            }
         }
 
         Button {
             vm.container.mobileVault.repoFilesMoveFile(
                 repoId: file.repoId, encryptedPath: file.encryptedPath, mode: .move)
         } label: {
-            Label("Move", systemImage: "folder")
+            Label {
+                Text(
+                    LocalizedStringResource(
+                        "ios.repo_file_menu.move.menu_item",
+                        defaultValue: "Move",
+                        bundle: #bundle,
+                        comment: "Context menu item on a file row that opens move file sheet."
+                    )
+                )
+            } icon: {
+                Image(systemName: "folder")
+            }
         }
 
         Divider()
@@ -42,7 +86,18 @@ public struct RepoFileMenu: View {
         Button {
             vm.container.downloadHelper.downloadRepoFile(file: file)
         } label: {
-            Label("Download", systemImage: "arrow.down.to.line.compact")
+            Label {
+                Text(
+                    LocalizedStringResource(
+                        "ios.repo_file_menu.download.menu_item",
+                        defaultValue: "Download",
+                        bundle: #bundle,
+                        comment: "Context menu item on a file row that downloads the file."
+                    )
+                )
+            } icon: {
+                Image(systemName: "arrow.down.to.line.compact")
+            }
         }
 
         Divider()
@@ -51,7 +106,19 @@ public struct RepoFileMenu: View {
             vm.container.mobileVault.repoFilesDeleteFile(
                 repoId: file.repoId, encryptedPath: file.encryptedPath)
         } label: {
-            Label("Delete", systemImage: "trash")
+            Label {
+                Text(
+                    LocalizedStringResource(
+                        "ios.repo_file_menu.delete.menu_item",
+                        defaultValue: "Delete",
+                        bundle: #bundle,
+                        comment:
+                            "Destructive context menu item on a file row that deletes the file."
+                    )
+                )
+            } icon: {
+                Image(systemName: "trash")
+            }
         }
     }
 }

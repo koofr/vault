@@ -8,17 +8,42 @@ public struct RepoFilesScreen: View {
 
     @ObservedObject private var info: VaultMobile.Subscription<RepoFilesBrowserInfo>
 
-    private var navigationTitle: String {
+    private var navigationTitle: Text {
         switch vm.editMode {
         case .active:
             if let selectedCount = info.data?.selectedCount {
                 return selectedCount == 0
-                    ? "Selected items" : selectedCount == 1 ? "1 item" : "\(selectedCount) items"
+                    ? Text(
+                        LocalizedStringResource(
+                            "ios.repo_files.edit_mode.title",
+                            defaultValue: "Selected items",
+                            bundle: #bundle,
+                            comment:
+                                "Navigation title in file browser edit mode when no items are selected."
+                        )
+                    )
+                    : Text(
+                        LocalizedStringResource(
+                            "ios.repo_files.edit_mode.items_count.label",
+                            defaultValue: "\(selectedCount) items",
+                            bundle: #bundle,
+                            comment:
+                                "Navigation title in file browser edit mode showing selected item count."
+                        )
+                    )
             } else {
-                return "Selected items"
+                return Text(
+                    LocalizedStringResource(
+                        "ios.repo_files.edit_mode.title",
+                        defaultValue: "Selected items",
+                        bundle: #bundle,
+                        comment:
+                            "Navigation title in file browser edit mode when no items are selected."
+                    )
+                )
             }
         default:
-            return info.data?.title ?? ""
+            return Text(info.data?.title ?? "")
         }
     }
 
@@ -108,7 +133,22 @@ struct RepoFilesSelectionButton: View {
                 vm.container.mobileVault.repoFilesBrowsersSelectAll(browserId: vm.browserId)
             }
         } label: {
-            Text(info.data?.selectionSummary == .all ? "Deselect All" : "Select All")
+            Text(
+                info.data?.selectionSummary == .all
+                    ? LocalizedStringResource(
+                        "ios.repo_files.edit_mode.deselect_all.button",
+                        defaultValue: "Deselect All",
+                        bundle: #bundle,
+                        comment: "Toolbar button in file browser edit mode to clear selection."
+                    )
+                    : LocalizedStringResource(
+                        "ios.repo_files.edit_mode.select_all.button",
+                        defaultValue: "Select All",
+                        bundle: #bundle,
+                        comment:
+                            "Toolbar button in file browser edit mode to select all visible items."
+                    )
+            )
         }
     }
 }
@@ -124,7 +164,14 @@ struct RepoFilesStopEditButton: View {
         Button {
             vm.stopEditMode()
         } label: {
-            Text("Done")
+            Text(
+                LocalizedStringResource(
+                    "ios.repo_files.edit_mode.done.button",
+                    defaultValue: "Done",
+                    bundle: #bundle,
+                    comment: "Toolbar button in file browser edit mode to exit selection mode."
+                )
+            )
         }
     }
 }
@@ -180,6 +227,8 @@ struct RepoFilesNavMenu: View {
 
     @ObservedObject var info: VaultMobile.Subscription<RepoFilesBrowserInfo>
 
+    @Environment(\.locale) private var locale
+
     init(vm: RepoFilesScreenViewModel) {
         self.vm = vm
 
@@ -192,7 +241,19 @@ struct RepoFilesNavMenu: View {
                 Button {
                     vm.startEditMode()
                 } label: {
-                    Label("Select", systemImage: "checkmark.circle")
+                    Label {
+                        Text(
+                            LocalizedStringResource(
+                                "ios.repo_files.nav_menu.select.menu_item",
+                                defaultValue: "Select",
+                                bundle: #bundle,
+                                comment:
+                                    "Navigation menu item in file browser that enters multi-select mode."
+                            )
+                        )
+                    } icon: {
+                        Image(systemName: "checkmark.circle")
+                    }
                 }
             }
 
@@ -202,7 +263,19 @@ struct RepoFilesNavMenu: View {
                         vm.container.mobileVault.repoFilesBrowsersCreateDir(
                             browserId: vm.browserId, cb: RepoFilesBrowserDirCreatedFn { _ in })
                     } label: {
-                        Label("New folder", systemImage: "folder.badge.plus")
+                        Label {
+                            Text(
+                                LocalizedStringResource(
+                                    "ios.repo_files.nav_menu.new_folder.menu_item",
+                                    defaultValue: "New folder",
+                                    bundle: #bundle,
+                                    comment:
+                                        "Navigation menu item in file browser that creates a new folder."
+                                )
+                            )
+                        } icon: {
+                            Image(systemName: "folder.badge.plus")
+                        }
                     }
 
                     Button {
@@ -210,26 +283,72 @@ struct RepoFilesNavMenu: View {
                             RepoFilesImagePicker(vm: vm, onDismiss: hide)
                         }
                     } label: {
-                        Label("Upload photo", systemImage: "photo")
+                        Label {
+                            Text(
+                                LocalizedStringResource(
+                                    "ios.repo_files.nav_menu.upload_photo.menu_item",
+                                    defaultValue: "Upload photo",
+                                    bundle: #bundle,
+                                    comment:
+                                        "Navigation menu item in file browser that opens photo picker upload."
+                                )
+                            )
+                        } icon: {
+                            Image(systemName: "photo")
+                        }
                     }
 
                     Button {
                         vm.uploadFiles()
                     } label: {
-                        Label("Upload files", systemImage: "doc.on.doc")
+                        Label {
+                            Text(
+                                LocalizedStringResource(
+                                    "ios.repo_files.nav_menu.upload_files.menu_item",
+                                    defaultValue: "Upload files",
+                                    bundle: #bundle,
+                                    comment:
+                                        "Navigation menu item in file browser that opens file picker upload."
+                                )
+                            )
+                        } icon: {
+                            Image(systemName: "doc.on.doc")
+                        }
                     }
 
                     Button {
                         vm.uploadFolder()
                     } label: {
-                        Label("Upload a folder", systemImage: "folder")
+                        Label {
+                            Text(
+                                LocalizedStringResource(
+                                    "ios.repo_files.nav_menu.upload_folder.menu_item",
+                                    defaultValue: "Upload a folder",
+                                    bundle: #bundle,
+                                    comment:
+                                        "Navigation menu item in file browser that uploads a folder."
+                                )
+                            )
+                        } icon: {
+                            Image(systemName: "folder")
+                        }
                     }
 
                     Button {
                         let formatter = DateFormatter()
                         formatter.dateFormat = "yyyyMMddHHmmss"
+                        let date = formatter.string(from: Date())
 
-                        let name = "new text file \(formatter.string(from: Date())).txt"
+                        let name =
+                            String(
+                                localized: LocalizedStringResource(
+                                    "ios.repo_files.create_text_file.default_filename",
+                                    defaultValue: "new text file \(date)",
+                                    locale: locale,
+                                    bundle: #bundle,
+                                    comment:
+                                        "Default base filename used when creating a new text file in a folder."
+                                )) + ".txt"
 
                         vm.container.mobileVault.repoFilesBrowsersCreateFile(
                             browserId: vm.browserId, name: name,
@@ -240,7 +359,19 @@ struct RepoFilesNavMenu: View {
                                         isEditing: true))
                             })
                     } label: {
-                        Label("Create new text file", systemImage: "doc.badge.plus")
+                        Label {
+                            Text(
+                                LocalizedStringResource(
+                                    "ios.repo_files.nav_menu.create_text_file.menu_item",
+                                    defaultValue: "Create new text file",
+                                    bundle: #bundle,
+                                    comment:
+                                        "Navigation menu item in file browser that creates a new text file."
+                                )
+                            )
+                        } icon: {
+                            Image(systemName: "doc.badge.plus")
+                        }
                     }
                 }
             }
@@ -257,7 +388,17 @@ struct RepoFilesNavMenu: View {
                 })
             let sortImage = info.sort.direction == .asc ? "chevron.up" : "chevron.down"
 
-            Picker("Sort by", selection: pickerSelection) {
+            Picker(
+                selection: pickerSelection,
+                label: Text(
+                    LocalizedStringResource(
+                        "ios.repo_files.nav_menu.sort_by.menu_item",
+                        defaultValue: "Sort by",
+                        bundle: #bundle,
+                        comment: "Label for sort field picker in the file browser navigation menu."
+                    )
+                )
+            ) {
                 ForEach(items, id: \.self) { item in
                     if item == selected {
                         Label(item.text, systemImage: sortImage)
@@ -272,15 +413,46 @@ struct RepoFilesNavMenu: View {
 
 struct RepoFilesSortFieldItem: Equatable, Hashable {
     let field: RepoFilesSortField
-    let text: String
+    let text: LocalizedStringResource
+
+    static func == (lhs: RepoFilesSortFieldItem, rhs: RepoFilesSortFieldItem) -> Bool {
+        lhs.field == rhs.field
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(field)
+    }
 
     static func getItems(selected: RepoFilesSortField) -> (
         [RepoFilesSortFieldItem], RepoFilesSortFieldItem
     ) {
-        let nameItem = RepoFilesSortFieldItem(field: RepoFilesSortField.name, text: "Name")
-        let sizeItem = RepoFilesSortFieldItem(field: RepoFilesSortField.size, text: "Size")
+        let nameItem = RepoFilesSortFieldItem(
+            field: RepoFilesSortField.name,
+            text: LocalizedStringResource(
+                "ios.repo_files.sort_field.name",
+                defaultValue: "Name",
+                bundle: #bundle,
+                comment: "Sort option label in file browser for sorting by file name."
+            )
+        )
+        let sizeItem = RepoFilesSortFieldItem(
+            field: RepoFilesSortField.size,
+            text: LocalizedStringResource(
+                "ios.repo_files.sort_field.size",
+                defaultValue: "Size",
+                bundle: #bundle,
+                comment: "Sort option label in file browser for sorting by file size."
+            )
+        )
         let modifiedItem = RepoFilesSortFieldItem(
-            field: RepoFilesSortField.modified, text: "Modified")
+            field: RepoFilesSortField.modified,
+            text: LocalizedStringResource(
+                "ios.repo_files.sort_field.modified",
+                defaultValue: "Modified",
+                bundle: #bundle,
+                comment: "Sort option label in file browser for sorting by modified date."
+            )
+        )
 
         let items = [nameItem, sizeItem, modifiedItem]
 
@@ -314,7 +486,17 @@ struct RepoFilesEditModeBottomBar: View {
                 Image(systemName: "arrow.down.to.line.compact")
             }
             .disabled(!hasSelection)
-            .accessibilityLabel("Download selected")
+            .accessibilityLabel(
+                Text(
+                    LocalizedStringResource(
+                        "ios.repo_files.edit_mode.download_selected.a11y.label",
+                        defaultValue: "Download selected",
+                        bundle: #bundle,
+                        comment:
+                            "Accessibility label for edit mode bottom-bar button that downloads selected items."
+                    )
+                )
+            )
             .padding()
 
             Spacer()
@@ -326,7 +508,17 @@ struct RepoFilesEditModeBottomBar: View {
                 Image(systemName: "doc.on.doc")
             }
             .disabled(!hasSelection)
-            .accessibilityLabel("Copy selected")
+            .accessibilityLabel(
+                Text(
+                    LocalizedStringResource(
+                        "ios.repo_files.edit_mode.copy_selected.a11y.label",
+                        defaultValue: "Copy selected",
+                        bundle: #bundle,
+                        comment:
+                            "Accessibility label for edit mode bottom-bar button that copies selected items."
+                    )
+                )
+            )
             .padding()
 
             Spacer()
@@ -338,7 +530,17 @@ struct RepoFilesEditModeBottomBar: View {
                 Image(systemName: "folder")
             }
             .disabled(!hasSelection)
-            .accessibilityLabel("Move selected")
+            .accessibilityLabel(
+                Text(
+                    LocalizedStringResource(
+                        "ios.repo_files.edit_mode.move_selected.a11y.label",
+                        defaultValue: "Move selected",
+                        bundle: #bundle,
+                        comment:
+                            "Accessibility label for edit mode bottom-bar button that moves selected items."
+                    )
+                )
+            )
             .padding()
 
             Spacer()
@@ -349,7 +551,17 @@ struct RepoFilesEditModeBottomBar: View {
                 Image(systemName: "trash")
             }
             .disabled(!hasSelection)
-            .accessibilityLabel("Delete selected")
+            .accessibilityLabel(
+                Text(
+                    LocalizedStringResource(
+                        "ios.repo_files.edit_mode.delete_selected.a11y.label",
+                        defaultValue: "Delete selected",
+                        bundle: #bundle,
+                        comment:
+                            "Accessibility label for edit mode bottom-bar button that deletes selected items."
+                    )
+                )
+            )
             .padding()
         }
     }

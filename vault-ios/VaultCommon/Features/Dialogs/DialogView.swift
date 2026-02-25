@@ -97,7 +97,7 @@ public struct DialogView: View {
 
             switch dialog.typ {
             case .prompt:
-                TextField("", text: localInputValue)
+                TextField(String(stringLiteral: ""), text: localInputValue)
                     .onReceive(
                         NotificationCenter.default.publisher(
                             for: UITextField.textDidBeginEditingNotification)

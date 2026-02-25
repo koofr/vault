@@ -1,25 +1,36 @@
 import SwiftUI
 
 public struct FormInfoSheet: View {
-    public let title: String
-    public let text: String
+    public let title: LocalizedStringResource
+    public let text: LocalizedStringResource
     public let onDismiss: () -> Void
 
     public var body: some View {
         NavigationView {
-            VStack {
-                HStack {
-                    Text(text)
+            ScrollView {
+                VStack {
+                    HStack {
+                        Text(text)
+                        Spacer()
+                    }
                     Spacer()
                 }
-                Spacer()
             }
             .padding()
-            .navigationTitle(title)
+            .navigationTitle(Text(title))
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Dismiss") {
+                    Button {
                         onDismiss()
+                    } label: {
+                        Text(
+                            LocalizedStringResource(
+                                "ios.views.form_info.dismiss.button",
+                                defaultValue: "Dismiss",
+                                bundle: #bundle,
+                                comment: "Toolbar button that closes a form info/help sheet."
+                            )
+                        )
                     }
                 }
             }

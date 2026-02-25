@@ -32,7 +32,14 @@ public struct TransferInfoView: View {
                 Button {
                     onRetry()
                 } label: {
-                    Text("Try again")
+                    Text(
+                        LocalizedStringResource(
+                            "ios.transfers.retry.button",
+                            defaultValue: "Try again",
+                            bundle: #bundle,
+                            comment: "Button in transfer details view to retry a failed transfer."
+                        )
+                    )
                 }
                 .padding(.top, 15)
             }

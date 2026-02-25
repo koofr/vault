@@ -67,17 +67,43 @@ struct ShareExtScreenUnauthenticated: View {
     public var body: some View {
         NavigationView {
             VStack {
-                Text("Not signed in").font(.largeTitle).padding(.bottom, 10)
+                Text(
+                    LocalizedStringResource(
+                        "ios.share_ext.unauthenticated.title",
+                        defaultValue: "Not signed in",
+                        bundle: #bundle,
+                        comment:
+                            "Headline in share extension when user is not authenticated in main app."
+                    )
+                )
+                .font(.largeTitle)
+                .padding(.bottom, 10)
 
-                Text("Open Koofr Vault app and sign in.")
+                Text(
+                    LocalizedStringResource(
+                        "ios.share_ext.unauthenticated.subtitle",
+                        defaultValue: "Open Koofr Vault app and sign in.",
+                        bundle: #bundle,
+                        comment:
+                            "Instruction in share extension prompting user to sign in via main app."
+                    )
+                )
             }
-            .navigationBarTitle("", displayMode: .inline)
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button {
                         vm.dismiss()
                     } label: {
-                        Text("Dismiss").bold()
+                        Text(
+                            LocalizedStringResource(
+                                "ios.share_ext.dismiss.button",
+                                defaultValue: "Dismiss",
+                                bundle: #bundle,
+                                comment: "Button in share extension that closes the extension UI."
+                            )
+                        )
+                        .bold()
                     }
                 }
             }
@@ -101,7 +127,16 @@ struct ShareExtScreenLoading: View {
                         Button {
                             vm.dismiss()
                         } label: {
-                            Text("Cancel").bold()
+                            Text(
+                                LocalizedStringResource(
+                                    "ios.share_ext.cancel.button",
+                                    defaultValue: "Cancel",
+                                    bundle: #bundle,
+                                    comment:
+                                        "Button in share extension loading states to cancel and close extension."
+                                )
+                            )
+                            .bold()
                         }
                     }
                 }
@@ -119,16 +154,35 @@ struct ShareExtScreenPreparingFiles: View {
 
     public var body: some View {
         NavigationView {
-            ProgressView("Preparing files")
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button {
-                            vm.dismiss()
-                        } label: {
-                            Text("Cancel").bold()
-                        }
+            ProgressView {
+                Text(
+                    LocalizedStringResource(
+                        "ios.share_ext.preparing_files.label",
+                        defaultValue: "Preparing files",
+                        bundle: #bundle,
+                        comment:
+                            "Progress caption in share extension while selected files are being prepared."
+                    )
+                )
+            }
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
+                        vm.dismiss()
+                    } label: {
+                        Text(
+                            LocalizedStringResource(
+                                "ios.share_ext.cancel.button",
+                                defaultValue: "Cancel",
+                                bundle: #bundle,
+                                comment:
+                                    "Button in share extension file-preparation state to cancel and close extension."
+                            )
+                        )
+                        .bold()
                     }
                 }
+            }
         }
         .navigationViewStyle(.stack)
     }
@@ -143,16 +197,32 @@ struct ShareExtScreenNoFiles: View {
 
     public var body: some View {
         NavigationView {
-            Text("No files to upload.")
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button {
-                            vm.dismiss()
-                        } label: {
-                            Text("Dismiss").bold()
-                        }
+            Text(
+                LocalizedStringResource(
+                    "ios.share_ext.no_files.label",
+                    defaultValue: "No files to upload.",
+                    bundle: #bundle,
+                    comment: "Message in share extension when there are no valid files to upload."
+                )
+            )
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
+                        vm.dismiss()
+                    } label: {
+                        Text(
+                            LocalizedStringResource(
+                                "ios.share_ext.dismiss.button",
+                                defaultValue: "Dismiss",
+                                bundle: #bundle,
+                                comment:
+                                    "Button in share extension no-files state that closes the extension."
+                            )
+                        )
+                        .bold()
                     }
                 }
+            }
         }
         .navigationViewStyle(.stack)
     }
@@ -170,9 +240,16 @@ struct ShareExtScreenDone: View {
     public var body: some View {
         NavigationView {
             VStack {
-                Text("Upload successful")
-                    .font(.title)
-                    .padding(.bottom, 30)
+                Text(
+                    LocalizedStringResource(
+                        "ios.share_ext.upload_successful.label",
+                        defaultValue: "Upload successful",
+                        bundle: #bundle,
+                        comment: "Success message shown in share extension after upload completes."
+                    )
+                )
+                .font(.title)
+                .padding(.bottom, 30)
 
                 ProgressView(value: progress, total: 100)
                     .tint(Color(.systemGray3))
@@ -183,7 +260,16 @@ struct ShareExtScreenDone: View {
                     Button {
                         vm.dismiss()
                     } label: {
-                        Text("Dismiss").bold()
+                        Text(
+                            LocalizedStringResource(
+                                "ios.share_ext.dismiss.button",
+                                defaultValue: "Dismiss",
+                                bundle: #bundle,
+                                comment:
+                                    "Button in share extension success state that closes the extension."
+                            )
+                        )
+                        .bold()
                     }
                 }
             }
