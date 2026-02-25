@@ -21,9 +21,9 @@ final class RepoInfoTests: XCTestCase {
 
             app.repoUnlock()
 
-            app.repoInfoUnlockedTap()
+            app.repoInfoLockedTap()
 
-            app.repoInfoUnlockedAssertLocked(locked: false)
+            app.repoInfoAssertUnlocked()
         }
     }
 

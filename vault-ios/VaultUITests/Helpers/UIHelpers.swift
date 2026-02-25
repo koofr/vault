@@ -65,17 +65,17 @@ extension XCUIApplication {
         button.tap()
     }
 
-    func repoInfoUnlockedTap() {
-        let button = switches["Unlocked, Unlock or lock the Safe Box"].switches.firstMatch
+    func repoInfoLockedTap() {
+        let button = switches["Locked, Unlock or lock the Safe Box"].switches.firstMatch
         XCTAssertTrue(button.waitForExistence(timeout: 10))
         button.tap()
     }
 
-    func repoInfoUnlockedAssertLocked(locked: Bool) {
+    func repoInfoAssertUnlocked() {
         let button = switches["Unlocked, Unlock or lock the Safe Box"].switches.firstMatch
         XCTAssertTrue(button.waitForExistence(timeout: 10))
 
-        XCTAssertEqual(button.value as? String, locked ? "0" : "1")
+        XCTAssertEqual(button.value as? String, "1")
     }
 
     func reposRepoInfoLockAfterWait(after: String) -> XCUIElement {

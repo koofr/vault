@@ -68,7 +68,15 @@ public struct TransfersView: View {
                         Button {
                             container.mobileVault.transfersRetryAll()
                         } label: {
-                            Text("Retry all")
+                            Text(
+                                LocalizedStringResource(
+                                    "ios.transfers.retry_all.button",
+                                    defaultValue: "Retry all",
+                                    bundle: #bundle,
+                                    comment:
+                                        "Toolbar button in transfers view that retries all failed transfers."
+                                )
+                            )
                         }
                     }
                 }
@@ -83,7 +91,15 @@ public struct TransfersView: View {
 
                                 container.mobileVault.transfersAbortAll()
                             } label: {
-                                Text("Clear")
+                                Text(
+                                    LocalizedStringResource(
+                                        "ios.transfers.clear.button",
+                                        defaultValue: "Clear",
+                                        bundle: #bundle,
+                                        comment:
+                                            "Toolbar button in transfers view that clears completed transfer history."
+                                    )
+                                )
                             }
                         }
                     } else {
@@ -93,7 +109,16 @@ public struct TransfersView: View {
 
                                 container.mobileVault.transfersAbortAll()
                             } label: {
-                                Text("Cancel all").foregroundColor(Color(.systemRed))
+                                Text(
+                                    LocalizedStringResource(
+                                        "ios.transfers.cancel_all.button",
+                                        defaultValue: "Cancel all",
+                                        bundle: #bundle,
+                                        comment:
+                                            "Destructive toolbar button in transfers view that aborts all active transfers."
+                                    )
+                                )
+                                .foregroundColor(Color(.systemRed))
                             }
                         }
                     }

@@ -106,7 +106,15 @@ public struct RepoFilesMoveScreen: View {
                     Button {
                         vm.container.mobileVault.repoFilesMoveCancel()
                     } label: {
-                        Text("Cancel")
+                        Text(
+                            LocalizedStringResource(
+                                "ios.repo_files_move.cancel.button",
+                                defaultValue: "Cancel",
+                                bundle: #bundle,
+                                comment:
+                                    "Toolbar button that cancels the current move/copy operation."
+                            )
+                        )
                     }
                 }
             }
@@ -121,7 +129,19 @@ public struct RepoFilesMoveScreen: View {
                                     .repoFiles(repoId: vm.repoId, encryptedPath: encryptedPath))
                             })
                     } label: {
-                        Label("New folder", systemImage: "folder.badge.plus")
+                        Label {
+                            Text(
+                                LocalizedStringResource(
+                                    "ios.repo_files_move.new_folder.menu_item",
+                                    defaultValue: "New folder",
+                                    bundle: #bundle,
+                                    comment:
+                                        "Overflow menu item in destination picker for creating a new folder."
+                                )
+                            )
+                        } icon: {
+                            Image(systemName: "folder.badge.plus")
+                        }
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
@@ -135,22 +155,43 @@ public struct RepoFilesMoveScreen: View {
                     },
                     label: {
                         switch moveInfo.data?.mode {
-                        case .copy: Text("Copy")
-                        default: Text("Move")
+                        case .copy:
+                            Text(
+                                LocalizedStringResource(
+                                    "ios.repo_files_move.copy.button",
+                                    defaultValue: "Copy",
+                                    bundle: #bundle,
+                                    comment: "Toolbar confirmation button when the mode is copy."
+                                )
+                            )
+                        default:
+                            Text(
+                                LocalizedStringResource(
+                                    "ios.repo_files_move.move.button",
+                                    defaultValue: "Move",
+                                    bundle: #bundle,
+                                    comment: "Toolbar confirmation button when the mode is move."
+                                )
+                            )
                         }
                     }
                 )
                 .disabled(moveInfo.data?.canMove != true || navController.state.isNavigating)
             }
-        }
-        .toolbar {
+
             ToolbarItem(placement: .bottomBar) {
                 if let moveInfo = moveInfo.data {
-                    if moveInfo.srcFilesCount == 1 {
-                        Text("\(moveInfo.srcFilesCount) item")
-                    } else {
-                        Text("\(moveInfo.srcFilesCount) items")
-                    }
+                    Text(
+                        LocalizedStringResource(
+                            "ios.repo_files_move.items_count.label",
+                            defaultValue: "\(moveInfo.srcFilesCount) items",
+                            bundle: #bundle,
+                            comment:
+                                "Bottom bar text showing how many items are selected to move/copy."
+                        )
+                    )
+                    .fixedSize(horizontal: true, vertical: false)
+                    .padding()
                 }
             }
         }

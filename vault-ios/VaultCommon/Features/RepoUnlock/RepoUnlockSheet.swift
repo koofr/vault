@@ -17,7 +17,14 @@ public struct RepoUnlockSheet: View {
                         Button {
                             onDismiss()
                         } label: {
-                            Text("Cancel")
+                            Text(
+                                LocalizedStringResource(
+                                    "ios.repo_unlock.cancel.button",
+                                    defaultValue: "Cancel",
+                                    bundle: #bundle,
+                                    comment: "Toolbar button that dismisses the unlock sheet."
+                                )
+                            )
                         }
                     }
                 }

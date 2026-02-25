@@ -18,14 +18,29 @@ struct RepoFilesDetailsEditorInfo: View {
     var body: some View {
         VStack {
             if isLoading {
-                Text("Loading...")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+                Text(
+                    LocalizedStringResource(
+                        "ios.repo_files_details.loading.label",
+                        defaultValue: "Loading…",
+                        bundle: #bundle,
+                        comment: "Status text above the text editor while file content is loading."
+                    )
+                )
+                .font(.footnote)
+                .foregroundStyle(.secondary)
 
             } else if isSaving {
-                Text("Saving...")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+                Text(
+                    LocalizedStringResource(
+                        "ios.repo_files_details.saving.label",
+                        defaultValue: "Saving…",
+                        bundle: #bundle,
+                        comment:
+                            "Status text above the text editor while file changes are being saved."
+                    )
+                )
+                .font(.footnote)
+                .foregroundStyle(.secondary)
             } else if let error = info.error {
                 Text(error)
                     .font(.footnote)
@@ -36,20 +51,54 @@ struct RepoFilesDetailsEditorInfo: View {
             } else {
                 HStack(alignment: .center, spacing: 15) {
                     VStack(spacing: 2) {
-                        Text("Changes are saved automatically.")
+                        Text(
+                            LocalizedStringResource(
+                                "ios.repo_files_details.auto_save_info.label",
+                                defaultValue: "Changes are saved automatically.",
+                                bundle: #bundle,
+                                comment:
+                                    "Informational text above the text editor indicating autosave behavior."
+                            )
+                        )
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        if let modified = modifiedRelativeTime.display {
+                            Text(
+                                LocalizedStringResource(
+                                    "ios.repo_files_details.last_saved.label",
+                                    defaultValue: "Last saved \(modified)",
+                                    bundle: #bundle,
+                                    comment:
+                                        "Autosave status line above the editor showing relative time of last save."
+                                )
+                            )
                             .font(.footnote)
                             .foregroundStyle(.secondary)
-                        if let modified = modifiedRelativeTime.display {
-                            Text("Last saved \(modified)")
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
                         }
                     }
 
                     Circle()
                         .fill(info.isDirty ? .orange : .green)
                         .frame(width: 8, height: 8)
-                        .accessibilityLabel(info.isDirty ? "File modified" : "File unchanged")
+                        .accessibilityLabel(
+                            Text(
+                                info.isDirty
+                                    ? LocalizedStringResource(
+                                        "ios.repo_files_details.status.dirty.a11y.label",
+                                        defaultValue: "File modified",
+                                        bundle: #bundle,
+                                        comment:
+                                            "Accessibility label for editor status indicator when there are unsaved file changes."
+                                    )
+                                    : LocalizedStringResource(
+                                        "ios.repo_files_details.status.unchanged.a11y.label",
+                                        defaultValue: "File unchanged",
+                                        bundle: #bundle,
+                                        comment:
+                                            "Accessibility label for editor status indicator when file content is unchanged."
+                                    )
+                            )
+                        )
                 }
             }
         }

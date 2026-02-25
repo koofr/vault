@@ -8,7 +8,16 @@ public struct TransfersSummaryBottomBar: View {
         VStack {
             HStack {
                 VStack(alignment: .leading) {
-                    Text("\(summary.doneCount) / \(summary.totalCount) done").padding(.bottom, 2)
+                    Text(
+                        LocalizedStringResource(
+                            "ios.transfers.summary.transfers_done",
+                            defaultValue: "\(summary.doneCount) / \(summary.totalCount) done",
+                            bundle: #bundle,
+                            comment:
+                                "Summary text in transfers footer showing completed versus total transfer count."
+                        )
+                    )
+                    .padding(.bottom, 2)
                     Text(summary.sizeProgressDisplay)
                 }
 
@@ -17,8 +26,16 @@ public struct TransfersSummaryBottomBar: View {
                 if summary.isTransferring {
                     VStack(alignment: .trailing) {
                         Text(summary.speedDisplay).padding(.bottom, 2)
-                        Text("\(summary.remainingTimeDisplay) remaining").multilineTextAlignment(
-                            .trailing)
+                        Text(
+                            LocalizedStringResource(
+                                "ios.transfers.summary.time_remaining",
+                                defaultValue: "\(summary.remainingTimeDisplay) remaining",
+                                bundle: #bundle,
+                                comment:
+                                    "Summary text in transfers footer showing estimated time remaining."
+                            )
+                        )
+                        .multilineTextAlignment(.trailing)
                     }
                 }
             }

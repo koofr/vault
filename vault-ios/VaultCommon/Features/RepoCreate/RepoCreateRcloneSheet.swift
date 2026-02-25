@@ -48,18 +48,30 @@ struct RepoCreateRcloneSheet: View {
                     }
                 }
 
-                TextField(
-                    """
-                    rclone config
-
-                    Format:
-
+                let rcloneExample = """
                     [name]
                     type=crypt
                     remote=rcloneremote:/path
                     password=obscured password
                     password2=obscured salt
-                    """, text: $config, axis: .vertical
+                    """
+
+                TextField(
+                    LocalizedStringResource(
+                        "ios.repo_create_rclone.rclone_config.placeholder",
+                        defaultValue: """
+                            rclone config
+
+                            Format:
+
+                            \(rcloneExample)
+                            """,
+                        bundle: #bundle,
+                        comment:
+                            "Placeholder text for the multiline rclone config input field in the import sheet."
+                    ),
+                    text: $config,
+                    axis: .vertical
                 )
                 .font(.system(.body, design: .monospaced))
                 .lineLimit(9...)
@@ -67,7 +79,16 @@ struct RepoCreateRcloneSheet: View {
                 .onAppear {
                     focusedField = .config
                 }
-                .accessibilityLabel("rclone config")
+                .accessibilityLabel(
+                    Text(
+                        LocalizedStringResource(
+                            "ios.repo_create_rclone.rclone_config.a11y.label",
+                            defaultValue: "rclone config",
+                            bundle: #bundle,
+                            comment: "Accessibility label for the rclone config text input field."
+                        )
+                    )
+                )
 
                 HStack {
                     PasteButton(payloadType: String.self) { strings in
@@ -82,20 +103,51 @@ struct RepoCreateRcloneSheet: View {
             .padding()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button {
                         onDismiss()
+                    } label: {
+                        Text(
+                            LocalizedStringResource(
+                                "ios.repo_create_rclone.cancel.button",
+                                defaultValue: "Cancel",
+                                bundle: #bundle,
+                                comment:
+                                    "Toolbar button that closes the rclone config import sheet without applying changes."
+                            )
+                        )
                     }
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Fill") {
+                    Button {
                         if vm.fillFromRcloneConfig(config: config) {
                             onDismiss()
                         }
+                    } label: {
+                        Text(
+                            LocalizedStringResource(
+                                "ios.repo_create_rclone.fill.button",
+                                defaultValue: "Fill",
+                                bundle: #bundle,
+                                comment:
+                                    "Toolbar button that parses the pasted rclone config and fills the create Safe Box form."
+                            )
+                        )
                     }
                 }
             }
-            .navigationBarTitle("Fill from rclone config", displayMode: .inline)
+            .navigationTitle(
+                Text(
+                    LocalizedStringResource(
+                        "ios.repo_create_rclone.title",
+                        defaultValue: "From rclone config",
+                        bundle: #bundle,
+                        comment:
+                            "Navigation title for the sheet that imports Safe Box settings from an rclone config."
+                    )
+                )
+            )
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }

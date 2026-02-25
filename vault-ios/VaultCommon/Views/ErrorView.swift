@@ -11,7 +11,16 @@ public struct ErrorView: View {
 
     public var body: some View {
         VStack {
-            Text("Error").font(.title).padding(.bottom, 20)
+            Text(
+                LocalizedStringResource(
+                    "ios.views.error.title",
+                    defaultValue: "Error",
+                    bundle: #bundle,
+                    comment: "Title text shown at the top of the generic error view."
+                )
+            )
+            .font(.title)
+            .padding(.bottom, 20)
 
             Text(errorText).multilineTextAlignment(.center).padding(.bottom, 20)
 
@@ -19,8 +28,16 @@ public struct ErrorView: View {
                 Button {
                     onRetry()
                 } label: {
-                    Text("Try again")
-                        .foregroundColor(Color(.link))
+                    Text(
+                        LocalizedStringResource(
+                            "ios.views.error.try_again.button",
+                            defaultValue: "Try again",
+                            bundle: #bundle,
+                            comment:
+                                "Button label in the generic error view to retry the failed action."
+                        )
+                    )
+                    .foregroundColor(Color(.link))
                 }
             }
         }

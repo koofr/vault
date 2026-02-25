@@ -26,7 +26,17 @@ public struct TransfersButton: View {
             } label: {
                 Image(systemName: "arrow.up.arrow.down.square")
             }
-            .accessibilityLabel("Show transfers")
+            .accessibilityLabel(
+                Text(
+                    LocalizedStringResource(
+                        "ios.transfers.show_transfers.a11y.label",
+                        defaultValue: "Show transfers",
+                        bundle: #bundle,
+                        comment:
+                            "Accessibility label for the toolbar button that opens the transfers sheet."
+                    )
+                )
+            )
         }
     }
 }

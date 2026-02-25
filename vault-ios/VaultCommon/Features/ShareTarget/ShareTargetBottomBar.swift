@@ -14,7 +14,15 @@ public struct ShareTargetBottomBar: View {
                     })
             },
             label: {
-                Text(vm.files.count == 1 ? "\(vm.files.count) item…" : "\(vm.files.count) items…")
+                Text(
+                    LocalizedStringResource(
+                        "ios.share_target.items_count.label",
+                        defaultValue: "\(vm.files.count) items…",
+                        bundle: #bundle,
+                        comment:
+                            "Bottom bar button text in share extension flow showing selected item count."
+                    )
+                )
             })
     }
 }

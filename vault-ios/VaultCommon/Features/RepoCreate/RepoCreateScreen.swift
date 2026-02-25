@@ -65,7 +65,16 @@ public struct RepoCreateScreen: View {
                 }
             }
         }
-        .navigationTitle("Create a new Safe Box")
+        .navigationTitle(
+            Text(
+                LocalizedStringResource(
+                    "ios.repo_create.title",
+                    defaultValue: "Create a new Safe Box",
+                    bundle: #bundle,
+                    comment: "Navigation title for the create Safe Box screen."
+                )
+            )
+        )
         .navigationBarTitleDisplayMode(.inline)
     }
 }

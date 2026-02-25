@@ -20,7 +20,8 @@ public struct InfoSheet: View {
                 Section {
                     Link(destination: URL(string: container.baseURL)!) {
                         VStack(alignment: .leading, spacing: 3) {
-                            Text("Koofr Vault").foregroundColor(Color(.label))
+                            Text(String(stringLiteral: "Koofr Vault"))
+                                .foregroundColor(Color(.label))
                             Text(container.baseURL).font(.system(size: 12)).foregroundColor(
                                 Color(.systemGray))
                         }
@@ -28,49 +29,136 @@ public struct InfoSheet: View {
 
                     if let gitReleaseUrl = version.gitReleaseUrl {
                         Link(destination: URL(string: gitReleaseUrl)!) {
-                            Text("Version: \(version.gitRelease ?? "unknown")").foregroundColor(
-                                Color(.label))
+                            Text(
+                                LocalizedStringResource(
+                                    "ios.settings.info.version.label",
+                                    defaultValue: "Version: \(version.gitRelease ?? "unknown")",
+                                    bundle: #bundle,
+                                    comment:
+                                        "Row label in the information sheet showing the app version."
+                                )
+                            )
+                            .foregroundColor(Color(.label))
                         }
                     } else {
-                        Text("Version: \(version.gitRelease ?? "unknown")").foregroundColor(
-                            Color(.label))
+                        Text(
+                            LocalizedStringResource(
+                                "ios.settings.info.version.label",
+                                defaultValue: "Version: \(version.gitRelease ?? "unknown")",
+                                bundle: #bundle,
+                                comment:
+                                    "Row label in the information sheet showing the app version."
+                            )
+                        )
+                        .foregroundColor(Color(.label))
                     }
 
                     if let gitRevisionUrl = version.gitRevisionUrl {
                         Link(destination: URL(string: gitRevisionUrl)!) {
-                            Text("Git revision: \(version.gitRevision ?? "unknown")")
-                                .foregroundColor(Color(.label))
+                            Text(
+                                LocalizedStringResource(
+                                    "ios.settings.info.git_revision.label",
+                                    defaultValue:
+                                        "Git revision: \(version.gitRevision ?? "unknown")",
+                                    bundle: #bundle,
+                                    comment:
+                                        "Row label in the information sheet showing the git revision."
+                                )
+                            )
+                            .foregroundColor(Color(.label))
                         }
                     } else {
-                        Text("Git revision: \(version.gitRevision ?? "unknown")").foregroundColor(
-                            Color(.label))
+                        Text(
+                            LocalizedStringResource(
+                                "ios.settings.info.git_revision.label",
+                                defaultValue:
+                                    "Git revision: \(version.gitRevision ?? "unknown")",
+                                bundle: #bundle,
+                                comment:
+                                    "Row label in the information sheet showing the git revision."
+                            )
+                        )
+                        .foregroundColor(Color(.label))
                     }
 
                     Link(destination: URL(string: "\(container.baseURL)/legal/tos")!) {
-                        Text("Terms of Service").foregroundColor(Color(.label))
+                        Text(
+                            LocalizedStringResource(
+                                "ios.settings.info.terms_of_service.label",
+                                defaultValue: "Terms of Service",
+                                bundle: #bundle,
+                                comment:
+                                    "Link title in the information sheet that opens the Terms of Service page."
+                            )
+                        )
+                        .foregroundColor(Color(.label))
                     }
 
                     Link(destination: URL(string: "\(container.baseURL)/legal/privacy")!) {
-                        Text("Privacy Policy").foregroundColor(Color(.label))
+                        Text(
+                            LocalizedStringResource(
+                                "ios.settings.info.privacy_policy.label",
+                                defaultValue: "Privacy Policy",
+                                bundle: #bundle,
+                                comment:
+                                    "Link title in the information sheet that opens the Privacy Policy page."
+                            )
+                        )
+                        .foregroundColor(Color(.label))
                     }
 
                     Link(destination: URL(string: "https://koofr.eu/help/koofr-vault/")!) {
-                        Text("Help").foregroundColor(Color(.label))
+                        Text(
+                            LocalizedStringResource(
+                                "ios.settings.info.help.label",
+                                defaultValue: "Help",
+                                bundle: #bundle,
+                                comment:
+                                    "Link title in the information sheet that opens the Koofr Vault help pages."
+                            )
+                        )
+                        .foregroundColor(Color(.label))
                     }
 
                     Link(destination: reportABugURL()) {
-                        Text("Report a bug").foregroundColor(Color(.label))
+                        Text(
+                            LocalizedStringResource(
+                                "ios.settings.info.report_bug.label",
+                                defaultValue: "Report a bug",
+                                bundle: #bundle,
+                                comment:
+                                    "Link title in the information sheet that opens an email draft for reporting a bug."
+                            )
+                        )
+                        .foregroundColor(Color(.label))
                     }
                 }
             }
-            .navigationTitle("Information")
-            .navigationBarTitle("", displayMode: .inline)
+            .navigationTitle(
+                Text(
+                    LocalizedStringResource(
+                        "ios.settings.info.title",
+                        defaultValue: "Information",
+                        bundle: #bundle,
+                        comment: "Navigation title of the information sheet."
+                    )
+                )
+            )
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button {
                         onDismiss()
                     } label: {
-                        Text("Done").bold()
+                        Text(
+                            LocalizedStringResource(
+                                "ios.settings.info.done.button",
+                                defaultValue: "Done",
+                                bundle: #bundle,
+                                comment: "Toolbar button that dismisses the information sheet."
+                            )
+                        )
+                        .bold()
                     }
                 }
             }

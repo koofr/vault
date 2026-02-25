@@ -1,0 +1,2472 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "ios.landing.get_started.button" : {
+      "comment" : "Primary call-to-action button on the landing screen that starts login.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Get started"
+          }
+        }
+      }
+    },
+    "ios.landing.message" : {
+      "comment" : "Supporting description text on the landing screen under the main headline.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Powerful, open source client-side encryption. Unlock enhanced security for your most sensitive files."
+          }
+        }
+      }
+    },
+    "ios.landing.title" : {
+      "comment" : "Main headline on the landing screen before sign-in.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "One vault for all\nyour private files."
+          }
+        }
+      }
+    },
+    "ios.language_picker.dismiss.button" : {
+      "comment" : "Toolbar button that closes the language picker sheet.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Dismiss"
+          }
+        }
+      }
+    },
+    "ios.language_picker.title" : {
+      "comment" : "Navigation title of the sheet used to pick the app language.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Change language"
+          }
+        }
+      }
+    },
+    "ios.notification.dismiss.button" : {
+      "comment" : "Button label in the in-app notification toast to close the toast.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Dismiss"
+          }
+        }
+      }
+    },
+    "ios.remote_files_dir_picker.cancel.button" : {
+      "comment" : "Toolbar button that cancels the remote directory picker flow.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "ios.remote_files_dir_picker.new_folder.menu_item" : {
+      "comment" : "Menu item in the remote directory picker toolbar for creating a new folder.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "New folder"
+          }
+        }
+      }
+    },
+    "ios.remote_files_dir_picker.select.button" : {
+      "comment" : "Toolbar confirmation button used to select the currently open remote folder.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Select"
+          }
+        }
+      }
+    },
+    "ios.repo_config_info.encrypt_directory_names" : {
+      "comment" : "Text in the Safe Box configuration summary for directory name encryption setting.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "**Encrypt directory names**: %@"
+          }
+        }
+      }
+    },
+    "ios.repo_config_info.filename_encryption" : {
+      "comment" : "Text in the Safe Box configuration summary for filename encryption mode.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "**Filename encryption**: %@"
+          }
+        }
+      }
+    },
+    "ios.repo_config_info.location" : {
+      "comment" : "Text in the Safe Box configuration summary indicating storage location.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "**Location**: %@"
+          }
+        }
+      }
+    },
+    "ios.repo_config_info.rclone_config" : {
+      "comment" : "Text before the raw rclone configuration block in the Safe Box setup summary.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "**rclone config**:"
+          }
+        }
+      }
+    },
+    "ios.repo_config_info.salt" : {
+      "comment" : "Text in the Safe Box configuration summary for the salt (password2) value.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "**Salt (password2)**: %@"
+          }
+        }
+      }
+    },
+    "ios.repo_create_rclone.cancel.button" : {
+      "comment" : "Toolbar button that closes the rclone config import sheet without applying changes.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "ios.repo_create_rclone.fill.button" : {
+      "comment" : "Toolbar button that parses the pasted rclone config and fills the create Safe Box form.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Fill"
+          }
+        }
+      }
+    },
+    "ios.repo_create_rclone.rclone_config.a11y.label" : {
+      "comment" : "Accessibility label for the rclone config text input field.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "rclone config"
+          }
+        }
+      }
+    },
+    "ios.repo_create_rclone.rclone_config.placeholder" : {
+      "comment" : "Placeholder text for the multiline rclone config input field in the import sheet.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "rclone config\n\nFormat:\n\n%@"
+          }
+        }
+      }
+    },
+    "ios.repo_create_rclone.title" : {
+      "comment" : "Navigation title for the sheet that imports Safe Box settings from an rclone config.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "From rclone config"
+          }
+        }
+      }
+    },
+    "ios.repo_create.created.continue.button" : {
+      "comment" : "Toolbar button on the Safe Box creation success screen to continue to the Safe Box files.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Continue"
+          }
+        }
+      }
+    },
+    "ios.repo_create.created.description" : {
+      "comment" : "Instructional text on the Safe Box creationsuccess screen telling users to save configuration first.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Before you start using your Safe Box please safely store the configuration."
+          }
+        }
+      }
+    },
+    "ios.repo_create.created.title" : {
+      "comment" : "Success headline shown after a Safe Box is created.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Your Safe Box has been created"
+          }
+        }
+      }
+    },
+    "ios.repo_create.form.create.button" : {
+      "comment" : "Toolbar confirmation button that creates the Safe Box.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Create"
+          }
+        }
+      }
+    },
+    "ios.repo_create.form.from_rclone_config.button" : {
+      "comment" : "Button in advanced create Safe Box settings that opens fill from rclone config sheet.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "From rclone config"
+          }
+        }
+      }
+    },
+    "ios.repo_create.form.location.a11y.label" : {
+      "comment" : "Accessibility label for the selected location row in create Safe Box form.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Location"
+          }
+        }
+      }
+    },
+    "ios.repo_create.form.location.info.button.a11y.label" : {
+      "comment" : "Accessibility label for the location help button in create Safe Box form.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Location info"
+          }
+        }
+      }
+    },
+    "ios.repo_create.form.location.info.text" : {
+      "comment" : "Detailed help text in create Safe Box flow explaining the Location field.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Location refers to a folder within your Koofr where all of your Safe Box files and folders are securely stored.\n\nIf this is your first Safe Box, the default location will be \"My safe box.\" You can change it if you prefer.\n\nIf you already have a Safe Box or wish to use an existing folder (e.g. one created with rclone), you can select that folder.\n\nPlease note that you can only select a folder located within your Koofr."
+          }
+        }
+      }
+    },
+    "ios.repo_create.form.location.info.title" : {
+      "comment" : "Title of the location help sheet in create Safe Box form.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Location"
+          }
+        }
+      }
+    },
+    "ios.repo_create.form.location.label" : {
+      "comment" : "Section header label for storage location in create Safe Box form.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Location"
+          }
+        }
+      }
+    },
+    "ios.repo_create.form.location.placeholder" : {
+      "comment" : "Placeholder shown when no location is selected in create Safe Box form.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Location"
+          }
+        }
+      }
+    },
+    "ios.repo_create.form.password.info.button.a11y.label" : {
+      "comment" : "Accessibility label for the safe key help button in create Safe Box form.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Safe Key info"
+          }
+        }
+      }
+    },
+    "ios.repo_create.form.password.info.text" : {
+      "comment" : "Detailed help text in create Safe Box flow explaining the Safe Key field and recovery limitations.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Safe Key is a password used to encrypt your files. Each Safe Box can have its own unique Safe Key.\n\nPlease be aware that once you set your Safe Key, it cannot be changed later. All the files within the Safe Box will be encrypted using this key.\n\nIMPORTANT: Your Safe Key cannot be reset, and there is no way to recover your files if you forget it, as it is never sent to or stored on Koofr servers."
+          }
+        }
+      }
+    },
+    "ios.repo_create.form.password.info.title" : {
+      "comment" : "Title of the safe key help sheet in create Safe Box form.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Safe Key"
+          }
+        }
+      }
+    },
+    "ios.repo_create.form.password.label" : {
+      "comment" : "Section header label for safe key input in create Safe Box form.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Safe Key"
+          }
+        }
+      }
+    },
+    "ios.repo_create.form.password.placeholder" : {
+      "comment" : "Placeholder for the Safe Key field describing minimum length requirement.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Must be at least 8 characters long"
+          }
+        }
+      }
+    },
+    "ios.repo_create.form.salt.a11y.label" : {
+      "comment" : "Accessibility label for the salt input field in create Safe Box form.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Salt"
+          }
+        }
+      }
+    },
+    "ios.repo_create.form.salt.info.button.a11y.label" : {
+      "comment" : "Accessibility label for the salt help button in create Safe Box form.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Salt info"
+          }
+        }
+      }
+    },
+    "ios.repo_create.form.salt.info.text" : {
+      "comment" : "Detailed help text in create Safe Box flow explaining the Salt field.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Salt is used in the key derivation process to create a unique encryption key and helps to protect against potential attacks. It will be stored on the Koofr servers in a secure manner.\n\nA random Salt has been generated for you. If you prefer, you can leave the Salt field empty, and the default salt will be used (same as in rclone). However, it is recommended to use a unique salt for enhanced security. Using a unique salt helps to increase the complexity of the encryption process, making it more difficult for potential attackers to access the encrypted data.\n\nIf you wish to transfer the encrypted files to another service, it is necessary to also export the salt, otherwise you won't be able to decrypt your files."
+          }
+        }
+      }
+    },
+    "ios.repo_create.form.salt.info.title" : {
+      "comment" : "Title of the salt help sheet in create Safe Box form.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Salt"
+          }
+        }
+      }
+    },
+    "ios.repo_create.form.salt.label" : {
+      "comment" : "Section header label for optional salt input in advanced create settings.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Salt"
+          }
+        }
+      }
+    },
+    "ios.repo_create.form.salt.placeholder" : {
+      "comment" : "Placeholder for optional salt text field in advanced create Safe Box settings.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Salt"
+          }
+        }
+      }
+    },
+    "ios.repo_create.form.show_advanced_settings.button" : {
+      "comment" : "Button in create Safe Box form that reveals advanced fields such as salt and fill from rclone config.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Show advanced settings"
+          }
+        }
+      }
+    },
+    "ios.repo_create.title" : {
+      "comment" : "Navigation title for the create Safe Box screen.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Create a new Safe Box"
+          }
+        }
+      }
+    },
+    "ios.repo_file_category.archive" : {
+      "comment" : "File category label shown in file info sheet for archive files.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Archive"
+          }
+        }
+      }
+    },
+    "ios.repo_file_category.audio" : {
+      "comment" : "File category label shown in file info sheet for audio files.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Audio"
+          }
+        }
+      }
+    },
+    "ios.repo_file_category.code" : {
+      "comment" : "File category label shown in file info sheet for code files.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Code"
+          }
+        }
+      }
+    },
+    "ios.repo_file_category.document" : {
+      "comment" : "File category label shown in file info sheet for document files.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Document"
+          }
+        }
+      }
+    },
+    "ios.repo_file_category.file" : {
+      "comment" : "File category label shown in file info sheet for generic files.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "File"
+          }
+        }
+      }
+    },
+    "ios.repo_file_category.folder" : {
+      "comment" : "File category label shown in file info sheet for folders.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Folder"
+          }
+        }
+      }
+    },
+    "ios.repo_file_category.image" : {
+      "comment" : "File category label shown in file info sheet for image files.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Image"
+          }
+        }
+      }
+    },
+    "ios.repo_file_category.pdf" : {
+      "comment" : "File category label shown in file info sheet for PDF files.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "PDF"
+          }
+        }
+      }
+    },
+    "ios.repo_file_category.presentation" : {
+      "comment" : "File category label shown in file info sheet for presentation files.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Presentation"
+          }
+        }
+      }
+    },
+    "ios.repo_file_category.sheet" : {
+      "comment" : "File category label shown in file info sheet for spreadsheet files.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Spreadsheet"
+          }
+        }
+      }
+    },
+    "ios.repo_file_category.text" : {
+      "comment" : "File category label shown in file info sheet for plain text files.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Text"
+          }
+        }
+      }
+    },
+    "ios.repo_file_category.video" : {
+      "comment" : "File category label shown in file info sheet for video files.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Video"
+          }
+        }
+      }
+    },
+    "ios.repo_file_info.done.button" : {
+      "comment" : "Toolbar button that closes the file info sheet.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Done"
+          }
+        }
+      }
+    },
+    "ios.repo_file_info.encrypted_path.label" : {
+      "comment" : "Field label in file info sheet for encrypted path.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Encrypted path"
+          }
+        }
+      }
+    },
+    "ios.repo_file_info.information.label" : {
+      "comment" : "Section header title in file info sheet.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Information"
+          }
+        }
+      }
+    },
+    "ios.repo_file_info.modified.label" : {
+      "comment" : "Field label in file info sheet for last modification date.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Modified"
+          }
+        }
+      }
+    },
+    "ios.repo_file_info.path.label" : {
+      "comment" : "Field label in file info sheet for decrypted path.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Path"
+          }
+        }
+      }
+    },
+    "ios.repo_file_info.size.label" : {
+      "comment" : "Field label in file info sheet for file size.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Size"
+          }
+        }
+      }
+    },
+    "ios.repo_file_info.title" : {
+      "comment" : "Navigation title of the file info sheet.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Info"
+          }
+        }
+      }
+    },
+    "ios.repo_file_info.type.label" : {
+      "comment" : "Field label in file info sheet for file category/type.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Type"
+          }
+        }
+      }
+    },
+    "ios.repo_file_menu.copy.menu_item" : {
+      "comment" : "Context menu item on a file row that opens copy file sheet.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Copy"
+          }
+        }
+      }
+    },
+    "ios.repo_file_menu.delete.menu_item" : {
+      "comment" : "Destructive context menu item on a file row that deletes the file.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete"
+          }
+        }
+      }
+    },
+    "ios.repo_file_menu.download.menu_item" : {
+      "comment" : "Context menu item on a file row that downloads the file.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Download"
+          }
+        }
+      }
+    },
+    "ios.repo_file_menu.get_info.menu_item" : {
+      "comment" : "Context menu item on a file row that opens the file info sheet.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Get Info"
+          }
+        }
+      }
+    },
+    "ios.repo_file_menu.move.menu_item" : {
+      "comment" : "Context menu item on a file row that opens move file sheet.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Move"
+          }
+        }
+      }
+    },
+    "ios.repo_file_menu.rename.menu_item" : {
+      "comment" : "Context menu item on a file row that opens rename dialog.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Rename"
+          }
+        }
+      }
+    },
+    "ios.repo_files_details.auto_save_info.label" : {
+      "comment" : "Informational text above the text editor indicating autosave behavior.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Changes are saved automatically."
+          }
+        }
+      }
+    },
+    "ios.repo_files_details.delete.menu_item" : {
+      "comment" : "Destructive overflow menu item in file details for deleting the current file.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete"
+          }
+        }
+      }
+    },
+    "ios.repo_files_details.done.button" : {
+      "comment" : "Toolbar button in file details editor mode that exits editing.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Done"
+          }
+        }
+      }
+    },
+    "ios.repo_files_details.download.button" : {
+      "comment" : "Button in unsupported file details view that downloads the file locally.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Download"
+          }
+        }
+      }
+    },
+    "ios.repo_files_details.edit.menu_item" : {
+      "comment" : "Overflow menu item in file details for entering edit mode on text files.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Edit"
+          }
+        }
+      }
+    },
+    "ios.repo_files_details.last_saved.label" : {
+      "comment" : "Autosave status line above the editor showing relative time of last save.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Last saved %@"
+          }
+        }
+      }
+    },
+    "ios.repo_files_details.loading.label" : {
+      "comment" : "Status text above the text editor while file content is loading.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Loading…"
+          }
+        }
+      }
+    },
+    "ios.repo_files_details.not_supported.label" : {
+      "comment" : "Message shown in file details when in-app preview/edit is not supported for the file type.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Not supported"
+          }
+        }
+      }
+    },
+    "ios.repo_files_details.rename.menu_item" : {
+      "comment" : "Overflow menu item in file details for renaming the current file.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Rename"
+          }
+        }
+      }
+    },
+    "ios.repo_files_details.save.button" : {
+      "comment" : "Toolbar button in file details editor mode that saves pending text changes.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Save"
+          }
+        }
+      }
+    },
+    "ios.repo_files_details.saving.label" : {
+      "comment" : "Status text above the text editor while file changes are being saved.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Saving…"
+          }
+        }
+      }
+    },
+    "ios.repo_files_details.share.menu_item" : {
+      "comment" : "Overflow menu item in file details for opening the system share sheet.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Share"
+          }
+        }
+      }
+    },
+    "ios.repo_files_details.status.dirty.a11y.label" : {
+      "comment" : "Accessibility label for editor status indicator when there are unsaved file changes.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "File modified"
+          }
+        }
+      }
+    },
+    "ios.repo_files_details.status.unchanged.a11y.label" : {
+      "comment" : "Accessibility label for editor status indicator when file content is unchanged.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "File unchanged"
+          }
+        }
+      }
+    },
+    "ios.repo_files_move.cancel.button" : {
+      "comment" : "Toolbar button that cancels the current move/copy operation.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "ios.repo_files_move.copy.button" : {
+      "comment" : "Toolbar confirmation button when the mode is copy.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Copy"
+          }
+        }
+      }
+    },
+    "ios.repo_files_move.items_count.label" : {
+      "comment" : "Bottom bar text showing how many items are selected to move/copy.",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%u item"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%u items"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "ios.repo_files_move.move.button" : {
+      "comment" : "Toolbar confirmation button when the mode is move.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Move"
+          }
+        }
+      }
+    },
+    "ios.repo_files_move.new_folder.menu_item" : {
+      "comment" : "Overflow menu item in destination picker for creating a new folder.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "New folder"
+          }
+        }
+      }
+    },
+    "ios.repo_files.create_text_file.default_filename" : {
+      "comment" : "Default base filename used when creating a new text file in a folder.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "new text file %@"
+          }
+        }
+      }
+    },
+    "ios.repo_files.edit_mode.copy_selected.a11y.label" : {
+      "comment" : "Accessibility label for edit mode bottom-bar button that copies selected items.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Copy selected"
+          }
+        }
+      }
+    },
+    "ios.repo_files.edit_mode.delete_selected.a11y.label" : {
+      "comment" : "Accessibility label for edit mode bottom-bar button that deletes selected items.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete selected"
+          }
+        }
+      }
+    },
+    "ios.repo_files.edit_mode.deselect_all.button" : {
+      "comment" : "Toolbar button in file browser edit mode to clear selection.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Deselect All"
+          }
+        }
+      }
+    },
+    "ios.repo_files.edit_mode.done.button" : {
+      "comment" : "Toolbar button in file browser edit mode to exit selection mode.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Done"
+          }
+        }
+      }
+    },
+    "ios.repo_files.edit_mode.download_selected.a11y.label" : {
+      "comment" : "Accessibility label for edit mode bottom-bar button that downloads selected items.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Download selected"
+          }
+        }
+      }
+    },
+    "ios.repo_files.edit_mode.items_count.label" : {
+      "comment" : "Navigation title in file browser edit mode showing selected item count.",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%u item"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%u items"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "ios.repo_files.edit_mode.move_selected.a11y.label" : {
+      "comment" : "Accessibility label for edit mode bottom-bar button that moves selected items.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Move selected"
+          }
+        }
+      }
+    },
+    "ios.repo_files.edit_mode.select_all.button" : {
+      "comment" : "Toolbar button in file browser edit mode to select all visible items.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Select All"
+          }
+        }
+      }
+    },
+    "ios.repo_files.edit_mode.title" : {
+      "comment" : "Navigation title in file browser edit mode when no items are selected.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Selected items"
+          }
+        }
+      }
+    },
+    "ios.repo_files.nav_menu.create_text_file.menu_item" : {
+      "comment" : "Navigation menu item in file browser that creates a new text file.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Create new text file"
+          }
+        }
+      }
+    },
+    "ios.repo_files.nav_menu.new_folder.menu_item" : {
+      "comment" : "Navigation menu item in file browser that creates a new folder.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "New folder"
+          }
+        }
+      }
+    },
+    "ios.repo_files.nav_menu.select.menu_item" : {
+      "comment" : "Navigation menu item in file browser that enters multi-select mode.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Select"
+          }
+        }
+      }
+    },
+    "ios.repo_files.nav_menu.sort_by.menu_item" : {
+      "comment" : "Label for sort field picker in the file browser navigation menu.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Sort by"
+          }
+        }
+      }
+    },
+    "ios.repo_files.nav_menu.upload_files.menu_item" : {
+      "comment" : "Navigation menu item in file browser that opens file picker upload.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Upload files"
+          }
+        }
+      }
+    },
+    "ios.repo_files.nav_menu.upload_folder.menu_item" : {
+      "comment" : "Navigation menu item in file browser that uploads a folder.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Upload a folder"
+          }
+        }
+      }
+    },
+    "ios.repo_files.nav_menu.upload_photo.menu_item" : {
+      "comment" : "Navigation menu item in file browser that opens photo picker upload.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Upload photo"
+          }
+        }
+      }
+    },
+    "ios.repo_files.sort_field.modified" : {
+      "comment" : "Sort option label in file browser for sorting by modified date.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Modified"
+          }
+        }
+      }
+    },
+    "ios.repo_files.sort_field.name" : {
+      "comment" : "Sort option label in file browser for sorting by file name.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Name"
+          }
+        }
+      }
+    },
+    "ios.repo_files.sort_field.size" : {
+      "comment" : "Sort option label in file browser for sorting by file size.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Size"
+          }
+        }
+      }
+    },
+    "ios.repo_files.summary.items_count.label" : {
+      "comment" : "Summary row text at end of file list showing total items in current folder.",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld item"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld items"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "ios.repo_files.summary.new_folder.menu_item" : {
+      "comment" : "Context menu item on the file list summary row for creating a new folder.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "New folder"
+          }
+        }
+      }
+    },
+    "ios.repo_info.auto_lock_after.custom" : {
+      "comment" : "Auto-lock timeout option label for a custom number of inactive seconds.",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Custom (%llu second)"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Custom (%llu seconds)"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "ios.repo_info.auto_lock_after.inactive_1_hour" : {
+      "comment" : "Auto-lock timeout option label for one hour of inactivity.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "1 hour of inactivity"
+          }
+        }
+      }
+    },
+    "ios.repo_info.auto_lock_after.inactive_1_minute" : {
+      "comment" : "Auto-lock timeout option label for one minute of inactivity.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "1 minute of inactivity"
+          }
+        }
+      }
+    },
+    "ios.repo_info.auto_lock_after.inactive_2_hours" : {
+      "comment" : "Auto-lock timeout option label for two hours of inactivity.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "2 hours of inactivity"
+          }
+        }
+      }
+    },
+    "ios.repo_info.auto_lock_after.inactive_4_hours" : {
+      "comment" : "Auto-lock timeout option label for four hours of inactivity.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "4 hours of inactivity"
+          }
+        }
+      }
+    },
+    "ios.repo_info.auto_lock_after.inactive_5_minutes" : {
+      "comment" : "Auto-lock timeout option label for five minutes of inactivity.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "5 minutes of inactivity"
+          }
+        }
+      }
+    },
+    "ios.repo_info.auto_lock_after.inactive_10_minutes" : {
+      "comment" : "Auto-lock timeout option label for ten minutes of inactivity.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "10 minutes of inactivity"
+          }
+        }
+      }
+    },
+    "ios.repo_info.auto_lock_after.inactive_30_minutes" : {
+      "comment" : "Auto-lock timeout option label for thirty minutes of inactivity.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "30 minutes of inactivity"
+          }
+        }
+      }
+    },
+    "ios.repo_info.auto_lock_after.label" : {
+      "comment" : "Label for the row that opens auto-lock timeout options in Safe Box settings.\nTitle of the confirmation dialog for choosing auto-lock timeout.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Automatically lock after"
+          }
+        }
+      }
+    },
+    "ios.repo_info.auto_lock_after.no_time_limit" : {
+      "comment" : "Auto-lock timeout option label meaning the safe box should not auto-lock by time.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "No time limit"
+          }
+        }
+      }
+    },
+    "ios.repo_info.biometric_unlock.description" : {
+      "comment" : "Description under the biometric unlock toggle in Safe Box settings.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Use biometrics to unlock the Safe Box"
+          }
+        }
+      }
+    },
+    "ios.repo_info.biometric_unlock.label" : {
+      "comment" : "Toggle label for enabling biometric unlock in Safe Box settings.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Biometric unlock"
+          }
+        }
+      }
+    },
+    "ios.repo_info.destroy_repo.description" : {
+      "comment" : "Description under the destroy Safe Box row in Safe Box settings.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Verify Safe Key and destroy the Safe box"
+          }
+        }
+      }
+    },
+    "ios.repo_info.destroy_repo.label" : {
+      "comment" : "Row label in Safe Box settings that opens the destroy Safe Box dialog.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Destroy Safe Box…"
+          }
+        }
+      }
+    },
+    "ios.repo_info.lock_when_app_hidden.description" : {
+      "comment" : "Description under the lock-on-background toggle in Safe Box settings.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "When switching apps or locking the screen"
+          }
+        }
+      }
+    },
+    "ios.repo_info.lock_when_app_hidden.label" : {
+      "comment" : "Toggle label for locking the Safe Box when app goes to background.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Lock when app hidden"
+          }
+        }
+      }
+    },
+    "ios.repo_info.locked.label" : {
+      "comment" : "Toggle label in Safe Box settings when the Safe Box is currently locked.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Locked"
+          }
+        }
+      }
+    },
+    "ios.repo_info.unlock.description" : {
+      "comment" : "Description under the lock state toggle in Safe Box settings.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Unlock or lock the Safe Box"
+          }
+        }
+      }
+    },
+    "ios.repo_info.unlocked.label" : {
+      "comment" : "Toggle label in Safe Box settings when the Safe Box is currently unlocked.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Unlocked"
+          }
+        }
+      }
+    },
+    "ios.repo_remove.destroy.button" : {
+      "comment" : "Confirmation button that permanently removes Safe Box configuration after password verification.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Destroy"
+          }
+        }
+      }
+    },
+    "ios.repo_remove.message" : {
+      "comment" : "Warning and confirmation instructions on the destroy Safe Box screen before entering the safe key.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Do you really want to destroy Safe Box **%@**?\n\nDestroying the Safe Box will keep all the files on Koofr but remove the configuration so you won't be able to decrypt the files if you didn't save the configuration.\n\n**This action cannot be undone.**\n\nEnter your Safe Key to confirm the removal:"
+          }
+        }
+      }
+    },
+    "ios.repo_remove.title" : {
+      "comment" : "Navigation title for the screen that destroys a Safe Box.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Destroy Safe Box"
+          }
+        }
+      }
+    },
+    "ios.repo_setup_biometric_unlock.cancel.button" : {
+      "comment" : "Toolbar button that dismisses the biometric unlock setup sheet.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "ios.repo_setup_biometric_unlock.message" : {
+      "comment" : "Instruction text above the password field when enabling biometric unlock for a Safe Box.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Enter your Safe Key to setup biometric unlock"
+          }
+        }
+      }
+    },
+    "ios.repo_unlock.biometric_unlock.button" : {
+      "comment" : "Button below the unlock form that starts biometric authentication.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Biometric unlock"
+          }
+        }
+      }
+    },
+    "ios.repo_unlock.cancel.button" : {
+      "comment" : "Toolbar button that dismisses the unlock sheet.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "ios.repo_unlock.continue.button" : {
+      "comment" : "Primary button on the unlock form that submits the entered Safe Key.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Continue"
+          }
+        }
+      }
+    },
+    "ios.repo_unlock.message" : {
+      "comment" : "Default instruction text on the safe box unlock form above the password field.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Enter your Safe Key to continue"
+          }
+        }
+      }
+    },
+    "ios.repo_unlock.setup_biometric_unlock.button" : {
+      "comment" : "Button below the unlock form that opens biometric unlock setup.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Setup biometric unlock"
+          }
+        }
+      }
+    },
+    "ios.repo_unlock.unlocking.label" : {
+      "comment" : "Progress label shown while the app is trying to unlock the Safe Box.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Unlocking…"
+          }
+        }
+      }
+    },
+    "ios.repos.create_new.label" : {
+      "comment" : "Label for the create-new Safe Box row in the Safe Boxes list.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Create new"
+          }
+        }
+      }
+    },
+    "ios.repos.empty.button" : {
+      "comment" : "Empty-state action button on the Safe Boxes screen to start creating the first Safe Box.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Create your first one"
+          }
+        }
+      }
+    },
+    "ios.repos.empty.title" : {
+      "comment" : "Empty-state headline shown on the Safe Boxes screen when no Safe Boxes exist.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "No Safe Boxes yet"
+          }
+        }
+      }
+    },
+    "ios.repos.recent.label" : {
+      "comment" : "Label for the Recent files entry shown in the Safe Boxes list.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Recent files"
+          }
+        }
+      }
+    },
+    "ios.settings.change_language.label" : {
+      "comment" : "Row label in settings that opens the language picker.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Change language"
+          }
+        }
+      }
+    },
+    "ios.settings.clear_cache.label" : {
+      "comment" : "Row label in settings that clears locally cached data.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Clear cache"
+          }
+        }
+      }
+    },
+    "ios.settings.clear_cache.success" : {
+      "comment" : "Toast message shown after cache clearing succeeds from settings.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cache has been cleared"
+          }
+        }
+      }
+    },
+    "ios.settings.done.button" : {
+      "comment" : "Toolbar button that dismisses the settings sheet.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Done"
+          }
+        }
+      }
+    },
+    "ios.settings.info.done.button" : {
+      "comment" : "Toolbar button that dismisses the information sheet.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Done"
+          }
+        }
+      }
+    },
+    "ios.settings.info.git_revision.label" : {
+      "comment" : "Row label in the information sheet showing the git revision.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Git revision: %@"
+          }
+        }
+      }
+    },
+    "ios.settings.info.help.label" : {
+      "comment" : "Link title in the information sheet that opens the Koofr Vault help pages.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Help"
+          }
+        }
+      }
+    },
+    "ios.settings.info.privacy_policy.label" : {
+      "comment" : "Link title in the information sheet that opens the Privacy Policy page.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Privacy Policy"
+          }
+        }
+      }
+    },
+    "ios.settings.info.report_bug.label" : {
+      "comment" : "Link title in the information sheet that opens an email draft for reporting a bug.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Report a bug"
+          }
+        }
+      }
+    },
+    "ios.settings.info.terms_of_service.label" : {
+      "comment" : "Link title in the information sheet that opens the Terms of Service page.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Terms of Service"
+          }
+        }
+      }
+    },
+    "ios.settings.info.title" : {
+      "comment" : "Navigation title of the information sheet.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Information"
+          }
+        }
+      }
+    },
+    "ios.settings.info.version.label" : {
+      "comment" : "Row label in the information sheet showing the app version.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Version: %@"
+          }
+        }
+      }
+    },
+    "ios.settings.information.description" : {
+      "comment" : "Secondary description under the Information row in settings.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Service and application information"
+          }
+        }
+      }
+    },
+    "ios.settings.information.label" : {
+      "comment" : "Primary label for the row that opens the information sheet in settings.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Information"
+          }
+        }
+      }
+    },
+    "ios.settings.logout.label" : {
+      "comment" : "Row label in settings that logs the user out.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Logout"
+          }
+        }
+      }
+    },
+    "ios.settings.remove_account.label" : {
+      "comment" : "Row label in settings that starts the account removal flow.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Remove account…"
+          }
+        }
+      }
+    },
+    "ios.settings.title" : {
+      "comment" : "Navigation title of the settings sheet.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Settings"
+          }
+        }
+      }
+    },
+    "ios.share_ext.cancel.button" : {
+      "comment" : "Button in share extension file-preparation state to cancel and close extension.\nButton in share extension loading states to cancel and close extension.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "ios.share_ext.dismiss.button" : {
+      "comment" : "Button in share extension no-files state that closes the extension.\nButton in share extension success state that closes the extension.\nButton in share extension that closes the extension UI.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Dismiss"
+          }
+        }
+      }
+    },
+    "ios.share_ext.no_files.label" : {
+      "comment" : "Message in share extension when there are no valid files to upload.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "No files to upload."
+          }
+        }
+      }
+    },
+    "ios.share_ext.preparing_files.label" : {
+      "comment" : "Progress caption in share extension while selected files are being prepared.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Preparing files"
+          }
+        }
+      }
+    },
+    "ios.share_ext.unauthenticated.subtitle" : {
+      "comment" : "Instruction in share extension prompting user to sign in via main app.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Open Koofr Vault app and sign in."
+          }
+        }
+      }
+    },
+    "ios.share_ext.unauthenticated.title" : {
+      "comment" : "Headline in share extension when user is not authenticated in main app.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Not signed in"
+          }
+        }
+      }
+    },
+    "ios.share_ext.upload_successful.label" : {
+      "comment" : "Success message shown in share extension after upload completes.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Upload successful"
+          }
+        }
+      }
+    },
+    "ios.share_target_files.dismiss.button" : {
+      "comment" : "Toolbar button that closes the share extension file list sheet.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Dismiss"
+          }
+        }
+      }
+    },
+    "ios.share_target_files.title" : {
+      "comment" : "Navigation title in the share extension file list sheet showing number of selected items.",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld item"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld items"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "ios.share_target.items_count.label" : {
+      "comment" : "Bottom bar button text in share extension flow showing selected item count.",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld item…"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld items…"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "ios.share_target.repo_files.new_folder.button" : {
+      "comment" : "Overflow menu item in share extension destination picker for creating a folder.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "New folder"
+          }
+        }
+      }
+    },
+    "ios.share_target.repo_files.upload.button" : {
+      "comment" : "Toolbar confirmation button in share extension destination picker to upload selected files.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Upload"
+          }
+        }
+      }
+    },
+    "ios.share_target.repos.cancel.button" : {
+      "comment" : "Toolbar button that cancels the share extension.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "ios.share_target.repos.empty.label" : {
+      "comment" : "Empty-state headline in share extension when user has no Safe Boxes.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "No Safe Boxes yet"
+          }
+        }
+      }
+    },
+    "ios.share_target.repos.open_app_create.label" : {
+      "comment" : "Empty-state instruction in share extension telling user to create a Safe Box in the main app.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Open Koofr Vault app and create one."
+          }
+        }
+      }
+    },
+    "ios.share_target.repos.title" : {
+      "comment" : "Navigation title for the share extension screen where user chooses destination Safe Box.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Save to Koofr Vault"
+          }
+        }
+      }
+    },
+    "ios.transfers.cancel_all.button" : {
+      "comment" : "Destructive toolbar button in transfers view that aborts all active transfers.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cancel all"
+          }
+        }
+      }
+    },
+    "ios.transfers.clear.button" : {
+      "comment" : "Toolbar button in transfers view that clears completed transfer history.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Clear"
+          }
+        }
+      }
+    },
+    "ios.transfers.hide.button" : {
+      "comment" : "Toolbar button that dismisses the transfers sheet.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Hide"
+          }
+        }
+      }
+    },
+    "ios.transfers.retry_all.button" : {
+      "comment" : "Toolbar button in transfers view that retries all failed transfers.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Retry all"
+          }
+        }
+      }
+    },
+    "ios.transfers.retry.button" : {
+      "comment" : "Button in transfer details view to retry a failed transfer.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Try again"
+          }
+        }
+      }
+    },
+    "ios.transfers.show_transfers.a11y.label" : {
+      "comment" : "Accessibility label for the toolbar button that opens the transfers sheet.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Show transfers"
+          }
+        }
+      }
+    },
+    "ios.transfers.summary.time_remaining" : {
+      "comment" : "Summary text in transfers footer showing estimated time remaining.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%@ remaining"
+          }
+        }
+      }
+    },
+    "ios.transfers.summary.transfers_done" : {
+      "comment" : "Summary text in transfers footer showing completed versus total transfer count.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$u / %2$u done"
+          }
+        }
+      }
+    },
+    "ios.transfers.transfer.cancel.button" : {
+      "comment" : "Action button on a transfer row to cancel an active transfer.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "ios.transfers.transfer.open.button" : {
+      "comment" : "Action button on a transfer row to open the transferred file after completion.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Open"
+          }
+        }
+      }
+    },
+    "ios.transfers.transfer.retry.button" : {
+      "comment" : "Action button on a transfer row to retry a failed transfer.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Retry"
+          }
+        }
+      }
+    },
+    "ios.transfers.transfer.state.done" : {
+      "comment" : "Transfer status text shown when a transfer finishes successfully.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Done"
+          }
+        }
+      }
+    },
+    "ios.transfers.transfer.state.failed" : {
+      "comment" : "Transfer status text shown when a transfer fails; includes error details.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Failed: %@"
+          }
+        }
+      }
+    },
+    "ios.transfers.transfer.state.processing" : {
+      "comment" : "Transfer status text shown while preparing transfer.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Processing"
+          }
+        }
+      }
+    },
+    "ios.transfers.transfer.state.transferring" : {
+      "comment" : "Transfer status text shown while file is actively transferring.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Transferring"
+          }
+        }
+      }
+    },
+    "ios.transfers.transfer.state.waiting" : {
+      "comment" : "Transfer status text shown when a transfer is queued and waiting.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Waiting"
+          }
+        }
+      }
+    },
+    "ios.views.empty_folder.title" : {
+      "comment" : "Empty-state title shown when a folder has no files.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Folder is Empty"
+          }
+        }
+      }
+    },
+    "ios.views.error.title" : {
+      "comment" : "Title text shown at the top of the generic error view.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Error"
+          }
+        }
+      }
+    },
+    "ios.views.error.try_again.button" : {
+      "comment" : "Button label in the generic error view to retry the failed action.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Try again"
+          }
+        }
+      }
+    },
+    "ios.views.form_info.dismiss.button" : {
+      "comment" : "Toolbar button that closes a form info/help sheet.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Dismiss"
+          }
+        }
+      }
+    },
+    "ios.views.loading.label" : {
+      "comment" : "Caption shown below the spinner in the shared loading view.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Loading…"
+          }
+        }
+      }
+    },
+    "ios.views.repo_password.a11y.label" : {
+      "comment" : "Accessibility label for the secure Safe Key input field.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Safe Key"
+          }
+        }
+      }
+    },
+    "ios.views.repo_password.placeholder" : {
+      "comment" : "Placeholder text inside the Safe Key input field.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Safe Key"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.1"
+}

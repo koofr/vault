@@ -36,7 +36,15 @@ public struct RepoFilesDetailsScreen: View {
                                     detailsId: vm.detailsId)
                             },
                             label: {
-                                Text("Save")
+                                Text(
+                                    LocalizedStringResource(
+                                        "ios.repo_files_details.save.button",
+                                        defaultValue: "Save",
+                                        bundle: #bundle,
+                                        comment:
+                                            "Toolbar button in file details editor mode that saves pending text changes."
+                                    )
+                                )
                             }
                         )
                         .disabled(!info.isDirty)
@@ -49,7 +57,15 @@ public struct RepoFilesDetailsScreen: View {
                                     detailsId: vm.detailsId)
                             },
                             label: {
-                                Text("Done")
+                                Text(
+                                    LocalizedStringResource(
+                                        "ios.repo_files_details.done.button",
+                                        defaultValue: "Done",
+                                        bundle: #bundle,
+                                        comment:
+                                            "Toolbar button in file details editor mode that exits editing."
+                                    )
+                                )
                             }
                         )
                     }
@@ -63,7 +79,19 @@ public struct RepoFilesDetailsScreen: View {
                                             detailsId: vm.detailsId)
                                     },
                                     label: {
-                                        Label("Edit", systemImage: "square.and.pencil")
+                                        Label {
+                                            Text(
+                                                LocalizedStringResource(
+                                                    "ios.repo_files_details.edit.menu_item",
+                                                    defaultValue: "Edit",
+                                                    bundle: #bundle,
+                                                    comment:
+                                                        "Overflow menu item in file details for entering edit mode on text files."
+                                                )
+                                            )
+                                        } icon: {
+                                            Image(systemName: "square.and.pencil")
+                                        }
                                     }
                                 )
                             }
@@ -75,7 +103,19 @@ public struct RepoFilesDetailsScreen: View {
                                         shareViewPresented.toggle()
                                     },
                                     label: {
-                                        Label("Share", systemImage: "square.and.arrow.up")
+                                        Label {
+                                            Text(
+                                                LocalizedStringResource(
+                                                    "ios.repo_files_details.share.menu_item",
+                                                    defaultValue: "Share",
+                                                    bundle: #bundle,
+                                                    comment:
+                                                        "Overflow menu item in file details for opening the system share sheet."
+                                                )
+                                            )
+                                        } icon: {
+                                            Image(systemName: "square.and.arrow.up")
+                                        }
                                     }
                                 )
                             default:
@@ -90,7 +130,19 @@ public struct RepoFilesDetailsScreen: View {
                                                 repoId: repoId, encryptedPath: encryptedPath)
                                         },
                                         label: {
-                                            Label("Rename", systemImage: "pencil")
+                                            Label {
+                                                Text(
+                                                    LocalizedStringResource(
+                                                        "ios.repo_files_details.rename.menu_item",
+                                                        defaultValue: "Rename",
+                                                        bundle: #bundle,
+                                                        comment:
+                                                            "Overflow menu item in file details for renaming the current file."
+                                                    )
+                                                )
+                                            } icon: {
+                                                Image(systemName: "pencil")
+                                            }
                                         }
                                     )
                                 }
@@ -100,7 +152,19 @@ public struct RepoFilesDetailsScreen: View {
                                 vm.container.mobileVault.repoFilesDetailsDelete(
                                     detailsId: vm.detailsId)
                             } label: {
-                                Label("Delete", systemImage: "trash")
+                                Label {
+                                    Text(
+                                        LocalizedStringResource(
+                                            "ios.repo_files_details.delete.menu_item",
+                                            defaultValue: "Delete",
+                                            bundle: #bundle,
+                                            comment:
+                                                "Destructive overflow menu item in file details for deleting the current file."
+                                        )
+                                    )
+                                } icon: {
+                                    Image(systemName: "trash")
+                                }
                             }
                         } label: {
                             Image(systemName: "ellipsis.circle")
@@ -232,12 +296,29 @@ public struct RepoFilesDetailsContentNotSupported: View {
 
     public var body: some View {
         VStack {
-            Text("Not supported").padding()
+            Text(
+                LocalizedStringResource(
+                    "ios.repo_files_details.not_supported.label",
+                    defaultValue: "Not supported",
+                    bundle: #bundle,
+                    comment:
+                        "Message shown in file details when in-app preview/edit is not supported for the file type."
+                )
+            )
+            .padding()
 
             Button {
                 vm.container.downloadHelper.downloadRepoFile(file: file)
             } label: {
-                Text("Download")
+                Text(
+                    LocalizedStringResource(
+                        "ios.repo_files_details.download.button",
+                        defaultValue: "Download",
+                        bundle: #bundle,
+                        comment:
+                            "Button in unsupported file details view that downloads the file locally."
+                    )
+                )
             }
             .padding()
         }

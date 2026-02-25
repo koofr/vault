@@ -11,8 +11,15 @@ public struct EmptyFolderView: View {
                     .foregroundColor(Color(.systemGray))
                     .padding(.bottom, 10)
 
-                Text("Folder is Empty")
-                    .font(.system(size: 18, weight: .bold))
+                Text(
+                    LocalizedStringResource(
+                        "ios.views.empty_folder.title",
+                        defaultValue: "Folder is Empty",
+                        bundle: #bundle,
+                        comment: "Empty-state title shown when a folder has no files."
+                    )
+                )
+                .font(.system(size: 18, weight: .bold))
             }
 
             Spacer()

@@ -84,8 +84,17 @@ struct RepoFilesListSummary: View {
                 Spacer()
                 HStack {
                     Spacer()
-                    Text(info.items.count == 1 ? "1 item" : "\(info.items.count) items").bold()
-                        .padding()
+                    Text(
+                        LocalizedStringResource(
+                            "ios.repo_files.summary.items_count.label",
+                            defaultValue: "\(info.items.count) items",
+                            bundle: #bundle,
+                            comment:
+                                "Summary row text at end of file list showing total items in current folder."
+                        )
+                    )
+                    .bold()
+                    .padding()
                     Spacer()
                 }
                 .frame(height: repoFilesListSummaryHeight)
@@ -114,7 +123,19 @@ struct RepoFilesListSummaryMenu: View {
             vm.container.mobileVault.repoFilesBrowsersCreateDir(
                 browserId: vm.browserId, cb: RepoFilesBrowserDirCreatedFn { _ in })
         } label: {
-            Label("New folder", systemImage: "folder.badge.plus")
+            Label {
+                Text(
+                    LocalizedStringResource(
+                        "ios.repo_files.summary.new_folder.menu_item",
+                        defaultValue: "New folder",
+                        bundle: #bundle,
+                        comment:
+                            "Context menu item on the file list summary row for creating a new folder."
+                    )
+                )
+            } icon: {
+                Image(systemName: "folder.badge.plus")
+            }
         }
 
         PasteButton(supportedContentTypes: uploadHelperUTTypes) { itemProviders in

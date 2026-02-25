@@ -93,7 +93,15 @@ public struct RemoteFilesDirPickerScreen: View {
                     Button {
                         vm.dirPickerVm.onCancel()
                     } label: {
-                        Text("Cancel")
+                        Text(
+                            LocalizedStringResource(
+                                "ios.remote_files_dir_picker.cancel.button",
+                                defaultValue: "Cancel",
+                                bundle: #bundle,
+                                comment:
+                                    "Toolbar button that cancels the remote directory picker flow."
+                            )
+                        )
                     }
                 }
             }
@@ -109,7 +117,19 @@ public struct RemoteFilesDirPickerScreen: View {
                                 })
                         },
                         label: {
-                            Label("New folder", systemImage: "folder.badge.plus")
+                            Label {
+                                Text(
+                                    LocalizedStringResource(
+                                        "ios.remote_files_dir_picker.new_folder.menu_item",
+                                        defaultValue: "New folder",
+                                        bundle: #bundle,
+                                        comment:
+                                            "Menu item in the remote directory picker toolbar for creating a new folder."
+                                    )
+                                )
+                            } icon: {
+                                Image(systemName: "folder.badge.plus")
+                            }
                         }
                     )
                     .disabled(info.data?.canCreateDir != true)
@@ -130,7 +150,15 @@ public struct RemoteFilesDirPickerScreen: View {
                         }
                     },
                     label: {
-                        Text("Select")
+                        Text(
+                            LocalizedStringResource(
+                                "ios.remote_files_dir_picker.select.button",
+                                defaultValue: "Select",
+                                bundle: #bundle,
+                                comment:
+                                    "Toolbar confirmation button used to select the currently open remote folder."
+                            )
+                        )
                     }
                 )
                 .disabled(!canSelect)

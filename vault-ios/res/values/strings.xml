@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary call-to-action button on the landing screen that starts login. -->
+    <string name="ios.landing.get_started.button">Get started</string>
+    <!-- Supporting description text on the landing screen under the main headline. -->
+    <string name="ios.landing.message">Powerful, open source client-side encryption. Unlock enhanced security for your most sensitive files.</string>
+    <!-- Main headline on the landing screen before sign-in. -->
+    <string name="ios.landing.title">One vault for all\nyour private files.</string>
+    <!-- Toolbar button that closes the language picker sheet. -->
+    <string name="ios.language_picker.dismiss.button">Dismiss</string>
+    <!-- Navigation title of the sheet used to pick the app language. -->
+    <string name="ios.language_picker.title">Change language</string>
+    <!-- Button label in the in-app notification toast to close the toast. -->
+    <string name="ios.notification.dismiss.button">Dismiss</string>
+    <!-- Toolbar button that cancels the remote directory picker flow. -->
+    <string name="ios.remote_files_dir_picker.cancel.button">Cancel</string>
+    <!-- Menu item in the remote directory picker toolbar for creating a new folder. -->
+    <string name="ios.remote_files_dir_picker.new_folder.menu_item">New folder</string>
+    <!-- Toolbar confirmation button used to select the currently open remote folder. -->
+    <string name="ios.remote_files_dir_picker.select.button">Select</string>
+    <!-- Text in the Safe Box configuration summary for directory name encryption setting. -->
+    <string name="ios.repo_config_info.encrypt_directory_names">**Encrypt directory names**: %1$s</string>
+    <!-- Text in the Safe Box configuration summary for filename encryption mode. -->
+    <string name="ios.repo_config_info.filename_encryption">**Filename encryption**: %1$s</string>
+    <!-- Text in the Safe Box configuration summary indicating storage location. -->
+    <string name="ios.repo_config_info.location">**Location**: %1$s</string>
+    <!-- Text before the raw rclone configuration block in the Safe Box setup summary. -->
+    <string name="ios.repo_config_info.rclone_config">**rclone config**:</string>
+    <!-- Text in the Safe Box configuration summary for the salt (password2) value. -->
+    <string name="ios.repo_config_info.salt">**Salt (password2)**: %1$s</string>
+    <!-- Toolbar button that closes the rclone config import sheet without applying changes. -->
+    <string name="ios.repo_create_rclone.cancel.button">Cancel</string>
+    <!-- Toolbar button that parses the pasted rclone config and fills the create Safe Box form. -->
+    <string name="ios.repo_create_rclone.fill.button">Fill</string>
+    <!-- Accessibility label for the rclone config text input field. -->
+    <string name="ios.repo_create_rclone.rclone_config.a11y.label">rclone config</string>
+    <!-- Placeholder text for the multiline rclone config input field in the import sheet. -->
+    <string name="ios.repo_create_rclone.rclone_config.placeholder">rclone config\n\nFormat:\n\n%1$s</string>
+    <!-- Navigation title for the sheet that imports Safe Box settings from an rclone config. -->
+    <string name="ios.repo_create_rclone.title">From rclone config</string>
+    <!-- Toolbar button on the Safe Box creation success screen to continue to the Safe Box files. -->
+    <string name="ios.repo_create.created.continue.button">Continue</string>
+    <!-- Instructional text on the Safe Box creationsuccess screen telling users to save configuration first. -->
+    <string name="ios.repo_create.created.description">Before you start using your Safe Box please safely store the configuration.</string>
+    <!-- Success headline shown after a Safe Box is created. -->
+    <string name="ios.repo_create.created.title">Your Safe Box has been created</string>
+    <!-- Toolbar confirmation button that creates the Safe Box. -->
+    <string name="ios.repo_create.form.create.button">Create</string>
+    <!-- Button in advanced create Safe Box settings that opens fill from rclone config sheet. -->
+    <string name="ios.repo_create.form.from_rclone_config.button">From rclone config</string>
+    <!-- Accessibility label for the selected location row in create Safe Box form. -->
+    <string name="ios.repo_create.form.location.a11y.label">Location</string>
+    <!-- Accessibility label for the location help button in create Safe Box form. -->
+    <string name="ios.repo_create.form.location.info.button.a11y.label">Location info</string>
+    <!-- Detailed help text in create Safe Box flow explaining the Location field. -->
+    <string name="ios.repo_create.form.location.info.text">Location refers to a folder within your Koofr where all of your Safe Box files and folders are securely stored.\n\nIf this is your first Safe Box, the default location will be "My safe box." You can change it if you prefer.\n\nIf you already have a Safe Box or wish to use an existing folder (e.g. one created with rclone), you can select that folder.\n\nPlease note that you can only select a folder located within your Koofr.</string>
+    <!-- Title of the location help sheet in create Safe Box form. -->
+    <string name="ios.repo_create.form.location.info.title">Location</string>
+    <!-- Section header label for storage location in create Safe Box form. -->
+    <string name="ios.repo_create.form.location.label">Location</string>
+    <!-- Placeholder shown when no location is selected in create Safe Box form. -->
+    <string name="ios.repo_create.form.location.placeholder">Location</string>
+    <!-- Accessibility label for the safe key help button in create Safe Box form. -->
+    <string name="ios.repo_create.form.password.info.button.a11y.label">Safe Key info</string>
+    <!-- Detailed help text in create Safe Box flow explaining the Safe Key field and recovery limitations. -->
+    <string name="ios.repo_create.form.password.info.text">Safe Key is a password used to encrypt your files. Each Safe Box can have its own unique Safe Key.\n\nPlease be aware that once you set your Safe Key, it cannot be changed later. All the files within the Safe Box will be encrypted using this key.\n\nIMPORTANT: Your Safe Key cannot be reset, and there is no way to recover your files if you forget it, as it is never sent to or stored on Koofr servers.</string>
+    <!-- Title of the safe key help sheet in create Safe Box form. -->
+    <string name="ios.repo_create.form.password.info.title">Safe Key</string>
+    <!-- Section header label for safe key input in create Safe Box form. -->
+    <string name="ios.repo_create.form.password.label">Safe Key</string>
+    <!-- Placeholder for the Safe Key field describing minimum length requirement. -->
+    <string name="ios.repo_create.form.password.placeholder">Must be at least 8 characters long</string>
+    <!-- Accessibility label for the salt input field in create Safe Box form. -->
+    <string name="ios.repo_create.form.salt.a11y.label">Salt</string>
+    <!-- Accessibility label for the salt help button in create Safe Box form. -->
+    <string name="ios.repo_create.form.salt.info.button.a11y.label">Salt info</string>
+    <!-- Detailed help text in create Safe Box flow explaining the Salt field. -->
+    <string name="ios.repo_create.form.salt.info.text">Salt is used in the key derivation process to create a unique encryption key and helps to protect against potential attacks. It will be stored on the Koofr servers in a secure manner.\n\nA random Salt has been generated for you. If you prefer, you can leave the Salt field empty, and the default salt will be used (same as in rclone). However, it is recommended to use a unique salt for enhanced security. Using a unique salt helps to increase the complexity of the encryption process, making it more difficult for potential attackers to access the encrypted data.\n\nIf you wish to transfer the encrypted files to another service, it is necessary to also export the salt, otherwise you won\'t be able to decrypt your files.</string>
+    <!-- Title of the salt help sheet in create Safe Box form. -->
+    <string name="ios.repo_create.form.salt.info.title">Salt</string>
+    <!-- Section header label for optional salt input in advanced create settings. -->
+    <string name="ios.repo_create.form.salt.label">Salt</string>
+    <!-- Placeholder for optional salt text field in advanced create Safe Box settings. -->
+    <string name="ios.repo_create.form.salt.placeholder">Salt</string>
+    <!-- Button in create Safe Box form that reveals advanced fields such as salt and fill from rclone config. -->
+    <string name="ios.repo_create.form.show_advanced_settings.button">Show advanced settings</string>
+    <!-- Navigation title for the create Safe Box screen. -->
+    <string name="ios.repo_create.title">Create a new Safe Box</string>
+    <!-- File category label shown in file info sheet for archive files. -->
+    <string name="ios.repo_file_category.archive">Archive</string>
+    <!-- File category label shown in file info sheet for audio files. -->
+    <string name="ios.repo_file_category.audio">Audio</string>
+    <!-- File category label shown in file info sheet for code files. -->
+    <string name="ios.repo_file_category.code">Code</string>
+    <!-- File category label shown in file info sheet for document files. -->
+    <string name="ios.repo_file_category.document">Document</string>
+    <!-- File category label shown in file info sheet for generic files. -->
+    <string name="ios.repo_file_category.file">File</string>
+    <!-- File category label shown in file info sheet for folders. -->
+    <string name="ios.repo_file_category.folder">Folder</string>
+    <!-- File category label shown in file info sheet for image files. -->
+    <string name="ios.repo_file_category.image">Image</string>
+    <!-- File category label shown in file info sheet for PDF files. -->
+    <string name="ios.repo_file_category.pdf">PDF</string>
+    <!-- File category label shown in file info sheet for presentation files. -->
+    <string name="ios.repo_file_category.presentation">Presentation</string>
+    <!-- File category label shown in file info sheet for spreadsheet files. -->
+    <string name="ios.repo_file_category.sheet">Spreadsheet</string>
+    <!-- File category label shown in file info sheet for plain text files. -->
+    <string name="ios.repo_file_category.text">Text</string>
+    <!-- File category label shown in file info sheet for video files. -->
+    <string name="ios.repo_file_category.video">Video</string>
+    <!-- Toolbar button that closes the file info sheet. -->
+    <string name="ios.repo_file_info.done.button">Done</string>
+    <!-- Field label in file info sheet for encrypted path. -->
+    <string name="ios.repo_file_info.encrypted_path.label">Encrypted path</string>
+    <!-- Section header title in file info sheet. -->
+    <string name="ios.repo_file_info.information.label">Information</string>
+    <!-- Field label in file info sheet for last modification date. -->
+    <string name="ios.repo_file_info.modified.label">Modified</string>
+    <!-- Field label in file info sheet for decrypted path. -->
+    <string name="ios.repo_file_info.path.label">Path</string>
+    <!-- Field label in file info sheet for file size. -->
+    <string name="ios.repo_file_info.size.label">Size</string>
+    <!-- Navigation title of the file info sheet. -->
+    <string name="ios.repo_file_info.title">Info</string>
+    <!-- Field label in file info sheet for file category/type. -->
+    <string name="ios.repo_file_info.type.label">Type</string>
+    <!-- Context menu item on a file row that opens copy file sheet. -->
+    <string name="ios.repo_file_menu.copy.menu_item">Copy</string>
+    <!-- Destructive context menu item on a file row that deletes the file. -->
+    <string name="ios.repo_file_menu.delete.menu_item">Delete</string>
+    <!-- Context menu item on a file row that downloads the file. -->
+    <string name="ios.repo_file_menu.download.menu_item">Download</string>
+    <!-- Context menu item on a file row that opens the file info sheet. -->
+    <string name="ios.repo_file_menu.get_info.menu_item">Get Info</string>
+    <!-- Context menu item on a file row that opens move file sheet. -->
+    <string name="ios.repo_file_menu.move.menu_item">Move</string>
+    <!-- Context menu item on a file row that opens rename dialog. -->
+    <string name="ios.repo_file_menu.rename.menu_item">Rename</string>
+    <!-- Informational text above the text editor indicating autosave behavior. -->
+    <string name="ios.repo_files_details.auto_save_info.label">Changes are saved automatically.</string>
+    <!-- Destructive overflow menu item in file details for deleting the current file. -->
+    <string name="ios.repo_files_details.delete.menu_item">Delete</string>
+    <!-- Toolbar button in file details editor mode that exits editing. -->
+    <string name="ios.repo_files_details.done.button">Done</string>
+    <!-- Button in unsupported file details view that downloads the file locally. -->
+    <string name="ios.repo_files_details.download.button">Download</string>
+    <!-- Overflow menu item in file details for entering edit mode on text files. -->
+    <string name="ios.repo_files_details.edit.menu_item">Edit</string>
+    <!-- Autosave status line above the editor showing relative time of last save. -->
+    <string name="ios.repo_files_details.last_saved.label">Last saved %1$s</string>
+    <!-- Status text above the text editor while file content is loading. -->
+    <string name="ios.repo_files_details.loading.label">Loading…</string>
+    <!-- Message shown in file details when in-app preview/edit is not supported for the file type. -->
+    <string name="ios.repo_files_details.not_supported.label">Not supported</string>
+    <!-- Overflow menu item in file details for renaming the current file. -->
+    <string name="ios.repo_files_details.rename.menu_item">Rename</string>
+    <!-- Toolbar button in file details editor mode that saves pending text changes. -->
+    <string name="ios.repo_files_details.save.button">Save</string>
+    <!-- Status text above the text editor while file changes are being saved. -->
+    <string name="ios.repo_files_details.saving.label">Saving…</string>
+    <!-- Overflow menu item in file details for opening the system share sheet. -->
+    <string name="ios.repo_files_details.share.menu_item">Share</string>
+    <!-- Accessibility label for editor status indicator when there are unsaved file changes. -->
+    <string name="ios.repo_files_details.status.dirty.a11y.label">File modified</string>
+    <!-- Accessibility label for editor status indicator when file content is unchanged. -->
+    <string name="ios.repo_files_details.status.unchanged.a11y.label">File unchanged</string>
+    <!-- Toolbar button that cancels the current move/copy operation. -->
+    <string name="ios.repo_files_move.cancel.button">Cancel</string>
+    <!-- Toolbar confirmation button when the mode is copy. -->
+    <string name="ios.repo_files_move.copy.button">Copy</string>
+    <!-- Bottom bar text showing how many items are selected to move/copy. -->
+    <plurals name="ios.repo_files_move.items_count.label">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
+    </plurals>
+    <!-- Toolbar confirmation button when the mode is move. -->
+    <string name="ios.repo_files_move.move.button">Move</string>
+    <!-- Overflow menu item in destination picker for creating a new folder. -->
+    <string name="ios.repo_files_move.new_folder.menu_item">New folder</string>
+    <!-- Default base filename used when creating a new text file in a folder. -->
+    <string name="ios.repo_files.create_text_file.default_filename">new text file %1$s</string>
+    <!-- Accessibility label for edit mode bottom-bar button that copies selected items. -->
+    <string name="ios.repo_files.edit_mode.copy_selected.a11y.label">Copy selected</string>
+    <!-- Accessibility label for edit mode bottom-bar button that deletes selected items. -->
+    <string name="ios.repo_files.edit_mode.delete_selected.a11y.label">Delete selected</string>
+    <!-- Toolbar button in file browser edit mode to clear selection. -->
+    <string name="ios.repo_files.edit_mode.deselect_all.button">Deselect All</string>
+    <!-- Toolbar button in file browser edit mode to exit selection mode. -->
+    <string name="ios.repo_files.edit_mode.done.button">Done</string>
+    <!-- Accessibility label for edit mode bottom-bar button that downloads selected items. -->
+    <string name="ios.repo_files.edit_mode.download_selected.a11y.label">Download selected</string>
+    <!-- Navigation title in file browser edit mode showing selected item count. -->
+    <plurals name="ios.repo_files.edit_mode.items_count.label">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
+    </plurals>
+    <!-- Accessibility label for edit mode bottom-bar button that moves selected items. -->
+    <string name="ios.repo_files.edit_mode.move_selected.a11y.label">Move selected</string>
+    <!-- Toolbar button in file browser edit mode to select all visible items. -->
+    <string name="ios.repo_files.edit_mode.select_all.button">Select All</string>
+    <!-- Navigation title in file browser edit mode when no items are selected. -->
+    <string name="ios.repo_files.edit_mode.title">Selected items</string>
+    <!-- Navigation menu item in file browser that creates a new text file. -->
+    <string name="ios.repo_files.nav_menu.create_text_file.menu_item">Create new text file</string>
+    <!-- Navigation menu item in file browser that creates a new folder. -->
+    <string name="ios.repo_files.nav_menu.new_folder.menu_item">New folder</string>
+    <!-- Navigation menu item in file browser that enters multi-select mode. -->
+    <string name="ios.repo_files.nav_menu.select.menu_item">Select</string>
+    <!-- Label for sort field picker in the file browser navigation menu. -->
+    <string name="ios.repo_files.nav_menu.sort_by.menu_item">Sort by</string>
+    <!-- Navigation menu item in file browser that opens file picker upload. -->
+    <string name="ios.repo_files.nav_menu.upload_files.menu_item">Upload files</string>
+    <!-- Navigation menu item in file browser that uploads a folder. -->
+    <string name="ios.repo_files.nav_menu.upload_folder.menu_item">Upload a folder</string>
+    <!-- Navigation menu item in file browser that opens photo picker upload. -->
+    <string name="ios.repo_files.nav_menu.upload_photo.menu_item">Upload photo</string>
+    <!-- Sort option label in file browser for sorting by modified date. -->
+    <string name="ios.repo_files.sort_field.modified">Modified</string>
+    <!-- Sort option label in file browser for sorting by file name. -->
+    <string name="ios.repo_files.sort_field.name">Name</string>
+    <!-- Sort option label in file browser for sorting by file size. -->
+    <string name="ios.repo_files.sort_field.size">Size</string>
+    <!-- Summary row text at end of file list showing total items in current folder. -->
+    <plurals name="ios.repo_files.summary.items_count.label">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
+    </plurals>
+    <!-- Context menu item on the file list summary row for creating a new folder. -->
+    <string name="ios.repo_files.summary.new_folder.menu_item">New folder</string>
+    <!-- Auto-lock timeout option label for a custom number of inactive seconds. -->
+    <plurals name="ios.repo_info.auto_lock_after.custom">
+        <item quantity="one">Custom (%1$d second)</item>
+        <item quantity="other">Custom (%1$d seconds)</item>
+    </plurals>
+    <!-- Auto-lock timeout option label for one hour of inactivity. -->
+    <string name="ios.repo_info.auto_lock_after.inactive_1_hour">1 hour of inactivity</string>
+    <!-- Auto-lock timeout option label for one minute of inactivity. -->
+    <string name="ios.repo_info.auto_lock_after.inactive_1_minute">1 minute of inactivity</string>
+    <!-- Auto-lock timeout option label for two hours of inactivity. -->
+    <string name="ios.repo_info.auto_lock_after.inactive_2_hours">2 hours of inactivity</string>
+    <!-- Auto-lock timeout option label for four hours of inactivity. -->
+    <string name="ios.repo_info.auto_lock_after.inactive_4_hours">4 hours of inactivity</string>
+    <!-- Auto-lock timeout option label for five minutes of inactivity. -->
+    <string name="ios.repo_info.auto_lock_after.inactive_5_minutes">5 minutes of inactivity</string>
+    <!-- Auto-lock timeout option label for ten minutes of inactivity. -->
+    <string name="ios.repo_info.auto_lock_after.inactive_10_minutes">10 minutes of inactivity</string>
+    <!-- Auto-lock timeout option label for thirty minutes of inactivity. -->
+    <string name="ios.repo_info.auto_lock_after.inactive_30_minutes">30 minutes of inactivity</string>
+    <!-- Label for the row that opens auto-lock timeout options in Safe Box settings.
+Title of the confirmation dialog for choosing auto-lock timeout. -->
+    <string name="ios.repo_info.auto_lock_after.label">Automatically lock after</string>
+    <!-- Auto-lock timeout option label meaning the safe box should not auto-lock by time. -->
+    <string name="ios.repo_info.auto_lock_after.no_time_limit">No time limit</string>
+    <!-- Description under the biometric unlock toggle in Safe Box settings. -->
+    <string name="ios.repo_info.biometric_unlock.description">Use biometrics to unlock the Safe Box</string>
+    <!-- Toggle label for enabling biometric unlock in Safe Box settings. -->
+    <string name="ios.repo_info.biometric_unlock.label">Biometric unlock</string>
+    <!-- Description under the destroy Safe Box row in Safe Box settings. -->
+    <string name="ios.repo_info.destroy_repo.description">Verify Safe Key and destroy the Safe box</string>
+    <!-- Row label in Safe Box settings that opens the destroy Safe Box dialog. -->
+    <string name="ios.repo_info.destroy_repo.label">Destroy Safe Box…</string>
+    <!-- Description under the lock-on-background toggle in Safe Box settings. -->
+    <string name="ios.repo_info.lock_when_app_hidden.description">When switching apps or locking the screen</string>
+    <!-- Toggle label for locking the Safe Box when app goes to background. -->
+    <string name="ios.repo_info.lock_when_app_hidden.label">Lock when app hidden</string>
+    <!-- Toggle label in Safe Box settings when the Safe Box is currently locked. -->
+    <string name="ios.repo_info.locked.label">Locked</string>
+    <!-- Description under the lock state toggle in Safe Box settings. -->
+    <string name="ios.repo_info.unlock.description">Unlock or lock the Safe Box</string>
+    <!-- Toggle label in Safe Box settings when the Safe Box is currently unlocked. -->
+    <string name="ios.repo_info.unlocked.label">Unlocked</string>
+    <!-- Confirmation button that permanently removes Safe Box configuration after password verification. -->
+    <string name="ios.repo_remove.destroy.button">Destroy</string>
+    <!-- Warning and confirmation instructions on the destroy Safe Box screen before entering the safe key. -->
+    <string name="ios.repo_remove.message">Do you really want to destroy Safe Box **%1$s**?\n\nDestroying the Safe Box will keep all the files on Koofr but remove the configuration so you won\'t be able to decrypt the files if you didn\'t save the configuration.\n\n**This action cannot be undone.**\n\nEnter your Safe Key to confirm the removal:</string>
+    <!-- Navigation title for the screen that destroys a Safe Box. -->
+    <string name="ios.repo_remove.title">Destroy Safe Box</string>
+    <!-- Toolbar button that dismisses the biometric unlock setup sheet. -->
+    <string name="ios.repo_setup_biometric_unlock.cancel.button">Cancel</string>
+    <!-- Instruction text above the password field when enabling biometric unlock for a Safe Box. -->
+    <string name="ios.repo_setup_biometric_unlock.message">Enter your Safe Key to setup biometric unlock</string>
+    <!-- Button below the unlock form that starts biometric authentication. -->
+    <string name="ios.repo_unlock.biometric_unlock.button">Biometric unlock</string>
+    <!-- Toolbar button that dismisses the unlock sheet. -->
+    <string name="ios.repo_unlock.cancel.button">Cancel</string>
+    <!-- Primary button on the unlock form that submits the entered Safe Key. -->
+    <string name="ios.repo_unlock.continue.button">Continue</string>
+    <!-- Default instruction text on the safe box unlock form above the password field. -->
+    <string name="ios.repo_unlock.message">Enter your Safe Key to continue</string>
+    <!-- Button below the unlock form that opens biometric unlock setup. -->
+    <string name="ios.repo_unlock.setup_biometric_unlock.button">Setup biometric unlock</string>
+    <!-- Progress label shown while the app is trying to unlock the Safe Box. -->
+    <string name="ios.repo_unlock.unlocking.label">Unlocking…</string>
+    <!-- Label for the create-new Safe Box row in the Safe Boxes list. -->
+    <string name="ios.repos.create_new.label">Create new</string>
+    <!-- Empty-state action button on the Safe Boxes screen to start creating the first Safe Box. -->
+    <string name="ios.repos.empty.button">Create your first one</string>
+    <!-- Empty-state headline shown on the Safe Boxes screen when no Safe Boxes exist. -->
+    <string name="ios.repos.empty.title">No Safe Boxes yet</string>
+    <!-- Label for the Recent files entry shown in the Safe Boxes list. -->
+    <string name="ios.repos.recent.label">Recent files</string>
+    <!-- Row label in settings that opens the language picker. -->
+    <string name="ios.settings.change_language.label">Change language</string>
+    <!-- Row label in settings that clears locally cached data. -->
+    <string name="ios.settings.clear_cache.label">Clear cache</string>
+    <!-- Toast message shown after cache clearing succeeds from settings. -->
+    <string name="ios.settings.clear_cache.success">Cache has been cleared</string>
+    <!-- Toolbar button that dismisses the settings sheet. -->
+    <string name="ios.settings.done.button">Done</string>
+    <!-- Toolbar button that dismisses the information sheet. -->
+    <string name="ios.settings.info.done.button">Done</string>
+    <!-- Row label in the information sheet showing the git revision. -->
+    <string name="ios.settings.info.git_revision.label">Git revision: %1$s</string>
+    <!-- Link title in the information sheet that opens the Koofr Vault help pages. -->
+    <string name="ios.settings.info.help.label">Help</string>
+    <!-- Link title in the information sheet that opens the Privacy Policy page. -->
+    <string name="ios.settings.info.privacy_policy.label">Privacy Policy</string>
+    <!-- Link title in the information sheet that opens an email draft for reporting a bug. -->
+    <string name="ios.settings.info.report_bug.label">Report a bug</string>
+    <!-- Link title in the information sheet that opens the Terms of Service page. -->
+    <string name="ios.settings.info.terms_of_service.label">Terms of Service</string>
+    <!-- Navigation title of the information sheet. -->
+    <string name="ios.settings.info.title">Information</string>
+    <!-- Row label in the information sheet showing the app version. -->
+    <string name="ios.settings.info.version.label">Version: %1$s</string>
+    <!-- Secondary description under the Information row in settings. -->
+    <string name="ios.settings.information.description">Service and application information</string>
+    <!-- Primary label for the row that opens the information sheet in settings. -->
+    <string name="ios.settings.information.label">Information</string>
+    <!-- Row label in settings that logs the user out. -->
+    <string name="ios.settings.logout.label">Logout</string>
+    <!-- Row label in settings that starts the account removal flow. -->
+    <string name="ios.settings.remove_account.label">Remove account…</string>
+    <!-- Navigation title of the settings sheet. -->
+    <string name="ios.settings.title">Settings</string>
+    <!-- Button in share extension file-preparation state to cancel and close extension.
+Button in share extension loading states to cancel and close extension. -->
+    <string name="ios.share_ext.cancel.button">Cancel</string>
+    <!-- Button in share extension no-files state that closes the extension.
+Button in share extension success state that closes the extension.
+Button in share extension that closes the extension UI. -->
+    <string name="ios.share_ext.dismiss.button">Dismiss</string>
+    <!-- Message in share extension when there are no valid files to upload. -->
+    <string name="ios.share_ext.no_files.label">No files to upload.</string>
+    <!-- Progress caption in share extension while selected files are being prepared. -->
+    <string name="ios.share_ext.preparing_files.label">Preparing files</string>
+    <!-- Instruction in share extension prompting user to sign in via main app. -->
+    <string name="ios.share_ext.unauthenticated.subtitle">Open Koofr Vault app and sign in.</string>
+    <!-- Headline in share extension when user is not authenticated in main app. -->
+    <string name="ios.share_ext.unauthenticated.title">Not signed in</string>
+    <!-- Success message shown in share extension after upload completes. -->
+    <string name="ios.share_ext.upload_successful.label">Upload successful</string>
+    <!-- Toolbar button that closes the share extension file list sheet. -->
+    <string name="ios.share_target_files.dismiss.button">Dismiss</string>
+    <!-- Navigation title in the share extension file list sheet showing number of selected items. -->
+    <plurals name="ios.share_target_files.title">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
+    </plurals>
+    <!-- Bottom bar button text in share extension flow showing selected item count. -->
+    <plurals name="ios.share_target.items_count.label">
+        <item quantity="one">%1$d item…</item>
+        <item quantity="other">%1$d items…</item>
+    </plurals>
+    <!-- Overflow menu item in share extension destination picker for creating a folder. -->
+    <string name="ios.share_target.repo_files.new_folder.button">New folder</string>
+    <!-- Toolbar confirmation button in share extension destination picker to upload selected files. -->
+    <string name="ios.share_target.repo_files.upload.button">Upload</string>
+    <!-- Toolbar button that cancels the share extension. -->
+    <string name="ios.share_target.repos.cancel.button">Cancel</string>
+    <!-- Empty-state headline in share extension when user has no Safe Boxes. -->
+    <string name="ios.share_target.repos.empty.label">No Safe Boxes yet</string>
+    <!-- Empty-state instruction in share extension telling user to create a Safe Box in the main app. -->
+    <string name="ios.share_target.repos.open_app_create.label">Open Koofr Vault app and create one.</string>
+    <!-- Navigation title for the share extension screen where user chooses destination Safe Box. -->
+    <string name="ios.share_target.repos.title">Save to Koofr Vault</string>
+    <!-- Destructive toolbar button in transfers view that aborts all active transfers. -->
+    <string name="ios.transfers.cancel_all.button">Cancel all</string>
+    <!-- Toolbar button in transfers view that clears completed transfer history. -->
+    <string name="ios.transfers.clear.button">Clear</string>
+    <!-- Toolbar button that dismisses the transfers sheet. -->
+    <string name="ios.transfers.hide.button">Hide</string>
+    <!-- Toolbar button in transfers view that retries all failed transfers. -->
+    <string name="ios.transfers.retry_all.button">Retry all</string>
+    <!-- Button in transfer details view to retry a failed transfer. -->
+    <string name="ios.transfers.retry.button">Try again</string>
+    <!-- Accessibility label for the toolbar button that opens the transfers sheet. -->
+    <string name="ios.transfers.show_transfers.a11y.label">Show transfers</string>
+    <!-- Summary text in transfers footer showing estimated time remaining. -->
+    <string name="ios.transfers.summary.time_remaining">%1$s remaining</string>
+    <!-- Summary text in transfers footer showing completed versus total transfer count. -->
+    <string name="ios.transfers.summary.transfers_done">%1$d / %2$d done</string>
+    <!-- Action button on a transfer row to cancel an active transfer. -->
+    <string name="ios.transfers.transfer.cancel.button">Cancel</string>
+    <!-- Action button on a transfer row to open the transferred file after completion. -->
+    <string name="ios.transfers.transfer.open.button">Open</string>
+    <!-- Action button on a transfer row to retry a failed transfer. -->
+    <string name="ios.transfers.transfer.retry.button">Retry</string>
+    <!-- Transfer status text shown when a transfer finishes successfully. -->
+    <string name="ios.transfers.transfer.state.done">Done</string>
+    <!-- Transfer status text shown when a transfer fails; includes error details. -->
+    <string name="ios.transfers.transfer.state.failed">Failed: %1$s</string>
+    <!-- Transfer status text shown while preparing transfer. -->
+    <string name="ios.transfers.transfer.state.processing">Processing</string>
+    <!-- Transfer status text shown while file is actively transferring. -->
+    <string name="ios.transfers.transfer.state.transferring">Transferring</string>
+    <!-- Transfer status text shown when a transfer is queued and waiting. -->
+    <string name="ios.transfers.transfer.state.waiting">Waiting</string>
+    <!-- Empty-state title shown when a folder has no files. -->
+    <string name="ios.views.empty_folder.title">Folder is Empty</string>
+    <!-- Title text shown at the top of the generic error view. -->
+    <string name="ios.views.error.title">Error</string>
+    <!-- Button label in the generic error view to retry the failed action. -->
+    <string name="ios.views.error.try_again.button">Try again</string>
+    <!-- Toolbar button that closes a form info/help sheet. -->
+    <string name="ios.views.form_info.dismiss.button">Dismiss</string>
+    <!-- Caption shown below the spinner in the shared loading view. -->
+    <string name="ios.views.loading.label">Loading…</string>
+    <!-- Accessibility label for the secure Safe Key input field. -->
+    <string name="ios.views.repo_password.a11y.label">Safe Key</string>
+    <!-- Placeholder text inside the Safe Key input field. -->
+    <string name="ios.views.repo_password.placeholder">Safe Key</string>
+</resources>

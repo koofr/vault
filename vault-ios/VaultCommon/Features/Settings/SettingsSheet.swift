@@ -10,6 +10,8 @@ public struct SettingsSheet: View {
     @State private var isLoggingOut: Bool = false
     @State private var isClearingCache: Bool = false
 
+    @Environment(\.locale) private var locale
+
     public init(container: Container, onDismiss: @escaping () -> Void) {
         self.container = container
         self.onDismiss = onDismiss
@@ -47,9 +49,27 @@ public struct SettingsSheet: View {
                         }
                     } label: {
                         VStack(alignment: .leading, spacing: 3) {
-                            Text("Information").foregroundColor(Color(.label))
-                            Text("Service and application information").font(.system(size: 12))
-                                .foregroundColor(Color(.systemGray))
+                            Text(
+                                LocalizedStringResource(
+                                    "ios.settings.information.label",
+                                    defaultValue: "Information",
+                                    bundle: #bundle,
+                                    comment:
+                                        "Primary label for the row that opens the information sheet in settings."
+                                )
+                            )
+                            .foregroundColor(Color(.label))
+                            Text(
+                                LocalizedStringResource(
+                                    "ios.settings.information.description",
+                                    defaultValue: "Service and application information",
+                                    bundle: #bundle,
+                                    comment:
+                                        "Secondary description under the Information row in settings."
+                                )
+                            )
+                            .font(.system(size: 12))
+                            .foregroundColor(Color(.systemGray))
                         }
                     }
                 }
@@ -65,8 +85,15 @@ public struct SettingsSheet: View {
                                 onDismiss: hide)
                         }
                     } label: {
-                        Text("Change language")
-                            .foregroundColor(Color(.label))
+                        Text(
+                            LocalizedStringResource(
+                                "ios.settings.change_language.label",
+                                defaultValue: "Change language",
+                                bundle: #bundle,
+                                comment: "Row label in settings that opens the language picker."
+                            )
+                        )
+                        .foregroundColor(Color(.label))
                     }
                 }
 
@@ -76,12 +103,21 @@ public struct SettingsSheet: View {
 
                         Task.detached {
                             do {
-                                try container.storageHelper.clearCache()
+                                try await container.storageHelper.clearCache()
 
-                                container.mobileVault.notificationsShow(
-                                    message: "Cache has been cleared")
+                                await container.mobileVault.notificationsShow(
+                                    message: String(
+                                        localized: LocalizedStringResource(
+                                            "ios.settings.clear_cache.success",
+                                            defaultValue: "Cache has been cleared",
+                                            locale: locale,
+                                            bundle: #bundle,
+                                            comment:
+                                                "Toast message shown after cache clearing succeeds from settings."
+                                        )
+                                    ))
                             } catch {
-                                container.mobileVault.notificationsShow(message: "\(error)")
+                                await container.mobileVault.notificationsShow(message: "\(error)")
                             }
 
                             Task { @MainActor in
@@ -89,7 +125,15 @@ public struct SettingsSheet: View {
                             }
                         }
                     } label: {
-                        Text("Clear cache").foregroundColor(Color(.label))
+                        Text(
+                            LocalizedStringResource(
+                                "ios.settings.clear_cache.label",
+                                defaultValue: "Clear cache",
+                                bundle: #bundle,
+                                comment: "Row label in settings that clears locally cached data."
+                            )
+                        )
+                        .foregroundColor(Color(.label))
                     }
                     .disabled(isClearingCache)
                 }
@@ -98,7 +142,16 @@ public struct SettingsSheet: View {
                     Button {
                         container.authHelper.removeAccount()
                     } label: {
-                        Text("Remove account…").foregroundColor(Color(.label))
+                        Text(
+                            LocalizedStringResource(
+                                "ios.settings.remove_account.label",
+                                defaultValue: "Remove account…",
+                                bundle: #bundle,
+                                comment:
+                                    "Row label in settings that starts the account removal flow."
+                            )
+                        )
+                        .foregroundColor(Color(.label))
                     }
                 }
 
@@ -110,19 +163,44 @@ public struct SettingsSheet: View {
                             isLoggingOut = false
                         }
                     } label: {
-                        Text("Logout").foregroundColor(Color(.label))
+                        Text(
+                            LocalizedStringResource(
+                                "ios.settings.logout.label",
+                                defaultValue: "Logout",
+                                bundle: #bundle,
+                                comment: "Row label in settings that logs the user out."
+                            )
+                        )
+                        .foregroundColor(Color(.label))
                     }
                     .disabled(isLoggingOut)
                 }
             }
-            .navigationTitle("Settings")
-            .navigationBarTitle("", displayMode: .inline)
+            .navigationTitle(
+                Text(
+                    LocalizedStringResource(
+                        "ios.settings.title",
+                        defaultValue: "Settings",
+                        bundle: #bundle,
+                        comment: "Navigation title of the settings sheet."
+                    )
+                )
+            )
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button {
                         onDismiss()
                     } label: {
-                        Text("Done").bold()
+                        Text(
+                            LocalizedStringResource(
+                                "ios.settings.done.button",
+                                defaultValue: "Done",
+                                bundle: #bundle,
+                                comment: "Toolbar button that dismisses the settings sheet."
+                            )
+                        )
+                        .bold()
                     }
                 }
             }

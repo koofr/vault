@@ -125,7 +125,17 @@ public struct RepoUnlockScreen: View {
                         Button {
                             vm.setupBiometricUnlock(onUnlock: onUnlock)
                         } label: {
-                            Text("Setup biometric unlock").padding(.top, 15).padding(.bottom, 15)
+                            Text(
+                                LocalizedStringResource(
+                                    "ios.repo_unlock.setup_biometric_unlock.button",
+                                    defaultValue: "Setup biometric unlock",
+                                    bundle: #bundle,
+                                    comment:
+                                        "Button below the unlock form that opens biometric unlock setup."
+                                )
+                            )
+                            .padding(.top, 15)
+                            .padding(.bottom, 15)
                         }
                     }
                 } else {
@@ -134,12 +144,22 @@ public struct RepoUnlockScreen: View {
                             vm.biometricUnlock(onUnlock: onUnlock)
                         }
                     } label: {
-                        Text("Biometric unlock").padding(.top, 15).padding(.bottom, 15)
+                        Text(
+                            LocalizedStringResource(
+                                "ios.repo_unlock.biometric_unlock.button",
+                                defaultValue: "Biometric unlock",
+                                bundle: #bundle,
+                                comment:
+                                    "Button below the unlock form that starts biometric authentication."
+                            )
+                        )
+                        .padding(.top, 15)
+                        .padding(.bottom, 15)
                     }
                 }
             }
         }
-        .navigationTitle("")
+        .navigationTitle(String(stringLiteral: ""))
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             visible.onVisible = {

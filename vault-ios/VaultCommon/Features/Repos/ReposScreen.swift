@@ -108,14 +108,32 @@ public struct ReposScreen: View {
                             Spacer()
 
                             VStack {
-                                Text("No Safe Boxes yet").font(.largeTitle).padding(.bottom, 20)
+                                Text(
+                                    LocalizedStringResource(
+                                        "ios.repos.empty.title",
+                                        defaultValue: "No Safe Boxes yet",
+                                        bundle: #bundle,
+                                        comment:
+                                            "Empty-state headline shown on the Safe Boxes screen when no Safe Boxes exist."
+                                    )
+                                )
+                                .font(.largeTitle)
+                                .padding(.bottom, 20)
 
                                 Button {
                                     vm.navController.push(.repoCreate)
                                 } label: {
-                                    Text("Create your first one")
-                                        .foregroundColor(Color(.link))
-                                        .multilineTextAlignment(.center)
+                                    Text(
+                                        LocalizedStringResource(
+                                            "ios.repos.empty.button",
+                                            defaultValue: "Create your first one",
+                                            bundle: #bundle,
+                                            comment:
+                                                "Empty-state action button on the Safe Boxes screen to start creating the first Safe Box."
+                                        )
+                                    )
+                                    .foregroundColor(Color(.link))
+                                    .multilineTextAlignment(.center)
                                 }
                             }
 
@@ -142,7 +160,7 @@ public struct ReposScreen: View {
                 }
             }
         }
-        .navigationTitle("Vault")
+        .navigationTitle(String(stringLiteral: "Vault"))
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 TransfersButton(container: vm.container)

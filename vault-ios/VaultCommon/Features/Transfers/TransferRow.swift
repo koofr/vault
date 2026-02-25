@@ -32,7 +32,16 @@ public struct TransferRow: View {
                 Button(
                     action: {},
                     label: {
-                        Text("Open").foregroundColor(Color(.link))
+                        Text(
+                            LocalizedStringResource(
+                                "ios.transfers.transfer.open.button",
+                                defaultValue: "Open",
+                                bundle: #bundle,
+                                comment:
+                                    "Action button on a transfer row to open the transferred file after completion."
+                            )
+                        )
+                        .foregroundColor(Color(.link))
                     }
                 )
                 .onTapGesture {
@@ -43,7 +52,16 @@ public struct TransferRow: View {
                 Button(
                     action: {},
                     label: {
-                        Text("Retry").foregroundColor(Color(.link))
+                        Text(
+                            LocalizedStringResource(
+                                "ios.transfers.transfer.retry.button",
+                                defaultValue: "Retry",
+                                bundle: #bundle,
+                                comment:
+                                    "Action button on a transfer row to retry a failed transfer."
+                            )
+                        )
+                        .foregroundColor(Color(.link))
                     }
                 )
                 .onTapGesture {
@@ -65,7 +83,16 @@ public struct TransferRow: View {
                 Button(
                     role: .destructive, action: {},
                     label: {
-                        Text("Cancel").foregroundColor(Color(.systemRed))
+                        Text(
+                            LocalizedStringResource(
+                                "ios.transfers.transfer.cancel.button",
+                                defaultValue: "Cancel",
+                                bundle: #bundle,
+                                comment:
+                                    "Action button on a transfer row to cancel an active transfer."
+                            )
+                        )
+                        .foregroundColor(Color(.systemRed))
                     }
                 )
                 .onTapGesture {
@@ -77,18 +104,43 @@ public struct TransferRow: View {
     }
 }
 
-public func getTransferDescription(state: TransferState) -> String {
+public func getTransferDescription(state: TransferState) -> LocalizedStringResource {
     switch state {
     case .waiting:
-        return "Waiting"
+        return LocalizedStringResource(
+            "ios.transfers.transfer.state.waiting",
+            defaultValue: "Waiting",
+            bundle: #bundle,
+            comment: "Transfer status text shown when a transfer is queued and waiting."
+        )
     case .processing:
-        return "Processing"
+        return LocalizedStringResource(
+            "ios.transfers.transfer.state.processing",
+            defaultValue: "Processing",
+            bundle: #bundle,
+            comment: "Transfer status text shown while preparing transfer."
+        )
     case .transferring:
-        return "Transferring"
+        return LocalizedStringResource(
+            "ios.transfers.transfer.state.transferring",
+            defaultValue: "Transferring",
+            bundle: #bundle,
+            comment: "Transfer status text shown while file is actively transferring."
+        )
     case .failed(let err):
-        return "Failed: \(err)"
+        return LocalizedStringResource(
+            "ios.transfers.transfer.state.failed",
+            defaultValue: "Failed: \(err)",
+            bundle: #bundle,
+            comment: "Transfer status text shown when a transfer fails; includes error details."
+        )
     case .done:
-        return "Done"
+        return LocalizedStringResource(
+            "ios.transfers.transfer.state.done",
+            defaultValue: "Done",
+            bundle: #bundle,
+            comment: "Transfer status text shown when a transfer finishes successfully."
+        )
     }
 }
 

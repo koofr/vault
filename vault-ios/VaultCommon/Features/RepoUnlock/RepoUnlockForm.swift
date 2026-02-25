@@ -4,7 +4,7 @@ import VaultMobile
 public struct RepoUnlockForm: View {
     public var info: RepoUnlockInfo
     public var onUnlock: (String) -> Void
-    public var message: String
+    public var message: LocalizedStringResource
 
     @State var password: String = ""
 
@@ -15,10 +15,21 @@ public struct RepoUnlockForm: View {
         }
     }
 
-    init(info: RepoUnlockInfo, onUnlock: @escaping (String) -> Void, message: String? = nil) {
+    init(
+        info: RepoUnlockInfo, onUnlock: @escaping (String) -> Void,
+        message: LocalizedStringResource? = nil
+    ) {
         self.info = info
         self.onUnlock = onUnlock
-        self.message = message ?? "Enter your Safe Key to continue"
+        self.message =
+            message
+            ?? LocalizedStringResource(
+                "ios.repo_unlock.message",
+                defaultValue: "Enter your Safe Key to continue",
+                bundle: #bundle,
+                comment:
+                    "Default instruction text on the safe box unlock form above the password field."
+            )
     }
 
     public var body: some View {
@@ -61,8 +72,17 @@ public struct RepoUnlockForm: View {
                     Spacer()
                     HStack {
                         Spacer()
-                        Text("Continue").font(.system(size: 20, weight: .bold))
-                            .foregroundColor(.white)
+                        Text(
+                            LocalizedStringResource(
+                                "ios.repo_unlock.continue.button",
+                                defaultValue: "Continue",
+                                bundle: #bundle,
+                                comment:
+                                    "Primary button on the unlock form that submits the entered Safe Key."
+                            )
+                        )
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.white)
                         Spacer()
                     }
                     Spacer()
@@ -78,7 +98,17 @@ public struct RepoUnlockForm: View {
         .padding()
         .overlay {
             if isLoading {
-                ProgressView("Unlocking…")
+                ProgressView {
+                    Text(
+                        LocalizedStringResource(
+                            "ios.repo_unlock.unlocking.label",
+                            defaultValue: "Unlocking…",
+                            bundle: #bundle,
+                            comment:
+                                "Progress label shown while the app is trying to unlock the Safe Box."
+                        )
+                    )
+                }
             }
         }
     }

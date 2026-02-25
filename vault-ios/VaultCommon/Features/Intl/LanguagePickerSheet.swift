@@ -41,15 +41,31 @@ public struct LanguagePickerSheet: View {
                     }
                 }
             }
-            .navigationTitle("Change language")
+            .navigationTitle(
+                Text(
+                    LocalizedStringResource(
+                        "ios.language_picker.title",
+                        defaultValue: "Change language",
+                        bundle: #bundle,
+                        comment: "Navigation title of the sheet used to pick the app language."
+                    )
+                )
+            )
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button {
                         onDismiss()
                     } label: {
-                        Text("Dismiss")
-                            .bold()
+                        Text(
+                            LocalizedStringResource(
+                                "ios.language_picker.dismiss.button",
+                                defaultValue: "Dismiss",
+                                bundle: #bundle,
+                                comment: "Toolbar button that closes the language picker sheet."
+                            )
+                        )
+                        .bold()
                     }
                 }
             }
