@@ -1,0 +1,254 @@
+{
+  "core.cipher.decrypt_filename_decode.error": {
+    "defaultMessage": "Imena datoteke ni bilo mogoče dekodirati"
+  },
+  "core.cipher.decrypt_filename_decrypt.error": {
+    "defaultMessage": "Imena datoteke ni bilo mogoče dešifrirati. Datoteke Vault je mogoče naložiti samo z aplikacijami Vault ali rclone. Če imajo vse vaše datoteke napake, preverite, ali ste uporabili pravilno sol (salt)."
+  },
+  "core.cipher.decrypt_filename_unicode.error": {
+    "defaultMessage": "Ime datoteke ni veljavno besedilo Unicode"
+  },
+  "core.cipher.decrypt_size.error": {
+    "defaultMessage": "Velikosti ni bilo mogoče dešifrirati: {error}"
+  },
+  "core.common.invalid_name.error": {
+    "defaultMessage": "Ime ni veljavno"
+  },
+  "core.common.invalid_path.error": {
+    "defaultMessage": "Pot ni veljavna"
+  },
+  "core.dialogs.confirm.cancel.button": {
+    "defaultMessage": "Prekliči"
+  },
+  "core.dialogs.prompt.cancel.button": {
+    "defaultMessage": "Prekliči"
+  },
+  "core.dialogs.prompt.confirm.button": {
+    "defaultMessage": "V redu"
+  },
+  "core.files.create_dir_already_exists.error": {
+    "defaultMessage": "Mapa s tem imenom že obstaja."
+  },
+  "core.files.create_dir_dialog.confirm.button": {
+    "defaultMessage": "Ustvari mapo"
+  },
+  "core.files.create_dir_dialog.input.placeholder": {
+    "defaultMessage": "Ime mape"
+  },
+  "core.files.create_dir_dialog.title": {
+    "defaultMessage": "Vnesite ime nove mape"
+  },
+  "core.files.create_file_already_exists.error": {
+    "defaultMessage": "Datoteka s tem imenom že obstaja."
+  },
+  "core.files.create_file_dialog.confirm.button": {
+    "defaultMessage": "Ustvari datoteko"
+  },
+  "core.files.create_file_dialog.input.placeholder": {
+    "defaultMessage": "Ime datoteke"
+  },
+  "core.files.create_file_dialog.title": {
+    "defaultMessage": "Vnesite ime nove datoteke"
+  },
+  "core.files.delete_files_dialog.cancel.button": {
+    "defaultMessage": "Prekliči"
+  },
+  "core.files.delete_files_dialog.confirm.button": {
+    "defaultMessage": "Izbriši"
+  },
+  "core.files.delete_files_dialog.message": {
+    "defaultMessage": "Ali res želite izbrisati {count, plural, one {# element} two {# elementa} few {# elemente} other {# elementov}}?"
+  },
+  "core.files.delete_files_dialog.title": {
+    "defaultMessage": "Izbriši datoteke"
+  },
+  "core.files.move_root.error": {
+    "defaultMessage": "Korenske mape ni mogoče premakniti"
+  },
+  "core.files.rename_file_dialog.confirm.button": {
+    "defaultMessage": "Preimenuj"
+  },
+  "core.files.rename_file_dialog.input.placeholder": {
+    "defaultMessage": "Novo ime"
+  },
+  "core.files.rename_file_dialog.title": {
+    "defaultMessage": "Vnesite novo ime za ''{name}''"
+  },
+  "core.files.rename_root.error": {
+    "defaultMessage": "Korenske mape ni mogoče preimenovati"
+  },
+  "core.http.http_response.error": {
+    "defaultMessage": "Napaka HTTP: {error}"
+  },
+  "core.lifecycle.logout_success.message": {
+    "defaultMessage": "Odjavljeni ste. Prosimo, prijavite se znova."
+  },
+  "core.lifecycle.on_login_load_repos.error": {
+    "defaultMessage": "Nalaganje sefov ni uspelo: {error}"
+  },
+  "core.lifecycle.on_login_load_space_usage.error": {
+    "defaultMessage": "Nalaganje porabe prostora ni uspelo: {error}"
+  },
+  "core.lifecycle.on_login_load_user.error": {
+    "defaultMessage": "Nalaganje uporabnika ni uspelo: {error}"
+  },
+  "core.oauth2.invalid_grant.error": {
+    "defaultMessage": "Neveljavna dovoljenja za preverjanje pristnosti: {error}"
+  },
+  "core.oauth2.invalid_oauth2_state.error": {
+    "defaultMessage": "Neveljavno stanje preverjanja pristnosti. Poskusite znova."
+  },
+  "core.oauth2.invalid_oauth2_token.error": {
+    "defaultMessage": "Neveljaven žeton OAuth 2: {error}"
+  },
+  "core.oauth2.unknown.error": {
+    "defaultMessage": "Neznana napaka: {error}"
+  },
+  "core.relative_time": {
+    "defaultMessage": "{modifier, select,\n  past {{diff, select,\n    few_seconds {pred nekaj sekundami}\n    seconds {{value, plural,\n      one {pred eno sekundo}\n      two {pred dvema sekundama}\n      few {pred # sekundami}\n      other {pred # sekundami}\n    }}\n    minutes {{value, plural,\n      one {pred eno minuto}\n      two {pred dvema minutama}\n      few {pred # minutami}\n      other {pred # minutami}\n    }}\n    hours {{value, plural,\n      one {pred eno uro}\n      two {pred dvema urama}\n      few {pred # urami}\n      other {pred # urami}\n    }}\n    days {{value, plural,\n      one {pred enim dnem}\n      two {pred dvema dnevoma}\n      few {pred # dnevi}\n      other {pred # dnevi}\n    }}\n    months {{value, plural,\n      one {pred enim mesecem}\n      two {pred dvema mesecema}\n      few {pred # meseci}\n      other {pred # meseci}\n    }}\n    years {{value, plural,\n      one {pred enim letom}\n      two {pred dvema letoma}\n      few {pred # leti}\n      other {pred # leti}\n    }}\n    other {}\n  }}\n  future {{diff, select,\n    few_seconds {čez nekaj sekund}\n    seconds {{value, plural,\n      one {čez eno sekundo}\n      two {čez dve sekundi}\n      few {čez # sekunde}\n      other {čez # sekund}\n    }}\n    minutes {{value, plural,\n      one {čez eno minuto}\n      two {čez dve minuti}\n      few {čez # minute}\n      other {čez # minut}\n    }}\n    hours {{value, plural,\n      one {čez eno uro}\n      two {čez dve uri}\n      few {čez # ure}\n      other {čez # ur}\n    }}\n    days {{value, plural,\n      one {čez eno dan}\n      two {čez dva dni}\n      few {čez # dni}\n      other {čez # dni}\n    }}\n    months {{value, plural,\n      one {čez eno mesec}\n      two {čez dve meseca}\n      few {čez # mesece}\n      other {čez # mesecev}\n    }}\n    years {{value, plural,\n      one {čez eno leto}\n      two {čez dve leti}\n      few {čez # leta}\n      other {čez # let}\n    }}\n    other {}\n  }}\n  other {{diff, select,\n    few_seconds {nekaj sekund}\n    seconds {{value, plural,\n      one {ena sekunda}\n      two {dve sekundi}\n      few {# sekunde}\n      other {# sekund}\n    }}\n    minutes {{value, plural,\n      one {ena minuta}\n      two {dve minuti}\n      few {# minute}\n      other {# minut}\n    }}\n    hours {{value, plural,\n      one {ena ura}\n      two {dve uri}\n      few {# ure}\n      other {# ur}\n    }}\n    days {{value, plural,\n      one {ena dan}\n      two {dve dni}\n      few {# dni}\n      other {# dni}\n    }}\n    months {{value, plural,\n      one {en mesec}\n      two {dva meseca}\n      few {# meseci}\n      other {# mesecev}\n    }}\n    years {{value, plural,\n      one {eno leto}\n      two {dva leti}\n      few {# leta}\n      other {# let}\n    }}\n    other {}\n  }}\n}"
+  },
+  "core.remote.api.error": {
+    "defaultMessage": "napaka API: {message}"
+  },
+  "core.remote.unexpected_status.error": {
+    "defaultMessage": "Nepričakovano stanje HTTP: {status_code}: {message}"
+  },
+  "core.remote_files.create_dir_dialog.confirm.button": {
+    "defaultMessage": "Ustvari mapo"
+  },
+  "core.remote_files.create_dir_dialog.input.placeholder": {
+    "defaultMessage": "Ime mape"
+  },
+  "core.remote_files.create_dir_dialog.title": {
+    "defaultMessage": "Vnesite novo ime mape"
+  },
+  "core.remote_files.items.bookmarks": {
+    "defaultMessage": "Zaznamki"
+  },
+  "core.remote_files.items.shared": {
+    "defaultMessage": "Deljeno"
+  },
+  "core.repo_create.default_repo_name": {
+    "defaultMessage": "Moj sef"
+  },
+  "core.repo_files.items.recent": {
+    "defaultMessage": "Nedavne datoteke"
+  },
+  "core.repo_files_details.conflict.error": {
+    "defaultMessage": "Datoteko je od zadnjega shranjevanja spremenil nekdo drug. Samodejno shranjevanje je onemogočeno."
+  },
+  "core.repo_files_details.file_could_not_be_saved_dialog.cancel.button": {
+    "defaultMessage": "Zavrzi spremembe"
+  },
+  "core.repo_files_details.file_could_not_be_saved_dialog.confirm.button": {
+    "defaultMessage": "Poskusi znova"
+  },
+  "core.repo_files_details.file_could_not_be_saved_dialog.message": {
+    "defaultMessage": "Datoteke ni bilo mogoče shraniti ({error}). Ali želite poskusiti znova ali zavreči spremembe?"
+  },
+  "core.repo_files_details.file_could_not_be_saved_dialog.title": {
+    "defaultMessage": "Datoteke ni bilo mogoče shraniti"
+  },
+  "core.repo_files_details.file_no_longer_accessible.error": {
+    "defaultMessage": "Ta datoteka ni več dostopna. Verjetno je bila izbrisana ali do nje nimate več dostopa."
+  },
+  "core.repo_files_details.file_not_found.error": {
+    "defaultMessage": "Datoteka ne obstaja"
+  },
+  "core.repo_files_details.file_removed_dialog.message": {
+    "defaultMessage": "Datoteka {name} ni več dostopna. Verjetno je bila izbrisana ali pa do nje nimate več dostopa."
+  },
+  "core.repo_files_details.file_removed_dialog.title": {
+    "defaultMessage": "Datoteka ni dostopna"
+  },
+  "core.repo_files_details.save_deleted_confirm_new_location_cancel_dialog.cancel.button": {
+    "defaultMessage": "Zavrzi spremembe"
+  },
+  "core.repo_files_details.save_deleted_confirm_new_location_cancel_dialog.confirm.button": {
+    "defaultMessage": "Shrani na novo lokacijo"
+  },
+  "core.repo_files_details.save_deleted_confirm_new_location_cancel_dialog.message": {
+    "defaultMessage": "Datoteka {name} ni več dostopna. Verjetno je bila izbrisana ali pa do nje nimate več dostopa. Ali želite shraniti datoteko na novo lokacijo ali zavreči spremembe?"
+  },
+  "core.repo_files_details.save_deleted_confirm_new_location_cancel_dialog.title": {
+    "defaultMessage": "Datoteka ni dostopna"
+  },
+  "core.repo_files_details.save_deleted_confirm_new_location_user_dialog.confirm.button": {
+    "defaultMessage": "Shrani na novo lokacijo"
+  },
+  "core.repo_files_details.save_deleted_confirm_new_location_user_dialog.message": {
+    "defaultMessage": "Datoteka {name} ni več dostopna. Verjetno je bila izbrisana ali pa do nje nimate več dostopa. Ali želite shraniti datoteko na novo lokacijo?"
+  },
+  "core.repo_files_details.save_deleted_confirm_new_location_user_dialog.title": {
+    "defaultMessage": "Datoteka ni dostopna"
+  },
+  "core.repo_files_details.save_handle_conflict_cancel_dialog.cancel.button": {
+    "defaultMessage": "Zavrzi spremembe"
+  },
+  "core.repo_files_details.save_handle_conflict_cancel_dialog.confirm.button": {
+    "defaultMessage": "Shrani kot novo datoteko"
+  },
+  "core.repo_files_details.save_handle_conflict_cancel_dialog.message": {
+    "defaultMessage": "Shranjevanje v obstoječo datoteko ni mogoče. Ali želite spremembe shraniti kot novo datoteko ali jih zavreči?"
+  },
+  "core.repo_files_details.save_handle_conflict_cancel_dialog.title": {
+    "defaultMessage": "Datoteko je od zadnjega shranjevanja spremenil nekdo drug"
+  },
+  "core.repo_files_details.save_handle_conflict_user_dialog.confirm.button": {
+    "defaultMessage": "Shrani kot novo datoteko"
+  },
+  "core.repo_files_details.save_handle_conflict_user_dialog.message": {
+    "defaultMessage": "Shranjevanje v obstoječo datoteko ni mogoče. Ali želite shraniti spremembe kot novo datoteko?"
+  },
+  "core.repo_files_details.save_handle_conflict_user_dialog.title": {
+    "defaultMessage": "Datoteko je od zadnjega shranjevanja spremenil nekdo drug"
+  },
+  "core.repo_files_details.save_location_changed_dialog.message": {
+    "defaultMessage": "Datoteka {name} je bila shranjena tukaj, ker je ni bilo mogoče shraniti na prvotno lokacijo."
+  },
+  "core.repo_files_details.save_location_changed_dialog.title": {
+    "defaultMessage": "Lokacija datoteke je bila spremenjena"
+  },
+  "core.repos.create_repo_already_exists.error": {
+    "defaultMessage": "Ta lokacija je že sef."
+  },
+  "core.repos.create_repo_max_total_limit_exceeded.error": {
+    "defaultMessage": "Ne morete ustvariti več sefov. Nadgradite svoj račun."
+  },
+  "core.repos.default_dir_name.documents": {
+    "defaultMessage": "Moji zasebni dokumenti"
+  },
+  "core.repos.default_dir_name.pictures": {
+    "defaultMessage": "Moje zasebne slike"
+  },
+  "core.repos.default_dir_name.videos": {
+    "defaultMessage": "Moji zasebni videi"
+  },
+  "core.repos.invalid_password.error": {
+    "defaultMessage": "Zasebni ključ ni pravilen."
+  },
+  "core.repos.repo_locked.error": {
+    "defaultMessage": "Sef je zaklenjen."
+  },
+  "core.repos.repo_not_found.error": {
+    "defaultMessage": "Sef ne obstaja."
+  },
+  "core.repos.repo_unlocked.error": {
+    "defaultMessage": "Sef je odklenjen."
+  },
+  "core.secure_storage.secure_storage.error": {
+    "defaultMessage": "Napaka shrambe: {error}"
+  },
+  "core.transfers.aborted.error": {
+    "defaultMessage": "Prenos je bil prekinjen."
+  },
+  "desktop.oauth.close_page.message": {
+    "defaultMessage": "Zdaj lahko zaprete to stran."
+  },
+  "desktop.save_file.file_filter": {
+    "defaultMessage": "Datoteka ({ext})"
+  },
+  "desktop.upload_failed.error": {
+    "defaultMessage": "Nalaganje ni uspelo: {path}: {error}"
+  }
+}

@@ -368,8 +368,7 @@ mod tests {
             &mut result,
         )
         .unwrap();
-        // incorrect because of missing plural rules for sl
-        assert_eq!(result, "Ali res želite odstraniti 1 datotek?");
+        assert_eq!(result, "Ali res želite odstraniti 1 datoteko?");
 
         // Test two
         let mut result = String::new();
@@ -380,8 +379,7 @@ mod tests {
             &mut result,
         )
         .unwrap();
-        // incorrect because of missing plural rules for sl
-        assert_eq!(result, "Ali res želite odstraniti 2 datotek?");
+        assert_eq!(result, "Ali res želite odstraniti 2 datoteki?");
 
         // Test few
         let mut result = String::new();
@@ -392,8 +390,7 @@ mod tests {
             &mut result,
         )
         .unwrap();
-        // incorrect because of missing plural rules for sl
-        assert_eq!(result, "Ali res želite odstraniti 3 datotek?");
+        assert_eq!(result, "Ali res želite odstraniti 3 datoteke?");
 
         // Test other
         let mut result = String::new();

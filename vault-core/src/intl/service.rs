@@ -377,20 +377,18 @@ mod tests {
 
         assert_eq!(
             intl_service.format_message("test.message", &[("count", FormatValue::Integer(1))]),
-            // incorrect because of missing plural rules for sl
-            "Ali res želite odstraniti 1 datotek?"
+            "Ali res želite odstraniti 1 datoteko?"
         );
 
-        let result = intl_service.change_locale(ChangeLocaleStrategy::Exact("sr".parse().unwrap()));
+        let result = intl_service.change_locale(ChangeLocaleStrategy::Exact("xx".parse().unwrap()));
         assert_eq!(
             result,
-            Err(SetLocaleError::LocaleNotFound("sr".parse().unwrap()))
+            Err(SetLocaleError::LocaleNotFound("xx".parse().unwrap()))
         );
 
         assert_eq!(
             intl_service.format_message("test.message", &[("count", FormatValue::Integer(1))]),
-            // incorrect because of missing plural rules for sl
-            "Ali res želite odstraniti 1 datotek?"
+            "Ali res želite odstraniti 1 datoteko?"
         );
     }
 
@@ -436,8 +434,7 @@ mod tests {
 
         assert_eq!(
             intl_service.format_message("test.message", &[("count", FormatValue::Integer(1))]),
-            // incorrect because of missing plural rules for sl
-            "Ali res želite odstraniti 1 datotek?"
+            "Ali res želite odstraniti 1 datoteko?"
         );
     }
 
@@ -473,8 +470,7 @@ mod tests {
         );
         assert_eq!(
             intl_service.format_message("test.message", &[("count", FormatValue::Integer(1))]),
-            // incorrect because of missing plural rules for sl
-            "Ali res želite odstraniti 1 datotek?"
+            "Ali res želite odstraniti 1 datoteko?"
         );
     }
 
@@ -520,8 +516,7 @@ mod tests {
 
         assert_eq!(
             intl_service.format_message("test.message", &[("count", FormatValue::Integer(1))]),
-            // incorrect because of missing plural rules for sl
-            "Ali res želite odstraniti 1 datotek?"
+            "Ali res želite odstraniti 1 datoteko?"
         );
 
         store.mutate(|state, _, _, _| {
@@ -552,8 +547,7 @@ mod tests {
 
         assert_eq!(
             intl_service.format_message("test.message", &[("count", FormatValue::Integer(1))]),
-            // incorrect because of missing plural rules for sl
-            "Ali res želite odstraniti 1 datotek?"
+            "Ali res želite odstraniti 1 datoteko?"
         );
 
         store.mutate(|state, _, _, _| {
@@ -567,8 +561,7 @@ mod tests {
         );
         assert_eq!(
             intl_service.format_message("test.message", &[("count", FormatValue::Integer(1))]),
-            // incorrect because of missing plural rules for sl
-            "Ali res želite odstraniti 1 datotek?"
+            "Ali res želite odstraniti 1 datoteko?"
         );
     }
 
@@ -613,8 +606,7 @@ mod tests {
         );
         assert_eq!(
             intl_service.format_message("test.message", &[("count", FormatValue::Integer(1))]),
-            // incorrect because of missing plural rules for sl
-            "Ali res želite odstraniti 1 datotek?"
+            "Ali res želite odstraniti 1 datoteko?"
         );
 
         // Change to an invalid locale does not change anything
@@ -636,8 +628,7 @@ mod tests {
         );
         assert_eq!(
             intl_service.format_message("test.message", &[("count", FormatValue::Integer(1))]),
-            // incorrect because of missing plural rules for sl
-            "Ali res želite odstraniti 1 datotek?"
+            "Ali res želite odstraniti 1 datoteko?"
         );
 
         // Change to "en" sets current_locale to "en" and stores it to storage
@@ -694,8 +685,7 @@ mod tests {
         );
         assert_eq!(
             intl_service.format_message("test.message", &[("count", FormatValue::Integer(1))]),
-            // incorrect because of missing plural rules for sl
-            "Ali res želite odstraniti 1 datotek?"
+            "Ali res želite odstraniti 1 datoteko?"
         );
     }
 
@@ -726,8 +716,7 @@ mod tests {
         );
         assert_eq!(
             intl_service.format_message("test.message", &[("count", FormatValue::Integer(1))]),
-            // incorrect because of missing plural rules for sl
-            "Ali res želite odstraniti 1 datotek?"
+            "Ali res želite odstraniti 1 datoteko?"
         );
     }
 

@@ -2,5 +2,9 @@
   {
     "locale": "en",
     "name": "English"
+  },
+  {
+    "locale": "sl",
+    "name": "Slovenščina"
   }
 ]

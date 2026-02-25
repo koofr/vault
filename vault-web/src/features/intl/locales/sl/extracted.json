@@ -1,0 +1,738 @@
+{
+  "web.dashboard_error.title": {
+    "defaultMessage": "Napaka"
+  },
+  "web.dashboard_loading.title": {
+    "defaultMessage": "Nalaganje"
+  },
+  "web.dashboard_menu.logout.menu_item": {
+    "defaultMessage": "Odjava"
+  },
+  "web.dashboard_menu.open_remote.menu_item": {
+    "defaultMessage": "Odpri Koofr"
+  },
+  "web.dashboard_navbar.header_fallback": {
+    "defaultMessage": "Vault"
+  },
+  "web.dashboard_sidenav_links.help_and_support.link": {
+    "defaultMessage": "Pomoč in podpora"
+  },
+  "web.dashboard_sidenav_links.intro.link": {
+    "defaultMessage": "Uvod"
+  },
+  "web.dashboard_sidenav_links.landing_page.link": {
+    "defaultMessage": "Vstopna stran"
+  },
+  "web.dashboard_sidenav_links.legal.link": {
+    "defaultMessage": "Pravno"
+  },
+  "web.dashboard_user_icon.aria_label": {
+    "defaultMessage": "Uporabniški meni"
+  },
+  "web.dir_picker.loading.aria_label": {
+    "defaultMessage": "Nalaganje…"
+  },
+  "web.error_component.try_again.button": {
+    "defaultMessage": "Poskusi znova"
+  },
+  "web.file_icon.alt": {
+    "defaultMessage": "Ikona datoteke"
+  },
+  "web.git_revision.text": {
+    "defaultMessage": "Revizija Git: {git_revision}"
+  },
+  "web.intro.back.button": {
+    "defaultMessage": "Nazaj"
+  },
+  "web.intro.done.button": {
+    "defaultMessage": "Zaključi"
+  },
+  "web.intro.next.button": {
+    "defaultMessage": "Naprej"
+  },
+  "web.intro.step_1.content": {
+    "defaultMessage": "Dobrodošel v Koofr Vault: tvoji najljubši oblačni shrambi s šifriranjem na strani odjemalca!"
+  },
+  "web.intro.step_1.title": {
+    "defaultMessage": "Dobrodošel"
+  },
+  "web.intro.step_2.content_1": {
+    "defaultMessage": "Vault je kot škatla z edinstveno ključavnico v prtljažniku: dodatna plast varnosti za zaščito tvojih najbolj občutljivih datotek."
+  },
+  "web.intro.step_2.content_2": {
+    "defaultMessage": "Vault je <a>odprtokodna</a> programska oprema, zato lahko vedno preveriš, ali koda počne točno to, kar je obljubljeno - in nič več."
+  },
+  "web.intro.step_2.content_3": {
+    "defaultMessage": "Združljivost z <a>rclone</a>: šifrirane datoteke lahko preneseš in jih lokalno dešifriraš z orodjem ukazne vrstice rclone."
+  },
+  "web.intro.step_2.title": {
+    "defaultMessage": "O Vaultu"
+  },
+  "web.intro.step_3.content_1": {
+    "defaultMessage": "V svojem Vaultu imaš lahko enega ali več sefov, z ločenimi ključi za vsak sef."
+  },
+  "web.intro.step_3.content_2": {
+    "defaultMessage": "Vault šifrira tako imena datotek kot tudi vsebino, zato je vse berljivo le znotraj sefa."
+  },
+  "web.intro.step_3.content_3": {
+    "defaultMessage": "V tvoji aplikaciji Koofr bodo datoteke prikazane s šifriranimi imeni in jih ne bo mogoče odpreti."
+  },
+  "web.intro.step_3.title": {
+    "defaultMessage": "Sefi"
+  },
+  "web.intro.step_4.content_1": {
+    "defaultMessage": "Ko ustvariš sef, zanj izbereš ločen zasebni ključ."
+  },
+  "web.intro.step_4.content_2": {
+    "defaultMessage": "Ker se zasebni ključ uporablja za šifriranje datotek, ki jih shraniš v sefu, ga kasneje ni mogoče spremeniti."
+  },
+  "web.intro.step_4.content_3": {
+    "defaultMessage": "<b>Če pozabiš svoj zasebni ključ, datotek ne boš mogel obnoviti.</b> Ključ se nikoli ne pošlje na strežnike Koofr in se tam tudi ne shrani."
+  },
+  "web.intro.step_4.title": {
+    "defaultMessage": "Zasebni ključ"
+  },
+  "web.intro.step_5.content": {
+    "defaultMessage": "Začni uporabljati Vault tako, da ustvariš svoj prvi sef."
+  },
+  "web.intro.step_5.title": {
+    "defaultMessage": "Začni uporabljati Vault"
+  },
+  "web.landing_page.copyright.text": {
+    "defaultMessage": "© {year}. <a>Koofr d.o.o.</a> vse pravice pridržane."
+  },
+  "web.landing_page.description": {
+    "defaultMessage": "Zmogljivo, odprtokodno šifriranje z ničelnim znanjem na strani odjemalca. Nadgradi varnost svojih najbolj občutljivih datotek s Koofr Vaultom."
+  },
+  "web.landing_page.get_started.button": {
+    "defaultMessage": "Želim pričeti"
+  },
+  "web.landing_page.section_1.content": {
+    "defaultMessage": "Koofr Vault je odprtokodna aplikacija za shranjevanje z ničelnim znanjem, ki deluje na strani odjemalca za <a>oblačno shrambo Koofr</a>. Vault je kot škatla z edinstveno ključavnico v prtljažniku: dodatna plast varnosti za zaščito tvojih datotek."
+  },
+  "web.landing_page.section_1.title": {
+    "defaultMessage": "Izjemno močna zaščita"
+  },
+  "web.landing_page.section_10.description": {
+    "defaultMessage": "Začni šifrirati datoteke v oblaku v samo nekaj minutah. Vključeno v vseh <a>Koofrovih paketih</a>."
+  },
+  "web.landing_page.section_10.questions": {
+    "defaultMessage": "Imaš vprašanja o Koofr Vaultu? <a>Poišči odgovore tukaj</a>."
+  },
+  "web.landing_page.section_10.title": {
+    "defaultMessage": "Odkleni svoj Vault"
+  },
+  "web.landing_page.section_2.content": {
+    "defaultMessage": "Izberi zasebni ključ in ustvari sef v svojem Koofr Vaultu."
+  },
+  "web.landing_page.section_2.title": {
+    "defaultMessage": "Zasebni ključ"
+  },
+  "web.landing_page.section_3.content": {
+    "defaultMessage": "Datoteke v tvojem sefu so šifrirane ali dešifrirane na zahtevo, v tvoji napravi."
+  },
+  "web.landing_page.section_3.title": {
+    "defaultMessage": "Vse ostane v tvojem brskalniku"
+  },
+  "web.landing_page.section_4.content": {
+    "defaultMessage": "Vsebina v oblaku je šifrirana in ni nikoli dostopna brez tvojega zasebnega ključa."
+  },
+  "web.landing_page.section_4.title": {
+    "defaultMessage": "Samo ti imaš dostop"
+  },
+  "web.landing_page.section_5.content_1": {
+    "defaultMessage": "Tvoje datoteke so šifrirane, vključno z imeni datotek in vso vsebino, lokalno v tvoji napravi s tvojih zasebnim ključem in nekaj čarobne soli, preden so poslane v tvoj Vault."
+  },
+  "web.landing_page.section_5.content_2": {
+    "defaultMessage": "Ne tvoj zasebni ključ, niti nobeni drugi nešifrirani podatki ali metapodatki datotek niso poslani <a>Koofru</a> ali shranjeni v njem. Samo ti lahko dešifriraš in dostopaš do svojih datotek v Vaultu."
+  },
+  "web.landing_page.section_5.title": {
+    "defaultMessage": "Samo za tvoje oči"
+  },
+  "web.landing_page.section_6.content_1": {
+    "defaultMessage": "Koofr Vault je <a>odprtokoden</a>, zato lahko vedno preveriš, ali koda počne točno to, kar je obljubljeno - in nič drugega. Šifriranje datotek se izvaja z uporabo NaCl SecretBox, ki uporablja šifro XSalsa20 in Poly1305 za zagotavljanje integritete."
+  },
+  "web.landing_page.section_6.content_2": {
+    "defaultMessage": "Združljiv z orodjem <a>rclone</a>. To pomeni, da lahko preneseš šifrirane datoteke in jih lokalno dešifriraš z orodjem ukazne vrstice rclone."
+  },
+  "web.landing_page.section_6.title": {
+    "defaultMessage": "Popolnoma odprtokoden"
+  },
+  "web.landing_page.section_7.title": {
+    "defaultMessage": "Šifriranje na strani odjemalca"
+  },
+  "web.landing_page.section_8.title": {
+    "defaultMessage": "Preverljiva izvorna koda"
+  },
+  "web.landing_page.section_9.title": {
+    "defaultMessage": "Ničelno znanje"
+  },
+  "web.landing_page.title": {
+    "defaultMessage": "En trezor za vse tvoje<br></br><b>{typing_text}</b>"
+  },
+  "web.landing_page.title.typing_text_1": {
+    "defaultMessage": "zasebne datoteke."
+  },
+  "web.landing_page.title.typing_text_2": {
+    "defaultMessage": "zaupne podatke."
+  },
+  "web.landing_page.title.typing_text_3": {
+    "defaultMessage": "skrivnosti."
+  },
+  "web.landing_page_desktop.description": {
+    "defaultMessage": "Koofr Vault je odprtokodna aplikacija za shranjevanje na strani odjemalca, šifrirana z ničelnim znanjem za oblačno shrambo Koofr. Nadgradi varnost svojih datotek. Odkrij boljši način za varno shranjevanje in dostop do svojih fotografij, videoposnetkov in dokumentov."
+  },
+  "web.landing_page_unofficial.warning": {
+    "defaultMessage": "To je neuradna stran Koofr Vault. Uporaba na lastno odgovornost."
+  },
+  "web.loading_circle.aria_label": {
+    "defaultMessage": "Nalaganje…"
+  },
+  "web.mobile_page.continue_with_web_app.button": {
+    "defaultMessage": "Ali nadaljuj z uporabo spletne aplikacije"
+  },
+  "web.mobile_page.description": {
+    "defaultMessage": "Zdi se, da nimate nameščene mobilne aplikacije Koofr Vault."
+  },
+  "web.mobile_page.header": {
+    "defaultMessage": "Odpri v mobilni aplikaciji"
+  },
+  "web.mobile_page.install_app.button": {
+    "defaultMessage": "Namesti mobilno aplikacijo"
+  },
+  "web.mobile_page.title": {
+    "defaultMessage": "Odpri v mobilni aplikaciji Vault"
+  },
+  "web.modal.close.aria_label": {
+    "defaultMessage": "Zapri"
+  },
+  "web.navbar.aria_label": {
+    "defaultMessage": "Navigacijska vrstica"
+  },
+  "web.navbar_back.aria_label": {
+    "defaultMessage": "Nazaj"
+  },
+  "web.navbar_breadcrumbs.aria_label": {
+    "defaultMessage": "Navigacijska sled"
+  },
+  "web.navbar_close.aria_label": {
+    "defaultMessage": "Zapri"
+  },
+  "web.navbar_header.aria_label": {
+    "defaultMessage": "Glava navigacijske vrstice"
+  },
+  "web.navbar_left.aria_label": {
+    "defaultMessage": "Navigacijska vrstica levo"
+  },
+  "web.navbar_logo.aria_label": {
+    "defaultMessage": "Logo Koofr Vault"
+  },
+  "web.navbar_nav.aria_label": {
+    "defaultMessage": "Navigacijska vrstica navigacija"
+  },
+  "web.navbar_right.aria_label": {
+    "defaultMessage": "Navigacijska vrstica desno"
+  },
+  "web.not_found_page.go_to_dashboard.button": {
+    "defaultMessage": "Nazaj na prvo stran"
+  },
+  "web.not_found_page.title": {
+    "defaultMessage": "Stran ne obstaja"
+  },
+  "web.not_supported_page.description": {
+    "defaultMessage": "Vaš brskalnik ni podprt. Odprite to stran v sodobnem brskalniku na računalniku."
+  },
+  "web.not_supported_page.title": {
+    "defaultMessage": "Ni podprto"
+  },
+  "web.notifications.remove_all.button": {
+    "defaultMessage": "zapri vse"
+  },
+  "web.pdf_viewer.tooltip": {
+    "defaultMessage": "Pregledovalnik PDF-jev"
+  },
+  "web.remote_files_dir_picker.cancel.button": {
+    "defaultMessage": "Prekliči"
+  },
+  "web.remote_files_dir_picker.create_folder.button": {
+    "defaultMessage": "Ustvari mapo"
+  },
+  "web.remote_files_dir_picker.select.button": {
+    "defaultMessage": "Izberi"
+  },
+  "web.remote_files_dir_picker.title": {
+    "defaultMessage": "Izberi mapo"
+  },
+  "web.repo_config_backup.description": {
+    "defaultMessage": "Za generiranje konfiguracije rclone vnesite svoj zasebni ključ. Prepričajte se, da je pravilen."
+  },
+  "web.repo_config_backup.password.aria_label": {
+    "defaultMessage": "Zasebni ključ"
+  },
+  "web.repo_config_backup.password.placeholder": {
+    "defaultMessage": "Vaš zasebni ključ"
+  },
+  "web.repo_config_backup.title": {
+    "defaultMessage": "Varnostno kopiranje konfiguracije"
+  },
+  "web.repo_config_info.copy.button": {
+    "defaultMessage": "Kopiraj"
+  },
+  "web.repo_config_info.copy.button.copied": {
+    "defaultMessage": "Kopirano"
+  },
+  "web.repo_config_info.encrypt_directory_names": {
+    "defaultMessage": "<b>Šifriraj imena imenikov</b>: {encrypt_directory_names}"
+  },
+  "web.repo_config_info.filename_encryption": {
+    "defaultMessage": "<b>Šifriranje imen datotek</b>: {filename_encryption}"
+  },
+  "web.repo_config_info.location": {
+    "defaultMessage": "<b>Lokacija</b>: {location}"
+  },
+  "web.repo_config_info.rclone_config": {
+    "defaultMessage": "<b>Konfiguracija rclone</b>:"
+  },
+  "web.repo_config_info.salt": {
+    "defaultMessage": "<b>Sol (salt/password2)</b>: {salt}"
+  },
+  "web.repo_create.created.continue.button": {
+    "defaultMessage": "Nadaljuj"
+  },
+  "web.repo_create.created.description": {
+    "defaultMessage": "Preden začnete uporabljati svoj sef, varno shranite konfiguracijo."
+  },
+  "web.repo_create.created.title": {
+    "defaultMessage": "Vaš sef je bil ustvarjen"
+  },
+  "web.repo_create.form.create.button": {
+    "defaultMessage": "Ustvari"
+  },
+  "web.repo_create.form.location.label": {
+    "defaultMessage": "Lokacija"
+  },
+  "web.repo_create.form.location.select_folder.button": {
+    "defaultMessage": "Izberi mapo"
+  },
+  "web.repo_create.form.password.label": {
+    "defaultMessage": "Zasebni ključ"
+  },
+  "web.repo_create.form.password.placeholder": {
+    "defaultMessage": "Dolžina mora biti vsaj 8 znakov"
+  },
+  "web.repo_create.form.rclone_config.fill.button": {
+    "defaultMessage": "Izpolni"
+  },
+  "web.repo_create.form.rclone_config.format.label": {
+    "defaultMessage": "Oblika:"
+  },
+  "web.repo_create.form.rclone_config.title": {
+    "defaultMessage": "Iz konfiguracije rclone"
+  },
+  "web.repo_create.form.salt.description": {
+    "defaultMessage": "<p>Sol (salt) se uporablja v procesu izpeljave ključev za ustvarjanje edinstvenega šifrirnega ključa in pomaga pri zaščiti pred morebitnimi napadi. Varno bo shranjena na Koofrovih strežnikih.</p><p>Za vas je bila ustvarjena naključna sol. Če želite, lahko polje Sol pustite prazno in uporabljena bo privzeta sol (enako kot v rclone). Vendar pa je za večjo varnost priporočljivo uporabiti edinstveno sol. Uporaba edinstvene soli pomaga povečati zahtevnost postopka šifriranja, zaradi česar je morebitnim napadalcem otežen dostop do šifriranih podatkov.</p><p>Če želite šifrirane datoteke prenesti v drugo storitev, je potrebno izvoziti tudi sol, sicer datotek ne boste mogli dešifrirati.</p>"
+  },
+  "web.repo_create.form.salt.label": {
+    "defaultMessage": "Sol"
+  },
+  "web.repo_create.form.show_advanced_settings.button": {
+    "defaultMessage": "Prikaži napredne nastavitve"
+  },
+  "web.repo_create.title": {
+    "defaultMessage": "Ustvari nov sef"
+  },
+  "web.repo_file_category.archive": {
+    "defaultMessage": "Arhiv"
+  },
+  "web.repo_file_category.audio": {
+    "defaultMessage": "Avdio"
+  },
+  "web.repo_file_category.code": {
+    "defaultMessage": "Koda"
+  },
+  "web.repo_file_category.document": {
+    "defaultMessage": "Dokument"
+  },
+  "web.repo_file_category.file": {
+    "defaultMessage": "Datoteka"
+  },
+  "web.repo_file_category.folder": {
+    "defaultMessage": "Mapa"
+  },
+  "web.repo_file_category.image": {
+    "defaultMessage": "Slika"
+  },
+  "web.repo_file_category.pdf": {
+    "defaultMessage": "PDF"
+  },
+  "web.repo_file_category.presentation": {
+    "defaultMessage": "Predstavitev"
+  },
+  "web.repo_file_category.spreadsheet": {
+    "defaultMessage": "Preglednica"
+  },
+  "web.repo_file_category.text": {
+    "defaultMessage": "Besedilo"
+  },
+  "web.repo_file_category.video": {
+    "defaultMessage": "Video"
+  },
+  "web.repo_file_info.close.button": {
+    "defaultMessage": "Zapri"
+  },
+  "web.repo_file_info.encrypted_md5.label": {
+    "defaultMessage": "Šifriran MD5"
+  },
+  "web.repo_file_info.encrypted_path.label": {
+    "defaultMessage": "Šifrirana pot"
+  },
+  "web.repo_file_info.md5.label": {
+    "defaultMessage": "MD5"
+  },
+  "web.repo_file_info.modified.label": {
+    "defaultMessage": "Spremenjeno"
+  },
+  "web.repo_file_info.name.label": {
+    "defaultMessage": "Ime"
+  },
+  "web.repo_file_info.path.label": {
+    "defaultMessage": "Pot"
+  },
+  "web.repo_file_info.size.label": {
+    "defaultMessage": "Velikost"
+  },
+  "web.repo_file_info.tags_error.label": {
+    "defaultMessage": "Napaka oznak"
+  },
+  "web.repo_file_info.title": {
+    "defaultMessage": "Podrobnosti"
+  },
+  "web.repo_file_info.type.label": {
+    "defaultMessage": "Vrsta"
+  },
+  "web.repo_files.create_text_file.default_filename": {
+    "defaultMessage": "nova besedilna datoteka {date}"
+  },
+  "web.repo_files.dir.aria_label": {
+    "defaultMessage": "Mapa {name}"
+  },
+  "web.repo_files.file.aria_label": {
+    "defaultMessage": "Datoteka {name}"
+  },
+  "web.repo_files.modified.column": {
+    "defaultMessage": "Spremenjeno"
+  },
+  "web.repo_files.name.column": {
+    "defaultMessage": "Ime"
+  },
+  "web.repo_files.name_with_error.text": {
+    "defaultMessage": "{name} (NAPAKA)"
+  },
+  "web.repo_files.rename.tooltip": {
+    "defaultMessage": "Preimenuj"
+  },
+  "web.repo_files.size.column": {
+    "defaultMessage": "Velikost"
+  },
+  "web.repo_files.table.aria_label": {
+    "defaultMessage": "Seznam datotek"
+  },
+  "web.repo_files_add_menu.create_dir.menu_item": {
+    "defaultMessage": "Nova mapa"
+  },
+  "web.repo_files_add_menu.create_text_file.menu_item": {
+    "defaultMessage": "Nova besedilna datoteka"
+  },
+  "web.repo_files_add_menu.upload_file.menu_item": {
+    "defaultMessage": "Naloži datoteko"
+  },
+  "web.repo_files_add_menu.upload_folder.menu_item": {
+    "defaultMessage": "Naloži mapo"
+  },
+  "web.repo_files_details.navbar.delete.button": {
+    "defaultMessage": "Izbriši"
+  },
+  "web.repo_files_details.navbar.download.button": {
+    "defaultMessage": "Prenesi"
+  },
+  "web.repo_files_details.navbar.edit.button": {
+    "defaultMessage": "Uredi"
+  },
+  "web.repo_files_details.navbar.rename.button": {
+    "defaultMessage": "Preimenuj"
+  },
+  "web.repo_files_details.navbar.save.button": {
+    "defaultMessage": "Shrani"
+  },
+  "web.repo_files_details.navbar_header.auto_save.text": {
+    "defaultMessage": "Spremembe so shranjene samodejno. Zadnjič shranjeno {modified}"
+  },
+  "web.repo_files_details.navbar_header.error.aria_label": {
+    "defaultMessage": "Napaka datoteke"
+  },
+  "web.repo_files_details.navbar_header.loading.text": {
+    "defaultMessage": "Nalaganje…"
+  },
+  "web.repo_files_details.navbar_header.saving.text": {
+    "defaultMessage": "Shranjevanje…"
+  },
+  "web.repo_files_details.navbar_header.status.aria_label": {
+    "defaultMessage": "Stanje datoteke"
+  },
+  "web.repo_files_details.navbar_header.status.dirty": {
+    "defaultMessage": "Datoteka spremenjena"
+  },
+  "web.repo_files_details.navbar_header.status.unchanged": {
+    "defaultMessage": "Datoteka nespremenjena"
+  },
+  "web.repo_files_empty.title": {
+    "defaultMessage": "Ta mapa je prazna."
+  },
+  "web.repo_files_move.cancel.button": {
+    "defaultMessage": "Prekliči"
+  },
+  "web.repo_files_move.copy.button": {
+    "defaultMessage": "Kopiraj"
+  },
+  "web.repo_files_move.copy.title": {
+    "defaultMessage": "Kopiraj <b>{count, plural, one {# element} two {# elementa} few {# elemente} other {# elementov}}</b> v <b>{dest}</b>"
+  },
+  "web.repo_files_move.create_dir.button": {
+    "defaultMessage": "Ustvari mapo"
+  },
+  "web.repo_files_move.move.button": {
+    "defaultMessage": "Premakni"
+  },
+  "web.repo_files_move.move.title": {
+    "defaultMessage": "Premakni <b>{count, plural, one {# element} two {# elementa} few {# elemente} other {# elementov}}</b> v <b>{dest}</b>"
+  },
+  "web.repo_files_nav.add.button": {
+    "defaultMessage": "Dodaj"
+  },
+  "web.repo_files_summary.selected_count.text": {
+    "defaultMessage": "{count, plural, one {# element} two {# elementa} few {# elementi} other {# elementov}} - {size} izbrano"
+  },
+  "web.repo_files_summary.total_count.text": {
+    "defaultMessage": "{count, plural, one {# element} two {# elementa} few {# elementi} other {# elementov}} - {size}"
+  },
+  "web.repo_files_toolbar.copy.button": {
+    "defaultMessage": "Kopiraj"
+  },
+  "web.repo_files_toolbar.delete.button": {
+    "defaultMessage": "Izbriši"
+  },
+  "web.repo_files_toolbar.download.button": {
+    "defaultMessage": "Prenesi"
+  },
+  "web.repo_files_toolbar.edit_text.button": {
+    "defaultMessage": "Uredi besedilo"
+  },
+  "web.repo_files_toolbar.info.button": {
+    "defaultMessage": "Podrobnosti"
+  },
+  "web.repo_files_toolbar.move.button": {
+    "defaultMessage": "Premakni"
+  },
+  "web.repo_files_toolbar.rename.button": {
+    "defaultMessage": "Preimenuj"
+  },
+  "web.repo_files_upload_form.upload_dir.aria_label": {
+    "defaultMessage": "Naloži mapo"
+  },
+  "web.repo_files_upload_form.upload_file.aria_label": {
+    "defaultMessage": "Naloži datoteko"
+  },
+  "web.repo_info.backup_config.button": {
+    "defaultMessage": "Ustvari varnostno kopijo konfiguracije sefa"
+  },
+  "web.repo_info.backup_config.heading": {
+    "defaultMessage": "Varnostna kopija konfiguracije"
+  },
+  "web.repo_info.created_at.text": {
+    "defaultMessage": "Ustvarjen: {created}"
+  },
+  "web.repo_info.destroy_repo.button": {
+    "defaultMessage": "Uniči sef…"
+  },
+  "web.repo_info.locked.text": {
+    "defaultMessage": "Zaklenjen"
+  },
+  "web.repo_info.open_repo_in_remote.button": {
+    "defaultMessage": "Odpri v Koofru"
+  },
+  "web.repo_info.unlocked.text": {
+    "defaultMessage": "Odklenjen"
+  },
+  "web.repo_lock.lock_after.heading": {
+    "defaultMessage": "Zakleni po"
+  },
+  "web.repo_lock.lock_after_options.custom": {
+    "defaultMessage": "Po meri ({seconds, plural, one {# sekunda} two {# sekundi} few {# sekunde} other {# sekund}})"
+  },
+  "web.repo_lock.lock_after_options.inactive_10_minutes": {
+    "defaultMessage": "10 minutah neaktivnosti"
+  },
+  "web.repo_lock.lock_after_options.inactive_1_hour": {
+    "defaultMessage": "1 uri neaktivnosti"
+  },
+  "web.repo_lock.lock_after_options.inactive_1_minute": {
+    "defaultMessage": "1 minuti neaktivnosti"
+  },
+  "web.repo_lock.lock_after_options.inactive_2_hours": {
+    "defaultMessage": "2 urah neaktivnosti"
+  },
+  "web.repo_lock.lock_after_options.inactive_30_minutes": {
+    "defaultMessage": "30 minutah neaktivnosti"
+  },
+  "web.repo_lock.lock_after_options.inactive_4_hours": {
+    "defaultMessage": "4 urah neaktivnosti"
+  },
+  "web.repo_lock.lock_after_options.inactive_5_minutes": {
+    "defaultMessage": "5 minutah neaktivnosti"
+  },
+  "web.repo_lock.lock_after_options.no_limit": {
+    "defaultMessage": "Brez časovne omejitve"
+  },
+  "web.repo_lock.lock_after_select.aria_label": {
+    "defaultMessage": "Zakleni sef po"
+  },
+  "web.repo_lock.lock_now.button": {
+    "defaultMessage": "Zakleni zdaj"
+  },
+  "web.repo_lock.lock_on.button": {
+    "defaultMessage": "Zakleni, ko je"
+  },
+  "web.repo_lock.lock_on_app_hidden.text": {
+    "defaultMessage": "Aplikacija skrita"
+  },
+  "web.repo_lock.title": {
+    "defaultMessage": "Zakleni sef"
+  },
+  "web.repo_remove.cancel.button": {
+    "defaultMessage": "Prekliči"
+  },
+  "web.repo_remove.confirm.button": {
+    "defaultMessage": "Uniči"
+  },
+  "web.repo_remove.message": {
+    "defaultMessage": "<p>Ali res želite uničiti sef <b>{name}</b>?</p><p>Z uničenjem sefa boste ohranili vse datoteke v Koofru, vendar boste odstranili konfiguracijo, tako da datotek ne boste mogli dešifrirati, če konfiguracije niste shranili.</p><p><b>Te akcije ne morete preklicati.</b></p><p>Vnesite svoj zasebni ključ, da potrdite uničenje sefa:</p>"
+  },
+  "web.repo_remove.title": {
+    "defaultMessage": "Uniči sef"
+  },
+  "web.repo_space_usage.calculate.button": {
+    "defaultMessage": "Izračunaj"
+  },
+  "web.repo_space_usage.heading": {
+    "defaultMessage": "Porabljen prostor"
+  },
+  "web.repo_space_usage.loading.text": {
+    "defaultMessage": "Nalaganje…"
+  },
+  "web.repo_unlock_form.message": {
+    "defaultMessage": "Za nadaljevanje vnesite svoj zasebni ključ"
+  },
+  "web.repo_unlock_form.password.aria_label": {
+    "defaultMessage": "Zasebni ključ"
+  },
+  "web.repo_unlock_form.submit.button": {
+    "defaultMessage": "Nadaljuj"
+  },
+  "web.repos.create.button": {
+    "defaultMessage": "Ustvari nov sef"
+  },
+  "web.repos.repo.info.aria_label": {
+    "defaultMessage": "Informacije o sefu"
+  },
+  "web.repos.repo.locked.aria_label": {
+    "defaultMessage": "Sef zaklenjen"
+  },
+  "web.repos.repo.recent.button": {
+    "defaultMessage": "Nedavne datoteke"
+  },
+  "web.repos.repo.recent.button.aria_label": {
+    "defaultMessage": "Nedavne datoteke"
+  },
+  "web.repos.repo.unlocked.aria_label": {
+    "defaultMessage": "Sef odklenjen"
+  },
+  "web.show_password.hide": {
+    "defaultMessage": "Skrij geslo"
+  },
+  "web.show_password.hide.aria_label": {
+    "defaultMessage": "Skrij geslo"
+  },
+  "web.show_password.show": {
+    "defaultMessage": "Pokaži geslo"
+  },
+  "web.show_password.show.aria_label": {
+    "defaultMessage": "Pokaži geslo"
+  },
+  "web.space_usage.text": {
+    "id": "web.space_usage.text",
+    "defaultMessage": "{used} od {total} zasedeno"
+  },
+  "web.toolbar.cancel.button": {
+    "defaultMessage": "Prekliči"
+  },
+  "web.transfers.summary.cancel_all.button": {
+    "defaultMessage": "Prekliči"
+  },
+  "web.transfers.summary.cancel_all.tooltip": {
+    "defaultMessage": "Prekliči vse prenose"
+  },
+  "web.transfers.summary.clear_all.button": {
+    "defaultMessage": "Počisti"
+  },
+  "web.transfers.summary.clear_all.tooltip": {
+    "defaultMessage": "Počisti vse prenose"
+  },
+  "web.transfers.summary.hide_details.button": {
+    "defaultMessage": "Skrij podrobnosti"
+  },
+  "web.transfers.summary.progress.text": {
+    "defaultMessage": "<b>{done_count} / {total_count}</b> končano"
+  },
+  "web.transfers.summary.remaining_time.text": {
+    "defaultMessage": "<b>{time}</b> preostalo"
+  },
+  "web.transfers.summary.retry_all.button": {
+    "defaultMessage": "Poskusi znova"
+  },
+  "web.transfers.summary.retry_all.tooltip": {
+    "defaultMessage": "Ponovni poskus neuspešnih prenosov"
+  },
+  "web.transfers.summary.show_details.button": {
+    "defaultMessage": "Pokaži podrobnosti"
+  },
+  "web.transfers.transfer.cancel.button": {
+    "defaultMessage": "Prekliči"
+  },
+  "web.transfers.transfer.clear.aria_label": {
+    "defaultMessage": "Počisti"
+  },
+  "web.transfers.transfer.message.done": {
+    "defaultMessage": "{name}<status> je bila prenesena</status>"
+  },
+  "web.transfers.transfer.message.failed": {
+    "defaultMessage": "{name}<status> neuspešna. {error}</status>"
+  },
+  "web.transfers.transfer.message.processing": {
+    "defaultMessage": "{name}<status> se obdeluje</status>"
+  },
+  "web.transfers.transfer.message.transferring": {
+    "defaultMessage": "{name}<status> se prenaša</status>"
+  },
+  "web.transfers.transfer.message.waiting": {
+    "defaultMessage": "{name}<status> čaka na prenos</status>"
+  },
+  "web.transfers.transfer.open.button": {
+    "defaultMessage": "Odpri"
+  },
+  "web.transfers.transfer.retry.button": {
+    "defaultMessage": "Poskusi znova"
+  },
+  "web.version.text": {
+    "defaultMessage": "Različica: {version}"
+  }
+}

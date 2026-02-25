@@ -44,7 +44,7 @@ android {
     androidResources {
         generateLocaleConfig = true
 
-        localeFilters += listOf()
+        localeFilters += listOf("sl")
     }
 
     if (!localProperties.getProperty("signingConfigs.release.storeFile").isNullOrEmpty()) {
