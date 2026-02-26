@@ -23,13 +23,42 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 Build
 
-### android deploy
+### android build_apk
 
 ```sh
-[bundle exec] fastlane android deploy
+[bundle exec] fastlane android build_apk
 ```
 
-Deploy a new version to the Google Play
+Build APK
+
+### android upload
+
+```sh
+[bundle exec] fastlane android upload
+```
+
+Upload a new version to Google Play (no metadata or screenshots)
+
+----
+
+
+## iOS
+
+### ios build
+
+```sh
+[bundle exec] fastlane ios build
+```
+
+Build
+
+### ios upload
+
+```sh
+[bundle exec] fastlane ios upload
+```
+
+Upload a new build to App Store Connect (no submission)
 
 ----
 

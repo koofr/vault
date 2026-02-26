@@ -1,1 +1,7 @@
-package_name("net.koofr.vault")
+for_platform :android do
+  package_name("net.koofr.vault")
+end
+
+for_platform :ios do
+  app_identifier("net.koofr.Vault")
+end

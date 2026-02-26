@@ -47,6 +47,7 @@ playground.xcworkspace
 # .swiftpm
 
 .build/
+build/
 
 VaultMobile/vault_mobile.swift
 VaultMobile/vault_mobileFFI.modulemap

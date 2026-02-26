@@ -6,14 +6,51 @@ platform :android do
     gradle(task: "clean", project_dir: "./vault-android")
     gradle(task: "generateUniFFIBindings", project_dir: "./vault-android")
     gradle(task: "cargoBuild", project_dir: "./vault-android")
+    gradle(task: "bundleRelease", project_dir: "./vault-android")
+  end
+
+  desc "Build APK"
+  lane :build_apk do
+    gradle(task: "clean", project_dir: "./vault-android")
+    gradle(task: "generateUniFFIBindings", project_dir: "./vault-android")
+    gradle(task: "cargoBuild", project_dir: "./vault-android")
     gradle(task: "assembleRelease", project_dir: "./vault-android")
   end
 
-  desc "Deploy a new version to the Google Play"
-  lane :deploy do
+  desc "Upload a new version to Google Play (no metadata or screenshots)"
+  lane :upload do
     build
     upload_to_play_store(
-      aab: "./vault-android/app/build/outputs/bundle/release/app-release.aab"
+      aab: "./vault-android/app/build/outputs/bundle/release/app-release.aab",
+      track: "internal", # Create a new "Internal testing release"
+      release_status: "draft", # Set to "draft" to not publish the release
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+end
+
+platform :ios do
+  desc "Build"
+  lane :build do
+    build_ios_app(
+      project: "./vault-ios/Vault.xcodeproj",
+      scheme: "Vault",
+      clean: true,
+      output_directory: "./vault-ios/build"
+    )
+  end
+
+  desc "Upload a new build to App Store Connect (no submission)"
+  lane :upload do
+    build
+    upload_to_app_store(
+      ipa: "./vault-ios/build/Vault.ipa",
+      submit_for_review: false,
+      automatic_release: false,
+      skip_metadata: true,
+      skip_screenshots: true,
     )
   end
 end
