@@ -20,8 +20,8 @@ android {
         applicationId = "net.koofr.vault"
         minSdk = 24
         targetSdk = 35
-        versionCode = 122001
-        versionName = "0.1.22"
+        versionCode = 124002
+        versionName = "0.1.24"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
