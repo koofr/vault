@@ -47,6 +47,15 @@ android {
         localeFilters += listOf("sl")
     }
 
+    bundle {
+        language {
+            // This ensures all languages are included in the base APK.
+            // Otherwise language resources are loaded asynchronously and the UI
+            // does not update automatically.
+            enableSplit = false
+        }
+    }
+
     if (!localProperties.getProperty("signingConfigs.release.storeFile").isNullOrEmpty()) {
         signingConfigs {
             create("release") {
