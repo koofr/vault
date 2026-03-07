@@ -1835,7 +1835,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Vault/Vault.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 124002;
+				CURRENT_PROJECT_VERSION = 125001;
 				DEVELOPMENT_ASSET_PATHS = "\"Vault/Preview Content\"";
 				DEVELOPMENT_TEAM = UKS5857P5L;
 				ENABLE_PREVIEWS = YES;
@@ -1855,7 +1855,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.1.24;
+				MARKETING_VERSION = 0.1.25;
 				PRODUCT_BUNDLE_IDENTIFIER = net.koofr.Vault;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1873,7 +1873,7 @@
 				CODE_SIGN_ENTITLEMENTS = Vault/Vault.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 124002;
+				CURRENT_PROJECT_VERSION = 125001;
 				DEVELOPMENT_ASSET_PATHS = "\"Vault/Preview Content\"";
 				DEVELOPMENT_TEAM = UKS5857P5L;
 				ENABLE_PREVIEWS = YES;
@@ -1893,7 +1893,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.1.24;
+				MARKETING_VERSION = 0.1.25;
 				PRODUCT_BUNDLE_IDENTIFIER = net.koofr.Vault;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
