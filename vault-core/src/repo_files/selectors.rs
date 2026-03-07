@@ -373,3 +373,363 @@ pub fn get_unused_name(
         used_names.contains(&DecryptedNameLower(name.to_lowercase()))
     }))
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use crate::{
+        files::file_category::FileCategory,
+        repo_files::state::{RepoFile, RepoFileName, RepoFilePath, RepoFileSize, RepoFileType},
+        repo_files::state::{RepoFilesSort, RepoFilesSortField},
+        sort::state::{SortDirection, SortGrouping},
+        types::{
+            DecryptedName, DecryptedPath, EncryptedPath, MountId, RemotePath, RepoFileId, RepoId,
+        },
+    };
+
+    use super::*;
+
+    #[allow(dead_code)]
+    fn create_repo_file(
+        typ: RepoFileType,
+        name: &str,
+        size: Option<i64>,
+        modified: Option<i64>,
+    ) -> RepoFile {
+        let id = RepoFileId(format!("r1:/{}", name));
+        let path = format!("/{}", name);
+
+        RepoFile {
+            id,
+            mount_id: MountId("m1".into()),
+            remote_path: RemotePath(path.clone()),
+            repo_id: RepoId("r1".into()),
+            encrypted_path: EncryptedPath(path.clone()),
+            path: RepoFilePath::Decrypted {
+                path: DecryptedPath(path),
+            },
+            name: RepoFileName::Decrypted {
+                name: DecryptedName(name.into()),
+                name_lower: name.to_lowercase(),
+            },
+            ext: None,
+            content_type: None,
+            typ: typ.clone(),
+            size: size.map(|size| RepoFileSize::Decrypted { size }),
+            modified,
+            tags: None,
+            unique_name: name.into(),
+            remote_hash: None,
+            category: match typ {
+                RepoFileType::Dir => FileCategory::Folder,
+                RepoFileType::File => FileCategory::Generic,
+            },
+        }
+    }
+
+    fn sort_names(files: Vec<RepoFile>, sort: RepoFilesSort) -> Vec<String> {
+        let file_ids: Vec<RepoFileId> = files.iter().map(|f| f.id.clone()).collect();
+        let files_map: HashMap<RepoFileId, RepoFile> =
+            files.into_iter().map(|f| (f.id.clone(), f)).collect();
+
+        select_sorted_files(&files_map, file_ids.iter(), &sort)
+            .into_iter()
+            .map(|id| {
+                files_map
+                    .get(&id)
+                    .unwrap()
+                    .decrypted_name()
+                    .unwrap()
+                    .0
+                    .clone()
+            })
+            .collect()
+    }
+
+    #[test]
+    fn test_select_sorted_files_dirs_first_name() {
+        let files = vec![
+            create_repo_file(RepoFileType::File, "c.txt", Some(30), Some(30)),
+            create_repo_file(RepoFileType::Dir, "z-dir", Some(50), Some(50)),
+            create_repo_file(RepoFileType::File, "a.txt", Some(10), Some(10)),
+            create_repo_file(RepoFileType::Dir, "a-dir", Some(40), Some(40)),
+            create_repo_file(RepoFileType::File, "b.txt", Some(20), Some(20)),
+        ];
+
+        let asc = sort_names(
+            files.clone(),
+            RepoFilesSort {
+                field: RepoFilesSortField::Name,
+                direction: SortDirection::Asc,
+                grouping: SortGrouping::DirsFirst,
+            },
+        );
+        let desc = sort_names(
+            files,
+            RepoFilesSort {
+                field: RepoFilesSortField::Name,
+                direction: SortDirection::Desc,
+                grouping: SortGrouping::DirsFirst,
+            },
+        );
+
+        assert_eq!(asc, vec!["a-dir", "z-dir", "a.txt", "b.txt", "c.txt"]);
+        assert_eq!(desc, vec!["z-dir", "a-dir", "c.txt", "b.txt", "a.txt"]);
+    }
+
+    #[test]
+    fn test_select_sorted_files_dirs_first_size() {
+        let files = vec![
+            create_repo_file(RepoFileType::File, "c.txt", Some(30), Some(30)),
+            create_repo_file(RepoFileType::Dir, "z-dir", Some(50), Some(50)),
+            create_repo_file(RepoFileType::File, "a.txt", Some(10), Some(10)),
+            create_repo_file(RepoFileType::Dir, "a-dir", Some(40), Some(40)),
+            create_repo_file(RepoFileType::File, "b.txt", Some(20), Some(20)),
+        ];
+
+        let asc = sort_names(
+            files.clone(),
+            RepoFilesSort {
+                field: RepoFilesSortField::Size,
+                direction: SortDirection::Asc,
+                grouping: SortGrouping::DirsFirst,
+            },
+        );
+        let desc = sort_names(
+            files,
+            RepoFilesSort {
+                field: RepoFilesSortField::Size,
+                direction: SortDirection::Desc,
+                grouping: SortGrouping::DirsFirst,
+            },
+        );
+
+        assert_eq!(asc, vec!["a-dir", "z-dir", "a.txt", "b.txt", "c.txt"]);
+        assert_eq!(desc, vec!["a-dir", "z-dir", "c.txt", "b.txt", "a.txt"]);
+    }
+
+    #[test]
+    fn test_select_sorted_files_dirs_first_modified() {
+        let files = vec![
+            create_repo_file(RepoFileType::File, "c.txt", Some(30), Some(30)),
+            create_repo_file(RepoFileType::Dir, "z-dir", Some(50), Some(50)),
+            create_repo_file(RepoFileType::File, "a.txt", Some(10), Some(10)),
+            create_repo_file(RepoFileType::Dir, "a-dir", Some(40), Some(40)),
+            create_repo_file(RepoFileType::File, "b.txt", Some(20), Some(20)),
+        ];
+
+        let asc = sort_names(
+            files.clone(),
+            RepoFilesSort {
+                field: RepoFilesSortField::Modified,
+                direction: SortDirection::Asc,
+                grouping: SortGrouping::DirsFirst,
+            },
+        );
+        let desc = sort_names(
+            files,
+            RepoFilesSort {
+                field: RepoFilesSortField::Modified,
+                direction: SortDirection::Desc,
+                grouping: SortGrouping::DirsFirst,
+            },
+        );
+
+        assert_eq!(asc, vec!["a-dir", "z-dir", "a.txt", "b.txt", "c.txt"]);
+        assert_eq!(desc, vec!["a-dir", "z-dir", "c.txt", "b.txt", "a.txt"]);
+    }
+
+    #[test]
+    fn test_select_sorted_files_no_grouping_name() {
+        let files = vec![
+            create_repo_file(RepoFileType::File, "c.txt", Some(30), Some(30)),
+            create_repo_file(RepoFileType::Dir, "z-dir", Some(50), Some(50)),
+            create_repo_file(RepoFileType::File, "a.txt", Some(10), Some(10)),
+            create_repo_file(RepoFileType::Dir, "a-dir", Some(40), Some(40)),
+            create_repo_file(RepoFileType::File, "b.txt", Some(20), Some(20)),
+        ];
+
+        let asc = sort_names(
+            files.clone(),
+            RepoFilesSort {
+                field: RepoFilesSortField::Name,
+                direction: SortDirection::Asc,
+                grouping: SortGrouping::NoGrouping,
+            },
+        );
+        let desc = sort_names(
+            files,
+            RepoFilesSort {
+                field: RepoFilesSortField::Name,
+                direction: SortDirection::Desc,
+                grouping: SortGrouping::NoGrouping,
+            },
+        );
+
+        assert_eq!(asc, vec!["a-dir", "a.txt", "b.txt", "c.txt", "z-dir"]);
+        assert_eq!(desc, vec!["z-dir", "c.txt", "b.txt", "a.txt", "a-dir"]);
+    }
+
+    #[test]
+    fn test_select_sorted_files_no_grouping_size() {
+        let files = vec![
+            create_repo_file(RepoFileType::File, "c.txt", Some(30), Some(30)),
+            create_repo_file(RepoFileType::Dir, "z-dir", Some(50), Some(50)),
+            create_repo_file(RepoFileType::File, "a.txt", Some(10), Some(10)),
+            create_repo_file(RepoFileType::Dir, "a-dir", Some(40), Some(40)),
+            create_repo_file(RepoFileType::File, "b.txt", Some(20), Some(20)),
+        ];
+
+        let asc = sort_names(
+            files.clone(),
+            RepoFilesSort {
+                field: RepoFilesSortField::Size,
+                direction: SortDirection::Asc,
+                grouping: SortGrouping::NoGrouping,
+            },
+        );
+        let desc = sort_names(
+            files,
+            RepoFilesSort {
+                field: RepoFilesSortField::Size,
+                direction: SortDirection::Desc,
+                grouping: SortGrouping::NoGrouping,
+            },
+        );
+
+        assert_eq!(asc, vec!["a.txt", "b.txt", "c.txt", "a-dir", "z-dir"]);
+        assert_eq!(desc, vec!["z-dir", "a-dir", "c.txt", "b.txt", "a.txt"]);
+    }
+
+    #[test]
+    fn test_select_sorted_files_no_grouping_modified() {
+        let files = vec![
+            create_repo_file(RepoFileType::File, "c.txt", Some(30), Some(30)),
+            create_repo_file(RepoFileType::Dir, "z-dir", Some(50), Some(50)),
+            create_repo_file(RepoFileType::File, "a.txt", Some(10), Some(10)),
+            create_repo_file(RepoFileType::Dir, "a-dir", Some(40), Some(40)),
+            create_repo_file(RepoFileType::File, "b.txt", Some(20), Some(20)),
+        ];
+
+        let asc = sort_names(
+            files.clone(),
+            RepoFilesSort {
+                field: RepoFilesSortField::Modified,
+                direction: SortDirection::Asc,
+                grouping: SortGrouping::NoGrouping,
+            },
+        );
+        let desc = sort_names(
+            files,
+            RepoFilesSort {
+                field: RepoFilesSortField::Modified,
+                direction: SortDirection::Desc,
+                grouping: SortGrouping::NoGrouping,
+            },
+        );
+
+        assert_eq!(asc, vec!["a.txt", "b.txt", "c.txt", "a-dir", "z-dir"]);
+        assert_eq!(desc, vec!["z-dir", "a-dir", "c.txt", "b.txt", "a.txt"]);
+    }
+
+    #[test]
+    fn test_select_sorted_files_name_case_insensitive() {
+        let files = vec![
+            create_repo_file(RepoFileType::File, "c.txt", Some(1), Some(1)),
+            create_repo_file(RepoFileType::File, "B.txt", Some(1), Some(1)),
+            create_repo_file(RepoFileType::File, "a.txt", Some(1), Some(1)),
+        ];
+
+        let asc = sort_names(
+            files,
+            RepoFilesSort {
+                field: RepoFilesSortField::Name,
+                direction: SortDirection::Asc,
+                grouping: SortGrouping::NoGrouping,
+            },
+        );
+
+        assert_eq!(asc, vec!["a.txt", "B.txt", "c.txt"]);
+    }
+
+    #[test]
+    fn test_select_sorted_files_name_numeric_prefix() {
+        let files = vec![
+            create_repo_file(RepoFileType::File, "2foo.txt", Some(1), Some(1)),
+            create_repo_file(RepoFileType::File, "1foo.txt", Some(1), Some(1)),
+            create_repo_file(RepoFileType::File, "19foo.txt", Some(1), Some(1)),
+        ];
+
+        let asc = sort_names(
+            files,
+            RepoFilesSort {
+                field: RepoFilesSortField::Name,
+                direction: SortDirection::Asc,
+                grouping: SortGrouping::NoGrouping,
+            },
+        );
+
+        assert_eq!(asc, vec!["19foo.txt", "1foo.txt", "2foo.txt"]);
+    }
+
+    #[test]
+    fn test_select_sorted_files_name_numeric_prefix_with_space() {
+        let files = vec![
+            create_repo_file(RepoFileType::File, "2 foo.txt", Some(1), Some(1)),
+            create_repo_file(RepoFileType::File, "1 foo.txt", Some(1), Some(1)),
+            create_repo_file(RepoFileType::File, "19 foo.txt", Some(1), Some(1)),
+        ];
+
+        let asc = sort_names(
+            files,
+            RepoFilesSort {
+                field: RepoFilesSortField::Name,
+                direction: SortDirection::Asc,
+                grouping: SortGrouping::NoGrouping,
+            },
+        );
+
+        assert_eq!(asc, vec!["1 foo.txt", "19 foo.txt", "2 foo.txt"]);
+    }
+
+    #[test]
+    fn test_select_sorted_files_name_numeric_suffix() {
+        let files = vec![
+            create_repo_file(RepoFileType::File, "foo2.txt", Some(1), Some(1)),
+            create_repo_file(RepoFileType::File, "foo1.txt", Some(1), Some(1)),
+            create_repo_file(RepoFileType::File, "foo19.txt", Some(1), Some(1)),
+        ];
+
+        let asc = sort_names(
+            files,
+            RepoFilesSort {
+                field: RepoFilesSortField::Name,
+                direction: SortDirection::Asc,
+                grouping: SortGrouping::NoGrouping,
+            },
+        );
+
+        assert_eq!(asc, vec!["foo1.txt", "foo19.txt", "foo2.txt"]);
+    }
+
+    #[test]
+    fn test_select_sorted_files_name_numeric_suffix_with_space() {
+        let files = vec![
+            create_repo_file(RepoFileType::File, "foo 2.txt", Some(1), Some(1)),
+            create_repo_file(RepoFileType::File, "foo 1.txt", Some(1), Some(1)),
+            create_repo_file(RepoFileType::File, "foo 19.txt", Some(1), Some(1)),
+        ];
+
+        let asc = sort_names(
+            files,
+            RepoFilesSort {
+                field: RepoFilesSortField::Name,
+                direction: SortDirection::Asc,
+                grouping: SortGrouping::NoGrouping,
+            },
+        );
+
+        assert_eq!(asc, vec!["foo 1.txt", "foo 19.txt", "foo 2.txt"]);
+    }
+}
