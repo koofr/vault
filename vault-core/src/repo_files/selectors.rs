@@ -303,10 +303,10 @@ where
             match field {
                 RepoFilesSortField::Name => {
                     dirs.sort_by(|a, b| {
-                        direction.ordering(a.name_lower_force().cmp(b.name_lower_force()))
+                        direction.ordering(natord::compare(a.name_lower_force(), b.name_lower_force()))
                     });
                     files.sort_by(|a, b| {
-                        direction.ordering(a.name_lower_force().cmp(b.name_lower_force()))
+                        direction.ordering(natord::compare(a.name_lower_force(), b.name_lower_force()))
                     });
                 }
                 RepoFilesSortField::Size => {
@@ -333,7 +333,7 @@ where
             match field {
                 RepoFilesSortField::Name => {
                     files.sort_by(|a, b| {
-                        direction.ordering(a.name_lower_force().cmp(b.name_lower_force()))
+                        direction.ordering(natord::compare(a.name_lower_force(), b.name_lower_force()))
                     });
                 }
                 RepoFilesSortField::Size => {
@@ -670,7 +670,7 @@ mod tests {
             },
         );
 
-        assert_eq!(asc, vec!["19foo.txt", "1foo.txt", "2foo.txt"]);
+        assert_eq!(asc, vec!["1foo.txt", "2foo.txt", "19foo.txt"]);
     }
 
     #[test]
@@ -690,7 +690,7 @@ mod tests {
             },
         );
 
-        assert_eq!(asc, vec!["1 foo.txt", "19 foo.txt", "2 foo.txt"]);
+        assert_eq!(asc, vec!["1 foo.txt", "2 foo.txt", "19 foo.txt"]);
     }
 
     #[test]
@@ -710,7 +710,7 @@ mod tests {
             },
         );
 
-        assert_eq!(asc, vec!["foo1.txt", "foo19.txt", "foo2.txt"]);
+        assert_eq!(asc, vec!["foo1.txt", "foo2.txt", "foo19.txt"]);
     }
 
     #[test]
@@ -730,6 +730,6 @@ mod tests {
             },
         );
 
-        assert_eq!(asc, vec!["foo 1.txt", "foo 19.txt", "foo 2.txt"]);
+        assert_eq!(asc, vec!["foo 1.txt", "foo 2.txt", "foo 19.txt"]);
     }
 }
