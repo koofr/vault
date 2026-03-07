@@ -17,6 +17,7 @@ http-body-util = "0.1.3"
 lazy_static = "1.5.0"
 log = "0.4.29"
 md5 = "0.7.0"
+natord = "1.0.9"
 phf = { version = "0.11.3", features = ["macros"] }
 pin-project-lite = "0.2.16"
 # rand_core cannot be upgraded to > 0.6 because vault-crypto depends on

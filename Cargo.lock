@@ -3182,6 +3182,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "natord"
+version = "1.0.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "308d96db8debc727c3fd9744aac51751243420e46edf401010908da7f8d5e57c"
+
+[[package]]
 name = "ndk"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6652,6 +6658,7 @@ dependencies = [
  "lazy_static",
  "log",
  "md5",
+ "natord",
  "phf 0.11.3",
  "pin-project-lite",
  "rand_core 0.6.4",
