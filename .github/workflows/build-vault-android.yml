@@ -17,12 +17,12 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
-          cmdline-tools-version: 10406996
+          cmdline-tools-version: 15859902
           accept-android-sdk-licenses: true
           log-accepted-android-sdk-licenses: false
       - name: Setup Android NDK
         run: |
-          sdkmanager "ndk;26.0.10792818"
+          sdkmanager "ndk;30.0.15729638"
       - uses: actions/cache@v3
         with:
           path: ~/.cargo/registry
@@ -44,7 +44,7 @@ jobs:
         run: |
           cd vault-android
           echo 'sdk.dir=/usr/local/lib/android/sdk' >> local.properties
-          echo 'android.ndkVersion=26.0.10792818' >> local.properties
+          echo 'android.ndkVersion=30.0.15729638' >> local.properties
 
           ./gradlew generateUniFFIBindings
 

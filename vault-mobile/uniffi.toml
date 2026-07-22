@@ -4,3 +4,4 @@ cdylib_name = "vault_mobile"
 [bindings.kotlin]
 package_name = "net.koofr.vault"
 cdylib_name = "vault_mobile"
+android_cleaner = true

@@ -8,20 +8,21 @@ plugins {
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.rust.android)
 }
 
 val localProperties = gradleLocalProperties(rootDir, providers)
 
 android {
     namespace = "net.koofr.vault"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "net.koofr.vault"
         minSdk = 24
-        targetSdk = 35
-        versionCode = 125001
-        versionName = "0.1.25"
+        targetSdk = 37
+        versionCode = 126001
+        versionName = "0.1.26"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -102,14 +103,14 @@ android {
         }
     }
     ndkVersion = localProperties.getProperty("android.ndkVersion")
-    sourceSets {
-        getByName("debug") {
-            jniLibs.srcDir(layout.buildDirectory.dir("rustJniLibs/android"))
-        }
-        getByName("release") {
-            jniLibs.srcDir(layout.buildDirectory.dir("rustJniLibs/android"))
-        }
-    }
+}
+
+val rustJniLibsDir = layout.buildDirectory.dir("rustJniLibs/android").get()
+tasks.matching { it.name.matches(Regex("merge.*JniLibFolders")) }.configureEach {
+    inputs.dir(rustJniLibsDir)
+    // NOTE dependency wastes precious time each build, you could omit this and run cargo build
+    // manually before android build
+    // dependsOn("cargoBuild")
 }
 
 dependencies {
@@ -163,6 +164,8 @@ dependencies {
 val uniFFIBindingsDir = layout.buildDirectory.dir("generated/source/uniffi/java")
 
 tasks.register<Exec>("generateUniFFIBindings") {
+    description = "generates UniFFI bindings for native rust libs"
+
     inputs.file("${project.projectDir}/../../vault-mobile/src/vault-mobile.udl")
     outputs.dir(uniFFIBindingsDir)
 
@@ -191,57 +194,44 @@ kotlin {
     }
 }
 
-apply(plugin = "org.mozilla.rust-android-gradle.rust-android")
+interface ExecuteOps {
+    @get:Inject val execOps: ExecOperations
+}
 
 fun getGitRevision(): String {
+    val x = project.objects.newInstance<ExecuteOps>()
     val stdout = ByteArrayOutputStream()
-    project.exec {
+    x.execOps.exec {
         commandLine("git", "rev-parse", "--short", "HEAD")
         standardOutput = stdout
     }
-    return String(stdout.toByteArray()).trim()
+    val rev = String(stdout.toByteArray()).trim()
+    return rev
 }
 
 fun getGitRelease(): String {
+    val x = project.objects.newInstance<ExecuteOps>()
     val stdout = ByteArrayOutputStream()
-    project.exec {
+    x.execOps.exec {
         commandLine("git", "describe", "--tags", "--exact-match")
         standardOutput = stdout
         isIgnoreExitValue = true
     }
-    return String(stdout.toByteArray()).trim()
+    val rel = String(stdout.toByteArray()).trim()
+    return rel
 }
 
-extensions.configure(com.nishtahir.CargoExtension::class) {
+cargo {
     module = "../../vault-mobile"
     libname = "vault_mobile"
     targets = listOf("arm", "arm64", "x86", "x86_64")
-//    targets = listOf("x86")
     targetDirectory = "../../target"
     pythonCommand = "python3"
     profile = System.getenv("GRADLE_CARGO_PROFILE") ?: "release"
-    exec = { spec, _ ->
-        spec.environment("GIT_REVISION", getGitRevision())
-        spec.environment("GIT_RELEASE", getGitRelease())
-
-        // Support 16 KB page sizes
-        // https://github.com/mozilla/rust-android-gradle/pull/151#issuecomment-2931056842
-        spec.environment(
-            "RUST_ANDROID_GRADLE_CC_LINK_ARG",
-            "-Wl,-z,max-page-size=16384,-soname,libvault_mobile.so",
-        )
-    }
+    environmentalOverrides["GIT_REVISION"] = getGitRevision()
+    environmentalOverrides["GIT_RELEASE"] = getGitRelease()
+    environmentalOverrides["RUST_ANDROID_GRADLE_CC_LINK_ARG"] = "-Wl,-z,max-page-size=16384,-soname,libvault_mobile.so"
 }
-
-//tasks.whenTaskAdded {
-//    if (name == "javaPreCompileDebug" || name == "javaPreCompileRelease") {
-//        dependsOn("cargoBuild")
-//        dependsOn("generateUniFFIBindings")
-//    }
-//    if (name == "kaptGenerateStubsDebugKotlin" || name == "kaptGenerateStubsReleaseKotlin") {
-//        dependsOn("generateUniFFIBindings")
-//    }
-//}
 
 val mergedJniLibsDir = layout.buildDirectory.dir("intermediates/merged_jni_libs")
 
@@ -250,6 +240,8 @@ val mergedJniLibsDir = layout.buildDirectory.dir("intermediates/merged_jni_libs"
 // cargoBuild the new libraries will be copied correctly without needing to run
 // clean task
 tasks.register<Delete>("cleanupMergedJniLibs") {
+    description = "cleans merged JNI libs so the shared object files get updated"
+
     delete(mergedJniLibsDir)
 
     doLast {
@@ -260,14 +252,5 @@ tasks.register<Delete>("cleanupMergedJniLibs") {
 tasks.whenTaskAdded {
     if (name == "cargoBuild") {
         dependsOn("cleanupMergedJniLibs")
-    }
-}
-
-task("printJniLibs") {
-    doLast {
-        println("debug")
-        println(android.sourceSets["debug"].jniLibs)
-        println("release")
-        println(android.sourceSets["release"].jniLibs)
     }
 }
