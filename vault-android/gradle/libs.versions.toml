@@ -2,8 +2,8 @@
 # Plugins
 agp = "9.3.0"
 kotlin = "2.2.10"
-ksp = "2.3.2"
-hilt = "2.57.1"
+ksp = "2.3.4"
+hilt = "2.60.1"
 rustAndroid = "0.10.1"
 
 # AndroidX + Google
@@ -94,7 +94,6 @@ androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomato
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

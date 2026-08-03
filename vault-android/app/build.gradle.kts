@@ -1,9 +1,12 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import com.android.build.api.dsl.ApplicationExtension
+import net.mullvad.androidrust.android
+import org.gradle.kotlin.dsl.android
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.ByteArrayOutputStream
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.compose.compiler)
@@ -13,9 +16,47 @@ plugins {
 
 val localProperties = gradleLocalProperties(rootDir, providers)
 
-android {
+val uniFFIBindingsPath = "generated/source/uniffi/java"
+val uniFFIBindingsDir = layout.buildDirectory.dir(uniFFIBindingsPath)
+
+tasks.register<Exec>("generateUniFFIBindings") {
+    description = "generates UniFFI bindings for native rust libs"
+
+    inputs.file("${project.projectDir}/../../vault-mobile/src/vault-mobile.udl")
+    outputs.dir(uniFFIBindingsDir)
+
+    workingDir = file("${project.projectDir}/../../vault-mobile/uniffi-bindgen")
+    commandLine(
+        "cargo",
+        "run",
+        "generate",
+        "../src/vault-mobile.udl",
+        "--language",
+        "kotlin",
+        "--out-dir",
+        uniFFIBindingsDir.get().asFile,
+    )
+
+    doLast {
+        println("UniFFI bindings generated successfully!")
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_17
+    }
+}
+
+extensions.configure<ApplicationExtension> {
     namespace = "net.koofr.vault"
     compileSdk = 37
+
+    sourceSets {
+        named("main").get().kotlin {
+            directories.add(uniFFIBindingsDir.get().asFile.absolutePath)
+        }
+    }
 
     defaultConfig {
         applicationId = "net.koofr.vault"
@@ -87,12 +128,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
     buildFeatures {
         compose = true
         buildConfig = true
+        resValues = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.3"
@@ -159,39 +198,6 @@ dependencies {
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-}
-
-val uniFFIBindingsDir = layout.buildDirectory.dir("generated/source/uniffi/java")
-
-tasks.register<Exec>("generateUniFFIBindings") {
-    description = "generates UniFFI bindings for native rust libs"
-
-    inputs.file("${project.projectDir}/../../vault-mobile/src/vault-mobile.udl")
-    outputs.dir(uniFFIBindingsDir)
-
-    workingDir = file("${project.projectDir}/../../vault-mobile/uniffi-bindgen")
-    commandLine(
-        "cargo",
-        "run",
-        "generate",
-        "../src/vault-mobile.udl",
-        "--language",
-        "kotlin",
-        "--out-dir",
-        uniFFIBindingsDir.get().asFile,
-    )
-
-    doLast {
-        println("UniFFI bindings generated successfully!")
-    }
-}
-
-kotlin {
-    sourceSets {
-        main {
-            kotlin.srcDir(uniFFIBindingsDir)
-        }
-    }
 }
 
 interface ExecuteOps {
