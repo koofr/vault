@@ -60,7 +60,7 @@ extensions.configure<ApplicationExtension> {
 
     defaultConfig {
         applicationId = "net.koofr.vault"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 37
         versionCode = 126001
         versionName = "0.1.26"

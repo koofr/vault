@@ -1,6 +1,7 @@
 package net.koofr.vault.features.intl
 
 import android.content.res.Configuration
+import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import dagger.Module
@@ -26,7 +27,9 @@ class IntlHelper constructor(private val mobileVaultProvider: MobileVaultProvide
 
         mobileVaultProvider.getMobileVault().intlChangeLocale(
             strategy = IntlChangeLocaleStrategy.Lookup(
-                locales = locales.map { it.toLanguageTag() },
+                locales = locales.map {
+                    it.stripExtensions().toLanguageTag()
+                },
             ),
         )
     }
