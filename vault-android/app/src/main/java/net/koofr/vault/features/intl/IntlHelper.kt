@@ -1,7 +1,6 @@
 package net.koofr.vault.features.intl
 
 import android.content.res.Configuration
-import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import dagger.Module

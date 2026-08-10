@@ -1,7 +1,5 @@
-import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import com.android.build.api.dsl.ApplicationExtension
-import net.mullvad.androidrust.android
-import org.gradle.kotlin.dsl.android
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.ByteArrayOutputStream
 
