@@ -33,6 +33,7 @@ tasks.register<Exec>("generateUniFFIBindings") {
         "../src/vault-mobile.udl",
         "--language",
         "kotlin",
+        "--no-format",
         "--out-dir",
         uniFFIBindingsDir.get().asFile,
     )

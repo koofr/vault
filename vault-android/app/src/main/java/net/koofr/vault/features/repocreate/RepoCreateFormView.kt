@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.HelpOutline
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -130,7 +130,7 @@ fun RepoCreateFormView(vm: RepoCreateViewModel, form: RepoCreateForm, modifier: 
                         locationInfoSheetVisible.value = true
                     }) {
                         Icon(
-                            Icons.Outlined.HelpOutline,
+                            Icons.AutoMirrored.Outlined.HelpOutline,
                             stringResource(R.string.repo_create_form_location_info_button_content_desc),
                             tint = Color.DarkGray,
                         )
@@ -160,7 +160,7 @@ fun RepoCreateFormView(vm: RepoCreateViewModel, form: RepoCreateForm, modifier: 
                         safeKeyInfoSheetVisible.value = true
                     }, modifier = Modifier.padding(top = 8.dp)) {
                         Icon(
-                            Icons.Outlined.HelpOutline,
+                            Icons.AutoMirrored.Outlined.HelpOutline,
                             stringResource(R.string.repo_create_form_password_info_button_content_desc),
                             tint = Color.DarkGray,
                         )
@@ -198,7 +198,7 @@ fun RepoCreateFormView(vm: RepoCreateViewModel, form: RepoCreateForm, modifier: 
                             saltInfoSheetVisible.value = true
                         }) {
                             Icon(
-                                Icons.Outlined.HelpOutline,
+                                Icons.AutoMirrored.Outlined.HelpOutline,
                                 stringResource(R.string.repo_create_form_salt_info_button_content_desc),
                                 tint = Color.DarkGray,
                             )

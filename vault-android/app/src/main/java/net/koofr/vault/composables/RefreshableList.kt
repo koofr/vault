@@ -1,20 +1,20 @@
 package net.koofr.vault.composables
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import net.koofr.vault.Status
-import net.koofr.vault.composables.pullrefresh.PullRefreshIndicator
-import net.koofr.vault.composables.pullrefresh.pullRefresh
-import net.koofr.vault.composables.pullrefresh.rememberPullRefreshState
 
 @Composable
 fun RefreshableList(
@@ -29,19 +29,26 @@ fun RefreshableList(
 
     val refreshing = pullRefreshing.value && status is Status.Loading && status.loaded
 
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = refreshing,
+    val state = rememberPullToRefreshState()
+
+    PullToRefreshBox(
+        isRefreshing = refreshing,
         onRefresh = {
             pullRefreshing.value = true
 
             onRefresh()
         },
-    )
-
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .pullRefresh(pullRefreshState),
+        modifier = modifier.fillMaxSize(),
+        state = state,
+        indicator = {
+            Indicator(
+                state = state,
+                isRefreshing = refreshing,
+                modifier = Modifier.align(Alignment.TopCenter),
+                containerColor = MaterialTheme.colorScheme.background,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
     ) {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             when {
@@ -76,12 +83,6 @@ fun RefreshableList(
                 }
             }
         }
-
-        PullRefreshIndicator(
-            refreshing = refreshing,
-            state = pullRefreshState,
-            modifier = Modifier.align(Alignment.TopCenter),
-        )
 
         if (status is Status.Loading && !status.loaded) {
             LoadingView()

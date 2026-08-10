@@ -1,24 +1,24 @@
 [versions]
 # Plugins
 agp = "9.3.1"
-kotlin = "2.2.10"
+kotlin = "2.4.10"
 ksp = "2.3.4"
 hilt = "2.60.1"
 rustAndroid = "0.10.1"
 
 # AndroidX + Google
-coreKtx = "1.12.0"
-lifecycleRuntimeKtx = "2.6.2"
-activityCompose = "1.7.2"
-composeBom = "2023.10.00"
-appcompat = "1.6.1"
+coreKtx = "1.19.0"
+lifecycleRuntimeKtx = "2.11.0"
+activityCompose = "1.13.0"
+composeBom = "2026.06.01"
+appcompat = "1.7.1"
 biometric = "1.1.0"
-browser = "1.6.0"
-securityCrypto = "1.1.0-alpha06"
-navigationCompose = "2.9.3"
-hiltNavigationCompose = "1.2.0"
+browser = "1.10.0"
+securityCrypto = "1.1.0"
+navigationCompose = "2.9.8"
+hiltNavigationCompose = "1.4.0"
 accompanistPermissions = "0.37.3"
-media3 = "1.8.0"
+media3 = "1.11.0"
 
 # Coil
 coil = "2.7.0"
@@ -27,16 +27,16 @@ coil = "2.7.0"
 photoView = "565505d5cb"
 
 # JNA
-jna = "5.17.0"
+jna = "5.19.1"
 
 # KotlinX
-kotlinxSerializationJson = "1.7.3"
+kotlinxSerializationJson = "1.11.0"
 
 # Testing
 junit = "4.13.2"
-androidxJunit = "1.1.5"
-espresso = "3.5.1"
-uiautomator = "2.3.0-alpha04"
+androidxJunit = "1.3.0"
+espresso = "3.7.0"
+uiautomator = "2.4.0"
 
 [libraries]
 # AndroidX

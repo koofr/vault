@@ -2,7 +2,9 @@ package net.koofr.vault.features.repofiles
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheetDefaults
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,11 +41,29 @@ open class RepoFilesScreenViewModel constructor(
 
     val menuExpanded = mutableStateOf(false)
 
-    val fileInfoSheetState = mutableStateOf(SheetState(true, SheetValue.Hidden, { true }, false))
+    val fileInfoSheetState = mutableStateOf(
+        SheetState(
+            skipPartiallyExpanded = true,
+            velocityThreshold = { 0f },
+            positionalThreshold = { 0f },
+            initialValue = SheetValue.Hidden,
+            confirmValueChange = { true },
+            skipHiddenState = false
+        )
+    )
     val fileInfoSheetFile = mutableStateOf<RepoFile?>(null)
 
     val sortSheetVisible = mutableStateOf(false)
-    val sortSheetState = mutableStateOf(SheetState(false, SheetValue.Hidden, { true }, false))
+    val sortSheetState = mutableStateOf(
+        SheetState(
+            skipPartiallyExpanded = false,
+            velocityThreshold = { 0f },
+            positionalThreshold = { 0f },
+            initialValue = SheetValue.Hidden,
+            confirmValueChange = { true },
+            skipHiddenState = false
+        )
+    )
 
     val browserId = mobileVault.repoFilesBrowsersCreate(
         source = source,

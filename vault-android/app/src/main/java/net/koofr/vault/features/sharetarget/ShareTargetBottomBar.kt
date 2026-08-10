@@ -17,7 +17,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withAnnotation
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.koofr.vault.R
@@ -40,19 +44,22 @@ fun ShareTargetBottomBar(
                 .windowInsetsPadding(NavigationBarDefaults.windowInsets),
         ) {
             Box(modifier = Modifier.weight(1.0f)) {
-                ClickableText(
-                    AnnotatedString(
-                        pluralStringResource(
-                            R.plurals.share_target_items_count_label,
-                            vm.files.size,
-                            vm.files.size,
-                        ),
-                        spanStyle = SpanStyle(MaterialTheme.colorScheme.onSurface),
-                    ),
+                Text(
+                    buildAnnotatedString {
+                        withLink(
+                            LinkAnnotation.Clickable("show-files-dialog") {
+                                vm.showFilesDialog()
+                            }
+                        ) {
+                            append(pluralStringResource(
+                                R.plurals.share_target_items_count_label,
+                                vm.files.size,
+                                vm.files.size,
+                            ))
+                        }
+                    },
                     modifier = Modifier.padding(15.dp, 5.dp),
-                ) {
-                    vm.showFilesDialog()
-                }
+                )
             }
 
             TextButton(onClick = {
