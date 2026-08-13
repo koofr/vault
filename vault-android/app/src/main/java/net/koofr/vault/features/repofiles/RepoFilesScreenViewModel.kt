@@ -39,11 +39,29 @@ open class RepoFilesScreenViewModel constructor(
 
     val menuExpanded = mutableStateOf(false)
 
-    val fileInfoSheetState = mutableStateOf(SheetState(true, SheetValue.Hidden, { true }, false))
+    val fileInfoSheetState = mutableStateOf(
+        SheetState(
+            skipPartiallyExpanded = true,
+            velocityThreshold = { 0f },
+            positionalThreshold = { 0f },
+            initialValue = SheetValue.Hidden,
+            confirmValueChange = { true },
+            skipHiddenState = false
+        )
+    )
     val fileInfoSheetFile = mutableStateOf<RepoFile?>(null)
 
     val sortSheetVisible = mutableStateOf(false)
-    val sortSheetState = mutableStateOf(SheetState(false, SheetValue.Hidden, { true }, false))
+    val sortSheetState = mutableStateOf(
+        SheetState(
+            skipPartiallyExpanded = false,
+            velocityThreshold = { 0f },
+            positionalThreshold = { 0f },
+            initialValue = SheetValue.Hidden,
+            confirmValueChange = { true },
+            skipHiddenState = false
+        )
+    )
 
     val browserId = mobileVault.repoFilesBrowsersCreate(
         source = source,

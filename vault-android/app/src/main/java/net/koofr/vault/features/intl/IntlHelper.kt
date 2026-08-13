@@ -26,7 +26,9 @@ class IntlHelper constructor(private val mobileVaultProvider: MobileVaultProvide
 
         mobileVaultProvider.getMobileVault().intlChangeLocale(
             strategy = IntlChangeLocaleStrategy.Lookup(
-                locales = locales.map { it.toLanguageTag() },
+                locales = locales.map {
+                    it.stripExtensions().toLanguageTag()
+                },
             ),
         )
     }

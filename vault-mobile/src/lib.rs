@@ -3434,19 +3434,18 @@ impl MobileVault {
         on_open: Option<Box<dyn TransfersDownloadOpen>>,
         on_done: Box<dyn TransfersDownloadDone>,
     ) {
+        let reader_provider = match self
+            .vault
+            .clone()
+            .repo_files_browsers_get_selected_reader(browser_id)
+        {
+            Ok(reader_provider) => reader_provider,
+            Err(err) => {
+                self.errors.handle_error(err);
+                return;
+            }
+        };
         self.clone().spawn(async move {
-            let reader_provider = match self
-                .vault
-                .clone()
-                .repo_files_browsers_get_selected_reader(browser_id)
-            {
-                Ok(reader_provider) => reader_provider,
-                Err(err) => {
-                    self.errors.handle_error(err);
-                    return;
-                }
-            };
-
             let downloadable = Box::new(FileDownloadable {
                 original_path: local_file_path.into(),
                 append_name,
@@ -3467,19 +3466,18 @@ impl MobileVault {
         browser_id: u32,
         stream_provider: Box<dyn DownloadStreamProvider>,
     ) {
+        let reader_provider = match self
+            .vault
+            .clone()
+            .repo_files_browsers_get_selected_reader(browser_id)
+        {
+            Ok(reader_provider) => reader_provider,
+            Err(err) => {
+                self.errors.handle_error(err);
+                return;
+            }
+        };
         self.clone().spawn(async move {
-            let reader_provider = match self
-                .vault
-                .clone()
-                .repo_files_browsers_get_selected_reader(browser_id)
-            {
-                Ok(reader_provider) => reader_provider,
-                Err(err) => {
-                    self.errors.handle_error(err);
-                    return;
-                }
-            };
-
             let downloadable = Box::new(StreamDownloadable {
                 stream_provider: Arc::new(stream_provider),
                 tokio_runtime: self.tokio_runtime.clone(),

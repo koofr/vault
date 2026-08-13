@@ -177,7 +177,7 @@ fun ShareActivityScreenDone(vm: ShareActivityViewModel) {
         )
 
         LinearProgressIndicator(
-            progress.value / 100f,
+            { progress.intValue / 100f },
         )
     }
 }

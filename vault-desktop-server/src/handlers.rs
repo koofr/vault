@@ -1745,17 +1745,18 @@ pub async fn repo_files_browsers_download_selected(
 ) {
     match state.file_handlers.save_file.clone() {
         Some(save_file) => {
-            base.clone().spawn(move |vault| {
+            let reader_provider = match base
+                .vault
+                .repo_files_browsers_get_selected_reader(browser_id)
+            {
+                Ok(reader_provider) => reader_provider,
+                Err(err) => {
+                    base.errors.handle_error(err);
+                    return;
+                }
+            };
+            base.clone().spawn(move |_| {
                 async move {
-                    let reader_provider =
-                        match vault.repo_files_browsers_get_selected_reader(browser_id) {
-                            Ok(reader_provider) => reader_provider,
-                            Err(err) => {
-                                base.errors.handle_error(err);
-                                return;
-                            }
-                        };
-
                     transfers_download_reader_provider_pick_file(base, reader_provider, save_file)
                         .await;
                 }

@@ -12,7 +12,6 @@ import net.koofr.vault.IntlOwnership
 import net.koofr.vault.MobileVault
 import org.json.JSONObject
 import java.io.Closeable
-import kotlin.collections.iterator
 
 class Fixture constructor(
     val fakeRemote: FakeRemote,

@@ -74,7 +74,7 @@ fun TransfersSummaryBottomBar(
             }
 
             LinearProgressIndicator(
-                summary.percentage.toFloat() / 100,
+                { summary.percentage.toFloat() / 100 },
                 modifier = Modifier
                     .padding(top = 15.dp)
                     .fillMaxWidth(),

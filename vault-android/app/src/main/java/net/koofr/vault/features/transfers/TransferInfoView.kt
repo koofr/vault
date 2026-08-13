@@ -38,7 +38,7 @@ fun TransferInfoView(transfer: Transfer, onRetry: () -> Unit) {
             else -> transfer.percentage.let {
                 if (it != null) {
                     LinearProgressIndicator(
-                        it.toFloat() / 100,
+                        { it.toFloat() / 100 },
                         modifier = Modifier
                             .padding(bottom = 20.dp)
                             .fillMaxWidth(),
